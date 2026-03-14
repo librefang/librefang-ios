@@ -140,7 +140,7 @@ struct AgentDetailView: View {
 
 private struct DetailRow: View {
     let icon: String
-    let label: String
+    let label: LocalizedStringKey
     let value: String
     var valueColor: Color = .primary
 
@@ -149,7 +149,11 @@ private struct DetailRow: View {
             Text(value)
                 .foregroundStyle(valueColor)
         } label: {
-            Label(label, systemImage: icon)
+            Label {
+                Text(label)
+            } icon: {
+                Image(systemName: icon)
+            }
         }
     }
 }
@@ -157,7 +161,7 @@ private struct DetailRow: View {
 // MARK: - Budget Period Row
 
 private struct BudgetPeriodRow: View {
-    let label: String
+    let label: LocalizedStringKey
     let period: BudgetPeriod
 
     var body: some View {

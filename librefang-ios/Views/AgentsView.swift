@@ -114,9 +114,9 @@ private enum AgentFilter: CaseIterable {
 
     var label: String {
         switch self {
-        case .all: "All"
-        case .running: "Running"
-        case .stopped: "Stopped"
+        case .all: String(localized: "All")
+        case .running: String(localized: "Running")
+        case .stopped: String(localized: "Stopped")
         }
     }
 

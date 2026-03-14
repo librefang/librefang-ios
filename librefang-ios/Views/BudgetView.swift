@@ -107,9 +107,9 @@ private enum BudgetSort: CaseIterable {
 
     var label: String {
         switch self {
-        case .costDesc: "Cost (High to Low)"
-        case .costAsc: "Cost (Low to High)"
-        case .name: "Name"
+        case .costDesc: String(localized: "Cost (High to Low)")
+        case .costAsc: String(localized: "Cost (Low to High)")
+        case .name: String(localized: "Name")
         }
     }
 
@@ -129,9 +129,9 @@ private struct BudgetBarChart: View {
 
     private var data: [ChartEntry] {
         [
-            ChartEntry(period: "Hourly", spend: budget.hourlySpend, limit: budget.hourlyLimit),
-            ChartEntry(period: "Daily", spend: budget.dailySpend, limit: budget.dailyLimit),
-            ChartEntry(period: "Monthly", spend: budget.monthlySpend, limit: budget.monthlyLimit),
+            ChartEntry(period: String(localized: "Hourly"), spend: budget.hourlySpend, limit: budget.hourlyLimit),
+            ChartEntry(period: String(localized: "Daily"), spend: budget.dailySpend, limit: budget.dailyLimit),
+            ChartEntry(period: String(localized: "Monthly"), spend: budget.monthlySpend, limit: budget.monthlyLimit),
         ]
     }
 
@@ -188,7 +188,7 @@ private struct ChartEntry: Identifiable {
 // MARK: - Budget Limit Row
 
 private struct BudgetLimitRow: View {
-    let label: String
+    let label: LocalizedStringKey
     let spend: Double
     let limit: Double
     let pct: Double
@@ -236,7 +236,7 @@ private struct AgentCostRow: View {
                     .font(.subheadline.monospacedDigit().weight(.medium))
                     .foregroundStyle(item.dailyCostUsd > 1.0 ? .red : .primary)
                 if let limit = item.dailyLimit, limit > 0 {
-                    Text("limit $\(limit, specifier: "%.2f")")
+                    Text("limit ") + Text("$\(limit, specifier: "%.2f")")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }

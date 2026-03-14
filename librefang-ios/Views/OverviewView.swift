@@ -123,7 +123,7 @@ private struct ConnectionCard: View {
                     }
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(health?.isHealthy == true ? "Connected" : "Disconnected")
+                    Text(health?.isHealthy == true ? String(localized: "Connected") : String(localized: "Disconnected"))
                         .font(.subheadline.weight(.medium))
                     if let version = health?.version {
                         Text("Server v\(version)")
@@ -187,7 +187,7 @@ private struct BudgetGaugesCard: View {
 }
 
 private struct GaugeItem: View {
-    let label: String
+    let label: LocalizedStringKey
     let spend: Double
     let limit: Double
     let pct: Double
@@ -277,7 +277,7 @@ private struct A2ASummaryCard: View {
                     Text("\(count)")
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundStyle(.blue)
-                    Text("external agent\(count == 1 ? "" : "s")")
+                    Text(count == 1 ? String(localized: "1 external agent") : String(localized: "\(count) external agents"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
