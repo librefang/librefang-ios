@@ -19,6 +19,24 @@ struct MainTabView: View {
     private var isCurrentSnapshotAcknowledged: Bool {
         deps.incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
     }
+    private var preferredOnCallSurface: OnCallSurfacePreference {
+        deps.onCallFocusStore.preferredSurface
+    }
+    private var watchedAttentionItems: [AgentAttentionItem] {
+        deps.agentWatchlistStore
+            .watchedAgents(from: vm.agents)
+            .map { vm.attentionItem(for: $0) }
+            .filter { $0.severity > 0 }
+            .sorted { lhs, rhs in
+                if lhs.severity != rhs.severity {
+                    return lhs.severity > rhs.severity
+                }
+                if lhs.agent.isRunning != rhs.agent.isRunning {
+                    return lhs.agent.isRunning && !rhs.agent.isRunning
+                }
+                return lhs.agent.name.localizedCompare(rhs.agent.name) == .orderedAscending
+            }
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -78,21 +96,33 @@ struct MainTabView: View {
         }
         .onAppear {
             deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
+            Task { await deps.onCallNotificationManager.refreshAuthorizationStatus() }
         }
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .active:
                 deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
-                Task { await deps.dashboardViewModel.refresh() }
+                Task {
+                    await deps.dashboardViewModel.refresh()
+                    await deps.onCallNotificationManager.refreshAuthorizationStatus()
+                    await deps.onCallNotificationManager.cancelPendingReminder()
+                }
             case .background:
                 deps.dashboardViewModel.stopAutoRefresh()
+                Task {
+                    await deps.onCallNotificationManager.armStandbyReminder(snapshot: reminderSnapshot)
+                }
             default:
                 break
             }
         }
         .sheet(isPresented: $showOnCall) {
             NavigationStack {
-                OnCallView()
+                if preferredOnCallSurface == .nightWatch {
+                    NightWatchView()
+                } else {
+                    OnCallView()
+                }
             }
         }
     }
@@ -108,6 +138,15 @@ struct MainTabView: View {
     private var storedRefreshInterval: TimeInterval {
         let value = UserDefaults.standard.double(forKey: "refreshInterval")
         return value == 0 ? 30 : min(max(value, 10), 120)
+    }
+
+    private var reminderSnapshot: OnCallReminderSnapshot? {
+        vm.onCallReminderSnapshot(
+            visibleAlerts: visibleMonitoringAlerts,
+            watchedAttentionItems: watchedAttentionItems,
+            scope: deps.onCallNotificationManager.scope,
+            isAcknowledged: isCurrentSnapshotAcknowledged
+        )
     }
 }
 

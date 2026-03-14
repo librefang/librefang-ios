@@ -40,6 +40,9 @@ struct OverviewView: View {
             isAcknowledged: isCurrentSnapshotAcknowledged
         )
     }
+    private var preferredOnCallSurface: OnCallSurfacePreference {
+        deps.onCallFocusStore.preferredSurface
+    }
     private let summaryColumns = [
         GridItem(.flexible(), spacing: 10),
         GridItem(.flexible(), spacing: 10),
@@ -74,7 +77,11 @@ struct OverviewView: View {
                     }
 
                     NavigationLink {
-                        OnCallView()
+                        if preferredOnCallSurface == .nightWatch {
+                            NightWatchView()
+                        } else {
+                            OnCallView()
+                        }
                     } label: {
                         OnCallDigestCard(
                             queueCount: onCallPriorityItems.count,
@@ -193,10 +200,18 @@ struct OverviewView: View {
             .navigationTitle("LibreFang")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        Image(systemName: "bell.badge")
+                    HStack(spacing: 14) {
+                        NavigationLink {
+                            NightWatchView()
+                        } label: {
+                            Image(systemName: "moon.stars")
+                        }
+
+                        NavigationLink {
+                            IncidentsView()
+                        } label: {
+                            Image(systemName: "bell.badge")
+                        }
                     }
                 }
             }

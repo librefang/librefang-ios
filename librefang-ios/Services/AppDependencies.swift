@@ -10,6 +10,8 @@ final class AppDependencies {
     let networkMonitor: NetworkMonitor
     let incidentStateStore: IncidentStateStore
     let agentWatchlistStore: AgentWatchlistStore
+    let onCallFocusStore: OnCallFocusStore
+    let onCallNotificationManager: OnCallNotificationManager
 
     init(apiClient: APIClientProtocol? = nil) {
         let client = apiClient ?? APIClient(config: .saved)
@@ -18,6 +20,8 @@ final class AppDependencies {
         self.networkMonitor = NetworkMonitor()
         self.incidentStateStore = IncidentStateStore()
         self.agentWatchlistStore = AgentWatchlistStore()
+        self.onCallFocusStore = OnCallFocusStore()
+        self.onCallNotificationManager = OnCallNotificationManager()
         self.networkMonitor.start()
     }
 

@@ -125,6 +125,12 @@ struct OnCallView: View {
                 NavigationLink(value: OnCallRoute.incidents) {
                     Label("Open Incidents Center", systemImage: "bell.badge")
                 }
+
+                NavigationLink {
+                    NightWatchView()
+                } label: {
+                    Label("Open Night Watch", systemImage: "moon.stars")
+                }
             }
 
             if !priorityItems.isEmpty {
@@ -183,6 +189,15 @@ struct OnCallView: View {
             }
         }
         .navigationTitle("On Call")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    NightWatchView()
+                } label: {
+                    Image(systemName: "moon.stars")
+                }
+            }
+        }
         .navigationDestination(for: OnCallRoute.self) { route in
             destination(for: route)
         }

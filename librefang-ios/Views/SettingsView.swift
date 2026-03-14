@@ -70,6 +70,98 @@ struct SettingsView: View {
                     }
                 }
 
+                Section("On Call Focus") {
+                    Picker("Queue Mode", selection: Binding(
+                        get: { deps.onCallFocusStore.mode },
+                        set: { deps.onCallFocusStore.mode = $0 }
+                    )) {
+                        ForEach(OnCallFocusMode.allCases) { mode in
+                            Text(mode.label).tag(mode)
+                        }
+                    }
+
+                    Text(deps.onCallFocusStore.mode.summary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Picker("Critical Banner", selection: Binding(
+                        get: { deps.onCallFocusStore.preferredSurface },
+                        set: { deps.onCallFocusStore.preferredSurface = $0 }
+                    )) {
+                        ForEach(OnCallSurfacePreference.allCases) { surface in
+                            Text(surface.label).tag(surface)
+                        }
+                    }
+
+                    Text(deps.onCallFocusStore.preferredSurface.summary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Toggle("Show Muted Summary", isOn: Binding(
+                        get: { deps.onCallFocusStore.showsMutedSummary },
+                        set: { deps.onCallFocusStore.showsMutedSummary = $0 }
+                    ))
+                }
+
+                Section("Standby Reminder") {
+                    Toggle("Enable Reminder", isOn: Binding(
+                        get: { deps.onCallNotificationManager.isEnabled },
+                        set: { deps.onCallNotificationManager.isEnabled = $0 }
+                    ))
+
+                    LabeledContent("Authorization") {
+                        Text(deps.onCallNotificationManager.authorizationLabel)
+                            .foregroundStyle(notificationAuthorizationColor)
+                    }
+
+                    Text(deps.onCallNotificationManager.authorizationSummary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    if deps.onCallNotificationManager.authorizationStatus != .authorized
+                        && deps.onCallNotificationManager.authorizationStatus != .provisional
+                        && deps.onCallNotificationManager.authorizationStatus != .ephemeral {
+                        Button("Enable iPhone Notifications") {
+                            Task { await deps.onCallNotificationManager.requestAuthorization() }
+                        }
+                    }
+
+                    if deps.onCallNotificationManager.isEnabled {
+                        Picker("Reminder Scope", selection: Binding(
+                            get: { deps.onCallNotificationManager.scope },
+                            set: { deps.onCallNotificationManager.scope = $0 }
+                        )) {
+                            ForEach(OnCallReminderScope.allCases) { scope in
+                                Text(scope.label).tag(scope)
+                            }
+                        }
+
+                        Text(deps.onCallNotificationManager.scope.summary)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        Picker("Remind After", selection: Binding(
+                            get: { deps.onCallNotificationManager.remindAfterMinutes },
+                            set: { deps.onCallNotificationManager.remindAfterMinutes = $0 }
+                        )) {
+                            ForEach(deps.onCallNotificationManager.delayOptions, id: \.self) { minutes in
+                                Text("\(minutes) min").tag(minutes)
+                            }
+                        }
+
+                        LabeledContent("Queued Reminder") {
+                            Text(deps.onCallNotificationManager.pendingReminderLabel)
+                                .foregroundStyle(deps.onCallNotificationManager.pendingReminderDate == nil ? .tertiary : .secondary)
+                        }
+
+                        if let pendingReminderSummary = deps.onCallNotificationManager.pendingReminderSummary {
+                            Text(pendingReminderSummary)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
                 Section("Monitoring") {
                     LabeledContent("Agents") {
                         Text("\(deps.dashboardViewModel.issueAgentCount) need attention")
@@ -201,6 +293,17 @@ struct SettingsView: View {
             .secondary
         default:
             .green
+        }
+    }
+
+    private var notificationAuthorizationColor: Color {
+        switch deps.onCallNotificationManager.authorizationStatus {
+        case .authorized, .provisional, .ephemeral:
+            .green
+        case .denied:
+            .red
+        default:
+            .secondary
         }
     }
 }
