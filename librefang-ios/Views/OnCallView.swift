@@ -96,6 +96,14 @@ struct OnCallView: View {
             isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
         )
     }
+    private var handoffText: String {
+        vm.onCallHandoffText(
+            visibleAlerts: visibleAlerts,
+            watchedAttentionItems: watchedAttentionItems,
+            mutedAlertCount: mutedAlertCount,
+            isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
+        )
+    }
 
     var body: some View {
         List {
@@ -136,6 +144,10 @@ struct OnCallView: View {
                     StandbyDigestView()
                 } label: {
                     Label("Open Standby Digest", systemImage: "rectangle.inset.filled")
+                }
+
+                ShareLink(item: handoffText) {
+                    Label("Share Handoff Summary", systemImage: "square.and.arrow.up")
                 }
             }
 
@@ -198,6 +210,10 @@ struct OnCallView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 14) {
+                    ShareLink(item: handoffText) {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+
                     NavigationLink {
                         StandbyDigestView()
                     } label: {

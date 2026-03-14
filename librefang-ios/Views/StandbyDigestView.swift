@@ -122,6 +122,14 @@ struct StandbyDigestView: View {
             isAcknowledged: isAcknowledged
         )
     }
+    private var handoffText: String {
+        vm.onCallHandoffText(
+            visibleAlerts: visibleAlerts,
+            watchedAttentionItems: watchedAttentionItems,
+            mutedAlertCount: mutedAlertCount,
+            isAcknowledged: isAcknowledged
+        )
+    }
 
     var body: some View {
         ZStack {
@@ -365,6 +373,15 @@ struct StandbyDigestView: View {
                     title: "Incidents Center",
                     detail: "Inspect all live alerts, muted alerts, and pending approvals.",
                     systemImage: "bell.badge"
+                )
+            }
+            .buttonStyle(.plain)
+
+            ShareLink(item: handoffText) {
+                StandbyActionRow(
+                    title: "Share Handoff Summary",
+                    detail: "Export the current standby snapshot as plain text.",
+                    systemImage: "square.and.arrow.up"
                 )
             }
             .buttonStyle(.plain)
