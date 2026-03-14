@@ -1,11 +1,11 @@
 import Foundation
 
-struct A2AAgentList: Codable, Sendable {
+nonisolated struct A2AAgentList: Codable, Sendable {
     let agents: [A2AAgent]
     let total: Int
 }
 
-struct A2AAgent: Codable, Identifiable, Sendable {
+nonisolated struct A2AAgent: Codable, Identifiable, Sendable {
     let name: String
     let description: String?
     let url: String
@@ -16,7 +16,7 @@ struct A2AAgent: Codable, Identifiable, Sendable {
     var id: String { url }
 }
 
-struct A2ACapabilities: Codable, Sendable {
+nonisolated struct A2ACapabilities: Codable, Sendable {
     let streaming: Bool?
     let pushNotifications: Bool?
     let stateTransitionHistory: Bool?
@@ -28,7 +28,7 @@ struct A2ACapabilities: Codable, Sendable {
     }
 }
 
-struct A2ASkill: Codable, Identifiable, Sendable {
+nonisolated struct A2ASkill: Codable, Identifiable, Sendable {
     let id: String
     let name: String
     let description: String?

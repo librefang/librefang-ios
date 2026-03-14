@@ -27,210 +27,36 @@ struct RuntimeView: View {
         }
     }
 
+    private var builtinToolCount: Int {
+        vm.tools.filter { ($0.source ?? "builtin") != "mcp" }.count
+    }
+
+    private var mcpBackedToolCount: Int {
+        vm.tools.filter { ($0.source ?? "") == "mcp" }.count
+    }
+
     var body: some View {
         NavigationStack {
             List {
-                if let error = vm.error, vm.status == nil {
-                    Section {
-                        ErrorBanner(message: error, onRetry: {
-                            await vm.refresh()
-                        }, onDismiss: {
-                            vm.error = nil
-                        })
-                        .listRowInsets(.init())
-                        .listRowBackground(Color.clear)
-                    }
-                }
-
-                Section {
-                    RuntimeScoreboard(vm: vm)
-                        .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-                }
-
-                if let status = vm.status {
-                    Section("System") {
-                        LabeledContent("Kernel") {
-                            StatusPill(text: status.status.capitalized, color: status.status == "running" ? .green : .red)
-                        }
-                        LabeledContent("Version", value: status.version)
-                        LabeledContent("Uptime") {
-                            Text(formatDuration(status.uptimeSeconds))
-                                .monospacedDigit()
-                        }
-                        LabeledContent("Agents") {
-                            Text("\(status.agentCount)")
-                                .monospacedDigit()
-                        }
-                        LabeledContent("Default Model") {
-                            VStack(alignment: .trailing, spacing: 2) {
-                                Text(status.defaultModel)
-                                    .lineLimit(1)
-                                Text(status.defaultProvider)
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                        LabeledContent("Network") {
-                            StatusPill(text: status.networkEnabled ? "Enabled" : "Disabled", color: status.networkEnabled ? .green : .orange)
-                        }
-                    }
-                }
-
-                if let usage = vm.usageSummary {
-                    Section("Usage") {
-                        RuntimeMetricRow(
-                            label: "Tokens",
-                            value: "\(usage.totalInputTokens.formatted()) in / \(usage.totalOutputTokens.formatted()) out",
-                            detail: "\(vm.totalTokenCount.formatted()) total"
-                        )
-                        RuntimeMetricRow(
-                            label: "Tool Calls",
-                            value: usage.totalToolCalls.formatted(),
-                            detail: "\(usage.callCount.formatted()) LLM calls"
-                        )
-                        RuntimeMetricRow(
-                            label: "Accumulated Cost",
-                            value: currency(usage.totalCostUsd),
-                            detail: usage.totalCostUsd > 0 ? "All recorded sessions" : "No spend recorded"
-                        )
-                    }
-                }
-
-                if !sortedProviders.isEmpty {
-                    Section("Providers") {
-                        ForEach(sortedProviders) { provider in
-                            ProviderStatusRow(provider: provider)
-                        }
-                    } footer: {
-                        Text("\(vm.configuredProviderCount)/\(sortedProviders.count) configured")
-                    }
-                }
-
-                if !configuredChannels.isEmpty || !vm.channels.isEmpty {
-                    Section("Channels") {
-                        if configuredChannels.isEmpty {
-                            RuntimeEmptyRow(
-                                title: "No channels configured",
-                                subtitle: "Desktop or web can finish setup. Mobile focuses on status tracking."
-                            )
-                        } else {
-                            ForEach(configuredChannels.prefix(8)) { channel in
-                                ChannelStatusRow(channel: channel)
-                            }
-                        }
-                    } footer: {
-                        if configuredChannels.count > 8 {
-                            Text("Showing 8 of \(configuredChannels.count) configured channels")
-                        } else {
-                            Text("\(vm.readyChannelCount) ready, \(vm.configuredChannelCount) configured")
-                        }
-                    }
-                }
-
-                if let a2a = vm.a2aAgents, a2a.total > 0 {
-                    Section("A2A Network") {
-                        RuntimeMetricRow(
-                            label: "Connected Agents",
-                            value: "\(a2a.total)",
-                            detail: "External agents discovered through A2A"
-                        )
-
-                        ForEach(a2a.agents.prefix(5)) { agent in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(agent.name)
-                                    .font(.subheadline.weight(.medium))
-                                if let description = agent.description, !description.isEmpty {
-                                    Text(description)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(2)
-                                }
-                            }
-                            .padding(.vertical, 2)
-                        }
-                    }
-                }
-
-                if let network = vm.networkStatus {
-                    Section("OFP Network") {
-                        RuntimeMetricRow(
-                            label: "Status",
-                            value: network.enabled ? "Enabled" : "Disabled",
-                            detail: network.enabled ? network.listenAddress : "Shared secret or network mode not configured"
-                        )
-                        RuntimeMetricRow(
-                            label: "Peers",
-                            value: "\(network.connectedPeers)/\(max(network.totalPeers, vm.peers.count)) connected",
-                            detail: network.nodeId.isEmpty ? "Local node inactive" : "Node \(shortNodeId(network.nodeId))"
-                        )
-
-                        if vm.peers.isEmpty {
-                            RuntimeEmptyRow(
-                                title: "No peers discovered",
-                                subtitle: network.enabled ? "The wire network is enabled but no peers are currently visible." : "Enable peer networking on the server to surface node status."
-                            )
-                        } else {
-                            ForEach(vm.peers.prefix(5)) { peer in
-                                PeerRow(peer: peer)
-                            }
-                        }
-                    }
-                }
-
-                if !vm.activeHands.isEmpty || !degradedHands.isEmpty || !vm.hands.isEmpty {
-                    Section("Hands") {
-                        if vm.activeHands.isEmpty {
-                            RuntimeEmptyRow(
-                                title: "No active hands",
-                                subtitle: "When autonomous hands are activated, their runtime status appears here."
-                            )
-                        } else {
-                            ForEach(vm.activeHands) { instance in
-                                HandInstanceRow(instance: instance)
-                            }
-                        }
-
-                        if !degradedHands.isEmpty {
-                            ForEach(degradedHands.prefix(4)) { hand in
-                                HandDefinitionRow(hand: hand)
-                            }
-                        }
-                    } footer: {
-                        Text("\(vm.activeHandCount) active, \(vm.degradedHandCount) degraded")
-                    }
-                }
-
-                if !vm.approvals.isEmpty {
-                    Section("Pending Approvals") {
-                        ForEach(vm.approvals) { approval in
-                            ApprovalRow(approval: approval)
-                        }
-                    } footer: {
-                        Text("Approvals require attention in the primary dashboard or desktop UI.")
-                    }
-                }
-
-                if let security = vm.security {
-                    Section("Security") {
-                        RuntimeMetricRow(
-                            label: "Protections",
-                            value: "\(security.totalFeatures)",
-                            detail: "Active defense layers"
-                        )
-                        RuntimeMetricRow(
-                            label: "Auth",
-                            value: security.configurable.auth.mode.replacingOccurrences(of: "_", with: " ").capitalized,
-                            detail: security.configurable.auth.apiKeySet ? "API key configured" : "No API key configured"
-                        )
-                        RuntimeMetricRow(
-                            label: "Audit Trail",
-                            value: security.monitoring.auditTrail.algorithm,
-                            detail: "\(security.monitoring.auditTrail.entryCount.formatted()) entries"
-                        )
-                    }
-                }
+                errorSection
+                scoreboardSection
+                systemSection
+                usageSection
+                sessionsSection
+                providersSection
+                toolingSection
+                channelsSection
+                a2aSection
+                ofpNetworkSection
+                handsSection
+                approvalsSection
+                auditSection
+                securitySection
             }
             .navigationTitle("Runtime")
+            .toolbar {
+                runtimeToolbar
+            }
             .refreshable {
                 await vm.refresh()
             }
@@ -242,6 +68,360 @@ struct RuntimeView: View {
             .task {
                 if vm.status == nil && vm.providers.isEmpty {
                     await vm.refresh()
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var errorSection: some View {
+        if let error = vm.error, vm.status == nil {
+            Section {
+                ErrorBanner(message: error, onRetry: {
+                    await vm.refresh()
+                }, onDismiss: {
+                    vm.error = nil
+                })
+                .listRowInsets(.init())
+                .listRowBackground(Color.clear)
+            }
+        }
+    }
+
+    private var scoreboardSection: some View {
+        Section {
+            RuntimeScoreboard(vm: vm)
+                .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+        }
+    }
+
+    @ViewBuilder
+    private var systemSection: some View {
+        if let status = vm.status {
+            Section("System") {
+                LabeledContent("Kernel") {
+                    StatusPill(text: status.status.capitalized, color: status.status == "running" ? .green : .red)
+                }
+                LabeledContent("Version", value: status.version)
+                LabeledContent("Uptime") {
+                    Text(formatDuration(status.uptimeSeconds))
+                        .monospacedDigit()
+                }
+                LabeledContent("Agents") {
+                    Text("\(status.agentCount)")
+                        .monospacedDigit()
+                }
+                LabeledContent("Default Model") {
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text(status.defaultModel)
+                            .lineLimit(1)
+                        Text(status.defaultProvider)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                LabeledContent("Network") {
+                    StatusPill(text: status.networkEnabled ? "Enabled" : "Disabled", color: status.networkEnabled ? .green : .orange)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var usageSection: some View {
+        if let usage = vm.usageSummary {
+            Section("Usage") {
+                RuntimeMetricRow(
+                    label: "Tokens",
+                    value: "\(usage.totalInputTokens.formatted()) in / \(usage.totalOutputTokens.formatted()) out",
+                    detail: "\(vm.totalTokenCount.formatted()) total"
+                )
+                RuntimeMetricRow(
+                    label: "Tool Calls",
+                    value: usage.totalToolCalls.formatted(),
+                    detail: "\(usage.callCount.formatted()) LLM calls"
+                )
+                RuntimeMetricRow(
+                    label: "Accumulated Cost",
+                    value: currency(usage.totalCostUsd),
+                    detail: usage.totalCostUsd > 0 ? "All recorded sessions" : "No spend recorded"
+                )
+                RuntimeMetricRow(
+                    label: "Sessions",
+                    value: "\(vm.totalSessionCount)",
+                    detail: "\(vm.totalSessionMessages.formatted()) messages retained"
+                )
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var sessionsSection: some View {
+        if !vm.sessions.isEmpty {
+            Section {
+                ForEach(vm.sessions.prefix(5)) { session in
+                    SessionRow(
+                        session: session,
+                        agentName: vm.agents.first(where: { $0.id == session.agentId })?.name
+                    )
+                }
+
+                NavigationLink {
+                    SessionsView()
+                } label: {
+                    Label("Open Session Monitor", systemImage: "rectangle.stack")
+                }
+            } header: {
+                Text("Recent Sessions")
+            } footer: {
+                Text("\(vm.totalSessionCount) sessions across the workspace, \(vm.sessionAttentionCount) need attention")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var providersSection: some View {
+        if !sortedProviders.isEmpty {
+            Section {
+                ForEach(sortedProviders) { provider in
+                    ProviderStatusRow(provider: provider)
+                }
+            } header: {
+                Text("Providers")
+            } footer: {
+                Text("\(vm.configuredProviderCount)/\(sortedProviders.count) configured")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var toolingSection: some View {
+        if !vm.mcpConfiguredServers.isEmpty || !vm.mcpConnectedServers.isEmpty || !vm.tools.isEmpty {
+            Section("Tooling") {
+                RuntimeMetricRow(
+                    label: "MCP Servers",
+                    value: "\(vm.connectedMCPServerCount)/\(max(vm.configuredMCPServerCount, vm.mcpConnectedServers.count)) connected",
+                    detail: "\(vm.mcpToolCount) MCP tools available"
+                )
+                RuntimeMetricRow(
+                    label: "Tool Inventory",
+                    value: "\(vm.totalToolCount)",
+                    detail: "\(builtinToolCount) built-in + \(mcpBackedToolCount) MCP-backed"
+                )
+
+                if !vm.mcpConnectedServers.isEmpty {
+                    ForEach(vm.mcpConnectedServers.prefix(4)) { server in
+                        MCPServerRow(server: server)
+                    }
+                } else if !vm.mcpConfiguredServers.isEmpty {
+                    RuntimeEmptyRow(
+                        title: "Configured but not connected",
+                        subtitle: "MCP servers are configured on disk but none are currently attached."
+                    )
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var channelsSection: some View {
+        if !configuredChannels.isEmpty || !vm.channels.isEmpty {
+            Section {
+                if configuredChannels.isEmpty {
+                    RuntimeEmptyRow(
+                        title: "No channels configured",
+                        subtitle: "Desktop or web can finish setup. Mobile focuses on status tracking."
+                    )
+                } else {
+                    ForEach(configuredChannels.prefix(8)) { channel in
+                        ChannelStatusRow(channel: channel)
+                    }
+                }
+            } header: {
+                Text("Channels")
+            } footer: {
+                if configuredChannels.count > 8 {
+                    Text("Showing 8 of \(configuredChannels.count) configured channels")
+                } else {
+                    Text("\(vm.readyChannelCount) ready, \(vm.configuredChannelCount) configured")
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var a2aSection: some View {
+        if let a2a = vm.a2aAgents, a2a.total > 0 {
+            Section("A2A Network") {
+                RuntimeMetricRow(
+                    label: "Connected Agents",
+                    value: "\(a2a.total)",
+                    detail: "External agents discovered through A2A"
+                )
+
+                ForEach(a2a.agents.prefix(5)) { agent in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(agent.name)
+                            .font(.subheadline.weight(.medium))
+                        if let description = agent.description, !description.isEmpty {
+                            Text(description)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var ofpNetworkSection: some View {
+        if let network = vm.networkStatus {
+            Section("OFP Network") {
+                RuntimeMetricRow(
+                    label: "Status",
+                    value: network.enabled ? "Enabled" : "Disabled",
+                    detail: network.enabled ? network.listenAddress : "Shared secret or network mode not configured"
+                )
+                RuntimeMetricRow(
+                    label: "Peers",
+                    value: "\(network.connectedPeers)/\(max(network.totalPeers, vm.peers.count)) connected",
+                    detail: network.nodeId.isEmpty ? "Local node inactive" : "Node \(shortNodeId(network.nodeId))"
+                )
+
+                if vm.peers.isEmpty {
+                    RuntimeEmptyRow(
+                        title: "No peers discovered",
+                        subtitle: network.enabled ? "The wire network is enabled but no peers are currently visible." : "Enable peer networking on the server to surface node status."
+                    )
+                } else {
+                    ForEach(vm.peers.prefix(5)) { peer in
+                        PeerRow(peer: peer)
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var handsSection: some View {
+        if !vm.activeHands.isEmpty || !degradedHands.isEmpty || !vm.hands.isEmpty {
+            Section {
+                if vm.activeHands.isEmpty {
+                    RuntimeEmptyRow(
+                        title: "No active hands",
+                        subtitle: "When autonomous hands are activated, their runtime status appears here."
+                    )
+                } else {
+                    ForEach(vm.activeHands) { instance in
+                        HandInstanceRow(instance: instance)
+                    }
+                }
+
+                if !degradedHands.isEmpty {
+                    ForEach(degradedHands.prefix(4)) { hand in
+                        HandDefinitionRow(hand: hand)
+                    }
+                }
+            } header: {
+                Text("Hands")
+            } footer: {
+                Text("\(vm.activeHandCount) active, \(vm.degradedHandCount) degraded")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var approvalsSection: some View {
+        if !vm.approvals.isEmpty {
+            Section {
+                ForEach(vm.approvals) { approval in
+                    ApprovalRow(approval: approval)
+                }
+            } header: {
+                Text("Pending Approvals")
+            } footer: {
+                Text("Approvals require attention in the primary dashboard or desktop UI.")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var auditSection: some View {
+        if !vm.recentAudit.isEmpty || vm.auditVerify != nil {
+            Section("Recent Audit") {
+                if vm.recentAudit.isEmpty {
+                    RuntimeEmptyRow(
+                        title: "No recent audit events",
+                        subtitle: "Open the full event feed to refresh or inspect a larger time window."
+                    )
+                } else {
+                    ForEach(vm.recentAudit.prefix(6)) { entry in
+                        AuditEventRow(entry: entry)
+                    }
+                }
+
+                NavigationLink {
+                    EventsView(api: deps.apiClient)
+                } label: {
+                    Label("Open Full Event Feed", systemImage: "list.bullet.rectangle.portrait")
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var securitySection: some View {
+        if let security = vm.security {
+            Section("Security") {
+                RuntimeMetricRow(
+                    label: "Protections",
+                    value: "\(security.totalFeatures)",
+                    detail: "Active defense layers"
+                )
+                RuntimeMetricRow(
+                    label: "Auth",
+                    value: security.configurable.auth.mode.replacingOccurrences(of: "_", with: " ").capitalized,
+                    detail: security.configurable.auth.apiKeySet ? "API key configured" : "No API key configured"
+                )
+                RuntimeMetricRow(
+                    label: "Audit Trail",
+                    value: security.monitoring.auditTrail.algorithm,
+                    detail: "\(security.monitoring.auditTrail.entryCount.formatted()) entries"
+                )
+                if let auditVerify = vm.auditVerify {
+                    RuntimeMetricRow(
+                        label: "Audit Integrity",
+                        value: auditVerify.valid ? "Valid" : "Broken",
+                        detail: auditVerify.warning ?? auditVerify.error ?? "\(auditVerify.entries) entries verified"
+                    )
+                }
+            }
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var runtimeToolbar: some ToolbarContent {
+        ToolbarItem(placement: .topBarTrailing) {
+            HStack(spacing: 14) {
+                NavigationLink {
+                    IncidentsView()
+                } label: {
+                    Image(systemName: "bell.badge")
+                }
+
+                NavigationLink {
+                    SessionsView()
+                } label: {
+                    Image(systemName: "rectangle.stack")
+                }
+
+                NavigationLink {
+                    EventsView(api: deps.apiClient)
+                } label: {
+                    Image(systemName: "list.bullet.rectangle.portrait")
                 }
             }
         }
@@ -393,6 +573,66 @@ private struct ProviderStatusRow: View {
             return provider.reachable == true ? .green : .orange
         }
         return provider.isConfigured ? .green : .secondary
+    }
+}
+
+private struct SessionRow: View {
+    let session: SessionInfo
+    let agentName: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text((session.label?.isEmpty == false ? session.label : nil) ?? shortSessionId)
+                    .font(.subheadline.weight(.medium))
+                Spacer()
+                Text(relativeCreatedAt)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+
+            HStack(spacing: 12) {
+                Label(agentName ?? session.agentId, systemImage: "cpu")
+                Label("\(session.messageCount)", systemImage: "bubble.left.and.bubble.right")
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var shortSessionId: String {
+        String(session.sessionId.prefix(8))
+    }
+
+    private var relativeCreatedAt: String {
+        guard let date = session.createdAt.iso8601Date else { return session.createdAt }
+        return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+    }
+}
+
+private struct MCPServerRow: View {
+    let server: MCPConnectedServer
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(server.name)
+                    .font(.subheadline.weight(.medium))
+                Spacer()
+                StatusPill(text: server.connected ? "Connected" : "Offline", color: server.connected ? .green : .orange)
+            }
+
+            HStack(spacing: 12) {
+                Label("\(server.toolsCount) tools", systemImage: "wrench.and.screwdriver")
+                if let topTool = server.tools.first?.name {
+                    Label(topTool, systemImage: "hammer")
+                }
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 2)
     }
 }
 
@@ -582,6 +822,47 @@ private struct PeerRow: View {
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct AuditEventRow: View {
+    let entry: AuditEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                Text(entry.friendlyAction)
+                    .font(.subheadline.weight(.medium))
+                Spacer()
+                Text(relativeText)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+            Text(entry.detail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+            Text(entry.outcome)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(outcomeColor)
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var relativeText: String {
+        guard let date = entry.timestamp.iso8601Date else { return entry.timestamp }
+        return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+    }
+
+    private var outcomeColor: Color {
+        switch entry.severity {
+        case .critical:
+            .red
+        case .warning:
+            .orange
+        case .info:
+            .green
+        }
     }
 }
 

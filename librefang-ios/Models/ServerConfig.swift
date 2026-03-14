@@ -1,6 +1,6 @@
 import Foundation
 
-struct ServerConfig: Codable, Sendable {
+nonisolated struct ServerConfig: Codable, Sendable {
     var baseURL: String
     var apiKey: String
 
@@ -20,7 +20,7 @@ struct ServerConfig: Codable, Sendable {
     }
 }
 
-struct HealthStatus: Codable, Sendable {
+nonisolated struct HealthStatus: Codable, Sendable {
     let status: String
     let version: String
 

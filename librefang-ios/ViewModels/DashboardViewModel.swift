@@ -18,7 +18,13 @@ final class DashboardViewModel {
     var hands: [HandDefinition] = []
     var activeHands: [HandInstance] = []
     var approvals: [ApprovalItem] = []
+    var sessions: [SessionInfo] = []
+    var recentAudit: [AuditEntry] = []
+    var auditVerify: AuditVerifyStatus?
     var security: SecurityStatus?
+    var mcpConfiguredServers: [MCPConfiguredServer] = []
+    var mcpConnectedServers: [MCPConnectedServer] = []
+    var tools: [ToolInfo] = []
     var networkStatus: NetworkStatus?
     var peers: [PeerStatus] = []
     var isLoading = false
@@ -120,8 +126,33 @@ final class DashboardViewModel {
                 catch { /* Approval queue is optional */ }
             }
             group.addTask { @MainActor in
+                do { self.sessions = (try await self.api.sessions()).sessions }
+                catch { /* Session inventory is optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.recentAudit = (try await self.api.recentAudit(limit: 8)).entries }
+                catch { /* Audit feed is optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.auditVerify = try await self.api.auditVerify() }
+                catch { /* Audit verification is optional */ }
+            }
+            group.addTask { @MainActor in
                 do { self.security = try await self.api.security() }
                 catch { /* Security summary is optional */ }
+            }
+            group.addTask { @MainActor in
+                do {
+                    let mcp = try await self.api.mcpServers()
+                    self.mcpConfiguredServers = mcp.configured
+                    self.mcpConnectedServers = mcp.connected
+                } catch {
+                    /* MCP inventory is optional */
+                }
+            }
+            group.addTask { @MainActor in
+                do { self.tools = (try await self.api.tools()).tools }
+                catch { /* Tool inventory is optional */ }
             }
             group.addTask { @MainActor in
                 do { self.networkStatus = try await self.api.networkStatus() }
@@ -167,4 +198,10 @@ final class DashboardViewModel {
     }
     var connectedPeerCount: Int { networkStatus?.connectedPeers ?? 0 }
     var totalPeerCount: Int { networkStatus?.totalPeers ?? peers.count }
+    var totalSessionCount: Int { sessions.count }
+    var totalSessionMessages: Int { sessions.reduce(0) { $0 + $1.messageCount } }
+    var connectedMCPServerCount: Int { mcpConnectedServers.count }
+    var configuredMCPServerCount: Int { mcpConfiguredServers.count }
+    var mcpToolCount: Int { mcpConnectedServers.reduce(0) { $0 + $1.toolsCount } }
+    var totalToolCount: Int { tools.count }
 }

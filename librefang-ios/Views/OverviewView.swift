@@ -4,74 +4,47 @@ struct OverviewView: View {
     @Environment(\.dependencies) private var deps
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
+    private var visibleMonitoringAlerts: [MonitoringAlertItem] {
+        deps.incidentStateStore.visibleAlerts(from: vm.monitoringAlerts)
+    }
+    private var activeMutedAlertCount: Int {
+        deps.incidentStateStore.activeMutedAlerts(from: vm.monitoringAlerts).count
+    }
+    private var isCurrentSnapshotAcknowledged: Bool {
+        deps.incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
+    }
+    private var watchedAttentionItems: [AgentAttentionItem] {
+        deps.agentWatchlistStore.watchedAgents(from: vm.agents)
+            .map { vm.attentionItem(for: $0) }
+            .sorted { lhs, rhs in
+                if lhs.severity != rhs.severity {
+                    return lhs.severity > rhs.severity
+                }
+                if lhs.agent.isRunning != rhs.agent.isRunning {
+                    return lhs.agent.isRunning && !rhs.agent.isRunning
+                }
+                return lhs.agent.name.localizedCompare(rhs.agent.name) == .orderedAscending
+            }
+    }
+    private var onCallPriorityItems: [OnCallPriorityItem] {
+        vm.onCallPriorityItems(
+            visibleAlerts: visibleMonitoringAlerts,
+            watchedAttentionItems: watchedAttentionItems
+        )
+    }
+    private var onCallDigestLine: String {
+        vm.onCallDigestLine(
+            visibleAlerts: visibleMonitoringAlerts,
+            watchedAttentionItems: watchedAttentionItems,
+            mutedAlertCount: activeMutedAlertCount,
+            isAcknowledged: isCurrentSnapshotAcknowledged
+        )
+    }
     private let summaryColumns = [
         GridItem(.flexible(), spacing: 10),
         GridItem(.flexible(), spacing: 10),
         GridItem(.flexible(), spacing: 10)
     ]
-
-    private var alerts: [OverviewAlert] {
-        var items: [OverviewAlert] = []
-
-        if vm.health?.isHealthy != true {
-            items.append(.init(
-                title: "Server disconnected",
-                detail: "The app cannot confirm the current LibreFang status.",
-                color: .red,
-                icon: "bolt.horizontal.circle"
-            ))
-        }
-
-        if let budget = vm.budget {
-            let maxPct = max(budget.hourlyPct, budget.dailyPct, budget.monthlyPct)
-            if maxPct >= budget.alertThreshold, budget.alertThreshold > 0 {
-                items.append(.init(
-                    title: "Budget threshold reached",
-                    detail: "Current spend is at \(Int(maxPct * 100))% of the configured limit.",
-                    color: .orange,
-                    icon: "chart.line.uptrend.xyaxis"
-                ))
-            }
-        }
-
-        if vm.pendingApprovalCount > 0 {
-            items.append(.init(
-                title: "\(vm.pendingApprovalCount) approval waiting",
-                detail: "Sensitive agent actions are blocked pending operator review.",
-                color: .red,
-                icon: "exclamationmark.shield"
-            ))
-        }
-
-        if vm.degradedHandCount > 0 {
-            items.append(.init(
-                title: "\(vm.degradedHandCount) hand degraded",
-                detail: "At least one autonomous hand is active but not fully healthy.",
-                color: .orange,
-                icon: "hand.raised.slash"
-            ))
-        }
-
-        if let network = vm.networkStatus, network.enabled, network.connectedPeers == 0 {
-            items.append(.init(
-                title: "Peer network idle",
-                detail: "OFP networking is enabled but no peers are currently connected.",
-                color: .yellow,
-                icon: "point.3.connected.trianglepath.dotted"
-            ))
-        }
-
-        if vm.configuredProviderCount == 0 {
-            items.append(.init(
-                title: "No provider configured",
-                detail: "Agents may exist, but the model layer is not ready.",
-                color: .yellow,
-                icon: "key.slash"
-            ))
-        }
-
-        return items
-    }
 
     var body: some View {
         NavigationStack {
@@ -85,11 +58,32 @@ struct OverviewView: View {
                         })
                     }
 
-                    ConnectionCard(health: vm.health, lastRefresh: vm.lastRefresh)
+                    ConnectionCard(health: vm.health, lastRefresh: vm.lastRefresh, isStale: vm.isDataStale)
 
-                    if !alerts.isEmpty {
-                        AlertsCard(alerts: alerts)
+                    if !visibleMonitoringAlerts.isEmpty || activeMutedAlertCount > 0 {
+                        NavigationLink {
+                            IncidentsView()
+                        } label: {
+                            AlertsCard(
+                                alerts: visibleMonitoringAlerts,
+                                mutedCount: activeMutedAlertCount,
+                                snapshotAcknowledged: isCurrentSnapshotAcknowledged
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
+
+                    NavigationLink {
+                        OnCallView()
+                    } label: {
+                        OnCallDigestCard(
+                            queueCount: onCallPriorityItems.count,
+                            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                            watchCount: watchedAttentionItems.count,
+                            summary: onCallDigestLine
+                        )
+                    }
+                    .buttonStyle(.plain)
 
                     LazyVGrid(columns: summaryColumns, spacing: 10) {
                         StatBadge(
@@ -136,7 +130,9 @@ struct OverviewView: View {
                             security: vm.security,
                             usageSummary: vm.usageSummary,
                             connectedProviders: vm.configuredProviderCount,
-                            networkStatus: vm.networkStatus
+                            networkStatus: vm.networkStatus,
+                            sessionCount: vm.totalSessionCount,
+                            mcpConnectedServers: vm.connectedMCPServerCount
                         )
                     }
 
@@ -147,7 +143,9 @@ struct OverviewView: View {
                         degradedHands: vm.degradedHandCount,
                         pendingApprovals: vm.pendingApprovalCount,
                         connectedPeers: vm.connectedPeerCount,
-                        totalPeers: vm.totalPeerCount
+                        totalPeers: vm.totalPeerCount,
+                        connectedMCPServers: vm.connectedMCPServerCount,
+                        configuredMCPServers: vm.configuredMCPServerCount
                     )
 
                     if let usageSummary = vm.usageSummary {
@@ -166,24 +164,51 @@ struct OverviewView: View {
                         LiveSignalsCard(activeHands: vm.activeHands, approvals: vm.approvals)
                     }
 
+                    if !watchedAttentionItems.isEmpty {
+                        WatchlistCard(items: watchedAttentionItems)
+                    }
+
+                    if !vm.sessionAttentionItems.isEmpty {
+                        SessionWatchlistCard(items: vm.sessionAttentionItems)
+                    }
+
+                    if !vm.attentionAgents.isEmpty {
+                        AttentionAgentsCard(items: vm.attentionAgents)
+                    }
+
+                    if !vm.recentAudit.isEmpty {
+                        AuditFeedCard(entries: vm.recentAudit)
+                    }
+
                     if let a2a = vm.a2aAgents, a2a.total > 0 {
                         A2ASummaryCard(count: a2a.total)
                     }
 
                     if !vm.agents.isEmpty {
-                        AgentPreviewCard(agents: vm.agents)
+                        AgentPreviewCard(agents: vm.attentionAgents.isEmpty ? vm.agents : vm.attentionAgents.map(\.agent))
                     }
                 }
                 .padding()
             }
             .navigationTitle("LibreFang")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        IncidentsView()
+                    } label: {
+                        Image(systemName: "bell.badge")
+                    }
+                }
+            }
             .refreshable {
                 await vm.refresh()
+                deps.agentWatchlistStore.removeMissingAgents(validIDs: Set(vm.agents.map(\.id)))
             }
             .task {
                 if vm.agents.isEmpty && vm.status == nil {
                     await vm.refresh()
                 }
+                deps.agentWatchlistStore.removeMissingAgents(validIDs: Set(vm.agents.map(\.id)))
             }
             .overlay {
                 if vm.isLoading && vm.agents.isEmpty && vm.error == nil {
@@ -213,16 +238,10 @@ struct OverviewView: View {
     }
 }
 
-private struct OverviewAlert: Identifiable {
-    let id = UUID()
-    let title: String
-    let detail: String
-    let color: Color
-    let icon: String
-}
-
 private struct AlertsCard: View {
-    let alerts: [OverviewAlert]
+    let alerts: [MonitoringAlertItem]
+    let mutedCount: Int
+    let snapshotAcknowledged: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -231,47 +250,92 @@ private struct AlertsCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text("\(alerts.count)")
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.tertiary)
+                Text(statusText)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(statusColor.opacity(0.12))
+                    .foregroundStyle(statusColor)
+                    .clipShape(Capsule())
             }
 
-            ForEach(alerts.prefix(4)) { alert in
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: alert.icon)
-                        .foregroundStyle(alert.color)
-                        .frame(width: 18)
+            if alerts.isEmpty {
+                Text("All current alert cards are muted on this iPhone. Open incidents to review or unmute them.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(alerts.prefix(4)) { alert in
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: alert.symbolName)
+                            .foregroundStyle(color(for: alert.severity))
+                            .frame(width: 18)
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(alert.title)
-                            .font(.subheadline.weight(.medium))
-                        Text(alert.detail)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(alert.title)
+                                .font(.subheadline.weight(.medium))
+                            Text(alert.detail)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Spacer()
                     }
-
-                    Spacer()
                 }
+            }
+
+            if mutedCount > 0 {
+                Text(mutedCount == 1 ? "1 alert is muted locally." : "\(mutedCount) alerts are muted locally.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
+
+    private var statusColor: Color {
+        if alerts.isEmpty && mutedCount > 0 {
+            return .secondary
+        }
+        return snapshotAcknowledged ? .orange : .red
+    }
+
+    private var statusText: String {
+        if alerts.isEmpty && mutedCount > 0 {
+            return "Muted"
+        }
+        if snapshotAcknowledged {
+            return "Acked"
+        }
+        return alerts.count == 1 ? "1 live" : "\(alerts.count) live"
+    }
+
+    private func color(for severity: MonitoringAlertSeverity) -> Color {
+        switch severity {
+        case .critical:
+            .red
+        case .warning:
+            .orange
+        case .info:
+            .yellow
+        }
+    }
 }
 
 private struct ConnectionCard: View {
     let health: HealthStatus?
     let lastRefresh: Date?
+    let isStale: Bool
 
     var body: some View {
         HStack {
             HStack(spacing: 8) {
                 Circle()
-                    .fill(health?.isHealthy == true ? .green : .red)
+                    .fill(connectionColor)
                     .frame(width: 10, height: 10)
                     .overlay {
-                        if health?.isHealthy == true {
+                        if health?.isHealthy == true && !isStale {
                             Circle()
                                 .fill(.green.opacity(0.3))
                                 .frame(width: 20, height: 20)
@@ -279,7 +343,7 @@ private struct ConnectionCard: View {
                     }
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(health?.isHealthy == true ? String(localized: "Connected") : String(localized: "Disconnected"))
+                    Text(connectionText)
                         .font(.subheadline.weight(.medium))
                     if let version = health?.version {
                         Text("Server v\(version)")
@@ -304,6 +368,23 @@ private struct ConnectionCard: View {
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
+
+    private var connectionText: String {
+        if health?.isHealthy != true {
+            return String(localized: "Disconnected")
+        }
+        if isStale {
+            return "Connected (stale)"
+        }
+        return String(localized: "Connected")
+    }
+
+    private var connectionColor: Color {
+        if health?.isHealthy != true {
+            return .red
+        }
+        return isStale ? .orange : .green
+    }
 }
 
 private struct SystemSnapshotCard: View {
@@ -312,6 +393,8 @@ private struct SystemSnapshotCard: View {
     let usageSummary: UsageSummary?
     let connectedProviders: Int
     let networkStatus: NetworkStatus?
+    let sessionCount: Int
+    let mcpConnectedServers: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -348,6 +431,8 @@ private struct SystemSnapshotCard: View {
             if let networkStatus {
                 OverviewMetricRow(label: "Connected Peers", value: "\(networkStatus.connectedPeers)/\(networkStatus.totalPeers)")
             }
+            OverviewMetricRow(label: "Sessions", value: "\(sessionCount)")
+            OverviewMetricRow(label: "MCP Servers", value: "\(mcpConnectedServers)")
 
             if let usageSummary {
                 OverviewMetricRow(
@@ -405,6 +490,8 @@ private struct ReadinessCard: View {
     let pendingApprovals: Int
     let connectedPeers: Int
     let totalPeers: Int
+    let connectedMCPServers: Int
+    let configuredMCPServers: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -436,6 +523,11 @@ private struct ReadinessCard: View {
                 title: "Peer Network",
                 subtitle: totalPeers > 0 ? "\(connectedPeers)/\(totalPeers) peer links active" : "No peer links discovered",
                 color: connectedPeers > 0 ? .green : .secondary
+            )
+            ReadinessRow(
+                title: "Tooling",
+                subtitle: configuredMCPServers > 0 ? "\(connectedMCPServers)/\(configuredMCPServers) MCP servers online" : "No MCP extension servers configured",
+                color: connectedMCPServers > 0 ? .green : configuredMCPServers > 0 ? .orange : .secondary
             )
         }
         .padding()
@@ -695,6 +787,275 @@ private struct LiveSignalsCard: View {
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+private struct WatchlistCard: View {
+    let items: [AgentAttentionItem]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Watchlist")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(items.count == 1 ? "1 pinned" : "\(items.count) pinned")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+
+            ForEach(items.prefix(4)) { item in
+                NavigationLink {
+                    AgentDetailView(agent: item.agent)
+                } label: {
+                    HStack(alignment: .top, spacing: 10) {
+                        Text(item.agent.identity?.emoji ?? "🤖")
+                            .font(.body)
+                            .frame(width: 24)
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 6) {
+                                Text(item.agent.name)
+                                    .font(.subheadline.weight(.medium))
+                                    .foregroundStyle(.primary)
+                                Image(systemName: "star.fill")
+                                    .font(.caption2)
+                                    .foregroundStyle(.yellow)
+                                if item.severity > 0 {
+                                    Text(item.reasons.prefix(1).first ?? "Needs attention")
+                                        .font(.caption2.weight(.semibold))
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(signalColor(for: item).opacity(0.12))
+                                        .foregroundStyle(signalColor(for: item))
+                                        .clipShape(Capsule())
+                                }
+                            }
+
+                            if item.reasons.isEmpty {
+                                Text(item.agent.isRunning ? "Running normally" : "Not currently running")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            } else {
+                                Text(item.reasons.prefix(2).joined(separator: " • "))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(2)
+                            }
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+
+            Label("Use the Agents tab to edit this watchlist", systemImage: "cpu")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func signalColor(for item: AgentAttentionItem) -> Color {
+        if item.pendingApprovals > 0 || item.hasAuthIssue {
+            return .red
+        }
+        if item.severity > 0 {
+            return .orange
+        }
+        return .secondary
+    }
+}
+
+private struct AttentionAgentsCard: View {
+    let items: [AgentAttentionItem]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Needs Attention")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text("\(items.count)")
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.tertiary)
+            }
+
+            ForEach(items.prefix(4)) { item in
+                HStack(alignment: .top, spacing: 10) {
+                    Text(item.agent.identity?.emoji ?? "🤖")
+                        .font(.body)
+                        .frame(width: 24)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text(item.agent.name)
+                                .font(.subheadline.weight(.medium))
+                            Spacer()
+                            if item.pendingApprovals > 0 {
+                                Text(item.pendingApprovals == 1 ? "1 approval" : "\(item.pendingApprovals) approvals")
+                                    .font(.caption2.weight(.semibold))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(.red.opacity(0.12))
+                                    .foregroundStyle(.red)
+                                    .clipShape(Capsule())
+                            }
+                        }
+
+                        Text(item.reasons.prefix(2).joined(separator: " • "))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+private struct SessionWatchlistCard: View {
+    let items: [SessionAttentionItem]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Session Watchlist")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text("\(items.count)")
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.tertiary)
+            }
+
+            ForEach(items.prefix(3)) { item in
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: "rectangle.stack")
+                        .foregroundStyle(item.severity >= 6 ? .red : .orange)
+                        .frame(width: 18)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text(displayTitle(item))
+                                .font(.subheadline.weight(.medium))
+                            Spacer()
+                            Text("\(item.session.messageCount) msgs")
+                                .font(.caption2.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Text(item.agent?.name ?? item.session.agentId)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+
+                        Text(item.reasons.prefix(2).joined(separator: " • "))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                }
+            }
+
+            NavigationLink {
+                SessionsView()
+            } label: {
+                Label("Open Session Monitor", systemImage: "rectangle.stack")
+                    .font(.caption.weight(.medium))
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func displayTitle(_ item: SessionAttentionItem) -> String {
+        let label = (item.session.label ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return label.isEmpty ? String(item.session.sessionId.prefix(8)) : label
+    }
+}
+
+private struct AuditFeedCard: View {
+    let entries: [AuditEntry]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Recent Events")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.secondary)
+
+            ForEach(entries.prefix(4)) { entry in
+                HStack(alignment: .top, spacing: 10) {
+                    Circle()
+                        .fill(severityColor(entry.severity))
+                        .frame(width: 8, height: 8)
+                        .padding(.top, 6)
+
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack {
+                            Text(entry.friendlyAction)
+                                .font(.subheadline.weight(.medium))
+                            Spacer()
+                            Text(relativeTime(entry.timestamp))
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                        }
+
+                        Text(entry.detail)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+
+                        Text(entry.agentId)
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                            .lineLimit(1)
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func severityColor(_ severity: AuditEventSeverity) -> Color {
+        switch severity {
+        case .critical:
+            .red
+        case .warning:
+            .orange
+        case .info:
+            .blue
+        }
+    }
+
+    private func relativeTime(_ timestamp: String) -> String {
+        guard let date = parseDate(timestamp) else { return timestamp }
+        return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+    }
+    
+    private func parseDate(_ value: String) -> Date? {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = formatter.date(from: value) {
+            return date
+        }
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter.date(from: value)
     }
 }
 

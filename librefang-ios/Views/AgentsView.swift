@@ -6,25 +6,44 @@ struct AgentsView: View {
     @State private var filterState: AgentFilter = .all
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
+    private var watchlistStore: AgentWatchlistStore { deps.agentWatchlistStore }
+    private var watchedAgents: [Agent] {
+        watchlistStore.watchedAgents(from: vm.agents)
+    }
 
-    private var filteredAgents: [Agent] {
-        var result = vm.agents
+    private var filteredAgents: [AgentAttentionItem] {
+        var result = vm.agents.map { vm.attentionItem(for: $0) }
 
         switch filterState {
         case .all: break
-        case .running: result = result.filter(\.isRunning)
-        case .stopped: result = result.filter { !$0.isRunning }
+        case .attention: result = result.filter { $0.severity > 0 }
+        case .watchlist: result = result.filter { watchlistStore.isWatched($0.agent) }
+        case .running: result = result.filter { $0.agent.isRunning }
+        case .stopped: result = result.filter { !$0.agent.isRunning }
         }
 
         if !searchText.isEmpty {
             result = result.filter {
-                $0.name.localizedCaseInsensitiveContains(searchText)
-                || ($0.modelProvider?.localizedCaseInsensitiveContains(searchText) ?? false)
-                || ($0.modelName?.localizedCaseInsensitiveContains(searchText) ?? false)
+                $0.agent.name.localizedCaseInsensitiveContains(searchText)
+                || ($0.agent.modelProvider?.localizedCaseInsensitiveContains(searchText) ?? false)
+                || ($0.agent.modelName?.localizedCaseInsensitiveContains(searchText) ?? false)
             }
         }
 
-        return result
+        return result.sorted { lhs, rhs in
+            let lhsWatched = watchlistStore.isWatched(lhs.agent)
+            let rhsWatched = watchlistStore.isWatched(rhs.agent)
+            if lhsWatched != rhsWatched {
+                return lhsWatched && !rhsWatched
+            }
+            if lhs.severity != rhs.severity {
+                return lhs.severity > rhs.severity
+            }
+            if lhs.agent.isRunning != rhs.agent.isRunning {
+                return lhs.agent.isRunning && !rhs.agent.isRunning
+            }
+            return lhs.agent.name.localizedCompare(rhs.agent.name) == .orderedAscending
+        }
     }
 
     var body: some View {
@@ -38,23 +57,62 @@ struct AgentsView: View {
                     )
                 } else if filteredAgents.isEmpty && !searchText.isEmpty {
                     ContentUnavailableView.search(text: searchText)
+                } else if filteredAgents.isEmpty && filterState == .attention {
+                    ContentUnavailableView(
+                        "No Active Agent Issues",
+                        systemImage: "checkmark.shield",
+                        description: Text("Running agents, approvals, auth, and stale activity all look normal right now.")
+                    )
+                } else if filteredAgents.isEmpty && filterState == .watchlist {
+                    ContentUnavailableView(
+                        "No Watched Agents",
+                        systemImage: "star",
+                        description: Text("Mark important agents from the list or detail page to keep them near the top on mobile.")
+                    )
+                } else if filteredAgents.isEmpty {
+                    ContentUnavailableView(
+                        "No Agents In This Filter",
+                        systemImage: "line.3.horizontal.decrease.circle",
+                        description: Text("Switch filters or pull to refresh to inspect the full fleet.")
+                    )
                 } else {
-                    List(filteredAgents) { agent in
-                        NavigationLink(value: agent.id) {
-                            AgentRow(
-                                agent: agent,
-                                pendingApprovals: pendingApprovalCount(for: agent),
-                                hasAuthIssue: hasAuthIssue(for: agent)
-                            )
+                    List {
+                        if !filteredAgents.isEmpty {
+                            Section {
+                                AgentFleetSummaryCard(
+                                    runningCount: filteredAgents.filter { $0.agent.isRunning }.count,
+                                    issueCount: filteredAgents.filter { $0.severity > 0 }.count,
+                                    approvalCount: filteredAgents.reduce(0) { $0 + $1.pendingApprovals },
+                                    staleCount: filteredAgents.filter(\.isStale).count,
+                                    watchlistCount: watchedAgents.count
+                                )
+                                .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+                            }
                         }
-                        .swipeActions(edge: .trailing) {
-                            if agent.isRunning {
+                        ForEach(filteredAgents) { item in
+                            NavigationLink(value: item.agent.id) {
+                                AgentRow(
+                                    attention: item,
+                                    isWatched: watchlistStore.isWatched(item.agent)
+                                )
+                            }
+                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
                                 Button {
-                                    // future: stop agent
+                                    watchlistStore.toggle(item.agent)
                                 } label: {
-                                    Label("Message", systemImage: "paperplane")
+                                    Label(watchlistStore.isWatched(item.agent) ? "Unwatch" : "Watch", systemImage: watchlistStore.isWatched(item.agent) ? "star.slash" : "star")
                                 }
-                                .tint(.blue)
+                                .tint(.yellow)
+                            }
+                            .swipeActions(edge: .trailing) {
+                                if item.agent.isRunning {
+                                    Button {
+                                        // future: stop agent
+                                    } label: {
+                                        Label("Message", systemImage: "paperplane")
+                                    }
+                                    .tint(.blue)
+                                }
                             }
                         }
                     }
@@ -86,6 +144,7 @@ struct AgentsView: View {
             }
             .refreshable {
                 await vm.refresh()
+                watchlistStore.removeMissingAgents(validIDs: Set(vm.agents.map(\.id)))
             }
             .overlay {
                 if vm.isLoading && vm.agents.isEmpty {
@@ -96,6 +155,7 @@ struct AgentsView: View {
                 if vm.agents.isEmpty {
                     await vm.refresh()
                 }
+                watchlistStore.removeMissingAgents(validIDs: Set(vm.agents.map(\.id)))
             }
             .safeAreaInset(edge: .top) {
                 if let error = vm.error {
@@ -114,11 +174,13 @@ struct AgentsView: View {
 // MARK: - Agent Filter
 
 private enum AgentFilter: CaseIterable {
-    case all, running, stopped
+    case all, attention, watchlist, running, stopped
 
     var label: String {
         switch self {
         case .all: String(localized: "All")
+        case .attention: "Attention"
+        case .watchlist: "Watchlist"
         case .running: String(localized: "Running")
         case .stopped: String(localized: "Stopped")
         }
@@ -127,6 +189,8 @@ private enum AgentFilter: CaseIterable {
     var icon: String {
         switch self {
         case .all: "list.bullet"
+        case .attention: "exclamationmark.triangle"
+        case .watchlist: "star"
         case .running: "play.circle"
         case .stopped: "stop.circle"
         }
@@ -136,9 +200,10 @@ private enum AgentFilter: CaseIterable {
 // MARK: - Agent Row
 
 private struct AgentRow: View {
-    let agent: Agent
-    let pendingApprovals: Int
-    let hasAuthIssue: Bool
+    let attention: AgentAttentionItem
+    let isWatched: Bool
+
+    private var agent: Agent { attention.agent }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -147,15 +212,22 @@ private struct AgentRow: View {
                 .frame(width: 36)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(agent.name)
-                    .font(.subheadline.weight(.medium))
+                HStack(spacing: 6) {
+                    Text(agent.name)
+                        .font(.subheadline.weight(.medium))
+                    if isWatched {
+                        Image(systemName: "star.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.yellow)
+                    }
+                }
 
                 HStack(spacing: 6) {
                     StatePill(state: agent.state)
 
-                    if pendingApprovals > 0 {
+                    if attention.pendingApprovals > 0 {
                         InlineStatusPill(
-                            label: pendingApprovals == 1 ? "1 approval" : "\(pendingApprovals) approvals",
+                            label: attention.pendingApprovals == 1 ? "1 approval" : "\(attention.pendingApprovals) approvals",
                             color: .red,
                             systemImage: "exclamationmark.shield"
                         )
@@ -169,11 +241,27 @@ private struct AgentRow: View {
                         )
                     }
 
-                    if hasAuthIssue {
+                    if attention.hasAuthIssue {
                         InlineStatusPill(
                             label: "Auth",
                             color: .red,
                             systemImage: "lock.slash"
+                        )
+                    }
+
+                    if attention.isStale {
+                        InlineStatusPill(
+                            label: "Stale",
+                            color: .orange,
+                            systemImage: "clock.badge.exclamationmark"
+                        )
+                    }
+
+                    if attention.sessionPressure {
+                        InlineStatusPill(
+                            label: "Sessions",
+                            color: .orange,
+                            systemImage: "rectangle.stack.badge.person.crop"
                         )
                     }
 
@@ -245,6 +333,57 @@ private struct InlineStatusPill: View {
     }
 }
 
+private struct AgentFleetSummaryCard: View {
+    let runningCount: Int
+    let issueCount: Int
+    let approvalCount: Int
+    let staleCount: Int
+    let watchlistCount: Int
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                SummaryChip(value: "\(runningCount)", label: "Running", color: .green)
+                SummaryChip(value: "\(issueCount)", label: "Attention", color: issueCount > 0 ? .orange : .secondary)
+                SummaryChip(value: "\(staleCount)", label: "Stale", color: staleCount > 0 ? .orange : .secondary)
+                SummaryChip(value: "\(approvalCount)", label: "Approvals", color: approvalCount > 0 ? .red : .secondary)
+            }
+
+            HStack {
+                Label(
+                    watchlistCount == 1 ? "1 watched agent pinned on this iPhone" : "\(watchlistCount) watched agents pinned on this iPhone",
+                    systemImage: "star.fill"
+                )
+                .font(.caption)
+                .foregroundStyle(watchlistCount > 0 ? .secondary : .tertiary)
+                Spacer()
+            }
+        }
+        .padding(.horizontal)
+    }
+}
+
+private struct SummaryChip: View {
+    let value: String
+    let label: String
+    let color: Color
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.headline.monospacedDigit())
+                .foregroundStyle(color)
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 10)
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+}
+
 // MARK: - Relative Time
 
 private struct RelativeTimeText: View {
@@ -283,16 +422,5 @@ private struct StatusIndicator: View {
                     .foregroundStyle(.secondary)
             }
         }
-    }
-}
-
-private extension AgentsView {
-    func pendingApprovalCount(for agent: Agent) -> Int {
-        vm.approvals.filter { $0.agentId == agent.id || $0.agentName == agent.name }.count
-    }
-
-    func hasAuthIssue(for agent: Agent) -> Bool {
-        guard let authStatus = agent.authStatus?.lowercased() else { return false }
-        return authStatus != "configured"
     }
 }

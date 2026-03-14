@@ -1,10 +1,10 @@
 import Foundation
 
-struct MessageRequest: Codable, Sendable {
+nonisolated struct MessageRequest: Codable, Sendable {
     let message: String
 }
 
-struct MessageResponse: Codable, Sendable {
+nonisolated struct MessageResponse: Codable, Sendable {
     let response: String
     let inputTokens: Int?
     let outputTokens: Int?

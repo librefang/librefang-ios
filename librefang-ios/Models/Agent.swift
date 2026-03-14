@@ -1,6 +1,6 @@
 import Foundation
 
-struct Agent: Codable, Identifiable, Sendable {
+nonisolated struct Agent: Codable, Identifiable, Sendable {
     let id: String
     let name: String
     let state: String
@@ -36,7 +36,7 @@ struct Agent: Codable, Identifiable, Sendable {
     }
 }
 
-struct AgentIdentity: Codable, Sendable {
+nonisolated struct AgentIdentity: Codable, Sendable {
     let emoji: String?
     let avatarUrl: String?
     let color: String?

@@ -55,6 +55,25 @@ struct BudgetView: View {
                     }
                 }
 
+                if let usageSummary = vm.usageSummary {
+                    Section("Cost Signals") {
+                        LabeledContent("Total Recorded Cost") {
+                            Text(formatCost(usageSummary.totalCostUsd))
+                                .monospacedDigit()
+                        }
+                        LabeledContent("Avg Cost / Call") {
+                            Text(formatCost(averageCostPerCall(usageSummary)))
+                                .monospacedDigit()
+                        }
+                        if let projected = projectedMonthlyCost(usageSummary) {
+                            LabeledContent("Projected 30-Day Cost") {
+                                Text(formatCost(projected))
+                                    .monospacedDigit()
+                            }
+                        }
+                    }
+                }
+
                 if !vm.usageDaily.isEmpty {
                     Section {
                         DailyCostTrendChart(days: vm.usageDaily)
@@ -81,10 +100,12 @@ struct BudgetView: View {
                         Text("Model Cost Distribution")
                     }
 
-                    Section("By Model") {
+                    Section {
                         ForEach(sortedModels.prefix(8)) { model in
                             ModelCostRow(model: model, maxCost: max(vm.highestModelCost, 0.01))
                         }
+                    } header: {
+                        Text("By Model")
                     } footer: {
                         if sortedModels.count > 8 {
                             Text("Showing top 8 of \(sortedModels.count) models")
@@ -146,6 +167,24 @@ struct BudgetView: View {
         if value == 0 { return "$0.00" }
         if value < 0.01 { return "<$0.01" }
         return String(format: "$%.2f", value)
+    }
+
+    private func averageCostPerCall(_ usage: UsageSummary) -> Double {
+        guard usage.callCount > 0 else { return 0 }
+        return usage.totalCostUsd / Double(usage.callCount)
+    }
+
+    private func projectedMonthlyCost(_ usage: UsageSummary) -> Double? {
+        guard usage.totalCostUsd > 0,
+              let firstEventDate = vm.firstUsageEventDate,
+              let firstDate = firstEventDate.usageDate
+        else {
+            return nil
+        }
+
+        let elapsed = max(Date().timeIntervalSince(firstDate), 86_400)
+        let days = elapsed / 86_400
+        return (usage.totalCostUsd / days) * 30
     }
 }
 
@@ -273,7 +312,7 @@ private struct DailyCostTrendChart: View {
         .chartOverlay { proxy in
             GeometryReader { geometry in
                 if let latest = chartDays.last,
-                   let position = proxy.position(forX: latest.date, y: latest.cost) {
+                   let xPosition = proxy.position(forX: latest.date) {
                     VStack(alignment: .leading, spacing: 3) {
                         Text("$\(latest.cost, specifier: latest.cost >= 1 ? "%.2f" : "%.4f")")
                             .font(.caption.weight(.semibold))
@@ -284,7 +323,7 @@ private struct DailyCostTrendChart: View {
                     .padding(8)
                     .background(.thinMaterial)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .position(x: min(position.x + 40, geometry.size.width - 48), y: 20)
+                    .position(x: min(xPosition + 40, geometry.size.width - 48), y: 20)
                 }
             }
         }
@@ -339,11 +378,13 @@ private struct CostDistributionCard: View {
             }
 
             GeometryReader { geometry in
+                let spacing = CGFloat(max(topSlices.count - 1, 0) * 4)
+                let availableWidth = max(0, geometry.size.width - spacing)
                 HStack(spacing: 4) {
                     ForEach(topSlices) { slice in
                         Capsule()
                             .fill(slice.color)
-                            .frame(width: max(10, geometry.size.width * CGFloat(slice.value / max(totalCost, 0.0001))), height: 16)
+                            .frame(width: max(10, availableWidth * CGFloat(slice.value / max(totalCost, 0.0001))), height: 16)
                     }
                 }
             }
@@ -580,7 +621,7 @@ private struct AgentCostRow: View {
                     .font(.subheadline.monospacedDigit().weight(.medium))
                     .foregroundStyle(item.dailyCostUsd > 1.0 ? .red : .primary)
                 if let limit = item.dailyLimit, limit > 0 {
-                    Text("limit ") + Text("$\(limit, specifier: "%.2f")")
+                    Text("limit $\(limit, specifier: "%.2f")")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }

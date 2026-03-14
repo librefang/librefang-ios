@@ -39,9 +39,15 @@ protocol APIClientProtocol: Sendable {
     func hands() async throws -> HandCatalog
     func activeHands() async throws -> ActiveHandList
     func approvals() async throws -> ApprovalQueue
+    func sessions() async throws -> SessionListResponse
+    func recentAudit(limit: Int) async throws -> AuditRecentResponse
+    func auditVerify() async throws -> AuditVerifyStatus
     func security() async throws -> SecurityStatus
+    func mcpServers() async throws -> MCPServerList
+    func tools() async throws -> ToolListResponse
     func networkStatus() async throws -> NetworkStatus
     func peers() async throws -> PeerList
+    func agentSessions(agentId: String) async throws -> SessionListResponse
     func session(agentId: String) async throws -> AgentSessionSnapshot
     func sendMessage(agentId: String, message: String) async throws -> MessageResponse
     func a2aAgents() async throws -> A2AAgentList
@@ -123,8 +129,28 @@ actor APIClient: APIClientProtocol {
         try await get("/api/approvals")
     }
 
+    func sessions() async throws -> SessionListResponse {
+        try await get("/api/sessions")
+    }
+
+    func recentAudit(limit: Int) async throws -> AuditRecentResponse {
+        try await get("/api/audit/recent?n=\(limit)")
+    }
+
+    func auditVerify() async throws -> AuditVerifyStatus {
+        try await get("/api/audit/verify")
+    }
+
     func security() async throws -> SecurityStatus {
         try await get("/api/security")
+    }
+
+    func mcpServers() async throws -> MCPServerList {
+        try await get("/api/mcp/servers")
+    }
+
+    func tools() async throws -> ToolListResponse {
+        try await get("/api/tools")
     }
 
     func networkStatus() async throws -> NetworkStatus {
@@ -133,6 +159,10 @@ actor APIClient: APIClientProtocol {
 
     func peers() async throws -> PeerList {
         try await get("/api/peers")
+    }
+
+    func agentSessions(agentId: String) async throws -> SessionListResponse {
+        try await get("/api/agents/\(agentId)/sessions")
     }
 
     func session(agentId: String) async throws -> AgentSessionSnapshot {

@@ -1,6 +1,6 @@
 import Foundation
 
-struct SystemStatus: Codable, Sendable {
+nonisolated struct SystemStatus: Codable, Sendable {
     let status: String
     let version: String
     let agentCount: Int
@@ -26,7 +26,7 @@ struct SystemStatus: Codable, Sendable {
     }
 }
 
-struct SystemStatusAgent: Codable, Identifiable, Sendable {
+nonisolated struct SystemStatusAgent: Codable, Identifiable, Sendable {
     let id: String
     let name: String
     let state: String
@@ -44,7 +44,7 @@ struct SystemStatusAgent: Codable, Identifiable, Sendable {
     }
 }
 
-struct UsageSummary: Codable, Sendable {
+nonisolated struct UsageSummary: Codable, Sendable {
     let totalInputTokens: Int
     let totalOutputTokens: Int
     let totalCostUsd: Double
@@ -60,11 +60,11 @@ struct UsageSummary: Codable, Sendable {
     }
 }
 
-struct UsageByModelResponse: Codable, Sendable {
+nonisolated struct UsageByModelResponse: Codable, Sendable {
     let models: [ModelUsage]
 }
 
-struct ModelUsage: Codable, Identifiable, Sendable {
+nonisolated struct ModelUsage: Codable, Identifiable, Sendable {
     let model: String
     let totalCostUsd: Double
     let totalInputTokens: Int
@@ -84,7 +84,7 @@ struct ModelUsage: Codable, Identifiable, Sendable {
     var totalTokens: Int { totalInputTokens + totalOutputTokens }
 }
 
-struct UsageDailyResponse: Codable, Sendable {
+nonisolated struct UsageDailyResponse: Codable, Sendable {
     let days: [DailyUsage]
     let todayCostUsd: Double
     let firstEventDate: String?
@@ -96,7 +96,7 @@ struct UsageDailyResponse: Codable, Sendable {
     }
 }
 
-struct DailyUsage: Codable, Identifiable, Sendable {
+nonisolated struct DailyUsage: Codable, Identifiable, Sendable {
     let date: String
     let costUsd: Double
     let tokens: Int
@@ -110,12 +110,12 @@ struct DailyUsage: Codable, Identifiable, Sendable {
     }
 }
 
-struct ProviderList: Codable, Sendable {
+nonisolated struct ProviderList: Codable, Sendable {
     let providers: [ProviderStatus]
     let total: Int
 }
 
-struct ProviderStatus: Codable, Identifiable, Sendable {
+nonisolated struct ProviderStatus: Codable, Identifiable, Sendable {
     let id: String
     let displayName: String
     let authStatus: String
@@ -149,7 +149,7 @@ struct ProviderStatus: Codable, Identifiable, Sendable {
     }
 }
 
-struct ChannelList: Codable, Sendable {
+nonisolated struct ChannelList: Codable, Sendable {
     let channels: [ChannelStatus]
     let total: Int
     let configuredCount: Int
@@ -160,7 +160,7 @@ struct ChannelList: Codable, Sendable {
     }
 }
 
-struct ChannelStatus: Codable, Identifiable, Sendable {
+nonisolated struct ChannelStatus: Codable, Identifiable, Sendable {
     let name: String
     let displayName: String
     let icon: String
@@ -185,12 +185,12 @@ struct ChannelStatus: Codable, Identifiable, Sendable {
     var id: String { name }
 }
 
-struct HandCatalog: Codable, Sendable {
+nonisolated struct HandCatalog: Codable, Sendable {
     let hands: [HandDefinition]
     let total: Int
 }
 
-struct HandDefinition: Codable, Identifiable, Sendable {
+nonisolated struct HandDefinition: Codable, Identifiable, Sendable {
     let id: String
     let name: String
     let description: String
@@ -214,7 +214,7 @@ struct HandDefinition: Codable, Identifiable, Sendable {
     }
 }
 
-struct HandRequirement: Codable, Identifiable, Sendable {
+nonisolated struct HandRequirement: Codable, Identifiable, Sendable {
     let key: String
     let label: String
     let satisfied: Bool
@@ -223,12 +223,12 @@ struct HandRequirement: Codable, Identifiable, Sendable {
     var id: String { key }
 }
 
-struct ActiveHandList: Codable, Sendable {
+nonisolated struct ActiveHandList: Codable, Sendable {
     let instances: [HandInstance]
     let total: Int
 }
 
-struct HandInstance: Codable, Identifiable, Sendable {
+nonisolated struct HandInstance: Codable, Identifiable, Sendable {
     let instanceId: String
     let handId: String
     let status: String
@@ -250,12 +250,142 @@ struct HandInstance: Codable, Identifiable, Sendable {
     var id: String { instanceId }
 }
 
-struct ApprovalQueue: Codable, Sendable {
+nonisolated struct ApprovalQueue: Codable, Sendable {
     let approvals: [ApprovalItem]
     let total: Int
 }
 
-struct ApprovalItem: Codable, Identifiable, Sendable {
+nonisolated struct SessionListResponse: Codable, Sendable {
+    let sessions: [SessionInfo]
+}
+
+nonisolated struct SessionInfo: Codable, Identifiable, Sendable {
+    let sessionId: String
+    let agentId: String
+    let messageCount: Int
+    let createdAt: String
+    let label: String?
+
+    var id: String { sessionId }
+
+    enum CodingKeys: String, CodingKey {
+        case label
+        case sessionId = "session_id"
+        case agentId = "agent_id"
+        case messageCount = "message_count"
+        case createdAt = "created_at"
+    }
+}
+
+nonisolated struct AuditRecentResponse: Codable, Sendable {
+    let entries: [AuditEntry]
+    let total: Int
+    let tipHash: String?
+
+    enum CodingKeys: String, CodingKey {
+        case entries, total
+        case tipHash = "tip_hash"
+    }
+}
+
+nonisolated struct AuditEntry: Codable, Identifiable, Sendable {
+    let seq: Int
+    let timestamp: String
+    let agentId: String
+    let action: String
+    let detail: String
+    let outcome: String
+    let hash: String
+
+    var id: Int { seq }
+
+    enum CodingKeys: String, CodingKey {
+        case seq, timestamp, action, detail, outcome, hash
+        case agentId = "agent_id"
+    }
+}
+
+nonisolated struct AuditVerifyStatus: Codable, Sendable {
+    let valid: Bool
+    let entries: Int
+    let warning: String?
+    let error: String?
+    let tipHash: String?
+
+    enum CodingKeys: String, CodingKey {
+        case valid, entries, warning, error
+        case tipHash = "tip_hash"
+    }
+}
+
+nonisolated struct MCPServerList: Codable, Sendable {
+    let configured: [MCPConfiguredServer]
+    let connected: [MCPConnectedServer]
+    let totalConfigured: Int
+    let totalConnected: Int
+
+    enum CodingKeys: String, CodingKey {
+        case configured, connected
+        case totalConfigured = "total_configured"
+        case totalConnected = "total_connected"
+    }
+}
+
+nonisolated struct MCPConfiguredServer: Codable, Identifiable, Sendable {
+    let name: String
+    let transport: MCPTransportSummary
+    let timeoutSecs: Int
+
+    var id: String { name }
+
+    enum CodingKeys: String, CodingKey {
+        case name, transport
+        case timeoutSecs = "timeout_secs"
+    }
+}
+
+nonisolated struct MCPTransportSummary: Codable, Sendable {
+    let type: String
+    let command: String?
+    let url: String?
+    let baseURL: String?
+    let toolsCount: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case type, command, url
+        case baseURL = "base_url"
+        case toolsCount = "tools_count"
+    }
+}
+
+nonisolated struct MCPConnectedServer: Codable, Identifiable, Sendable {
+    let name: String
+    let toolsCount: Int
+    let tools: [ToolInfo]
+    let connected: Bool
+
+    var id: String { name }
+
+    enum CodingKeys: String, CodingKey {
+        case name, tools, connected
+        case toolsCount = "tools_count"
+    }
+}
+
+nonisolated struct ToolListResponse: Codable, Sendable {
+    let tools: [ToolInfo]
+    let total: Int
+}
+
+nonisolated struct ToolInfo: Codable, Identifiable, Sendable {
+    let name: String
+    let description: String?
+    let source: String?
+
+    var id: String { name }
+}
+
+nonisolated struct ApprovalItem: Codable, Identifiable, Sendable {
     let id: String
     let agentId: String
     let agentName: String
@@ -279,7 +409,7 @@ struct ApprovalItem: Codable, Identifiable, Sendable {
     }
 }
 
-struct SecurityStatus: Codable, Sendable {
+nonisolated struct SecurityStatus: Codable, Sendable {
     let configurable: SecurityConfigurable
     let monitoring: SecurityMonitoring
     let secretZeroization: Bool
@@ -292,7 +422,7 @@ struct SecurityStatus: Codable, Sendable {
     }
 }
 
-struct NetworkStatus: Codable, Sendable {
+nonisolated struct NetworkStatus: Codable, Sendable {
     let enabled: Bool
     let nodeId: String
     let listenAddress: String
@@ -308,12 +438,12 @@ struct NetworkStatus: Codable, Sendable {
     }
 }
 
-struct PeerList: Codable, Sendable {
+nonisolated struct PeerList: Codable, Sendable {
     let peers: [PeerStatus]
     let total: Int
 }
 
-struct PeerStatus: Codable, Identifiable, Sendable {
+nonisolated struct PeerStatus: Codable, Identifiable, Sendable {
     let nodeId: String
     let nodeName: String
     let address: String
@@ -331,18 +461,36 @@ struct PeerStatus: Codable, Identifiable, Sendable {
         case connectedAt = "connected_at"
         case protocolVersion = "protocol_version"
     }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        nodeId = try container.decode(String.self, forKey: .nodeId)
+        nodeName = try container.decode(String.self, forKey: .nodeName)
+        address = try container.decode(String.self, forKey: .address)
+        state = try container.decode(String.self, forKey: .state)
+        agents = try container.decode([PeerAgent].self, forKey: .agents)
+        connectedAt = try container.decode(String.self, forKey: .connectedAt)
+
+        if let version = try? container.decode(String.self, forKey: .protocolVersion) {
+            protocolVersion = version
+        } else if let version = try? container.decode(Int.self, forKey: .protocolVersion) {
+            protocolVersion = String(version)
+        } else {
+            protocolVersion = "unknown"
+        }
+    }
 }
 
-struct PeerAgent: Codable, Identifiable, Sendable {
+nonisolated struct PeerAgent: Codable, Identifiable, Sendable {
     let id: String
     let name: String
 }
 
-struct SecurityConfigurable: Codable, Sendable {
+nonisolated struct SecurityConfigurable: Codable, Sendable {
     let auth: SecurityAuthConfig
 }
 
-struct SecurityAuthConfig: Codable, Sendable {
+nonisolated struct SecurityAuthConfig: Codable, Sendable {
     let mode: String
     let apiKeySet: Bool
 
@@ -352,7 +500,7 @@ struct SecurityAuthConfig: Codable, Sendable {
     }
 }
 
-struct SecurityMonitoring: Codable, Sendable {
+nonisolated struct SecurityMonitoring: Codable, Sendable {
     let auditTrail: AuditTrailStatus
 
     enum CodingKeys: String, CodingKey {
@@ -360,7 +508,7 @@ struct SecurityMonitoring: Codable, Sendable {
     }
 }
 
-struct AuditTrailStatus: Codable, Sendable {
+nonisolated struct AuditTrailStatus: Codable, Sendable {
     let enabled: Bool
     let algorithm: String
     let entryCount: Int
@@ -371,7 +519,7 @@ struct AuditTrailStatus: Codable, Sendable {
     }
 }
 
-struct AgentSessionSnapshot: Codable, Sendable {
+nonisolated struct AgentSessionSnapshot: Codable, Sendable {
     let sessionId: String
     let agentId: String
     let messageCount: Int
@@ -388,14 +536,14 @@ struct AgentSessionSnapshot: Codable, Sendable {
     }
 }
 
-struct AgentSessionMessage: Codable, Sendable {
+nonisolated struct AgentSessionMessage: Codable, Sendable {
     let role: String
     let content: String
     let tools: [AgentSessionTool]?
     let images: [AgentSessionImage]?
 }
 
-struct AgentSessionTool: Codable, Sendable {
+nonisolated struct AgentSessionTool: Codable, Sendable {
     let name: String
     let input: String?
     let result: String?
@@ -415,7 +563,7 @@ struct AgentSessionTool: Codable, Sendable {
     }
 }
 
-struct AgentSessionImage: Codable, Sendable {
+nonisolated struct AgentSessionImage: Codable, Sendable {
     let fileId: String
     let filename: String
 

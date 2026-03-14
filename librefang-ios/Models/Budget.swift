@@ -1,6 +1,6 @@
 import Foundation
 
-struct BudgetOverview: Codable, Sendable {
+nonisolated struct BudgetOverview: Codable, Sendable {
     let hourlySpend: Double
     let hourlyLimit: Double
     let hourlyPct: Double
@@ -28,12 +28,12 @@ struct BudgetOverview: Codable, Sendable {
     }
 }
 
-struct AgentBudgetRanking: Codable, Sendable {
+nonisolated struct AgentBudgetRanking: Codable, Sendable {
     let agents: [AgentBudgetItem]
     let total: Int
 }
 
-struct AgentBudgetItem: Codable, Identifiable, Sendable {
+nonisolated struct AgentBudgetItem: Codable, Identifiable, Sendable {
     let agentId: String
     let name: String
     let dailyCostUsd: Double
@@ -55,7 +55,7 @@ struct AgentBudgetItem: Codable, Identifiable, Sendable {
     }
 }
 
-struct AgentBudgetDetail: Codable, Sendable {
+nonisolated struct AgentBudgetDetail: Codable, Sendable {
     let agentId: String
     let agentName: String
     let hourly: BudgetPeriod
@@ -70,13 +70,13 @@ struct AgentBudgetDetail: Codable, Sendable {
     }
 }
 
-struct BudgetPeriod: Codable, Sendable {
+nonisolated struct BudgetPeriod: Codable, Sendable {
     let spend: Double
     let limit: Double
     let pct: Double
 }
 
-struct TokenUsage: Codable, Sendable {
+nonisolated struct TokenUsage: Codable, Sendable {
     let used: Int
     let limit: Int
     let pct: Double
