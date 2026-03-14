@@ -26,10 +26,23 @@ enum APIError: LocalizedError {
 
 protocol APIClientProtocol: Sendable {
     func health() async throws -> HealthStatus
+    func status() async throws -> SystemStatus
     func agents() async throws -> [Agent]
     func budget() async throws -> BudgetOverview
     func budgetAgents() async throws -> AgentBudgetRanking
     func budgetAgent(id: String) async throws -> AgentBudgetDetail
+    func usageSummary() async throws -> UsageSummary
+    func usageByModel() async throws -> UsageByModelResponse
+    func usageDaily() async throws -> UsageDailyResponse
+    func providers() async throws -> ProviderList
+    func channels() async throws -> ChannelList
+    func hands() async throws -> HandCatalog
+    func activeHands() async throws -> ActiveHandList
+    func approvals() async throws -> ApprovalQueue
+    func security() async throws -> SecurityStatus
+    func networkStatus() async throws -> NetworkStatus
+    func peers() async throws -> PeerList
+    func session(agentId: String) async throws -> AgentSessionSnapshot
     func sendMessage(agentId: String, message: String) async throws -> MessageResponse
     func a2aAgents() async throws -> A2AAgentList
     func updateConfig(_ config: ServerConfig) async
@@ -58,6 +71,10 @@ actor APIClient: APIClientProtocol {
         try await get("/api/health")
     }
 
+    func status() async throws -> SystemStatus {
+        try await get("/api/status")
+    }
+
     func agents() async throws -> [Agent] {
         try await get("/api/agents")
     }
@@ -72,6 +89,54 @@ actor APIClient: APIClientProtocol {
 
     func budgetAgent(id: String) async throws -> AgentBudgetDetail {
         try await get("/api/budget/agents/\(id)")
+    }
+
+    func usageSummary() async throws -> UsageSummary {
+        try await get("/api/usage/summary")
+    }
+
+    func usageByModel() async throws -> UsageByModelResponse {
+        try await get("/api/usage/by-model")
+    }
+
+    func usageDaily() async throws -> UsageDailyResponse {
+        try await get("/api/usage/daily")
+    }
+
+    func providers() async throws -> ProviderList {
+        try await get("/api/providers")
+    }
+
+    func channels() async throws -> ChannelList {
+        try await get("/api/channels")
+    }
+
+    func hands() async throws -> HandCatalog {
+        try await get("/api/hands")
+    }
+
+    func activeHands() async throws -> ActiveHandList {
+        try await get("/api/hands/active")
+    }
+
+    func approvals() async throws -> ApprovalQueue {
+        try await get("/api/approvals")
+    }
+
+    func security() async throws -> SecurityStatus {
+        try await get("/api/security")
+    }
+
+    func networkStatus() async throws -> NetworkStatus {
+        try await get("/api/network/status")
+    }
+
+    func peers() async throws -> PeerList {
+        try await get("/api/peers")
+    }
+
+    func session(agentId: String) async throws -> AgentSessionSnapshot {
+        try await get("/api/agents/\(agentId)/session")
     }
 
     func sendMessage(agentId: String, message: String) async throws -> MessageResponse {

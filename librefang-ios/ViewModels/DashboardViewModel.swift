@@ -7,6 +7,20 @@ final class DashboardViewModel {
     var budgetAgents: AgentBudgetRanking?
     var a2aAgents: A2AAgentList?
     var health: HealthStatus?
+    var status: SystemStatus?
+    var usageSummary: UsageSummary?
+    var usageByModel: [ModelUsage] = []
+    var usageDaily: [DailyUsage] = []
+    var usageTodayCost = 0.0
+    var firstUsageEventDate: String?
+    var providers: [ProviderStatus] = []
+    var channels: [ChannelStatus] = []
+    var hands: [HandDefinition] = []
+    var activeHands: [HandInstance] = []
+    var approvals: [ApprovalItem] = []
+    var security: SecurityStatus?
+    var networkStatus: NetworkStatus?
+    var peers: [PeerStatus] = []
     var isLoading = false
     var error: String?
     var lastRefresh: Date?
@@ -48,6 +62,10 @@ final class DashboardViewModel {
                 catch { self.error = self.error ?? error.localizedDescription }
             }
             group.addTask { @MainActor in
+                do { self.status = try await self.api.status() }
+                catch { self.error = self.error ?? error.localizedDescription }
+            }
+            group.addTask { @MainActor in
                 do { self.agents = try await self.api.agents() }
                 catch { self.error = self.error ?? error.localizedDescription }
             }
@@ -62,6 +80,56 @@ final class DashboardViewModel {
             group.addTask { @MainActor in
                 do { self.a2aAgents = try await self.api.a2aAgents() }
                 catch { /* A2A is optional, don't set error */ }
+            }
+            group.addTask { @MainActor in
+                do { self.usageSummary = try await self.api.usageSummary() }
+                catch { /* Usage summary is optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.usageByModel = (try await self.api.usageByModel()).models }
+                catch { /* Model breakdown is optional */ }
+            }
+            group.addTask { @MainActor in
+                do {
+                    let daily = try await self.api.usageDaily()
+                    self.usageDaily = daily.days
+                    self.usageTodayCost = daily.todayCostUsd
+                    self.firstUsageEventDate = daily.firstEventDate
+                } catch {
+                    /* Daily usage trend is optional */
+                }
+            }
+            group.addTask { @MainActor in
+                do { self.providers = (try await self.api.providers()).providers }
+                catch { /* Provider probes are optional for mobile */ }
+            }
+            group.addTask { @MainActor in
+                do { self.channels = (try await self.api.channels()).channels }
+                catch { /* Channel inventory is optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.hands = (try await self.api.hands()).hands }
+                catch { /* Hands are optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.activeHands = (try await self.api.activeHands()).instances }
+                catch { /* Active hands are optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.approvals = (try await self.api.approvals()).approvals }
+                catch { /* Approval queue is optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.security = try await self.api.security() }
+                catch { /* Security summary is optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.networkStatus = try await self.api.networkStatus() }
+                catch { /* Peer network is optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.peers = (try await self.api.peers()).peers }
+                catch { /* Peer inventory is optional */ }
             }
         }
 
@@ -81,4 +149,22 @@ final class DashboardViewModel {
     var runningCount: Int { agents.filter(\.isRunning).count }
     var totalCount: Int { agents.count }
     var isConnected: Bool { health?.isHealthy == true }
+    var configuredProviderCount: Int { providers.filter(\.isConfigured).count }
+    var reachableLocalProviderCount: Int {
+        providers.filter { ($0.isLocal ?? false) && ($0.reachable ?? false) }.count
+    }
+    var configuredChannelCount: Int { channels.filter(\.configured).count }
+    var readyChannelCount: Int { channels.filter { $0.configured && $0.hasToken }.count }
+    var activeHandCount: Int { activeHands.count }
+    var degradedHandCount: Int { hands.filter(\.degraded).count }
+    var pendingApprovalCount: Int { approvals.count }
+    var securityFeatureCount: Int { security?.totalFeatures ?? 0 }
+    var totalTokenCount: Int {
+        (usageSummary?.totalInputTokens ?? 0) + (usageSummary?.totalOutputTokens ?? 0)
+    }
+    var highestModelCost: Double {
+        usageByModel.map(\.totalCostUsd).max() ?? 0
+    }
+    var connectedPeerCount: Int { networkStatus?.connectedPeers ?? 0 }
+    var totalPeerCount: Int { networkStatus?.totalPeers ?? peers.count }
 }

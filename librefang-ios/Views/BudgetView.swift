@@ -16,25 +16,31 @@ struct BudgetView: View {
         }
     }
 
+    private var sortedModels: [ModelUsage] {
+        vm.usageByModel.sorted { lhs, rhs in
+            if lhs.totalCostUsd == rhs.totalCostUsd {
+                return lhs.totalTokens > rhs.totalTokens
+            }
+            return lhs.totalCostUsd > rhs.totalCostUsd
+        }
+    }
+
     var body: some View {
         NavigationStack {
             List {
                 if let budget = vm.budget {
-                    // Chart
                     Section {
                         BudgetBarChart(budget: budget)
                             .frame(height: 180)
                             .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
                     }
 
-                    // Overview Numbers
                     Section("Limits") {
                         BudgetLimitRow(label: "Hourly", spend: budget.hourlySpend, limit: budget.hourlyLimit, pct: budget.hourlyPct)
                         BudgetLimitRow(label: "Daily", spend: budget.dailySpend, limit: budget.dailyLimit, pct: budget.dailyPct)
                         BudgetLimitRow(label: "Monthly", spend: budget.monthlySpend, limit: budget.monthlyLimit, pct: budget.monthlyPct)
                     }
 
-                    // Alert Threshold
                     Section("Alert") {
                         LabeledContent("Threshold") {
                             Text("\(Int(budget.alertThreshold * 100))%")
@@ -49,7 +55,43 @@ struct BudgetView: View {
                     }
                 }
 
-                // Per-Agent Ranking
+                if !vm.usageDaily.isEmpty {
+                    Section {
+                        DailyCostTrendChart(days: vm.usageDaily)
+                            .frame(height: 210)
+                            .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+                    } header: {
+                        Text("7-Day Cost Trend")
+                    } footer: {
+                        Text("Today: \(formatCost(vm.usageTodayCost))")
+                    }
+
+                    Section("Daily Breakdown") {
+                        ForEach(vm.usageDaily.reversed()) { day in
+                            DailyUsageRow(day: day)
+                        }
+                    }
+                }
+
+                if !sortedModels.isEmpty {
+                    Section {
+                        CostDistributionCard(models: sortedModels)
+                            .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+                    } header: {
+                        Text("Model Cost Distribution")
+                    }
+
+                    Section("By Model") {
+                        ForEach(sortedModels.prefix(8)) { model in
+                            ModelCostRow(model: model, maxCost: max(vm.highestModelCost, 0.01))
+                        }
+                    } footer: {
+                        if sortedModels.count > 8 {
+                            Text("Showing top 8 of \(sortedModels.count) models")
+                        }
+                    }
+                }
+
                 if !sortedAgents.isEmpty {
                     Section {
                         ForEach(sortedAgents) { item in
@@ -63,6 +105,7 @@ struct BudgetView: View {
                                 Picker("Sort", selection: $sortOrder) {
                                     ForEach(BudgetSort.allCases, id: \.self) { sort in
                                         Label(sort.label, systemImage: sort.icon)
+                                            .tag(sort)
                                     }
                                 }
                             } label: {
@@ -87,20 +130,24 @@ struct BudgetView: View {
                 await vm.refresh()
             }
             .overlay {
-                if vm.isLoading && vm.budget == nil {
+                if vm.isLoading && vm.budget == nil && vm.usageDaily.isEmpty {
                     ProgressView("Loading...")
                 }
             }
             .task {
-                if vm.budget == nil {
+                if vm.budget == nil && vm.usageDaily.isEmpty {
                     await vm.refresh()
                 }
             }
         }
     }
-}
 
-// MARK: - Sort
+    private func formatCost(_ value: Double) -> String {
+        if value == 0 { return "$0.00" }
+        if value < 0.01 { return "<$0.01" }
+        return String(format: "$%.2f", value)
+    }
+}
 
 private enum BudgetSort: CaseIterable {
     case costDesc, costAsc, name
@@ -122,16 +169,14 @@ private enum BudgetSort: CaseIterable {
     }
 }
 
-// MARK: - Bar Chart
-
 private struct BudgetBarChart: View {
     let budget: BudgetOverview
 
-    private var data: [ChartEntry] {
+    private var data: [BudgetChartEntry] {
         [
-            ChartEntry(period: String(localized: "Hourly"), spend: budget.hourlySpend, limit: budget.hourlyLimit),
-            ChartEntry(period: String(localized: "Daily"), spend: budget.dailySpend, limit: budget.dailyLimit),
-            ChartEntry(period: String(localized: "Monthly"), spend: budget.monthlySpend, limit: budget.monthlyLimit),
+            BudgetChartEntry(period: String(localized: "Hourly"), spend: budget.hourlySpend, limit: budget.hourlyLimit),
+            BudgetChartEntry(period: String(localized: "Daily"), spend: budget.dailySpend, limit: budget.dailyLimit),
+            BudgetChartEntry(period: String(localized: "Monthly"), spend: budget.monthlySpend, limit: budget.monthlyLimit),
         ]
     }
 
@@ -144,7 +189,6 @@ private struct BudgetBarChart: View {
             .foregroundStyle(barColor(spend: entry.spend, limit: entry.limit).gradient)
             .cornerRadius(4)
 
-            // Limit line
             if entry.limit > 0 {
                 RuleMark(y: .value("Limit", entry.limit))
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 3]))
@@ -178,14 +222,197 @@ private struct BudgetBarChart: View {
     }
 }
 
-private struct ChartEntry: Identifiable {
+private struct DailyCostTrendChart: View {
+    let days: [DailyUsage]
+
+    private var chartDays: [DailyUsagePoint] {
+        days.compactMap { day in
+            guard let date = day.date.usageDate else { return nil }
+            return DailyUsagePoint(date: date, cost: day.costUsd, tokens: day.tokens, calls: day.calls)
+        }
+    }
+
+    var body: some View {
+        Chart(chartDays) { day in
+            AreaMark(
+                x: .value("Date", day.date),
+                y: .value("Cost", day.cost)
+            )
+            .foregroundStyle(.teal.opacity(0.16))
+
+            LineMark(
+                x: .value("Date", day.date),
+                y: .value("Cost", day.cost)
+            )
+            .foregroundStyle(.teal)
+            .lineStyle(.init(lineWidth: 2.5))
+
+            PointMark(
+                x: .value("Date", day.date),
+                y: .value("Cost", day.cost)
+            )
+            .foregroundStyle(.teal)
+        }
+        .chartXAxis {
+            AxisMarks(values: .stride(by: .day)) { value in
+                AxisGridLine().foregroundStyle(.clear)
+                AxisTick()
+                AxisValueLabel(format: .dateTime.weekday(.abbreviated), centered: true)
+            }
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading) { value in
+                AxisValueLabel {
+                    if let amount = value.as(Double.self) {
+                        Text("$\(amount, specifier: amount >= 1 ? "%.0f" : "%.2f")")
+                            .font(.caption2)
+                    }
+                }
+            }
+        }
+        .chartOverlay { proxy in
+            GeometryReader { geometry in
+                if let latest = chartDays.last,
+                   let position = proxy.position(forX: latest.date, y: latest.cost) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("$\(latest.cost, specifier: latest.cost >= 1 ? "%.2f" : "%.4f")")
+                            .font(.caption.weight(.semibold))
+                        Text("\(latest.tokens.formatted()) tokens")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(8)
+                    .background(.thinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .position(x: min(position.x + 40, geometry.size.width - 48), y: 20)
+                }
+            }
+        }
+        .padding(.horizontal)
+    }
+}
+
+private struct CostDistributionCard: View {
+    let models: [ModelUsage]
+
+    private var totalCost: Double {
+        models.reduce(0) { $0 + $1.totalCostUsd }
+    }
+
+    private var topSlices: [CostSlice] {
+        let ranked = models.sorted { $0.totalCostUsd > $1.totalCostUsd }
+        let head = Array(ranked.prefix(4))
+        let tail = ranked.dropFirst(4)
+        let othersCost = tail.reduce(0) { $0 + $1.totalCostUsd }
+
+        var slices = head.enumerated().map { index, model in
+            CostSlice(
+                id: model.id,
+                title: shortModelName(model.model),
+                value: model.totalCostUsd,
+                color: palette[index % palette.count]
+            )
+        }
+
+        if othersCost > 0 {
+            slices.append(CostSlice(
+                id: "others",
+                title: "Others",
+                value: othersCost,
+                color: .gray
+            ))
+        }
+
+        return slices
+    }
+
+    private let palette: [Color] = [.orange, .blue, .green, .pink, .indigo]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(formatCost(totalCost))
+                    .font(.title3.monospacedDigit().weight(.semibold))
+                Text("Accumulated model cost")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            GeometryReader { geometry in
+                HStack(spacing: 4) {
+                    ForEach(topSlices) { slice in
+                        Capsule()
+                            .fill(slice.color)
+                            .frame(width: max(10, geometry.size.width * CGFloat(slice.value / max(totalCost, 0.0001))), height: 16)
+                    }
+                }
+            }
+            .frame(height: 16)
+
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(topSlices) { slice in
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(slice.color)
+                            .frame(width: 8, height: 8)
+                        Text(slice.title)
+                            .font(.caption)
+                            .lineLimit(1)
+                        Spacer()
+                        Text(formatCost(slice.value))
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                        Text(percentText(for: slice.value))
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 4)
+        .padding(.vertical, 8)
+    }
+
+    private func percentText(for value: Double) -> String {
+        guard totalCost > 0 else { return "0%" }
+        return "\(Int((value / totalCost) * 100))%"
+    }
+
+    private func formatCost(_ value: Double) -> String {
+        if value == 0 { return "$0.00" }
+        if value < 0.01 { return "<$0.01" }
+        return String(format: "$%.2f", value)
+    }
+
+    private func shortModelName(_ name: String) -> String {
+        if let last = name.split(separator: "/").last {
+            return String(last)
+        }
+        return name
+    }
+}
+
+private struct BudgetChartEntry: Identifiable {
     let period: String
     let spend: Double
     let limit: Double
     var id: String { period }
 }
 
-// MARK: - Budget Limit Row
+private struct DailyUsagePoint: Identifiable {
+    let date: Date
+    let cost: Double
+    let tokens: Int
+    let calls: Int
+    var id: Date { date }
+}
+
+private struct CostSlice: Identifiable {
+    let id: String
+    let title: String
+    let value: Double
+    let color: Color
+}
 
 private struct BudgetLimitRow: View {
     let label: LocalizedStringKey
@@ -216,7 +443,124 @@ private struct BudgetLimitRow: View {
     }
 }
 
-// MARK: - Agent Cost Row
+private struct DailyUsageRow: View {
+    let day: DailyUsage
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(formattedDate)
+                    .font(.subheadline.weight(.medium))
+                Spacer()
+                Text(costText)
+                    .font(.subheadline.monospacedDigit())
+            }
+
+            HStack(spacing: 12) {
+                Label(day.tokens.formatted(), systemImage: "number")
+                Label(day.calls.formatted(), systemImage: "waveform")
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var formattedDate: String {
+        guard let date = day.date.usageDate else { return day.date }
+        return date.formatted(.dateTime.month(.abbreviated).day())
+    }
+
+    private var costText: String {
+        if day.costUsd == 0 { return "$0.00" }
+        if day.costUsd < 0.01 { return "<$0.01" }
+        return String(format: "$%.2f", day.costUsd)
+    }
+}
+
+private struct ModelCostRow: View {
+    let model: ModelUsage
+    let maxCost: Double
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(modelName)
+                        .font(.subheadline.weight(.medium))
+                        .lineLimit(2)
+                    Text(providerName)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Text(costText)
+                    .font(.subheadline.monospacedDigit().weight(.medium))
+            }
+
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(Color(.systemGray5))
+                    .frame(height: 8)
+
+                Capsule()
+                    .fill(costColor.gradient)
+                    .frame(width: max(12, CGFloat(model.totalCostUsd / maxCost) * 220), height: 8)
+            }
+
+            HStack(spacing: 12) {
+                Label(model.totalTokens.formatted(), systemImage: "number")
+                Label(model.callCount.formatted(), systemImage: "waveform")
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var modelName: String {
+        if let last = model.model.split(separator: "/").last {
+            return String(last)
+        }
+        return model.model
+    }
+
+    private var providerName: String {
+        let lower = model.model.lowercased()
+        if lower.contains("claude") || lower.contains("haiku") || lower.contains("sonnet") || lower.contains("opus") {
+            return "Anthropic"
+        }
+        if lower.contains("gemini") || lower.contains("gemma") {
+            return "Google"
+        }
+        if lower.contains("gpt") || lower.contains("o1") || lower.contains("o3") || lower.contains("o4") {
+            return "OpenAI"
+        }
+        if lower.contains("groq") || lower.contains("llama") || lower.contains("mixtral") {
+            return "Groq"
+        }
+        if lower.contains("deepseek") {
+            return "DeepSeek"
+        }
+        if lower.contains("mistral") {
+            return "Mistral"
+        }
+        return "Other"
+    }
+
+    private var costText: String {
+        if model.totalCostUsd == 0 { return "$0.00" }
+        if model.totalCostUsd < 0.01 { return "<$0.01" }
+        return String(format: "$%.2f", model.totalCostUsd)
+    }
+
+    private var costColor: Color {
+        let ratio = model.totalCostUsd / maxCost
+        if ratio > 0.7 { return .red }
+        if ratio > 0.35 { return .orange }
+        return .blue
+    }
+}
 
 private struct AgentCostRow: View {
     let item: AgentBudgetItem
@@ -243,5 +587,19 @@ private struct AgentCostRow: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private extension String {
+    var usageDate: Date? {
+        let formatter = ISO8601DateFormatter()
+        if let date = formatter.date(from: self) {
+            return date
+        }
+
+        let shortFormatter = DateFormatter()
+        shortFormatter.locale = Locale(identifier: "en_US_POSIX")
+        shortFormatter.dateFormat = "yyyy-MM-dd"
+        return shortFormatter.date(from: self)
     }
 }

@@ -70,6 +70,33 @@ struct SettingsView: View {
                     }
                 }
 
+                Section("Monitoring") {
+                    LabeledContent("Providers") {
+                        Text("\(deps.dashboardViewModel.configuredProviderCount) configured")
+                            .foregroundStyle(.secondary)
+                    }
+                    LabeledContent("Channels") {
+                        Text("\(deps.dashboardViewModel.readyChannelCount) ready")
+                            .foregroundStyle(.secondary)
+                    }
+                    LabeledContent("Hands") {
+                        Text("\(deps.dashboardViewModel.activeHandCount) active")
+                            .foregroundStyle(.secondary)
+                    }
+                    LabeledContent("Approvals") {
+                        Text("\(deps.dashboardViewModel.pendingApprovalCount) pending")
+                            .foregroundStyle(deps.dashboardViewModel.pendingApprovalCount > 0 ? .red : .secondary)
+                    }
+                    LabeledContent("Peers") {
+                        Text("\(deps.dashboardViewModel.connectedPeerCount)/\(deps.dashboardViewModel.totalPeerCount)")
+                            .foregroundStyle(.secondary)
+                    }
+                    LabeledContent("Security") {
+                        Text("\(deps.dashboardViewModel.securityFeatureCount) features")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
                 Section("About") {
                     LabeledContent("App", value: "LibreFang iOS")
                     if let health = deps.dashboardViewModel.health {

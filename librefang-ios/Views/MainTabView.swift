@@ -22,18 +22,25 @@ struct MainTabView: View {
                     .badge(vm.runningCount > 0 ? vm.runningCount : 0)
                     .tag(1)
 
+                RuntimeView()
+                    .tabItem {
+                        Label("Runtime", systemImage: "waveform.path.ecg")
+                    }
+                    .badge(runtimeAlertBadge)
+                    .tag(2)
+
                 BudgetView()
                     .tabItem {
                         Label("Budget", systemImage: "chart.bar")
                     }
                     .badge(budgetAlertBadge)
-                    .tag(2)
+                    .tag(3)
 
                 SettingsView()
                     .tabItem {
                         Label("Settings", systemImage: "gearshape")
                     }
-                    .tag(3)
+                    .tag(4)
             }
             .onChange(of: selectedTab) {
                 HapticManager.selection()
@@ -45,7 +52,7 @@ struct MainTabView: View {
             }
         }
         .onAppear {
-            deps.dashboardViewModel.startAutoRefresh()
+            deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
         }
     }
 
@@ -53,6 +60,15 @@ struct MainTabView: View {
         guard let budget = vm.budget else { return 0 }
         let maxPct = max(budget.hourlyPct, budget.dailyPct, budget.monthlyPct)
         return maxPct >= budget.alertThreshold ? 1 : 0
+    }
+
+    private var runtimeAlertBadge: Int {
+        max(vm.pendingApprovalCount, vm.degradedHandCount > 0 ? 1 : 0)
+    }
+
+    private var storedRefreshInterval: TimeInterval {
+        let value = UserDefaults.standard.double(forKey: "refreshInterval")
+        return value == 0 ? 30 : min(max(value, 10), 120)
     }
 }
 

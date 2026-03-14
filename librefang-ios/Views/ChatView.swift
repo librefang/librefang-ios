@@ -7,11 +7,23 @@ struct ChatView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            SessionBanner(viewModel: viewModel)
+
             // Messages
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        if viewModel.messages.isEmpty {
+                        if viewModel.isLoadingHistory && viewModel.messages.isEmpty {
+                            VStack(spacing: 12) {
+                                ProgressView()
+                                    .controlSize(.large)
+                                Text("Loading conversation…")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 60)
+                        } else if viewModel.messages.isEmpty {
                             VStack(spacing: 12) {
                                 Image(systemName: "bubble.left.and.bubble.right")
                                     .font(.system(size: 40))
@@ -92,6 +104,9 @@ struct ChatView: View {
         }
         .navigationTitle(viewModel.agent.name)
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await viewModel.loadHistoryIfNeeded()
+        }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Text(viewModel.agent.identity?.emoji ?? "🤖")
@@ -119,6 +134,39 @@ struct ChatView: View {
 
 // MARK: - Message Bubble
 
+private struct SessionBanner: View {
+    let viewModel: ChatViewModel
+
+    var body: some View {
+        if viewModel.messageCount > 0 || viewModel.contextWindowTokens > 0 || viewModel.sessionLabel != nil {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(viewModel.sessionLabel?.isEmpty == false ? viewModel.sessionLabel! : "Current Session")
+                        .font(.caption.weight(.semibold))
+                    Text("\(viewModel.messageCount) messages")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                if viewModel.contextWindowTokens > 0 {
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text(viewModel.contextWindowTokens.formatted())
+                            .font(.caption.weight(.semibold).monospacedDigit())
+                        Text("context tokens")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(.thinMaterial)
+        }
+    }
+}
+
 private struct MessageBubble: View {
     let message: ChatMessage
 
@@ -132,7 +180,7 @@ private struct MessageBubble: View {
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
                     .background(bubbleBackground)
-                    .foregroundStyle(message.role == .user ? .white : .primary)
+                    .foregroundStyle(foregroundColor)
                     .clipShape(RoundedRectangle(cornerRadius: 18))
 
                 // Metadata
@@ -151,12 +199,30 @@ private struct MessageBubble: View {
                 .foregroundStyle(.quaternary)
             }
 
-            if message.role == .agent { Spacer(minLength: 48) }
+            if message.role != .user { Spacer(minLength: 48) }
         }
     }
 
     private var bubbleBackground: Color {
-        message.role == .user ? .blue : Color(.systemGray5)
+        switch message.role {
+        case .user:
+            .blue
+        case .system:
+            .orange.opacity(0.18)
+        case .agent:
+            Color(.systemGray5)
+        }
+    }
+
+    private var foregroundColor: Color {
+        switch message.role {
+        case .user:
+            .white
+        case .system:
+            .orange
+        case .agent:
+            .primary
+        }
     }
 }
 

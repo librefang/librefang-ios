@@ -6,10 +6,11 @@ LibreFang is an iOS companion application designed to monitor and manage your Li
 
 *   **Dashboard Overview**: View live statistics on running agents, total configured agents, and today's total spend.
 *   **Connection Monitoring**: Real-time health indicators showing whether the app is successfully connected to your LibreFang server.
+*   **Runtime Monitoring**: Track kernel uptime, usage totals, provider readiness, connected channels, active Hands, pending approvals, and security posture from a dedicated runtime tab.
 *   **Budget Tracking**: Detailed gauges for hourly, daily, and monthly spending relative to your configured limits. Receive warnings when you are approaching your spending thresholds.
 *   **Top Spenders Identification**: A breakdown of which agents have incurred the highest costs today.
 *   **A2A Network Summary**: See how many external agents are connected via the A2A network.
-*   **Agent Management**: Preview and manage your running AI agents, including identifying them by their assigned emoji identities.
+*   **Agent Inspection**: Preview your running AI agents, inspect their budget and current conversation snapshot, and jump into the live conversation when needed.
 *   **Offline Support**: Visual banners to alert you when your device loses internet connectivity, preventing stale data from causing confusion.
 
 ## Getting Started

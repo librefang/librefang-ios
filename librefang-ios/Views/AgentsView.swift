@@ -41,7 +41,11 @@ struct AgentsView: View {
                 } else {
                     List(filteredAgents) { agent in
                         NavigationLink(value: agent.id) {
-                            AgentRow(agent: agent)
+                            AgentRow(
+                                agent: agent,
+                                pendingApprovals: pendingApprovalCount(for: agent),
+                                hasAuthIssue: hasAuthIssue(for: agent)
+                            )
                         }
                         .swipeActions(edge: .trailing) {
                             if agent.isRunning {
@@ -133,6 +137,8 @@ private enum AgentFilter: CaseIterable {
 
 private struct AgentRow: View {
     let agent: Agent
+    let pendingApprovals: Int
+    let hasAuthIssue: Bool
 
     var body: some View {
         HStack(spacing: 12) {
@@ -146,6 +152,30 @@ private struct AgentRow: View {
 
                 HStack(spacing: 6) {
                     StatePill(state: agent.state)
+
+                    if pendingApprovals > 0 {
+                        InlineStatusPill(
+                            label: pendingApprovals == 1 ? "1 approval" : "\(pendingApprovals) approvals",
+                            color: .red,
+                            systemImage: "exclamationmark.shield"
+                        )
+                    }
+
+                    if !agent.ready {
+                        InlineStatusPill(
+                            label: "Not ready",
+                            color: .orange,
+                            systemImage: "hourglass"
+                        )
+                    }
+
+                    if hasAuthIssue {
+                        InlineStatusPill(
+                            label: "Auth",
+                            color: .red,
+                            systemImage: "lock.slash"
+                        )
+                    }
 
                     if let provider = agent.modelProvider {
                         Text(provider)
@@ -199,6 +229,22 @@ private struct StatePill: View {
     }
 }
 
+private struct InlineStatusPill: View {
+    let label: String
+    let color: Color
+    let systemImage: String
+
+    var body: some View {
+        Label(label, systemImage: systemImage)
+            .font(.caption2.weight(.medium))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(color.opacity(0.12))
+            .foregroundStyle(color)
+            .clipShape(Capsule())
+    }
+}
+
 // MARK: - Relative Time
 
 private struct RelativeTimeText: View {
@@ -237,5 +283,16 @@ private struct StatusIndicator: View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+}
+
+private extension AgentsView {
+    func pendingApprovalCount(for agent: Agent) -> Int {
+        vm.approvals.filter { $0.agentId == agent.id || $0.agentName == agent.name }.count
+    }
+
+    func hasAuthIssue(for agent: Agent) -> Bool {
+        guard let authStatus = agent.authStatus?.lowercased() else { return false }
+        return authStatus != "configured"
     }
 }
