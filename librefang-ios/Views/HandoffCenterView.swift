@@ -34,17 +34,15 @@ struct HandoffCenterView: View {
 
     private var handoffStore: OnCallHandoffStore { deps.onCallHandoffStore }
     private var currentShareText: String {
-        let note = handoffStore.draftNote.trimmingCharacters(in: .whitespacesAndNewlines)
-        var lines = ["LibreFang live handoff summary · \(Date().formatted(date: .abbreviated, time: .shortened))"]
-
-        if !note.isEmpty {
-            lines.append("Operator note: \(note)")
-        }
-
-        lines.append("Queue: \(queueCount) · Critical: \(criticalCount) · Live alerts: \(liveAlertCount)")
-        lines.append("")
-        lines.append(summary)
-        return lines.joined(separator: "\n")
+        OnCallHandoffEntry.buildShareText(
+            timestamp: Date(),
+            note: handoffStore.draftNote.trimmingCharacters(in: .whitespacesAndNewlines),
+            summary: summary,
+            queueCount: queueCount,
+            criticalCount: criticalCount,
+            liveAlertCount: liveAlertCount,
+            checklist: handoffStore.draftChecklist
+        )
     }
     private var filteredEntries: [OnCallHandoffEntry] {
         handoffStore.entries.filter { entry in
@@ -75,6 +73,11 @@ struct HandoffCenterView: View {
                         liveAlertCount: liveAlertCount
                     )
 
+                    HandoffChecklistComposer(
+                        checklist: handoffStore.draftChecklist,
+                        toggle: { handoffStore.toggleDraftChecklist($0) }
+                    )
+
                     Button {
                         handoffStore.saveSnapshot(
                             summary: summary,
@@ -88,11 +91,21 @@ struct HandoffCenterView: View {
                     }
                     .buttonStyle(.borderedProminent)
 
-                    ShareLink(item: currentShareText) {
-                        Label("Share Current Summary", systemImage: "square.and.arrow.up")
-                            .frame(maxWidth: .infinity)
+                    HStack(spacing: 10) {
+                        Button(role: .destructive) {
+                            handoffStore.resetDraft()
+                        } label: {
+                            Label("Reset Draft", systemImage: "arrow.counterclockwise")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+
+                        ShareLink(item: currentShareText) {
+                            Label("Share Current Summary", systemImage: "square.and.arrow.up")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
                     }
-                    .buttonStyle(.bordered)
                 }
                 .padding(.vertical, 4)
             } header: {
@@ -191,6 +204,46 @@ private struct HandoffStatsRow: View {
     }
 }
 
+private struct HandoffChecklistComposer: View {
+    let checklist: HandoffChecklistState
+    let toggle: (HandoffChecklistKey) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Handoff checklist")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                Text(checklist.progressLabel)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+
+            ForEach(HandoffChecklistKey.allCases) { key in
+                Button {
+                    toggle(key)
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: checklist.contains(key) ? "checkmark.circle.fill" : key.symbolName)
+                            .foregroundStyle(checklist.contains(key) ? .green : .secondary)
+                            .frame(width: 18)
+
+                        Text(key.label)
+                            .foregroundStyle(.primary)
+
+                        Spacer()
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(.secondary.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
+
 private struct HandoffStatPill: View {
     let value: Int
     let label: String
@@ -249,7 +302,38 @@ private struct HandoffEntryCard: View {
                 criticalCount: entry.criticalCount,
                 liveAlertCount: entry.liveAlertCount
             )
+
+            HandoffChecklistStatusRow(checklist: entry.checklist)
         }
         .padding(.vertical, 6)
+    }
+}
+
+private struct HandoffChecklistStatusRow: View {
+    let checklist: HandoffChecklistState
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Label("Checklist", systemImage: "checklist")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(checklist.progressLabel)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(checklist.completedCount == checklist.totalCount ? .green : .secondary)
+            }
+
+            if checklist.pendingLabels.isEmpty {
+                Text("All handoff checks completed.")
+                    .font(.caption2)
+                    .foregroundStyle(.green)
+            } else {
+                Text("Pending: \(checklist.pendingLabels.joined(separator: ", "))")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        }
     }
 }

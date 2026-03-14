@@ -199,6 +199,15 @@ struct SettingsView: View {
                             Text("\(latest.queueCount) queued · \(latest.criticalCount) critical")
                                 .foregroundStyle(latest.criticalCount > 0 ? .orange : .secondary)
                         }
+                        LabeledContent("Checklist") {
+                            Text(latest.checklist.progressLabel)
+                                .foregroundStyle(latest.checklist.pendingLabels.isEmpty ? .green : .secondary)
+                        }
+                        if !latest.checklist.pendingLabels.isEmpty {
+                            Text("Pending: \(latest.checklist.pendingLabels.joined(separator: ", "))")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     } else {
                         Text("No local handoff snapshots saved on this iPhone yet.")
                             .font(.caption)

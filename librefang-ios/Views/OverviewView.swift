@@ -414,6 +414,7 @@ private struct RecentHandoffCard: View {
                 HandoffBadge(value: entry.queueCount, label: "Queued")
                 HandoffBadge(value: entry.criticalCount, label: "Critical")
                 HandoffBadge(value: entry.liveAlertCount, label: "Live")
+                HandoffBadge(value: entry.checklist.completedCount, label: "Checks")
                 Spacer()
                 Text("Open")
                     .font(.caption2.weight(.medium))
@@ -422,6 +423,11 @@ private struct RecentHandoffCard: View {
                     .background(.secondary.opacity(0.12))
                     .clipShape(Capsule())
             }
+
+            Text(entry.checklist.pendingLabels.isEmpty ? "Checklist complete" : "Pending: \(entry.checklist.pendingLabels.joined(separator: ", "))")
+                .font(.caption2)
+                .foregroundStyle(entry.checklist.pendingLabels.isEmpty ? .green : .secondary)
+                .lineLimit(2)
         }
         .padding()
         .background(.ultraThinMaterial)
