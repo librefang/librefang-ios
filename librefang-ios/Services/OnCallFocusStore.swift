@@ -33,6 +33,7 @@ enum OnCallFocusMode: String, CaseIterable, Identifiable {
 enum OnCallSurfacePreference: String, CaseIterable, Identifiable {
     case onCall
     case nightWatch
+    case standbyDigest
 
     var id: String { rawValue }
 
@@ -42,6 +43,8 @@ enum OnCallSurfacePreference: String, CaseIterable, Identifiable {
             "On Call"
         case .nightWatch:
             "Night Watch"
+        case .standbyDigest:
+            "Standby Digest"
         }
     }
 
@@ -51,6 +54,8 @@ enum OnCallSurfacePreference: String, CaseIterable, Identifiable {
             "Open the full triage queue with supporting sections."
         case .nightWatch:
             "Jump straight into the minimal high-priority watch surface."
+        case .standbyDigest:
+            "Open the lockscreen-style glance view with the smallest possible incident summary."
         }
     }
 }

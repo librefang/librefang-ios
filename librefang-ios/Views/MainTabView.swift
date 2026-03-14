@@ -141,11 +141,7 @@ struct MainTabView: View {
         }
         .sheet(isPresented: $showOnCall) {
             NavigationStack {
-                if preferredOnCallSurface == .nightWatch {
-                    NightWatchView()
-                } else {
-                    OnCallView()
-                }
+                preferredSurfaceView
             }
         }
     }
@@ -170,6 +166,18 @@ struct MainTabView: View {
             scope: deps.onCallNotificationManager.scope,
             isAcknowledged: isCurrentSnapshotAcknowledged
         )
+    }
+
+    @ViewBuilder
+    private var preferredSurfaceView: some View {
+        switch preferredOnCallSurface {
+        case .onCall:
+            OnCallView()
+        case .nightWatch:
+            NightWatchView()
+        case .standbyDigest:
+            StandbyDigestView()
+        }
     }
 
     @ViewBuilder

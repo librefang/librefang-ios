@@ -77,11 +77,7 @@ struct OverviewView: View {
                     }
 
                     NavigationLink {
-                        if preferredOnCallSurface == .nightWatch {
-                            NightWatchView()
-                        } else {
-                            OnCallView()
-                        }
+                        preferredSurfaceView
                     } label: {
                         OnCallDigestCard(
                             queueCount: onCallPriorityItems.count,
@@ -202,6 +198,12 @@ struct OverviewView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 14) {
                         NavigationLink {
+                            StandbyDigestView()
+                        } label: {
+                            Image(systemName: "rectangle.inset.filled")
+                        }
+
+                        NavigationLink {
                             NightWatchView()
                         } label: {
                             Image(systemName: "moon.stars")
@@ -250,6 +252,18 @@ struct OverviewView: View {
         if pct > 0.9 { return .red }
         if pct > 0.7 { return .orange }
         return .green
+    }
+
+    @ViewBuilder
+    private var preferredSurfaceView: some View {
+        switch preferredOnCallSurface {
+        case .onCall:
+            OnCallView()
+        case .nightWatch:
+            NightWatchView()
+        case .standbyDigest:
+            StandbyDigestView()
+        }
     }
 }
 

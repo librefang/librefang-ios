@@ -131,6 +131,12 @@ struct OnCallView: View {
                 } label: {
                     Label("Open Night Watch", systemImage: "moon.stars")
                 }
+
+                NavigationLink {
+                    StandbyDigestView()
+                } label: {
+                    Label("Open Standby Digest", systemImage: "rectangle.inset.filled")
+                }
             }
 
             if !priorityItems.isEmpty {
@@ -191,10 +197,18 @@ struct OnCallView: View {
         .navigationTitle("On Call")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                NavigationLink {
-                    NightWatchView()
-                } label: {
-                    Image(systemName: "moon.stars")
+                HStack(spacing: 14) {
+                    NavigationLink {
+                        StandbyDigestView()
+                    } label: {
+                        Image(systemName: "rectangle.inset.filled")
+                    }
+
+                    NavigationLink {
+                        NightWatchView()
+                    } label: {
+                        Image(systemName: "moon.stars")
+                    }
                 }
             }
         }
