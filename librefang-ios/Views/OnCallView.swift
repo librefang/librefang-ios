@@ -146,6 +146,17 @@ struct OnCallView: View {
                     Label("Open Standby Digest", systemImage: "rectangle.inset.filled")
                 }
 
+                NavigationLink {
+                    HandoffCenterView(
+                        summary: handoffText,
+                        queueCount: priorityItems.count,
+                        criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
+                        liveAlertCount: visibleAlerts.count
+                    )
+                } label: {
+                    Label("Open Handoff Center", systemImage: "text.badge.plus")
+                }
+
                 ShareLink(item: handoffText) {
                     Label("Share Handoff Summary", systemImage: "square.and.arrow.up")
                 }
@@ -218,6 +229,17 @@ struct OnCallView: View {
                         StandbyDigestView()
                     } label: {
                         Image(systemName: "rectangle.inset.filled")
+                    }
+
+                    NavigationLink {
+                        HandoffCenterView(
+                            summary: handoffText,
+                            queueCount: priorityItems.count,
+                            criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
+                            liveAlertCount: visibleAlerts.count
+                        )
+                    } label: {
+                        Image(systemName: "text.badge.plus")
                     }
 
                     NavigationLink {

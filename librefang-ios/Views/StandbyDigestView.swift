@@ -377,6 +377,22 @@ struct StandbyDigestView: View {
             }
             .buttonStyle(.plain)
 
+            NavigationLink {
+                HandoffCenterView(
+                    summary: handoffText,
+                    queueCount: priorityItems.count,
+                    criticalCount: criticalCount,
+                    liveAlertCount: visibleAlerts.count
+                )
+            } label: {
+                StandbyActionRow(
+                    title: "Handoff Center",
+                    detail: "Save a local note and keep recent handoff snapshots on this iPhone.",
+                    systemImage: "text.badge.plus"
+                )
+            }
+            .buttonStyle(.plain)
+
             ShareLink(item: handoffText) {
                 StandbyActionRow(
                     title: "Share Handoff Summary",
