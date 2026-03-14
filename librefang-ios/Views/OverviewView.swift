@@ -51,6 +51,9 @@ struct OverviewView: View {
     private var preferredOnCallSurface: OnCallSurfacePreference {
         deps.onCallFocusStore.preferredSurface
     }
+    private var latestHandoffGapLabel: String? {
+        deps.onCallHandoffStore.timelineItems.first?.gapToOlderEntry.map(OnCallHandoffStore.formatInterval)
+    }
     private let summaryColumns = [
         GridItem(.flexible(), spacing: 10),
         GridItem(.flexible(), spacing: 10),
@@ -105,7 +108,7 @@ struct OverviewView: View {
                                 liveAlertCount: visibleMonitoringAlerts.count
                             )
                         } label: {
-                            RecentHandoffCard(entry: latestHandoff)
+                            RecentHandoffCard(entry: latestHandoff, gapLabel: latestHandoffGapLabel)
                         }
                         .buttonStyle(.plain)
                     }
@@ -387,6 +390,7 @@ private struct AlertsCard: View {
 
 private struct RecentHandoffCard: View {
     let entry: OnCallHandoffEntry
+    let gapLabel: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -436,6 +440,12 @@ private struct RecentHandoffCard: View {
                 .font(.caption2)
                 .foregroundStyle(entry.checklist.pendingLabels.isEmpty ? .green : .secondary)
                 .lineLimit(2)
+
+            if let gapLabel {
+                Text("Gap to prior handoff: \(gapLabel)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
         }
         .padding()
         .background(.ultraThinMaterial)

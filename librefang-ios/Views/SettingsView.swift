@@ -207,12 +207,19 @@ struct SettingsView: View {
                             Text(deps.onCallHandoffStore.freshnessLabel)
                                 .foregroundStyle(handoffFreshnessColor)
                         }
+                        LabeledContent("Cadence") {
+                            Text(deps.onCallHandoffStore.cadenceState.label)
+                                .foregroundStyle(handoffCadenceColor)
+                        }
                         if !latest.checklist.pendingLabels.isEmpty {
                             Text("Pending: \(latest.checklist.pendingLabels.joined(separator: ", "))")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                         Text(deps.onCallHandoffStore.freshnessSummary)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(deps.onCallHandoffStore.cadenceSummary)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     } else {
@@ -395,6 +402,17 @@ struct SettingsView: View {
             .orange
         default:
             .red
+        }
+    }
+
+    private var handoffCadenceColor: Color {
+        switch deps.onCallHandoffStore.cadenceState {
+        case .steady:
+            .green
+        case .sparse:
+            .orange
+        default:
+            .secondary
         }
     }
 }

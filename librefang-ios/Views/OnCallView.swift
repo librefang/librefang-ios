@@ -134,6 +134,8 @@ struct OnCallView: View {
                 OnCallHandoffStatusRow(
                     freshnessLabel: handoffStore.freshnessLabel,
                     freshnessSummary: handoffStore.freshnessSummary,
+                    cadenceLabel: handoffStore.cadenceState.label,
+                    cadenceSummary: handoffStore.cadenceSummary,
                     latestEntry: handoffStore.latestEntry
                 )
 
@@ -315,6 +317,8 @@ struct OnCallView: View {
 private struct OnCallHandoffStatusRow: View {
     let freshnessLabel: String
     let freshnessSummary: String
+    let cadenceLabel: String
+    let cadenceSummary: String
     let latestEntry: OnCallHandoffEntry?
 
     private var freshnessColor: Color {
@@ -325,6 +329,17 @@ private struct OnCallHandoffStatusRow: View {
             .orange
         default:
             .red
+        }
+    }
+
+    private var cadenceColor: Color {
+        switch cadenceLabel {
+        case "Steady":
+            .green
+        case "Sparse":
+            .orange
+        default:
+            .secondary
         }
     }
 
@@ -346,6 +361,24 @@ private struct OnCallHandoffStatusRow: View {
 
             Text(freshnessSummary)
                 .font(.caption)
+                .foregroundStyle(.secondary)
+
+            HStack {
+                Text("Cadence")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(cadenceLabel)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(cadenceColor.opacity(0.12))
+                    .foregroundStyle(cadenceColor)
+                    .clipShape(Capsule())
+            }
+
+            Text(cadenceSummary)
+                .font(.caption2)
                 .foregroundStyle(.secondary)
 
             if let latestEntry {

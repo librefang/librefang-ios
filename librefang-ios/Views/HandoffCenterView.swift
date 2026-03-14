@@ -52,6 +52,9 @@ struct HandoffCenterView: View {
     private var coverageEntries: [OnCallHandoffEntry] {
         handoffStore.recentEntries
     }
+    private var timelineItems: [HandoffTimelineItem] {
+        handoffStore.timelineItems
+    }
 
     var body: some View {
         List {
@@ -66,6 +69,12 @@ struct HandoffCenterView: View {
                 HandoffCoverageCard(
                     entries: coverageEntries,
                     coverageCount: { handoffStore.recentCoverageCount(for: $0) }
+                )
+
+                HandoffCadenceCard(
+                    cadenceLabel: handoffStore.cadenceState.label,
+                    cadenceSummary: handoffStore.cadenceSummary,
+                    warningCount: handoffStore.cadenceWarningCount
                 )
             } header: {
                 Text("Shift Context")
@@ -131,6 +140,18 @@ struct HandoffCenterView: View {
                 Text("Compose")
             } footer: {
                 Text("Saved locally on this iPhone. Use this before handing the shift to another operator.")
+            }
+
+            if !timelineItems.isEmpty {
+                Section {
+                    ForEach(timelineItems, id: \.id) { item in
+                        HandoffTimelineRow(item: item)
+                    }
+                } header: {
+                    Text("Timeline")
+                } footer: {
+                    Text("Shows recent local handoff cadence on this iPhone so shift gaps are visible.")
+                }
             }
 
             if handoffStore.entries.isEmpty {
@@ -208,6 +229,52 @@ struct HandoffCenterView: View {
     }
 }
 
+private struct HandoffCadenceCard: View {
+    let cadenceLabel: String
+    let cadenceSummary: String
+    let warningCount: Int
+
+    private var cadenceColor: Color {
+        switch cadenceLabel {
+        case "Steady":
+            .green
+        case "Sparse":
+            .orange
+        default:
+            .secondary
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label("Cadence", systemImage: "point.topleft.down.curvedto.point.bottomright.up")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(cadenceLabel)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(cadenceColor.opacity(0.12))
+                    .foregroundStyle(cadenceColor)
+                    .clipShape(Capsule())
+            }
+
+            Text(cadenceSummary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            if warningCount > 0 {
+                Text(warningCount == 1 ? "1 recent handoff gap crossed the warning threshold." : "\(warningCount) recent handoff gaps crossed the warning threshold.")
+                    .font(.caption2)
+                    .foregroundStyle(.orange)
+            }
+        }
+        .padding(.vertical, 6)
+    }
+}
+
 private struct HandoffStatsRow: View {
     let queueCount: Int
     let criticalCount: Int
@@ -220,6 +287,49 @@ private struct HandoffStatsRow: View {
             HandoffStatPill(value: liveAlertCount, label: "Live")
             Spacer()
         }
+    }
+}
+
+private struct HandoffTimelineRow: View {
+    let item: HandoffTimelineItem
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(item.entry.createdAt, format: .dateTime.month(.abbreviated).day().hour().minute())
+                        .font(.subheadline.weight(.semibold))
+                    Text(item.entry.createdAt, style: .relative)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Text(item.gapToOlderEntry == nil ? "Latest" : item.gapLabel)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background((item.isGapWarning ? Color.orange : Color.secondary).opacity(0.12))
+                    .foregroundStyle(item.isGapWarning ? Color.orange : Color.secondary)
+                    .clipShape(Capsule())
+            }
+
+            if !item.entry.note.isEmpty {
+                Text(item.entry.note)
+                    .font(.caption)
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
+            }
+
+            HStack(spacing: 10) {
+                HandoffStatPill(value: item.entry.queueCount, label: "Queued")
+                HandoffStatPill(value: item.entry.criticalCount, label: "Critical")
+                HandoffStatPill(value: item.entry.checklist.completedCount, label: "Checks")
+                Spacer()
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 

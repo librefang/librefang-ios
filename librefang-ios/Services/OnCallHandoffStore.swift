@@ -1,5 +1,43 @@
 import Foundation
 
+enum HandoffCadenceState {
+    case missing
+    case single
+    case steady
+    case sparse
+
+    var label: String {
+        switch self {
+        case .missing:
+            "Missing"
+        case .single:
+            "Single"
+        case .steady:
+            "Steady"
+        case .sparse:
+            "Sparse"
+        }
+    }
+}
+
+struct HandoffTimelineItem: Identifiable {
+    let entry: OnCallHandoffEntry
+    let gapToOlderEntry: TimeInterval?
+    let gapWarningThreshold: TimeInterval
+
+    var id: String { entry.id }
+
+    var gapLabel: String {
+        guard let gapToOlderEntry else { return "Latest in window" }
+        return OnCallHandoffStore.formatInterval(gapToOlderEntry)
+    }
+
+    var isGapWarning: Bool {
+        guard let gapToOlderEntry else { return false }
+        return gapToOlderEntry >= gapWarningThreshold
+    }
+}
+
 enum HandoffChecklistKey: String, CaseIterable, Codable, Identifiable {
     case criticalsReviewed
     case approvalsTriaged
@@ -206,6 +244,7 @@ final class OnCallHandoffStore {
     private let decoder = JSONDecoder()
     private let maxEntries = 20
     private let staleThreshold: TimeInterval = 8 * 60 * 60
+    private let cadenceWarningThreshold: TimeInterval = 12 * 60 * 60
 
     var draftNote: String {
         didSet {
@@ -254,6 +293,55 @@ final class OnCallHandoffStore {
 
     var recentEntries: [OnCallHandoffEntry] {
         Array(entries.prefix(5))
+    }
+
+    var timelineItems: [HandoffTimelineItem] {
+        recentEntries.enumerated().map { index, entry in
+            let olderEntry = recentEntries.indices.contains(index + 1) ? recentEntries[index + 1] : nil
+            let gapToOlderEntry = olderEntry.map { entry.createdAt.timeIntervalSince($0.createdAt) }
+
+            return HandoffTimelineItem(
+                entry: entry,
+                gapToOlderEntry: gapToOlderEntry,
+                gapWarningThreshold: cadenceWarningThreshold
+            )
+        }
+    }
+
+    var latestGap: TimeInterval? {
+        timelineItems.first?.gapToOlderEntry
+    }
+
+    var averageGap: TimeInterval? {
+        let gaps = timelineItems.compactMap(\.gapToOlderEntry)
+        guard !gaps.isEmpty else { return nil }
+        return gaps.reduce(0, +) / Double(gaps.count)
+    }
+
+    var cadenceState: HandoffCadenceState {
+        guard !entries.isEmpty else { return .missing }
+        guard let latestGap else { return .single }
+        return latestGap >= cadenceWarningThreshold ? .sparse : .steady
+    }
+
+    var cadenceSummary: String {
+        switch cadenceState {
+        case .missing:
+            return "No recent local handoff history on this iPhone."
+        case .single:
+            return "Only one recent handoff is saved. Cadence needs more history."
+        case .steady:
+            let latestGapLabel = latestGap.map(Self.formatInterval) ?? "--"
+            let averageGapLabel = averageGap.map(Self.formatInterval) ?? "--"
+            return "Latest gap \(latestGapLabel). Average recent cadence \(averageGapLabel)."
+        case .sparse:
+            let latestGapLabel = latestGap.map(Self.formatInterval) ?? "--"
+            return "Latest handoff gap stretched to \(latestGapLabel). Review shift coverage."
+        }
+    }
+
+    var cadenceWarningCount: Int {
+        timelineItems.filter(\.isGapWarning).count
     }
 
     func recentCoverageCount(for key: HandoffChecklistKey) -> Int {
@@ -340,5 +428,13 @@ final class OnCallHandoffStore {
         if let data = try? encoder.encode(draftChecklist) {
             defaults.set(data, forKey: StorageKey.draftChecklist)
         }
+    }
+
+    static func formatInterval(_ interval: TimeInterval) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = interval >= 3600 ? [.hour, .minute] : [.minute]
+        formatter.unitsStyle = .abbreviated
+        formatter.maximumUnitCount = 2
+        return formatter.string(from: interval) ?? "<1m"
     }
 }
