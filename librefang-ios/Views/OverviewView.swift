@@ -395,9 +395,13 @@ private struct RecentHandoffCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(entry.createdAt, style: .relative)
+                Text(statusText(for: entry))
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(statusColor(for: entry).opacity(0.12))
+                    .foregroundStyle(statusColor(for: entry))
+                    .clipShape(Capsule())
             }
 
             Text(entry.note.isEmpty ? entry.summary : entry.note)
@@ -409,6 +413,10 @@ private struct RecentHandoffCard: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
+
+            Text(entry.createdAt, style: .relative)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
 
             HStack(spacing: 10) {
                 HandoffBadge(value: entry.queueCount, label: "Queued")
@@ -432,6 +440,17 @@ private struct RecentHandoffCard: View {
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func statusText(for entry: OnCallHandoffEntry) -> String {
+        if Date().timeIntervalSince(entry.createdAt) >= 8 * 60 * 60 {
+            return "Stale"
+        }
+        return "Fresh"
+    }
+
+    private func statusColor(for entry: OnCallHandoffEntry) -> Color {
+        statusText(for: entry) == "Fresh" ? .green : .orange
     }
 }
 
@@ -665,6 +684,7 @@ private struct ReadinessCard: View {
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
+
 }
 
 private struct ReadinessRow: View {

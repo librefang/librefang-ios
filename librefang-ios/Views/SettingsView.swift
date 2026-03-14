@@ -203,11 +203,18 @@ struct SettingsView: View {
                             Text(latest.checklist.progressLabel)
                                 .foregroundStyle(latest.checklist.pendingLabels.isEmpty ? .green : .secondary)
                         }
+                        LabeledContent("Freshness") {
+                            Text(deps.onCallHandoffStore.freshnessLabel)
+                                .foregroundStyle(handoffFreshnessColor)
+                        }
                         if !latest.checklist.pendingLabels.isEmpty {
                             Text("Pending: \(latest.checklist.pendingLabels.joined(separator: ", "))")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
+                        Text(deps.onCallHandoffStore.freshnessSummary)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     } else {
                         Text("No local handoff snapshots saved on this iPhone yet.")
                             .font(.caption)
@@ -377,6 +384,17 @@ struct SettingsView: View {
             .red
         default:
             .secondary
+        }
+    }
+
+    private var handoffFreshnessColor: Color {
+        switch deps.onCallHandoffStore.freshnessLabel {
+        case "Fresh":
+            .green
+        case "Stale":
+            .orange
+        default:
+            .red
         }
     }
 }

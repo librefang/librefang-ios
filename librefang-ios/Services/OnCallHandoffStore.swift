@@ -205,6 +205,7 @@ final class OnCallHandoffStore {
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
     private let maxEntries = 20
+    private let staleThreshold: TimeInterval = 8 * 60 * 60
 
     var draftNote: String {
         didSet {
@@ -222,6 +223,45 @@ final class OnCallHandoffStore {
 
     var latestEntry: OnCallHandoffEntry? {
         entries.first
+    }
+
+    var latestEntryAge: TimeInterval? {
+        guard let createdAt = latestEntry?.createdAt else { return nil }
+        return Date().timeIntervalSince(createdAt)
+    }
+
+    var isLatestEntryStale: Bool {
+        guard let latestEntryAge else { return false }
+        return latestEntryAge >= staleThreshold
+    }
+
+    var freshnessLabel: String {
+        guard latestEntry != nil else { return "Missing" }
+        return isLatestEntryStale ? "Stale" : "Fresh"
+    }
+
+    var freshnessSummary: String {
+        guard let latestEntry else {
+            return "No local handoff snapshot saved on this iPhone yet."
+        }
+
+        let relative = RelativeDateTimeFormatter().localizedString(for: latestEntry.createdAt, relativeTo: Date())
+        if isLatestEntryStale {
+            return "Last handoff was \(relative). Review the queue before the next shift change."
+        }
+        return "Last handoff was \(relative). This iPhone has recent local shift context."
+    }
+
+    var recentEntries: [OnCallHandoffEntry] {
+        Array(entries.prefix(5))
+    }
+
+    func recentCoverageCount(for key: HandoffChecklistKey) -> Int {
+        recentEntries.filter { $0.checklist.contains(key) }.count
+    }
+
+    var uncoveredChecklistKeys: [HandoffChecklistKey] {
+        HandoffChecklistKey.allCases.filter { recentCoverageCount(for: $0) == 0 }
     }
 
     init(defaults: UserDefaults = .standard) {

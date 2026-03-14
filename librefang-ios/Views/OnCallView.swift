@@ -104,6 +104,7 @@ struct OnCallView: View {
             isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
         )
     }
+    private var handoffStore: OnCallHandoffStore { deps.onCallHandoffStore }
 
     var body: some View {
         List {
@@ -128,6 +129,12 @@ struct OnCallView: View {
                     mutedAlertCount: mutedAlertCount,
                     watchCount: watchedAgents.count,
                     lastRefresh: vm.lastRefresh
+                )
+
+                OnCallHandoffStatusRow(
+                    freshnessLabel: handoffStore.freshnessLabel,
+                    freshnessSummary: handoffStore.freshnessSummary,
+                    latestEntry: handoffStore.latestEntry
                 )
 
                 NavigationLink(value: OnCallRoute.incidents) {
@@ -302,6 +309,51 @@ struct OnCallView: View {
 
     private func syncWatchlist() {
         watchlistStore.removeMissingAgents(validIDs: Set(vm.agents.map(\.id)))
+    }
+}
+
+private struct OnCallHandoffStatusRow: View {
+    let freshnessLabel: String
+    let freshnessSummary: String
+    let latestEntry: OnCallHandoffEntry?
+
+    private var freshnessColor: Color {
+        switch freshnessLabel {
+        case "Fresh":
+            .green
+        case "Stale":
+            .orange
+        default:
+            .red
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Label("Latest Handoff", systemImage: "text.badge.plus")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(freshnessLabel)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(freshnessColor.opacity(0.12))
+                    .foregroundStyle(freshnessColor)
+                    .clipShape(Capsule())
+            }
+
+            Text(freshnessSummary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            if let latestEntry {
+                Text("Checklist \(latestEntry.checklist.progressLabel) · \(latestEntry.createdAt.formatted(date: .omitted, time: .shortened))")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }
 

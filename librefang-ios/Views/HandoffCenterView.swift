@@ -49,9 +49,28 @@ struct HandoffCenterView: View {
             matches(filter: historyFilter, for: entry) && matchesSearch(entry)
         }
     }
+    private var coverageEntries: [OnCallHandoffEntry] {
+        handoffStore.recentEntries
+    }
 
     var body: some View {
         List {
+            Section {
+                HandoffFreshnessCard(
+                    freshnessLabel: handoffStore.freshnessLabel,
+                    freshnessSummary: handoffStore.freshnessSummary,
+                    latestEntry: handoffStore.latestEntry,
+                    uncoveredChecklistKeys: handoffStore.uncoveredChecklistKeys
+                )
+
+                HandoffCoverageCard(
+                    entries: coverageEntries,
+                    coverageCount: { handoffStore.recentCoverageCount(for: $0) }
+                )
+            } header: {
+                Text("Shift Context")
+            }
+
             Section {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Operator note")
@@ -201,6 +220,98 @@ private struct HandoffStatsRow: View {
             HandoffStatPill(value: liveAlertCount, label: "Live")
             Spacer()
         }
+    }
+}
+
+private struct HandoffFreshnessCard: View {
+    let freshnessLabel: String
+    let freshnessSummary: String
+    let latestEntry: OnCallHandoffEntry?
+    let uncoveredChecklistKeys: [HandoffChecklistKey]
+
+    private var freshnessColor: Color {
+        switch freshnessLabel {
+        case "Fresh":
+            .green
+        case "Stale":
+            .orange
+        default:
+            .red
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("Handoff Freshness", systemImage: "clock.badge.checkmark")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(freshnessLabel)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(freshnessColor.opacity(0.12))
+                    .foregroundStyle(freshnessColor)
+                    .clipShape(Capsule())
+            }
+
+            Text(freshnessSummary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            if let latestEntry {
+                HandoffStatsRow(
+                    queueCount: latestEntry.queueCount,
+                    criticalCount: latestEntry.criticalCount,
+                    liveAlertCount: latestEntry.liveAlertCount
+                )
+            }
+
+            if uncoveredChecklistKeys.isEmpty {
+                Text("All checklist items appeared in the recent handoff window.")
+                    .font(.caption2)
+                    .foregroundStyle(.green)
+            } else {
+                Text("Recent gap: \(uncoveredChecklistKeys.map(\.label).joined(separator: ", "))")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        }
+        .padding(.vertical, 6)
+    }
+}
+
+private struct HandoffCoverageCard: View {
+    let entries: [OnCallHandoffEntry]
+    let coverageCount: (HandoffChecklistKey) -> Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label("Recent Coverage", systemImage: "list.bullet.clipboard")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(entries.isEmpty ? "No history" : "\(entries.count) snapshots")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            ForEach(Array(HandoffChecklistKey.allCases.enumerated()), id: \.element.rawValue) { _, key in
+                HStack {
+                    Label(key.label, systemImage: key.symbolName)
+                        .font(.caption)
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    Text("\(coverageCount(key))/\(max(entries.count, 1))")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(coverageCount(key) > 0 ? Color.secondary : Color.orange)
+                }
+            }
+        }
+        .padding(.vertical, 6)
     }
 }
 
