@@ -101,6 +101,15 @@ struct SettingsView: View {
                         get: { deps.onCallFocusStore.showsMutedSummary },
                         set: { deps.onCallFocusStore.showsMutedSummary = $0 }
                     ))
+
+                    Toggle("Foreground Critical Cue", isOn: Binding(
+                        get: { deps.onCallFocusStore.showsForegroundCues },
+                        set: { deps.onCallFocusStore.showsForegroundCues = $0 }
+                    ))
+
+                    Text("When a new critical incident appears while the app is open, show a temporary cue and haptic.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
 
                 Section("Standby Reminder") {

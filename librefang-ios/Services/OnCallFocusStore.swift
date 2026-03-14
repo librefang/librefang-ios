@@ -62,6 +62,7 @@ final class OnCallFocusStore {
         static let focusMode = "oncall.focus.mode"
         static let preferredSurface = "oncall.focus.surface"
         static let showMutedSummary = "oncall.focus.showMutedSummary"
+        static let showForegroundCues = "oncall.focus.showForegroundCues"
     }
 
     private let defaults: UserDefaults
@@ -84,6 +85,12 @@ final class OnCallFocusStore {
         }
     }
 
+    var showsForegroundCues: Bool {
+        didSet {
+            defaults.set(showsForegroundCues, forKey: StorageKey.showForegroundCues)
+        }
+    }
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.mode = OnCallFocusMode(rawValue: defaults.string(forKey: StorageKey.focusMode) ?? "") ?? .balanced
@@ -93,6 +100,12 @@ final class OnCallFocusStore {
             self.showsMutedSummary = true
         } else {
             self.showsMutedSummary = defaults.bool(forKey: StorageKey.showMutedSummary)
+        }
+
+        if defaults.object(forKey: StorageKey.showForegroundCues) == nil {
+            self.showsForegroundCues = true
+        } else {
+            self.showsForegroundCues = defaults.bool(forKey: StorageKey.showForegroundCues)
         }
     }
 }
