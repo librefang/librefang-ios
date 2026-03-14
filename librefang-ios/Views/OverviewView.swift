@@ -40,6 +40,14 @@ struct OverviewView: View {
             isAcknowledged: isCurrentSnapshotAcknowledged
         )
     }
+    private var handoffText: String {
+        vm.onCallHandoffText(
+            visibleAlerts: visibleMonitoringAlerts,
+            watchedAttentionItems: watchedAttentionItems,
+            mutedAlertCount: activeMutedAlertCount,
+            isAcknowledged: isCurrentSnapshotAcknowledged
+        )
+    }
     private var preferredOnCallSurface: OnCallSurfacePreference {
         deps.onCallFocusStore.preferredSurface
     }
@@ -87,6 +95,20 @@ struct OverviewView: View {
                         )
                     }
                     .buttonStyle(.plain)
+
+                    if let latestHandoff = deps.onCallHandoffStore.latestEntry {
+                        NavigationLink {
+                            HandoffCenterView(
+                                summary: handoffText,
+                                queueCount: onCallPriorityItems.count,
+                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                                liveAlertCount: visibleMonitoringAlerts.count
+                            )
+                        } label: {
+                            RecentHandoffCard(entry: latestHandoff)
+                        }
+                        .buttonStyle(.plain)
+                    }
 
                     LazyVGrid(columns: summaryColumns, spacing: 10) {
                         StatBadge(
@@ -213,6 +235,17 @@ struct OverviewView: View {
                             IncidentsView()
                         } label: {
                             Image(systemName: "bell.badge")
+                        }
+
+                        NavigationLink {
+                            HandoffCenterView(
+                                summary: handoffText,
+                                queueCount: onCallPriorityItems.count,
+                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                                liveAlertCount: visibleMonitoringAlerts.count
+                            )
+                        } label: {
+                            Image(systemName: "text.badge.plus")
                         }
                     }
                 }
@@ -349,6 +382,69 @@ private struct AlertsCard: View {
         case .info:
             .yellow
         }
+    }
+}
+
+private struct RecentHandoffCard: View {
+    let entry: OnCallHandoffEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("Last Handoff", systemImage: "text.badge.plus")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(entry.createdAt, style: .relative)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+
+            Text(entry.note.isEmpty ? entry.summary : entry.note)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.primary)
+                .lineLimit(2)
+
+            Text(entry.summary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(3)
+
+            HStack(spacing: 10) {
+                HandoffBadge(value: entry.queueCount, label: "Queued")
+                HandoffBadge(value: entry.criticalCount, label: "Critical")
+                HandoffBadge(value: entry.liveAlertCount, label: "Live")
+                Spacer()
+                Text("Open")
+                    .font(.caption2.weight(.medium))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(.secondary.opacity(0.12))
+                    .clipShape(Capsule())
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+private struct HandoffBadge: View {
+    let value: Int
+    let label: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("\(value)")
+                .font(.caption.weight(.semibold))
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(.secondary.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }
 

@@ -171,6 +171,41 @@ struct SettingsView: View {
                     }
                 }
 
+                Section("Handoff") {
+                    NavigationLink {
+                        HandoffCenterView(
+                            summary: handoffText,
+                            queueCount: onCallQueueCount,
+                            criticalCount: currentCriticalCount,
+                            liveAlertCount: visibleAlertCount
+                        )
+                    } label: {
+                        HStack {
+                            Label("Open Handoff Center", systemImage: "text.badge.plus")
+                            Spacer()
+                            if let latest = deps.onCallHandoffStore.latestEntry {
+                                Text(latest.createdAt, style: .relative)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+
+                    if let latest = deps.onCallHandoffStore.latestEntry {
+                        LabeledContent("Last Saved") {
+                            Text(latest.createdAt, format: .dateTime.month(.abbreviated).day().hour().minute())
+                                .foregroundStyle(.secondary)
+                        }
+                        LabeledContent("Snapshot") {
+                            Text("\(latest.queueCount) queued · \(latest.criticalCount) critical")
+                                .foregroundStyle(latest.criticalCount > 0 ? .orange : .secondary)
+                        }
+                    } else {
+                        Text("No local handoff snapshots saved on this iPhone yet.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
                 Section("Monitoring") {
                     LabeledContent("Agents") {
                         Text("\(deps.dashboardViewModel.issueAgentCount) need attention")
@@ -268,21 +303,41 @@ struct SettingsView: View {
         deps.incidentStateStore.activeMutedAlerts(from: deps.dashboardViewModel.monitoringAlerts).count
     }
 
-    private var onCallQueueCount: Int {
-        let visibleAlerts = deps.incidentStateStore.visibleAlerts(from: deps.dashboardViewModel.monitoringAlerts)
-        let watchedAttentionItems = deps.agentWatchlistStore
+    private var visibleAlerts: [MonitoringAlertItem] {
+        deps.incidentStateStore.visibleAlerts(from: deps.dashboardViewModel.monitoringAlerts)
+    }
+
+    private var watchedAttentionItems: [AgentAttentionItem] {
+        deps.agentWatchlistStore
             .watchedAgents(from: deps.dashboardViewModel.agents)
             .map { deps.dashboardViewModel.attentionItem(for: $0) }
+    }
 
+    private var visibleAlertCount: Int {
+        visibleAlerts.count
+    }
+
+    private var currentCriticalCount: Int {
+        visibleAlerts.filter { $0.severity == .critical }.count
+    }
+
+    private var onCallQueueCount: Int {
         return deps.dashboardViewModel.onCallPriorityItems(
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems
         ).count
     }
 
-    private var snapshotStatus: String {
-        let visibleAlerts = deps.incidentStateStore.visibleAlerts(from: deps.dashboardViewModel.monitoringAlerts)
+    private var handoffText: String {
+        deps.dashboardViewModel.onCallHandoffText(
+            visibleAlerts: visibleAlerts,
+            watchedAttentionItems: watchedAttentionItems,
+            mutedAlertCount: activeMutedAlertCount,
+            isAcknowledged: deps.incidentStateStore.isCurrentSnapshotAcknowledged(alerts: deps.dashboardViewModel.monitoringAlerts)
+        )
+    }
 
+    private var snapshotStatus: String {
         if visibleAlerts.isEmpty {
             return activeMutedAlertCount > 0 ? "Muted" : "Clear"
         }

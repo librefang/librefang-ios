@@ -26,6 +26,19 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         self.criticalCount = criticalCount
         self.liveAlertCount = liveAlertCount
     }
+
+    var shareText: String {
+        var lines = ["LibreFang handoff snapshot · \(createdAt.formatted(date: .abbreviated, time: .shortened))"]
+
+        if !note.isEmpty {
+            lines.append("Operator note: \(note)")
+        }
+
+        lines.append("Queue: \(queueCount) · Critical: \(criticalCount) · Live alerts: \(liveAlertCount)")
+        lines.append("")
+        lines.append(summary)
+        return lines.joined(separator: "\n")
+    }
 }
 
 @MainActor
@@ -48,6 +61,10 @@ final class OnCallHandoffStore {
     }
 
     private(set) var entries: [OnCallHandoffEntry]
+
+    var latestEntry: OnCallHandoffEntry? {
+        entries.first
+    }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -83,9 +100,14 @@ final class OnCallHandoffStore {
     }
 
     func removeEntries(at offsets: IndexSet) {
-        entries = entries.enumerated()
-            .filter { !offsets.contains($0.offset) }
-            .map(\.element)
+        let ids = offsets.compactMap { entries.indices.contains($0) ? entries[$0].id : nil }
+        removeEntries(ids: ids)
+    }
+
+    func removeEntries(ids: [String]) {
+        guard !ids.isEmpty else { return }
+        let removedIDs = Set(ids)
+        entries.removeAll { removedIDs.contains($0.id) }
         persistEntries()
     }
 
