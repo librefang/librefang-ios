@@ -488,7 +488,7 @@ struct SettingsView: View {
                         )
                     } label: {
                         HStack {
-                            Label("Open Handoff Center", systemImage: "text.badge.plus")
+                            Label("Handoff", systemImage: "text.badge.plus")
                             Spacer()
                             if let latest = deps.onCallHandoffStore.latestEntry {
                                 Text(latest.createdAt, style: .relative)

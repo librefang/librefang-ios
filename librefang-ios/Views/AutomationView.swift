@@ -196,7 +196,7 @@ struct AutomationView: View {
                             RuntimeView()
                         } label: {
                             MonitoringJumpRow(
-                                title: String(localized: "Open Runtime"),
+                                title: String(localized: "Runtime"),
                                 detail: String(localized: "Switch back to the runtime digest with automation pressure folded into the main monitor."),
                                 systemImage: "server.rack",
                                 tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
@@ -211,7 +211,7 @@ struct AutomationView: View {
                             IncidentsView()
                         } label: {
                             MonitoringJumpRow(
-                                title: String(localized: "Open Incidents"),
+                                title: String(localized: "Incidents"),
                                 detail: String(localized: "Switch to the incident queue where automation pressure is ranked with alerts and approvals."),
                                 systemImage: "bell.badge",
                                 tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
@@ -226,7 +226,7 @@ struct AutomationView: View {
                             DiagnosticsView()
                         } label: {
                             MonitoringJumpRow(
-                                title: String(localized: "Open Diagnostics"),
+                                title: String(localized: "Diagnostics"),
                                 detail: String(localized: "Switch to runtime health, build, config, and metrics when automation failures may be systemic."),
                                 systemImage: "stethoscope",
                                 tone: vm.diagnosticsSummaryTone,
@@ -241,7 +241,7 @@ struct AutomationView: View {
                             EventsView(api: deps.apiClient, initialScope: .critical)
                         } label: {
                             MonitoringJumpRow(
-                                title: String(localized: "Open Critical Events"),
+                                title: String(localized: "Critical Events"),
                                 detail: String(localized: "Switch to the critical event feed if workflow failures correlate with audit activity."),
                                 systemImage: "text.justify.leading",
                                 tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
@@ -261,7 +261,7 @@ struct AutomationView: View {
                             IntegrationsView(initialScope: .attention)
                         } label: {
                             MonitoringJumpRow(
-                                title: String(localized: "Open Integrations"),
+                                title: String(localized: "Integrations"),
                                 detail: String(localized: "Switch to providers, channels, and model drift when automation failures may be rooted in integration trouble."),
                                 systemImage: "square.3.layers.3d.down.forward",
                                 tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,

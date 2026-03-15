@@ -309,7 +309,7 @@ struct IntegrationsView: View {
                                 RuntimeView()
                             } label: {
                                 MonitoringJumpRow(
-                                    title: String(localized: "Open Runtime"),
+                                    title: String(localized: "Runtime"),
                                     detail: String(localized: "Switch back to runtime with integration pressure folded into the main operator monitor."),
                                     systemImage: "server.rack",
                                     tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
@@ -324,7 +324,7 @@ struct IntegrationsView: View {
                                 DiagnosticsView()
                             } label: {
                                 MonitoringJumpRow(
-                                    title: String(localized: "Open Diagnostics"),
+                                    title: String(localized: "Diagnostics"),
                                     detail: String(localized: "Switch to diagnostics when model or provider drift may reflect health or config trouble."),
                                     systemImage: "stethoscope",
                                     tone: vm.diagnosticsSummaryTone,
@@ -339,7 +339,7 @@ struct IntegrationsView: View {
                                 IncidentsView()
                             } label: {
                                 MonitoringJumpRow(
-                                    title: String(localized: "Open Incidents"),
+                                    title: String(localized: "Incidents"),
                                     detail: String(localized: "Switch to incidents when integration drift has already surfaced in the mobile queue."),
                                     systemImage: "bell.badge",
                                     tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
@@ -354,7 +354,7 @@ struct IntegrationsView: View {
                                 AgentsView()
                             } label: {
                                 MonitoringJumpRow(
-                                    title: String(localized: "Open Agents"),
+                                    title: String(localized: "Agents"),
                                     detail: String(localized: "Switch to fleet view when model drift or provider mismatch clusters around specific agents."),
                                     systemImage: "person.3",
                                     tone: driftAttentionCount > 0 ? .warning : .neutral,
@@ -374,7 +374,7 @@ struct IntegrationsView: View {
                                 AutomationView(initialScope: .attention)
                             } label: {
                                 MonitoringJumpRow(
-                                    title: String(localized: "Open Automation"),
+                                    title: String(localized: "Automation"),
                                     detail: String(localized: "Switch to workflow pressure when provider or model drift may be breaking scheduled work."),
                                     systemImage: "flowchart",
                                     tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
@@ -389,7 +389,7 @@ struct IntegrationsView: View {
                                 BudgetView()
                             } label: {
                                 MonitoringJumpRow(
-                                    title: String(localized: "Open Budget"),
+                                    title: String(localized: "Budget"),
                                     detail: String(localized: "Switch to spend limits and model cost concentration when integration drift may already be showing up in usage."),
                                     systemImage: "chart.bar",
                                     tone: .neutral
@@ -400,7 +400,7 @@ struct IntegrationsView: View {
                                 CommsView(api: deps.apiClient)
                             } label: {
                                 MonitoringJumpRow(
-                                    title: String(localized: "Open Comms"),
+                                    title: String(localized: "Comms"),
                                     detail: String(localized: "Switch to live inter-agent traffic when provider or channel drift may reflect routing behavior."),
                                     systemImage: "point.3.connected.trianglepath.dotted",
                                     tone: .neutral

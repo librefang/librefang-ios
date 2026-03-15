@@ -232,7 +232,7 @@ struct AgentMemoryView: View {
                     SessionsView(initialSearchText: agent.id, initialFilter: .all)
                 } label: {
                     MonitoringJumpRow(
-                        title: String(localized: "Open Sessions"),
+                        title: String(localized: "Sessions"),
                         detail: String(localized: "Switch to this agent's session inventory when memory state needs active conversation context."),
                         systemImage: "rectangle.stack",
                         tone: entries.isEmpty ? .neutral : .warning,
@@ -245,7 +245,7 @@ struct AgentMemoryView: View {
                     IncidentsView()
                 } label: {
                     MonitoringJumpRow(
-                        title: String(localized: "Open Incidents"),
+                        title: String(localized: "Incidents"),
                         detail: String(localized: "Switch to incidents when memory anomalies are part of a wider operator investigation."),
                         systemImage: "bell.badge",
                         tone: structuredEntryCount > 0 ? .warning : .neutral,
@@ -265,7 +265,7 @@ struct AgentMemoryView: View {
                     RuntimeView()
                 } label: {
                     MonitoringJumpRow(
-                        title: String(localized: "Open Runtime"),
+                        title: String(localized: "Runtime"),
                         detail: String(localized: "Switch to runtime when memory state may reflect broader provider or approval pressure."),
                         systemImage: "server.rack",
                         tone: .neutral

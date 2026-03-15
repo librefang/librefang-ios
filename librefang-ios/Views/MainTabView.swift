@@ -1070,7 +1070,7 @@ private struct HandoffCueBanner: View {
             }
 
             Button(action: onOpen) {
-                Label("Open Handoff Center", systemImage: "arrow.up.forward.app")
+                Label("Handoff", systemImage: "arrow.up.forward.app")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(GlassPanelButtonStyle(fillOpacity: 0.20))

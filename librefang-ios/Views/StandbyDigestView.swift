@@ -187,11 +187,11 @@ struct StandbyDigestView: View {
                     NavigationLink {
                         OnCallView()
                     } label: {
-                        Label("Full On Call Queue", systemImage: "waveform.path.ecg")
+                        Label("On Call", systemImage: "waveform.path.ecg")
                     }
 
                     NavigationLink(value: OnCallRoute.incidents) {
-                        Label("Incidents Center", systemImage: "bell.badge")
+                        Label("Incidents", systemImage: "bell.badge")
                     }
 
                     NavigationLink {
@@ -202,7 +202,7 @@ struct StandbyDigestView: View {
                             liveAlertCount: visibleAlerts.count
                         )
                     } label: {
-                        Label("Handoff Center", systemImage: "text.badge.plus")
+                        Label("Handoff", systemImage: "text.badge.plus")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -530,10 +530,10 @@ struct StandbyDigestView: View {
 
     private var surfaceDeckCard: some View {
         StandbySurfaceSectionCard(
-            title: String(localized: "Operator Surfaces"),
+            title: String(localized: "Surface Deck"),
             detail: String(localized: "Keep the next standby drills grouped in one deck so the page stays tighter on a phone.")
         ) {
-            StandbySurfaceGroupLabel(title: String(localized: "Primary Surfaces"))
+            StandbySurfaceGroupLabel(title: String(localized: "Primary Routes"))
 
             FlowLayout(spacing: 8) {
                 NavigationLink {
@@ -612,7 +612,7 @@ struct StandbyDigestView: View {
             Divider()
                 .overlay(.white.opacity(0.08))
 
-            StandbySurfaceGroupLabel(title: String(localized: "Supporting Surfaces"))
+            StandbySurfaceGroupLabel(title: String(localized: "Support Routes"))
 
             FlowLayout(spacing: 8) {
                 NavigationLink {

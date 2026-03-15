@@ -1317,7 +1317,7 @@ struct AgentDetailView: View {
                 NavigationLink {
                     SessionsView(initialSearchText: agent.id, initialFilter: .all)
                 } label: {
-                    Label("Open Session Monitor", systemImage: "rectangle.stack")
+                    Label("Sessions", systemImage: "rectangle.stack")
                 }
             } header: {
                 Text("Session Inventory")
@@ -1379,7 +1379,7 @@ struct AgentDetailView: View {
                         isLoadingMemory = false
                     }
                 } label: {
-                    Label("Open Agent Memory", systemImage: "internaldrive")
+                    Label("Memory", systemImage: "internaldrive")
                 }
             }
         } header: {
@@ -1507,7 +1507,7 @@ struct AgentDetailView: View {
                 NavigationLink {
                     EventsView(api: deps.apiClient, initialSearchText: agent.id)
                 } label: {
-                    Label("Open Full Event Feed", systemImage: "list.bullet.rectangle.portrait")
+                    Label("Events", systemImage: "list.bullet.rectangle.portrait")
                 }
             } header: {
                 Text("Recent Audit")

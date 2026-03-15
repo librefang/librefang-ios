@@ -380,9 +380,9 @@ struct HandoffCenterView: View {
                 handoffSurfaceDeckCard
             }
         } header: {
-            Text("Control Deck")
+            Text("Operator Deck")
         } footer: {
-            Text("Keep live queue pressure, draft readiness, and the next shift-facing exits together before editing the handoff composer.")
+            Text("Keep live queue pressure, draft readiness, and the next shift-facing routes together before editing the handoff draft.")
         }
     }
 
@@ -444,7 +444,7 @@ struct HandoffCenterView: View {
     private var handoffSurfaceDeckCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Primary Surfaces"),
+                title: String(localized: "Primary Routes"),
                 detail: String(localized: "Keep the live queue and shift-facing exits visible as compact shortcuts closest to the handoff draft.")
             ) {
                 FlowLayout(spacing: 8) {
@@ -499,7 +499,7 @@ struct HandoffCenterView: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Supporting Surfaces"),
+                title: String(localized: "Support Routes"),
                 detail: String(localized: "Keep runtime, diagnostics, and preference routes visible as a secondary shortcut rail.")
             ) {
                 FlowLayout(spacing: 8) {

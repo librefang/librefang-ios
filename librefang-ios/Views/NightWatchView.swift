@@ -409,10 +409,10 @@ struct NightWatchView: View {
 
     private var surfaceDeckCard: some View {
         NightWatchSectionCard(
-            title: String(localized: "Operator Surfaces"),
+            title: String(localized: "Surface Deck"),
             detail: String(localized: "Keep the next drills grouped in one deck so the night-duty path stays compact on a phone.")
         ) {
-            NightWatchSurfaceGroupLabel(title: String(localized: "Primary Surfaces"))
+            NightWatchSurfaceGroupLabel(title: String(localized: "Primary Routes"))
 
             FlowLayout(spacing: 8) {
                 NavigationLink {
@@ -477,7 +477,7 @@ struct NightWatchView: View {
             Divider()
                 .overlay(.white.opacity(0.08))
 
-            NightWatchSurfaceGroupLabel(title: String(localized: "Supporting Surfaces"))
+            NightWatchSurfaceGroupLabel(title: String(localized: "Support Routes"))
 
             FlowLayout(spacing: 8) {
                 NavigationLink {

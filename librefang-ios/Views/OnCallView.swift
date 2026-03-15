@@ -251,10 +251,22 @@ struct OnCallView: View {
                     readiness: draftHandoffReadiness,
                     followUpStatuses: latestFollowUpStatuses
                 )
+
+                OnCallSurfaceDeckCard(
+                    approvalCount: vm.pendingApprovalCount,
+                    sessionCount: vm.sessionAttentionCount,
+                    eventCount: vm.recentCriticalAuditCount,
+                    criticalCount: criticalCount,
+                    queueCount: priorityItems.count,
+                    liveAlertCount: visibleAlerts.count,
+                    automationIssueCount: automationIssueCount,
+                    integrationIssueCount: integrationIssueCount,
+                    handoffText: handoffText
+                )
             } header: {
-                Text("Control Deck")
+                Text("Operator Deck")
             } footer: {
-                Text("Queue shape, acknowledgement state, muted pressure, and handoff readiness stay together before queue work and deeper operator surfaces.")
+                Text("Queue shape, acknowledgement state, handoff readiness, and the next routes stay together before queue work.")
             }
 
             if !priorityItems.isEmpty {
@@ -293,24 +305,6 @@ struct OnCallView: View {
                 }
             }
 
-            Section {
-                OnCallSurfaceDeckCard(
-                    approvalCount: vm.pendingApprovalCount,
-                    sessionCount: vm.sessionAttentionCount,
-                    eventCount: vm.recentCriticalAuditCount,
-                    criticalCount: criticalCount,
-                    queueCount: priorityItems.count,
-                    liveAlertCount: visibleAlerts.count,
-                    automationIssueCount: automationIssueCount,
-                    integrationIssueCount: integrationIssueCount,
-                    handoffText: handoffText
-                )
-            } header: {
-                Text("Operator Surfaces")
-            } footer: {
-                Text("Keep queue-first routes, slower systemic drilldowns, and export actions in one compact surface deck on the on-call page.")
-            }
-
             if priorityItems.isEmpty
                 && watchedAgents.isEmpty
                 && vm.pendingApprovalCount == 0
@@ -333,19 +327,19 @@ struct OnCallView: View {
 
                 Menu {
                     NavigationLink(value: OnCallRoute.incidents) {
-                        Label("Open Incidents Center", systemImage: "bell.badge")
+                        Label("Incidents", systemImage: "bell.badge")
                     }
 
                     NavigationLink {
                         NightWatchView()
                     } label: {
-                        Label("Open Night Watch", systemImage: "moon.stars")
+                        Label("Night Watch", systemImage: "moon.stars")
                     }
 
                     NavigationLink {
                         StandbyDigestView()
                     } label: {
-                        Label("Open Standby Digest", systemImage: "rectangle.inset.filled")
+                        Label("Standby", systemImage: "rectangle.inset.filled")
                     }
 
                     NavigationLink {
@@ -356,7 +350,7 @@ struct OnCallView: View {
                             liveAlertCount: visibleAlerts.count
                         )
                     } label: {
-                        Label("Open Handoff Center", systemImage: "text.badge.plus")
+                        Label("Handoff", systemImage: "text.badge.plus")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -722,7 +716,7 @@ private struct OnCallSurfaceDeckCard: View {
                 }
             }
 
-            Label("Primary Surfaces", systemImage: "arrowshape.turn.up.right")
+            Label("Primary Routes", systemImage: "arrowshape.turn.up.right")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
 
@@ -808,7 +802,7 @@ private struct OnCallSurfaceDeckCard: View {
                 .buttonStyle(.plain)
             }
 
-            Label("Supporting Surfaces", systemImage: "square.grid.2x2")
+            Label("Support Routes", systemImage: "square.grid.2x2")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
 

@@ -892,7 +892,7 @@ struct RuntimeView: View {
                 CommsView(api: deps.apiClient)
             } label: {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Open Live Comms Monitor")
+                    Text("Comms")
                         .font(.subheadline.weight(.medium))
                     Text("Track inter-agent messages, spawns, and task coordination in real time.")
                         .font(.caption)
@@ -983,7 +983,7 @@ struct RuntimeView: View {
                 NavigationLink {
                     ApprovalsView()
                 } label: {
-                    Label("Open Full Approval Queue", systemImage: "checkmark.shield")
+                    Label("Approvals", systemImage: "checkmark.shield")
                 }
             } header: {
                 Text("Pending Approvals")
@@ -1024,7 +1024,7 @@ struct RuntimeView: View {
                 NavigationLink {
                     EventsView(api: deps.apiClient, initialScope: .critical)
                 } label: {
-                    Label("Open Full Event Feed", systemImage: "list.bullet.rectangle.portrait")
+                    Label("Critical Events", systemImage: "list.bullet.rectangle.portrait")
                 }
             }
             .id(RuntimeSectionAnchor.audit)

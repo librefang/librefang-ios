@@ -44,7 +44,7 @@ struct A2AAgentsView: View {
                                 CommsView(api: deps.apiClient)
                             } label: {
                                 MonitoringJumpRow(
-                                    title: String(localized: "Open Comms"),
+                                    title: String(localized: "Comms"),
                                     detail: String(localized: "Switch to comms topology when external agents matter more than local inventory."),
                                     systemImage: "point.3.connected.trianglepath.dotted",
                                     tone: .neutral
@@ -55,7 +55,7 @@ struct A2AAgentsView: View {
                                 RuntimeView()
                             } label: {
                                 MonitoringJumpRow(
-                                    title: String(localized: "Open Runtime"),
+                                    title: String(localized: "Runtime"),
                                     detail: String(localized: "Switch to runtime when external-agent inventory needs broader network or hand context."),
                                     systemImage: "server.rack",
                                     tone: .neutral
@@ -71,7 +71,7 @@ struct A2AAgentsView: View {
                                 DiagnosticsView()
                             } label: {
                                 MonitoringJumpRow(
-                                    title: String(localized: "Open Diagnostics"),
+                                    title: String(localized: "Diagnostics"),
                                     detail: String(localized: "Switch to diagnostics when A2A visibility issues may reflect runtime health or config drift."),
                                     systemImage: "stethoscope",
                                     tone: .neutral

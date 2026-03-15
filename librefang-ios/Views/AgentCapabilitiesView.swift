@@ -90,7 +90,7 @@ struct AgentCapabilitiesView: View {
                                 ToolProfilesView(selectedProfileName: profile)
                             } label: {
                                 MonitoringJumpRow(
-                                    title: String(localized: "Open Tool Profile"),
+                                    title: String(localized: "Tool Profile"),
                                     detail: String(localized: "Switch to the profile definition that sits underneath these capability filters."),
                                     systemImage: "person.crop.rectangle.stack",
                                     tone: .neutral,
@@ -104,7 +104,7 @@ struct AgentCapabilitiesView: View {
                             RuntimeView()
                         } label: {
                             MonitoringJumpRow(
-                                title: String(localized: "Open Runtime"),
+                                title: String(localized: "Runtime"),
                                 detail: String(localized: "Switch to runtime when capability scope needs broader MCP, provider, or approval context."),
                                 systemImage: "server.rack",
                                 tone: .neutral
@@ -120,7 +120,7 @@ struct AgentCapabilitiesView: View {
                             IntegrationsView(initialSearchText: agent.id, initialScope: .attention)
                         } label: {
                             MonitoringJumpRow(
-                                title: String(localized: "Open Integrations"),
+                                title: String(localized: "Integrations"),
                                 detail: String(localized: "Switch to integrations when capability scope looks healthy but model or channel drift remains."),
                                 systemImage: "square.3.layers.3d.down.forward",
                                 tone: .neutral

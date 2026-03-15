@@ -150,7 +150,7 @@ struct AgentDeliveriesView: View {
                         IncidentsView()
                     } label: {
                         MonitoringJumpRow(
-                            title: String(localized: "Open Incidents"),
+                            title: String(localized: "Incidents"),
                             detail: String(localized: "Switch to the incident queue when delivery failures need broader triage."),
                             systemImage: "bell.badge",
                             tone: failedCount > 0 ? .critical : .neutral,
@@ -165,7 +165,7 @@ struct AgentDeliveriesView: View {
                         EventsView(api: deps.apiClient, initialSearchText: agent.id, initialScope: .critical)
                     } label: {
                         MonitoringJumpRow(
-                            title: String(localized: "Open Event Feed"),
+                            title: String(localized: "Events"),
                             detail: String(localized: "Switch to audit events when delivery failures might be tied to runtime or channel activity."),
                             systemImage: "list.bullet.rectangle.portrait",
                             tone: unsettledCount > 0 ? .warning : .neutral,
@@ -185,7 +185,7 @@ struct AgentDeliveriesView: View {
                         RuntimeView()
                     } label: {
                         MonitoringJumpRow(
-                            title: String(localized: "Open Runtime"),
+                            title: String(localized: "Runtime"),
                             detail: String(localized: "Switch to runtime when outbound failures may reflect broader channel or provider trouble."),
                             systemImage: "server.rack",
                             tone: .neutral

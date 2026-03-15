@@ -49,7 +49,7 @@ struct ToolProfilesView: View {
                         AgentsView()
                     } label: {
                         MonitoringJumpRow(
-                            title: String(localized: "Open Agents"),
+                            title: String(localized: "Agents"),
                             detail: String(localized: "Switch to fleet view when the same profile shape needs to be checked across multiple agents."),
                             systemImage: "person.3",
                             tone: selectedProfile != nil ? .positive : .neutral,
@@ -62,7 +62,7 @@ struct ToolProfilesView: View {
                         RuntimeView()
                     } label: {
                         MonitoringJumpRow(
-                            title: String(localized: "Open Runtime"),
+                            title: String(localized: "Runtime"),
                             detail: String(localized: "Switch to runtime when profile scope needs provider, approval, or session context."),
                             systemImage: "server.rack",
                             tone: .neutral
@@ -78,7 +78,7 @@ struct ToolProfilesView: View {
                         IntegrationsView(initialScope: .attention)
                     } label: {
                         MonitoringJumpRow(
-                            title: String(localized: "Open Integrations"),
+                            title: String(localized: "Integrations"),
                             detail: String(localized: "Switch to integrations if the profile looks healthy but tool execution still depends on providers or channels."),
                             systemImage: "square.3.layers.3d.down.forward",
                             tone: .neutral
@@ -89,7 +89,7 @@ struct ToolProfilesView: View {
                         DiagnosticsView()
                     } label: {
                         MonitoringJumpRow(
-                            title: String(localized: "Open Diagnostics"),
+                            title: String(localized: "Diagnostics"),
                             detail: String(localized: "Switch to diagnostics when profile mismatch may actually reflect runtime health or config drift."),
                             systemImage: "stethoscope",
                             tone: .neutral

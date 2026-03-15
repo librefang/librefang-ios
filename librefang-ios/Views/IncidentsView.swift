@@ -1559,7 +1559,7 @@ private struct IncidentShiftCoverageCard: View {
     }
 
     private var openLabel: some View {
-        Label("Open Handoff Center", systemImage: "text.badge.plus")
+        Label("Handoff", systemImage: "text.badge.plus")
             .font(.caption.weight(.semibold))
     }
 
@@ -1671,7 +1671,7 @@ private struct IncidentAutomationCard: View {
     }
 
     private var openLabel: some View {
-        Label("Open Automation Monitor", systemImage: "flowchart")
+        Label("Automation", systemImage: "flowchart")
             .font(.caption.weight(.semibold))
     }
 
@@ -1815,7 +1815,7 @@ private struct IncidentIntegrationsCard: View {
     }
 
     private var openLabel: some View {
-        Label("Open Integrations Diagnostics", systemImage: "square.3.layers.3d.down.forward")
+        Label("Integrations", systemImage: "square.3.layers.3d.down.forward")
             .font(.caption.weight(.semibold))
     }
 

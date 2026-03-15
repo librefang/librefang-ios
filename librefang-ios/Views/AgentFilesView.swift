@@ -116,7 +116,7 @@ struct AgentFilesView: View {
                         AgentMemoryView(agent: agent)
                     } label: {
                         MonitoringJumpRow(
-                            title: String(localized: "Open Memory"),
+                            title: String(localized: "Memory"),
                             detail: String(localized: "Switch to durable memory when workspace identity files alone do not explain agent behavior."),
                             systemImage: "internaldrive",
                             tone: missingCount > 0 ? .warning : .neutral,
@@ -131,7 +131,7 @@ struct AgentFilesView: View {
                         SessionsView(initialSearchText: agent.id, initialFilter: .all)
                     } label: {
                         MonitoringJumpRow(
-                            title: String(localized: "Open Sessions"),
+                            title: String(localized: "Sessions"),
                             detail: String(localized: "Switch to the agent's sessions when identity files and live context need to be compared together."),
                             systemImage: "rectangle.stack",
                             tone: .neutral
@@ -147,7 +147,7 @@ struct AgentFilesView: View {
                         AgentDeliveriesView(agent: agent)
                     } label: {
                         MonitoringJumpRow(
-                            title: String(localized: "Open Deliveries"),
+                            title: String(localized: "Deliveries"),
                             detail: String(localized: "Switch to channel delivery receipts when workspace identity drift may be affecting output."),
                             systemImage: "paperplane",
                             tone: .neutral
