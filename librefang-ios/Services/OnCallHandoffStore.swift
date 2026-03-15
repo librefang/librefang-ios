@@ -141,6 +141,23 @@ enum HandoffDriftState {
     }
 }
 
+enum HandoffCarryoverState {
+    case cleared
+    case partial
+    case active
+
+    var label: String {
+        switch self {
+        case .cleared:
+            "Cleared"
+        case .partial:
+            "Partial"
+        case .active:
+            "Active"
+        }
+    }
+}
+
 struct HandoffTimelineItem: Identifiable {
     let entry: OnCallHandoffEntry
     let gapToOlderEntry: TimeInterval?
@@ -156,6 +173,35 @@ struct HandoffTimelineItem: Identifiable {
     var isGapWarning: Bool {
         guard let gapToOlderEntry else { return false }
         return gapToOlderEntry >= gapWarningThreshold
+    }
+}
+
+struct HandoffCarryoverItem: Identifiable {
+    let area: HandoffFocusArea
+    let isActive: Bool
+    let detail: String
+
+    var id: String { area.rawValue }
+}
+
+struct HandoffCarryoverStatus {
+    let baseline: OnCallHandoffEntry
+    let items: [HandoffCarryoverItem]
+    let state: HandoffCarryoverState
+
+    var unresolvedCount: Int {
+        items.filter(\.isActive).count
+    }
+
+    var summary: String {
+        switch state {
+        case .cleared:
+            return "All focus areas from the last handoff have settled."
+        case .partial:
+            return "\(unresolvedCount) of \(items.count) handoff focus areas are still active."
+        case .active:
+            return "All \(items.count) handoff focus areas are still active on this shift."
+        }
     }
 }
 
@@ -593,6 +639,72 @@ final class OnCallHandoffStore {
             queueChange: queueChange,
             criticalChange: criticalChange,
             liveAlertChange: liveAlertChange,
+            state: state
+        )
+    }
+
+    func carryoverFromLatest(
+        liveAlertCount: Int,
+        pendingApprovalCount: Int,
+        watchlistIssueCount: Int,
+        sessionAttentionCount: Int,
+        criticalAuditCount: Int
+    ) -> HandoffCarryoverStatus? {
+        guard let latestEntry, !latestEntry.focusAreas.items.isEmpty else { return nil }
+
+        let items = latestEntry.focusAreas.items.map { area in
+            switch area {
+            case .alerts:
+                let isActive = liveAlertCount > 0
+                return HandoffCarryoverItem(
+                    area: area,
+                    isActive: isActive,
+                    detail: isActive ? "\(liveAlertCount) live alerts are still active." : "Live alerts are cleared."
+                )
+            case .approvals:
+                let isActive = pendingApprovalCount > 0
+                return HandoffCarryoverItem(
+                    area: area,
+                    isActive: isActive,
+                    detail: isActive ? "\(pendingApprovalCount) approvals still need review." : "Pending approvals are cleared."
+                )
+            case .watchlist:
+                let isActive = watchlistIssueCount > 0
+                return HandoffCarryoverItem(
+                    area: area,
+                    isActive: isActive,
+                    detail: isActive ? "\(watchlistIssueCount) watched agents still need attention." : "Watchlist attention is clear."
+                )
+            case .sessions:
+                let isActive = sessionAttentionCount > 0
+                return HandoffCarryoverItem(
+                    area: area,
+                    isActive: isActive,
+                    detail: isActive ? "\(sessionAttentionCount) session hotspots are still present." : "Session pressure is clear."
+                )
+            case .audit:
+                let isActive = criticalAuditCount > 0
+                return HandoffCarryoverItem(
+                    area: area,
+                    isActive: isActive,
+                    detail: isActive ? "\(criticalAuditCount) critical audit events are still recent." : "Critical audit carryover is clear."
+                )
+            }
+        }
+
+        let unresolvedCount = items.filter(\.isActive).count
+        let state: HandoffCarryoverState
+        if unresolvedCount == 0 {
+            state = .cleared
+        } else if unresolvedCount == items.count {
+            state = .active
+        } else {
+            state = .partial
+        }
+
+        return HandoffCarryoverStatus(
+            baseline: latestEntry,
+            items: items,
             state: state
         )
     }

@@ -112,6 +112,15 @@ struct OnCallView: View {
             liveAlertCount: visibleAlerts.count
         )
     }
+    private var currentHandoffCarryover: HandoffCarryoverStatus? {
+        handoffStore.carryoverFromLatest(
+            liveAlertCount: visibleAlerts.count,
+            pendingApprovalCount: vm.pendingApprovalCount,
+            watchlistIssueCount: watchedAttentionItems.filter { $0.severity > 0 }.count,
+            sessionAttentionCount: vm.sessionAttentionCount,
+            criticalAuditCount: vm.recentCriticalAuditCount
+        )
+    }
 
     var body: some View {
         List {
@@ -144,7 +153,8 @@ struct OnCallView: View {
                     cadenceLabel: handoffStore.cadenceState.label,
                     cadenceSummary: handoffStore.cadenceSummary,
                     latestEntry: handoffStore.latestEntry,
-                    drift: currentHandoffDrift
+                    drift: currentHandoffDrift,
+                    carryover: currentHandoffCarryover
                 )
 
                 NavigationLink(value: OnCallRoute.incidents) {
@@ -329,6 +339,7 @@ private struct OnCallHandoffStatusRow: View {
     let cadenceSummary: String
     let latestEntry: OnCallHandoffEntry?
     let drift: HandoffSnapshotDrift?
+    let carryover: HandoffCarryoverStatus?
 
     private var freshnessColor: Color {
         switch freshnessLabel {
@@ -362,6 +373,17 @@ private struct OnCallHandoffStatusRow: View {
             .red
         case .mixed:
             .orange
+        }
+    }
+
+    private func carryoverColor(for carryover: HandoffCarryoverStatus) -> Color {
+        switch carryover.state {
+        case .cleared:
+            .green
+        case .partial:
+            .orange
+        case .active:
+            .red
         }
     }
 
@@ -419,6 +441,26 @@ private struct OnCallHandoffStatusRow: View {
                 }
 
                 Text(drift.compactSummary)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            if let carryover {
+                HStack {
+                    Text("Carryover")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(carryover.state.label)
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(carryoverColor(for: carryover).opacity(0.12))
+                        .foregroundStyle(carryoverColor(for: carryover))
+                        .clipShape(Capsule())
+                }
+
+                Text(carryover.summary)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }

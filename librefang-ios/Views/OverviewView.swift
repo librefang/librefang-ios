@@ -61,6 +61,15 @@ struct OverviewView: View {
             liveAlertCount: visibleMonitoringAlerts.count
         )
     }
+    private var latestHandoffCarryover: HandoffCarryoverStatus? {
+        deps.onCallHandoffStore.carryoverFromLatest(
+            liveAlertCount: visibleMonitoringAlerts.count,
+            pendingApprovalCount: vm.pendingApprovalCount,
+            watchlistIssueCount: watchedAttentionItems.filter { $0.severity > 0 }.count,
+            sessionAttentionCount: vm.sessionAttentionCount,
+            criticalAuditCount: vm.recentCriticalAuditCount
+        )
+    }
     private let summaryColumns = [
         GridItem(.flexible(), spacing: 10),
         GridItem(.flexible(), spacing: 10),
@@ -118,7 +127,8 @@ struct OverviewView: View {
                             RecentHandoffCard(
                                 entry: latestHandoff,
                                 gapLabel: latestHandoffGapLabel,
-                                drift: latestHandoffDrift
+                                drift: latestHandoffDrift,
+                                carryover: latestHandoffCarryover
                             )
                         }
                         .buttonStyle(.plain)
@@ -403,6 +413,7 @@ private struct RecentHandoffCard: View {
     let entry: OnCallHandoffEntry
     let gapLabel: String?
     let drift: HandoffSnapshotDrift?
+    let carryover: HandoffCarryoverStatus?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -464,6 +475,13 @@ private struct RecentHandoffCard: View {
 
             if let drift {
                 Text("Drift: \(drift.state.label) · \(drift.compactSummary)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+
+            if let carryover {
+                Text("Carryover: \(carryover.state.label) · \(carryover.summary)")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)

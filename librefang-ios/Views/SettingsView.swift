@@ -224,6 +224,21 @@ struct SettingsView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
+                        if let carryover = deps.onCallHandoffStore.carryoverFromLatest(
+                            liveAlertCount: visibleAlertCount,
+                            pendingApprovalCount: deps.dashboardViewModel.pendingApprovalCount,
+                            watchlistIssueCount: watchedAttentionItems.filter { $0.severity > 0 }.count,
+                            sessionAttentionCount: deps.dashboardViewModel.sessionAttentionCount,
+                            criticalAuditCount: deps.dashboardViewModel.recentCriticalAuditCount
+                        ) {
+                            LabeledContent("Carryover") {
+                                Text(carryover.state.label)
+                                    .foregroundStyle(handoffCarryoverColor(for: carryover))
+                            }
+                            Text(carryover.summary)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                         LabeledContent("Freshness") {
                             Text(deps.onCallHandoffStore.freshnessLabel)
                                 .foregroundStyle(handoffFreshnessColor)
@@ -460,6 +475,17 @@ struct SettingsView: View {
             .red
         case .mixed:
             .orange
+        }
+    }
+
+    private func handoffCarryoverColor(for carryover: HandoffCarryoverStatus) -> Color {
+        switch carryover.state {
+        case .cleared:
+            .green
+        case .partial:
+            .orange
+        case .active:
+            .red
         }
     }
 }

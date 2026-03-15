@@ -73,6 +73,15 @@ struct HandoffCenterView: View {
             liveAlertCount: liveAlertCount
         )
     }
+    private var carryoverStatus: HandoffCarryoverStatus? {
+        handoffStore.carryoverFromLatest(
+            liveAlertCount: liveAlertCount,
+            pendingApprovalCount: vm.pendingApprovalCount,
+            watchlistIssueCount: watchlistStore.watchedAgents(from: vm.agents).filter { vm.attentionItem(for: $0).severity > 0 }.count,
+            sessionAttentionCount: vm.sessionAttentionCount,
+            criticalAuditCount: vm.recentCriticalAuditCount
+        )
+    }
     private var suggestedFocusAreas: Set<HandoffFocusArea> {
         var areas = Set<HandoffFocusArea>()
 
@@ -115,6 +124,10 @@ struct HandoffCenterView: View {
                     cadenceSummary: handoffStore.cadenceSummary,
                     warningCount: handoffStore.cadenceWarningCount
                 )
+
+                if let carryoverStatus {
+                    HandoffCarryoverCard(status: carryoverStatus)
+                }
 
                 if let currentDrift {
                     HandoffDriftCard(drift: currentDrift)
@@ -414,6 +427,53 @@ private struct HandoffDriftCard: View {
             Text("Baseline: \(drift.baseline.createdAt.formatted(date: .omitted, time: .shortened))")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 6)
+    }
+}
+
+private struct HandoffCarryoverCard: View {
+    let status: HandoffCarryoverStatus
+
+    private var accentColor: Color {
+        switch status.state {
+        case .cleared:
+            .green
+        case .partial:
+            .orange
+        case .active:
+            .red
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label("Carryover", systemImage: "arrow.triangle.branch")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(status.state.label)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(accentColor.opacity(0.12))
+                    .foregroundStyle(accentColor)
+                    .clipShape(Capsule())
+            }
+
+            Text(status.summary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            ForEach(status.items) { item in
+                HStack(alignment: .top, spacing: 10) {
+                    HandoffFocusAreaBadge(area: item.area)
+                    Text(item.detail)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
         }
         .padding(.vertical, 6)
     }
