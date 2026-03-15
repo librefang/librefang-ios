@@ -20,6 +20,7 @@ struct AgentAttentionItem: Identifiable {
     let hasAuthIssue: Bool
     let isStale: Bool
     let sessionPressure: Bool
+    let modelDiagnostic: AgentModelDiagnostic?
     let severity: Int
     let reasons: [String]
 
@@ -61,6 +62,17 @@ extension DashboardViewModel {
         configuredMCPServerCount > 0 && connectedMCPServerCount == 0
     }
 
+    var hasDiagnosticsIssue: Bool {
+        hasHealthDatabaseIssue || diagnosticsConfigWarningCount > 0 || (supervisorPanicCount + supervisorRestartCount) > 0
+    }
+
+    var hasIntegrationIssue: Bool {
+        unreachableLocalProviderCount > 0
+            || channelCredentialGapCount > 0
+            || (!catalogModels.isEmpty && configuredProviderCount > 0 && availableCatalogModelCount == 0)
+            || !agentsWithModelDiagnostics.isEmpty
+    }
+
     var staleRunningAgentCount: Int {
         agents.filter { isAgentStale($0) }.count
     }
@@ -79,6 +91,10 @@ extension DashboardViewModel {
 
     var multiSessionAgentCount: Int {
         sessionCountsByAgent.values.filter { $0 > 1 }.count
+    }
+
+    var disabledTriggerCount: Int {
+        triggers.filter { !$0.enabled }.count
     }
 
     var sessionAttentionCount: Int {
@@ -101,14 +117,23 @@ extension DashboardViewModel {
         attentionAgents.count
     }
 
+    var hasAutomationIdleCoverage: Bool {
+        (triggers.count + schedules.count + cronJobs.count) > 0 && enabledAutomationCount == 0
+    }
+
     var runtimeAlertCount: Int {
         pendingApprovalCount
             + (degradedHandCount > 0 ? 1 : 0)
             + (hasPeerNetworkIssue ? 1 : 0)
             + (hasAuditIntegrityIssue ? 1 : 0)
             + (hasMCPConnectivityIssue ? 1 : 0)
+            + (hasDiagnosticsIssue ? 1 : 0)
+            + (hasIntegrationIssue ? 1 : 0)
             + (staleRunningAgentCount > 0 ? 1 : 0)
             + (recentCriticalAuditCount > 0 ? 1 : 0)
+            + (failedWorkflowRunCount > 0 ? 1 : 0)
+            + (exhaustedTriggerCount > 0 ? 1 : 0)
+            + (stalledCronJobCount > 0 ? 1 : 0)
             + ((highVolumeSessionCount > 0 || multiSessionAgentCount > 0) ? 1 : 0)
     }
 
@@ -218,6 +243,37 @@ extension DashboardViewModel {
             ))
         }
 
+        if hasHealthDatabaseIssue {
+            items.append(MonitoringAlertItem(
+                id: "health-database",
+                title: "Kernel database degraded",
+                detail: "Deep health diagnostics report the runtime database as unavailable or unhealthy.",
+                severity: .critical,
+                symbolName: "externaldrive.badge.xmark"
+            ))
+        }
+
+        if diagnosticsConfigWarningCount > 0 {
+            items.append(MonitoringAlertItem(
+                id: "config-warnings",
+                title: diagnosticsConfigWarningCount == 1 ? "1 config warning" : "\(diagnosticsConfigWarningCount) config warnings",
+                detail: "Runtime validation found configuration warnings that should be reviewed in diagnostics.",
+                severity: .warning,
+                symbolName: "gear.badge.questionmark"
+            ))
+        }
+
+        let supervisorEvents = supervisorPanicCount + supervisorRestartCount
+        if supervisorEvents > 0 {
+            items.append(MonitoringAlertItem(
+                id: "supervisor-events",
+                title: supervisorEvents == 1 ? "1 supervisor event" : "\(supervisorEvents) supervisor events",
+                detail: "\(supervisorPanicCount) panics and \(supervisorRestartCount) restarts have been observed since startup.",
+                severity: supervisorPanicCount > 0 ? .critical : .warning,
+                symbolName: "bolt.trianglebadge.exclamationmark"
+            ))
+        }
+
         if staleRunningAgentCount > 0 {
             items.append(MonitoringAlertItem(
                 id: "stale-agents",
@@ -228,6 +284,46 @@ extension DashboardViewModel {
             ))
         }
 
+        if failedWorkflowRunCount > 0 {
+            items.append(MonitoringAlertItem(
+                id: "workflow-runs-failed",
+                title: failedWorkflowRunCount == 1 ? "1 workflow run failed" : "\(failedWorkflowRunCount) workflow runs failed",
+                detail: "Automation pipelines recently stopped in a failed state and should be reviewed.",
+                severity: .warning,
+                symbolName: "point.3.filled.connected.trianglepath.dotted"
+            ))
+        }
+
+        if exhaustedTriggerCount > 0 {
+            items.append(MonitoringAlertItem(
+                id: "trigger-budget-exhausted",
+                title: exhaustedTriggerCount == 1 ? "1 trigger exhausted" : "\(exhaustedTriggerCount) triggers exhausted",
+                detail: "Event-driven automations hit their max fire count and will no longer wake agents.",
+                severity: .warning,
+                symbolName: "bolt.badge.clock"
+            ))
+        }
+
+        if stalledCronJobCount > 0 {
+            items.append(MonitoringAlertItem(
+                id: "cron-next-run-missing",
+                title: stalledCronJobCount == 1 ? "1 cron job missing next run" : "\(stalledCronJobCount) cron jobs missing next run",
+                detail: "Enabled cron jobs exist without a next execution time in the scheduler.",
+                severity: .warning,
+                symbolName: "calendar.badge.exclamationmark"
+            ))
+        }
+
+        if hasAutomationIdleCoverage {
+            items.append(MonitoringAlertItem(
+                id: "automation-idle",
+                title: "Automation inventory is idle",
+                detail: "Triggers, schedules, or cron jobs exist, but all of them are currently disabled.",
+                severity: .info,
+                symbolName: "pause.circle"
+            ))
+        }
+
         if configuredProviderCount == 0 {
             items.append(MonitoringAlertItem(
                 id: "no-provider",
@@ -235,6 +331,46 @@ extension DashboardViewModel {
                 detail: "Agents may exist, but the model layer is not ready.",
                 severity: .warning,
                 symbolName: "key.slash"
+            ))
+        }
+
+        if unreachableLocalProviderCount > 0 {
+            items.append(MonitoringAlertItem(
+                id: "local-provider-unreachable",
+                title: unreachableLocalProviderCount == 1 ? "1 local provider unreachable" : "\(unreachableLocalProviderCount) local providers unreachable",
+                detail: "At least one local model endpoint probe failed. Review provider diagnostics for reachability and latency.",
+                severity: .warning,
+                symbolName: "network.slash"
+            ))
+        }
+
+        if !catalogModels.isEmpty && configuredProviderCount > 0 && availableCatalogModelCount == 0 {
+            items.append(MonitoringAlertItem(
+                id: "no-available-models",
+                title: "No available models in catalog",
+                detail: "Providers are configured, but the model catalog currently shows no available models for agent execution.",
+                severity: .warning,
+                symbolName: "square.stack.3d.up.slash"
+            ))
+        }
+
+        if channelCredentialGapCount > 0 {
+            items.append(MonitoringAlertItem(
+                id: "channel-credential-gap",
+                title: channelCredentialGapCount == 1 ? "1 configured channel missing credentials" : "\(channelCredentialGapCount) configured channels missing credentials",
+                detail: "Some configured delivery channels are missing required secrets or tokens.",
+                severity: .info,
+                symbolName: "bubble.left.and.exclamationmark.bubble.right"
+            ))
+        }
+
+        if !agentsWithModelDiagnostics.isEmpty {
+            items.append(MonitoringAlertItem(
+                id: "agent-model-drift",
+                title: agentsWithModelDiagnostics.count == 1 ? "1 agent has model drift" : "\(agentsWithModelDiagnostics.count) agents have model drift",
+                detail: "Some agents point at unavailable, unknown, or provider-mismatched catalog models.",
+                severity: unavailableModelAgentCount > 0 ? .warning : .info,
+                symbolName: "square.stack.3d.up.slash"
             ))
         }
 
@@ -289,6 +425,7 @@ extension DashboardViewModel {
         let stale = isAgentStale(agent)
         let sessionPressure = (sessionCountsByAgent[agent.id] ?? 0) > 1
             || sessions.contains { $0.agentId == agent.id && $0.messageCount >= MonitoringThresholds.highVolumeSessionMessages }
+        let modelDiagnostic = modelDiagnostic(for: agent)
 
         var reasons: [String] = []
         if approvals > 0 {
@@ -306,12 +443,16 @@ extension DashboardViewModel {
         if sessionPressure {
             reasons.append("Session pressure")
         }
+        if let modelDiagnostic {
+            reasons.append(modelDiagnostic.issueSummary)
+        }
 
         let severity = approvals * 10
             + (stale ? 5 : 0)
             + (!agent.ready ? 4 : 0)
             + (authIssue ? 3 : 0)
             + (sessionPressure ? 2 : 0)
+            + (modelDiagnostic?.severity ?? 0)
             + (agent.isRunning ? 1 : 0)
 
         return AgentAttentionItem(
@@ -320,6 +461,7 @@ extension DashboardViewModel {
             hasAuthIssue: authIssue,
             isStale: stale,
             sessionPressure: sessionPressure,
+            modelDiagnostic: modelDiagnostic,
             severity: severity,
             reasons: reasons
         )

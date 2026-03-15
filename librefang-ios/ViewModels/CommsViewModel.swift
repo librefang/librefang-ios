@@ -1,17 +1,16 @@
 import Foundation
 
 @Observable
-final class EventsViewModel {
-    var entries: [AuditEntry] = []
-    var auditVerify: AuditVerifyStatus?
-    var tipHash: String?
+final class CommsViewModel {
+    var topology: CommsTopology?
+    var events: [CommsEvent] = []
     var isLoading = false
     var isStreaming = false
     var error: String?
     var lastRefresh: Date?
 
     private let api: APIClientProtocol
-    private let streamClient = AuditEventStreamClient()
+    private let streamClient = CommsEventStreamClient()
     private var refreshTask: Task<Void, Never>?
     private var streamTask: Task<Void, Never>?
 
@@ -30,7 +29,7 @@ final class EventsViewModel {
                 guard !Task.isCancelled else { break }
 
                 if self?.isStreaming == true {
-                    await self?.refreshVerification()
+                    await self?.refreshTopology()
                 } else {
                     await self?.refresh()
                     await self?.startStream()
@@ -54,16 +53,14 @@ final class EventsViewModel {
 
         await withTaskGroup(of: Void.self) { group in
             group.addTask { @MainActor in
+                await self.refreshTopology()
+            }
+            group.addTask { @MainActor in
                 do {
-                    let audit = try await self.api.recentAudit(limit: 80)
-                    self.entries = audit.entries.sorted { $0.seq > $1.seq }
-                    self.tipHash = audit.tipHash
+                    self.events = try await self.api.commsEvents(limit: 120)
                 } catch {
                     self.error = self.error ?? error.localizedDescription
                 }
-            }
-            group.addTask { @MainActor in
-                await self.refreshVerification()
             }
         }
 
@@ -72,11 +69,11 @@ final class EventsViewModel {
     }
 
     @MainActor
-    private func refreshVerification() async {
+    private func refreshTopology() async {
         do {
-            self.auditVerify = try await self.api.auditVerify()
+            self.topology = try await self.api.commsTopology()
         } catch {
-            /* Verification is optional in the detailed feed */
+            /* Topology can stay stale while the live event stream remains available. */
         }
     }
 
@@ -91,10 +88,10 @@ final class EventsViewModel {
                 let connectionInfo = try await self.api.connectionInfo()
                 let stream = await self.streamClient.stream(connectionInfo: connectionInfo)
 
-                for try await entry in stream {
+                for try await event in stream {
                     await MainActor.run {
                         self.isStreaming = true
-                        self.ingest(entry)
+                        self.ingest(event)
                         self.error = nil
                         self.lastRefresh = Date()
                     }
@@ -113,7 +110,7 @@ final class EventsViewModel {
                 await MainActor.run {
                     self.isStreaming = false
                     self.streamTask = nil
-                    if self.entries.isEmpty {
+                    if self.events.isEmpty {
                         self.error = error.localizedDescription
                     }
                 }
@@ -122,27 +119,26 @@ final class EventsViewModel {
     }
 
     @MainActor
-    private func ingest(_ entry: AuditEntry) {
-        if let index = entries.firstIndex(where: { $0.seq == entry.seq }) {
-            entries[index] = entry
+    private func ingest(_ event: CommsEvent) {
+        if let index = events.firstIndex(where: { $0.id == event.id }) {
+            events[index] = event
         } else {
-            entries.append(entry)
-            entries.sort { $0.seq > $1.seq }
-            if entries.count > 200 {
-                entries = Array(entries.prefix(200))
+            events.append(event)
+            events.sort { $0.timestamp > $1.timestamp }
+            if events.count > 150 {
+                events = Array(events.prefix(150))
             }
         }
     }
 
-    var criticalCount: Int {
-        entries.filter { $0.severity == .critical }.count
+    var nodeCount: Int { topology?.nodes.count ?? 0 }
+    var edgeCount: Int { topology?.edges.count ?? 0 }
+    var taskEventCount: Int {
+        events.filter {
+            $0.kind == .taskPosted || $0.kind == .taskClaimed || $0.kind == .taskCompleted
+        }.count
     }
-
-    var warningCount: Int {
-        entries.filter { $0.severity == .warning }.count
-    }
-
-    var infoCount: Int {
-        entries.filter { $0.severity == .info }.count
+    var spawnEventCount: Int {
+        events.filter { $0.kind == .agentSpawned || $0.kind == .agentTerminated }.count
     }
 }

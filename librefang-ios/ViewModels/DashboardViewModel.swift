@@ -15,6 +15,8 @@ final class DashboardViewModel {
     var firstUsageEventDate: String?
     var providers: [ProviderStatus] = []
     var channels: [ChannelStatus] = []
+    var catalogModels: [CatalogModel] = []
+    var modelAliases: [ModelAliasEntry] = []
     var hands: [HandDefinition] = []
     var activeHands: [HandInstance] = []
     var approvals: [ApprovalItem] = []
@@ -27,6 +29,15 @@ final class DashboardViewModel {
     var tools: [ToolInfo] = []
     var networkStatus: NetworkStatus?
     var peers: [PeerStatus] = []
+    var workflows: [WorkflowSummary] = []
+    var workflowRuns: [WorkflowRun] = []
+    var triggers: [TriggerDefinition] = []
+    var schedules: [ScheduleEntry] = []
+    var cronJobs: [CronJob] = []
+    var healthDetail: HealthDetail?
+    var versionInfo: BuildVersionInfo?
+    var configSummary: RuntimeConfigSummary?
+    var metricsRawText: String?
     var isLoading = false
     var error: String?
     var lastRefresh: Date?
@@ -114,6 +125,14 @@ final class DashboardViewModel {
                 catch { /* Channel inventory is optional */ }
             }
             group.addTask { @MainActor in
+                do { self.catalogModels = (try await self.api.models()).models }
+                catch { /* Model catalog is optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.modelAliases = (try await self.api.modelAliases()).aliases }
+                catch { /* Alias inventory is optional */ }
+            }
+            group.addTask { @MainActor in
                 do { self.hands = (try await self.api.hands()).hands }
                 catch { /* Hands are optional */ }
             }
@@ -162,6 +181,52 @@ final class DashboardViewModel {
                 do { self.peers = (try await self.api.peers()).peers }
                 catch { /* Peer inventory is optional */ }
             }
+            group.addTask { @MainActor in
+                do { self.healthDetail = try await self.api.healthDetail() }
+                catch { /* Deep health diagnostics are optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.versionInfo = try await self.api.versionInfo() }
+                catch { /* Build metadata is optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.configSummary = try await self.api.configSummary() }
+                catch { /* Config summary is optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.metricsRawText = try await self.api.metricsText() }
+                catch { /* Prometheus metrics are optional */ }
+            }
+            group.addTask { @MainActor in
+                do {
+                    let workflows = try await self.api.workflows()
+                    self.workflows = workflows
+
+                    if let sampleWorkflow = workflows.first {
+                        do {
+                            self.workflowRuns = try await self.api.workflowRuns(workflowID: sampleWorkflow.id)
+                        } catch {
+                            self.workflowRuns = []
+                        }
+                    } else {
+                        self.workflowRuns = []
+                    }
+                } catch {
+                    /* Workflow inventory is optional */
+                }
+            }
+            group.addTask { @MainActor in
+                do { self.triggers = try await self.api.triggers() }
+                catch { /* Event triggers are optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.schedules = (try await self.api.schedules()).schedules }
+                catch { /* Schedule inventory is optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.cronJobs = (try await self.api.cronJobs()).jobs }
+                catch { /* Cron inventory is optional */ }
+            }
         }
 
         lastRefresh = Date()
@@ -181,11 +246,18 @@ final class DashboardViewModel {
     var totalCount: Int { agents.count }
     var isConnected: Bool { health?.isHealthy == true }
     var configuredProviderCount: Int { providers.filter(\.isConfigured).count }
+    var localProviderCount: Int { providers.filter { $0.isLocal == true }.count }
+    var unreachableLocalProviderCount: Int { providers.filter { $0.isLocal == true && $0.reachable == false }.count }
+    var providerErrorCount: Int { providers.filter { ($0.error ?? "").isEmpty == false }.count }
     var reachableLocalProviderCount: Int {
         providers.filter { ($0.isLocal ?? false) && ($0.reachable ?? false) }.count
     }
     var configuredChannelCount: Int { channels.filter(\.configured).count }
+    var channelCredentialGapCount: Int { channels.filter { $0.configured && !$0.hasToken }.count }
     var readyChannelCount: Int { channels.filter { $0.configured && $0.hasToken }.count }
+    var availableCatalogModelCount: Int { catalogModels.filter(\.available).count }
+    var unavailableCatalogModelCount: Int { catalogModels.filter { !$0.available }.count }
+    var modelAliasCount: Int { modelAliases.count }
     var activeHandCount: Int { activeHands.count }
     var degradedHandCount: Int { hands.filter(\.degraded).count }
     var pendingApprovalCount: Int { approvals.count }
@@ -204,4 +276,34 @@ final class DashboardViewModel {
     var configuredMCPServerCount: Int { mcpConfiguredServers.count }
     var mcpToolCount: Int { mcpConnectedServers.reduce(0) { $0 + $1.toolsCount } }
     var totalToolCount: Int { tools.count }
+    var workflowCount: Int { workflows.count }
+    var recentWorkflowRunCount: Int { workflowRuns.count }
+    var failedWorkflowRunCount: Int { workflowRuns.filter { $0.state == .failed }.count }
+    var runningWorkflowRunCount: Int { workflowRuns.filter { $0.state == .running }.count }
+    var enabledTriggerCount: Int { triggers.filter(\.enabled).count }
+    var exhaustedTriggerCount: Int { triggers.filter(\.isExhausted).count }
+    var pausedScheduleCount: Int { schedules.filter { !$0.enabled }.count }
+    var enabledScheduleCount: Int { schedules.filter(\.enabled).count }
+    var pausedCronJobCount: Int { cronJobs.filter { !$0.enabled }.count }
+    var enabledCronJobCount: Int { cronJobs.filter(\.enabled).count }
+    var stalledCronJobCount: Int { cronJobs.filter { $0.enabled && $0.nextRun == nil }.count }
+    var automationDefinitionCount: Int { workflows.count + triggers.count + schedules.count + cronJobs.count }
+    var enabledAutomationCount: Int { enabledTriggerCount + enabledScheduleCount + enabledCronJobCount }
+    var pausedAutomationCount: Int { pausedScheduleCount + pausedCronJobCount + triggers.filter { !$0.enabled }.count }
+    var metricsSnapshot: PrometheusMetricsSnapshot? {
+        guard let metricsRawText, !metricsRawText.isEmpty else { return nil }
+        return PrometheusMetricsSnapshot.parse(metricsRawText)
+    }
+    var diagnosticsConfigWarningCount: Int { healthDetail?.configWarnings.count ?? 0 }
+    var supervisorRestartCount: Int { healthDetail?.restartCount ?? metricsSnapshot?.restartCount ?? 0 }
+    var supervisorPanicCount: Int { healthDetail?.panicCount ?? metricsSnapshot?.panicCount ?? 0 }
+    var diagnosticsIssueCount: Int {
+        (hasHealthDatabaseIssue ? 1 : 0)
+            + (diagnosticsConfigWarningCount > 0 ? 1 : 0)
+            + ((supervisorRestartCount + supervisorPanicCount) > 0 ? 1 : 0)
+    }
+    var hasHealthDatabaseIssue: Bool {
+        guard let database = healthDetail?.database else { return false }
+        return database.lowercased() != "connected"
+    }
 }

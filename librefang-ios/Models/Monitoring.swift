@@ -172,6 +172,9 @@ nonisolated struct ChannelStatus: Codable, Identifiable, Sendable {
     let setupType: String
     let configured: Bool
     let hasToken: Bool
+    let fields: [ChannelConfigField]?
+    let setupSteps: [String]?
+    let configTemplate: String?
 
     enum CodingKeys: String, CodingKey {
         case name, icon, description, category, difficulty, configured
@@ -180,9 +183,102 @@ nonisolated struct ChannelStatus: Codable, Identifiable, Sendable {
         case quickSetup = "quick_setup"
         case setupType = "setup_type"
         case hasToken = "has_token"
+        case fields
+        case setupSteps = "setup_steps"
+        case configTemplate = "config_template"
     }
 
     var id: String { name }
+}
+
+nonisolated struct ChannelConfigField: Codable, Identifiable, Sendable {
+    let key: String
+    let label: String
+    let type: String
+    let envVar: String?
+    let required: Bool
+    let hasValue: Bool
+    let placeholder: String?
+    let advanced: Bool
+
+    var id: String { key }
+
+    enum CodingKeys: String, CodingKey {
+        case key, label, type, required, advanced
+        case envVar = "env_var"
+        case hasValue = "has_value"
+        case placeholder
+    }
+}
+
+nonisolated struct CatalogModelListResponse: Codable, Sendable {
+    let models: [CatalogModel]
+    let total: Int
+    let available: Int
+}
+
+nonisolated struct CatalogModel: Codable, Identifiable, Sendable {
+    let id: String
+    let displayName: String
+    let provider: String
+    let tier: String
+    let contextWindow: Int?
+    let maxOutputTokens: Int?
+    let inputCostPerM: Double?
+    let outputCostPerM: Double?
+    let supportsTools: Bool
+    let supportsVision: Bool
+    let supportsStreaming: Bool
+    let available: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id, provider, tier, available
+        case displayName = "display_name"
+        case contextWindow = "context_window"
+        case maxOutputTokens = "max_output_tokens"
+        case inputCostPerM = "input_cost_per_m"
+        case outputCostPerM = "output_cost_per_m"
+        case supportsTools = "supports_tools"
+        case supportsVision = "supports_vision"
+        case supportsStreaming = "supports_streaming"
+    }
+}
+
+nonisolated struct ModelAliasListResponse: Codable, Sendable {
+    let aliases: [ModelAliasEntry]
+    let total: Int
+}
+
+nonisolated struct ModelAliasEntry: Codable, Identifiable, Sendable {
+    let alias: String
+    let modelId: String
+
+    var id: String { alias }
+
+    enum CodingKeys: String, CodingKey {
+        case alias
+        case modelId = "model_id"
+    }
+}
+
+nonisolated struct IntegrationProbeResult: Codable, Sendable {
+    let status: String
+    let provider: String?
+    let message: String?
+    let error: String?
+    let note: String?
+    let latencyMs: Int?
+    let discoveredModels: [String]?
+
+    enum CodingKeys: String, CodingKey {
+        case status, provider, message, error, note
+        case latencyMs = "latency_ms"
+        case discoveredModels = "discovered_models"
+    }
+
+    var isHealthy: Bool {
+        status.lowercased() == "ok"
+    }
 }
 
 nonisolated struct HandCatalog: Codable, Sendable {

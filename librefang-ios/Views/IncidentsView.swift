@@ -2,6 +2,9 @@ import SwiftUI
 
 struct IncidentsView: View {
     @Environment(\.dependencies) private var deps
+    @State private var pendingApprovalAction: ApprovalDecisionAction?
+    @State private var approvalActionInFlightID: String?
+    @State private var operatorNotice: OperatorActionNotice?
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
     private var incidentStateStore: IncidentStateStore { deps.incidentStateStore }
@@ -63,6 +66,17 @@ struct IncidentsView: View {
             + (handoffReadiness.state == .ready ? 0 : 1)
             + (handoffStore.pendingLatestFollowUpCount > 0 ? 1 : 0)
     }
+    private var automationIssueCount: Int {
+        (vm.failedWorkflowRunCount > 0 ? 1 : 0)
+            + (vm.exhaustedTriggerCount > 0 ? 1 : 0)
+            + (vm.stalledCronJobCount > 0 ? 1 : 0)
+    }
+    private var integrationIssueCount: Int {
+        (vm.unreachableLocalProviderCount > 0 ? 1 : 0)
+            + (vm.channelCredentialGapCount > 0 ? 1 : 0)
+            + ((!vm.catalogModels.isEmpty && vm.configuredProviderCount > 0 && vm.availableCatalogModelCount == 0) ? 1 : 0)
+            + (vm.agentsWithModelDiagnostics.isEmpty ? 0 : 1)
+    }
     private var onCallPriorityItems: [OnCallPriorityItem] {
         vm.onCallPriorityItems(
             visibleAlerts: visibleAlerts,
@@ -88,6 +102,8 @@ struct IncidentsView: View {
             || !vm.attentionAgents.isEmpty
             || !vm.sessionAttentionItems.isEmpty
             || !vm.criticalAuditEntries.isEmpty
+            || automationIssueCount > 0
+            || integrationIssueCount > 0
             || handoffIssueCount > 0
     }
 
@@ -101,6 +117,8 @@ struct IncidentsView: View {
                     approvalCount: vm.pendingApprovalCount,
                     agentCount: vm.issueAgentCount,
                     sessionCount: vm.sessionAttentionCount,
+                    automationCount: automationIssueCount,
+                    integrationCount: integrationIssueCount,
                     handoffCount: handoffIssueCount
                 )
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
@@ -145,6 +163,42 @@ struct IncidentsView: View {
                 }
             }
 
+            if automationIssueCount > 0 {
+                Section {
+                    NavigationLink {
+                        AutomationView()
+                    } label: {
+                        IncidentAutomationCard(vm: vm)
+                    }
+                } header: {
+                    Text("Automation")
+                } footer: {
+                    Text("Workflow failures, exhausted triggers, and stalled cron jobs now flow into the mobile incident queue.")
+                }
+            }
+
+            if integrationIssueCount > 0 {
+                Section {
+                    NavigationLink {
+                        IntegrationsView()
+                    } label: {
+                        IncidentIntegrationsCard(vm: vm)
+                    }
+
+                    ForEach(vm.agentsWithModelDiagnostics.prefix(3)) { diagnostic in
+                        NavigationLink {
+                            AgentDetailView(agent: diagnostic.agent)
+                        } label: {
+                            IncidentIntegrationAgentRow(diagnostic: diagnostic)
+                        }
+                    }
+                } header: {
+                    Text("Integrations")
+                } footer: {
+                    Text("Local provider reachability, delivery channel secrets, and model catalog drift now surface as first-class mobile incidents.")
+                }
+            }
+
             if !visibleAlerts.isEmpty {
                 Section {
                     ForEach(visibleAlerts) { alert in
@@ -172,12 +226,27 @@ struct IncidentsView: View {
             if !vm.approvals.isEmpty {
                 Section {
                     ForEach(vm.approvals.prefix(4)) { approval in
-                        IncidentApprovalRow(approval: approval)
+                        IncidentApprovalRow(
+                            approval: approval,
+                            isBusy: approvalActionInFlightID == approval.id,
+                            onApprove: {
+                                pendingApprovalAction = .approve(approval)
+                            },
+                            onReject: {
+                                pendingApprovalAction = .reject(approval)
+                            }
+                        )
+                    }
+
+                    NavigationLink {
+                        ApprovalsView()
+                    } label: {
+                        Label("Open Full Approval Queue", systemImage: "checkmark.shield")
                     }
                 } header: {
                     Text("Pending Approvals")
                 } footer: {
-                    Text("Approvals block sensitive actions until an operator responds in the main dashboard.")
+                    Text("Approvals block sensitive actions until an operator responds. Mobile can now resolve them directly after confirmation.")
                 }
             }
 
@@ -277,6 +346,26 @@ struct IncidentsView: View {
                 await vm.refresh()
             }
         }
+        .confirmationDialog(
+            pendingApprovalAction?.title ?? "",
+            isPresented: approvalActionConfirmationPresented,
+            titleVisibility: .visible,
+            presenting: pendingApprovalAction
+        ) { action in
+            Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
+                Task { await performApprovalAction(action) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { action in
+            Text(action.message)
+        }
+        .alert(item: $operatorNotice) { notice in
+            Alert(
+                title: Text(notice.title),
+                message: Text(notice.message),
+                dismissButton: .default(Text("OK"))
+            )
+        }
     }
 
     private func agentName(for id: String) -> String? {
@@ -291,6 +380,35 @@ struct IncidentsView: View {
     private func eventQuery(for entry: AuditEntry) -> String? {
         entry.agentId.isEmpty ? nil : entry.agentId
     }
+
+    private var approvalActionConfirmationPresented: Binding<Bool> {
+        Binding(
+            get: { pendingApprovalAction != nil },
+            set: { isPresented in
+                if !isPresented {
+                    pendingApprovalAction = nil
+                }
+            }
+        )
+    }
+
+    @MainActor
+    private func performApprovalAction(_ action: ApprovalDecisionAction) async {
+        pendingApprovalAction = nil
+        approvalActionInFlightID = action.approvalID
+        defer { approvalActionInFlightID = nil }
+
+        do {
+            let response = try await action.perform(using: deps.apiClient)
+            await vm.refresh()
+            operatorNotice = action.successNotice(from: response)
+        } catch {
+            operatorNotice = OperatorActionNotice(
+                title: action.title,
+                message: error.localizedDescription
+            )
+        }
+    }
 }
 
 private struct IncidentScoreboard: View {
@@ -300,6 +418,8 @@ private struct IncidentScoreboard: View {
     let approvalCount: Int
     let agentCount: Int
     let sessionCount: Int
+    let automationCount: Int
+    let integrationCount: Int
     let handoffCount: Int
 
     private let columns = [
@@ -345,6 +465,18 @@ private struct IncidentScoreboard: View {
                 label: "Sessions",
                 icon: "rectangle.stack",
                 color: sessionCount > 0 ? .orange : .secondary
+            )
+            StatBadge(
+                value: "\(automationCount)",
+                label: "Automation",
+                icon: "flowchart",
+                color: automationCount > 0 ? .orange : .secondary
+            )
+            StatBadge(
+                value: "\(integrationCount)",
+                label: "Integrations",
+                icon: "square.3.layers.3d.down.forward",
+                color: integrationCount > 0 ? .orange : .secondary
             )
             StatBadge(
                 value: "\(handoffCount)",
@@ -633,33 +765,227 @@ private struct IncidentShiftCoverageCard: View {
     }
 }
 
-private struct IncidentApprovalRow: View {
-    let approval: ApprovalItem
+private struct IncidentAutomationCard: View {
+    let vm: DashboardViewModel
+
+    private var statusColor: Color {
+        vm.failedWorkflowRunCount > 0 ? .red : .orange
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text(approval.actionSummary)
-                    .font(.subheadline.weight(.medium))
+                Label("Automation Pressure", systemImage: "flowchart")
+                    .font(.subheadline.weight(.semibold))
                 Spacer()
-                Text(approval.riskLevel.capitalized)
+                Text(statusLabel)
                     .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(.red.opacity(0.12))
-                    .foregroundStyle(.red)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(statusColor.opacity(0.12))
+                    .foregroundStyle(statusColor)
                     .clipShape(Capsule())
             }
 
-            Text(approval.agentName)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            if vm.failedWorkflowRunCount > 0 {
+                automationIssueRow(
+                    icon: "exclamationmark.triangle.fill",
+                    color: .red,
+                    title: vm.failedWorkflowRunCount == 1 ? "Workflow run failed" : "\(vm.failedWorkflowRunCount) workflow runs failed",
+                    detail: vm.workflowRuns
+                        .filter { $0.state == .failed }
+                        .prefix(2)
+                        .map(\.workflowName)
+                        .joined(separator: " • ")
+                )
+            }
 
-            Text(approval.toolName)
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
+            if vm.exhaustedTriggerCount > 0 {
+                automationIssueRow(
+                    icon: "bolt.badge.clock",
+                    color: .orange,
+                    title: vm.exhaustedTriggerCount == 1 ? "Trigger exhausted" : "\(vm.exhaustedTriggerCount) triggers exhausted",
+                    detail: "Event triggers reached their fire budget and stopped waking agents."
+                )
+            }
+
+            if vm.stalledCronJobCount > 0 {
+                automationIssueRow(
+                    icon: "calendar.badge.exclamationmark",
+                    color: .orange,
+                    title: vm.stalledCronJobCount == 1 ? "Cron missing next run" : "\(vm.stalledCronJobCount) cron jobs missing next run",
+                    detail: "Enabled scheduler jobs exist without a next execution timestamp."
+                )
+            }
+
+            HStack {
+                Label("Open Automation Monitor", systemImage: "flowchart")
+                    .font(.caption.weight(.semibold))
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .foregroundStyle(.secondary)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)
+    }
+
+    private var statusLabel: String {
+        let count = (vm.failedWorkflowRunCount > 0 ? 1 : 0)
+            + (vm.exhaustedTriggerCount > 0 ? 1 : 0)
+            + (vm.stalledCronJobCount > 0 ? 1 : 0)
+        return count == 1 ? "1 issue" : "\(count) issues"
+    }
+
+    @ViewBuilder
+    private func automationIssueRow(icon: String, color: Color, title: String, detail: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.primary)
+                if !detail.isEmpty {
+                    Text(detail)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+}
+
+private struct IncidentIntegrationsCard: View {
+    let vm: DashboardViewModel
+
+    private var noAvailableModels: Bool {
+        !vm.catalogModels.isEmpty && vm.configuredProviderCount > 0 && vm.availableCatalogModelCount == 0
+    }
+
+    private var statusColor: Color {
+        if noAvailableModels || vm.unavailableModelAgentCount > 0 {
+            return .red
+        }
+        return .orange
+    }
+
+    private var statusLabel: String {
+        let issueCount = (vm.unreachableLocalProviderCount > 0 ? 1 : 0)
+            + (vm.channelCredentialGapCount > 0 ? 1 : 0)
+            + (noAvailableModels ? 1 : 0)
+            + (vm.agentsWithModelDiagnostics.isEmpty ? 0 : 1)
+        return issueCount == 1 ? "1 issue" : "\(issueCount) issues"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("Integration Pressure", systemImage: "square.3.layers.3d.down.forward")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                Text(statusLabel)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(statusColor.opacity(0.12))
+                    .foregroundStyle(statusColor)
+                    .clipShape(Capsule())
+            }
+
+            if vm.unreachableLocalProviderCount > 0 {
+                integrationIssueRow(
+                    icon: "network.slash",
+                    color: .orange,
+                    title: vm.unreachableLocalProviderCount == 1 ? "Local provider unreachable" : "\(vm.unreachableLocalProviderCount) local providers unreachable",
+                    detail: vm.providers
+                        .filter { $0.isLocal == true && $0.reachable == false }
+                        .prefix(2)
+                        .map(\.displayName)
+                        .joined(separator: " • ")
+                )
+            }
+
+            if vm.channelCredentialGapCount > 0 {
+                integrationIssueRow(
+                    icon: "bubble.left.and.exclamationmark.bubble.right",
+                    color: .orange,
+                    title: vm.channelCredentialGapCount == 1 ? "Channel missing credentials" : "\(vm.channelCredentialGapCount) channels missing credentials",
+                    detail: vm.channels
+                        .filter { $0.configured && !$0.hasToken }
+                        .prefix(2)
+                        .map(\.displayName)
+                        .joined(separator: " • ")
+                )
+            }
+
+            if noAvailableModels {
+                integrationIssueRow(
+                    icon: "square.stack.3d.up.slash",
+                    color: .red,
+                    title: "No catalog models available",
+                    detail: "Providers are configured, but the current LibreFang catalog exposes zero executable models."
+                )
+            }
+
+            if !vm.agentsWithModelDiagnostics.isEmpty {
+                integrationIssueRow(
+                    icon: "cpu",
+                    color: vm.unavailableModelAgentCount > 0 ? .red : .orange,
+                    title: vm.agentsWithModelDiagnostics.count == 1 ? "1 agent has model drift" : "\(vm.agentsWithModelDiagnostics.count) agents have model drift",
+                    detail: vm.agentsWithModelDiagnostics
+                        .prefix(2)
+                        .map { "\($0.agent.name) (\($0.issueSummary))" }
+                        .joined(separator: " • ")
+                )
+            }
+
+            HStack {
+                Label("Open Integrations Diagnostics", systemImage: "square.3.layers.3d.down.forward")
+                    .font(.caption.weight(.semibold))
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
+    }
+
+    @ViewBuilder
+    private func integrationIssueRow(icon: String, color: Color, title: String, detail: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.primary)
+                if !detail.isEmpty {
+                    Text(detail)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+}
+
+private struct IncidentApprovalRow: View {
+    let approval: ApprovalItem
+    let isBusy: Bool
+    let onApprove: () -> Void
+    let onReject: () -> Void
+
+    var body: some View {
+        ApprovalOperatorRow(
+            approval: approval,
+            isBusy: isBusy,
+            onApprove: onApprove,
+            onReject: onReject
+        )
     }
 }
 
@@ -683,6 +1009,63 @@ private struct IncidentAgentRow: View {
                 .lineLimit(2)
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct IncidentIntegrationAgentRow: View {
+    let diagnostic: AgentModelDiagnostic
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(diagnostic.agent.name)
+                    .font(.subheadline.weight(.medium))
+                Spacer()
+                Text(statusText)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(statusColor)
+            }
+
+            Text(diagnostic.detail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+
+            HStack(spacing: 12) {
+                Label(diagnostic.requestedModel, systemImage: "cpu")
+                if let resolvedAlias = diagnostic.resolvedAlias {
+                    Label(resolvedAlias.alias, systemImage: "arrow.left.arrow.right")
+                }
+                if let resolvedModel = diagnostic.resolvedModel {
+                    Label(resolvedModel.provider, systemImage: "cloud")
+                }
+            }
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var statusText: String {
+        switch diagnostic.kind {
+        case .unknownModel:
+            "Unknown"
+        case .unavailableModel:
+            "Unavailable"
+        case .providerMismatch:
+            "Mismatch"
+        }
+    }
+
+    private var statusColor: Color {
+        switch diagnostic.kind {
+        case .unknownModel:
+            .red
+        case .unavailableModel:
+            .orange
+        case .providerMismatch:
+            .indigo
+        }
     }
 }
 

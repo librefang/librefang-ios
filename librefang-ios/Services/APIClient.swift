@@ -22,6 +22,11 @@ enum APIError: LocalizedError {
     }
 }
 
+nonisolated struct APIConnectionInfo: Sendable {
+    let baseURL: URL
+    let apiKey: String
+}
+
 // MARK: - Protocol
 
 protocol APIClientProtocol: Sendable {
@@ -36,6 +41,8 @@ protocol APIClientProtocol: Sendable {
     func usageDaily() async throws -> UsageDailyResponse
     func providers() async throws -> ProviderList
     func channels() async throws -> ChannelList
+    func models() async throws -> CatalogModelListResponse
+    func modelAliases() async throws -> ModelAliasListResponse
     func hands() async throws -> HandCatalog
     func activeHands() async throws -> ActiveHandList
     func approvals() async throws -> ApprovalQueue
@@ -47,10 +54,33 @@ protocol APIClientProtocol: Sendable {
     func tools() async throws -> ToolListResponse
     func networkStatus() async throws -> NetworkStatus
     func peers() async throws -> PeerList
+    func commsTopology() async throws -> CommsTopology
+    func commsEvents(limit: Int) async throws -> [CommsEvent]
+    func workflows() async throws -> [WorkflowSummary]
+    func workflowRuns(workflowID: String) async throws -> [WorkflowRun]
+    func triggers() async throws -> [TriggerDefinition]
+    func schedules() async throws -> ScheduleListResponse
+    func cronJobs() async throws -> CronJobListResponse
+    func healthDetail() async throws -> HealthDetail
+    func versionInfo() async throws -> BuildVersionInfo
+    func configSummary() async throws -> RuntimeConfigSummary
+    func metricsText() async throws -> String
+    func approveApproval(id: String) async throws -> OperatorActionResponse
+    func rejectApproval(id: String) async throws -> OperatorActionResponse
+    func testProvider(name: String) async throws -> IntegrationProbeResult
+    func testChannel(name: String) async throws -> IntegrationProbeResult
+    func createSession(agentId: String, label: String?) async throws -> SessionInfo
+    func setSessionLabel(id: String, label: String?) async throws -> OperatorActionResponse
+    func deleteSession(id: String) async throws -> OperatorActionResponse
+    func switchSession(agentId: String, sessionId: String) async throws -> OperatorActionResponse
+    func resetSession(agentId: String) async throws -> OperatorActionResponse
+    func compactSession(agentId: String) async throws -> OperatorActionResponse
+    func stopAgentRun(agentId: String) async throws -> OperatorActionResponse
     func agentSessions(agentId: String) async throws -> SessionListResponse
     func session(agentId: String) async throws -> AgentSessionSnapshot
     func sendMessage(agentId: String, message: String) async throws -> MessageResponse
     func a2aAgents() async throws -> A2AAgentList
+    func connectionInfo() async throws -> APIConnectionInfo
     func updateConfig(_ config: ServerConfig) async
 }
 
@@ -117,6 +147,14 @@ actor APIClient: APIClientProtocol {
         try await get("/api/channels")
     }
 
+    func models() async throws -> CatalogModelListResponse {
+        try await get("/api/models")
+    }
+
+    func modelAliases() async throws -> ModelAliasListResponse {
+        try await get("/api/models/aliases")
+    }
+
     func hands() async throws -> HandCatalog {
         try await get("/api/hands")
     }
@@ -161,6 +199,94 @@ actor APIClient: APIClientProtocol {
         try await get("/api/peers")
     }
 
+    func commsTopology() async throws -> CommsTopology {
+        try await get("/api/comms/topology")
+    }
+
+    func commsEvents(limit: Int) async throws -> [CommsEvent] {
+        try await get("/api/comms/events?limit=\(limit)")
+    }
+
+    func workflows() async throws -> [WorkflowSummary] {
+        try await get("/api/workflows")
+    }
+
+    func workflowRuns(workflowID: String) async throws -> [WorkflowRun] {
+        try await get("/api/workflows/\(workflowID)/runs")
+    }
+
+    func triggers() async throws -> [TriggerDefinition] {
+        try await get("/api/triggers")
+    }
+
+    func schedules() async throws -> ScheduleListResponse {
+        try await get("/api/schedules")
+    }
+
+    func cronJobs() async throws -> CronJobListResponse {
+        try await get("/api/cron/jobs")
+    }
+
+    func healthDetail() async throws -> HealthDetail {
+        try await get("/api/health/detail")
+    }
+
+    func versionInfo() async throws -> BuildVersionInfo {
+        try await get("/api/version")
+    }
+
+    func configSummary() async throws -> RuntimeConfigSummary {
+        try await get("/api/config")
+    }
+
+    func metricsText() async throws -> String {
+        try await getText("/api/metrics")
+    }
+
+    func approveApproval(id: String) async throws -> OperatorActionResponse {
+        try await post("/api/approvals/\(id)/approve")
+    }
+
+    func rejectApproval(id: String) async throws -> OperatorActionResponse {
+        try await post("/api/approvals/\(id)/reject")
+    }
+
+    func testProvider(name: String) async throws -> IntegrationProbeResult {
+        try await post("/api/providers/\(name)/test")
+    }
+
+    func testChannel(name: String) async throws -> IntegrationProbeResult {
+        try await post("/api/channels/\(name)/test")
+    }
+
+    func createSession(agentId: String, label: String?) async throws -> SessionInfo {
+        try await post("/api/agents/\(agentId)/sessions", body: CreateSessionRequest(label: label))
+    }
+
+    func setSessionLabel(id: String, label: String?) async throws -> OperatorActionResponse {
+        try await put("/api/sessions/\(id)/label", body: SessionLabelRequest(label: label))
+    }
+
+    func deleteSession(id: String) async throws -> OperatorActionResponse {
+        try await delete("/api/sessions/\(id)")
+    }
+
+    func switchSession(agentId: String, sessionId: String) async throws -> OperatorActionResponse {
+        try await post("/api/agents/\(agentId)/sessions/\(sessionId)/switch")
+    }
+
+    func resetSession(agentId: String) async throws -> OperatorActionResponse {
+        try await post("/api/agents/\(agentId)/session/reset")
+    }
+
+    func compactSession(agentId: String) async throws -> OperatorActionResponse {
+        try await post("/api/agents/\(agentId)/session/compact")
+    }
+
+    func stopAgentRun(agentId: String) async throws -> OperatorActionResponse {
+        try await post("/api/agents/\(agentId)/stop")
+    }
+
     func agentSessions(agentId: String) async throws -> SessionListResponse {
         try await get("/api/agents/\(agentId)/sessions")
     }
@@ -178,6 +304,14 @@ actor APIClient: APIClientProtocol {
         try await get("/api/a2a/agents")
     }
 
+    func connectionInfo() throws -> APIConnectionInfo {
+        let base = config.baseURL.trimmingCharacters(in: .init(charactersIn: "/"))
+        guard let url = URL(string: base) else {
+            throw APIError.invalidURL
+        }
+        return APIConnectionInfo(baseURL: url, apiKey: config.apiKey)
+    }
+
     // MARK: - Private Networking
 
     private func get<T: Decodable>(_ path: String) async throws -> T {
@@ -192,6 +326,23 @@ actor APIClient: APIClientProtocol {
         return try await perform(request)
     }
 
+    private func post<T: Decodable>(_ path: String) async throws -> T {
+        let request = try buildRequest(path: path, method: "POST")
+        return try await perform(request)
+    }
+
+    private func put<T: Decodable, B: Encodable>(_ path: String, body: B) async throws -> T {
+        var request = try buildRequest(path: path, method: "PUT")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(body)
+        return try await perform(request)
+    }
+
+    private func delete<T: Decodable>(_ path: String) async throws -> T {
+        let request = try buildRequest(path: path, method: "DELETE")
+        return try await perform(request)
+    }
+
     private func buildRequest(path: String, method: String) throws -> URLRequest {
         let base = config.baseURL.trimmingCharacters(in: .init(charactersIn: "/"))
         guard let url = URL(string: base + path) else {
@@ -203,6 +354,27 @@ actor APIClient: APIClientProtocol {
             request.setValue("Bearer \(config.apiKey)", forHTTPHeaderField: "Authorization")
         }
         return request
+    }
+
+    private func getText(_ path: String) async throws -> String {
+        let request = try buildRequest(path: path, method: "GET")
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
+
+        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+            let message = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw APIError.httpError(http.statusCode, message)
+        }
+
+        guard let text = String(data: data, encoding: .utf8) else {
+            throw APIError.decodingError(DecodingFailure.invalidTextEncoding)
+        }
+        return text
     }
 
     private func perform<T: Decodable>(_ request: URLRequest) async throws -> T {
@@ -227,4 +399,23 @@ actor APIClient: APIClientProtocol {
             throw APIError.decodingError(error)
         }
     }
+}
+
+private enum DecodingFailure: LocalizedError {
+    case invalidTextEncoding
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidTextEncoding:
+            return "Response text encoding is invalid"
+        }
+    }
+}
+
+private nonisolated struct CreateSessionRequest: Encodable, Sendable {
+    let label: String?
+}
+
+private nonisolated struct SessionLabelRequest: Encodable, Sendable {
+    let label: String?
 }

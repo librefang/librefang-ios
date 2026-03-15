@@ -302,6 +302,8 @@ struct MainTabView: View {
         switch route {
         case .surface(.onCall):
             OnCallView()
+        case .surface(.approvals):
+            ApprovalsView()
         case .surface(.handoffCenter):
             HandoffCenterView(
                 summary: handoffText,
@@ -315,6 +317,12 @@ struct MainTabView: View {
             NightWatchView()
         case .surface(.standbyDigest):
             StandbyDigestView()
+        case .surface(.automation):
+            AutomationView()
+        case .surface(.diagnostics):
+            DiagnosticsView()
+        case .surface(.integrations):
+            IntegrationsView()
         case .agent(let id):
             if let agent = vm.agents.first(where: { $0.id == id }) {
                 AgentDetailView(agent: agent)

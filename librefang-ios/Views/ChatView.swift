@@ -105,7 +105,10 @@ struct ChatView: View {
         .navigationTitle(viewModel.agent.name)
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            await viewModel.loadHistoryIfNeeded()
+            await viewModel.activate()
+        }
+        .onDisappear {
+            viewModel.deactivate()
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -149,6 +152,10 @@ private struct SessionBanner: View {
                 }
 
                 Spacer()
+
+                Label(viewModel.isRealtimeConnected ? "Live" : "Fallback", systemImage: viewModel.isRealtimeConnected ? "dot.radiowaves.left.and.right" : "arrow.clockwise")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(viewModel.isRealtimeConnected ? .green : .orange)
 
                 if viewModel.contextWindowTokens > 0 {
                     VStack(alignment: .trailing, spacing: 2) {
@@ -194,6 +201,9 @@ private struct MessageBubble: View {
                         }
                     }
                     Text(message.timestamp, style: .time)
+                    if message.isStreaming {
+                        Text("Live")
+                    }
                 }
                 .font(.caption2)
                 .foregroundStyle(.quaternary)

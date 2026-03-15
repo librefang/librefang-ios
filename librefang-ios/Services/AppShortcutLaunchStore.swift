@@ -3,9 +3,13 @@ import Foundation
 enum AppShortcutSurface: String, CaseIterable, Identifiable {
     case onCall = "on-call"
     case incidents
+    case approvals
     case handoffCenter = "handoff-center"
     case nightWatch = "night-watch"
     case standbyDigest = "standby-digest"
+    case automation
+    case diagnostics
+    case integrations
 
     var id: String { rawValue }
 
@@ -15,12 +19,20 @@ enum AppShortcutSurface: String, CaseIterable, Identifiable {
             "On Call"
         case .incidents:
             "Incidents"
+        case .approvals:
+            "Approvals"
         case .handoffCenter:
             "Handoff Center"
         case .nightWatch:
             "Night Watch"
         case .standbyDigest:
             "Standby Digest"
+        case .automation:
+            "Automation"
+        case .diagnostics:
+            "Diagnostics"
+        case .integrations:
+            "Integrations"
         }
     }
 
@@ -38,12 +50,20 @@ enum AppShortcutSurface: String, CaseIterable, Identifiable {
             self = .onCall
         case "incidents", "incident":
             self = .incidents
+        case "approvals", "approval":
+            self = .approvals
         case "handoff-center", "handoff", "handoffcenter":
             self = .handoffCenter
         case "night-watch", "nightwatch":
             self = .nightWatch
         case "standby-digest", "standby", "digest":
             self = .standbyDigest
+        case "automation", "scheduler", "workflows":
+            self = .automation
+        case "diagnostics", "diagnostic", "health":
+            self = .diagnostics
+        case "integrations", "integration", "providers", "models", "catalog":
+            self = .integrations
         default:
             return nil
         }

@@ -265,6 +265,14 @@ private struct AgentRow: View {
                         )
                     }
 
+                    if attention.modelDiagnostic != nil {
+                        InlineStatusPill(
+                            label: "Model",
+                            color: .orange,
+                            systemImage: "square.stack.3d.up.slash"
+                        )
+                    }
+
                     if let provider = agent.modelProvider {
                         Text(provider)
                             .font(.caption2)

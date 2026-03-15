@@ -1,12 +1,31 @@
 import Foundation
 
 struct ChatMessage: Identifiable {
-    let id = UUID()
+    let id: UUID
     let role: Role
     let content: String
     let tokens: Int?
     let cost: Double?
-    let timestamp = Date()
+    let timestamp: Date
+    let isStreaming: Bool
+
+    init(
+        id: UUID = UUID(),
+        role: Role,
+        content: String,
+        tokens: Int? = nil,
+        cost: Double? = nil,
+        timestamp: Date = Date(),
+        isStreaming: Bool = false
+    ) {
+        self.id = id
+        self.role = role
+        self.content = content
+        self.tokens = tokens
+        self.cost = cost
+        self.timestamp = timestamp
+        self.isStreaming = isStreaming
+    }
 
     enum Role {
         case user
@@ -15,12 +34,14 @@ struct ChatMessage: Identifiable {
     }
 }
 
+@MainActor
 @Observable
 final class ChatViewModel {
     var messages: [ChatMessage] = []
     var inputText = ""
     var isSending = false
     var isLoadingHistory = false
+    var isRealtimeConnected = false
     var error: String?
     var sessionLabel: String?
     var messageCount = 0
@@ -29,13 +50,35 @@ final class ChatViewModel {
     let agent: Agent
     private let api: APIClientProtocol
     private var hasLoadedHistory = false
+    private var socket: AgentWebSocketClient?
+    private var liveAgentMessageID: UUID?
+    private var hasActivated = false
 
     init(agent: Agent, api: APIClientProtocol) {
         self.agent = agent
         self.api = api
     }
 
-    @MainActor
+    func activate() async {
+        guard !hasActivated else { return }
+        hasActivated = true
+        await loadHistoryIfNeeded()
+        await connectRealtimeIfNeeded()
+    }
+
+    func deactivate() {
+        hasActivated = false
+        isRealtimeConnected = false
+        liveAgentMessageID = nil
+
+        let currentSocket = socket
+        socket = nil
+
+        Task {
+            await currentSocket?.disconnect()
+        }
+    }
+
     func loadHistoryIfNeeded() async {
         guard !hasLoadedHistory else { return }
         hasLoadedHistory = true
@@ -53,7 +96,6 @@ final class ChatViewModel {
         }
     }
 
-    @MainActor
     func send() async {
         let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
@@ -64,20 +106,17 @@ final class ChatViewModel {
         error = nil
 
         do {
-            let response = try await api.sendMessage(agentId: agent.id, message: text)
-            let totalTokens = (response.inputTokens ?? 0) + (response.outputTokens ?? 0)
-            messages.append(ChatMessage(
-                role: .agent,
-                content: response.response,
-                tokens: totalTokens,
-                cost: response.costUsd
-            ))
-            messageCount = max(messageCount, messages.count)
+            await connectRealtimeIfNeeded()
+            if let socket {
+                try await socket.sendMessage(text)
+                return
+            }
         } catch {
-            self.error = error.localizedDescription
+            isRealtimeConnected = false
+            socket = nil
         }
 
-        isSending = false
+        await sendViaREST(text)
     }
 
     private func mapMessage(_ message: AgentSessionMessage) -> ChatMessage {
@@ -112,5 +151,184 @@ final class ChatViewModel {
             return "\(images.count) image attachment\(images.count == 1 ? "" : "s")"
         }
         return "No message content"
+    }
+
+    private func connectRealtimeIfNeeded() async {
+        guard socket == nil else { return }
+
+        do {
+            let connectionInfo = try await api.connectionInfo()
+            let socket = AgentWebSocketClient(connectionInfo: connectionInfo, agentID: agent.id)
+            try await socket.connect { [weak self] event in
+                await self?.handleRealtimeEvent(event)
+            }
+            self.socket = socket
+        } catch {
+            isRealtimeConnected = false
+        }
+    }
+
+    private func sendViaREST(_ text: String) async {
+        do {
+            let response = try await api.sendMessage(agentId: agent.id, message: text)
+            finalizeAgentMessage(
+                id: liveAgentMessageID ?? UUID(),
+                timestamp: Date(),
+                content: response.response,
+                inputTokens: response.inputTokens,
+                outputTokens: response.outputTokens,
+                costUsd: response.costUsd
+            )
+            isSending = false
+        } catch {
+            self.error = error.localizedDescription
+            finishLiveMessage()
+            isSending = false
+        }
+    }
+
+    private func handleRealtimeEvent(_ event: AgentRealtimeEvent) async {
+        switch event {
+        case .connected:
+            isRealtimeConnected = true
+
+        case .typing(let state, _):
+            switch state {
+            case "stop":
+                isSending = false
+            default:
+                isSending = true
+            }
+
+        case .textDelta(let text):
+            appendAgentDelta(text)
+
+        case .response(let content, let inputTokens, let outputTokens, _, let costUsd):
+            finalizeAgentMessage(
+                id: liveAgentMessageID ?? UUID(),
+                timestamp: currentLiveTimestamp ?? Date(),
+                content: content,
+                inputTokens: inputTokens,
+                outputTokens: outputTokens,
+                costUsd: costUsd
+            )
+            isSending = false
+
+        case .commandResult(let message, _):
+            finishLiveMessage()
+            isSending = false
+            if !message.isEmpty {
+                messages.append(ChatMessage(role: .system, content: message))
+            }
+
+        case .silentComplete(let inputTokens, let outputTokens):
+            finishLiveMessage()
+            isSending = false
+            let tokensSummary = [inputTokens, outputTokens]
+                .compactMap { $0 }
+                .map(String.init)
+                .joined(separator: " / ")
+            let suffix = tokensSummary.isEmpty ? "" : " (\(tokensSummary) tokens)"
+            messages.append(ChatMessage(role: .system, content: "Agent completed without a text reply\(suffix)."))
+
+        case .error(let message):
+            finishLiveMessage()
+            isSending = false
+            error = message
+
+        case .disconnected(let message):
+            isRealtimeConnected = false
+            socket = nil
+            if isSending, let message, !message.isEmpty {
+                error = message
+            }
+        }
+    }
+
+    private var currentLiveTimestamp: Date? {
+        guard let liveAgentMessageID,
+              let existing = messages.first(where: { $0.id == liveAgentMessageID }) else {
+            return nil
+        }
+        return existing.timestamp
+    }
+
+    private func appendAgentDelta(_ text: String) {
+        guard !text.isEmpty else { return }
+
+        if let liveAgentMessageID,
+           let index = messages.firstIndex(where: { $0.id == liveAgentMessageID }) {
+            let existing = messages[index]
+            messages[index] = ChatMessage(
+                id: existing.id,
+                role: existing.role,
+                content: existing.content + text,
+                tokens: existing.tokens,
+                cost: existing.cost,
+                timestamp: existing.timestamp,
+                isStreaming: true
+            )
+            return
+        }
+
+        let message = ChatMessage(role: .agent, content: text, isStreaming: true)
+        liveAgentMessageID = message.id
+        messages.append(message)
+    }
+
+    private func finalizeAgentMessage(
+        id: UUID,
+        timestamp: Date,
+        content: String,
+        inputTokens: Int?,
+        outputTokens: Int?,
+        costUsd: Double?
+    ) {
+        let totalTokens = (inputTokens ?? 0) + (outputTokens ?? 0)
+
+        if let index = messages.firstIndex(where: { $0.id == id }) {
+            messages[index] = ChatMessage(
+                id: id,
+                role: .agent,
+                content: content,
+                tokens: totalTokens > 0 ? totalTokens : nil,
+                cost: costUsd,
+                timestamp: timestamp,
+                isStreaming: false
+            )
+        } else {
+            messages.append(ChatMessage(
+                id: id,
+                role: .agent,
+                content: content,
+                tokens: totalTokens > 0 ? totalTokens : nil,
+                cost: costUsd,
+                timestamp: timestamp,
+                isStreaming: false
+            ))
+        }
+
+        liveAgentMessageID = nil
+        messageCount = max(messageCount, messages.count)
+    }
+
+    private func finishLiveMessage() {
+        guard let liveAgentMessageID,
+              let index = messages.firstIndex(where: { $0.id == liveAgentMessageID }) else {
+            liveAgentMessageID = nil
+            return
+        }
+
+        let existing = messages[index]
+        messages[index] = ChatMessage(
+            id: existing.id,
+            role: existing.role,
+            content: existing.content,
+            tokens: existing.tokens,
+            cost: existing.cost,
+            timestamp: existing.timestamp,
+            isStreaming: false
+        )
+        self.liveAgentMessageID = nil
     }
 }

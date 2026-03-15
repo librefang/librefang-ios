@@ -19,11 +19,14 @@ enum OnCallPrioritySeverity: Int {
 
 enum OnCallRoute: Hashable {
     case incidents
+    case approvals
     case agent(String)
     case sessionsAttention
     case sessionsSearch(String)
     case eventsCritical
     case eventsSearch(String)
+    case automation
+    case integrations
     case handoffCenter
 }
 
@@ -43,6 +46,8 @@ extension OnCallRoute {
         switch self {
         case .incidents:
             return .surface(.incidents)
+        case .approvals:
+            return .surface(.approvals)
         case .agent(let id):
             return .agent(id)
         case .sessionsAttention:
@@ -53,6 +58,10 @@ extension OnCallRoute {
             return .eventsCritical
         case .eventsSearch(let query):
             return .eventsSearch(query)
+        case .automation:
+            return .surface(.automation)
+        case .integrations:
+            return .surface(.integrations)
         case .handoffCenter:
             return .surface(.handoffCenter)
         }
@@ -95,7 +104,7 @@ extension DashboardViewModel {
                 symbolName: "exclamationmark.shield",
                 severity: severity,
                 rank: rank,
-                route: .incidents
+                route: .approvals
             )
         })
 
@@ -164,6 +173,31 @@ extension DashboardViewModel {
                 )
             })
 
+        items.append(contentsOf: onCallAutomationItems())
+
+        if !agentsWithModelDiagnostics.isEmpty {
+            let unavailableCount = unavailableModelAgentCount
+            let title: String
+            if unavailableCount > 0 {
+                title = unavailableCount == 1 ? "1 agent on unavailable model" : "\(unavailableCount) agents on unavailable models"
+            } else {
+                title = agentsWithModelDiagnostics.count == 1 ? "1 agent has model drift" : "\(agentsWithModelDiagnostics.count) agents have model drift"
+            }
+            let preview = agentsWithModelDiagnostics.prefix(2).map(\.agent.name).joined(separator: " • ")
+            items.append(
+                OnCallPriorityItem(
+                    id: "integrations:model-drift",
+                    title: title,
+                    detail: preview.isEmpty ? "Review provider and model catalog drift in integrations diagnostics." : preview,
+                    footnote: "Model catalog / provider mismatch",
+                    symbolName: "square.stack.3d.up.slash",
+                    severity: unavailableCount > 0 ? .warning : .advisory,
+                    rank: unavailableCount > 0 ? 76 : 66,
+                    route: .integrations
+                )
+            )
+        }
+
         if let checkInItem = onCallCheckInItem(for: handoffCheckInStatus) {
             items.append(checkInItem)
         }
@@ -194,6 +228,7 @@ extension DashboardViewModel {
     ) -> String {
         let liveCritical = visibleAlerts.filter { $0.severity == .critical }.count
         let watchIssues = watchedAttentionItems.filter { $0.severity > 0 }.count
+        let automationSummary = automationDigestSummary()
         let checkInSummary = checkInDigestSummary(for: handoffCheckInStatus)
         let followUpSummary = followUpDigestSummary(
             for: handoffFollowUpStatuses,
@@ -205,13 +240,14 @@ extension DashboardViewModel {
                 let base = liveCritical > 0
                     ? "\(liveCritical) critical items acknowledged on this iPhone"
                     : "\(visibleAlerts.count) live alerts acknowledged on this iPhone"
-                return [base, checkInSummary, followUpSummary].compactMap { $0 }.joined(separator: " · ")
+                return [base, automationSummary, checkInSummary, followUpSummary].compactMap { $0 }.joined(separator: " · ")
             }
 
             return [
                 "\(visibleAlerts.count) live alerts",
                 "\(pendingApprovalCount) approvals",
                 "\(watchIssues) watched agents need review",
+                automationSummary,
                 checkInSummary,
                 followUpSummary
             ]
@@ -223,12 +259,13 @@ extension DashboardViewModel {
             let base = mutedAlertCount == 1
                 ? "1 alert is muted locally; watchlist and sessions remain active"
                 : "\(mutedAlertCount) alerts are muted locally; watchlist and sessions remain active"
-            return [base, checkInSummary, followUpSummary].compactMap { $0 }.joined(separator: " · ")
+            return [base, automationSummary, checkInSummary, followUpSummary].compactMap { $0 }.joined(separator: " · ")
         }
 
         if watchIssues > 0 {
             return [
                 "\(watchIssues) watched agents still need review even though no live alert card is visible",
+                automationSummary,
                 checkInSummary,
                 followUpSummary
             ]
@@ -236,8 +273,24 @@ extension DashboardViewModel {
             .joined(separator: " · ")
         }
 
+        if let automationSummary, let checkInSummary, let followUpSummary {
+            return [automationSummary, checkInSummary, followUpSummary].joined(separator: " · ")
+        }
+
+        if let automationSummary, let checkInSummary {
+            return [automationSummary, checkInSummary].joined(separator: " · ")
+        }
+
+        if let automationSummary, let followUpSummary {
+            return [automationSummary, followUpSummary].joined(separator: " · ")
+        }
+
         if let checkInSummary, let followUpSummary {
             return [checkInSummary, followUpSummary].joined(separator: " · ")
+        }
+
+        if let automationSummary {
+            return automationSummary
         }
 
         if let checkInSummary {
@@ -249,6 +302,74 @@ extension DashboardViewModel {
         }
 
         return "No live alerts. Monitoring is currently in a calm state on this iPhone."
+    }
+
+    private func onCallAutomationItems() -> [OnCallPriorityItem] {
+        var items: [OnCallPriorityItem] = []
+
+        if failedWorkflowRunCount > 0 {
+            items.append(OnCallPriorityItem(
+                id: "automation:workflow-failures",
+                title: failedWorkflowRunCount == 1 ? "1 workflow run failed" : "\(failedWorkflowRunCount) workflow runs failed",
+                detail: workflowRuns
+                    .filter { $0.state == .failed }
+                    .prefix(2)
+                    .map(\.workflowName)
+                    .joined(separator: " • "),
+                footnote: "Automation monitor",
+                symbolName: "flowchart",
+                severity: failedWorkflowRunCount >= 2 ? .critical : .warning,
+                rank: failedWorkflowRunCount >= 2 ? 86 : 74,
+                route: .automation
+            ))
+        }
+
+        if exhaustedTriggerCount > 0 {
+            items.append(OnCallPriorityItem(
+                id: "automation:trigger-exhausted",
+                title: exhaustedTriggerCount == 1 ? "1 trigger exhausted" : "\(exhaustedTriggerCount) triggers exhausted",
+                detail: "Event-driven wakeups reached max fire count and stopped dispatching.",
+                footnote: "Automation monitor",
+                symbolName: "bolt.badge.clock",
+                severity: .warning,
+                rank: 72,
+                route: .automation
+            ))
+        }
+
+        if stalledCronJobCount > 0 {
+            items.append(OnCallPriorityItem(
+                id: "automation:cron-stalled",
+                title: stalledCronJobCount == 1 ? "1 cron job missing next run" : "\(stalledCronJobCount) cron jobs missing next run",
+                detail: "Enabled scheduler entries exist without a next execution timestamp.",
+                footnote: "Automation monitor",
+                symbolName: "calendar.badge.exclamationmark",
+                severity: .warning,
+                rank: 75,
+                route: .automation
+            ))
+        }
+
+        return items
+    }
+
+    private func automationDigestSummary() -> String? {
+        if failedWorkflowRunCount > 0 && stalledCronJobCount > 0 {
+            return "\(failedWorkflowRunCount) workflow failures and \(stalledCronJobCount) stalled cron jobs"
+        }
+        if failedWorkflowRunCount > 0 {
+            return failedWorkflowRunCount == 1 ? "1 workflow failure needs review" : "\(failedWorkflowRunCount) workflow failures need review"
+        }
+        if exhaustedTriggerCount > 0 && stalledCronJobCount > 0 {
+            return "\(exhaustedTriggerCount) exhausted triggers and \(stalledCronJobCount) stalled cron jobs"
+        }
+        if exhaustedTriggerCount > 0 {
+            return exhaustedTriggerCount == 1 ? "1 trigger is exhausted" : "\(exhaustedTriggerCount) triggers are exhausted"
+        }
+        if stalledCronJobCount > 0 {
+            return stalledCronJobCount == 1 ? "1 cron job is missing a next run" : "\(stalledCronJobCount) cron jobs are missing a next run"
+        }
+        return nil
     }
 
     private func onCallSeverity(for severity: MonitoringAlertSeverity) -> OnCallPrioritySeverity {

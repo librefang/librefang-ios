@@ -9,11 +9,6 @@ final class NotificationRoutingDelegate: NSObject, UIApplicationDelegate, UNUser
     ) -> Bool {
         UNUserNotificationCenter.current().delegate = self
 
-        if let notificationResponse = launchOptions?[.remoteNotification] as? [AnyHashable: Any],
-           let target = AppShortcutLaunchBridge.target(from: notificationResponse) {
-            AppShortcutLaunchBridge.queue(target)
-        }
-
         return true
     }
 

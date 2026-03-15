@@ -329,6 +329,8 @@ struct OnCallView: View {
         switch route {
         case .incidents:
             IncidentsView()
+        case .approvals:
+            ApprovalsView()
         case .agent(let id):
             if let agent = vm.agents.first(where: { $0.id == id }) {
                 AgentDetailView(agent: agent)
@@ -347,6 +349,10 @@ struct OnCallView: View {
             EventsView(api: deps.apiClient, initialScope: .critical)
         case .eventsSearch(let query):
             EventsView(api: deps.apiClient, initialSearchText: query, initialScope: .critical)
+        case .automation:
+            AutomationView()
+        case .integrations:
+            IntegrationsView()
         case .handoffCenter:
             HandoffCenterView(
                 summary: handoffText,

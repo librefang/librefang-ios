@@ -4,6 +4,13 @@ struct SessionsView: View {
     @Environment(\.dependencies) private var deps
     @State private var searchText: String
     @State private var filter: SessionFilter
+    @State private var pendingSessionAction: AgentSessionControlAction?
+    @State private var sessionActionInFlightID: String?
+    @State private var editingSession: SessionInfo?
+    @State private var sessionLabelDraft = ""
+    @State private var pendingDeleteSession: SessionInfo?
+    @State private var sessionCatalogActionInFlightID: String?
+    @State private var operatorNotice: OperatorActionNotice?
 
     init(initialSearchText: String = "", initialFilter: SessionFilter = .all) {
         _searchText = State(initialValue: initialSearchText)
@@ -70,15 +77,7 @@ struct SessionsView: View {
             } else {
                 Section("Sessions") {
                     ForEach(filteredItems) { item in
-                        if let agent = item.agent {
-                            NavigationLink {
-                                AgentDetailView(agent: agent)
-                            } label: {
-                                SessionMonitorRow(item: item)
-                            }
-                        } else {
-                            SessionMonitorRow(item: item)
-                        }
+                        sessionRow(for: item)
                     }
                 }
             }
@@ -111,6 +110,296 @@ struct SessionsView: View {
             if vm.sessions.isEmpty {
                 await vm.refresh()
             }
+        }
+        .confirmationDialog(
+            pendingSessionAction?.title ?? "",
+            isPresented: sessionActionConfirmationPresented,
+            titleVisibility: .visible,
+            presenting: pendingSessionAction
+        ) { action in
+            Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
+                Task { await performSessionAction(action) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { action in
+            Text(action.message)
+        }
+        .confirmationDialog(
+            "Delete Session",
+            isPresented: deleteSessionConfirmationPresented,
+            titleVisibility: .visible,
+            presenting: pendingDeleteSession
+        ) { session in
+            Button("Delete Session", role: .destructive) {
+                Task { await deleteSession(session) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { session in
+            Text("Remove \(displayTitle(for: session)) and its messages from LibreFang? This cannot be undone.")
+        }
+        .sheet(item: $editingSession) { session in
+            NavigationStack {
+                Form {
+                    Section {
+                        TextField("Optional label", text: $sessionLabelDraft)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+
+                        Text("Clear the field to remove the label. Labels make on-call session lookup much faster.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } header: {
+                        Text("Session Label")
+                    } footer: {
+                        Text(displayTitle(for: session))
+                    }
+                }
+                .navigationTitle("Edit Label")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") {
+                            editingSession = nil
+                        }
+                        .disabled(isCatalogActionBusy)
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button {
+                            Task { await saveSessionLabel(for: session) }
+                        } label: {
+                            if sessionCatalogActionInFlightID == "label:\(session.sessionId)" {
+                                ProgressView()
+                                    .controlSize(.small)
+                            } else {
+                                Text("Save")
+                            }
+                        }
+                        .disabled(isCatalogActionBusy)
+                    }
+                }
+            }
+        }
+        .alert(item: $operatorNotice) { notice in
+            Alert(
+                title: Text(notice.title),
+                message: Text(notice.message),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func sessionRow(for item: SessionAttentionItem) -> some View {
+        let row = SessionMonitorRow(
+            item: item,
+            isBusy: isSessionBusy(item.session)
+        )
+
+        if let agent = item.agent {
+            NavigationLink {
+                AgentDetailView(agent: agent)
+            } label: {
+                row
+            }
+            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                Button("Switch") {
+                    pendingSessionAction = .switchSession(
+                        agentID: agent.id,
+                        agentName: agent.name,
+                        session: item.session
+                    )
+                }
+                .tint(.blue)
+
+                Button("Delete", role: .destructive) {
+                    pendingDeleteSession = item.session
+                }
+            }
+            .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                Button("Label") {
+                    startEditingLabel(for: item.session)
+                }
+                .tint(.indigo)
+            }
+            .contextMenu {
+                Button {
+                    pendingSessionAction = .switchSession(
+                        agentID: agent.id,
+                        agentName: agent.name,
+                        session: item.session
+                    )
+                } label: {
+                    Label("Switch Active Session", systemImage: "arrow.triangle.swap")
+                }
+
+                Button {
+                    startEditingLabel(for: item.session)
+                } label: {
+                    Label("Edit Label", systemImage: "tag")
+                }
+
+                Button(role: .destructive) {
+                    pendingDeleteSession = item.session
+                } label: {
+                    Label("Delete Session", systemImage: "trash")
+                }
+            }
+        } else {
+            row
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    if !item.session.agentId.isEmpty {
+                        Button("Switch") {
+                            pendingSessionAction = .switchSession(
+                                agentID: item.session.agentId,
+                                agentName: item.session.agentId,
+                                session: item.session
+                            )
+                        }
+                        .tint(.blue)
+                    }
+
+                    Button("Delete", role: .destructive) {
+                        pendingDeleteSession = item.session
+                    }
+                }
+                .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                    Button("Label") {
+                        startEditingLabel(for: item.session)
+                    }
+                    .tint(.indigo)
+                }
+                .contextMenu {
+                    if !item.session.agentId.isEmpty {
+                        Button {
+                            pendingSessionAction = .switchSession(
+                                agentID: item.session.agentId,
+                                agentName: item.session.agentId,
+                                session: item.session
+                            )
+                        } label: {
+                            Label("Switch Active Session", systemImage: "arrow.triangle.swap")
+                        }
+                    }
+
+                    Button {
+                        startEditingLabel(for: item.session)
+                    } label: {
+                        Label("Edit Label", systemImage: "tag")
+                    }
+
+                    Button(role: .destructive) {
+                        pendingDeleteSession = item.session
+                    } label: {
+                        Label("Delete Session", systemImage: "trash")
+                    }
+                }
+        }
+    }
+
+    private var sessionActionConfirmationPresented: Binding<Bool> {
+        Binding(
+            get: { pendingSessionAction != nil },
+            set: { isPresented in
+                if !isPresented {
+                    pendingSessionAction = nil
+                }
+            }
+        )
+    }
+
+    private var deleteSessionConfirmationPresented: Binding<Bool> {
+        Binding(
+            get: { pendingDeleteSession != nil },
+            set: { isPresented in
+                if !isPresented {
+                    pendingDeleteSession = nil
+                }
+            }
+        )
+    }
+
+    private var isCatalogActionBusy: Bool {
+        sessionCatalogActionInFlightID != nil
+    }
+
+    private func isSessionBusy(_ session: SessionInfo) -> Bool {
+        sessionActionInFlightID == "switch:\(session.agentId):\(session.id)"
+            || sessionCatalogActionInFlightID == "label:\(session.sessionId)"
+            || sessionCatalogActionInFlightID == "delete:\(session.sessionId)"
+    }
+
+    private func startEditingLabel(for session: SessionInfo) {
+        sessionLabelDraft = session.label ?? ""
+        editingSession = session
+    }
+
+    private func displayTitle(for session: SessionInfo) -> String {
+        let label = (session.label ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return label.isEmpty ? String(session.sessionId.prefix(8)) : label
+    }
+
+    @MainActor
+    private func performSessionAction(_ action: AgentSessionControlAction) async {
+        pendingSessionAction = nil
+        sessionActionInFlightID = action.id
+        defer { sessionActionInFlightID = nil }
+
+        do {
+            let response = try await action.perform(using: deps.apiClient)
+            await vm.refresh()
+            operatorNotice = action.successNotice(from: response)
+        } catch {
+            operatorNotice = OperatorActionNotice(
+                title: action.title,
+                message: error.localizedDescription
+            )
+        }
+    }
+
+    @MainActor
+    private func saveSessionLabel(for session: SessionInfo) async {
+        let trimmedLabel = sessionLabelDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        sessionCatalogActionInFlightID = "label:\(session.sessionId)"
+        defer { sessionCatalogActionInFlightID = nil }
+
+        do {
+            let response = try await deps.apiClient.setSessionLabel(
+                id: session.sessionId,
+                label: trimmedLabel.isEmpty ? nil : trimmedLabel
+            )
+            editingSession = nil
+            sessionLabelDraft = ""
+            await vm.refresh()
+            operatorNotice = OperatorActionNotice(
+                title: "Session Label",
+                message: response.message ?? (trimmedLabel.isEmpty ? "Session label cleared." : "Session label updated.")
+            )
+        } catch {
+            operatorNotice = OperatorActionNotice(
+                title: "Session Label",
+                message: error.localizedDescription
+            )
+        }
+    }
+
+    @MainActor
+    private func deleteSession(_ session: SessionInfo) async {
+        pendingDeleteSession = nil
+        sessionCatalogActionInFlightID = "delete:\(session.sessionId)"
+        defer { sessionCatalogActionInFlightID = nil }
+
+        do {
+            let response = try await deps.apiClient.deleteSession(id: session.sessionId)
+            await vm.refresh()
+            operatorNotice = OperatorActionNotice(
+                title: "Delete Session",
+                message: response.message ?? "Session deleted."
+            )
+        } catch {
+            operatorNotice = OperatorActionNotice(
+                title: "Delete Session",
+                message: error.localizedDescription
+            )
         }
     }
 }
@@ -189,6 +478,7 @@ private struct SessionScoreboard: View {
 
 private struct SessionMonitorRow: View {
     let item: SessionAttentionItem
+    var isBusy = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -202,6 +492,10 @@ private struct SessionMonitorRow: View {
                         .lineLimit(1)
                 }
                 Spacer()
+                if isBusy {
+                    ProgressView()
+                        .controlSize(.small)
+                }
                 Text(relativeCreatedAt)
                     .font(.caption2)
                     .foregroundStyle(.tertiary)

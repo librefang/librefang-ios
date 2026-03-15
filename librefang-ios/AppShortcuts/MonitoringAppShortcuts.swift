@@ -25,6 +25,12 @@ struct OpenIncidentsIntent: MonitoringLaunchIntent {
     static var description = IntentDescription("Open the incident center in LibreFang.")
 }
 
+struct OpenApprovalsIntent: MonitoringLaunchIntent {
+    static let target: AppShortcutLaunchTarget = .surface(.approvals)
+    static var title: LocalizedStringResource = "Open Approvals"
+    static var description = IntentDescription("Open the live approval queue in LibreFang.")
+}
+
 struct OpenHandoffCenterIntent: MonitoringLaunchIntent {
     static let target: AppShortcutLaunchTarget = .surface(.handoffCenter)
     static var title: LocalizedStringResource = "Open Handoff Center"
@@ -41,6 +47,24 @@ struct OpenStandbyDigestIntent: MonitoringLaunchIntent {
     static let target: AppShortcutLaunchTarget = .surface(.standbyDigest)
     static var title: LocalizedStringResource = "Open Standby Digest"
     static var description = IntentDescription("Open the standby digest summary in LibreFang.")
+}
+
+struct OpenAutomationIntent: MonitoringLaunchIntent {
+    static let target: AppShortcutLaunchTarget = .surface(.automation)
+    static var title: LocalizedStringResource = "Open Automation"
+    static var description = IntentDescription("Open the workflow, trigger, schedule, and cron monitor in LibreFang.")
+}
+
+struct OpenDiagnosticsIntent: MonitoringLaunchIntent {
+    static let target: AppShortcutLaunchTarget = .surface(.diagnostics)
+    static var title: LocalizedStringResource = "Open Diagnostics"
+    static var description = IntentDescription("Open the deep runtime diagnostics view in LibreFang.")
+}
+
+struct OpenIntegrationsIntent: MonitoringLaunchIntent {
+    static let target: AppShortcutLaunchTarget = .surface(.integrations)
+    static var title: LocalizedStringResource = "Open Integrations"
+    static var description = IntentDescription("Open provider, channel, model, and alias diagnostics in LibreFang.")
 }
 
 struct OpenSessionMonitorIntent: MonitoringLaunchIntent {
@@ -78,6 +102,15 @@ struct LibreFangAppShortcuts: AppShortcutsProvider {
             systemImageName: "bell.badge"
         )
         AppShortcut(
+            intent: OpenApprovalsIntent(),
+            phrases: [
+                "Open Approvals in \(.applicationName)",
+                "Show approvals in \(.applicationName)"
+            ],
+            shortTitle: "Approvals",
+            systemImageName: "checkmark.shield"
+        )
+        AppShortcut(
             intent: OpenHandoffCenterIntent(),
             phrases: [
                 "Open Handoff Center in \(.applicationName)",
@@ -96,13 +129,31 @@ struct LibreFangAppShortcuts: AppShortcutsProvider {
             systemImageName: "moon.stars"
         )
         AppShortcut(
-            intent: OpenStandbyDigestIntent(),
+            intent: OpenAutomationIntent(),
             phrases: [
-                "Open Standby Digest in \(.applicationName)",
-                "Show the standby digest in \(.applicationName)"
+                "Open Automation in \(.applicationName)",
+                "Show workflows in \(.applicationName)"
             ],
-            shortTitle: "Standby",
-            systemImageName: "rectangle.inset.filled"
+            shortTitle: "Automation",
+            systemImageName: "flowchart"
+        )
+        AppShortcut(
+            intent: OpenDiagnosticsIntent(),
+            phrases: [
+                "Open Diagnostics in \(.applicationName)",
+                "Show runtime diagnostics in \(.applicationName)"
+            ],
+            shortTitle: "Diagnostics",
+            systemImageName: "stethoscope"
+        )
+        AppShortcut(
+            intent: OpenIntegrationsIntent(),
+            phrases: [
+                "Open Integrations in \(.applicationName)",
+                "Show providers and models in \(.applicationName)"
+            ],
+            shortTitle: "Integrations",
+            systemImageName: "square.3.layers.3d.down.forward"
         )
         AppShortcut(
             intent: OpenSessionMonitorIntent(),

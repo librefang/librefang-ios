@@ -141,6 +141,12 @@ private struct EventScoreboard: View {
                 icon: "checkmark.shield",
                 color: chainColor
             )
+            StatBadge(
+                value: viewModel.isStreaming ? "Live" : "Polling",
+                label: "Transport",
+                icon: viewModel.isStreaming ? "dot.radiowaves.left.and.right" : "arrow.clockwise",
+                color: viewModel.isStreaming ? .green : .orange
+            )
         }
         .padding(.horizontal)
     }

@@ -194,6 +194,24 @@ struct OverviewView: View {
                         )
                     }
 
+                    if vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil {
+                        NavigationLink {
+                            DiagnosticsView()
+                        } label: {
+                            DiagnosticsOverviewCard(vm: vm)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
+                        NavigationLink {
+                            IntegrationsView()
+                        } label: {
+                            IntegrationsOverviewCard(vm: vm)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
                     ReadinessCard(
                         providerCount: vm.configuredProviderCount,
                         channelCount: vm.readyChannelCount,
@@ -220,6 +238,15 @@ struct OverviewView: View {
 
                     if !vm.activeHands.isEmpty || !vm.approvals.isEmpty {
                         LiveSignalsCard(activeHands: vm.activeHands, approvals: vm.approvals)
+                    }
+
+                    if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
+                        NavigationLink {
+                            AutomationView()
+                        } label: {
+                            AutomationOverviewCard(vm: vm)
+                        }
+                        .buttonStyle(.plain)
                     }
 
                     if !watchedAttentionItems.isEmpty {
@@ -268,6 +295,30 @@ struct OverviewView: View {
                             IncidentsView()
                         } label: {
                             Image(systemName: "bell.badge")
+                        }
+
+                        NavigationLink {
+                            ApprovalsView()
+                        } label: {
+                            Image(systemName: "checkmark.shield")
+                        }
+
+                        NavigationLink {
+                            AutomationView()
+                        } label: {
+                            Image(systemName: "flowchart")
+                        }
+
+                        NavigationLink {
+                            DiagnosticsView()
+                        } label: {
+                            Image(systemName: "stethoscope")
+                        }
+
+                        NavigationLink {
+                            IntegrationsView()
+                        } label: {
+                            Image(systemName: "square.3.layers.3d.down.forward")
                         }
 
                         NavigationLink {
@@ -1024,6 +1075,321 @@ private struct LiveSignalsCard: View {
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+private struct AutomationOverviewCard: View {
+    let vm: DashboardViewModel
+
+    private var issueCount: Int {
+        vm.failedWorkflowRunCount + vm.exhaustedTriggerCount + vm.stalledCronJobCount
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Automation")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(issueCount == 0 ? "Stable" : issueCount == 1 ? "1 issue" : "\(issueCount) issues")
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(statusColor.opacity(0.12))
+                    .foregroundStyle(statusColor)
+                    .clipShape(Capsule())
+            }
+
+            HStack(spacing: 12) {
+                automationMetric("\(vm.workflowCount)", label: "Workflows", systemImage: "flowchart")
+                automationMetric("\(vm.enabledTriggerCount)/\(vm.triggers.count)", label: "Triggers", systemImage: "bolt.horizontal.circle")
+                automationMetric("\(vm.enabledScheduleCount + vm.enabledCronJobCount)", label: "Active Jobs", systemImage: "calendar.badge.clock")
+            }
+
+            if issueCount == 0 {
+                Text("Workflow runs, triggers, schedules, and cron jobs are visible without active scheduler pressure.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    if vm.failedWorkflowRunCount > 0 {
+                        issueRow(
+                            icon: "exclamationmark.triangle.fill",
+                            color: .red,
+                            text: vm.failedWorkflowRunCount == 1 ? "1 workflow run failed" : "\(vm.failedWorkflowRunCount) workflow runs failed"
+                        )
+                    }
+                    if vm.exhaustedTriggerCount > 0 {
+                        issueRow(
+                            icon: "bolt.badge.clock",
+                            color: .orange,
+                            text: vm.exhaustedTriggerCount == 1 ? "1 trigger exhausted" : "\(vm.exhaustedTriggerCount) triggers exhausted"
+                        )
+                    }
+                    if vm.stalledCronJobCount > 0 {
+                        issueRow(
+                            icon: "calendar.badge.exclamationmark",
+                            color: .orange,
+                            text: vm.stalledCronJobCount == 1 ? "1 cron job missing next run" : "\(vm.stalledCronJobCount) cron jobs missing next run"
+                        )
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var statusColor: Color {
+        issueCount > 0 ? .orange : .green
+    }
+
+    @ViewBuilder
+    private func automationMetric(_ value: String, label: String, systemImage: String) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: systemImage)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.subheadline.weight(.semibold).monospacedDigit())
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Color.primary.opacity(0.04))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    @ViewBuilder
+    private func issueRow(icon: String, color: Color, text: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+                .frame(width: 16)
+            Text(text)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+    }
+}
+
+private struct DiagnosticsOverviewCard: View {
+    let vm: DashboardViewModel
+
+    private var supervisorEvents: Int {
+        vm.supervisorPanicCount + vm.supervisorRestartCount
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Diagnostics")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(statusLabel)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(statusColor.opacity(0.12))
+                    .foregroundStyle(statusColor)
+                    .clipShape(Capsule())
+            }
+
+            HStack(spacing: 12) {
+                diagnosticsMetric(
+                    vm.healthDetail?.database.capitalized ?? "--",
+                    label: "Database",
+                    systemImage: "externaldrive"
+                )
+                diagnosticsMetric(
+                    "\(vm.diagnosticsConfigWarningCount)",
+                    label: "Warnings",
+                    systemImage: "exclamationmark.triangle"
+                )
+                diagnosticsMetric(
+                    "\(supervisorEvents)",
+                    label: "Supervisor",
+                    systemImage: "bolt.trianglebadge.exclamationmark"
+                )
+            }
+
+            if let versionInfo = vm.versionInfo {
+                Text("\(versionInfo.version) · \(versionInfo.platform)/\(versionInfo.arch) · \(String(versionInfo.gitSHA.prefix(12)))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            } else if let metrics = vm.metricsSnapshot {
+                Text("\(metrics.activeAgents)/\(metrics.totalAgents) active · \(metrics.totalRollingTokens.formatted()) rolling tokens")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var statusLabel: String {
+        if vm.hasHealthDatabaseIssue {
+            return "Degraded"
+        }
+        if vm.hasDiagnosticsIssue {
+            return "Warn"
+        }
+        return "Healthy"
+    }
+
+    private var statusColor: Color {
+        if vm.hasHealthDatabaseIssue {
+            return .red
+        }
+        return vm.hasDiagnosticsIssue ? .orange : .green
+    }
+
+    @ViewBuilder
+    private func diagnosticsMetric(_ value: String, label: String, systemImage: String) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: systemImage)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.subheadline.weight(.semibold).monospacedDigit())
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Color.primary.opacity(0.04))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+}
+
+private struct IntegrationsOverviewCard: View {
+    let vm: DashboardViewModel
+
+    private var issueCount: Int {
+        vm.unreachableLocalProviderCount
+            + vm.channelCredentialGapCount
+            + ((!vm.catalogModels.isEmpty && vm.configuredProviderCount > 0 && vm.availableCatalogModelCount == 0) ? 1 : 0)
+            + vm.agentsWithModelDiagnostics.count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Integrations")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(issueCount == 0 ? "Stable" : issueCount == 1 ? "1 issue" : "\(issueCount) issues")
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(statusColor.opacity(0.12))
+                    .foregroundStyle(statusColor)
+                    .clipShape(Capsule())
+            }
+
+            HStack(spacing: 12) {
+                integrationMetric(
+                    "\(vm.configuredProviderCount)/\(vm.providers.count)",
+                    label: "Providers",
+                    systemImage: "key.horizontal"
+                )
+                integrationMetric(
+                    "\(vm.readyChannelCount)/\(vm.configuredChannelCount)",
+                    label: "Channels",
+                    systemImage: "bubble.left.and.bubble.right"
+                )
+                integrationMetric(
+                    "\(vm.availableCatalogModelCount)",
+                    label: "Models",
+                    systemImage: "square.stack.3d.up"
+                )
+            }
+
+            if issueCount == 0 {
+                Text("Providers, channels, and the model catalog look consistent from the latest mobile snapshot.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    if vm.unreachableLocalProviderCount > 0 {
+                        issueRow(
+                            icon: "network.slash",
+                            color: .orange,
+                            text: vm.unreachableLocalProviderCount == 1 ? "1 local provider probe failed" : "\(vm.unreachableLocalProviderCount) local provider probes failed"
+                        )
+                    }
+                    if vm.channelCredentialGapCount > 0 {
+                        issueRow(
+                            icon: "bubble.left.and.exclamationmark.bubble.right",
+                            color: .orange,
+                            text: vm.channelCredentialGapCount == 1 ? "1 configured channel is missing credentials" : "\(vm.channelCredentialGapCount) configured channels are missing credentials"
+                        )
+                    }
+                    if !vm.catalogModels.isEmpty && vm.configuredProviderCount > 0 && vm.availableCatalogModelCount == 0 {
+                        issueRow(
+                            icon: "square.stack.3d.up.slash",
+                            color: .orange,
+                            text: "The catalog currently exposes no available models"
+                        )
+                    }
+                    if !vm.agentsWithModelDiagnostics.isEmpty {
+                        issueRow(
+                            icon: "cpu",
+                            color: .orange,
+                            text: vm.agentsWithModelDiagnostics.count == 1 ? "1 agent resolves to a drifted catalog model" : "\(vm.agentsWithModelDiagnostics.count) agents resolve to drifted catalog models"
+                        )
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var statusColor: Color {
+        issueCount > 0 ? .orange : .green
+    }
+
+    @ViewBuilder
+    private func integrationMetric(_ value: String, label: String, systemImage: String) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: systemImage)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.subheadline.weight(.semibold).monospacedDigit())
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Color.primary.opacity(0.04))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    @ViewBuilder
+    private func issueRow(icon: String, color: Color, text: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+                .frame(width: 16)
+            Text(text)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
     }
 }
 

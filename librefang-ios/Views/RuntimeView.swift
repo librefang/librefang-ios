@@ -2,6 +2,9 @@ import SwiftUI
 
 struct RuntimeView: View {
     @Environment(\.dependencies) private var deps
+    @State private var pendingApprovalAction: ApprovalDecisionAction?
+    @State private var approvalActionInFlightID: String?
+    @State private var operatorNotice: OperatorActionNotice?
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
 
@@ -41,12 +44,16 @@ struct RuntimeView: View {
                 errorSection
                 scoreboardSection
                 systemSection
+                diagnosticsSection
+                integrationsSection
                 usageSection
+                automationSection
                 sessionsSection
                 providersSection
                 toolingSection
                 channelsSection
                 a2aSection
+                commsSection
                 ofpNetworkSection
                 handsSection
                 approvalsSection
@@ -70,6 +77,26 @@ struct RuntimeView: View {
                     await vm.refresh()
                 }
             }
+        }
+        .confirmationDialog(
+            pendingApprovalAction?.title ?? "",
+            isPresented: approvalActionConfirmationPresented,
+            titleVisibility: .visible,
+            presenting: pendingApprovalAction
+        ) { action in
+            Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
+                Task { await performApprovalAction(action) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { action in
+            Text(action.message)
+        }
+        .alert(item: $operatorNotice) { notice in
+            Alert(
+                title: Text(notice.title),
+                message: Text(notice.message),
+                dismissButton: .default(Text("OK"))
+            )
         }
     }
 
@@ -128,6 +155,108 @@ struct RuntimeView: View {
     }
 
     @ViewBuilder
+    private var diagnosticsSection: some View {
+        if vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || vm.metricsSnapshot != nil {
+            Section {
+                NavigationLink {
+                    DiagnosticsView()
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Open Deep Diagnostics")
+                            .font(.subheadline.weight(.medium))
+                        Text("Inspect health detail, build info, config warnings, and Prometheus metrics from the daemon.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                if let healthDetail = vm.healthDetail {
+                    RuntimeMetricRow(
+                        label: "Health",
+                        value: healthDetail.status.capitalized,
+                        detail: "Database \(healthDetail.database.capitalized), \(healthDetail.configWarnings.count) config warnings"
+                    )
+                    RuntimeMetricRow(
+                        label: "Supervisor",
+                        value: "\(healthDetail.panicCount) panics / \(healthDetail.restartCount) restarts",
+                        detail: "Recovered kernel events since startup"
+                    )
+                }
+
+                if let versionInfo = vm.versionInfo {
+                    RuntimeMetricRow(
+                        label: "Build",
+                        value: versionInfo.version,
+                        detail: "\(versionInfo.platform) / \(versionInfo.arch) · \(shortSHA(versionInfo.gitSHA))"
+                    )
+                }
+
+                if let metrics = vm.metricsSnapshot {
+                    RuntimeMetricRow(
+                        label: "Metrics",
+                        value: "\(metrics.activeAgents)/\(metrics.totalAgents) active",
+                        detail: "\(metrics.totalRollingTokens.formatted()) rolling tokens · \(metrics.totalRollingToolCalls.formatted()) tool calls"
+                    )
+                }
+            } header: {
+                Text("Diagnostics")
+            } footer: {
+                Text("This section surfaces daemon-level health and build drift that the higher-level monitoring cards can miss.")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var integrationsSection: some View {
+        if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
+            Section {
+                NavigationLink {
+                    IntegrationsView()
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Open Integrations Diagnostics")
+                            .font(.subheadline.weight(.medium))
+                        Text("Inspect provider probes, channel credential gaps, catalog models, and aliases.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                RuntimeMetricRow(
+                    label: "Providers",
+                    value: "\(vm.configuredProviderCount)/\(vm.providers.count)",
+                    detail: vm.unreachableLocalProviderCount > 0
+                        ? "\(vm.unreachableLocalProviderCount) local unreachable"
+                        : "\(vm.reachableLocalProviderCount) local reachable"
+                )
+                RuntimeMetricRow(
+                    label: "Channels",
+                    value: "\(vm.readyChannelCount)/\(vm.configuredChannelCount)",
+                    detail: vm.channelCredentialGapCount > 0
+                        ? "\(vm.channelCredentialGapCount) configured missing credentials"
+                        : "Configured channels have required tokens"
+                )
+                RuntimeMetricRow(
+                    label: "Catalog",
+                    value: "\(vm.availableCatalogModelCount)/\(vm.catalogModels.count) available",
+                    detail: "\(vm.modelAliasCount) aliases"
+                )
+                if !vm.agentsWithModelDiagnostics.isEmpty {
+                    RuntimeMetricRow(
+                        label: "Agent Drift",
+                        value: "\(vm.agentsWithModelDiagnostics.count)",
+                        detail: "\(vm.unavailableModelAgentCount) unavailable, \(vm.agentsWithModelDiagnostics.count - vm.unavailableModelAgentCount) mismatched or unknown"
+                    )
+                }
+            } header: {
+                Text("Integrations")
+            } footer: {
+                Text("This section focuses on model providers, delivery channels, and the model catalog rather than runtime execution.")
+            }
+        }
+    }
+
+    @ViewBuilder
     private var usageSection: some View {
         if let usage = vm.usageSummary {
             Section("Usage") {
@@ -151,6 +280,52 @@ struct RuntimeView: View {
                     value: "\(vm.totalSessionCount)",
                     detail: "\(vm.totalSessionMessages.formatted()) messages retained"
                 )
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var automationSection: some View {
+        if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
+            Section {
+                NavigationLink {
+                    AutomationView()
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Open Automation Monitor")
+                            .font(.subheadline.weight(.medium))
+                        Text("Inspect workflows, recent runs, triggers, schedules, and cron pressure from one mobile view.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                RuntimeMetricRow(
+                    label: "Workflows",
+                    value: "\(vm.workflowCount)",
+                    detail: "\(vm.failedWorkflowRunCount) failed runs, \(vm.runningWorkflowRunCount) in flight"
+                )
+                RuntimeMetricRow(
+                    label: "Triggers",
+                    value: "\(vm.enabledTriggerCount)/\(vm.triggers.count) enabled",
+                    detail: "\(vm.exhaustedTriggerCount) exhausted, \(vm.disabledTriggerCount) disabled"
+                )
+                RuntimeMetricRow(
+                    label: "Schedules",
+                    value: "\(vm.enabledScheduleCount)/\(vm.schedules.count) enabled",
+                    detail: "\(vm.pausedScheduleCount) paused, \(vm.enabledCronJobCount)/\(vm.cronJobs.count) cron enabled"
+                )
+                if vm.stalledCronJobCount > 0 {
+                    RuntimeMetricRow(
+                        label: "Cron Health",
+                        value: "\(vm.stalledCronJobCount) missing next run",
+                        detail: "Enabled jobs without a next execution should be reviewed in the scheduler."
+                    )
+                }
+            } header: {
+                Text("Automation")
+            } footer: {
+                Text("\(vm.automationDefinitionCount) total automation objects across workflows, triggers, schedules, and cron")
             }
         }
     }
@@ -281,6 +456,22 @@ struct RuntimeView: View {
         }
     }
 
+    private var commsSection: some View {
+        Section("Comms") {
+            NavigationLink {
+                CommsView(api: deps.apiClient)
+            } label: {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Open Live Comms Monitor")
+                        .font(.subheadline.weight(.medium))
+                    Text("Track inter-agent messages, spawns, and task coordination in real time.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+
     @ViewBuilder
     private var ofpNetworkSection: some View {
         if let network = vm.networkStatus {
@@ -343,12 +534,27 @@ struct RuntimeView: View {
         if !vm.approvals.isEmpty {
             Section {
                 ForEach(vm.approvals) { approval in
-                    ApprovalRow(approval: approval)
+                    ApprovalOperatorRow(
+                        approval: approval,
+                        isBusy: approvalActionInFlightID == approval.id,
+                        onApprove: {
+                            pendingApprovalAction = .approve(approval)
+                        },
+                        onReject: {
+                            pendingApprovalAction = .reject(approval)
+                        }
+                    )
+                }
+
+                NavigationLink {
+                    ApprovalsView()
+                } label: {
+                    Label("Open Full Approval Queue", systemImage: "checkmark.shield")
                 }
             } header: {
                 Text("Pending Approvals")
             } footer: {
-                Text("Approvals require attention in the primary dashboard or desktop UI.")
+                Text("High-risk tool approvals can now be resolved directly from mobile after confirmation.")
             }
         }
     }
@@ -426,6 +632,12 @@ struct RuntimeView: View {
                 }
 
                 NavigationLink {
+                    ApprovalsView()
+                } label: {
+                    Image(systemName: "checkmark.shield")
+                }
+
+                NavigationLink {
                     SessionsView(initialFilter: .attention)
                 } label: {
                     Image(systemName: "rectangle.stack")
@@ -435,6 +647,30 @@ struct RuntimeView: View {
                     EventsView(api: deps.apiClient, initialScope: .critical)
                 } label: {
                     Image(systemName: "list.bullet.rectangle.portrait")
+                }
+
+                NavigationLink {
+                    CommsView(api: deps.apiClient)
+                } label: {
+                    Image(systemName: "arrow.left.arrow.right.circle")
+                }
+
+                NavigationLink {
+                    AutomationView()
+                } label: {
+                    Image(systemName: "flowchart")
+                }
+
+                NavigationLink {
+                    IntegrationsView()
+                } label: {
+                    Image(systemName: "square.3.layers.3d.down.forward")
+                }
+
+                NavigationLink {
+                    DiagnosticsView()
+                } label: {
+                    Image(systemName: "stethoscope")
                 }
             }
         }
@@ -463,6 +699,40 @@ struct RuntimeView: View {
     private func shortNodeId(_ id: String) -> String {
         guard id.count > 12 else { return id }
         return String(id.prefix(6)) + "..." + String(id.suffix(4))
+    }
+
+    private func shortSHA(_ value: String) -> String {
+        guard value.count > 12 else { return value }
+        return String(value.prefix(12))
+    }
+
+    private var approvalActionConfirmationPresented: Binding<Bool> {
+        Binding(
+            get: { pendingApprovalAction != nil },
+            set: { isPresented in
+                if !isPresented {
+                    pendingApprovalAction = nil
+                }
+            }
+        )
+    }
+
+    @MainActor
+    private func performApprovalAction(_ action: ApprovalDecisionAction) async {
+        pendingApprovalAction = nil
+        approvalActionInFlightID = action.approvalID
+        defer { approvalActionInFlightID = nil }
+
+        do {
+            let response = try await action.perform(using: deps.apiClient)
+            await vm.refresh()
+            operatorNotice = action.successNotice(from: response)
+        } catch {
+            operatorNotice = OperatorActionNotice(
+                title: action.title,
+                message: error.localizedDescription
+            )
+        }
     }
 }
 
@@ -505,6 +775,18 @@ private struct RuntimeScoreboard: View {
                 label: "Approvals",
                 icon: "exclamationmark.shield",
                 color: vm.pendingApprovalCount > 0 ? .red : .green
+            )
+            StatBadge(
+                value: "\(vm.enabledAutomationCount)/\(vm.automationDefinitionCount)",
+                label: "Automation",
+                icon: "flowchart",
+                color: vm.failedWorkflowRunCount > 0 || vm.exhaustedTriggerCount > 0 || vm.stalledCronJobCount > 0 ? .orange : .blue
+            )
+            StatBadge(
+                value: "\(vm.diagnosticsIssueCount)",
+                label: "Diagnostics",
+                icon: "stethoscope",
+                color: vm.hasDiagnosticsIssue ? .orange : .green
             )
             StatBadge(
                 value: "\(vm.securityFeatureCount)",
