@@ -900,18 +900,12 @@ private struct WorkflowRunRow: View {
     let run: WorkflowRun
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
-                summaryBlock
-            } accessory: {
-                PresentationToneBadge(text: run.state.label, tone: tone)
-            }
-
-            FlowLayout(spacing: 12) {
-                facts
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
+        MonitoringFactsRow(horizontalAlignment: .top, verticalSpacing: 8, headerVerticalSpacing: 8) {
+            summaryBlock
+        } accessory: {
+            PresentationToneBadge(text: run.state.label, tone: tone)
+        } facts: {
+            facts
         }
         .padding(.vertical, 2)
     }
@@ -957,17 +951,13 @@ private struct TriggerRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+            MonitoringFactsRow(horizontalAlignment: .top, verticalSpacing: 8, headerVerticalSpacing: 8) {
                 summaryBlock
             } accessory: {
                 PresentationToneBadge(text: statusLabel, tone: tone)
-            }
-
-            FlowLayout(spacing: 12) {
+            } facts: {
                 facts
             }
-            .font(.caption)
-            .foregroundStyle(.secondary)
 
             if !trigger.promptTemplate.isEmpty {
                 Text(trigger.promptTemplate)
@@ -1023,7 +1013,7 @@ private struct ScheduleRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+            MonitoringFactsRow(horizontalAlignment: .top, verticalSpacing: 8, headerVerticalSpacing: 8) {
                 summaryBlock
             } accessory: {
                 PresentationToneBadge(
@@ -1032,13 +1022,9 @@ private struct ScheduleRow: View {
                         : String(localized: "Paused"),
                     tone: schedule.enabled ? .positive : .warning
                 )
-            }
-
-            FlowLayout(spacing: 12) {
+            } facts: {
                 facts
             }
-            .font(.caption)
-            .foregroundStyle(.secondary)
 
             if !schedule.message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 Text(schedule.message)

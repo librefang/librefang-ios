@@ -1286,17 +1286,12 @@ private struct ProviderStatusRow: View {
     let provider: ProviderStatus
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(verticalSpacing: 6) {
-                providerSummary
-            } accessory: {
-                StatusPill(text: provider.localizedStatusLabel, color: provider.statusTone.color)
-            }
-
-            FlowLayout(spacing: 12) {
-                providerFacts
-            }
-            .font(.caption)
+        MonitoringFactsRow(verticalSpacing: 8, headerVerticalSpacing: 6) {
+            providerSummary
+        } accessory: {
+            StatusPill(text: provider.localizedStatusLabel, color: provider.statusTone.color)
+        } facts: {
+            providerFacts
         }
         .padding(.vertical, 2)
     }
@@ -1340,18 +1335,12 @@ private struct SessionRow: View {
     let agentName: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            ResponsiveAccessoryRow(horizontalSpacing: 8) {
-                titleLabel
-            } accessory: {
-                timestampLabel
-            }
-
-            FlowLayout(spacing: 12) {
-                metadataLabels
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
+        MonitoringFactsRow(verticalSpacing: 6, headerHorizontalSpacing: 8) {
+            titleLabel
+        } accessory: {
+            timestampLabel
+        } facts: {
+            metadataLabels
         }
         .padding(.vertical, 2)
     }
@@ -1388,19 +1377,13 @@ private struct MCPServerRow: View {
     let server: MCPConnectedServer
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            ResponsiveAccessoryRow(verticalSpacing: 6) {
-                Text(server.name)
-                    .font(.subheadline.weight(.medium))
-            } accessory: {
-                StatusPill(text: server.connected ? String(localized: "Connected") : String(localized: "Offline"), color: server.connected ? .green : .orange)
-            }
-
-            FlowLayout(spacing: 12) {
-                toolsFacts
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
+        MonitoringFactsRow(verticalSpacing: 6, headerVerticalSpacing: 6) {
+            Text(server.name)
+                .font(.subheadline.weight(.medium))
+        } accessory: {
+            StatusPill(text: server.connected ? String(localized: "Connected") : String(localized: "Offline"), color: server.connected ? .green : .orange)
+        } facts: {
+            toolsFacts
         }
         .padding(.vertical, 2)
     }
@@ -1476,18 +1459,12 @@ private struct HandInstanceRow: View {
     let handDisplayName: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            ResponsiveAccessoryRow(verticalSpacing: 6) {
-                handSummary
-            } accessory: {
-                StatusPill(text: statusText, color: instance.statusTone.color)
-            }
-
-            FlowLayout(spacing: 12) {
-                handFacts
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
+        MonitoringFactsRow(verticalSpacing: 6, headerVerticalSpacing: 6) {
+            handSummary
+        } accessory: {
+            StatusPill(text: statusText, color: instance.statusTone.color)
+        } facts: {
+            handFacts
         }
         .padding(.vertical, 2)
     }
@@ -1616,18 +1593,12 @@ private struct PeerRow: View {
     let peer: PeerStatus
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            ResponsiveAccessoryRow(verticalSpacing: 6) {
-                peerSummary
-            } accessory: {
-                StatusPill(text: localizedStateLabel, color: peer.stateTone.color)
-            }
-
-            FlowLayout(spacing: 12) {
-                peerFacts
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
+        MonitoringFactsRow(verticalSpacing: 6, headerVerticalSpacing: 6) {
+            peerSummary
+        } accessory: {
+            StatusPill(text: localizedStateLabel, color: peer.stateTone.color)
+        } facts: {
+            peerFacts
         }
         .padding(.vertical, 2)
     }
