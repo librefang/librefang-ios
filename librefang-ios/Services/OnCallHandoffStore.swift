@@ -175,6 +175,125 @@ enum HandoffReadinessState {
     }
 }
 
+enum HandoffCheckInWindow: String, CaseIterable, Codable, Identifiable {
+    case none
+    case fifteenMinutes
+    case thirtyMinutes
+    case oneHour
+    case twoHours
+    case fourHours
+    case nextShift
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .none:
+            "None"
+        case .fifteenMinutes:
+            "15 min"
+        case .thirtyMinutes:
+            "30 min"
+        case .oneHour:
+            "1 hour"
+        case .twoHours:
+            "2 hours"
+        case .fourHours:
+            "4 hours"
+        case .nextShift:
+            "Next shift"
+        }
+    }
+
+    var summary: String {
+        switch self {
+        case .none:
+            "No explicit re-check window is attached to this handoff."
+        case .fifteenMinutes:
+            "Use when the next operator should re-check almost immediately."
+        case .thirtyMinutes:
+            "Use for short follow-through after the handoff lands."
+        case .oneHour:
+            "Good default when incident pressure is active but stable."
+        case .twoHours:
+            "Use when the next shift needs a defined medium-term checkpoint."
+        case .fourHours:
+            "Use for slower recovery work that still needs a same-shift check."
+        case .nextShift:
+            "Use when the next meaningful re-check is expected at the next shift boundary."
+        }
+    }
+
+    var interval: TimeInterval? {
+        switch self {
+        case .none:
+            nil
+        case .fifteenMinutes:
+            15 * 60
+        case .thirtyMinutes:
+            30 * 60
+        case .oneHour:
+            60 * 60
+        case .twoHours:
+            2 * 60 * 60
+        case .fourHours:
+            4 * 60 * 60
+        case .nextShift:
+            8 * 60 * 60
+        }
+    }
+
+    func dueDate(from start: Date) -> Date? {
+        guard let interval else { return nil }
+        return start.addingTimeInterval(interval)
+    }
+
+    func dueLabel(from start: Date) -> String {
+        guard let dueDate = dueDate(from: start) else { return "No check-in window" }
+        return "\(label) · \(dueDate.formatted(date: .omitted, time: .shortened))"
+    }
+}
+
+enum HandoffCheckInState {
+    case scheduled
+    case dueSoon
+    case overdue
+
+    var label: String {
+        switch self {
+        case .scheduled:
+            "Scheduled"
+        case .dueSoon:
+            "Due Soon"
+        case .overdue:
+            "Overdue"
+        }
+    }
+}
+
+struct HandoffCheckInStatus {
+    let baseline: OnCallHandoffEntry
+    let window: HandoffCheckInWindow
+    let dueDate: Date
+    let remaining: TimeInterval
+    let state: HandoffCheckInState
+
+    var summary: String {
+        switch state {
+        case .scheduled:
+            return "Next check-in is \(RelativeDateTimeFormatter().localizedString(for: dueDate, relativeTo: Date()))."
+        case .dueSoon:
+            return "Check-in is due soon at \(dueDate.formatted(date: .omitted, time: .shortened))."
+        case .overdue:
+            return "Check-in passed \(RelativeDateTimeFormatter().localizedString(for: dueDate, relativeTo: Date()))."
+        }
+    }
+
+    var dueLabel: String {
+        "\(window.label) · \(dueDate.formatted(date: .omitted, time: .shortened))"
+    }
+}
+
 struct HandoffTimelineItem: Identifiable {
     let entry: OnCallHandoffEntry
     let gapToOlderEntry: TimeInterval?
@@ -411,6 +530,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
     let checklist: HandoffChecklistState
     let focusAreas: HandoffFocusState
     let followUpItems: [String]
+    let checkInWindow: HandoffCheckInWindow
 
     private enum CodingKeys: String, CodingKey {
         case id
@@ -424,6 +544,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         case checklist
         case focusAreas
         case followUpItems
+        case checkInWindow
     }
 
     init(
@@ -437,7 +558,8 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         liveAlertCount: Int,
         checklist: HandoffChecklistState = HandoffChecklistState(),
         focusAreas: HandoffFocusState = HandoffFocusState(),
-        followUpItems: [String] = []
+        followUpItems: [String] = [],
+        checkInWindow: HandoffCheckInWindow = .none
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -450,6 +572,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         self.checklist = checklist
         self.focusAreas = focusAreas
         self.followUpItems = followUpItems
+        self.checkInWindow = checkInWindow
     }
 
     init(from decoder: any Decoder) throws {
@@ -465,6 +588,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         checklist = try container.decodeIfPresent(HandoffChecklistState.self, forKey: .checklist) ?? HandoffChecklistState()
         focusAreas = try container.decodeIfPresent(HandoffFocusState.self, forKey: .focusAreas) ?? HandoffFocusState()
         followUpItems = try container.decodeIfPresent([String].self, forKey: .followUpItems) ?? []
+        checkInWindow = try container.decodeIfPresent(HandoffCheckInWindow.self, forKey: .checkInWindow) ?? .none
     }
 
     func encode(to encoder: any Encoder) throws {
@@ -480,6 +604,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         try container.encode(checklist, forKey: .checklist)
         try container.encode(focusAreas, forKey: .focusAreas)
         try container.encode(followUpItems, forKey: .followUpItems)
+        try container.encode(checkInWindow, forKey: .checkInWindow)
     }
 
     static func buildShareText(
@@ -492,7 +617,8 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         liveAlertCount: Int,
         checklist: HandoffChecklistState,
         focusAreas: HandoffFocusState,
-        followUpItems: [String]
+        followUpItems: [String],
+        checkInWindow: HandoffCheckInWindow
     ) -> String {
         var lines = ["LibreFang handoff snapshot · \(timestamp.formatted(date: .abbreviated, time: .shortened))"]
 
@@ -520,6 +646,10 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
             lines.append(contentsOf: followUpItems.map { "- \($0)" })
         }
 
+        if checkInWindow != .none {
+            lines.append("Check-in: \(checkInWindow.dueLabel(from: timestamp))")
+        }
+
         lines.append("")
         lines.append(summary)
         return lines.joined(separator: "\n")
@@ -536,7 +666,8 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
             liveAlertCount: liveAlertCount,
             checklist: checklist,
             focusAreas: focusAreas,
-            followUpItems: followUpItems
+            followUpItems: followUpItems,
+            checkInWindow: checkInWindow
         )
     }
 }
@@ -551,6 +682,7 @@ final class OnCallHandoffStore {
         static let draftKind = "oncall.handoff.draftKind"
         static let draftFocusAreas = "oncall.handoff.draftFocusAreas"
         static let draftFollowUpItems = "oncall.handoff.draftFollowUpItems"
+        static let draftCheckInWindow = "oncall.handoff.draftCheckInWindow"
     }
 
     private let defaults: UserDefaults
@@ -559,6 +691,7 @@ final class OnCallHandoffStore {
     private let maxEntries = 20
     private let staleThreshold: TimeInterval = 8 * 60 * 60
     private let cadenceWarningThreshold: TimeInterval = 12 * 60 * 60
+    private let checkInSoonThreshold: TimeInterval = 30 * 60
 
     var draftNote: String {
         didSet {
@@ -587,6 +720,12 @@ final class OnCallHandoffStore {
     var draftFollowUpItems: [String] {
         didSet {
             persistDraftFollowUpItems()
+        }
+    }
+
+    var draftCheckInWindow: HandoffCheckInWindow {
+        didSet {
+            defaults.set(draftCheckInWindow.rawValue, forKey: StorageKey.draftCheckInWindow)
         }
     }
 
@@ -674,6 +813,33 @@ final class OnCallHandoffStore {
 
     var cadenceWarningCount: Int {
         timelineItems.filter(\.isGapWarning).count
+    }
+
+    var latestCheckInStatus: HandoffCheckInStatus? {
+        guard let latestEntry,
+              latestEntry.checkInWindow != .none,
+              let dueDate = latestEntry.checkInWindow.dueDate(from: latestEntry.createdAt)
+        else {
+            return nil
+        }
+
+        let remaining = dueDate.timeIntervalSinceNow
+        let state: HandoffCheckInState
+        if remaining <= 0 {
+            state = .overdue
+        } else if remaining <= checkInSoonThreshold {
+            state = .dueSoon
+        } else {
+            state = .scheduled
+        }
+
+        return HandoffCheckInStatus(
+            baseline: latestEntry,
+            window: latestEntry.checkInWindow,
+            dueDate: dueDate,
+            remaining: remaining,
+            state: state
+        )
     }
 
     func driftFromLatest(
@@ -781,6 +947,7 @@ final class OnCallHandoffStore {
         checklist: HandoffChecklistState,
         focusAreas: HandoffFocusState,
         followUpItems: [String],
+        checkInWindow: HandoffCheckInWindow,
         liveAlertCount: Int,
         pendingApprovalCount: Int,
         watchlistIssueCount: Int,
@@ -824,6 +991,24 @@ final class OnCallHandoffStore {
                     id: "followups",
                     message: "Active runtime pressure exists, but no follow-up items are captured for the next shift.",
                     isBlocking: true
+                )
+            )
+        }
+
+        if hasRuntimePressure && checkInWindow == .none {
+            issues.append(
+                HandoffReadinessIssue(
+                    id: "checkin",
+                    message: "Active runtime pressure exists, but no check-in window is set for the next shift.",
+                    isBlocking: true
+                )
+            )
+        } else if !followUpItems.isEmpty && checkInWindow == .none {
+            issues.append(
+                HandoffReadinessIssue(
+                    id: "checkin-advisory",
+                    message: "Follow-up items exist, but there is no explicit next check-in window.",
+                    isBlocking: false
                 )
             )
         }
@@ -939,6 +1124,7 @@ final class OnCallHandoffStore {
         } else {
             self.draftFollowUpItems = []
         }
+        self.draftCheckInWindow = HandoffCheckInWindow(rawValue: defaults.string(forKey: StorageKey.draftCheckInWindow) ?? "") ?? .none
 
         if let data = defaults.data(forKey: StorageKey.entries),
            let decoded = try? decoder.decode([OnCallHandoffEntry].self, from: data) {
@@ -963,7 +1149,8 @@ final class OnCallHandoffStore {
             liveAlertCount: liveAlertCount,
             checklist: draftChecklist,
             focusAreas: draftFocusAreas,
-            followUpItems: draftFollowUpItems
+            followUpItems: draftFollowUpItems,
+            checkInWindow: draftCheckInWindow
         )
 
         entries.insert(entry, at: 0)
@@ -1039,6 +1226,7 @@ final class OnCallHandoffStore {
         draftKind = .routine
         draftFocusAreas = HandoffFocusState()
         draftFollowUpItems = []
+        draftCheckInWindow = .none
     }
 
     private func persistEntries() {

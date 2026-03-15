@@ -215,6 +215,20 @@ struct SettingsView: View {
                             Text(latest.followUpItems.isEmpty ? "None" : "\(latest.followUpItems.count)")
                                 .foregroundStyle(latest.followUpItems.isEmpty ? Color.secondary : Color.primary)
                         }
+                        LabeledContent("Check-in") {
+                            if let checkInStatus = deps.onCallHandoffStore.latestCheckInStatus {
+                                Text(checkInStatus.state.label)
+                                    .foregroundStyle(handoffCheckInColor(for: checkInStatus))
+                            } else {
+                                Text(latest.checkInWindow == .none ? "None" : latest.checkInWindow.label)
+                                    .foregroundStyle(latest.checkInWindow == .none ? Color.secondary : Color.primary)
+                            }
+                        }
+                        if latest.checkInWindow != .none {
+                            Text(latest.checkInWindow.dueLabel(from: latest.createdAt))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                         LabeledContent("Draft Readiness") {
                             Text(draftHandoffReadiness.state.label)
                                 .foregroundStyle(handoffReadinessColor)
@@ -417,6 +431,7 @@ struct SettingsView: View {
             checklist: deps.onCallHandoffStore.draftChecklist,
             focusAreas: deps.onCallHandoffStore.draftFocusAreas,
             followUpItems: deps.onCallHandoffStore.draftFollowUpItems,
+            checkInWindow: deps.onCallHandoffStore.draftCheckInWindow,
             liveAlertCount: visibleAlertCount,
             pendingApprovalCount: deps.dashboardViewModel.pendingApprovalCount,
             watchlistIssueCount: watchedAttentionItems.filter { $0.severity > 0 }.count,
@@ -515,6 +530,17 @@ struct SettingsView: View {
         case .partial:
             .orange
         case .active:
+            .red
+        }
+    }
+
+    private func handoffCheckInColor(for status: HandoffCheckInStatus) -> Color {
+        switch status.state {
+        case .scheduled:
+            .blue
+        case .dueSoon:
+            .orange
+        case .overdue:
             .red
         }
     }

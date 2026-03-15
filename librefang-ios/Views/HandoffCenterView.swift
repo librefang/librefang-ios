@@ -47,7 +47,8 @@ struct HandoffCenterView: View {
             liveAlertCount: liveAlertCount,
             checklist: handoffStore.draftChecklist,
             focusAreas: handoffStore.draftFocusAreas,
-            followUpItems: handoffStore.draftFollowUpItems
+            followUpItems: handoffStore.draftFollowUpItems,
+            checkInWindow: handoffStore.draftCheckInWindow
         )
     }
     private var suggestedTemplateNote: String {
@@ -90,6 +91,7 @@ struct HandoffCenterView: View {
             checklist: handoffStore.draftChecklist,
             focusAreas: handoffStore.draftFocusAreas,
             followUpItems: handoffStore.draftFollowUpItems,
+            checkInWindow: handoffStore.draftCheckInWindow,
             liveAlertCount: liveAlertCount,
             pendingApprovalCount: vm.pendingApprovalCount,
             watchlistIssueCount: watchlistStore.watchedAgents(from: vm.agents).filter { vm.attentionItem(for: $0).severity > 0 }.count,
@@ -169,6 +171,10 @@ struct HandoffCenterView: View {
 
                 HandoffReadinessCard(status: draftReadiness)
 
+                if let checkInStatus = handoffStore.latestCheckInStatus {
+                    HandoffCheckInCard(status: checkInStatus)
+                }
+
                 if let carryoverStatus {
                     HandoffCarryoverCard(status: carryoverStatus)
                 }
@@ -213,6 +219,11 @@ struct HandoffCenterView: View {
                     Text(handoffStore.draftKind.summary)
                         .font(.caption)
                         .foregroundStyle(.secondary)
+
+                    HandoffCheckInComposer(window: Binding(
+                        get: { handoffStore.draftCheckInWindow },
+                        set: { handoffStore.draftCheckInWindow = $0 }
+                    ))
 
                     HStack(alignment: .top, spacing: 10) {
                         HandoffKindBadge(kind: handoffStore.draftKind)
@@ -407,6 +418,7 @@ struct HandoffCenterView: View {
 
         return entry.note.localizedCaseInsensitiveContains(query)
             || entry.summary.localizedCaseInsensitiveContains(query)
+            || entry.followUpItems.contains(where: { $0.localizedCaseInsensitiveContains(query) })
     }
 }
 
@@ -591,6 +603,48 @@ private struct HandoffReadinessCard: View {
     }
 }
 
+private struct HandoffCheckInCard: View {
+    let status: HandoffCheckInStatus
+
+    private var accentColor: Color {
+        switch status.state {
+        case .scheduled:
+            .blue
+        case .dueSoon:
+            .orange
+        case .overdue:
+            .red
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label("Check-in Window", systemImage: "timer")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(status.state.label)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(accentColor.opacity(0.12))
+                    .foregroundStyle(accentColor)
+                    .clipShape(Capsule())
+            }
+
+            Text(status.dueLabel)
+                .font(.caption)
+                .foregroundStyle(.primary)
+
+            Text(status.summary)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 6)
+    }
+}
+
 struct HandoffKindBadge: View {
     let kind: HandoffSnapshotKind
 
@@ -678,6 +732,10 @@ private struct HandoffTimelineRow: View {
 
             if !item.entry.focusAreas.items.isEmpty {
                 HandoffFocusSummaryRow(focusAreas: item.entry.focusAreas)
+            }
+
+            if item.entry.checkInWindow != .none {
+                HandoffCheckInSummaryRow(window: item.entry.checkInWindow, createdAt: item.entry.createdAt)
             }
 
             if !item.entry.followUpItems.isEmpty {
@@ -938,6 +996,39 @@ private struct HandoffFollowUpComposer: View {
     }
 }
 
+private struct HandoffCheckInComposer: View {
+    @Binding var window: HandoffCheckInWindow
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Check-in window")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                Text(window.label)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(window == .none ? .secondary : .primary)
+            }
+
+            Picker("Check-in Window", selection: $window) {
+                ForEach(HandoffCheckInWindow.allCases) { option in
+                    Text(option.label).tag(option)
+                }
+            }
+
+            Text(window.summary)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
+            if window != .none {
+                Text("Next check-in \(window.dueLabel(from: Date()))")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+
 struct HandoffFocusAreaBadge: View {
     let area: HandoffFocusArea
 
@@ -1021,6 +1112,24 @@ struct HandoffFollowUpSummaryRow: View {
     }
 }
 
+struct HandoffCheckInSummaryRow: View {
+    let window: HandoffCheckInWindow
+    let createdAt: Date
+
+    var body: some View {
+        HStack {
+            Label("Check-in", systemImage: "timer")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(window.dueLabel(from: createdAt))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+    }
+}
+
 private struct HandoffStatPill: View {
     let value: Int
     let label: String
@@ -1088,6 +1197,10 @@ private struct HandoffEntryCard: View {
 
             if !entry.focusAreas.items.isEmpty {
                 HandoffFocusSummaryRow(focusAreas: entry.focusAreas)
+            }
+
+            if entry.checkInWindow != .none {
+                HandoffCheckInSummaryRow(window: entry.checkInWindow, createdAt: entry.createdAt)
             }
 
             if !entry.followUpItems.isEmpty {

@@ -127,6 +127,7 @@ struct OverviewView: View {
                             RecentHandoffCard(
                                 entry: latestHandoff,
                                 gapLabel: latestHandoffGapLabel,
+                                checkInStatus: deps.onCallHandoffStore.latestCheckInStatus,
                                 drift: latestHandoffDrift,
                                 carryover: latestHandoffCarryover
                             )
@@ -412,6 +413,7 @@ private struct AlertsCard: View {
 private struct RecentHandoffCard: View {
     let entry: OnCallHandoffEntry
     let gapLabel: String?
+    let checkInStatus: HandoffCheckInStatus?
     let drift: HandoffSnapshotDrift?
     let carryover: HandoffCarryoverStatus?
 
@@ -477,6 +479,18 @@ private struct RecentHandoffCard: View {
                 Text("Follow-ups: \(entry.followUpItems.count)")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+            }
+
+            if let checkInStatus {
+                Text("Check-in: \(checkInStatus.state.label) · \(checkInStatus.dueLabel)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            } else if entry.checkInWindow != .none {
+                Text("Check-in: \(entry.checkInWindow.dueLabel(from: entry.createdAt))")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
             }
 
             if let drift {

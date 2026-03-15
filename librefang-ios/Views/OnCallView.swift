@@ -127,6 +127,7 @@ struct OnCallView: View {
             checklist: handoffStore.draftChecklist,
             focusAreas: handoffStore.draftFocusAreas,
             followUpItems: handoffStore.draftFollowUpItems,
+            checkInWindow: handoffStore.draftCheckInWindow,
             liveAlertCount: visibleAlerts.count,
             pendingApprovalCount: vm.pendingApprovalCount,
             watchlistIssueCount: watchedAttentionItems.filter { $0.severity > 0 }.count,
@@ -167,6 +168,7 @@ struct OnCallView: View {
                     cadenceLabel: handoffStore.cadenceState.label,
                     cadenceSummary: handoffStore.cadenceSummary,
                     latestEntry: handoffStore.latestEntry,
+                    checkInStatus: handoffStore.latestCheckInStatus,
                     drift: currentHandoffDrift,
                     carryover: currentHandoffCarryover,
                     readiness: draftHandoffReadiness
@@ -353,6 +355,7 @@ private struct OnCallHandoffStatusRow: View {
     let cadenceLabel: String
     let cadenceSummary: String
     let latestEntry: OnCallHandoffEntry?
+    let checkInStatus: HandoffCheckInStatus?
     let drift: HandoffSnapshotDrift?
     let carryover: HandoffCarryoverStatus?
     let readiness: HandoffReadinessStatus
@@ -410,6 +413,17 @@ private struct OnCallHandoffStatusRow: View {
         case .caution:
             .orange
         case .blocked:
+            .red
+        }
+    }
+
+    private func checkInColor(for status: HandoffCheckInStatus) -> Color {
+        switch status.state {
+        case .scheduled:
+            .blue
+        case .dueSoon:
+            .orange
+        case .overdue:
             .red
         }
     }
@@ -510,6 +524,30 @@ private struct OnCallHandoffStatusRow: View {
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
+            if let checkInStatus {
+                HStack {
+                    Text("Check-in")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(checkInStatus.state.label)
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(checkInColor(for: checkInStatus).opacity(0.12))
+                        .foregroundStyle(checkInColor(for: checkInStatus))
+                        .clipShape(Capsule())
+                }
+
+                Text(checkInStatus.dueLabel)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+
+                Text(checkInStatus.summary)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
             if let latestEntry {
                 HStack {
                     HandoffKindBadge(kind: latestEntry.kind)
@@ -521,6 +559,10 @@ private struct OnCallHandoffStatusRow: View {
 
                 if !latestEntry.focusAreas.items.isEmpty {
                     HandoffFocusSummaryRow(focusAreas: latestEntry.focusAreas)
+                }
+
+                if latestEntry.checkInWindow != .none {
+                    HandoffCheckInSummaryRow(window: latestEntry.checkInWindow, createdAt: latestEntry.createdAt)
                 }
 
                 if !latestEntry.followUpItems.isEmpty {
