@@ -564,13 +564,12 @@ private struct SessionMonitorRow: View {
 
         if !item.reasons.isEmpty {
             ForEach(item.reasons.prefix(2), id: \.self) { reason in
-                Text(reason)
-                    .font(.caption2.weight(.medium))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(item.tone.color.opacity(0.12))
-                    .foregroundStyle(item.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(
+                    text: reason,
+                    tone: item.tone,
+                    horizontalPadding: 6,
+                    verticalPadding: 2
+                )
             }
         }
     }

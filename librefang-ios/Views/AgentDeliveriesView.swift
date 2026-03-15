@@ -298,13 +298,12 @@ private struct DeliveryReceiptRow: View {
     }
 
     private var statusBadge: some View {
-        Text(receipt.status.label)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(receipt.status.tone.color.opacity(0.12))
-            .foregroundStyle(receipt.status.tone.color)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: receipt.status.label,
+            tone: receipt.status.tone,
+            horizontalPadding: 6,
+            verticalPadding: 2
+        )
     }
 
     private var timestampLabel: some View {

@@ -246,13 +246,12 @@ private struct EventRow: View {
     }
 
     private var outcomeBadge: some View {
-        Text(entry.localizedOutcomeLabel)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(entry.severity.tone.color.opacity(0.12))
-            .foregroundStyle(entry.severity.tone.color)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: entry.localizedOutcomeLabel,
+            tone: entry.severity.tone,
+            horizontalPadding: 6,
+            verticalPadding: 2
+        )
     }
 
     private var relativeTimestamp: String {
