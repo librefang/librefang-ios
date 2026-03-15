@@ -458,24 +458,59 @@ private struct BudgetLimitRow: View {
         let utilizationStatus = StatusPresentation.budgetUtilizationStatus(for: pct) ?? .normal
 
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(label)
-                    .font(.subheadline)
-                Spacer()
-                Text(localizedUSDCurrency(spend, standardPrecision: 2, smallValuePrecision: 4))
-                    .font(.subheadline.monospacedDigit().weight(.medium))
-                Text("/ \(localizedUSDCurrency(limit))")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text("(\(Int(pct * 100))%)")
-                    .font(.caption2)
-                    .foregroundStyle(utilizationStatus.color(normalColor: .secondary))
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(label)
+                        .font(.subheadline)
+                    Spacer()
+                    spendSummary(utilizationStatus: utilizationStatus)
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(label)
+                        .font(.subheadline)
+                    spendSummary(utilizationStatus: utilizationStatus)
+                }
             }
             Gauge(value: min(pct, 1.0)) { EmptyView() }
                 .gaugeStyle(.linearCapacity)
                 .tint(utilizationStatus.color())
         }
         .padding(.vertical, 2)
+    }
+
+    @ViewBuilder
+    private func spendSummary(utilizationStatus: BudgetUtilizationStatus) -> some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                amountLabel
+                limitLabel
+                utilizationLabel(utilizationStatus: utilizationStatus)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    amountLabel
+                    limitLabel
+                }
+                utilizationLabel(utilizationStatus: utilizationStatus)
+            }
+        }
+    }
+
+    private var amountLabel: some View {
+        Text(localizedUSDCurrency(spend, standardPrecision: 2, smallValuePrecision: 4))
+            .font(.subheadline.monospacedDigit().weight(.medium))
+    }
+
+    private var limitLabel: some View {
+        Text("/ \(localizedUSDCurrency(limit))")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    private func utilizationLabel(utilizationStatus: BudgetUtilizationStatus) -> some View {
+        Text("(\(Int(pct * 100))%)")
+            .font(.caption2)
+            .foregroundStyle(utilizationStatus.color(normalColor: .secondary))
     }
 }
 
@@ -484,22 +519,51 @@ private struct DailyUsageRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(formattedDate)
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                Text(costText)
-                    .font(.subheadline.monospacedDigit())
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    costLabel
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    titleLabel
+                    costLabel
+                }
             }
 
-            HStack(spacing: 12) {
-                Label(day.tokens.formatted(), systemImage: "number")
-                Label(day.calls.formatted(), systemImage: "waveform")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    tokensLabel
+                    callsLabel
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    tokensLabel
+                    callsLabel
+                }
             }
             .font(.caption)
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
+    }
+
+    private var titleLabel: some View {
+        Text(formattedDate)
+            .font(.subheadline.weight(.medium))
+            .lineLimit(1)
+    }
+
+    private var costLabel: some View {
+        Text(costText)
+            .font(.subheadline.monospacedDigit())
+    }
+
+    private var tokensLabel: some View {
+        Label(day.tokens.formatted(), systemImage: "number")
+    }
+
+    private var callsLabel: some View {
+        Label(day.calls.formatted(), systemImage: "waveform")
     }
 
     private var formattedDate: String {
@@ -518,18 +582,16 @@ private struct ModelCostRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(modelName)
-                        .font(.subheadline.weight(.medium))
-                        .lineLimit(2)
-                    Text(providerName)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    summaryBlock
+                    Spacer(minLength: 8)
+                    costLabel
                 }
-                Spacer()
-                Text(costText)
-                    .font(.subheadline.monospacedDigit().weight(.medium))
+                VStack(alignment: .leading, spacing: 4) {
+                    summaryBlock
+                    costLabel
+                }
             }
 
             ZStack(alignment: .leading) {
@@ -542,14 +604,45 @@ private struct ModelCostRow: View {
                     .frame(width: max(12, CGFloat(model.totalCostUsd / maxCost) * 220), height: 8)
             }
 
-            HStack(spacing: 12) {
-                Label(model.totalTokens.formatted(), systemImage: "number")
-                Label(model.callCount.formatted(), systemImage: "waveform")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    tokensLabel
+                    callsLabel
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    tokensLabel
+                    callsLabel
+                }
             }
             .font(.caption)
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 4)
+    }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(modelName)
+                .font(.subheadline.weight(.medium))
+                .lineLimit(2)
+            Text(providerName)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+    }
+
+    private var costLabel: some View {
+        Text(costText)
+            .font(.subheadline.monospacedDigit().weight(.medium))
+    }
+
+    private var tokensLabel: some View {
+        Label(model.totalTokens.formatted(), systemImage: "number")
+    }
+
+    private var callsLabel: some View {
+        Label(model.callCount.formatted(), systemImage: "waveform")
     }
 
     private var modelName: String {
@@ -598,27 +691,45 @@ private struct AgentCostRow: View {
     let item: AgentBudgetItem
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(item.name)
-                    .font(.subheadline)
-                Text(String(item.agentId.prefix(12)) + "...")
-                    .font(.caption2)
-                    .foregroundStyle(.quaternary)
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 12) {
+                summaryBlock
+                Spacer(minLength: 8)
+                spendBlock(alignment: .trailing)
             }
-            Spacer()
-            VStack(alignment: .trailing, spacing: 3) {
-                Text(localizedUSDCurrency(item.dailyCostUsd, standardPrecision: 2, smallValuePrecision: 4))
-                    .font(.subheadline.monospacedDigit().weight(.medium))
-                    .foregroundStyle(item.dailySpendStatus.color(normalColor: .primary))
-                if let limit = item.dailyLimit, limit > 0 {
-                    Text(localizedUSDCurrency(limit))
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
+            VStack(alignment: .leading, spacing: 6) {
+                summaryBlock
+                spendBlock(alignment: .leading)
             }
         }
         .padding(.vertical, 2)
+    }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(item.name)
+                .font(.subheadline)
+                .lineLimit(2)
+            Text(item.agentId)
+                .font(.caption2)
+                .foregroundStyle(.quaternary)
+                .lineLimit(1)
+                .truncationMode(.middle)
+        }
+    }
+
+    @ViewBuilder
+    private func spendBlock(alignment: HorizontalAlignment) -> some View {
+        VStack(alignment: alignment, spacing: 3) {
+            Text(localizedUSDCurrency(item.dailyCostUsd, standardPrecision: 2, smallValuePrecision: 4))
+                .font(.subheadline.monospacedDigit().weight(.medium))
+                .foregroundStyle(item.dailySpendStatus.color(normalColor: .primary))
+            if let limit = item.dailyLimit, limit > 0 {
+                Text(localizedUSDCurrency(limit))
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+        }
     }
 }
 

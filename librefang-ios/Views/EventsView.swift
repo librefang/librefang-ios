@@ -110,11 +110,6 @@ struct EventsView: View {
 private struct EventScoreboard: View {
     let viewModel: EventsViewModel
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
-
     private var criticalStatus: MonitoringSummaryStatus {
         .countStatus(viewModel.criticalCount, activeTone: .critical)
     }
@@ -124,39 +119,47 @@ private struct EventScoreboard: View {
     }
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 10) {
-            StatBadge(
-                value: "\(viewModel.criticalCount)",
-                label: "Critical",
-                icon: "xmark.octagon",
-                color: criticalStatus.tone.color
-            )
-            StatBadge(
-                value: "\(viewModel.warningCount)",
-                label: "Warnings",
-                icon: "exclamationmark.triangle",
-                color: warningStatus.tone.color
-            )
-            StatBadge(
-                value: "\(viewModel.infoCount)",
-                label: "Info",
-                icon: "info.circle",
-                color: .blue
-            )
-            StatBadge(
-                value: chainLabel,
-                label: "Audit Chain",
-                icon: "checkmark.shield",
-                color: chainColor
-            )
-            StatBadge(
-                value: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
-                label: "Transport",
-                icon: viewModel.isStreaming ? "dot.radiowaves.left.and.right" : "arrow.clockwise",
-                color: viewModel.isStreaming ? .green : .orange
-            )
+        GeometryReader { proxy in
+            let isCompact = proxy.size.width < 380
+            LazyVGrid(
+                columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: isCompact ? 2 : 3),
+                spacing: 10
+            ) {
+                StatBadge(
+                    value: "\(viewModel.criticalCount)",
+                    label: "Critical",
+                    icon: "xmark.octagon",
+                    color: criticalStatus.tone.color
+                )
+                StatBadge(
+                    value: "\(viewModel.warningCount)",
+                    label: "Warnings",
+                    icon: "exclamationmark.triangle",
+                    color: warningStatus.tone.color
+                )
+                StatBadge(
+                    value: "\(viewModel.infoCount)",
+                    label: "Info",
+                    icon: "info.circle",
+                    color: .blue
+                )
+                StatBadge(
+                    value: chainLabel,
+                    label: "Audit Chain",
+                    icon: "checkmark.shield",
+                    color: chainColor
+                )
+                StatBadge(
+                    value: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                    label: "Transport",
+                    icon: viewModel.isStreaming ? "dot.radiowaves.left.and.right" : "arrow.clockwise",
+                    color: viewModel.isStreaming ? .green : .orange
+                )
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
         }
-        .padding(.horizontal)
+        .frame(minHeight: 136)
     }
 
     private var chainLabel: String {
@@ -182,27 +185,27 @@ private struct EventRow: View {
                     .frame(width: 18)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text(entry.friendlyAction)
-                            .font(.subheadline.weight(.medium))
-                        Spacer()
-                        Text(relativeTimestamp)
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .firstTextBaseline, spacing: 12) {
+                            titleLabel
+                            Spacer(minLength: 8)
+                            timestampLabel
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            titleLabel
+                            timestampLabel
+                        }
                     }
 
-                    HStack(spacing: 8) {
-                        Text(agentName ?? shortAgentId)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-
-                        Text(entry.localizedOutcomeLabel)
-                            .font(.caption2.weight(.semibold))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(entry.severity.tone.color.opacity(0.12))
-                            .foregroundStyle(entry.severity.tone.color)
-                            .clipShape(Capsule())
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            agentLabel
+                            outcomeBadge
+                        }
+                        VStack(alignment: .leading, spacing: 4) {
+                            agentLabel
+                            outcomeBadge
+                        }
                     }
 
                     if !entry.detail.isEmpty {
@@ -219,6 +222,37 @@ private struct EventRow: View {
 
     private var shortAgentId: String {
         entry.agentId.isEmpty ? "-" : String(entry.agentId.prefix(8))
+    }
+
+    private var titleLabel: some View {
+        Text(entry.friendlyAction)
+            .font(.subheadline.weight(.medium))
+            .lineLimit(2)
+    }
+
+    private var timestampLabel: some View {
+        Text(relativeTimestamp)
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
+            .lineLimit(1)
+    }
+
+    private var agentLabel: some View {
+        Text(agentName ?? shortAgentId)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+            .truncationMode(.middle)
+    }
+
+    private var outcomeBadge: some View {
+        Text(entry.localizedOutcomeLabel)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(entry.severity.tone.color.opacity(0.12))
+            .foregroundStyle(entry.severity.tone.color)
+            .clipShape(Capsule())
     }
 
     private var relativeTimestamp: String {

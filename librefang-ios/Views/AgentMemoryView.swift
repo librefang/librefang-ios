@@ -113,54 +113,54 @@ struct AgentMemoryView: View {
         .searchable(text: $searchText, prompt: "Search memory key or value")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: 12) {
-                    Menu {
-                        Button {
-                            Task { await copyExportJSON() }
-                        } label: {
-                            Label("Copy Export JSON", systemImage: "doc.on.doc")
-                        }
-                        .disabled(isActionBusy || isExporting)
-
-                        if let exportSnapshot {
-                            ShareLink(
-                                item: exportSnapshot.prettyPrintedJSONString,
-                                preview: SharePreview(
-                                    String(localized: "\(agent.name) Memory Export"),
-                                    image: Image(systemName: "externaldrive.badge.checkmark")
-                                )
-                            ) {
-                                Label("Share Export Snapshot", systemImage: "square.and.arrow.up")
-                            }
-                        } else {
-                            Button {
-                                Task { await prepareExportSnapshot() }
-                            } label: {
-                                if isExporting {
-                                    Label("Preparing Export…", systemImage: "square.and.arrow.up")
-                                } else {
-                                    Label("Prepare Export Snapshot", systemImage: "square.and.arrow.up")
-                                }
-                            }
-                            .disabled(isActionBusy || isExporting)
-                        }
-                    } label: {
-                        if isExporting {
-                            ProgressView()
-                                .controlSize(.small)
-                        } else {
-                            Image(systemName: "square.and.arrow.up")
-                        }
-                    }
-                    .disabled(isActionBusy)
-
+                Menu {
                     Button {
                         editorState = .create(agentName: agent.name)
                     } label: {
-                        Image(systemName: "plus")
+                        Label("New Memory Key", systemImage: "plus")
                     }
                     .disabled(isActionBusy)
+
+                    Divider()
+
+                    Button {
+                        Task { await copyExportJSON() }
+                    } label: {
+                        Label("Copy Export JSON", systemImage: "doc.on.doc")
+                    }
+                    .disabled(isActionBusy || isExporting)
+
+                    if let exportSnapshot {
+                        ShareLink(
+                            item: exportSnapshot.prettyPrintedJSONString,
+                            preview: SharePreview(
+                                String(localized: "\(agent.name) Memory Export"),
+                                image: Image(systemName: "externaldrive.badge.checkmark")
+                            )
+                        ) {
+                            Label("Share Export Snapshot", systemImage: "square.and.arrow.up")
+                        }
+                    } else {
+                        Button {
+                            Task { await prepareExportSnapshot() }
+                        } label: {
+                            if isExporting {
+                                Label("Preparing Export…", systemImage: "square.and.arrow.up")
+                            } else {
+                                Label("Prepare Export Snapshot", systemImage: "square.and.arrow.up")
+                            }
+                        }
+                        .disabled(isActionBusy || isExporting)
+                    }
+                } label: {
+                    if isExporting {
+                        ProgressView()
+                            .controlSize(.small)
+                    } else {
+                        Image(systemName: "ellipsis.circle")
+                    }
                 }
+                .disabled(isActionBusy && !isExporting)
             }
         }
         .refreshable {
@@ -212,23 +212,24 @@ struct AgentMemoryView: View {
 
     private var summarySection: some View {
         Section {
-            LabeledContent("Agent") {
+            AgentMemorySummaryRow(label: "Agent") {
                 Text(agent.name)
                     .foregroundStyle(.secondary)
+                    .lineLimit(2)
             }
 
-            LabeledContent("Keys") {
+            AgentMemorySummaryRow(label: "Keys") {
                 Text(entries.count.formatted())
                     .monospacedDigit()
             }
 
-            LabeledContent("Structured") {
+            AgentMemorySummaryRow(label: "Structured") {
                 Text(structuredEntryCount.formatted())
                     .foregroundStyle(structuredStatus.tone.color)
                     .monospacedDigit()
             }
 
-            LabeledContent("Scalar") {
+            AgentMemorySummaryRow(label: "Scalar") {
                 Text(scalarEntryCount.formatted())
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
@@ -497,27 +498,15 @@ private struct AgentMemoryRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(entry.key)
-                    .font(.subheadline.weight(.semibold))
-                    .lineLimit(1)
-
-                Spacer()
-
-                if let structureBadgeLabel = entry.structureBadgeLabel,
-                   let structureTone = entry.structureTone {
-                    Text(structureBadgeLabel)
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(structureTone.badgeBackgroundColor)
-                        .foregroundStyle(structureTone.color)
-                        .clipShape(Capsule())
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    keyLabel
+                    Spacer(minLength: 8)
+                    trailingIndicators
                 }
-
-                if isBusy {
-                    ProgressView()
-                        .controlSize(.small)
+                VStack(alignment: .leading, spacing: 4) {
+                    keyLabel
+                    trailingIndicators
                 }
             }
 
@@ -532,5 +521,58 @@ private struct AgentMemoryRow: View {
                 .lineLimit(3)
         }
         .padding(.vertical, 2)
+    }
+
+    private var keyLabel: some View {
+        Text(entry.key)
+            .font(.subheadline.weight(.semibold))
+            .lineLimit(1)
+            .truncationMode(.middle)
+    }
+
+    private var trailingIndicators: some View {
+        HStack(spacing: 8) {
+            if let structureBadgeLabel = entry.structureBadgeLabel,
+               let structureTone = entry.structureTone {
+                Text(structureBadgeLabel)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(structureTone.badgeBackgroundColor)
+                    .foregroundStyle(structureTone.color)
+                    .clipShape(Capsule())
+            }
+
+            if isBusy {
+                ProgressView()
+                    .controlSize(.small)
+            }
+        }
+    }
+}
+
+private struct AgentMemorySummaryRow<Content: View>: View {
+    let label: LocalizedStringKey
+    let content: Content
+
+    init(label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
+        self.label = label
+        self.content = content()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(label)
+                Spacer(minLength: 8)
+                content
+                    .multilineTextAlignment(.trailing)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                content
+                    .multilineTextAlignment(.leading)
+            }
+        }
     }
 }

@@ -35,28 +35,31 @@ private struct A2AAgentRow: View {
                         .foregroundStyle(.secondary)
                 }
 
-                LabeledContent {
+                A2AValueRow(label: "URL") {
                     Text(agent.url)
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
-                        .lineLimit(1)
-                } label: {
-                    Text(String(localized: "URL"))
+                        .lineLimit(2)
+                        .truncationMode(.middle)
                 }
 
                 if let version = agent.version {
-                    LabeledContent {
+                    A2AValueRow(label: "Version") {
                         Text(version)
-                    } label: {
-                        Text(String(localized: "Version"))
+                            .font(.caption)
                     }
-                        .font(.caption)
                 }
 
                 if let caps = agent.capabilities {
-                    HStack(spacing: 12) {
-                        CapabilityBadge(label: String(localized: "Stream"), enabled: caps.streaming ?? false)
-                        CapabilityBadge(label: String(localized: "Push"), enabled: caps.pushNotifications ?? false)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 12) {
+                            CapabilityBadge(label: String(localized: "Stream"), enabled: caps.streaming ?? false)
+                            CapabilityBadge(label: String(localized: "Push"), enabled: caps.pushNotifications ?? false)
+                        }
+                        VStack(alignment: .leading, spacing: 6) {
+                            CapabilityBadge(label: String(localized: "Stream"), enabled: caps.streaming ?? false)
+                            CapabilityBadge(label: String(localized: "Push"), enabled: caps.pushNotifications ?? false)
+                        }
                     }
                 }
 
@@ -76,19 +79,34 @@ private struct A2AAgentRow: View {
                 }
             }
         } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "link.circle.fill")
-                    .foregroundStyle(.blue)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(agent.name)
-                        .font(.subheadline.weight(.medium))
-                    if let desc = agent.description {
-                        Text(desc)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) {
+                    headerIcon
+                    headerSummary
                 }
+                VStack(alignment: .leading, spacing: 6) {
+                    headerIcon
+                    headerSummary
+                }
+            }
+        }
+    }
+
+    private var headerIcon: some View {
+        Image(systemName: "link.circle.fill")
+            .foregroundStyle(.blue)
+    }
+
+    private var headerSummary: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(agent.name)
+                .font(.subheadline.weight(.medium))
+                .lineLimit(2)
+            if let desc = agent.description {
+                Text(desc)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
             }
         }
     }
@@ -109,6 +127,32 @@ private struct CapabilityBadge: View {
                 .foregroundStyle(tone.color)
             Text(label)
                 .font(.caption2)
+        }
+    }
+}
+
+private struct A2AValueRow<Content: View>: View {
+    let label: LocalizedStringKey
+    let content: Content
+
+    init(label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
+        self.label = label
+        self.content = content()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(label)
+                Spacer(minLength: 8)
+                content
+                    .multilineTextAlignment(.trailing)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                content
+                    .multilineTextAlignment(.leading)
+            }
         }
     }
 }

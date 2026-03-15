@@ -277,15 +277,33 @@ private struct CapabilityDetailRow: View {
     var valueColor: Color = .primary
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .foregroundStyle(.secondary)
-                .frame(width: 18)
-            Text(label)
-            Spacer()
-            Text(value)
-                .foregroundStyle(valueColor)
-                .multilineTextAlignment(.trailing)
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                iconLabel
+                Text(label)
+                Spacer(minLength: 8)
+                valueLabel
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 12) {
+                    iconLabel
+                    Text(label)
+                }
+                valueLabel
+            }
         }
+    }
+
+    private var iconLabel: some View {
+        Image(systemName: icon)
+            .foregroundStyle(.secondary)
+            .frame(width: 18)
+    }
+
+    private var valueLabel: some View {
+        Text(value)
+            .foregroundStyle(valueColor)
+            .multilineTextAlignment(.leading)
+            .lineLimit(3)
     }
 }
