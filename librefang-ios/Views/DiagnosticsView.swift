@@ -339,7 +339,7 @@ struct DiagnosticsView: View {
             }
 
             MonitoringShortcutRail(
-                title: String(localized: "Primary Surfaces"),
+                title: String(localized: "Primary Routes"),
                 detail: String(localized: "Keep the next diagnostic exits visible as compact shortcuts beside the deep-diagnostic digest.")
             ) {
                 NavigationLink {
@@ -414,7 +414,7 @@ struct DiagnosticsView: View {
             }
 
             MonitoringShortcutRail(
-                title: String(localized: "Supporting Surfaces"),
+                title: String(localized: "Support Routes"),
                 detail: String(localized: "Keep workflow and comms drilldowns visible as secondary shortcuts instead of another long route stack.")
             ) {
                 NavigationLink {

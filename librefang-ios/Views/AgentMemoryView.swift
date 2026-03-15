@@ -214,7 +214,7 @@ struct AgentMemoryView: View {
     private var operatorSurfacesSection: some View {
         Section {
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Primary Surfaces"),
+                title: String(localized: "Primary Routes"),
                 detail: String(localized: "Keep the agent, session, and incident exits closest to durable memory inspection.")
             ) {
                 NavigationLink {
@@ -258,7 +258,7 @@ struct AgentMemoryView: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Supporting Surfaces"),
+                title: String(localized: "Support Routes"),
                 detail: String(localized: "Keep broader runtime context separate from the primary memory exits.")
             ) {
                 NavigationLink {
@@ -273,7 +273,7 @@ struct AgentMemoryView: View {
                 }
             }
         } header: {
-            Text("Operator Surfaces")
+            Text("Route Deck")
         } footer: {
             Text("Use these routes when agent memory needs session, runtime, or incident context instead of isolated key inspection.")
         }

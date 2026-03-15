@@ -98,7 +98,7 @@ struct ApprovalsView: View {
                     detail: String(localized: "Keep the incident, on-call, and runtime exits closest to approval review.")
                 ) {
                     MonitoringShortcutRail(
-                        title: String(localized: "Primary Surfaces"),
+                        title: String(localized: "Primary Routes"),
                         detail: String(localized: "Use the main operator routes first when approval pressure needs broader queue context.")
                     ) {
                         NavigationLink {
@@ -139,7 +139,7 @@ struct ApprovalsView: View {
                     }
 
                     MonitoringShortcutRail(
-                        title: String(localized: "Supporting Surfaces"),
+                        title: String(localized: "Support Routes"),
                         detail: String(localized: "Use fleet context when approval requests cluster around the same agents.")
                     ) {
                         NavigationLink {

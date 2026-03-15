@@ -293,7 +293,7 @@ struct IncidentsView: View {
                 detail: String(localized: "Keep the most likely next drilldowns visible before the long incident queue.")
             ) {
                 MonitoringShortcutRail(
-                    title: String(localized: "Primary Surfaces"),
+                    title: String(localized: "Primary Routes"),
                     detail: String(localized: "Use the direct monitors first when approvals, sessions, events, or handoff need a dedicated screen.")
                 ) {
                     NavigationLink {
@@ -351,7 +351,7 @@ struct IncidentsView: View {
                 }
 
                 MonitoringShortcutRail(
-                    title: String(localized: "Supporting Surfaces"),
+                    title: String(localized: "Support Routes"),
                     detail: String(localized: "Use the broader runtime path when the incident needs deeper infrastructure context.")
                 ) {
                     NavigationLink {

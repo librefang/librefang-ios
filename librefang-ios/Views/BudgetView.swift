@@ -380,7 +380,7 @@ struct BudgetView: View {
                 detail: String(localized: "Keep budget triage connected to the broader mobile monitoring path.")
             ) {
                 MonitoringShortcutRail(
-                    title: String(localized: "Primary Surfaces"),
+                    title: String(localized: "Primary Routes"),
                     detail: String(localized: "Use the overview and runtime exits first when cost pressure needs broader context.")
                 ) {
                     NavigationLink {
@@ -407,7 +407,7 @@ struct BudgetView: View {
                 }
 
                 MonitoringShortcutRail(
-                    title: String(localized: "Supporting Surfaces"),
+                    title: String(localized: "Support Routes"),
                     detail: String(localized: "Use deeper diagnostics and routing checks when spend concentration hints at runtime drift.")
                 ) {
                     NavigationLink {

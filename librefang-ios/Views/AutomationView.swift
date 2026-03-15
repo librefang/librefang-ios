@@ -189,7 +189,7 @@ struct AutomationView: View {
 
                 Section {
                     MonitoringSurfaceGroupCard(
-                        title: String(localized: "Primary Surfaces"),
+                        title: String(localized: "Primary Routes"),
                         detail: String(localized: "Keep the next operator exits closest to workflow and scheduler pressure.")
                     ) {
                         NavigationLink {
@@ -254,7 +254,7 @@ struct AutomationView: View {
                     }
 
                     MonitoringSurfaceGroupCard(
-                        title: String(localized: "Supporting Surfaces"),
+                        title: String(localized: "Support Routes"),
                         detail: String(localized: "Keep integration context behind the primary automation exits.")
                     ) {
                         NavigationLink {
@@ -273,7 +273,7 @@ struct AutomationView: View {
                         }
                     }
                 } header: {
-                    Text("Operator Surfaces")
+                    Text("Route Deck")
                 } footer: {
                     Text("Use these routes when automation issues need incident, runtime, or event context beyond the current filtered list.")
                 }

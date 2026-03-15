@@ -651,7 +651,7 @@ private struct OverviewEntryDeckCard: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Primary Surfaces"),
+                title: String(localized: "Primary Routes"),
                 detail: String(localized: "Keep the first operator exits visible as compact shortcuts right below the overview triage summary.")
             ) {
                 FlowLayout(spacing: 8) {
@@ -716,7 +716,7 @@ private struct OverviewEntryDeckCard: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Supporting Surfaces"),
+                title: String(localized: "Support Routes"),
                 detail: String(localized: "Keep slower spend and configuration routes visible as a secondary shortcut rail.")
             ) {
                 FlowLayout(spacing: 8) {

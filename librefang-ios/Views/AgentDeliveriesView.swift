@@ -132,7 +132,7 @@ struct AgentDeliveriesView: View {
 
             Section {
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Primary Surfaces"),
+                    title: String(localized: "Primary Routes"),
                     detail: String(localized: "Keep the agent, incident, and audit exits closest to delivery failures and unsettled receipts.")
                 ) {
                     NavigationLink {
@@ -178,7 +178,7 @@ struct AgentDeliveriesView: View {
                 }
 
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Supporting Surfaces"),
+                    title: String(localized: "Support Routes"),
                     detail: String(localized: "Keep broader runtime context behind the primary delivery investigation path.")
                 ) {
                     NavigationLink {
@@ -193,7 +193,7 @@ struct AgentDeliveriesView: View {
                     }
                 }
             } header: {
-                Text("Operator Surfaces")
+                Text("Route Deck")
             } footer: {
                 Text("Use these routes when delivery receipts need incident, event, or runtime context.")
             }

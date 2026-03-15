@@ -132,7 +132,7 @@ struct AgentsView: View {
                                     detail: String(localized: "Keep the broader operator queues one tap away from the compact fleet filter.")
                                 ) {
                                     MonitoringShortcutRail(
-                                        title: String(localized: "Primary Surfaces"),
+                                        title: String(localized: "Primary Routes"),
                                         detail: String(localized: "Use these routes when fleet review needs broader incident or runtime context.")
                                     ) {
                                         NavigationLink {

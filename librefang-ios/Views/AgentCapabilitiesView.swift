@@ -71,7 +71,7 @@ struct AgentCapabilitiesView: View {
 
                 Section {
                     MonitoringSurfaceGroupCard(
-                        title: String(localized: "Primary Surfaces"),
+                        title: String(localized: "Primary Routes"),
                         detail: String(localized: "Keep the agent, profile, and runtime exits closest to compact capability inspection.")
                     ) {
                         NavigationLink {
@@ -113,7 +113,7 @@ struct AgentCapabilitiesView: View {
                     }
 
                     MonitoringSurfaceGroupCard(
-                        title: String(localized: "Supporting Surfaces"),
+                        title: String(localized: "Support Routes"),
                         detail: String(localized: "Keep integration drift checks behind the primary capability exits.")
                     ) {
                         NavigationLink {
@@ -128,7 +128,7 @@ struct AgentCapabilitiesView: View {
                         }
                     }
                 } header: {
-                    Text("Operator Surfaces")
+                    Text("Route Deck")
                 } footer: {
                     Text("Use these routes when capability scope needs profile, runtime, or integration context.")
                 }

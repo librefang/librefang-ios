@@ -98,7 +98,7 @@ struct AgentFilesView: View {
 
             Section {
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Primary Surfaces"),
+                    title: String(localized: "Primary Routes"),
                     detail: String(localized: "Keep the agent, memory, and session exits closest to workspace identity inspection.")
                 ) {
                     NavigationLink {
@@ -140,7 +140,7 @@ struct AgentFilesView: View {
                 }
 
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Supporting Surfaces"),
+                    title: String(localized: "Support Routes"),
                     detail: String(localized: "Keep outbound delivery context behind the primary workspace identity exits.")
                 ) {
                     NavigationLink {
@@ -155,7 +155,7 @@ struct AgentFilesView: View {
                     }
                 }
             } header: {
-                Text("Operator Surfaces")
+                Text("Route Deck")
             } footer: {
                 Text("Use these routes when identity files need memory, delivery, or session context rather than isolated file checks.")
             }

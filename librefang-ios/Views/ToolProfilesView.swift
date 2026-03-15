@@ -42,7 +42,7 @@ struct ToolProfilesView: View {
 
             Section {
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Primary Surfaces"),
+                    title: String(localized: "Primary Routes"),
                     detail: String(localized: "Keep the fleet and runtime exits closest to compact tool-profile review.")
                 ) {
                     NavigationLink {
@@ -71,7 +71,7 @@ struct ToolProfilesView: View {
                 }
 
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Supporting Surfaces"),
+                    title: String(localized: "Support Routes"),
                     detail: String(localized: "Keep integration and diagnostics context behind the primary fleet exits.")
                 ) {
                     NavigationLink {
@@ -97,7 +97,7 @@ struct ToolProfilesView: View {
                     }
                 }
             } header: {
-                Text("Operator Surfaces")
+                Text("Route Deck")
             } footer: {
                 Text("Use these routes when profile inspection needs fleet, runtime, or integration context.")
             }

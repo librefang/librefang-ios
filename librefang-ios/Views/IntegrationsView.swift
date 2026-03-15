@@ -302,7 +302,7 @@ struct IntegrationsView: View {
 
                     Section {
                         MonitoringSurfaceGroupCard(
-                            title: String(localized: "Primary Surfaces"),
+                            title: String(localized: "Primary Routes"),
                             detail: String(localized: "Keep the next operator exits closest to provider, channel, and drift inventory.")
                         ) {
                             NavigationLink {
@@ -367,7 +367,7 @@ struct IntegrationsView: View {
                         }
 
                         MonitoringSurfaceGroupCard(
-                            title: String(localized: "Supporting Surfaces"),
+                            title: String(localized: "Support Routes"),
                             detail: String(localized: "Keep slower spend, automation, and routing drilldowns behind the primary exits.")
                         ) {
                             NavigationLink {
@@ -408,7 +408,7 @@ struct IntegrationsView: View {
                             }
                         }
                     } header: {
-                        Text("Operator Surfaces")
+                        Text("Route Deck")
                     } footer: {
                         Text("Use these routes when provider, channel, model, or drift diagnostics need runtime, incident, or fleet context.")
                     }

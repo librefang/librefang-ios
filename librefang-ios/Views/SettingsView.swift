@@ -64,7 +64,7 @@ struct SettingsView: View {
                             detail: String(localized: "Keep the highest-value monitoring exits grouped together before the longer device-control form.")
                         ) {
                             MonitoringShortcutRail(
-                                title: String(localized: "Primary Surfaces"),
+                                title: String(localized: "Primary Routes"),
                                 detail: String(localized: "Keep the shift-management routes closest to settings.")
                             ) {
                                 NavigationLink {
@@ -109,7 +109,7 @@ struct SettingsView: View {
                             }
 
                             MonitoringShortcutRail(
-                                title: String(localized: "Supporting Surfaces"),
+                                title: String(localized: "Support Routes"),
                                 detail: String(localized: "Keep runtime and diagnostics behind the primary shift-management exits.")
                             ) {
                                 NavigationLink {
@@ -241,7 +241,7 @@ struct SettingsView: View {
                             }
                         }
                     } header: {
-                        Text("Control Deck")
+                        Text("Operator Deck")
                     } footer: {
                         Text("Surface exits and device-control jumps now stay together before the longer settings form.")
                     }

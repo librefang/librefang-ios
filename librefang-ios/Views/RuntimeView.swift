@@ -172,7 +172,7 @@ struct RuntimeView: View {
             detail: String(localized: "Keep runtime surfaces and long-section jumps in one compact deck instead of separate route stacks.")
         ) {
             MonitoringShortcutRail(
-                title: String(localized: "Primary Surfaces"),
+                title: String(localized: "Primary Routes"),
                 detail: String(localized: "Keep the next operator drills visible right below the runtime digest.")
             ) {
                 NavigationLink {
@@ -247,7 +247,7 @@ struct RuntimeView: View {
             }
 
             MonitoringShortcutRail(
-                title: String(localized: "Supporting Surfaces"),
+                title: String(localized: "Support Routes"),
                 detail: String(localized: "Keep slower infrastructure and configuration routes visible as a secondary rail.")
             ) {
                 NavigationLink {

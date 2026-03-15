@@ -37,7 +37,7 @@ struct A2AAgentsView: View {
 
                     Section {
                         MonitoringSurfaceGroupCard(
-                            title: String(localized: "Primary Surfaces"),
+                            title: String(localized: "Primary Routes"),
                             detail: String(localized: "Keep comms and runtime exits closest to the external-agent directory.")
                         ) {
                             NavigationLink {
@@ -64,7 +64,7 @@ struct A2AAgentsView: View {
                         }
 
                         MonitoringSurfaceGroupCard(
-                            title: String(localized: "Supporting Surfaces"),
+                            title: String(localized: "Support Routes"),
                             detail: String(localized: "Keep broader health and config checks behind the primary A2A exits.")
                         ) {
                             NavigationLink {
@@ -79,7 +79,7 @@ struct A2AAgentsView: View {
                             }
                         }
                     } header: {
-                        Text("Operator Surfaces")
+                        Text("Route Deck")
                     } footer: {
                         Text("Use these routes when the external-agent directory needs runtime, comms, or diagnostics context.")
                     }
