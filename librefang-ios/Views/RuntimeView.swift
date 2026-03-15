@@ -797,55 +797,87 @@ private struct RuntimeScoreboard: View {
         GridItem(.flexible(), spacing: 10)
     ]
 
+    private var agentStatus: MonitoringSummaryStatus {
+        vm.runningAgentStatus
+    }
+
+    private var providerStatus: MonitoringSummaryStatus {
+        .countStatus(vm.configuredProviderCount, activeTone: .positive, inactiveTone: .warning)
+    }
+
+    private var channelStatus: MonitoringSummaryStatus {
+        .countStatus(vm.readyChannelCount, activeTone: .positive)
+    }
+
+    private var handStatus: MonitoringSummaryStatus {
+        MonitoringSummaryStatus(summary: "\(vm.activeHandCount)", tone: vm.handReadinessStatus.tone)
+    }
+
+    private var approvalStatus: MonitoringSummaryStatus {
+        vm.approvalBacklogStatus
+    }
+
+    private var automationStatus: MonitoringSummaryStatus {
+        MonitoringSummaryStatus(summary: "\(vm.enabledAutomationCount)/\(vm.automationDefinitionCount)", tone: vm.automationPressureTone)
+    }
+
+    private var diagnosticsStatus: MonitoringSummaryStatus {
+        MonitoringSummaryStatus(summary: "\(vm.diagnosticsIssueCount)", tone: vm.diagnosticsSummaryTone)
+    }
+
+    private var securityStatus: MonitoringSummaryStatus {
+        .countStatus(vm.securityFeatureCount, activeTone: .positive)
+    }
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatBadge(
                 value: "\(vm.runningCount)/\(vm.totalCount)",
                 label: "Agents",
                 icon: "cpu",
-                color: vm.runningCount > 0 ? .green : .secondary
+                color: agentStatus.color(positive: .green)
             )
             StatBadge(
                 value: "\(vm.configuredProviderCount)",
                 label: "Providers",
                 icon: "key.horizontal",
-                color: vm.configuredProviderCount > 0 ? .blue : .orange
+                color: providerStatus.color(positive: .blue)
             )
             StatBadge(
                 value: "\(vm.readyChannelCount)",
                 label: "Channels",
                 icon: "bubble.left.and.bubble.right",
-                color: vm.readyChannelCount > 0 ? .teal : .secondary
+                color: channelStatus.color(positive: .teal)
             )
             StatBadge(
                 value: "\(vm.activeHandCount)",
                 label: "Hands",
                 icon: "hand.raised",
-                color: vm.degradedHandCount > 0 ? .orange : .indigo
+                color: handStatus.color(positive: .indigo)
             )
             StatBadge(
                 value: "\(vm.pendingApprovalCount)",
                 label: "Approvals",
                 icon: "exclamationmark.shield",
-                color: vm.pendingApprovalCount > 0 ? .red : .green
+                color: approvalStatus.color(positive: .green)
             )
             StatBadge(
                 value: "\(vm.enabledAutomationCount)/\(vm.automationDefinitionCount)",
                 label: "Automation",
                 icon: "flowchart",
-                color: vm.failedWorkflowRunCount > 0 || vm.exhaustedTriggerCount > 0 || vm.stalledCronJobCount > 0 ? .orange : .blue
+                color: automationStatus.color(positive: .blue)
             )
             StatBadge(
                 value: "\(vm.diagnosticsIssueCount)",
                 label: "Diagnostics",
                 icon: "stethoscope",
-                color: vm.hasDiagnosticsIssue ? .orange : .green
+                color: diagnosticsStatus.color(positive: .green)
             )
             StatBadge(
                 value: "\(vm.securityFeatureCount)",
                 label: "Security",
                 icon: "lock.shield",
-                color: vm.securityFeatureCount > 0 ? .green : .secondary
+                color: securityStatus.color(positive: .green)
             )
         }
         .padding(.horizontal)

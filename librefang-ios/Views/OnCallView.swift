@@ -6,6 +6,14 @@ struct OnCallDigestCard: View {
     let watchCount: Int
     let summary: String
 
+    private var criticalStatus: MonitoringSummaryStatus {
+        .countStatus(criticalCount, activeTone: .critical)
+    }
+
+    private var watchStatus: MonitoringSummaryStatus {
+        .countStatus(watchCount, activeTone: .caution)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -17,8 +25,8 @@ struct OnCallDigestCard: View {
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background((criticalCount > 0 ? Color.red : Color.secondary).opacity(0.12))
-                    .foregroundStyle(criticalCount > 0 ? .red : .secondary)
+                    .background(criticalStatus.tone.color.opacity(0.12))
+                    .foregroundStyle(criticalStatus.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -29,9 +37,9 @@ struct OnCallDigestCard: View {
 
             HStack(spacing: 12) {
                 Label("\(criticalCount)", systemImage: "xmark.octagon")
-                    .foregroundStyle(criticalCount > 0 ? .red : .secondary)
+                    .foregroundStyle(criticalStatus.tone.color)
                 Label("\(watchCount)", systemImage: "star.fill")
-                    .foregroundStyle(watchCount > 0 ? .yellow : .secondary)
+                    .foregroundStyle(watchStatus.tone.color)
                 Spacer()
                 Text("Open")
                     .font(.caption2.weight(.medium))
