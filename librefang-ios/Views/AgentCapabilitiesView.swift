@@ -105,7 +105,7 @@ struct AgentCapabilitiesView: View {
                 icon: "nosign",
                 label: String(localized: "Blocklist"),
                 value: filters.toolBlocklist.isEmpty ? String(localized: "None") : "\(filters.toolBlocklist.count)",
-                valueColor: filters.toolBlocklist.isEmpty ? .secondary : .orange
+                valueColor: filters.toolBlocklistTone.color
             )
 
             capabilityNamesSection(

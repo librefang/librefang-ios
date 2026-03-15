@@ -311,10 +311,14 @@ private struct AgentFileDetailView: View {
 private struct AgentWorkspaceFileRow: View {
     let file: AgentWorkspaceFileSummary
 
+    private var tone: PresentationTone {
+        file.exists ? .positive : .warning
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: file.exists ? "doc.text" : "doc")
-                .foregroundStyle(file.exists ? .blue : .secondary)
+                .foregroundStyle(file.exists ? Color.blue : tone.color)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(file.name)
@@ -337,8 +341,8 @@ private struct AgentWorkspaceFileRow: View {
                 .font(.caption2.weight(.semibold))
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
-                .background((file.exists ? Color.green : Color.orange).opacity(0.12))
-                .foregroundStyle(file.exists ? .green : .orange)
+                .background(tone.color.opacity(0.12))
+                .foregroundStyle(tone.color)
                 .clipShape(Capsule())
         }
         .padding(.vertical, 2)

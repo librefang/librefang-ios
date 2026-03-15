@@ -98,11 +98,15 @@ private struct CapabilityBadge: View {
     let label: String
     let enabled: Bool
 
+    private var tone: PresentationTone {
+        enabled ? .positive : .neutral
+    }
+
     var body: some View {
         HStack(spacing: 3) {
             Image(systemName: enabled ? "checkmark.circle.fill" : "xmark.circle")
                 .font(.caption2)
-                .foregroundStyle(enabled ? .green : .secondary)
+                .foregroundStyle(tone.color)
             Text(label)
                 .font(.caption2)
         }

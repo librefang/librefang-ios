@@ -435,10 +435,14 @@ private struct RelativeTimeText: View {
 private struct StatusIndicator: View {
     let health: HealthStatus?
 
+    private var tone: PresentationTone {
+        health?.statusTone ?? .neutral
+    }
+
     var body: some View {
         HStack(spacing: 4) {
             Circle()
-                .fill(health?.isHealthy == true ? .green : .red)
+                .fill(tone.color)
                 .frame(width: 8, height: 8)
             if let version = health?.version {
                 Text("v\(version)")

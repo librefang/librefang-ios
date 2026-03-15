@@ -20,6 +20,10 @@ nonisolated struct AgentToolFilters: Codable, Sendable {
     var scopeTone: PresentationTone {
         isRestricted ? .warning : .positive
     }
+
+    var toolBlocklistTone: PresentationTone {
+        toolBlocklist.isEmpty ? .neutral : .warning
+    }
 }
 
 nonisolated struct AgentAssignmentScope: Codable, Sendable {

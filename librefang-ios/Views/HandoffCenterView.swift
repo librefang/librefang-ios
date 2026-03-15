@@ -794,9 +794,10 @@ private struct HandoffChecklistComposer: View {
                 Button {
                     toggle(key)
                 } label: {
+                    let itemTone: PresentationTone = checklist.contains(key) ? .positive : .neutral
                     HStack(spacing: 10) {
                         Image(systemName: checklist.contains(key) ? "checkmark.circle.fill" : key.symbolName)
-                            .foregroundStyle(checklist.contains(key) ? .green : .secondary)
+                            .foregroundStyle(itemTone.color)
                             .frame(width: 18)
 
                         Text(key.label)
