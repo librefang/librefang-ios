@@ -8,8 +8,8 @@ struct ErrorBanner: View {
     @State private var isRetrying = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 6) {
                 messageSummary
             } accessory: {
                 if let onDismiss {
@@ -39,8 +39,8 @@ struct ErrorBanner: View {
                 .disabled(isRetrying)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 11)
+        .padding(.vertical, 7)
         .background(Color.red.opacity(0.85))
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .padding(.horizontal)
@@ -48,7 +48,7 @@ struct ErrorBanner: View {
     }
 
     private var messageSummary: some View {
-        HStack(alignment: .top, spacing: 10) {
+        HStack(alignment: .top, spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .foregroundStyle(.yellow)
                 .font(.caption)

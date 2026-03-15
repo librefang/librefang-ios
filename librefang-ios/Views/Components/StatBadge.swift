@@ -8,7 +8,7 @@ struct StatBadge: View {
     var color: Color = .primary
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 5) {
             Image(systemName: icon)
                 .font(.title3)
                 .foregroundStyle(color.opacity(0.7))
@@ -22,13 +22,14 @@ struct StatBadge: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .lineLimit(horizontalSizeClass == .compact ? 2 : 1)
+                .minimumScaleFactor(0.85)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity)
-        .frame(minHeight: horizontalSizeClass == .compact ? 92 : 84)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 10)
+        .frame(minHeight: horizontalSizeClass == .compact ? 88 : 80)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 9)
         .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 9))
     }
 }
