@@ -1683,7 +1683,7 @@ private struct AutomationOverviewCard: View {
 
     private var metricColumns: [GridItem] {
         let count = horizontalSizeClass == .compact ? 2 : 3
-        return Array(repeating: GridItem(.flexible(), spacing: 12), count: count)
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
     }
 
     @ViewBuilder
@@ -1699,9 +1699,9 @@ private struct AutomationOverviewCard: View {
                 .foregroundStyle(.tertiary)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
+        .padding(.vertical, 7)
         .background(Color.primary.opacity(0.04))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 9))
     }
 
     @ViewBuilder
@@ -1734,7 +1734,7 @@ private struct DiagnosticsOverviewCard: View {
                 summaryBadge
             }
 
-            LazyVGrid(columns: metricColumns, spacing: 12) {
+            LazyVGrid(columns: metricColumns, spacing: 10) {
                 diagnosticsMetric(
                     vm.healthDetail?.localizedDatabaseLabel ?? "--",
                     label: String(localized: "Database"),
@@ -1763,7 +1763,7 @@ private struct DiagnosticsOverviewCard: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding()
+        .padding(14)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
@@ -1783,7 +1783,7 @@ private struct DiagnosticsOverviewCard: View {
 
     private var metricColumns: [GridItem] {
         let count = horizontalSizeClass == .compact ? 2 : 3
-        return Array(repeating: GridItem(.flexible(), spacing: 12), count: count)
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
     }
 
     @ViewBuilder
@@ -1799,9 +1799,9 @@ private struct DiagnosticsOverviewCard: View {
                 .foregroundStyle(.tertiary)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
+        .padding(.vertical, 7)
         .background(Color.primary.opacity(0.04))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 9))
     }
 }
 
@@ -1817,7 +1817,7 @@ private struct IntegrationsOverviewCard: View {
                 summaryBadge
             }
 
-            LazyVGrid(columns: metricColumns, spacing: 12) {
+            LazyVGrid(columns: metricColumns, spacing: 10) {
                 integrationMetric(
                     "\(vm.configuredProviderCount)/\(vm.providers.count)",
                     label: String(localized: "Providers"),
@@ -1894,7 +1894,7 @@ private struct IntegrationsOverviewCard: View {
                 }
             }
         }
-        .padding()
+        .padding(14)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
@@ -1914,7 +1914,7 @@ private struct IntegrationsOverviewCard: View {
 
     private var metricColumns: [GridItem] {
         let count = horizontalSizeClass == .compact ? 2 : 3
-        return Array(repeating: GridItem(.flexible(), spacing: 12), count: count)
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
     }
 
     private var catalogFreshnessDetail: String {
@@ -1939,9 +1939,9 @@ private struct IntegrationsOverviewCard: View {
                 .foregroundStyle(.tertiary)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
+        .padding(.vertical, 7)
         .background(Color.primary.opacity(0.04))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .clipShape(RoundedRectangle(cornerRadius: 9))
     }
 
     @ViewBuilder
