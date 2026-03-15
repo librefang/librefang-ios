@@ -25,6 +25,11 @@ struct AutomationView: View {
     @State private var scope: AutomationMonitorScope = .all
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
+    private var visibleWorkflows: [WorkflowSummary] { Array(filteredWorkflows.prefix(8)) }
+    private var visibleWorkflowRuns: [WorkflowRun] { Array(filteredWorkflowRuns.prefix(8)) }
+    private var visibleTriggers: [TriggerDefinition] { Array(filteredTriggers.prefix(8)) }
+    private var visibleSchedules: [ScheduleEntry] { Array(filteredSchedules.prefix(8)) }
+    private var visibleCronJobs: [CronJob] { Array(filteredCronJobs.prefix(8)) }
 
     private var hasAutomationData: Bool {
         vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty
@@ -136,13 +141,15 @@ struct AutomationView: View {
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
             }
 
-            Section("Filter") {
-                Picker("Scope", selection: $scope) {
-                    ForEach(AutomationMonitorScope.allCases) { option in
-                        Text(option.label).tag(option)
-                    }
-                }
-                .pickerStyle(.segmented)
+            Section {
+                AutomationFilterCard(
+                    scope: $scope,
+                    searchText: searchText,
+                    visibleCount: visibleItemCount,
+                    totalCount: totalItemCount
+                )
+            } header: {
+                Text("Filter")
             }
 
             if !hasAutomationData && !vm.isLoading {
@@ -203,7 +210,7 @@ struct AutomationView: View {
     private var workflowsSection: some View {
         if !filteredWorkflows.isEmpty {
             Section {
-                ForEach(filteredWorkflows) { workflow in
+                ForEach(visibleWorkflows) { workflow in
                     WorkflowDefinitionRow(
                         workflow: workflow,
                         failedRuns: vm.workflowRuns.filter { $0.workflowName == workflow.name && $0.state == .failed }.count,
@@ -213,7 +220,11 @@ struct AutomationView: View {
             } header: {
                 Text("Workflows")
             } footer: {
-                Text("\(vm.workflowCount) definitions, \(vm.recentWorkflowRunCount) recent runs cached from the server")
+                if filteredWorkflows.count > visibleWorkflows.count {
+                    Text("Showing \(visibleWorkflows.count) of \(filteredWorkflows.count) workflows")
+                } else {
+                    Text("\(vm.workflowCount) definitions, \(vm.recentWorkflowRunCount) recent runs cached from the server")
+                }
             }
         }
     }
@@ -222,13 +233,17 @@ struct AutomationView: View {
     private var workflowRunsSection: some View {
         if !filteredWorkflowRuns.isEmpty {
             Section {
-                ForEach(filteredWorkflowRuns.prefix(10)) { run in
+                ForEach(visibleWorkflowRuns) { run in
                     WorkflowRunRow(run: run)
                 }
             } header: {
                 Text("Recent Runs")
             } footer: {
-                Text("\(vm.failedWorkflowRunCount) failed, \(vm.runningWorkflowRunCount) still running")
+                if filteredWorkflowRuns.count > visibleWorkflowRuns.count {
+                    Text("Showing \(visibleWorkflowRuns.count) of \(filteredWorkflowRuns.count) recent runs")
+                } else {
+                    Text("\(vm.failedWorkflowRunCount) failed, \(vm.runningWorkflowRunCount) still running")
+                }
             }
         }
     }
@@ -237,13 +252,17 @@ struct AutomationView: View {
     private var triggersSection: some View {
         if !filteredTriggers.isEmpty {
             Section {
-                ForEach(filteredTriggers) { trigger in
+                ForEach(visibleTriggers) { trigger in
                     TriggerRow(trigger: trigger, agentName: agentName(for: trigger.agentId))
                 }
             } header: {
                 Text("Triggers")
             } footer: {
-                Text("\(vm.enabledTriggerCount) enabled, \(vm.exhaustedTriggerCount) exhausted")
+                if filteredTriggers.count > visibleTriggers.count {
+                    Text("Showing \(visibleTriggers.count) of \(filteredTriggers.count) triggers")
+                } else {
+                    Text("\(vm.enabledTriggerCount) enabled, \(vm.exhaustedTriggerCount) exhausted")
+                }
             }
         }
     }
@@ -252,13 +271,17 @@ struct AutomationView: View {
     private var schedulesSection: some View {
         if !filteredSchedules.isEmpty {
             Section {
-                ForEach(filteredSchedules) { schedule in
+                ForEach(visibleSchedules) { schedule in
                     ScheduleRow(schedule: schedule, agentName: agentName(for: schedule.agentId))
                 }
             } header: {
                 Text("Schedules")
             } footer: {
-                Text("\(vm.enabledScheduleCount) enabled, \(vm.pausedScheduleCount) paused")
+                if filteredSchedules.count > visibleSchedules.count {
+                    Text("Showing \(visibleSchedules.count) of \(filteredSchedules.count) schedules")
+                } else {
+                    Text("\(vm.enabledScheduleCount) enabled, \(vm.pausedScheduleCount) paused")
+                }
             }
         }
     }
@@ -267,7 +290,7 @@ struct AutomationView: View {
     private var cronJobsSection: some View {
         if !filteredCronJobs.isEmpty {
             Section {
-                ForEach(filteredCronJobs) { job in
+                ForEach(visibleCronJobs) { job in
                     CronJobRow(
                         job: job,
                         agentName: agentName(for: job.agentId),
@@ -279,9 +302,21 @@ struct AutomationView: View {
             } header: {
                 Text("Cron Jobs")
             } footer: {
-                Text("\(vm.enabledCronJobCount) enabled, \(vm.pausedCronJobCount) paused, \(vm.stalledCronJobCount) missing next run")
+                if filteredCronJobs.count > visibleCronJobs.count {
+                    Text("Showing \(visibleCronJobs.count) of \(filteredCronJobs.count) cron jobs")
+                } else {
+                    Text("\(vm.enabledCronJobCount) enabled, \(vm.pausedCronJobCount) paused, \(vm.stalledCronJobCount) missing next run")
+                }
             }
         }
+    }
+
+    private var totalItemCount: Int {
+        vm.workflows.count + vm.workflowRuns.count + vm.triggers.count + vm.schedules.count + vm.cronJobs.count
+    }
+
+    private var visibleItemCount: Int {
+        filteredWorkflows.count + filteredWorkflowRuns.count + filteredTriggers.count + filteredSchedules.count + filteredCronJobs.count
     }
 
     private func workflowMatchesScope(_ workflow: WorkflowSummary) -> Bool {
@@ -401,6 +436,89 @@ struct AutomationView: View {
             return String(localized: "\(channel) → \(to)")
         case .webhook:
             return delivery.url ?? String(localized: "Webhook")
+        }
+    }
+}
+
+private struct AutomationFilterCard: View {
+    @Binding var scope: AutomationMonitorScope
+    let searchText: String
+    let visibleCount: Int
+    let totalCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    summaryBlock
+                    Spacer(minLength: 10)
+                    activeBadge
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    summaryBlock
+                    activeBadge
+                }
+            }
+
+            FlowLayout(spacing: 8) {
+                ForEach(AutomationMonitorScope.allCases) { option in
+                    Button {
+                        scope = option
+                    } label: {
+                        SelectableCapsuleBadge(text: option.label, isSelected: scope == option)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(summaryLine)
+                .font(.subheadline.weight(.medium))
+            Text(searchSummary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+    }
+
+    private var activeBadge: some View {
+        PresentationToneBadge(
+            text: scope.label,
+            tone: badgeTone
+        )
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "1 automation item in monitor")
+                : String(localized: "\(totalCount) automation items in monitor")
+        }
+
+        return String(localized: "\(visibleCount) of \(totalCount) automation items visible")
+    }
+
+    private var searchSummary: String {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty {
+            return String(localized: "Search workflows, triggers, schedules, or cron jobs.")
+        }
+        return String(localized: "Search active: \"\(query)\"")
+    }
+
+    private var badgeTone: PresentationTone {
+        switch scope {
+        case .all:
+            return .neutral
+        case .attention:
+            return .warning
+        case .active:
+            return .positive
         }
     }
 }
