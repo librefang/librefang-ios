@@ -1013,21 +1013,20 @@ private struct TopSpendersCard: View {
                 .foregroundStyle(.secondary)
 
             ForEach(Array(agents.prefix(5).enumerated()), id: \.element.id) { index, agent in
-                HStack(spacing: 8) {
-                    Text("#\(index + 1)")
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(.tertiary)
-                        .frame(width: 20)
-
-                    Text(agent.name)
-                        .font(.subheadline)
-                        .lineLimit(1)
-
-                    Spacer()
-
-                    Text(localizedUSDCurrency(agent.dailyCostUsd, standardPrecision: 2, smallValuePrecision: 4))
-                        .font(.subheadline.monospacedDigit())
-                        .foregroundStyle(agent.dailySpendStatus.color(normalColor: .primary))
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 8) {
+                        rankLabel(index)
+                        nameLabel(agent)
+                        Spacer(minLength: 8)
+                        costLabel(agent)
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 8) {
+                            rankLabel(index)
+                            nameLabel(agent)
+                        }
+                        costLabel(agent)
+                    }
                 }
 
                 if index < min(agents.count, 5) - 1 {
@@ -1038,6 +1037,25 @@ private struct TopSpendersCard: View {
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func rankLabel(_ index: Int) -> some View {
+        Text("#\(index + 1)")
+            .font(.caption2.weight(.bold))
+            .foregroundStyle(.tertiary)
+            .frame(width: 20)
+    }
+
+    private func nameLabel(_ agent: AgentBudgetItem) -> some View {
+        Text(agent.name)
+            .font(.subheadline)
+            .lineLimit(2)
+    }
+
+    private func costLabel(_ agent: AgentBudgetItem) -> some View {
+        Text(localizedUSDCurrency(agent.dailyCostUsd, standardPrecision: 2, smallValuePrecision: 4))
+            .font(.subheadline.monospacedDigit())
+            .foregroundStyle(agent.dailySpendStatus.color(normalColor: .primary))
     }
 }
 
@@ -1059,14 +1077,23 @@ private struct LiveSignalsCard: View {
                         .foregroundStyle(.secondary)
 
                     ForEach(approvals.prefix(2)) { approval in
-                        HStack {
-                            Label(approval.actionSummary, systemImage: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.red)
-                                .lineLimit(1)
-                            Spacer()
-                            Text(approval.agentName)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                        ViewThatFits(in: .horizontal) {
+                            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                                Label(approval.actionSummary, systemImage: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(.red)
+                                    .lineLimit(1)
+                                Spacer(minLength: 8)
+                                Text(approval.agentName)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            VStack(alignment: .leading, spacing: 4) {
+                                Label(approval.actionSummary, systemImage: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(.red)
+                                Text(approval.agentName)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }
@@ -1079,13 +1106,22 @@ private struct LiveSignalsCard: View {
                         .foregroundStyle(.secondary)
 
                     ForEach(activeHands.prefix(3)) { instance in
-                        HStack {
-                            Label(instance.displayName(using: hands), systemImage: "hand.raised.fill")
-                                .foregroundStyle(.indigo)
-                            Spacer()
-                            Text(instance.localizedStatusLabel)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                        ViewThatFits(in: .horizontal) {
+                            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                                Label(instance.displayName(using: hands), systemImage: "hand.raised.fill")
+                                    .foregroundStyle(.indigo)
+                                Spacer(minLength: 8)
+                                Text(instance.localizedStatusLabel)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            VStack(alignment: .leading, spacing: 4) {
+                                Label(instance.displayName(using: hands), systemImage: "hand.raised.fill")
+                                    .foregroundStyle(.indigo)
+                                Text(instance.localizedStatusLabel)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }
@@ -1099,21 +1135,23 @@ private struct LiveSignalsCard: View {
 
 private struct AutomationOverviewCard: View {
     let vm: DashboardViewModel
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Automation")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                PresentationToneBadge(
-                    text: vm.automationOverviewSummaryLabel,
-                    tone: vm.automationPressureTone
-                )
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    summaryBadge
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    summaryBadge
+                }
             }
 
-            HStack(spacing: 12) {
+            LazyVGrid(columns: metricColumns, spacing: 12) {
                 automationMetric("\(vm.workflowCount)", label: String(localized: "Workflows"), systemImage: "flowchart")
                 automationMetric("\(vm.enabledTriggerCount)/\(vm.triggers.count)", label: String(localized: "Triggers"), systemImage: "bolt.horizontal.circle")
                 automationMetric("\(vm.enabledScheduleCount + vm.enabledCronJobCount)", label: String(localized: "Active Jobs"), systemImage: "calendar.badge.clock")
@@ -1160,6 +1198,24 @@ private struct AutomationOverviewCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
+    private var titleLabel: some View {
+        Text("Automation")
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(.secondary)
+    }
+
+    private var summaryBadge: some View {
+        PresentationToneBadge(
+            text: vm.automationOverviewSummaryLabel,
+            tone: vm.automationPressureTone
+        )
+    }
+
+    private var metricColumns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 3
+        return Array(repeating: GridItem(.flexible(), spacing: 12), count: count)
+    }
+
     @ViewBuilder
     private func automationMetric(_ value: String, label: String, systemImage: String) -> some View {
         VStack(spacing: 6) {
@@ -1180,20 +1236,30 @@ private struct AutomationOverviewCard: View {
 
     @ViewBuilder
     private func issueRow(icon: String, color: Color, text: String) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: icon)
-                .foregroundStyle(color)
-                .frame(width: 16)
-            Text(text)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Spacer()
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                    .frame(width: 16)
+                Text(text)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 8)
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                Text(text)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 }
 
 private struct DiagnosticsOverviewCard: View {
     let vm: DashboardViewModel
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private var supervisorEvents: Int {
         vm.supervisorPanicCount + vm.supervisorRestartCount
@@ -1201,18 +1267,19 @@ private struct DiagnosticsOverviewCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Diagnostics")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                PresentationToneBadge(
-                    text: vm.diagnosticsSummaryLabel,
-                    tone: vm.diagnosticsSummaryTone
-                )
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    summaryBadge
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    summaryBadge
+                }
             }
 
-            HStack(spacing: 12) {
+            LazyVGrid(columns: metricColumns, spacing: 12) {
                 diagnosticsMetric(
                     vm.healthDetail?.localizedDatabaseLabel ?? "--",
                     label: String(localized: "Database"),
@@ -1246,6 +1313,24 @@ private struct DiagnosticsOverviewCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
+    private var titleLabel: some View {
+        Text("Diagnostics")
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(.secondary)
+    }
+
+    private var summaryBadge: some View {
+        PresentationToneBadge(
+            text: vm.diagnosticsSummaryLabel,
+            tone: vm.diagnosticsSummaryTone
+        )
+    }
+
+    private var metricColumns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 3
+        return Array(repeating: GridItem(.flexible(), spacing: 12), count: count)
+    }
+
     @ViewBuilder
     private func diagnosticsMetric(_ value: String, label: String, systemImage: String) -> some View {
         VStack(spacing: 6) {
@@ -1267,21 +1352,23 @@ private struct DiagnosticsOverviewCard: View {
 
 private struct IntegrationsOverviewCard: View {
     let vm: DashboardViewModel
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Integrations")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                PresentationToneBadge(
-                    text: vm.integrationsOverviewSummaryLabel,
-                    tone: vm.integrationPressureTone
-                )
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    summaryBadge
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    summaryBadge
+                }
             }
 
-            HStack(spacing: 12) {
+            LazyVGrid(columns: metricColumns, spacing: 12) {
                 integrationMetric(
                     "\(vm.configuredProviderCount)/\(vm.providers.count)",
                     label: String(localized: "Providers"),
@@ -1363,6 +1450,24 @@ private struct IntegrationsOverviewCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
+    private var titleLabel: some View {
+        Text("Integrations")
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(.secondary)
+    }
+
+    private var summaryBadge: some View {
+        PresentationToneBadge(
+            text: vm.integrationsOverviewSummaryLabel,
+            tone: vm.integrationPressureTone
+        )
+    }
+
+    private var metricColumns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 3
+        return Array(repeating: GridItem(.flexible(), spacing: 12), count: count)
+    }
+
     private var catalogFreshnessDetail: String {
         guard let catalogLastSyncDate = vm.catalogLastSyncDate else {
             return vm.catalogModels.isEmpty
@@ -1392,21 +1497,33 @@ private struct IntegrationsOverviewCard: View {
 
     @ViewBuilder
     private func issueRow(icon: String, color: Color, text: String, detail: String = "") -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: icon)
-                .foregroundStyle(color)
-                .frame(width: 16)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(text)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                if !detail.isEmpty {
-                    Text(detail)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                    .frame(width: 16)
+                issueTextBlock(text: text, detail: detail)
+                Spacer(minLength: 8)
             }
-            Spacer()
+            VStack(alignment: .leading, spacing: 6) {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                issueTextBlock(text: text, detail: detail)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func issueTextBlock(text: String, detail: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(text)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            if !detail.isEmpty {
+                Text(detail)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
         }
     }
 }
@@ -1627,13 +1744,24 @@ private struct SessionWatchlistCard: View {
                 .frame(width: 18)
 
             VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(displayTitle(item))
-                        .font(.subheadline.weight(.medium))
-                    Spacer()
-                    Text(String(localized: "\(item.session.messageCount) msgs"))
-                        .font(.caption2.monospacedDigit())
-                        .foregroundStyle(.secondary)
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .firstTextBaseline, spacing: 12) {
+                        Text(displayTitle(item))
+                            .font(.subheadline.weight(.medium))
+                            .lineLimit(2)
+                        Spacer(minLength: 8)
+                        Text(String(localized: "\(item.session.messageCount) msgs"))
+                            .font(.caption2.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(displayTitle(item))
+                            .font(.subheadline.weight(.medium))
+                            .lineLimit(2)
+                        Text(String(localized: "\(item.session.messageCount) msgs"))
+                            .font(.caption2.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
                 }
 
                 Text(item.agent?.name ?? item.session.agentId)
@@ -1697,13 +1825,22 @@ private struct AuditFeedCard: View {
                 .padding(.top, 6)
 
             VStack(alignment: .leading, spacing: 3) {
-                HStack {
-                    Text(entry.friendlyAction)
-                        .font(.subheadline.weight(.medium))
-                    Spacer()
-                    Text(relativeTime(entry.timestamp))
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .firstTextBaseline, spacing: 12) {
+                        Text(entry.friendlyAction)
+                            .font(.subheadline.weight(.medium))
+                        Spacer(minLength: 8)
+                        Text(relativeTime(entry.timestamp))
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(entry.friendlyAction)
+                            .font(.subheadline.weight(.medium))
+                        Text(relativeTime(entry.timestamp))
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
                 }
 
                 Text(entry.detail)
