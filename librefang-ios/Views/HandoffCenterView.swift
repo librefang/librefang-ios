@@ -218,13 +218,7 @@ struct HandoffCenterView: View {
                     criticalCount: criticalCount,
                     liveAlertCount: liveAlertCount
                 )
-            } header: {
-                Text("Draft Snapshot")
-            } footer: {
-                Text("Keep snapshot type, live queue counts, and the next check-in visible before editing the note body.")
-            }
 
-            Section {
                 HandoffNoteComposerCard(
                     note: Binding(
                         get: { handoffStore.draftNote },
@@ -241,9 +235,9 @@ struct HandoffCenterView: View {
                     }
                 )
             } header: {
-                Text("Operator Note")
+                Text("Draft Deck")
             } footer: {
-                Text("Capture the shift summary here first so the next operator sees the note before scanning the checklist and follow-ups.")
+                Text("Keep snapshot type, live queue counts, check-in timing, and the operator summary together before the checklist and follow-ups.")
             }
 
             Section {
@@ -276,16 +270,7 @@ struct HandoffCenterView: View {
                             }
                         }
                     }
-                }
-                .padding(.vertical, 4)
-            } header: {
-                Text("Checklist & Focus")
-            } footer: {
-                Text("Checklist completion and focus areas stay separate from the note so the draft reads more clearly on smaller screens.")
-            }
 
-            Section {
-                VStack(alignment: .leading, spacing: 14) {
                     HandoffFollowUpComposer(
                         items: handoffStore.draftFollowUpItems,
                         draftText: $draftFollowUpText,
@@ -323,9 +308,9 @@ struct HandoffCenterView: View {
                 }
                 .padding(.vertical, 4)
             } header: {
-                Text("Follow-ups & Actions")
+                Text("Action Deck")
             } footer: {
-                Text("Saved locally on this iPhone. Use this section to close the draft and export the current handoff when the note is ready.")
+                Text("Checklist completion, focus areas, follow-ups, and save/share actions stay in one operator block so the handoff draft is easier to finish on a phone.")
             }
 
             if !timelineItems.isEmpty {
