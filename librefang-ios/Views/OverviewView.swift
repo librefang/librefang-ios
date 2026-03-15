@@ -1276,9 +1276,16 @@ private struct IntegrationsOverviewCard: View {
 
     private var issueCount: Int {
         vm.unreachableLocalProviderCount
-            + vm.channelCredentialGapCount
-            + ((!vm.catalogModels.isEmpty && vm.configuredProviderCount > 0 && vm.availableCatalogModelCount == 0) ? 1 : 0)
+            + vm.channelRequiredFieldGapCount
+            + (vm.hasEmptyModelCatalog ? 1 : 0)
             + vm.agentsWithModelDiagnostics.count
+    }
+
+    private var summaryLabel: String {
+        if vm.hasEmptyModelCatalog || vm.unavailableModelAgentCount > 0 {
+            return "Degraded"
+        }
+        return issueCount == 0 ? "Stable" : issueCount == 1 ? "1 issue" : "\(issueCount) issues"
     }
 
     var body: some View {
@@ -1288,7 +1295,7 @@ private struct IntegrationsOverviewCard: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(issueCount == 0 ? "Stable" : issueCount == 1 ? "1 issue" : "\(issueCount) issues")
+                Text(summaryLabel)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -1325,28 +1332,32 @@ private struct IntegrationsOverviewCard: View {
                         issueRow(
                             icon: "network.slash",
                             color: .orange,
-                            text: vm.unreachableLocalProviderCount == 1 ? "1 local provider probe failed" : "\(vm.unreachableLocalProviderCount) local provider probes failed"
+                            text: vm.unreachableLocalProviderCount == 1 ? "1 local provider probe failed" : "\(vm.unreachableLocalProviderCount) local provider probes failed",
+                            detail: vm.unreachableLocalProviders.prefix(2).map(\.displayName).joined(separator: " • ")
                         )
                     }
-                    if vm.channelCredentialGapCount > 0 {
+                    if vm.channelRequiredFieldGapCount > 0 {
                         issueRow(
                             icon: "bubble.left.and.exclamationmark.bubble.right",
                             color: .orange,
-                            text: vm.channelCredentialGapCount == 1 ? "1 configured channel is missing credentials" : "\(vm.channelCredentialGapCount) configured channels are missing credentials"
+                            text: vm.channelRequiredFieldGapCount == 1 ? "1 configured channel is missing required fields" : "\(vm.channelRequiredFieldGapCount) configured channels are missing required fields",
+                            detail: vm.missingRequiredChannelFieldCount == 1 ? "1 required field missing" : "\(vm.missingRequiredChannelFieldCount) required fields missing"
                         )
                     }
-                    if !vm.catalogModels.isEmpty && vm.configuredProviderCount > 0 && vm.availableCatalogModelCount == 0 {
+                    if vm.hasEmptyModelCatalog {
                         issueRow(
                             icon: "square.stack.3d.up.slash",
-                            color: .orange,
-                            text: "The catalog currently exposes no available models"
+                            color: .red,
+                            text: "The catalog currently exposes no available models",
+                            detail: "\(vm.configuredProviderCount) configured providers are not yielding executable models"
                         )
                     }
                     if !vm.agentsWithModelDiagnostics.isEmpty {
                         issueRow(
                             icon: "cpu",
-                            color: .orange,
-                            text: vm.agentsWithModelDiagnostics.count == 1 ? "1 agent resolves to a drifted catalog model" : "\(vm.agentsWithModelDiagnostics.count) agents resolve to drifted catalog models"
+                            color: vm.unavailableModelAgentCount > 0 ? .red : .orange,
+                            text: vm.agentsWithModelDiagnostics.count == 1 ? "1 agent resolves to a drifted catalog model" : "\(vm.agentsWithModelDiagnostics.count) agents resolve to drifted catalog models",
+                            detail: vm.agentsWithModelDiagnostics.prefix(2).map { "\($0.agent.name) (\($0.issueSummary))" }.joined(separator: " • ")
                         )
                     }
                 }
@@ -1358,7 +1369,10 @@ private struct IntegrationsOverviewCard: View {
     }
 
     private var statusColor: Color {
-        issueCount > 0 ? .orange : .green
+        if vm.hasEmptyModelCatalog || vm.unavailableModelAgentCount > 0 {
+            return .red
+        }
+        return issueCount > 0 ? .orange : .green
     }
 
     @ViewBuilder
@@ -1380,14 +1394,21 @@ private struct IntegrationsOverviewCard: View {
     }
 
     @ViewBuilder
-    private func issueRow(icon: String, color: Color, text: String) -> some View {
+    private func issueRow(icon: String, color: Color, text: String, detail: String = "") -> some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: icon)
                 .foregroundStyle(color)
                 .frame(width: 16)
-            Text(text)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(text)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                if !detail.isEmpty {
+                    Text(detail)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
+            }
             Spacer()
         }
     }

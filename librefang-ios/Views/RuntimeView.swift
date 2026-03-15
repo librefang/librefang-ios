@@ -232,14 +232,14 @@ struct RuntimeView: View {
                 RuntimeMetricRow(
                     label: "Channels",
                     value: "\(vm.readyChannelCount)/\(vm.configuredChannelCount)",
-                    detail: vm.channelCredentialGapCount > 0
-                        ? "\(vm.channelCredentialGapCount) configured missing credentials"
-                        : "Configured channels have required tokens"
+                    detail: vm.channelRequiredFieldGapCount > 0
+                        ? "\(vm.channelRequiredFieldGapCount) channels missing \(vm.missingRequiredChannelFieldCount) required fields"
+                        : "Configured channels have required fields"
                 )
                 RuntimeMetricRow(
                     label: "Catalog",
                     value: "\(vm.availableCatalogModelCount)/\(vm.catalogModels.count) available",
-                    detail: "\(vm.modelAliasCount) aliases"
+                    detail: vm.hasEmptyModelCatalog ? "No executable models in the current catalog" : "\(vm.modelAliasCount) aliases"
                 )
                 if !vm.agentsWithModelDiagnostics.isEmpty {
                     RuntimeMetricRow(

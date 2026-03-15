@@ -20,6 +20,39 @@ struct AgentModelDiagnostic: Identifiable {
 }
 
 extension DashboardViewModel {
+    var unreachableLocalProviders: [ProviderStatus] {
+        providers
+            .filter { $0.isLocal == true && $0.reachable == false }
+            .sorted { lhs, rhs in
+                lhs.displayName.localizedCompare(rhs.displayName) == .orderedAscending
+            }
+    }
+
+    var channelsMissingRequiredFields: [ChannelStatus] {
+        channels
+            .filter { channel in
+                let requiredFields = channel.fields?.filter(\.required) ?? []
+                return !requiredFields.isEmpty && requiredFields.contains(where: { !$0.hasValue })
+            }
+            .sorted { lhs, rhs in
+                lhs.displayName.localizedCompare(rhs.displayName) == .orderedAscending
+            }
+    }
+
+    var channelRequiredFieldGapCount: Int {
+        channelsMissingRequiredFields.count
+    }
+
+    var missingRequiredChannelFieldCount: Int {
+        channelsMissingRequiredFields.reduce(0) { partialResult, channel in
+            partialResult + (channel.fields?.filter { $0.required && !$0.hasValue }.count ?? 0)
+        }
+    }
+
+    var hasEmptyModelCatalog: Bool {
+        !catalogModels.isEmpty && configuredProviderCount > 0 && availableCatalogModelCount == 0
+    }
+
     var agentsWithModelDiagnostics: [AgentModelDiagnostic] {
         agents.compactMap(modelDiagnostic(for:))
             .sorted { lhs, rhs in

@@ -175,28 +175,7 @@ extension DashboardViewModel {
 
         items.append(contentsOf: onCallAutomationItems())
 
-        if !agentsWithModelDiagnostics.isEmpty {
-            let unavailableCount = unavailableModelAgentCount
-            let title: String
-            if unavailableCount > 0 {
-                title = unavailableCount == 1 ? "1 agent on unavailable model" : "\(unavailableCount) agents on unavailable models"
-            } else {
-                title = agentsWithModelDiagnostics.count == 1 ? "1 agent has model drift" : "\(agentsWithModelDiagnostics.count) agents have model drift"
-            }
-            let preview = agentsWithModelDiagnostics.prefix(2).map(\.agent.name).joined(separator: " • ")
-            items.append(
-                OnCallPriorityItem(
-                    id: "integrations:model-drift",
-                    title: title,
-                    detail: preview.isEmpty ? "Review provider and model catalog drift in integrations diagnostics." : preview,
-                    footnote: "Model catalog / provider mismatch",
-                    symbolName: "square.stack.3d.up.slash",
-                    severity: unavailableCount > 0 ? .warning : .advisory,
-                    rank: unavailableCount > 0 ? 76 : 66,
-                    route: .integrations
-                )
-            )
-        }
+        items.append(contentsOf: onCallIntegrationItems())
 
         if let checkInItem = onCallCheckInItem(for: handoffCheckInStatus) {
             items.append(checkInItem)
@@ -229,6 +208,7 @@ extension DashboardViewModel {
         let liveCritical = visibleAlerts.filter { $0.severity == .critical }.count
         let watchIssues = watchedAttentionItems.filter { $0.severity > 0 }.count
         let automationSummary = automationDigestSummary()
+        let integrationsSummary = integrationsDigestSummary()
         let checkInSummary = checkInDigestSummary(for: handoffCheckInStatus)
         let followUpSummary = followUpDigestSummary(
             for: handoffFollowUpStatuses,
@@ -240,7 +220,7 @@ extension DashboardViewModel {
                 let base = liveCritical > 0
                     ? "\(liveCritical) critical items acknowledged on this iPhone"
                     : "\(visibleAlerts.count) live alerts acknowledged on this iPhone"
-                return [base, automationSummary, checkInSummary, followUpSummary].compactMap { $0 }.joined(separator: " · ")
+                return [base, automationSummary, integrationsSummary, checkInSummary, followUpSummary].compactMap { $0 }.joined(separator: " · ")
             }
 
             return [
@@ -248,6 +228,7 @@ extension DashboardViewModel {
                 "\(pendingApprovalCount) approvals",
                 "\(watchIssues) watched agents need review",
                 automationSummary,
+                integrationsSummary,
                 checkInSummary,
                 followUpSummary
             ]
@@ -259,13 +240,14 @@ extension DashboardViewModel {
             let base = mutedAlertCount == 1
                 ? "1 alert is muted locally; watchlist and sessions remain active"
                 : "\(mutedAlertCount) alerts are muted locally; watchlist and sessions remain active"
-            return [base, automationSummary, checkInSummary, followUpSummary].compactMap { $0 }.joined(separator: " · ")
+            return [base, automationSummary, integrationsSummary, checkInSummary, followUpSummary].compactMap { $0 }.joined(separator: " · ")
         }
 
         if watchIssues > 0 {
             return [
                 "\(watchIssues) watched agents still need review even though no live alert card is visible",
                 automationSummary,
+                integrationsSummary,
                 checkInSummary,
                 followUpSummary
             ]
@@ -273,35 +255,87 @@ extension DashboardViewModel {
             .joined(separator: " · ")
         }
 
-        if let automationSummary, let checkInSummary, let followUpSummary {
-            return [automationSummary, checkInSummary, followUpSummary].joined(separator: " · ")
+        if let automationSummary, let integrationsSummary, let checkInSummary, let followUpSummary {
+            return [automationSummary, integrationsSummary, checkInSummary, followUpSummary].joined(separator: " · ")
         }
 
-        if let automationSummary, let checkInSummary {
-            return [automationSummary, checkInSummary].joined(separator: " · ")
-        }
-
-        if let automationSummary, let followUpSummary {
-            return [automationSummary, followUpSummary].joined(separator: " · ")
-        }
-
-        if let checkInSummary, let followUpSummary {
-            return [checkInSummary, followUpSummary].joined(separator: " · ")
-        }
-
-        if let automationSummary {
-            return automationSummary
-        }
-
-        if let checkInSummary {
-            return checkInSummary
-        }
-
-        if let followUpSummary {
-            return followUpSummary
+        let remainingSummaries = [automationSummary, integrationsSummary, checkInSummary, followUpSummary].compactMap { $0 }
+        if !remainingSummaries.isEmpty {
+            return remainingSummaries.joined(separator: " · ")
         }
 
         return "No live alerts. Monitoring is currently in a calm state on this iPhone."
+    }
+
+    private func onCallIntegrationItems() -> [OnCallPriorityItem] {
+        var items: [OnCallPriorityItem] = []
+
+        if !unreachableLocalProviders.isEmpty {
+            let preview = unreachableLocalProviders.prefix(2).map(\.displayName).joined(separator: " • ")
+            let allLocalProvidersDown = localProviderCount > 0 && unreachableLocalProviderCount >= localProviderCount
+            items.append(OnCallPriorityItem(
+                id: "integrations:providers",
+                title: unreachableLocalProviderCount == 1 ? "1 local provider unreachable" : "\(unreachableLocalProviderCount) local providers unreachable",
+                detail: preview.isEmpty ? "Review local model endpoints and provider probes." : preview,
+                footnote: allLocalProvidersDown ? "All local providers in the latest snapshot are down" : "Local provider probes are failing",
+                symbolName: "network.slash",
+                severity: allLocalProvidersDown ? .critical : .warning,
+                rank: allLocalProvidersDown ? 88 : 78,
+                route: .integrations
+            ))
+        }
+
+        if channelRequiredFieldGapCount > 0 {
+            let preview = channelsMissingRequiredFields.prefix(2).map(\.displayName).joined(separator: " • ")
+            items.append(OnCallPriorityItem(
+                id: "integrations:channels",
+                title: channelRequiredFieldGapCount == 1 ? "1 channel missing required fields" : "\(channelRequiredFieldGapCount) channels missing required fields",
+                detail: preview.isEmpty ? "Configured delivery channels are missing required secrets or config fields." : preview,
+                footnote: missingRequiredChannelFieldCount == 1 ? "1 required channel field missing" : "\(missingRequiredChannelFieldCount) required channel fields missing",
+                symbolName: "bubble.left.and.exclamationmark.bubble.right",
+                severity: .warning,
+                rank: 70,
+                route: .integrations
+            ))
+        }
+
+        if hasEmptyModelCatalog {
+            items.append(OnCallPriorityItem(
+                id: "integrations:catalog-empty",
+                title: "Model catalog has no available models",
+                detail: "Providers are configured, but LibreFang currently exposes zero executable catalog models.",
+                footnote: "Catalog / provider hub",
+                symbolName: "square.stack.3d.up.slash",
+                severity: .critical,
+                rank: 87,
+                route: .integrations
+            ))
+        }
+
+        if !agentsWithModelDiagnostics.isEmpty {
+            let unavailableCount = unavailableModelAgentCount
+            let title: String
+            if unavailableCount > 0 {
+                title = unavailableCount == 1 ? "1 agent on unavailable model" : "\(unavailableCount) agents on unavailable models"
+            } else {
+                title = agentsWithModelDiagnostics.count == 1 ? "1 agent has model drift" : "\(agentsWithModelDiagnostics.count) agents have model drift"
+            }
+            let preview = agentsWithModelDiagnostics.prefix(2).map(\.agent.name).joined(separator: " • ")
+            items.append(
+                OnCallPriorityItem(
+                    id: "integrations:model-drift",
+                    title: title,
+                    detail: preview.isEmpty ? "Review provider and model catalog drift in integrations diagnostics." : preview,
+                    footnote: "Model catalog / provider mismatch",
+                    symbolName: "square.stack.3d.up.slash",
+                    severity: unavailableCount > 0 ? .warning : .advisory,
+                    rank: unavailableCount > 0 ? 76 : 66,
+                    route: .integrations
+                )
+            )
+        }
+
+        return items
     }
 
     private func onCallAutomationItems() -> [OnCallPriorityItem] {
@@ -368,6 +402,31 @@ extension DashboardViewModel {
         }
         if stalledCronJobCount > 0 {
             return stalledCronJobCount == 1 ? "1 cron job is missing a next run" : "\(stalledCronJobCount) cron jobs are missing a next run"
+        }
+        return nil
+    }
+
+    private func integrationsDigestSummary() -> String? {
+        if hasEmptyModelCatalog {
+            return "model catalog has no available models"
+        }
+        if !unreachableLocalProviders.isEmpty && channelRequiredFieldGapCount > 0 {
+            return "\(unreachableLocalProviderCount) local providers unreachable and \(channelRequiredFieldGapCount) channels missing required fields"
+        }
+        if !unreachableLocalProviders.isEmpty {
+            return unreachableLocalProviderCount == 1
+                ? "1 local provider is unreachable"
+                : "\(unreachableLocalProviderCount) local providers are unreachable"
+        }
+        if channelRequiredFieldGapCount > 0 {
+            return channelRequiredFieldGapCount == 1
+                ? "1 configured channel is missing required fields"
+                : "\(channelRequiredFieldGapCount) configured channels are missing required fields"
+        }
+        if !agentsWithModelDiagnostics.isEmpty {
+            return agentsWithModelDiagnostics.count == 1
+                ? "1 agent still has model drift"
+                : "\(agentsWithModelDiagnostics.count) agents still have model drift"
         }
         return nil
     }
