@@ -213,7 +213,7 @@ struct OnCallView: View {
             }
 
             Section {
-                OnCallQueueSnapshotCard(
+                OnCallStatusDeckCard(
                     queueCount: priorityItems.count,
                     criticalCount: criticalCount,
                     approvalCount: vm.pendingApprovalCount,
@@ -225,75 +225,9 @@ struct OnCallView: View {
                     automationIssueCount: automationIssueCount,
                     integrationIssueCount: integrationIssueCount,
                     checkInStatus: handoffStore.latestCheckInStatus,
-                    readiness: draftHandoffReadiness
+                    readiness: draftHandoffReadiness,
+                    isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
                 )
-
-                MonitoringFactsRow {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(String(localized: "On-call signal facts"))
-                            .font(.subheadline.weight(.medium))
-                        Text(String(localized: "Keep queue shape, acknowledgement state, and cross-surface pressure visible before working the deeper on-call sections."))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                    }
-                } accessory: {
-                    PresentationToneBadge(
-                        text: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts) ? String(localized: "Acked") : String(localized: "Live"),
-                        tone: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts) ? .positive : .critical
-                    )
-                } facts: {
-                    Label(
-                        priorityItems.count == 1 ? String(localized: "1 queued item") : String(localized: "\(priorityItems.count) queued items"),
-                        systemImage: "waveform.path.ecg"
-                    )
-                    Label(
-                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                        systemImage: "xmark.octagon"
-                    )
-                    if vm.pendingApprovalCount > 0 {
-                        Label(
-                            vm.pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(vm.pendingApprovalCount) approvals"),
-                            systemImage: "checkmark.shield"
-                        )
-                    }
-                    if watchIssueCount > 0 {
-                        Label(
-                            watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                            systemImage: "star.fill"
-                        )
-                    }
-                    if vm.sessionAttentionCount > 0 {
-                        Label(
-                            vm.sessionAttentionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(vm.sessionAttentionCount) session hotspots"),
-                            systemImage: "rectangle.stack"
-                        )
-                    }
-                    if vm.recentCriticalAuditCount > 0 {
-                        Label(
-                            vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical event") : String(localized: "\(vm.recentCriticalAuditCount) critical events"),
-                            systemImage: "list.bullet.rectangle.portrait"
-                        )
-                    }
-                    if pendingFollowUpCount > 0 {
-                        Label(
-                            pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
-                            systemImage: "arrow.triangle.2.circlepath"
-                        )
-                    }
-                    if automationIssueCount > 0 {
-                        Label(
-                            automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                            systemImage: "flowchart"
-                        )
-                    }
-                    if integrationIssueCount > 0 {
-                        Label(
-                            integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                            systemImage: "square.3.layers.3d.down.forward"
-                        )
-                    }
-                }
 
                 OnCallStatusCard(
                     digestLine: digestLine,
@@ -515,6 +449,108 @@ struct OnCallView: View {
 
     private func syncWatchlist() {
         watchlistStore.removeMissingAgents(validIDs: Set(vm.agents.map(\.id)))
+    }
+}
+
+private struct OnCallStatusDeckCard: View {
+    let queueCount: Int
+    let criticalCount: Int
+    let approvalCount: Int
+    let watchIssueCount: Int
+    let sessionCount: Int
+    let eventCount: Int
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let checkInStatus: HandoffCheckInStatus?
+    let readiness: HandoffReadinessStatus
+    let isAcknowledged: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            OnCallQueueSnapshotCard(
+                queueCount: queueCount,
+                criticalCount: criticalCount,
+                approvalCount: approvalCount,
+                watchIssueCount: watchIssueCount,
+                sessionCount: sessionCount,
+                eventCount: eventCount,
+                mutedAlertCount: mutedAlertCount,
+                pendingFollowUpCount: pendingFollowUpCount,
+                automationIssueCount: automationIssueCount,
+                integrationIssueCount: integrationIssueCount,
+                checkInStatus: checkInStatus,
+                readiness: readiness
+            )
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "On-call signal facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep queue shape, acknowledgement state, and cross-surface pressure visible before working the deeper on-call sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: isAcknowledged ? String(localized: "Acked") : String(localized: "Live"),
+                    tone: isAcknowledged ? .positive : .critical
+                )
+            } facts: {
+                Label(
+                    queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                    systemImage: "waveform.path.ecg"
+                )
+                Label(
+                    criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                    systemImage: "xmark.octagon"
+                )
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if watchIssueCount > 0 {
+                    Label(
+                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if sessionCount > 0 {
+                    Label(
+                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        systemImage: "rectangle.stack"
+                    )
+                }
+                if eventCount > 0 {
+                    Label(
+                        eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
+                        systemImage: "list.bullet.rectangle.portrait"
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    Label(
+                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
+                        systemImage: "arrow.triangle.2.circlepath"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
     }
 }
 

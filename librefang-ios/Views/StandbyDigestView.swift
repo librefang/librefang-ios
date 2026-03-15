@@ -160,13 +160,12 @@ struct StandbyDigestView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     heroCard
-                    snapshotCard
-                    signalFactsCard
+                    controlDeckCard
                     glanceCard
 
-                if !watchItems.isEmpty {
-                    watchlistCard
-                }
+                    if !watchItems.isEmpty {
+                        watchlistCard
+                    }
 
                     surfaceDeckCard
                 }
@@ -269,6 +268,13 @@ struct StandbyDigestView: View {
             isAcknowledged: isAcknowledged,
             checkInStatus: checkInStatus
         )
+    }
+
+    private var controlDeckCard: some View {
+        VStack(spacing: 12) {
+            snapshotCard
+            signalFactsCard
+        }
     }
 
     private var signalFactsCard: some View {
