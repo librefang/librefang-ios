@@ -42,6 +42,14 @@ struct MonitoringSummaryStatus {
     let summary: String
     let tone: PresentationTone
 
+    static func presenceStatus(
+        isPresent: Bool,
+        activeTone: PresentationTone = .positive,
+        inactiveTone: PresentationTone = .neutral
+    ) -> MonitoringSummaryStatus {
+        countStatus(isPresent ? 1 : 0, activeTone: activeTone, inactiveTone: inactiveTone)
+    }
+
     static func countStatus(
         _ count: Int,
         activeTone: PresentationTone,

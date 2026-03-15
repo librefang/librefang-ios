@@ -62,6 +62,10 @@ final class ChatViewModel {
         self.api = api
     }
 
+    var connectionState: ChatConnectionState {
+        ChatConnectionState(isRealtimeConnected: isRealtimeConnected)
+    }
+
     func activate() async {
         guard !hasActivated else { return }
         hasActivated = true

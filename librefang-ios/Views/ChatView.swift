@@ -140,39 +140,76 @@ struct ChatView: View {
 private struct SessionBanner: View {
     let viewModel: ChatViewModel
 
+    private var connectionState: ChatConnectionState {
+        viewModel.connectionState
+    }
+
     var body: some View {
         if viewModel.messageCount > 0 || viewModel.contextWindowTokens > 0 || viewModel.sessionLabel != nil {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(viewModel.sessionLabel?.isEmpty == false ? viewModel.sessionLabel! : String(localized: "Current Session"))
-                        .font(.caption.weight(.semibold))
-                    Text(String(localized: "\(viewModel.messageCount) messages"))
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    sessionSummary
+                    Spacer(minLength: 8)
+                    HStack(alignment: .top, spacing: 10) {
+                        realtimeIndicator
+                        if viewModel.contextWindowTokens > 0 {
+                            contextTokens
+                        }
+                    }
                 }
 
-                Spacer()
+                VStack(alignment: .leading, spacing: 10) {
+                    sessionSummary
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .top, spacing: 10) {
+                            realtimeIndicator
+                            if viewModel.contextWindowTokens > 0 {
+                                contextTokens
+                            }
+                        }
 
-                Label(
-                    viewModel.isRealtimeConnected ? String(localized: "Live") : String(localized: "Fallback"),
-                    systemImage: viewModel.isRealtimeConnected ? "dot.radiowaves.left.and.right" : "arrow.clockwise"
-                )
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(viewModel.isRealtimeConnected ? .green : .orange)
-
-                if viewModel.contextWindowTokens > 0 {
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text(viewModel.contextWindowTokens.formatted())
-                            .font(.caption.weight(.semibold).monospacedDigit())
-                        Text("context tokens")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                        VStack(alignment: .leading, spacing: 8) {
+                            realtimeIndicator
+                            if viewModel.contextWindowTokens > 0 {
+                                contextTokens
+                            }
+                        }
                     }
                 }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(.thinMaterial)
+        }
+    }
+
+    private var sessionSummary: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(viewModel.sessionLabel?.isEmpty == false ? viewModel.sessionLabel! : String(localized: "Current Session"))
+                .font(.caption.weight(.semibold))
+                .lineLimit(2)
+            Text(String(localized: "\(viewModel.messageCount) messages"))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var realtimeIndicator: some View {
+        Label(
+            connectionState.label,
+            systemImage: connectionState.symbolName
+        )
+        .font(.caption2.weight(.semibold))
+        .foregroundStyle(connectionState.tone.color)
+    }
+
+    private var contextTokens: some View {
+        VStack(alignment: .trailing, spacing: 2) {
+            Text(viewModel.contextWindowTokens.formatted())
+                .font(.caption.weight(.semibold).monospacedDigit())
+            Text("context tokens")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
         }
     }
 }
@@ -216,26 +253,63 @@ private struct MessageBubble: View {
                 }
 
                 // Metadata
-                HStack(spacing: 6) {
-                    if message.role == .agent {
-                        if let tokens = message.tokens, tokens > 0 {
-                            Label("\(tokens)", systemImage: "number")
-                        }
-                        if let cost = message.cost, cost > 0 {
-                            Label(localizedUSDCurrency(cost, standardPrecision: 4, minimumDisplayValue: 0.0001), systemImage: "dollarsign.circle")
-                        }
-                    }
-                    Text(message.timestamp, style: .time)
-                    if message.isStreaming {
-                        Text("Live")
-                    }
+                ViewThatFits(in: .horizontal) {
+                    metadataInline
+                    metadataStacked
                 }
-                .font(.caption2)
-                .foregroundStyle(.quaternary)
             }
 
             if message.role != .user { Spacer(minLength: 48) }
         }
+    }
+
+    private var metadataInline: some View {
+        HStack(spacing: 6) {
+            agentUsageMetadata
+            deliveryMetadata
+        }
+        .font(.caption2)
+        .foregroundStyle(.quaternary)
+    }
+
+    private var metadataStacked: some View {
+        VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 3) {
+            if message.role == .agent, hasUsageMetadata {
+                HStack(spacing: 6) {
+                    agentUsageMetadata
+                }
+            }
+
+            HStack(spacing: 6) {
+                deliveryMetadata
+            }
+        }
+        .font(.caption2)
+        .foregroundStyle(.quaternary)
+    }
+
+    @ViewBuilder
+    private var agentUsageMetadata: some View {
+        if message.role == .agent {
+            if let tokens = message.tokens, tokens > 0 {
+                Label("\(tokens)", systemImage: "number")
+            }
+            if let cost = message.cost, cost > 0 {
+                Label(localizedUSDCurrency(cost, standardPrecision: 4, minimumDisplayValue: 0.0001), systemImage: "dollarsign.circle")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var deliveryMetadata: some View {
+        Text(message.timestamp, style: .time)
+        if message.isStreaming {
+            Text("Live")
+        }
+    }
+
+    private var hasUsageMetadata: Bool {
+        (message.tokens ?? 0) > 0 || (message.cost ?? 0) > 0
     }
 
     private var bubbleBackground: Color {

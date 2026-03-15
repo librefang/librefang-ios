@@ -198,12 +198,12 @@ struct SettingsView: View {
 
                         LabeledContent("Queued Reminder") {
                             Text(deps.onCallNotificationManager.pendingReminderLabel)
-                                .foregroundStyle(deps.onCallNotificationManager.pendingReminderDate == nil ? .tertiary : .secondary)
+                                .foregroundStyle(reminderArmStatus.color(positive: .secondary, neutral: tertiaryLabelColor))
                         }
 
                         LabeledContent("Schedule Driver") {
                             Text(deps.onCallNotificationManager.pendingReminderSourceLabel)
-                                .foregroundStyle(deps.onCallNotificationManager.pendingReminderDate == nil ? .tertiary : .secondary)
+                                .foregroundStyle(reminderArmStatus.color(positive: .secondary, neutral: tertiaryLabelColor))
                         }
 
                         if let pendingReminderSummary = deps.onCallNotificationManager.pendingReminderSummary {
@@ -246,7 +246,7 @@ struct SettingsView: View {
                         }
                         LabeledContent("Snapshot") {
                             Text("\(latest.queueCount) queued · \(latest.criticalCount) critical")
-                                .foregroundStyle(latest.criticalCount > 0 ? .orange : .secondary)
+                                .foregroundStyle(snapshotCriticalStatus(for: latest).color(positive: .secondary))
                         }
                         LabeledContent("Checklist") {
                             Text(latest.checklist.progressLabel)
@@ -258,7 +258,7 @@ struct SettingsView: View {
                         }
                         LabeledContent("Focus") {
                             Text(latest.focusAreas.summaryLabel)
-                                .foregroundStyle(latest.focusAreas.items.isEmpty ? Color.secondary : Color.primary)
+                                .foregroundStyle(handoffFocusStatus(for: latest).color(positive: .primary))
                         }
                         LabeledContent("Follow-ups") {
                             Text(followUpSummary.settingsLabel)
@@ -270,7 +270,7 @@ struct SettingsView: View {
                                     .foregroundStyle(checkInStatus.state.tone.color)
                             } else {
                                 Text(latest.checkInWindow == .none ? String(localized: "None") : latest.checkInWindow.label)
-                                    .foregroundStyle(latest.checkInWindow == .none ? Color.secondary : Color.primary)
+                                    .foregroundStyle(checkInWindowStatus(for: latest).color(positive: .primary))
                             }
                         }
                         if latest.checkInWindow != .none {
@@ -368,15 +368,15 @@ struct SettingsView: View {
                     }
                     LabeledContent("Watchlist") {
                         Text("\(deps.agentWatchlistStore.watchedAgentIDs.count)")
-                            .foregroundStyle(deps.agentWatchlistStore.watchedAgentIDs.isEmpty ? .tertiary : .secondary)
+                            .foregroundStyle(watchlistStatus.color(positive: .secondary, neutral: tertiaryLabelColor))
                     }
                     LabeledContent("On Call Queue") {
                         Text("\(onCallQueueCount)")
-                            .foregroundStyle(onCallQueueCount > 0 ? .orange : .secondary)
+                            .foregroundStyle(onCallQueueStatus.color(positive: .secondary))
                     }
                     LabeledContent("Muted Alerts") {
                         Text("\(activeMutedAlertCount)")
-                            .foregroundStyle(activeMutedAlertCount > 0 ? .secondary : .tertiary)
+                            .foregroundStyle(mutedAlertStatus.color(positive: .secondary, neutral: tertiaryLabelColor))
                     }
                     LabeledContent("Incident Snapshot") {
                         Text(snapshotStatus.settingsLabel)
@@ -526,6 +526,43 @@ struct SettingsView: View {
             mutedAlertCount: activeMutedAlertCount,
             isAcknowledged: deps.incidentStateStore.isCurrentSnapshotAcknowledged(alerts: deps.dashboardViewModel.monitoringAlerts)
         )
+    }
+
+    private var tertiaryLabelColor: Color {
+        Color(uiColor: .tertiaryLabel)
+    }
+
+    private var reminderArmStatus: MonitoringSummaryStatus {
+        MonitoringSummaryStatus.presenceStatus(
+            isPresent: deps.onCallNotificationManager.pendingReminderDate != nil
+        )
+    }
+
+    private var watchlistStatus: MonitoringSummaryStatus {
+        MonitoringSummaryStatus.countStatus(
+            deps.agentWatchlistStore.watchedAgentIDs.count,
+            activeTone: .positive
+        )
+    }
+
+    private var onCallQueueStatus: MonitoringSummaryStatus {
+        MonitoringSummaryStatus.countStatus(onCallQueueCount, activeTone: .warning)
+    }
+
+    private var mutedAlertStatus: MonitoringSummaryStatus {
+        MonitoringSummaryStatus.countStatus(activeMutedAlertCount, activeTone: .positive)
+    }
+
+    private func snapshotCriticalStatus(for entry: OnCallHandoffEntry) -> MonitoringSummaryStatus {
+        MonitoringSummaryStatus.countStatus(entry.criticalCount, activeTone: .warning)
+    }
+
+    private func handoffFocusStatus(for entry: OnCallHandoffEntry) -> MonitoringSummaryStatus {
+        MonitoringSummaryStatus.presenceStatus(isPresent: !entry.focusAreas.items.isEmpty)
+    }
+
+    private func checkInWindowStatus(for entry: OnCallHandoffEntry) -> MonitoringSummaryStatus {
+        MonitoringSummaryStatus.presenceStatus(isPresent: entry.checkInWindow != .none)
     }
 
 }

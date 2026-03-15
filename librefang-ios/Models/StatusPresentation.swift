@@ -213,6 +213,42 @@ nonisolated enum ProviderAlignmentStatus: Sendable {
     }
 }
 
+nonisolated enum ChatConnectionState: Sendable {
+    case live
+    case fallback
+
+    init(isRealtimeConnected: Bool) {
+        self = isRealtimeConnected ? .live : .fallback
+    }
+
+    var label: String {
+        switch self {
+        case .live:
+            return String(localized: "Live")
+        case .fallback:
+            return String(localized: "Fallback")
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .live:
+            return "dot.radiowaves.left.and.right"
+        case .fallback:
+            return "arrow.clockwise"
+        }
+    }
+
+    var tone: PresentationTone {
+        switch self {
+        case .live:
+            return .positive
+        case .fallback:
+            return .warning
+        }
+    }
+}
+
 nonisolated enum StatusPresentation {
     static func budgetUtilizationStatus(for ratio: Double?) -> BudgetUtilizationStatus? {
         guard let ratio else { return nil }
