@@ -21,6 +21,7 @@ enum OnCallRoute: Hashable {
     case incidents
     case agent(String)
     case sessionsAttention
+    case sessionsSearch(String)
     case eventsCritical
     case eventsSearch(String)
     case handoffCenter
@@ -46,6 +47,8 @@ extension OnCallRoute {
             return .agent(id)
         case .sessionsAttention:
             return .sessionsAttention
+        case .sessionsSearch(let query):
+            return .sessionsSearch(query)
         case .eventsCritical:
             return .eventsCritical
         case .eventsSearch(let query):
@@ -147,6 +150,7 @@ extension DashboardViewModel {
                     ? item.session.label!
                     : String(item.session.sessionId.prefix(8))
                 let owner = item.agent?.name ?? item.session.agentId
+                let sessionQuery = item.agent?.id ?? item.session.agentId
 
                 return OnCallPriorityItem(
                     id: "session:\(item.id)",
@@ -156,7 +160,7 @@ extension DashboardViewModel {
                     symbolName: "rectangle.stack",
                     severity: severity,
                     rank: watched ? 72 : 62,
-                    route: item.agent.map { .agent($0.id) } ?? .sessionsAttention
+                    route: sessionQuery.isEmpty ? .sessionsAttention : .sessionsSearch(sessionQuery)
                 )
             })
 

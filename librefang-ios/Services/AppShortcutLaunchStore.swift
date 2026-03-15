@@ -54,6 +54,7 @@ enum AppShortcutLaunchTarget: Hashable, Identifiable {
     case surface(AppShortcutSurface)
     case agent(String)
     case sessionsAttention
+    case sessionsSearch(String)
     case eventsCritical
     case eventsSearch(String)
 
@@ -65,6 +66,8 @@ enum AppShortcutLaunchTarget: Hashable, Identifiable {
             return "agent:\(id)"
         case .sessionsAttention:
             return "sessions:attention"
+        case .sessionsSearch(let query):
+            return "sessions:search:\(query)"
         case .eventsCritical:
             return "events:critical"
         case .eventsSearch(let query):
@@ -80,6 +83,8 @@ enum AppShortcutLaunchTarget: Hashable, Identifiable {
             return "Agent Detail"
         case .sessionsAttention:
             return "Session Monitor"
+        case .sessionsSearch:
+            return "Filtered Sessions"
         case .eventsCritical:
             return "Critical Events"
         case .eventsSearch:
@@ -102,6 +107,13 @@ enum AppShortcutLaunchTarget: Hashable, Identifiable {
             components.scheme = AppShortcutLaunchBridge.urlScheme
             components.host = "sessions"
             components.path = "/attention"
+            return components.url!
+        case .sessionsSearch(let query):
+            var components = URLComponents()
+            components.scheme = AppShortcutLaunchBridge.urlScheme
+            components.host = "sessions"
+            components.path = "/search"
+            components.queryItems = [URLQueryItem(name: "query", value: query)]
             return components.url!
         case .eventsCritical:
             var components = URLComponents()
@@ -154,6 +166,9 @@ enum AppShortcutLaunchBridge {
         case .sessionsAttention:
             kind = "sessions-attention"
             value = ""
+        case .sessionsSearch(let query):
+            kind = "sessions-search"
+            value = query
         case .eventsCritical:
             kind = "events-critical"
             value = ""
@@ -188,6 +203,11 @@ enum AppShortcutLaunchBridge {
                 notificationTargetKindKey: "sessions-attention",
                 notificationTargetValueKey: "",
             ]
+        case .sessionsSearch(let query):
+            return [
+                notificationTargetKindKey: "sessions-search",
+                notificationTargetValueKey: query,
+            ]
         case .eventsCritical:
             return [
                 notificationTargetKindKey: "events-critical",
@@ -217,6 +237,9 @@ enum AppShortcutLaunchBridge {
                 return .agent(value)
             case "sessions-attention":
                 return .sessionsAttention
+            case "sessions-search":
+                guard !value.isEmpty else { return nil }
+                return .sessionsSearch(value)
             case "events-critical":
                 return .eventsCritical
             case "events-search":
@@ -256,6 +279,24 @@ enum AppShortcutLaunchBridge {
         if host == "sessions" {
             if pathComponents.first?.lowercased() == "attention" {
                 return .sessionsAttention
+            }
+
+            if pathComponents.first?.lowercased() == "search" {
+                if let query = components?.queryItems?.first(where: { $0.name == "query" })?.value,
+                   !query.isEmpty {
+                    return .sessionsSearch(query)
+                }
+
+                if pathComponents.count > 1 {
+                    let query = pathComponents[1].removingPercentEncoding ?? pathComponents[1]
+                    guard !query.isEmpty else { return nil }
+                    return .sessionsSearch(query)
+                }
+            }
+
+            if let query = components?.queryItems?.first(where: { $0.name == "query" })?.value,
+               !query.isEmpty {
+                return .sessionsSearch(query)
             }
 
             if components?.queryItems?.first(where: { $0.name == "filter" })?.value?.lowercased() == "attention" {
@@ -329,6 +370,9 @@ enum AppShortcutLaunchBridge {
             return .agent(value)
         case "sessions-attention":
             return .sessionsAttention
+        case "sessions-search":
+            guard !value.isEmpty else { return nil }
+            return .sessionsSearch(value)
         case "events-critical":
             return .eventsCritical
         case "events-search":

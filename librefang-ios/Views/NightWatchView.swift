@@ -411,6 +411,8 @@ struct NightWatchView: View {
             }
         case .sessionsAttention:
             SessionsView(initialFilter: .attention)
+        case .sessionsSearch(let query):
+            SessionsView(initialSearchText: query, initialFilter: .attention)
         case .eventsCritical:
             EventsView(api: deps.apiClient, initialScope: .critical)
         case .eventsSearch(let query):
@@ -439,6 +441,8 @@ struct NightWatchView: View {
         switch item.route {
         case .agent(let id):
             return watchedAgentIDs.contains(id) ? 100 : 0
+        case .sessionsSearch(let query):
+            return watchedAgentIDs.contains(query) ? 90 : 0
         case .eventsSearch(let query):
             return watchedAgentIDs.contains(query) ? 85 : 0
         default:
@@ -451,6 +455,8 @@ struct NightWatchView: View {
         case .agent(let id):
             return watchedAgentIDs.contains(id)
         case .eventsSearch(let query):
+            return watchedAgentIDs.contains(query)
+        case .sessionsSearch(let query):
             return watchedAgentIDs.contains(query)
         default:
             return false

@@ -341,6 +341,8 @@ struct OnCallView: View {
             }
         case .sessionsAttention:
             SessionsView(initialFilter: .attention)
+        case .sessionsSearch(let query):
+            SessionsView(initialSearchText: query, initialFilter: .attention)
         case .eventsCritical:
             EventsView(api: deps.apiClient, initialScope: .critical)
         case .eventsSearch(let query):
