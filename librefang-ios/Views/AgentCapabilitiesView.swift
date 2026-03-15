@@ -56,6 +56,20 @@ struct AgentCapabilitiesView: View {
                 }
             }
 
+            if hasLoadedAnything {
+                Section {
+                    CapabilitiesSnapshotCard(
+                        toolFilters: toolFilters,
+                        skills: skills,
+                        mcpServers: mcpServers
+                    )
+                } header: {
+                    Text("Snapshot")
+                } footer: {
+                    Text("This snapshot shows which capability feeds have loaded and how much access the agent currently has.")
+                }
+            }
+
             if let toolFilters {
                 toolFiltersSection(toolFilters)
             }
@@ -219,17 +233,12 @@ struct AgentCapabilitiesView: View {
             Text(emptyText)
                 .foregroundStyle(.secondary)
         } else {
+            Text(title)
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.secondary)
+
             ForEach(names.prefix(8), id: \.self) { name in
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(name)
-                        .font(.subheadline.weight(.medium))
-                    if let detail = detail(name), !detail.isEmpty {
-                        Text(detail)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .padding(.vertical, 2)
+                CapabilityNameRow(name: name, detail: detail(name))
             }
 
             if names.count > 8 {
@@ -267,6 +276,92 @@ struct AgentCapabilitiesView: View {
         } catch {
             loadError = error.localizedDescription
         }
+    }
+}
+
+private struct CapabilitiesSnapshotCard: View {
+    let toolFilters: AgentToolFilters?
+    let skills: AgentAssignmentScope?
+    let mcpServers: AgentAssignmentScope?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(String(localized: "Agent capability scope is loaded for quick review."))
+                .font(.subheadline.weight(.medium))
+
+            FlowLayout(spacing: 8) {
+                snapshotBadge(
+                    label: String(localized: "Tool Filters"),
+                    isPresent: toolFilters != nil,
+                    tone: toolFilters?.scopeTone ?? .neutral
+                )
+                snapshotBadge(
+                    label: String(localized: "Skills"),
+                    isPresent: skills != nil,
+                    tone: skills?.scopeTone ?? .neutral
+                )
+                snapshotBadge(
+                    label: String(localized: "MCP"),
+                    isPresent: mcpServers != nil,
+                    tone: mcpServers?.scopeTone ?? .neutral
+                )
+
+                if let toolFilters {
+                    PresentationToneBadge(
+                        text: toolFilters.toolAllowlist.isEmpty
+                            ? String(localized: "Open tool access")
+                            : String(localized: "\(toolFilters.toolAllowlist.count) allowed"),
+                        tone: toolFilters.scopeTone
+                    )
+                }
+
+                if let skills {
+                    PresentationToneBadge(
+                        text: skills.assigned.isEmpty
+                            ? String(localized: "No assigned skills")
+                            : String(localized: "\(skills.assigned.count) assigned skills"),
+                        tone: skills.scopeTone
+                    )
+                }
+
+                if let mcpServers {
+                    PresentationToneBadge(
+                        text: mcpServers.assigned.isEmpty
+                            ? String(localized: "No assigned MCP")
+                            : String(localized: "\(mcpServers.assigned.count) assigned MCP"),
+                        tone: mcpServers.scopeTone
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func snapshotBadge(label: String, isPresent: Bool, tone: PresentationTone) -> some View {
+        PresentationToneBadge(
+            text: isPresent ? label : String(localized: "\(label) missing"),
+            tone: isPresent ? tone : .neutral
+        )
+    }
+}
+
+private struct CapabilityNameRow: View {
+    let name: String
+    let detail: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(name)
+                .font(.subheadline.weight(.medium))
+                .lineLimit(2)
+            if let detail, !detail.isEmpty {
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

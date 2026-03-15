@@ -6,6 +6,7 @@ struct BudgetView: View {
     @State private var sortOrder: BudgetSort = .costDesc
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
+    private var visibleAgents: [AgentBudgetItem] { Array(sortedAgents.prefix(10)) }
 
     private var sortedAgents: [AgentBudgetItem] {
         guard let agents = vm.budgetAgents?.agents else { return [] }
@@ -74,6 +75,23 @@ struct BudgetView: View {
                     }
                 }
 
+                if vm.budget != nil || !vm.usageDaily.isEmpty || !sortedModels.isEmpty || !sortedAgents.isEmpty {
+                    Section {
+                        BudgetSnapshotCard(
+                            trendDays: vm.usageDaily.count,
+                            modelCount: sortedModels.count,
+                            agentCount: sortedAgents.count,
+                            sortOrderLabel: sortOrder.label,
+                            topAgentName: visibleAgents.first?.name,
+                            topAgentCost: visibleAgents.first?.dailyCostUsd
+                        )
+                    } header: {
+                        Text("Breakdown")
+                    } footer: {
+                        Text("This snapshot keeps the highest-signal budget breakdowns visible before the charts and long lists.")
+                    }
+                }
+
                 if !vm.usageDaily.isEmpty {
                     Section {
                         DailyCostTrendChart(days: vm.usageDaily)
@@ -115,7 +133,7 @@ struct BudgetView: View {
 
                 if !sortedAgents.isEmpty {
                     Section {
-                        ForEach(sortedAgents) { item in
+                        ForEach(visibleAgents) { item in
                             AgentCostRow(item: item)
                         }
                     } header: {
@@ -129,6 +147,10 @@ struct BudgetView: View {
                                 Text("Per-Agent Cost")
                                 sortMenu
                             }
+                        }
+                    } footer: {
+                        if sortedAgents.count > visibleAgents.count {
+                            Text("Showing \(visibleAgents.count) of \(sortedAgents.count) agents")
                         }
                     }
                 }
@@ -397,20 +419,17 @@ private struct CostDistributionCard: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(topSlices) { slice in
-                    HStack(spacing: 8) {
-                        Circle()
-                            .fill(slice.color)
-                            .frame(width: 8, height: 8)
-                        Text(slice.title)
-                            .font(.caption)
-                            .lineLimit(1)
-                        Spacer()
-                        Text(formatCost(slice.value))
-                            .font(.caption.monospacedDigit())
-                            .foregroundStyle(.secondary)
-                        Text(percentText(for: slice.value))
-                            .font(.caption.monospacedDigit())
-                            .foregroundStyle(.tertiary)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 8) {
+                            sliceTitle(slice)
+                            Spacer()
+                            sliceValues(slice)
+                        }
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            sliceTitle(slice)
+                            sliceValues(slice)
+                        }
                     }
                 }
             }
@@ -426,6 +445,28 @@ private struct CostDistributionCard: View {
 
     private func formatCost(_ value: Double) -> String {
         localizedUSDCurrency(value)
+    }
+
+    private func sliceTitle(_ slice: CostSlice) -> some View {
+        HStack(spacing: 8) {
+            Circle()
+                .fill(slice.color)
+                .frame(width: 8, height: 8)
+            Text(slice.title)
+                .font(.caption)
+                .lineLimit(1)
+        }
+    }
+
+    private func sliceValues(_ slice: CostSlice) -> some View {
+        HStack(spacing: 8) {
+            Text(formatCost(slice.value))
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
+            Text(percentText(for: slice.value))
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.tertiary)
+        }
     }
 
     private func shortModelName(_ name: String) -> String {
@@ -746,6 +787,10 @@ private struct AgentCostRow: View {
             Text(item.name)
                 .font(.subheadline)
                 .lineLimit(2)
+            PresentationToneBadge(
+                text: budgetStatusLabel,
+                tone: budgetTone
+            )
             Text(item.agentId)
                 .font(.caption2)
                 .foregroundStyle(.quaternary)
@@ -766,6 +811,83 @@ private struct AgentCostRow: View {
                     .foregroundStyle(.tertiary)
             }
         }
+    }
+
+    private var budgetTone: PresentationTone {
+        switch item.dailySpendStatus {
+        case .normal:
+            return .neutral
+        case .warning:
+            return .warning
+        case .critical:
+            return .critical
+        }
+    }
+
+    private var budgetStatusLabel: String {
+        switch item.dailySpendStatus {
+        case .normal:
+            return String(localized: "Normal")
+        case .warning:
+            return String(localized: "Warning")
+        case .critical:
+            return String(localized: "Critical")
+        }
+    }
+}
+
+private struct BudgetSnapshotCard: View {
+    let trendDays: Int
+    let modelCount: Int
+    let agentCount: Int
+    let sortOrderLabel: String
+    let topAgentName: String?
+    let topAgentCost: Double?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(String(localized: "Budget breakdown is ready for quick triage."))
+                .font(.subheadline.weight(.medium))
+
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
+                    tone: trendDays > 0 ? .positive : .neutral
+                )
+                PresentationToneBadge(
+                    text: modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
+                    tone: modelCount > 0 ? .positive : .neutral
+                )
+                PresentationToneBadge(
+                    text: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                    tone: agentCount > 0 ? .positive : .neutral
+                )
+                PresentationToneBadge(text: sortOrderLabel, tone: .neutral)
+            }
+
+            if let topAgentName, let topAgentCost {
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .firstTextBaseline, spacing: 12) {
+                        Text(String(localized: "Top agent today"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer(minLength: 8)
+                        Text("\(topAgentName) · \(localizedUSDCurrency(topAgentCost))")
+                            .font(.caption.weight(.semibold))
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(localized: "Top agent today"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text("\(topAgentName) · \(localizedUSDCurrency(topAgentCost))")
+                            .font(.caption.weight(.semibold))
+                            .lineLimit(2)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 

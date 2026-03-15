@@ -2,8 +2,19 @@ import SwiftUI
 
 struct A2AAgentsView: View {
     @Environment(\.dependencies) private var deps
+    @State private var searchText = ""
 
     private var agents: [A2AAgent] { deps.dashboardViewModel.a2aAgents?.agents ?? [] }
+    private var filteredAgents: [A2AAgent] {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !query.isEmpty else { return agents }
+        return agents.filter { agent in
+            agent.name.lowercased().contains(query)
+                || (agent.description?.lowercased().contains(query) ?? false)
+                || agent.url.lowercased().contains(query)
+                || (agent.skills?.map(\.name).joined(separator: " ").lowercased().contains(query) ?? false)
+        }
+    }
 
     var body: some View {
         Group {
@@ -14,11 +25,72 @@ struct A2AAgentsView: View {
                     description: Text(String(localized: "Discover A2A agents from the server."))
                 )
             } else {
-                List(agents) { agent in
-                    A2AAgentRow(agent: agent)
+                List {
+                    Section {
+                        A2ASummaryCard(
+                            totalAgents: agents.count,
+                            visibleAgents: filteredAgents.count,
+                            streamingCount: agents.filter { $0.capabilities?.streaming == true }.count,
+                            pushCount: agents.filter { $0.capabilities?.pushNotifications == true }.count
+                        )
+                    }
+
+                    if filteredAgents.isEmpty {
+                        Section("Agents") {
+                            ContentUnavailableView(
+                                String(localized: "No Search Results"),
+                                systemImage: "magnifyingglass",
+                                description: Text(String(localized: "Try a different agent name, skill, or endpoint query."))
+                            )
+                        }
+                    } else {
+                        Section("Agents") {
+                            ForEach(filteredAgents) { agent in
+                                A2AAgentRow(agent: agent)
+                            }
+                        }
+                    }
                 }
+                .searchable(text: $searchText, prompt: "Search agent, skill, or URL")
+                .navigationTitle("A2A Agents")
             }
         }
+    }
+}
+
+private struct A2ASummaryCard: View {
+    let totalAgents: Int
+    let visibleAgents: Int
+    let streamingCount: Int
+    let pushCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(String(localized: "External agent inventory is available for quick inspection."))
+                .font(.subheadline.weight(.medium))
+
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: totalAgents == 1 ? String(localized: "1 agent") : String(localized: "\(totalAgents) agents"),
+                    tone: .positive
+                )
+                if visibleAgents != totalAgents {
+                    PresentationToneBadge(
+                        text: String(localized: "\(visibleAgents) visible"),
+                        tone: .warning
+                    )
+                }
+                PresentationToneBadge(
+                    text: streamingCount == 1 ? String(localized: "1 stream") : String(localized: "\(streamingCount) stream"),
+                    tone: streamingCount > 0 ? .positive : .neutral
+                )
+                PresentationToneBadge(
+                    text: pushCount == 1 ? String(localized: "1 push") : String(localized: "\(pushCount) push"),
+                    tone: pushCount > 0 ? .positive : .neutral
+                )
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 
@@ -51,15 +123,9 @@ private struct A2AAgentRow: View {
                 }
 
                 if let caps = agent.capabilities {
-                    ViewThatFits(in: .horizontal) {
-                        HStack(spacing: 12) {
-                            CapabilityBadge(label: String(localized: "Stream"), enabled: caps.streaming ?? false)
-                            CapabilityBadge(label: String(localized: "Push"), enabled: caps.pushNotifications ?? false)
-                        }
-                        VStack(alignment: .leading, spacing: 6) {
-                            CapabilityBadge(label: String(localized: "Stream"), enabled: caps.streaming ?? false)
-                            CapabilityBadge(label: String(localized: "Push"), enabled: caps.pushNotifications ?? false)
-                        }
+                    FlowLayout(spacing: 6) {
+                        CapabilityBadge(label: String(localized: "Stream"), enabled: caps.streaming ?? false)
+                        CapabilityBadge(label: String(localized: "Push"), enabled: caps.pushNotifications ?? false)
                     }
                 }
 
@@ -107,6 +173,19 @@ private struct A2AAgentRow: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
+            }
+            FlowLayout(spacing: 6) {
+                if let version = agent.version, !version.isEmpty {
+                    PresentationToneBadge(text: version, tone: .neutral, horizontalPadding: 6, verticalPadding: 2)
+                }
+                if let skillCount = agent.skills?.count, skillCount > 0 {
+                    PresentationToneBadge(
+                        text: skillCount == 1 ? String(localized: "1 skill") : String(localized: "\(skillCount) skills"),
+                        tone: .positive,
+                        horizontalPadding: 6,
+                        verticalPadding: 2
+                    )
+                }
             }
         }
     }

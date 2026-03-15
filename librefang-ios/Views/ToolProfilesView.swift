@@ -31,6 +31,15 @@ struct ToolProfilesView: View {
 
     var body: some View {
         List {
+            Section {
+                ToolProfilesSnapshotCard(
+                    totalProfiles: profiles.count,
+                    visibleProfiles: filteredProfiles.count,
+                    selectedProfileName: selectedProfile?.name,
+                    selectedToolCount: selectedProfile?.tools.count
+                )
+            }
+
             if let selectedProfile {
                 Section {
                     profileHeader(selectedProfile, highlight: true)
@@ -138,6 +147,12 @@ struct ToolProfilesView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         } else {
+            Text(visibleTools.count == profile.tools.count
+                ? String(localized: "Showing all tools")
+                : String(localized: "Showing \(visibleTools.count) of \(profile.tools.count) tools"))
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
             FlowLayout(spacing: 6) {
                 ForEach(visibleTools, id: \.self) { tool in
                     ToolProfileToolChip(label: tool)
@@ -167,6 +182,46 @@ struct ToolProfilesView: View {
         } catch {
             loadError = error.localizedDescription
         }
+    }
+}
+
+private struct ToolProfilesSnapshotCard: View {
+    let totalProfiles: Int
+    let visibleProfiles: Int
+    let selectedProfileName: String?
+    let selectedToolCount: Int?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(String(localized: "Tool profiles explain what the runtime is allowed to call."))
+                .font(.subheadline.weight(.medium))
+
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: totalProfiles == 1 ? String(localized: "1 profile") : String(localized: "\(totalProfiles) profiles"),
+                    tone: totalProfiles > 0 ? .positive : .neutral
+                )
+                if visibleProfiles != totalProfiles {
+                    PresentationToneBadge(
+                        text: String(localized: "\(visibleProfiles) visible"),
+                        tone: .warning
+                    )
+                }
+                if let selectedProfileName {
+                    PresentationToneBadge(
+                        text: selectedProfileName,
+                        tone: .positive
+                    )
+                }
+                if let selectedToolCount {
+                    PresentationToneBadge(
+                        text: selectedToolCount == 1 ? String(localized: "1 tool") : String(localized: "\(selectedToolCount) tools"),
+                        tone: .neutral
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 
