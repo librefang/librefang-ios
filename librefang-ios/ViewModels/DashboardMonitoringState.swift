@@ -68,8 +68,8 @@ extension DashboardViewModel {
 
     var hasIntegrationIssue: Bool {
         unreachableLocalProviderCount > 0
-            || channelCredentialGapCount > 0
-            || (!catalogModels.isEmpty && configuredProviderCount > 0 && availableCatalogModelCount == 0)
+            || channelRequiredFieldGapCount > 0
+            || hasEmptyModelCatalog
             || !agentsWithModelDiagnostics.isEmpty
     }
 
@@ -344,7 +344,7 @@ extension DashboardViewModel {
             ))
         }
 
-        if !catalogModels.isEmpty && configuredProviderCount > 0 && availableCatalogModelCount == 0 {
+        if hasEmptyModelCatalog {
             items.append(MonitoringAlertItem(
                 id: "no-available-models",
                 title: "No available models in catalog",
@@ -354,11 +354,11 @@ extension DashboardViewModel {
             ))
         }
 
-        if channelCredentialGapCount > 0 {
+        if channelRequiredFieldGapCount > 0 {
             items.append(MonitoringAlertItem(
                 id: "channel-credential-gap",
-                title: channelCredentialGapCount == 1 ? "1 configured channel missing credentials" : "\(channelCredentialGapCount) configured channels missing credentials",
-                detail: "Some configured delivery channels are missing required secrets or tokens.",
+                title: channelRequiredFieldGapCount == 1 ? "1 configured channel missing required fields" : "\(channelRequiredFieldGapCount) configured channels missing required fields",
+                detail: "Some configured delivery channels are missing required secrets or config fields.",
                 severity: .info,
                 symbolName: "bubble.left.and.exclamationmark.bubble.right"
             ))

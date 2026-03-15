@@ -73,8 +73,8 @@ struct IncidentsView: View {
     }
     private var integrationIssueCount: Int {
         (vm.unreachableLocalProviderCount > 0 ? 1 : 0)
-            + (vm.channelCredentialGapCount > 0 ? 1 : 0)
-            + ((!vm.catalogModels.isEmpty && vm.configuredProviderCount > 0 && vm.availableCatalogModelCount == 0) ? 1 : 0)
+            + (vm.channelRequiredFieldGapCount > 0 ? 1 : 0)
+            + (vm.hasEmptyModelCatalog ? 1 : 0)
             + (vm.agentsWithModelDiagnostics.isEmpty ? 0 : 1)
     }
     private var onCallPriorityItems: [OnCallPriorityItem] {
@@ -861,7 +861,7 @@ private struct IncidentIntegrationsCard: View {
     let vm: DashboardViewModel
 
     private var noAvailableModels: Bool {
-        !vm.catalogModels.isEmpty && vm.configuredProviderCount > 0 && vm.availableCatalogModelCount == 0
+        vm.hasEmptyModelCatalog
     }
 
     private var statusColor: Color {
@@ -873,7 +873,7 @@ private struct IncidentIntegrationsCard: View {
 
     private var statusLabel: String {
         let issueCount = (vm.unreachableLocalProviderCount > 0 ? 1 : 0)
-            + (vm.channelCredentialGapCount > 0 ? 1 : 0)
+            + (vm.channelRequiredFieldGapCount > 0 ? 1 : 0)
             + (noAvailableModels ? 1 : 0)
             + (vm.agentsWithModelDiagnostics.isEmpty ? 0 : 1)
         return issueCount == 1 ? "1 issue" : "\(issueCount) issues"
@@ -907,13 +907,12 @@ private struct IncidentIntegrationsCard: View {
                 )
             }
 
-            if vm.channelCredentialGapCount > 0 {
+            if vm.channelRequiredFieldGapCount > 0 {
                 integrationIssueRow(
                     icon: "bubble.left.and.exclamationmark.bubble.right",
                     color: .orange,
-                    title: vm.channelCredentialGapCount == 1 ? "Channel missing credentials" : "\(vm.channelCredentialGapCount) channels missing credentials",
-                    detail: vm.channels
-                        .filter { $0.configured && !$0.hasToken }
+                    title: vm.channelRequiredFieldGapCount == 1 ? "Channel missing required fields" : "\(vm.channelRequiredFieldGapCount) channels missing required fields",
+                    detail: vm.channelsMissingRequiredFields
                         .prefix(2)
                         .map(\.displayName)
                         .joined(separator: " • ")
