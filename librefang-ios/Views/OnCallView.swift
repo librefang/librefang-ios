@@ -214,6 +214,15 @@ struct OnCallView: View {
     private var latestFollowUpStatuses: [HandoffFollowUpStatus] {
         handoffStore.latestFollowUpStatuses
     }
+    private var onCallSectionCount: Int {
+        [
+            true,
+            !priorityItems.isEmpty,
+            !watchedAttentionItems.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
 
     var body: some View {
         List {
@@ -264,6 +273,18 @@ struct OnCallView: View {
                     carryover: currentHandoffCarryover,
                     readiness: draftHandoffReadiness,
                     followUpStatuses: latestFollowUpStatuses
+                )
+
+                OnCallSectionInventoryDeck(
+                    sectionCount: onCallSectionCount,
+                    queueCount: priorityItems.count,
+                    watchItemCount: watchedAttentionItems.count,
+                    mutedAlertCount: mutedAlertCount,
+                    pendingFollowUpCount: pendingFollowUpCount,
+                    approvalCount: vm.pendingApprovalCount,
+                    eventCount: vm.recentCriticalAuditCount,
+                    automationIssueCount: automationIssueCount,
+                    integrationIssueCount: integrationIssueCount
                 )
         } header: {
             Text("Controls")
@@ -774,6 +795,94 @@ private struct OnCallRouteInventoryDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct OnCallSectionInventoryDeck: View {
+    let sectionCount: Int
+    let queueCount: Int
+    let watchItemCount: Int
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let approvalCount: Int
+    let eventCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                        tone: queueCount > 0 ? .warning : .neutral
+                    )
+                    if watchItemCount > 0 {
+                        PresentationToneBadge(
+                            text: watchItemCount == 1 ? String(localized: "1 watch item") : String(localized: "\(watchItemCount) watch items"),
+                            tone: .caution
+                        )
+                    }
+                    if pendingFollowUpCount > 0 {
+                        PresentationToneBadge(
+                            text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep queue coverage, watch pressure, and supporting issue buckets visible before the route deck and live rows begin."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                    tone: approvalCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                    systemImage: "bell.slash"
+                )
+                Label(
+                    eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
+                    systemImage: "list.bullet.rectangle.portrait"
+                )
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 on-call section is active below the controls deck.")
+            : String(localized: "\(sectionCount) on-call sections are active below the controls deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Queue work, watchlist pressure, and supporting issue buckets stay summarized before the route deck and live rows take over.")
     }
 }
 

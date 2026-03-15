@@ -178,6 +178,16 @@ struct HandoffCenterView: View {
 
         return items
     }
+    private var handoffSectionCount: Int {
+        [
+            true,
+            true,
+            !timelineItems.isEmpty,
+            !filteredEntries.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
 
     var body: some View {
         List {
@@ -440,6 +450,17 @@ struct HandoffCenterView: View {
         Section {
             VStack(alignment: .leading, spacing: 12) {
                 handoffSignalFactsCard
+                HandoffSectionInventoryDeck(
+                    sectionCount: handoffSectionCount,
+                    timelineCount: timelineItems.count,
+                    historyCount: filteredEntries.count,
+                    focusCount: handoffStore.draftFocusAreas.items.count,
+                    followUpCount: handoffStore.draftFollowUpItems.count,
+                    pendingFollowUpCount: pendingLatestFollowUpCount,
+                    readiness: draftReadiness,
+                    queueCount: queueCount,
+                    criticalCount: criticalCount
+                )
                 HandoffRouteInventoryDeck(
                     queueCount: queueCount,
                     criticalCount: criticalCount,
@@ -1227,6 +1248,85 @@ private struct HandoffRouteInventoryDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct HandoffSectionInventoryDeck: View {
+    let sectionCount: Int
+    let timelineCount: Int
+    let historyCount: Int
+    let focusCount: Int
+    let followUpCount: Int
+    let pendingFollowUpCount: Int
+    let readiness: HandoffReadinessStatus
+    let queueCount: Int
+    let criticalCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                        tone: queueCount > 0 ? .warning : .neutral
+                    )
+                    if pendingFollowUpCount > 0 {
+                        PresentationToneBadge(
+                            text: pendingFollowUpCount == 1 ? String(localized: "1 pending follow-up") : String(localized: "\(pendingFollowUpCount) pending follow-ups"),
+                            tone: .warning
+                        )
+                    }
+                    PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep draft readiness, timeline depth, and history coverage visible before the route deck and longer editor sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                    tone: criticalCount > 0 ? .critical : .neutral
+                )
+            } facts: {
+                Label(
+                    timelineCount == 1 ? String(localized: "1 timeline item") : String(localized: "\(timelineCount) timeline items"),
+                    systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90"
+                )
+                Label(
+                    historyCount == 1 ? String(localized: "1 history entry") : String(localized: "\(historyCount) history entries"),
+                    systemImage: "text.badge.plus"
+                )
+                Label(
+                    focusCount == 1 ? String(localized: "1 focus area") : String(localized: "\(focusCount) focus areas"),
+                    systemImage: "scope"
+                )
+                Label(
+                    followUpCount == 1 ? String(localized: "1 drafted follow-up") : String(localized: "\(followUpCount) drafted follow-ups"),
+                    systemImage: "arrow.triangle.2.circlepath"
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 handoff section is active below the controls deck.")
+            : String(localized: "\(sectionCount) handoff sections are active below the controls deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Draft context, timeline depth, and saved history stay summarized before the route deck and editor sections take over.")
     }
 }
 
