@@ -148,6 +148,23 @@ struct IncidentsView: View {
             || integrationIssueCount > 0
             || handoffIssueCount > 0
     }
+    private var incidentSectionCount: Int {
+        [
+            !visibleAlerts.isEmpty || !mutedAlerts.isEmpty,
+            handoffIssueCount > 0,
+            automationIssueCount > 0,
+            integrationIssueCount > 0,
+            !visibleAlerts.isEmpty,
+            !mutedAlerts.isEmpty,
+            !vm.approvals.isEmpty,
+            !vm.attentionAgents.isEmpty,
+            !watchedDiagnosticRows.isEmpty,
+            !vm.sessionAttentionItems.isEmpty,
+            !vm.criticalAuditEntries.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -277,6 +294,19 @@ struct IncidentsView: View {
                 integrationCount: integrationIssueCount,
                 handoffCount: handoffIssueCount,
                 isAcknowledged: isCurrentSnapshotAcknowledged
+            )
+
+            IncidentSectionInventoryDeck(
+                sectionCount: incidentSectionCount,
+                activeAlertCount: visibleAlerts.count,
+                mutedAlertCount: mutedAlerts.count,
+                approvalCount: vm.pendingApprovalCount,
+                agentCount: combinedAgentIssueCount,
+                sessionCount: vm.sessionAttentionCount,
+                eventCount: vm.recentCriticalAuditCount,
+                automationCount: automationIssueCount,
+                integrationCount: integrationIssueCount,
+                handoffCount: handoffIssueCount
             )
 
             MonitoringSurfaceGroupCard(
@@ -1459,6 +1489,100 @@ private struct ActiveAlertsInventoryDeck: View {
             return String(localized: "\(mutedCount) additional alerts are muted locally, so the active slice is not the full phone-level incident picture.")
         }
         return String(localized: "Active severity and alert type spread stay summarized here before the per-alert controls.")
+    }
+}
+
+private struct IncidentSectionInventoryDeck: View {
+    let sectionCount: Int
+    let activeAlertCount: Int
+    let mutedAlertCount: Int
+    let approvalCount: Int
+    let agentCount: Int
+    let sessionCount: Int
+    let eventCount: Int
+    let automationCount: Int
+    let integrationCount: Int
+    let handoffCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: activeAlertCount == 1 ? String(localized: "1 active alert") : String(localized: "\(activeAlertCount) active alerts"),
+                        tone: activeAlertCount > 0 ? .critical : .neutral
+                    )
+                    if mutedAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                            tone: .neutral
+                        )
+                    }
+                    if handoffCount > 0 {
+                        PresentationToneBadge(
+                            text: handoffCount == 1 ? String(localized: "1 handoff issue") : String(localized: "\(handoffCount) handoff issues"),
+                            tone: .warning
+                        )
+                    }
+                    if automationCount > 0 {
+                        PresentationToneBadge(
+                            text: automationCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationCount) automation issues"),
+                            tone: .warning
+                        )
+                    }
+                    if integrationCount > 0 {
+                        PresentationToneBadge(
+                            text: integrationCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationCount) integration issues"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Incident inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep queue coverage and cross-surface pressure visible before the incident routes and bucket lists begin."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: sectionCount == 1 ? String(localized: "1 section") : String(localized: "\(sectionCount) sections"),
+                    tone: sectionCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                    systemImage: "checkmark.shield"
+                )
+                Label(
+                    agentCount == 1 ? String(localized: "1 agent issue") : String(localized: "\(agentCount) agent issues"),
+                    systemImage: "person.3"
+                )
+                Label(
+                    sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                    systemImage: "rectangle.stack"
+                )
+                Label(
+                    eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
+                    systemImage: "list.bullet.rectangle.portrait"
+                )
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 incident section is active in the current queue.")
+            : String(localized: "\(sectionCount) incident sections are active in the current queue.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Alerts, approvals, sessions, events, automation, integrations, and handoff pressure stay grouped before the routes fan out.")
     }
 }
 

@@ -590,6 +590,8 @@ struct MainTabView: View {
                 title: preferredOnCallSurface.label,
                 systemImage: preferredSurfaceSymbolName,
                 tone: visibleCriticalAlertCount > 0 ? .critical : .neutral,
+                priority: .primary,
+                isCritical: visibleCriticalAlertCount > 0,
                 badgeText: visibleCriticalAlertCount > 0
                     ? (visibleCriticalAlertCount == 1 ? String(localized: "1 critical") : String(localized: "\(visibleCriticalAlertCount) critical"))
                     : nil,
@@ -603,6 +605,8 @@ struct MainTabView: View {
                     title: String(localized: "Incidents"),
                     systemImage: "bell.badge",
                     tone: visibleCriticalAlertCount > 0 ? .critical : .warning,
+                    priority: .primary,
+                    isCritical: visibleCriticalAlertCount > 0,
                     badgeText: visibleMonitoringAlerts.count == 1
                         ? String(localized: "1 alert")
                         : String(localized: "\(visibleMonitoringAlerts.count) alerts"),
@@ -617,6 +621,7 @@ struct MainTabView: View {
                     title: String(localized: "Approvals"),
                     systemImage: "checkmark.shield",
                     tone: .warning,
+                    priority: .primary,
                     badgeText: vm.pendingApprovalCount == 1
                         ? String(localized: "1 pending")
                         : String(localized: "\(vm.pendingApprovalCount) pending"),
@@ -631,6 +636,8 @@ struct MainTabView: View {
                     title: String(localized: "Handoff"),
                     systemImage: "person.2.wave.2",
                     tone: handoffBannerStatus?.state == .overdue ? .critical : .warning,
+                    priority: .primary,
+                    isCritical: handoffBannerStatus?.state == .overdue,
                     badgeText: pendingLatestFollowUpCount > 0
                         ? (pendingLatestFollowUpCount == 1 ? String(localized: "1 open") : String(localized: "\(pendingLatestFollowUpCount) open"))
                         : nil,
@@ -645,6 +652,7 @@ struct MainTabView: View {
                     title: String(localized: "Sessions"),
                     systemImage: "text.bubble",
                     tone: .warning,
+                    priority: .support,
                     badgeText: vm.sessionAttentionCount == 1
                         ? String(localized: "1 hotspot")
                         : String(localized: "\(vm.sessionAttentionCount) hotspots"),
@@ -659,6 +667,8 @@ struct MainTabView: View {
                     title: String(localized: "Diagnostics"),
                     systemImage: "stethoscope",
                     tone: !deps.networkMonitor.isConnected ? .critical : .warning,
+                    priority: .support,
+                    isCritical: !deps.networkMonitor.isConnected,
                     badgeText: vm.runtimeAlertCount > 0
                         ? (vm.runtimeAlertCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.runtimeAlertCount) issues"))
                         : nil,
@@ -717,11 +727,19 @@ private struct OperatorOverlayDeck: View {
     let actions: [OperatorOverlayQuickAction]
 
     private var primaryActions: [OperatorOverlayQuickAction] {
-        Array(actions.prefix(4))
+        actions.filter { $0.priority == .primary }
     }
 
     private var supportActions: [OperatorOverlayQuickAction] {
-        Array(actions.dropFirst(4))
+        actions.filter { $0.priority == .support }
+    }
+
+    private var badgedActionCount: Int {
+        actions.filter(\.hasBadge).count
+    }
+
+    private var criticalActionCount: Int {
+        actions.filter(\.isCritical).count
     }
 
     var body: some View {
@@ -746,60 +764,22 @@ private struct OperatorOverlayDeck: View {
             }
 
             OperatorOverlayInventoryDeck(
+                preferredSurfaceLabel: preferredSurfaceLabel,
+                isOffline: isOffline,
+                primaryActionCount: primaryActions.count,
+                supportActionCount: supportActions.count,
+                badgedActionCount: badgedActionCount,
+                criticalActionCount: criticalActionCount
+            )
+
+            OperatorOverlayPressureDeck(
                 isOffline: isOffline,
                 criticalCount: criticalCount,
                 approvalCount: approvalCount,
                 watchIssueCount: watchIssueCount,
                 sessionCount: sessionCount,
-                pendingFollowUpCount: pendingFollowUpCount,
-                primaryActionCount: primaryActions.count,
-                supportActionCount: supportActions.count
+                pendingFollowUpCount: pendingFollowUpCount
             )
-
-            FlowLayout(spacing: 8) {
-                if isOffline {
-                    GlassCapsuleBadge(
-                        text: String(localized: "Offline"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if criticalCount > 0 {
-                    GlassCapsuleBadge(
-                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if approvalCount > 0 {
-                    GlassCapsuleBadge(
-                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if watchIssueCount > 0 {
-                    GlassCapsuleBadge(
-                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if sessionCount > 0 {
-                    GlassCapsuleBadge(
-                        text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    GlassCapsuleBadge(
-                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-            }
 
             if !primaryActions.isEmpty || !supportActions.isEmpty {
                 Divider()
@@ -866,30 +846,28 @@ private struct OperatorOverlayDeck: View {
 }
 
 private struct OperatorOverlayInventoryDeck: View {
+    let preferredSurfaceLabel: String
     let isOffline: Bool
-    let criticalCount: Int
-    let approvalCount: Int
-    let watchIssueCount: Int
-    let sessionCount: Int
-    let pendingFollowUpCount: Int
     let primaryActionCount: Int
     let supportActionCount: Int
+    let badgedActionCount: Int
+    let criticalActionCount: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ResponsiveAccessoryRow(horizontalSpacing: 10, verticalSpacing: 6) {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Overlay inventory"))
+                    Text(String(localized: "Route inventory"))
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
-                    Text(String(localized: "Keep the current pressure and quick-action spread readable before opening the full monitor surface."))
+                    Text(String(localized: "Keep the preferred surface and quick-action split readable before opening the full monitor surface."))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             } accessory: {
                 GlassCapsuleBadge(
-                    text: String(localized: "\(primaryActionCount + supportActionCount) actions"),
+                    text: preferredSurfaceLabel,
                     foregroundStyle: .secondary,
                     backgroundOpacity: 0.08
                 )
@@ -908,44 +886,23 @@ private struct OperatorOverlayInventoryDeck: View {
                         backgroundOpacity: 0.10
                     )
                 }
+                if badgedActionCount > 0 {
+                    GlassCapsuleBadge(
+                        text: badgedActionCount == 1 ? String(localized: "1 badged") : String(localized: "\(badgedActionCount) badged"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if criticalActionCount > 0 {
+                    GlassCapsuleBadge(
+                        text: criticalActionCount == 1 ? String(localized: "1 urgent route") : String(localized: "\(criticalActionCount) urgent routes"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
                 if isOffline {
                     GlassCapsuleBadge(
-                        text: String(localized: "Offline"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if criticalCount > 0 {
-                    GlassCapsuleBadge(
-                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if approvalCount > 0 {
-                    GlassCapsuleBadge(
-                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if watchIssueCount > 0 {
-                    GlassCapsuleBadge(
-                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if sessionCount > 0 {
-                    GlassCapsuleBadge(
-                        text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    GlassCapsuleBadge(
-                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
+                        text: String(localized: "Offline fallback"),
                         foregroundStyle: .primary,
                         backgroundOpacity: 0.10
                     )
@@ -955,13 +912,70 @@ private struct OperatorOverlayInventoryDeck: View {
     }
 }
 
+private struct OperatorOverlayPressureDeck: View {
+    let isOffline: Bool
+    let criticalCount: Int
+    let approvalCount: Int
+    let watchIssueCount: Int
+    let sessionCount: Int
+    let pendingFollowUpCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(String(localized: "Pressure"))
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            FlowLayout(spacing: 8) {
+                if isOffline {
+                    pressureBadge(String(localized: "Offline"))
+                }
+                if criticalCount > 0 {
+                    pressureBadge(criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"))
+                }
+                if approvalCount > 0 {
+                    pressureBadge(approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"))
+                }
+                if watchIssueCount > 0 {
+                    pressureBadge(watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"))
+                }
+                if sessionCount > 0 {
+                    pressureBadge(sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"))
+                }
+                if pendingFollowUpCount > 0 {
+                    pressureBadge(pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"))
+                }
+            }
+        }
+    }
+
+    private func pressureBadge(_ text: String) -> some View {
+        GlassCapsuleBadge(
+            text: text,
+            foregroundStyle: .primary,
+            backgroundOpacity: 0.10
+        )
+    }
+}
+
+private enum OperatorOverlayActionPriority {
+    case primary
+    case support
+}
+
 private struct OperatorOverlayQuickAction: Identifiable {
     let id = UUID()
     let title: String
     let systemImage: String
     let tone: PresentationTone
+    let priority: OperatorOverlayActionPriority
+    let isCritical: Bool = false
     let badgeText: String?
     let action: () -> Void
+
+    var hasBadge: Bool {
+        badgeText != nil
+    }
 }
 
 // MARK: - Offline Banner
