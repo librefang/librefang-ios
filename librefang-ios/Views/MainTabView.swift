@@ -69,6 +69,12 @@ struct MainTabView: View {
                 return lhs.agent.name.localizedCompare(rhs.agent.name) == .orderedAscending
             }
     }
+    private var watchedDiagnosticPriorityItems: [OnCallPriorityItem] {
+        watchedAgentDiagnosticPriorityItems(
+            agents: watchedAgents,
+            summaries: deps.watchedAgentDiagnosticsStore.summaries
+        )
+    }
     private var criticalTrackingState: CriticalTrackingState {
         CriticalTrackingState(
             count: visibleCriticalAlertCount,
@@ -87,11 +93,14 @@ struct MainTabView: View {
         )
     }
     private var onCallPriorityItems: [OnCallPriorityItem] {
-        vm.onCallPriorityItems(
-            visibleAlerts: visibleMonitoringAlerts,
-            watchedAttentionItems: watchedAttentionItems,
-            handoffCheckInStatus: handoffCheckInStatus,
-            handoffFollowUpStatuses: latestFollowUpStatuses
+        mergeOnCallPriorityItems(
+            vm.onCallPriorityItems(
+                visibleAlerts: visibleMonitoringAlerts,
+                watchedAttentionItems: watchedAttentionItems,
+                handoffCheckInStatus: handoffCheckInStatus,
+                handoffFollowUpStatuses: latestFollowUpStatuses
+            ),
+            with: watchedDiagnosticPriorityItems
         )
     }
     private var handoffText: String {

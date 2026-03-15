@@ -83,18 +83,27 @@ struct OnCallView: View {
                 return lhs.agent.name.localizedCompare(rhs.agent.name) == .orderedAscending
             }
     }
+    private var watchedDiagnosticPriorityItems: [OnCallPriorityItem] {
+        watchedAgentDiagnosticPriorityItems(
+            agents: watchedAgents,
+            summaries: watchedDiagnostics
+        )
+    }
 
     private var priorityItems: [OnCallPriorityItem] {
-        vm.onCallPriorityItems(
-            visibleAlerts: visibleAlerts,
-            watchedAttentionItems: watchedAttentionItems,
-            handoffCheckInStatus: handoffStore.latestCheckInStatus,
-            handoffFollowUpStatuses: latestFollowUpStatuses
+        mergeOnCallPriorityItems(
+            vm.onCallPriorityItems(
+                visibleAlerts: visibleAlerts,
+                watchedAttentionItems: watchedAttentionItems,
+                handoffCheckInStatus: handoffStore.latestCheckInStatus,
+                handoffFollowUpStatuses: latestFollowUpStatuses
+            ),
+            with: watchedDiagnosticPriorityItems
         )
     }
 
     private var digestLine: String {
-        vm.onCallDigestLine(
+        let base = vm.onCallDigestLine(
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
@@ -102,6 +111,10 @@ struct OnCallView: View {
             handoffCheckInStatus: handoffStore.latestCheckInStatus,
             handoffFollowUpStatuses: latestFollowUpStatuses
         )
+        if let diagnosticsSummary = watchedAgentDiagnosticDigestSummary(summaries: watchedDiagnostics) {
+            return [base, diagnosticsSummary].joined(separator: " · ")
+        }
+        return base
     }
     private var handoffText: String {
         vm.onCallHandoffText(

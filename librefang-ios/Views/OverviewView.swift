@@ -26,19 +26,28 @@ struct OverviewView: View {
                 return lhs.agent.name.localizedCompare(rhs.agent.name) == .orderedAscending
             }
     }
-    private var onCallPriorityItems: [OnCallPriorityItem] {
-        vm.onCallPriorityItems(
-            visibleAlerts: visibleMonitoringAlerts,
-            watchedAttentionItems: watchedAttentionItems,
-            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
-            handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
-        )
-    }
     private var watchedDiagnostics: [String: WatchedAgentDiagnosticsSummary] {
         deps.watchedAgentDiagnosticsStore.summaries
     }
+    private var watchedDiagnosticPriorityItems: [OnCallPriorityItem] {
+        watchedAgentDiagnosticPriorityItems(
+            agents: deps.agentWatchlistStore.watchedAgents(from: vm.agents),
+            summaries: watchedDiagnostics
+        )
+    }
+    private var onCallPriorityItems: [OnCallPriorityItem] {
+        mergeOnCallPriorityItems(
+            vm.onCallPriorityItems(
+                visibleAlerts: visibleMonitoringAlerts,
+                watchedAttentionItems: watchedAttentionItems,
+                handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+                handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
+            ),
+            with: watchedDiagnosticPriorityItems
+        )
+    }
     private var onCallDigestLine: String {
-        vm.onCallDigestLine(
+        let base = vm.onCallDigestLine(
             visibleAlerts: visibleMonitoringAlerts,
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: activeMutedAlertCount,
@@ -46,6 +55,10 @@ struct OverviewView: View {
             handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
             handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
         )
+        if let diagnosticsSummary = watchedAgentDiagnosticDigestSummary(summaries: watchedDiagnostics) {
+            return [base, diagnosticsSummary].joined(separator: " · ")
+        }
+        return base
     }
     private var handoffText: String {
         vm.onCallHandoffText(
