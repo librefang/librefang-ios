@@ -50,11 +50,19 @@ struct RuntimeView: View {
         vm.tools.filter { ($0.source ?? "") == "mcp" }.count
     }
 
+    private var runtimeSnapshotSummary: String {
+        if let status = vm.status {
+            return String(localized: "Kernel \(status.localizedStatusLabel) with \(status.agentCount) agents and \(vm.pendingApprovalCount) pending approvals in the current runtime snapshot.")
+        }
+        return String(localized: "Runtime monitoring is collecting the latest system, integrations, automation, and approval state.")
+    }
+
     var body: some View {
         NavigationStack {
             List {
                 errorSection
                 scoreboardSection
+                runtimeSnapshotSection
                 systemSection
                 diagnosticsSection
                 integrationsSection
@@ -131,6 +139,64 @@ struct RuntimeView: View {
         Section {
             RuntimeScoreboard(vm: vm)
                 .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+        }
+    }
+
+    private var runtimeSnapshotSection: some View {
+        Section {
+            MonitoringSnapshotCard(
+                summary: runtimeSnapshotSummary,
+                detail: String(localized: "This mobile snapshot keeps the most important runtime buckets visible before the longer provider and hand lists.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: vm.pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(vm.pendingApprovalCount) approvals"),
+                        tone: vm.pendingApprovalCount > 0 ? .critical : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: vm.sessionAttentionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(vm.sessionAttentionCount) session hotspots"),
+                        tone: vm.sessionAttentionCount > 0 ? .warning : .neutral
+                    )
+                    if vm.recentCriticalAuditCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical audit event") : String(localized: "\(vm.recentCriticalAuditCount) critical audit events"),
+                            tone: .critical
+                        )
+                    }
+                    if vm.runtimeAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.runtimeAlertCount == 1 ? String(localized: "1 runtime alert") : String(localized: "\(vm.runtimeAlertCount) runtime alerts"),
+                            tone: .warning
+                        )
+                    }
+                    if vm.automationPressureIssueCategoryCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) automation issues"),
+                            tone: .warning
+                        )
+                    }
+                    if vm.integrationPressureIssueCategoryCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) integration issues"),
+                            tone: .critical
+                        )
+                    }
+                    if vm.degradedHandCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.degradedHandCount == 1 ? String(localized: "1 degraded hand") : String(localized: "\(vm.degradedHandCount) degraded hands"),
+                            tone: .warning
+                        )
+                    }
+                    if vm.connectedMCPServerCount > 0 || vm.configuredMCPServerCount > 0 {
+                        PresentationToneBadge(
+                            text: String(localized: "\(vm.connectedMCPServerCount)/\(max(vm.configuredMCPServerCount, vm.connectedMCPServerCount)) MCP connected"),
+                            tone: vm.connectedMCPServerCount > 0 ? .positive : .warning
+                        )
+                    }
+                }
+            }
+        } footer: {
+            Text("Use this as the compact runtime digest before drilling into diagnostics, integrations, sessions, or approvals.")
         }
     }
 

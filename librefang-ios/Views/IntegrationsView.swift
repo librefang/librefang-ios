@@ -188,6 +188,27 @@ struct IntegrationsView: View {
         !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty || !vm.modelAliases.isEmpty || !vm.agentsWithModelDiagnostics.isEmpty
     }
 
+    private var visibleResultCount: Int {
+        filteredProviders.count
+            + filteredChannels.count
+            + filteredModels.count
+            + filteredAliases.count
+            + filteredAgentDiagnostics.count
+    }
+
+    private var scopeSummaryLine: String {
+        scope == .attention
+            ? String(localized: "Attention mode focuses on outages, field gaps, unavailable models, and agent drift.")
+            : String(localized: "All mode keeps the full provider, channel, model, and alias inventory visible on mobile.")
+    }
+
+    private var searchSummaryLine: String {
+        if normalizedSearchText.isEmpty {
+            return String(localized: "Search providers, channels, models, aliases, or agent drift from one place.")
+        }
+        return String(localized: "\(visibleResultCount) integration results visible for \"\(searchText)\".")
+    }
+
     var body: some View {
         List {
             Section {
@@ -196,12 +217,23 @@ struct IntegrationsView: View {
             }
 
             Section {
-                Picker("Scope", selection: $scope) {
-                    ForEach(IntegrationsScope.allCases) { scope in
-                        Text(scope.label).tag(scope)
+                MonitoringFilterCard(summary: scopeSummaryLine, detail: searchSummaryLine) {
+                    PresentationToneBadge(
+                        text: scope.label,
+                        tone: scope == .attention ? .warning : .neutral
+                    )
+                } controls: {
+                    FlowLayout(spacing: 8) {
+                        ForEach(IntegrationsScope.allCases) { candidate in
+                            Button {
+                                scope = candidate
+                            } label: {
+                                SelectableCapsuleBadge(text: candidate.label, isSelected: scope == candidate)
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                 }
-                .pickerStyle(.segmented)
             } footer: {
                 Text(
                     scope == .attention
@@ -222,12 +254,28 @@ struct IntegrationsView: View {
 
             if !vm.catalogModels.isEmpty && scope == .all {
                 Section {
-                    Picker("Models", selection: $modelFilter) {
-                        ForEach(IntegrationsModelFilter.allCases) { filter in
-                            Text(filter.label).tag(filter)
+                    MonitoringFilterCard(
+                        summary: String(localized: "Model filter keeps the catalog focused without hiding the broader provider and channel diagnostics."),
+                        detail: filteredModels.isEmpty
+                            ? String(localized: "No catalog models match the current filter.")
+                            : String(localized: "\(filteredModels.count) catalog models visible in \(modelFilter.label.lowercased()) mode.")
+                    ) {
+                        PresentationToneBadge(
+                            text: modelFilter.label,
+                            tone: modelFilter == .unavailable ? .warning : .neutral
+                        )
+                    } controls: {
+                        FlowLayout(spacing: 8) {
+                            ForEach(IntegrationsModelFilter.allCases) { filter in
+                                Button {
+                                    modelFilter = filter
+                                } label: {
+                                    SelectableCapsuleBadge(text: filter.label, isSelected: modelFilter == filter)
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
                     }
-                    .pickerStyle(.segmented)
                 } header: {
                     Text("Model Filter")
                 } footer: {

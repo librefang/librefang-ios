@@ -11,6 +11,10 @@ struct AgentsView: View {
         watchlistStore.watchedAgents(from: vm.agents)
     }
 
+    private var normalizedSearchText: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     private var filteredAgents: [AgentAttentionItem] {
         var result = vm.agents.map { vm.attentionItem(for: $0) }
 
@@ -46,6 +50,28 @@ struct AgentsView: View {
         }
     }
 
+    private var filterSummaryLine: String {
+        switch filterState {
+        case .all:
+            return String(localized: "Showing the full fleet with watched agents and attention items promoted to the top.")
+        case .attention:
+            return String(localized: "Attention mode keeps stale, auth, approval, and delivery issues at the front.")
+        case .watchlist:
+            return String(localized: "Watchlist mode limits the fleet to agents pinned locally on this iPhone.")
+        case .running:
+            return String(localized: "Running mode keeps only active agents in the list.")
+        case .stopped:
+            return String(localized: "Stopped mode isolates idle agents for quick review.")
+        }
+    }
+
+    private var searchSummaryLine: String {
+        if normalizedSearchText.isEmpty {
+            return String(localized: "\(filteredAgents.count) agents visible in the current fleet view.")
+        }
+        return String(localized: "\(filteredAgents.count) agents visible for \"\(searchText)\".")
+    }
+
     var body: some View {
         NavigationStack {
             Group {
@@ -78,6 +104,32 @@ struct AgentsView: View {
                 } else {
                     List {
                         if !filteredAgents.isEmpty {
+                            Section {
+                                MonitoringFilterCard(summary: filterSummaryLine, detail: searchSummaryLine) {
+                                    PresentationToneBadge(
+                                        text: filterState.label,
+                                        tone: filterState == .attention ? .warning : .neutral
+                                    )
+                                } controls: {
+                                    FlowLayout(spacing: 8) {
+                                        ForEach(AgentFilter.allCases, id: \.self) { filter in
+                                            Button {
+                                                filterState = filter
+                                            } label: {
+                                                SelectableLabelCapsuleBadge(
+                                                    text: filter.label,
+                                                    systemImage: filter.icon,
+                                                    isSelected: filterState == filter
+                                                )
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+                                    }
+                                }
+                            } footer: {
+                                Text("Keep the fleet filter visible on mobile instead of relying on the top-bar menu alone.")
+                            }
+
                             Section {
                                 AgentFleetSummaryCard(
                                     runningCount: filteredAgents.filter { $0.agent.isRunning }.count,
