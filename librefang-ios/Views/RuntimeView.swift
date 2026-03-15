@@ -1357,11 +1357,11 @@ private struct RuntimeScoreboard: View {
 
     private var columns: [GridItem] {
         let count = horizontalSizeClass == .compact ? 2 : 4
-        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
+        return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
     }
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 10) {
+        LazyVGrid(columns: columns, spacing: 8) {
             StatBadge(
                 value: "\(vm.runningCount)/\(vm.totalCount)",
                 label: "Agents",
@@ -1411,7 +1411,7 @@ private struct RuntimeScoreboard: View {
                 color: securityStatus.color(positive: .green)
             )
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 6)
     }
 }
 
@@ -1421,7 +1421,7 @@ private struct RuntimeMetricRow: View {
     let detail: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
+        VStack(alignment: .leading, spacing: 2) {
             ResponsiveValueRow(horizontalSpacing: 10) {
                 Text(label)
                     .foregroundStyle(.secondary)
@@ -1433,7 +1433,7 @@ private struct RuntimeMetricRow: View {
                 .font(.caption)
                 .foregroundStyle(.tertiary)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 1)
     }
 }
 

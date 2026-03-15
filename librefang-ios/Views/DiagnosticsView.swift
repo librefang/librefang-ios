@@ -52,6 +52,11 @@ struct DiagnosticsView: View {
 
                 if let healthDetail = vm.healthDetail {
                     Section {
+                        HealthDetailInventoryCard(
+                            healthDetail: healthDetail,
+                            uptimeLabel: formatDuration(healthDetail.uptimeSeconds)
+                        )
+
                         DiagnosticsMetricRow(
                             label: String(localized: "Kernel Status"),
                             value: healthDetail.localizedStatusLabel,
@@ -92,6 +97,11 @@ struct DiagnosticsView: View {
 
                 if let versionInfo = vm.versionInfo {
                     Section {
+                        BuildInventoryCard(
+                            versionInfo: versionInfo,
+                            shortSHA: shortSHA(versionInfo.gitSHA)
+                        )
+
                         DiagnosticsMetricRow(
                             label: String(localized: "Version"),
                             value: versionInfo.version,
@@ -115,6 +125,8 @@ struct DiagnosticsView: View {
 
                 if let configSummary = vm.configSummary {
                     Section {
+                        ConfigInventoryCard(configSummary: configSummary)
+
                         DiagnosticsMetricRow(
                             label: String(localized: "Home Dir"),
                             value: configSummary.homeDir,
@@ -145,6 +157,8 @@ struct DiagnosticsView: View {
 
                 if let metrics {
                     Section {
+                        MetricsInventoryCard(metrics: metrics)
+
                         DiagnosticsMetricRow(
                             label: String(localized: "Agents"),
                             value: String(localized: "\(metrics.activeAgents)/\(metrics.totalAgents) active"),
@@ -489,11 +503,11 @@ private struct DiagnosticsScoreboard: View {
 
     private var columns: [GridItem] {
         let count = horizontalSizeClass == .compact ? 2 : 3
-        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
+        return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
     }
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 10) {
+        LazyVGrid(columns: columns, spacing: 8) {
             StatBadge(
                 value: vm.healthDetail?.localizedStatusLabel ?? "--",
                 label: "Status",
@@ -531,7 +545,7 @@ private struct DiagnosticsScoreboard: View {
                 color: .indigo
             )
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 6)
     }
 }
 
@@ -540,7 +554,7 @@ private struct DiagnosticsStatusDeckCard: View {
     let metrics: PrometheusMetricsSnapshot?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             MonitoringSnapshotCard(summary: summaryLine, verticalPadding: 4) {
                 FlowLayout(spacing: 8) {
                     snapshotBadge(
@@ -640,6 +654,219 @@ private struct DiagnosticsStatusDeckCard: View {
             text: isPresent ? label : String(localized: "\(label) missing"),
             tone: isPresent ? activeTone : .neutral
         )
+    }
+}
+
+private struct HealthDetailInventoryCard: View {
+    let healthDetail: HealthDetail
+    let uptimeLabel: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Kernel \(healthDetail.localizedStatusLabel) after \(uptimeLabel) of uptime."),
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: healthDetail.localizedStatusLabel, tone: healthDetail.statusTone)
+                    PresentationToneBadge(
+                        text: healthDetail.localizedDatabaseLabel,
+                        tone: healthDetail.isHealthy ? .positive : .warning
+                    )
+                    if healthDetail.configWarnings.isEmpty {
+                        PresentationToneBadge(text: String(localized: "No config warnings"), tone: .positive)
+                    } else {
+                        PresentationToneBadge(
+                            text: healthDetail.configWarnings.count == 1
+                                ? String(localized: "1 config warning")
+                                : String(localized: "\(healthDetail.configWarnings.count) config warnings"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Health inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep kernel state, registry size, and supervisor recovery visible before drilling into warnings."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: uptimeLabel, tone: .neutral)
+            } facts: {
+                Label(
+                    healthDetail.agentCount == 1 ? String(localized: "1 agent in registry") : String(localized: "\(healthDetail.agentCount) agents in registry"),
+                    systemImage: "cpu"
+                )
+                Label(
+                    healthDetail.panicCount == 1 ? String(localized: "1 panic") : String(localized: "\(healthDetail.panicCount) panics"),
+                    systemImage: "bolt.trianglebadge.exclamationmark"
+                )
+                Label(
+                    healthDetail.restartCount == 1 ? String(localized: "1 restart") : String(localized: "\(healthDetail.restartCount) restarts"),
+                    systemImage: "arrow.clockwise.circle"
+                )
+                Label(healthDetail.version, systemImage: "shippingbox")
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var detailLine: String {
+        if healthDetail.configWarnings.isEmpty {
+            return String(localized: "Database connectivity is healthy and the runtime validator has not raised any config warnings.")
+        }
+        return String(localized: "Database \(healthDetail.localizedDatabaseLabel). Validator surfaced \(healthDetail.configWarnings.count) config warnings for follow-up.")
+    }
+}
+
+private struct BuildInventoryCard: View {
+    let versionInfo: BuildVersionInfo
+    let shortSHA: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "\(versionInfo.name) \(versionInfo.version) is the active server build."),
+                detail: String(localized: "Built on \(versionInfo.buildDate) for \(versionInfo.platform) / \(versionInfo.arch)."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: versionInfo.version, tone: .neutral)
+                    PresentationToneBadge(text: shortSHA, tone: .neutral)
+                    PresentationToneBadge(text: versionInfo.platform, tone: .neutral)
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Build inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the deployed build identity visible before comparing logs, metrics, or runtime drift."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: versionInfo.arch, tone: .neutral)
+            } facts: {
+                Label(versionInfo.name, systemImage: "shippingbox")
+                Label(versionInfo.rustVersion, systemImage: "hammer")
+                Label(versionInfo.buildDate, systemImage: "calendar")
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+private struct ConfigInventoryCard: View {
+    let configSummary: RuntimeConfigSummary
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "\(configSummary.defaultModel.provider) / \(configSummary.defaultModel.model) is the runtime default model."),
+                detail: String(localized: "This redacted config snapshot comes from the server and keeps home, data, auth, and memory tuning visible before deeper config rows."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: configSummary.defaultModel.provider, tone: .neutral)
+                    PresentationToneBadge(text: configSummary.defaultModel.model, tone: .neutral)
+                    PresentationToneBadge(
+                        text: configSummary.defaultModel.apiKeyEnv ?? String(localized: "Default auth env"),
+                        tone: configSummary.defaultModel.apiKeyEnv == nil ? .neutral : .positive
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Config inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use this compact config slice to confirm model, auth, and memory tuning before reading full path details."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: configSummary.memory.decayRate.formatted(.number.precision(.fractionLength(3))),
+                    tone: .neutral
+                )
+            } facts: {
+                Label(configSummary.homeDir, systemImage: "house")
+                Label(configSummary.dataDir, systemImage: "internaldrive")
+                Label(configSummary.apiKey, systemImage: "key")
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+private struct MetricsInventoryCard: View {
+    let metrics: PrometheusMetricsSnapshot
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "\(metrics.activeAgents)/\(metrics.totalAgents) agents are active in the current metrics window."),
+                detail: String(localized: "\(metrics.totalRollingTokens.formatted()) rolling tokens and \(metrics.totalRollingToolCalls.formatted()) tool calls are flowing through the Prometheus snapshot."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if let versionLabel = metrics.versionLabel {
+                        PresentationToneBadge(text: versionLabel, tone: .neutral)
+                    }
+                    PresentationToneBadge(
+                        text: metrics.tokenLeaders.count == 1 ? String(localized: "1 token leader") : String(localized: "\(metrics.tokenLeaders.count) token leaders"),
+                        tone: metrics.tokenLeaders.isEmpty ? .neutral : .warning
+                    )
+                    PresentationToneBadge(
+                        text: metrics.toolCallLeaders.count == 1 ? String(localized: "1 tool leader") : String(localized: "\(metrics.toolCallLeaders.count) tool leaders"),
+                        tone: metrics.toolCallLeaders.isEmpty ? .neutral : .warning
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Metrics inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep rolling demand, supervisor counters, and leaderboard presence visible before opening the raw metric rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: metrics.totalRollingTokens.formatted(),
+                    tone: metrics.totalRollingTokens > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    metrics.totalRollingToolCalls == 1 ? String(localized: "1 tool call") : String(localized: "\(metrics.totalRollingToolCalls.formatted()) tool calls"),
+                    systemImage: "wrench.and.screwdriver"
+                )
+                Label(
+                    metrics.panicCount == 1 ? String(localized: "1 panic") : String(localized: "\(metrics.panicCount) panics"),
+                    systemImage: "bolt.trianglebadge.exclamationmark"
+                )
+                Label(
+                    metrics.restartCount == 1 ? String(localized: "1 restart") : String(localized: "\(metrics.restartCount) restarts"),
+                    systemImage: "arrow.clockwise.circle"
+                )
+                Label(
+                    metrics.uptimeSeconds > 0 ? String(localized: "\(metrics.uptimeSeconds) seconds tracked") : String(localized: "Uptime exporting"),
+                    systemImage: "timer"
+                )
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
