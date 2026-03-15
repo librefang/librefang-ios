@@ -346,7 +346,7 @@ struct MainTabView: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
-                OperatorOverlayStatusStrip(
+                OperatorOverlayDeck(
                     summary: overlaySummaryLine,
                     criticalCount: visibleCriticalAlertCount,
                     approvalCount: vm.pendingApprovalCount,
@@ -354,11 +354,9 @@ struct MainTabView: View {
                     sessionCount: vm.sessionAttentionCount,
                     pendingFollowUpCount: pendingLatestFollowUpCount,
                     preferredSurfaceLabel: preferredOnCallSurface.label,
-                    isOffline: !deps.networkMonitor.isConnected
+                    isOffline: !deps.networkMonitor.isConnected,
+                    actions: overlayQuickActions
                 )
-                .padding(.horizontal, 12)
-
-                OperatorOverlayActionDeck(actions: overlayQuickActions)
                     .padding(.horizontal, 12)
             }
             .padding(.top, 4)
@@ -696,7 +694,7 @@ private struct ActiveHandoffCue: Identifiable, Equatable {
     let detail: String
 }
 
-private struct OperatorOverlayStatusStrip: View {
+private struct OperatorOverlayDeck: View {
     let summary: String
     let criticalCount: Int
     let approvalCount: Int
@@ -705,9 +703,14 @@ private struct OperatorOverlayStatusStrip: View {
     let pendingFollowUpCount: Int
     let preferredSurfaceLabel: String
     let isOffline: Bool
+    let actions: [OperatorOverlayQuickAction]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+            Text(String(localized: "Operator Deck"))
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
             Text(summary)
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -762,6 +765,43 @@ private struct OperatorOverlayStatusStrip: View {
                     backgroundOpacity: 0.08
                 )
             }
+
+            if !actions.isEmpty {
+                Divider()
+                    .overlay(.white.opacity(0.08))
+
+                FlowLayout(spacing: 8) {
+                    ForEach(actions) { action in
+                        Button(action: action.action) {
+                            HStack(spacing: 8) {
+                                Image(systemName: action.systemImage)
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.white)
+                                    .frame(width: 22, height: 22)
+                                    .background(.white.opacity(0.16), in: RoundedRectangle(cornerRadius: 8))
+
+                                Text(action.title)
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.white)
+                                    .lineLimit(1)
+
+                                if let badgeText = action.badgeText {
+                                    Text(badgeText)
+                                        .font(.caption2.weight(.semibold))
+                                        .foregroundStyle(action.tone.color)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(.white.opacity(0.96), in: Capsule())
+                                }
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 8)
+                            .background(.white.opacity(0.10), in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -774,51 +814,6 @@ private struct OperatorOverlayQuickAction: Identifiable {
     let tone: PresentationTone
     let badgeText: String?
     let action: () -> Void
-}
-
-private struct OperatorOverlayActionDeck: View {
-    let actions: [OperatorOverlayQuickAction]
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(String(localized: "Quick Actions"))
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            FlowLayout(spacing: 8) {
-                ForEach(actions) { action in
-                    Button(action: action.action) {
-                        HStack(spacing: 8) {
-                            Image(systemName: action.systemImage)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.white)
-                                .frame(width: 22, height: 22)
-                                .background(.white.opacity(0.16), in: RoundedRectangle(cornerRadius: 8))
-
-                            Text(action.title)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.white)
-                                .lineLimit(1)
-
-                            if let badgeText = action.badgeText {
-                                Text(badgeText)
-                                    .font(.caption2.weight(.semibold))
-                                    .foregroundStyle(action.tone.color)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(.white.opacity(0.96), in: Capsule())
-                            }
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 8)
-                        .background(.white.opacity(0.10), in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
 }
 
 // MARK: - Offline Banner
