@@ -136,6 +136,15 @@ struct MainTabView: View {
         return String(localized: "Use the current snapshot to jump straight into the most relevant surface.")
     }
 
+    private var shouldShowOverlayDeck: Bool {
+        !deps.networkMonitor.isConnected
+            || vm.pendingApprovalCount > 0
+            || watchedIssueCount > 0
+            || vm.sessionAttentionCount > 0
+            || pendingLatestFollowUpCount > 0
+            || activeMutedAlertCount > 0
+    }
+
     var body: some View {
         TabView(selection: $selectedTab) {
             OverviewView()
@@ -346,18 +355,20 @@ struct MainTabView: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
-                OperatorOverlayDeck(
-                    summary: overlaySummaryLine,
-                    criticalCount: visibleCriticalAlertCount,
-                    approvalCount: vm.pendingApprovalCount,
-                    watchIssueCount: watchedIssueCount,
-                    sessionCount: vm.sessionAttentionCount,
-                    pendingFollowUpCount: pendingLatestFollowUpCount,
-                    preferredSurfaceLabel: preferredOnCallSurface.label,
-                    isOffline: !deps.networkMonitor.isConnected,
-                    actions: overlayQuickActions
-                )
+                if shouldShowOverlayDeck {
+                    OperatorOverlayDeck(
+                        summary: overlaySummaryLine,
+                        criticalCount: visibleCriticalAlertCount,
+                        approvalCount: vm.pendingApprovalCount,
+                        watchIssueCount: watchedIssueCount,
+                        sessionCount: vm.sessionAttentionCount,
+                        pendingFollowUpCount: pendingLatestFollowUpCount,
+                        preferredSurfaceLabel: preferredOnCallSurface.label,
+                        isOffline: !deps.networkMonitor.isConnected,
+                        actions: overlayQuickActions
+                    )
                     .padding(.horizontal, 12)
+                }
             }
             .padding(.top, 4)
             .padding(.bottom, 8)
@@ -707,7 +718,7 @@ private struct OperatorOverlayDeck: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(String(localized: "Operator Deck"))
+            Text(String(localized: "Quick Actions"))
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
 

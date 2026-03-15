@@ -237,7 +237,7 @@ struct DiagnosticsView: View {
     @ViewBuilder
     private func diagnosticsRouteDeck(_ proxy: ScrollViewProxy) -> some View {
         MonitoringSurfaceGroupCard(
-            title: String(localized: "Route Deck"),
+            title: String(localized: "Routes"),
             detail: String(localized: "Keep the longest diagnostic sections and nearby surfaces in one compact deck.")
         ) {
             MonitoringShortcutRail(

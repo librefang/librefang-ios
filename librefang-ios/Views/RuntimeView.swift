@@ -168,7 +168,7 @@ struct RuntimeView: View {
 
     private func runtimeRouteDeckCard(_ proxy: ScrollViewProxy) -> some View {
         MonitoringSurfaceGroupCard(
-            title: String(localized: "Route Deck"),
+            title: String(localized: "Routes"),
             detail: String(localized: "Keep runtime surfaces and long-section jumps in one compact deck.")
         ) {
             MonitoringShortcutRail(

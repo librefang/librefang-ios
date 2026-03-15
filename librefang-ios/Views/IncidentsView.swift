@@ -194,7 +194,6 @@ struct IncidentsView: View {
     @ViewBuilder
     private func incidentSections(_ proxy: ScrollViewProxy) -> some View {
         scoreboardSection
-        statusDeckSection
         operatorDeckSection(proxy)
 
         if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
@@ -263,7 +262,7 @@ struct IncidentsView: View {
         }
     }
 
-    private var statusDeckSection: some View {
+    private func operatorDeckSection(_ proxy: ScrollViewProxy) -> some View {
         Section {
             IncidentStatusDeckCard(
                 activeAlertCount: visibleAlerts.count,
@@ -279,17 +278,9 @@ struct IncidentsView: View {
                 handoffCount: handoffIssueCount,
                 isAcknowledged: isCurrentSnapshotAcknowledged
             )
-        } header: {
-            Text("Status Deck")
-        } footer: {
-            Text("Top incident buckets and queue shape stay together before operator controls and long grouped sections.")
-        }
-    }
 
-    private func operatorDeckSection(_ proxy: ScrollViewProxy) -> some View {
-        Section {
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Surface Rail"),
+                title: String(localized: "Routes"),
                 detail: String(localized: "Keep the most likely next drilldowns visible before the long incident queue.")
             ) {
                 MonitoringShortcutRail(
@@ -563,7 +554,7 @@ struct IncidentsView: View {
         } header: {
             Text("Operator Deck")
         } footer: {
-            Text("Primary drilldowns and queue jumps now stay together in compact rails before the longer grouped incident list.")
+            Text("Incident buckets, primary drilldowns, and queue jumps stay together before the longer grouped incident list.")
         }
     }
 
