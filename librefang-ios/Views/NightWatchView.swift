@@ -121,6 +121,24 @@ struct NightWatchView: View {
     private var secondaryItems: [OnCallPriorityItem] {
         Array(priorityItems.dropFirst(3).prefix(3))
     }
+    private var criticalCount: Int {
+        priorityItems.filter { $0.severity == .critical }.count
+    }
+    private var watchIssueCount: Int {
+        watchedAttentionItems.filter { $0.severity > 0 }.count
+    }
+    private var pendingFollowUpCount: Int {
+        deps.onCallHandoffStore.latestFollowUpStatuses.filter { !$0.isCompleted }.count
+    }
+    private var checkInStatus: HandoffCheckInStatus? {
+        deps.onCallHandoffStore.latestCheckInStatus
+    }
+    private var automationIssueCount: Int {
+        vm.automationPressureIssueCategoryCount
+    }
+    private var integrationIssueCount: Int {
+        vm.integrationPressureIssueCategoryCount
+    }
 
     private var tone: NightWatchTone {
         if primaryItems.contains(where: { $0.severity == .critical }) {
@@ -175,6 +193,7 @@ struct NightWatchView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     heroCard
+                    snapshotCard
                     mutedSummaryCard
                     primaryQueueCard
                     secondaryQueueCard
@@ -211,8 +230,8 @@ struct NightWatchView: View {
         NightWatchHeroCard(
             tone: tone,
             queueCount: priorityItems.count,
-            criticalCount: priorityItems.filter { $0.severity == .critical }.count,
-            watchCount: watchedAttentionItems.filter { $0.severity > 0 }.count,
+            criticalCount: criticalCount,
+            watchCount: watchIssueCount,
             summary: digestLine,
             focusModeLabel: focusStore.mode.label,
             lastRefresh: vm.lastRefresh,
@@ -224,6 +243,22 @@ struct NightWatchView: View {
             onClearAcknowledgement: {
                 incidentStateStore.clearAcknowledgement()
             }
+        )
+    }
+
+    private var snapshotCard: some View {
+        NightWatchSnapshotCard(
+            focusModeLabel: focusStore.mode.label,
+            preferredSurfaceLabel: focusStore.preferredSurface.label,
+            queueCount: priorityItems.count,
+            criticalCount: criticalCount,
+            approvalCount: vm.pendingApprovalCount,
+            watchIssueCount: watchIssueCount,
+            mutedAlertCount: mutedAlertCount,
+            pendingFollowUpCount: pendingFollowUpCount,
+            automationIssueCount: automationIssueCount,
+            integrationIssueCount: integrationIssueCount,
+            checkInStatus: checkInStatus
         )
     }
 
@@ -684,6 +719,99 @@ private struct NightWatchMutedSummaryCard: View {
                 .font(.caption)
                 .foregroundStyle(.white.opacity(0.72))
         }
+    }
+}
+
+private struct NightWatchSnapshotCard: View {
+    let focusModeLabel: String
+    let preferredSurfaceLabel: String
+    let queueCount: Int
+    let criticalCount: Int
+    let approvalCount: Int
+    let watchIssueCount: Int
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let checkInStatus: HandoffCheckInStatus?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    Label("Snapshot", systemImage: "waveform.path.ecg.rectangle")
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Spacer(minLength: 8)
+                    GlassCapsuleBadge(text: focusModeLabel, backgroundOpacity: 0.16)
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Label("Snapshot", systemImage: "waveform.path.ecg.rectangle")
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.white)
+                    GlassCapsuleBadge(text: focusModeLabel, backgroundOpacity: 0.16)
+                }
+            }
+
+            Text(String(localized: "Night Watch keeps the current queue, follow-up pressure, and preferred surface visible before the deeper drilldowns."))
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.72))
+                .fixedSize(horizontal: false, vertical: true)
+
+            FlowLayout(spacing: 8) {
+                GlassCapsuleBadge(
+                    text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
+                    backgroundOpacity: 0.16
+                )
+                GlassCapsuleBadge(
+                    text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                    backgroundOpacity: criticalCount > 0 ? 0.18 : 0.10
+                )
+                if approvalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        backgroundOpacity: 0.18
+                    )
+                }
+                if watchIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        backgroundOpacity: 0.16
+                    )
+                }
+                if mutedAlertCount > 0 {
+                    GlassCapsuleBadge(
+                        text: mutedAlertCount == 1 ? String(localized: "1 muted") : String(localized: "\(mutedAlertCount) muted"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    GlassCapsuleBadge(
+                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
+                        backgroundOpacity: 0.18
+                    )
+                }
+                if automationIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        backgroundOpacity: 0.16
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        backgroundOpacity: 0.18
+                    )
+                }
+                if let checkInStatus {
+                    GlassCapsuleBadge(text: checkInStatus.state.label, backgroundOpacity: 0.18)
+                }
+                GlassCapsuleBadge(text: preferredSurfaceLabel, backgroundOpacity: 0.12)
+            }
+        }
+        .padding(16)
+        .glassPanel(fillStyle: .black, fillOpacity: 0.22, cornerRadius: 18, strokeOpacity: 0.08)
     }
 }
 

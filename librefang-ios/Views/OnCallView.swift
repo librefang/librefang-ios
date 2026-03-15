@@ -125,6 +125,21 @@ struct OnCallView: View {
             summaries: watchedDiagnostics
         )
     }
+    private var criticalCount: Int {
+        visibleAlerts.filter { $0.severity == .critical }.count
+    }
+    private var watchIssueCount: Int {
+        watchedAttentionItems.filter { $0.severity > 0 }.count
+    }
+    private var pendingFollowUpCount: Int {
+        latestFollowUpStatuses.filter { !$0.isCompleted }.count
+    }
+    private var automationIssueCount: Int {
+        vm.automationPressureIssueCategoryCount
+    }
+    private var integrationIssueCount: Int {
+        vm.integrationPressureIssueCategoryCount
+    }
 
     private var priorityItems: [OnCallPriorityItem] {
         mergeOnCallPriorityItems(
@@ -202,14 +217,33 @@ struct OnCallView: View {
         List {
             Section {
                 OnCallScoreboard(
-                    criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
+                    criticalCount: criticalCount,
                     liveAlertCount: visibleAlerts.count,
                     approvalCount: vm.pendingApprovalCount,
-                    watchIssueCount: watchedAttentionItems.filter { $0.severity > 0 }.count,
+                    watchIssueCount: watchIssueCount,
                     sessionCount: vm.sessionAttentionCount,
                     eventCount: vm.recentCriticalAuditCount
                 )
                 .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+            }
+
+            Section {
+                OnCallQueueSnapshotCard(
+                    queueCount: priorityItems.count,
+                    criticalCount: criticalCount,
+                    approvalCount: vm.pendingApprovalCount,
+                    watchIssueCount: watchIssueCount,
+                    sessionCount: vm.sessionAttentionCount,
+                    eventCount: vm.recentCriticalAuditCount,
+                    mutedAlertCount: mutedAlertCount,
+                    pendingFollowUpCount: pendingFollowUpCount,
+                    automationIssueCount: automationIssueCount,
+                    integrationIssueCount: integrationIssueCount,
+                    checkInStatus: handoffStore.latestCheckInStatus,
+                    readiness: draftHandoffReadiness
+                )
+            } footer: {
+                Text("Queue pressure, follow-up readiness, and local watchlist issues stay visible before the longer sections.")
             }
 
             Section("Shift Status") {
@@ -256,7 +290,7 @@ struct OnCallView: View {
                     HandoffCenterView(
                         summary: handoffText,
                         queueCount: priorityItems.count,
-                        criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
+                        criticalCount: criticalCount,
                         liveAlertCount: visibleAlerts.count
                     )
                 } label: {
@@ -304,13 +338,20 @@ struct OnCallView: View {
                 }
             }
 
-            Section("Quick Links") {
-                NavigationLink(value: OnCallRoute.sessionsAttention) {
-                    Label("Session Pressure", systemImage: "rectangle.stack")
-                }
-                NavigationLink(value: OnCallRoute.eventsCritical) {
-                    Label("Critical Event Feed", systemImage: "list.bullet.rectangle.portrait")
-                }
+            Section {
+                OnCallJumpCard(
+                    approvalCount: vm.pendingApprovalCount,
+                    sessionCount: vm.sessionAttentionCount,
+                    eventCount: vm.recentCriticalAuditCount,
+                    automationIssueCount: automationIssueCount,
+                    integrationIssueCount: integrationIssueCount,
+                    criticalCount: criticalCount,
+                    handoffText: handoffText,
+                    queueCount: priorityItems.count,
+                    liveAlertCount: visibleAlerts.count
+                )
+            } footer: {
+                Text("Keep the highest-value drilldowns visible without jumping through multiple menus.")
             }
 
             if priorityItems.isEmpty
@@ -354,7 +395,7 @@ struct OnCallView: View {
                         HandoffCenterView(
                             summary: handoffText,
                             queueCount: priorityItems.count,
-                            criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
+                            criticalCount: criticalCount,
                             liveAlertCount: visibleAlerts.count
                         )
                     } label: {
@@ -422,7 +463,7 @@ struct OnCallView: View {
             HandoffCenterView(
                 summary: handoffText,
                 queueCount: priorityItems.count,
-                criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
+                criticalCount: criticalCount,
                 liveAlertCount: visibleAlerts.count
             )
         }
@@ -447,6 +488,261 @@ struct OnCallView: View {
 
     private func syncWatchlist() {
         watchlistStore.removeMissingAgents(validIDs: Set(vm.agents.map(\.id)))
+    }
+}
+
+private struct OnCallQueueSnapshotCard: View {
+    let queueCount: Int
+    let criticalCount: Int
+    let approvalCount: Int
+    let watchIssueCount: Int
+    let sessionCount: Int
+    let eventCount: Int
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let checkInStatus: HandoffCheckInStatus?
+    let readiness: HandoffReadinessStatus
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    headerLabel
+                    Spacer(minLength: 8)
+                    PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    headerLabel
+                    PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
+                }
+            }
+
+            Text(readiness.summary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                    tone: queueCount > 0 ? .warning : .neutral
+                )
+                PresentationToneBadge(
+                    text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                    tone: criticalCount > 0 ? .critical : .neutral
+                )
+                if approvalCount > 0 {
+                    PresentationToneBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        tone: .critical
+                    )
+                }
+                if watchIssueCount > 0 {
+                    PresentationToneBadge(
+                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        tone: .caution
+                    )
+                }
+                if sessionCount > 0 {
+                    PresentationToneBadge(
+                        text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        tone: .warning
+                    )
+                }
+                if eventCount > 0 {
+                    PresentationToneBadge(
+                        text: eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
+                        tone: .critical
+                    )
+                }
+                if mutedAlertCount > 0 {
+                    PresentationToneBadge(
+                        text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        tone: .neutral
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    PresentationToneBadge(
+                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
+                        tone: .warning
+                    )
+                }
+                if automationIssueCount > 0 {
+                    PresentationToneBadge(
+                        text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        tone: .warning
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    PresentationToneBadge(
+                        text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        tone: .critical
+                    )
+                }
+                if let checkInStatus {
+                    PresentationToneBadge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var headerLabel: some View {
+        Label("Queue Snapshot", systemImage: "square.stack.3d.up")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
+}
+
+private struct OnCallJumpCard: View {
+    let approvalCount: Int
+    let sessionCount: Int
+    let eventCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let criticalCount: Int
+    let handoffText: String
+    let queueCount: Int
+    let liveAlertCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label("Quick Links", systemImage: "arrowshape.turn.up.right")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            FlowLayout(spacing: 8) {
+                if approvalCount > 0 {
+                    PresentationToneBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval waiting") : String(localized: "\(approvalCount) approvals waiting"),
+                        tone: .critical
+                    )
+                }
+                if sessionCount > 0 {
+                    PresentationToneBadge(
+                        text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        tone: .warning
+                    )
+                }
+                if eventCount > 0 {
+                    PresentationToneBadge(
+                        text: eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
+                        tone: .critical
+                    )
+                }
+                if automationIssueCount > 0 {
+                    PresentationToneBadge(
+                        text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        tone: .warning
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    PresentationToneBadge(
+                        text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        tone: .critical
+                    )
+                }
+            }
+
+            NavigationLink(value: OnCallRoute.incidents) {
+                OnCallJumpRow(
+                    title: String(localized: "Open Incidents Center"),
+                    detail: criticalCount > 0
+                        ? (criticalCount == 1
+                            ? String(localized: "1 critical item is still active on this phone.")
+                            : String(localized: "\(criticalCount) critical items are still active on this phone."))
+                        : String(localized: "Review muted alerts, approvals, and active incidents in one queue."),
+                    systemImage: "bell.badge"
+                )
+            }
+
+            NavigationLink(value: OnCallRoute.sessionsAttention) {
+                OnCallJumpRow(
+                    title: String(localized: "Session Pressure"),
+                    detail: sessionCount > 0
+                        ? (sessionCount == 1
+                            ? String(localized: "1 session hotspot is already surfaced for review.")
+                            : String(localized: "\(sessionCount) session hotspots are already surfaced for review."))
+                        : String(localized: "Jump straight into duplicated, unlabeled, or high-volume sessions."),
+                    systemImage: "rectangle.stack"
+                )
+            }
+
+            NavigationLink(value: OnCallRoute.eventsCritical) {
+                OnCallJumpRow(
+                    title: String(localized: "Critical Event Feed"),
+                    detail: eventCount > 0
+                        ? (eventCount == 1
+                            ? String(localized: "1 critical audit event needs review.")
+                            : String(localized: "\(eventCount) critical audit events need review."))
+                        : String(localized: "Review the recent audit feed without leaving the on-call flow."),
+                    systemImage: "list.bullet.rectangle.portrait"
+                )
+            }
+
+            NavigationLink {
+                HandoffCenterView(
+                    summary: handoffText,
+                    queueCount: queueCount,
+                    criticalCount: criticalCount,
+                    liveAlertCount: liveAlertCount
+                )
+            } label: {
+                OnCallJumpRow(
+                    title: String(localized: "Open Handoff Center"),
+                    detail: String(localized: "Capture the current queue and keep the next operator aligned."),
+                    systemImage: "text.badge.plus"
+                )
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+private struct OnCallJumpRow: View {
+    let title: String
+    let detail: String
+    let systemImage: String
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 12) {
+                iconBadge
+                contentBlock
+                Spacer(minLength: 8)
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                iconBadge
+                contentBlock
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
+    }
+
+    private var iconBadge: some View {
+        Image(systemName: systemImage)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .frame(width: 34, height: 34)
+            .background(.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var contentBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.primary)
+            Text(detail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 

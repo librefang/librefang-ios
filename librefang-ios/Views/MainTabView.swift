@@ -69,6 +69,9 @@ struct MainTabView: View {
                 return lhs.agent.name.localizedCompare(rhs.agent.name) == .orderedAscending
             }
     }
+    private var watchedIssueCount: Int {
+        watchedAttentionItems.count
+    }
     private var watchedDiagnosticPriorityItems: [OnCallPriorityItem] {
         watchedAgentDiagnosticPriorityItems(
             agents: watchedAgents,
@@ -112,6 +115,25 @@ struct MainTabView: View {
             handoffCheckInStatus: handoffCheckInStatus,
             handoffFollowUpStatuses: latestFollowUpStatuses
         )
+    }
+    private var overlaySummaryLine: String {
+        if !deps.networkMonitor.isConnected {
+            return String(localized: "Monitoring data may be stale while this iPhone is offline.")
+        }
+        if visibleCriticalAlertCount > 0 {
+            return visibleCriticalAlertCount == 1
+                ? String(localized: "A critical incident is active and ready for triage.")
+                : String(localized: "\(visibleCriticalAlertCount) critical incidents are active and ready for triage.")
+        }
+        if let handoffBannerStatus {
+            return handoffBannerStatus.summary
+        }
+        if pendingLatestFollowUpCount > 0 {
+            return pendingLatestFollowUpCount == 1
+                ? String(localized: "1 handoff follow-up is still open on this phone.")
+                : String(localized: "\(pendingLatestFollowUpCount) handoff follow-ups are still open on this phone.")
+        }
+        return String(localized: "Use the current snapshot to jump straight into the most relevant surface.")
     }
 
     var body: some View {
@@ -323,6 +345,18 @@ struct MainTabView: View {
                     .padding(.horizontal, 12)
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
+
+                OperatorOverlayStatusStrip(
+                    summary: overlaySummaryLine,
+                    criticalCount: visibleCriticalAlertCount,
+                    approvalCount: vm.pendingApprovalCount,
+                    watchIssueCount: watchedIssueCount,
+                    sessionCount: vm.sessionAttentionCount,
+                    pendingFollowUpCount: pendingLatestFollowUpCount,
+                    preferredSurfaceLabel: preferredOnCallSurface.label,
+                    isOffline: !deps.networkMonitor.isConnected
+                )
+                .padding(.horizontal, 12)
             }
             .padding(.top, 4)
             .padding(.bottom, 8)
@@ -560,6 +594,77 @@ private struct ActiveHandoffCue: Identifiable, Equatable {
     let id: String
     let title: String
     let detail: String
+}
+
+private struct OperatorOverlayStatusStrip: View {
+    let summary: String
+    let criticalCount: Int
+    let approvalCount: Int
+    let watchIssueCount: Int
+    let sessionCount: Int
+    let pendingFollowUpCount: Int
+    let preferredSurfaceLabel: String
+    let isOffline: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(summary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            FlowLayout(spacing: 8) {
+                if isOffline {
+                    GlassCapsuleBadge(
+                        text: String(localized: "Offline"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if criticalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if approvalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if watchIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if sessionCount > 0 {
+                    GlassCapsuleBadge(
+                        text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    GlassCapsuleBadge(
+                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                GlassCapsuleBadge(
+                    text: preferredSurfaceLabel,
+                    foregroundStyle: .secondary,
+                    backgroundOpacity: 0.08
+                )
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
 }
 
 // MARK: - Offline Banner
