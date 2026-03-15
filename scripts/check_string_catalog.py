@@ -73,9 +73,12 @@ def same_as_source_candidate(key: str, translated: str) -> bool:
     return True
 
 
-SUSPICIOUS_LABEL_PATTERN = re.compile(
-    r"var\s+(label|title|friendlyAction|localized[A-Z]\w*)\s*:\s*String\s*\{(?P<body>.*?)\n\}",
-    re.S,
+STRING_PROPERTY_HEADER_PATTERN = re.compile(r"var\s+(\w+)\s*:\s*String\s*\{")
+SUSPICIOUS_STRING_PROPERTY_NAME_PATTERN = re.compile(
+    r"^(?:"
+    r"label|title|friendlyAction|localized[A-Z]\w*|"
+    r"\w*(?:Summary|Detail|Message|Description|Subtitle|Caption|Placeholder|Prompt|DigestLine|StatusText|HelperText)"
+    r")$"
 )
 RAW_STRING_RETURN_PATTERN = re.compile(r'return\s+"[^"]+"')
 STRING_FORMAT_PATTERN = re.compile(r"String\(format:\s*")
@@ -185,14 +188,16 @@ def suspicious_swift_properties(root: Path) -> list[tuple[Path, str, str]]:
 
     for path in root.rglob("*.swift"):
         body = path.read_text()
-        for match in SUSPICIOUS_LABEL_PATTERN.finditer(body):
-            snippet = match.group("body")
+        for name, snippet in string_property_bodies(body):
+            if not SUSPICIOUS_STRING_PROPERTY_NAME_PATTERN.fullmatch(name):
+                continue
             if "String(localized:" in snippet:
                 continue
             if "replacingOccurrences" in snippet or ".capitalized" in snippet or "splitCamelCase" in snippet:
                 continue
-            if RAW_STRING_RETURN_PATTERN.search(snippet):
-                findings.append((path, "raw-property", match.group(0).strip()))
+            raw_return = RAW_STRING_RETURN_PATTERN.search(snippet)
+            if raw_return and re.search(r"[A-Za-z]{2,}", raw_return.group(0)):
+                findings.append((path, "raw-property", f"var {name}: String {{ {raw_return.group(0)} ... }}"))
 
         for line_no, line in enumerate(body.splitlines(), start=1):
             if STRING_FORMAT_PATTERN.search(line):
@@ -263,6 +268,38 @@ def parse_swift_string(text: str, start: int) -> tuple[str, int] | None:
         i += 1
 
     return None
+
+
+def string_property_bodies(text: str) -> list[tuple[str, str]]:
+    findings: list[tuple[str, str]] = []
+
+    for match in STRING_PROPERTY_HEADER_PATTERN.finditer(text):
+        name = match.group(1)
+        body_start = match.end()
+        depth = 1
+        i = body_start
+
+        while i < len(text) and depth > 0:
+            ch = text[i]
+
+            if ch == '"':
+                parsed = parse_swift_string(text, i)
+                if parsed is None:
+                    i += 1
+                else:
+                    _, i = parsed
+                continue
+
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    findings.append((name, text[body_start:i]))
+                    break
+            i += 1
+
+    return findings
 
 
 def localized_literal_entries(root: Path) -> list[tuple[Path, str]]:
