@@ -444,13 +444,7 @@ private struct HandoffCadenceCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(cadenceState.label)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(cadenceState.tone.color.opacity(0.12))
-                    .foregroundStyle(cadenceState.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(text: cadenceState.label, tone: cadenceState.tone)
             }
 
             Text(cadenceSummary)
@@ -464,7 +458,7 @@ private struct HandoffCadenceCard: View {
                         : String(localized: "\(warningCount) recent handoff gaps crossed the warning threshold.")
                 )
                     .font(.caption2)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(PresentationTone.warning.color)
             }
         }
         .padding(.vertical, 6)
@@ -481,13 +475,7 @@ private struct HandoffDriftCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(drift.state.label)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(drift.state.tone.color.opacity(0.12))
-                    .foregroundStyle(drift.state.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(text: drift.state.label, tone: drift.state.tone)
             }
 
             Text(drift.summary)
@@ -512,13 +500,7 @@ private struct HandoffCarryoverCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(status.state.label)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(status.state.tone.color.opacity(0.12))
-                    .foregroundStyle(status.state.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(text: status.state.label, tone: status.state.tone)
             }
 
             Text(status.summary)
@@ -548,13 +530,7 @@ private struct HandoffReadinessCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(status.state.label)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(status.state.tone.color.opacity(0.12))
-                    .foregroundStyle(status.state.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(text: status.state.label, tone: status.state.tone)
             }
 
             Text(status.summary)
@@ -581,13 +557,7 @@ private struct HandoffCheckInCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(status.state.label)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(status.state.tone.color.opacity(0.12))
-                    .foregroundStyle(status.state.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(text: status.state.label, tone: status.state.tone)
             }
 
             Text(status.dueLabel)
@@ -650,13 +620,10 @@ private struct HandoffTimelineRow: View {
                 VStack(alignment: .trailing, spacing: 6) {
                     HandoffKindBadge(kind: item.entry.kind)
 
-                    Text(item.gapToOlderEntry == nil ? String(localized: "Latest") : item.gapLabel)
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(item.gapTone.badgeBackgroundColor)
-                        .foregroundStyle(item.gapTone.color)
-                        .clipShape(Capsule())
+                    PresentationToneBadge(
+                        text: item.gapToOlderEntry == nil ? String(localized: "Latest") : item.gapLabel,
+                        tone: item.gapTone
+                    )
                 }
             }
 
@@ -703,13 +670,7 @@ private struct HandoffFreshnessCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(freshnessState.label)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(freshnessState.tone.color.opacity(0.12))
-                    .foregroundStyle(freshnessState.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
             }
 
             Text(freshnessSummary)
@@ -827,13 +788,7 @@ private struct HandoffFollowUpTrackerCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(followUpSummary.badgeLabel)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(followUpSummary.tone.color.opacity(0.12))
-                    .foregroundStyle(followUpSummary.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(text: followUpSummary.badgeLabel, tone: followUpSummary.tone)
             }
 
             Text(followUpSummary.detailLabel)
