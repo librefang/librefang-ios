@@ -55,6 +55,9 @@ struct AgentFilesView: View {
         scope != .all || !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    private var agentFilesPrimaryRouteCount: Int { 3 }
+    private var agentFilesSupportRouteCount: Int { 1 }
+
     private var summarySnapshotText: String {
         if missingCount > 0 {
             return String(localized: "Workspace identity drift stays visible before the full file inventory.")
@@ -150,6 +153,17 @@ struct AgentFilesView: View {
             }
 
             Section {
+                AgentFilesRouteInventoryDeck(
+                    primaryRouteCount: agentFilesPrimaryRouteCount,
+                    supportRouteCount: agentFilesSupportRouteCount,
+                    visibleCount: filteredFiles.count,
+                    totalCount: files.count,
+                    missingCount: missingCount,
+                    hasActiveFilter: hasActiveFilter,
+                    scopeLabel: scope.label,
+                    scopeTone: scope.tone
+                )
+
                 MonitoringSurfaceGroupCard(
                     title: String(localized: "Routes"),
                     detail: String(localized: "Keep nearby agent, memory, session, and delivery exits closest to workspace identity inspection.")
@@ -340,6 +354,70 @@ enum AgentFileScope: CaseIterable {
         case .present:
             return .positive
         }
+    }
+}
+
+private struct AgentFilesRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let missingCount: Int
+    let hasActiveFilter: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: hasActiveFilter
+                    ? String(localized: "Workspace-file routes stay compact while the identity inventory is scoped.")
+                    : String(localized: "Workspace-file routes stay compact before the surrounding memory and session drilldowns."),
+                detail: String(localized: "Use the route inventory to gauge the visible workspace slice before leaving file inspection."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    PresentationToneBadge(
+                        text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        tone: .neutral
+                    )
+                    if missingCount > 0 {
+                        PresentationToneBadge(
+                            text: missingCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingCount) missing files"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the visible workspace slice and identity drift readable before pivoting into agent, memory, session, or delivery context."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible file") : String(localized: "\(visibleCount) visible files"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: .positive
+                )
+            } facts: {
+                if hasActiveFilter {
+                    Label(String(localized: "Scoped inventory"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

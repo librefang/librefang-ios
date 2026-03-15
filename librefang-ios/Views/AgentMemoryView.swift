@@ -50,6 +50,9 @@ struct AgentMemoryView: View {
         !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    private var agentMemoryPrimaryRouteCount: Int { 3 }
+    private var agentMemorySupportRouteCount: Int { 1 }
+
     private var summarySnapshotText: String {
         if structuredEntryCount > 0 {
             return String(localized: "Structured memory and editable state stay visible before the raw key list.")
@@ -244,6 +247,15 @@ struct AgentMemoryView: View {
 
     private var operatorSurfacesSection: some View {
         Section {
+            AgentMemoryRouteInventoryDeck(
+                primaryRouteCount: agentMemoryPrimaryRouteCount,
+                supportRouteCount: agentMemorySupportRouteCount,
+                visibleCount: filteredEntries.count,
+                totalCount: entries.count,
+                structuredCount: structuredEntryCount,
+                hasActiveSearch: hasActiveSearch
+            )
+
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Routes"),
                 detail: String(localized: "Keep nearby agent, session, and runtime exits closest to durable memory inspection.")
@@ -675,6 +687,67 @@ private struct AgentMemoryRow: View {
                     .controlSize(.small)
             }
         }
+    }
+}
+
+private struct AgentMemoryRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let structuredCount: Int
+    let hasActiveSearch: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: hasActiveSearch
+                    ? String(localized: "Memory routes stay compact while the durable key list is search-scoped.")
+                    : String(localized: "Memory routes stay compact before the surrounding incident and runtime drilldowns."),
+                detail: String(localized: "Use the route inventory to gauge the visible durable-memory slice before leaving key inspection."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        tone: .neutral
+                    )
+                    if structuredCount > 0 {
+                        PresentationToneBadge(
+                            text: structuredCount == 1 ? String(localized: "1 structured key") : String(localized: "\(structuredCount) structured keys"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep durable-memory size and structured-key pressure visible before pivoting into agent, session, incident, or runtime context."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible key") : String(localized: "\(visibleCount) visible keys"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: .positive
+                )
+            } facts: {
+                if hasActiveSearch {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

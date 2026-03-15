@@ -75,6 +75,9 @@ struct AgentDeliveriesView: View {
         scope != .all || !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    private var agentDeliveriesPrimaryRouteCount: Int { 3 }
+    private var agentDeliveriesSupportRouteCount: Int { 1 }
+
     private var latestReceiptTimestampLabel: String? {
         guard let receipt = filteredReceipts.first ?? receipts.first else { return nil }
         guard let date = receipt.timestamp.agentSessionISO8601Date else { return receipt.timestamp }
@@ -186,6 +189,18 @@ struct AgentDeliveriesView: View {
             }
 
             Section {
+                AgentDeliveriesRouteInventoryDeck(
+                    primaryRouteCount: agentDeliveriesPrimaryRouteCount,
+                    supportRouteCount: agentDeliveriesSupportRouteCount,
+                    visibleCount: filteredReceipts.count,
+                    totalCount: receipts.count,
+                    failedCount: failedCount,
+                    unsettledCount: unsettledCount,
+                    hasActiveFilter: hasActiveFilter,
+                    scopeLabel: scope.label,
+                    scopeTone: scope.tone
+                )
+
                 MonitoringSurfaceGroupCard(
                     title: String(localized: "Routes"),
                     detail: String(localized: "Keep nearby agent, incident, audit, and runtime exits closest to delivery failures and unsettled receipts.")
@@ -341,6 +356,77 @@ struct AgentDeliveriesView: View {
         } catch {
             loadError = error.localizedDescription
         }
+    }
+}
+
+private struct AgentDeliveriesRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let failedCount: Int
+    let unsettledCount: Int
+    let hasActiveFilter: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: hasActiveFilter
+                    ? String(localized: "Delivery routes stay compact while the receipt log is scoped.")
+                    : String(localized: "Delivery routes stay compact before the surrounding incident and runtime drilldowns."),
+                detail: String(localized: "Use the route inventory to gauge the visible receipt slice before leaving delivery inspection."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    PresentationToneBadge(
+                        text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        tone: .neutral
+                    )
+                    if failedCount > 0 {
+                        PresentationToneBadge(
+                            text: failedCount == 1 ? String(localized: "1 failure") : String(localized: "\(failedCount) failures"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep visible receipt size and unsettled delivery pressure readable before pivoting into agent, incident, events, or runtime context."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible receipt") : String(localized: "\(visibleCount) visible receipts"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: .positive
+                )
+            } facts: {
+                if unsettledCount > 0 {
+                    Label(
+                        unsettledCount == 1 ? String(localized: "1 unsettled") : String(localized: "\(unsettledCount) unsettled"),
+                        systemImage: "clock.badge.exclamationmark"
+                    )
+                }
+                if hasActiveFilter {
+                    Label(String(localized: "Scoped inventory"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
