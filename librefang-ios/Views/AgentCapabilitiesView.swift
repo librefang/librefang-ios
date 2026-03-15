@@ -54,6 +54,10 @@ struct AgentCapabilitiesView: View {
         [toolFilters != nil, skills != nil, mcpServers != nil].filter { $0 }.count
     }
 
+    private var capabilitiesSectionCount: Int {
+        hasLoadedAnything ? (2 + loadedCapabilityFeedCount) : 1
+    }
+
     var body: some View {
         List {
             if isRefreshing && !hasLoadedAnything {
@@ -80,6 +84,16 @@ struct AgentCapabilitiesView: View {
                 }
 
                 Section {
+                    CapabilitiesSectionInventoryDeck(
+                        sectionCount: capabilitiesSectionCount,
+                        loadedFeedCount: loadedCapabilityFeedCount,
+                        hasProfileRoute: agent.profile?.isEmpty == false,
+                        hasToolFilters: toolFilters != nil,
+                        hasSkills: skills != nil,
+                        hasMCPServers: mcpServers != nil,
+                        isRefreshingOnly: isRefreshing && hasLoadedAnything
+                    )
+
                     CapabilitiesRouteInventoryDeck(
                         primaryRouteCount: capabilitiesPrimaryRouteCount,
                         supportRouteCount: capabilitiesSupportRouteCount,
@@ -435,6 +449,69 @@ private struct CapabilitiesSnapshotCard: View {
             text: isPresent ? label : String(localized: "\(label) missing"),
             tone: isPresent ? tone : .neutral
         )
+    }
+}
+
+private struct CapabilitiesSectionInventoryDeck: View {
+    let sectionCount: Int
+    let loadedFeedCount: Int
+    let hasProfileRoute: Bool
+    let hasToolFilters: Bool
+    let hasSkills: Bool
+    let hasMCPServers: Bool
+    let isRefreshingOnly: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: isRefreshingOnly
+                    ? String(localized: "Section coverage stays visible while capability feeds refresh in place.")
+                    : String(localized: "Section coverage stays visible before routes and the loaded capability feeds."),
+                detail: String(localized: "Use section coverage to confirm which capability feeds are available before pivoting into profile, runtime, or integration context."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 section ready") : String(localized: "\(sectionCount) sections ready"),
+                        tone: isRefreshingOnly ? .warning : .positive
+                    )
+                    PresentationToneBadge(
+                        text: loadedFeedCount == 1 ? String(localized: "1 feed loaded") : String(localized: "\(loadedFeedCount) feeds loaded"),
+                        tone: loadedFeedCount > 0 ? .positive : .neutral
+                    )
+                    if hasProfileRoute {
+                        PresentationToneBadge(text: String(localized: "Profile linked"), tone: .positive)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section Coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep snapshot, routes, and each loaded capability feed visible before drilling into tool, skill, or MCP scope."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: loadedFeedCount == 1 ? String(localized: "1 live feed") : String(localized: "\(loadedFeedCount) live feeds"),
+                    tone: loadedFeedCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if hasToolFilters {
+                    Label(String(localized: "Tool filters"), systemImage: "slider.horizontal.3")
+                }
+                if hasSkills {
+                    Label(String(localized: "Skills"), systemImage: "sparkles")
+                }
+                if hasMCPServers {
+                    Label(String(localized: "MCP"), systemImage: "shippingbox")
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

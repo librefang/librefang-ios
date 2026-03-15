@@ -31,6 +31,9 @@ struct ToolProfilesView: View {
 
     private var toolProfilesPrimaryRouteCount: Int { 2 }
     private var toolProfilesSupportRouteCount: Int { 2 }
+    private var toolProfilesSectionCount: Int {
+        3 + ((selectedProfile != nil || ((selectedProfileName?.isEmpty == false) && !isLoading && loadError == nil)) ? 1 : 0)
+    }
 
     var body: some View {
         List {
@@ -44,6 +47,16 @@ struct ToolProfilesView: View {
             }
 
             Section {
+                ToolProfilesSectionInventoryDeck(
+                    sectionCount: toolProfilesSectionCount,
+                    visibleProfileCount: filteredProfiles.count,
+                    totalProfileCount: profiles.count,
+                    selectedProfileName: selectedProfile?.name ?? ((selectedProfileName?.isEmpty == false && !isLoading && loadError == nil) ? selectedProfileName : nil),
+                    hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                    isLoading: isLoading && profiles.isEmpty && loadError == nil,
+                    hasLoadError: loadError != nil
+                )
+
                 ToolProfilesRouteInventoryDeck(
                     primaryRouteCount: toolProfilesPrimaryRouteCount,
                     supportRouteCount: toolProfilesSupportRouteCount,
@@ -314,6 +327,82 @@ private struct ToolProfilesSnapshotCard: View {
                 }
             }
         }
+    }
+}
+
+private struct ToolProfilesSectionInventoryDeck: View {
+    let sectionCount: Int
+    let visibleProfileCount: Int
+    let totalProfileCount: Int
+    let selectedProfileName: String?
+    let hasSearchScope: Bool
+    let isLoading: Bool
+    let hasLoadError: Bool
+
+    private var coverageTone: PresentationTone {
+        if hasLoadError { return .critical }
+        if isLoading { return .warning }
+        return .positive
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: isLoading
+                    ? String(localized: "Section coverage stays visible while tool profiles are still loading.")
+                    : String(localized: "Section coverage stays visible before routes, the selected profile, and the wider profile catalog."),
+                detail: hasSearchScope
+                    ? String(localized: "Use section coverage to confirm the scoped profile catalog before pivoting into fleet or runtime context.")
+                    : String(localized: "Use section coverage to confirm how much profile context is ready before leaving the catalog."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 section ready") : String(localized: "\(sectionCount) sections ready"),
+                        tone: coverageTone
+                    )
+                    PresentationToneBadge(
+                        text: totalProfileCount == 1 ? String(localized: "1 catalog profile") : String(localized: "\(totalProfileCount) catalog profiles"),
+                        tone: totalProfileCount == 0 ? .neutral : .positive
+                    )
+                    if let selectedProfileName {
+                        PresentationToneBadge(text: selectedProfileName, tone: .positive)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section Coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep snapshot, routes, selected-profile state, and the wider profile catalog visible before drilling into bundled tools."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if isLoading {
+                    PresentationToneBadge(text: String(localized: "Loading"), tone: .warning)
+                } else if hasLoadError {
+                    PresentationToneBadge(text: String(localized: "Blocked"), tone: .critical)
+                } else {
+                    PresentationToneBadge(
+                        text: visibleProfileCount == totalProfileCount
+                            ? (visibleProfileCount == 1 ? String(localized: "1 visible profile") : String(localized: "\(visibleProfileCount) visible profiles"))
+                            : String(localized: "\(visibleProfileCount) of \(totalProfileCount) visible"),
+                        tone: .positive
+                    )
+                }
+            } facts: {
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+                if let selectedProfileName {
+                    Label(selectedProfileName, systemImage: "checkmark.circle")
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
