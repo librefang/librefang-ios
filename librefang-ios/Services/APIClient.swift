@@ -90,6 +90,7 @@ protocol APIClientProtocol: Sendable {
     func agentFiles(agentId: String) async throws -> AgentWorkspaceFileListResponse
     func agentFile(agentId: String, name: String) async throws -> AgentWorkspaceFileDetail
     func profiles() async throws -> [ToolProfileSummary]
+    func profile(name: String) async throws -> ToolProfileSummary
     func connectionInfo() async throws -> APIConnectionInfo
     func updateConfig(_ config: ServerConfig) async
 }
@@ -367,6 +368,10 @@ actor APIClient: APIClientProtocol {
 
     func profiles() async throws -> [ToolProfileSummary] {
         try await get("/api/profiles")
+    }
+
+    func profile(name: String) async throws -> ToolProfileSummary {
+        try await get("/api/profiles/\(encodedPathComponent(name))")
     }
 
     func connectionInfo() throws -> APIConnectionInfo {

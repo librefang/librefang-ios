@@ -9,6 +9,7 @@ struct AgentDetailView: View {
     @State private var agentMemory: [AgentMemoryEntry] = []
     @State private var agentFiles: [AgentWorkspaceFileSummary] = []
     @State private var agentDeliveries: [DeliveryReceipt] = []
+    @State private var agentProfileSummary: ToolProfileSummary?
     @State private var pendingApprovalAction: ApprovalDecisionAction?
     @State private var approvalActionInFlightID: String?
     @State private var pendingSessionAction: AgentSessionControlAction?
@@ -33,6 +34,7 @@ struct AgentDetailView: View {
     @State private var isLoadingMemory = true
     @State private var isLoadingFiles = true
     @State private var isLoadingDeliveries = true
+    @State private var isLoadingProfile = true
 
     private var agentApprovals: [ApprovalItem] {
         deps.dashboardViewModel.approvals.filter { $0.agentId == agent.id || $0.agentName == agent.name }
@@ -133,6 +135,7 @@ struct AgentDetailView: View {
             await loadMemory()
             await loadDeliveries()
             await loadFiles()
+            await loadProfile()
         }
         .sheet(isPresented: $showChat) {
             NavigationStack {
@@ -406,6 +409,25 @@ struct AgentDetailView: View {
                     ToolProfilesView(selectedProfileName: profile)
                 } label: {
                     DetailRow(icon: "person", label: "Profile", value: profile)
+                }
+                if isLoadingProfile {
+                    LabeledContent("Tools") {
+                        ProgressView()
+                            .controlSize(.small)
+                    }
+                } else if let agentProfileSummary {
+                    LabeledContent("Tools") {
+                        Text(agentProfileSummary.tools.count.formatted())
+                            .foregroundStyle(agentProfileSummary.tools.isEmpty ? Color.secondary : Color.blue)
+                            .monospacedDigit()
+                    }
+                    if !agentProfileSummary.tools.isEmpty {
+                        LabeledContent("Profile Tools") {
+                            Text(profileToolPreview(agentProfileSummary))
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.trailing)
+                        }
+                    }
                 }
             }
         }
@@ -929,6 +951,14 @@ struct AgentDetailView: View {
         return trimmed.isEmpty ? nil : trimmed
     }
 
+    private func profileToolPreview(_ profile: ToolProfileSummary) -> String {
+        let preview = profile.tools.prefix(4).joined(separator: " • ")
+        if profile.tools.count > 4 {
+            return "\(preview) +\(profile.tools.count - 4)"
+        }
+        return preview
+    }
+
     private func capabilitySummary(for model: CatalogModel) -> String {
         var capabilities: [String] = []
         if model.supportsTools {
@@ -1017,6 +1047,21 @@ struct AgentDetailView: View {
                 .sorted { $0.timestamp > $1.timestamp }
         } catch {
             agentDeliveries = []
+        }
+    }
+
+    @MainActor
+    private func loadProfile() async {
+        defer { isLoadingProfile = false }
+        guard let profile = agent.profile else {
+            agentProfileSummary = nil
+            return
+        }
+
+        do {
+            agentProfileSummary = try await deps.apiClient.profile(name: profile)
+        } catch {
+            agentProfileSummary = nil
         }
     }
 
