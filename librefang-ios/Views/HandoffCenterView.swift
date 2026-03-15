@@ -439,12 +439,16 @@ private struct HandoffCadenceCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Label("Cadence", systemImage: "point.topleft.down.curvedto.point.bottomright.up")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                PresentationToneBadge(text: cadenceState.label, tone: cadenceState.tone)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    PresentationToneBadge(text: cadenceState.label, tone: cadenceState.tone)
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    PresentationToneBadge(text: cadenceState.label, tone: cadenceState.tone)
+                }
             }
 
             Text(cadenceSummary)
@@ -463,6 +467,12 @@ private struct HandoffCadenceCard: View {
         }
         .padding(.vertical, 6)
     }
+
+    private var titleLabel: some View {
+        Label("Cadence", systemImage: "point.topleft.down.curvedto.point.bottomright.up")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
 }
 
 private struct HandoffDriftCard: View {
@@ -470,12 +480,16 @@ private struct HandoffDriftCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Label("Current Drift", systemImage: "arrow.left.arrow.right")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                PresentationToneBadge(text: drift.state.label, tone: drift.state.tone)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    PresentationToneBadge(text: drift.state.label, tone: drift.state.tone)
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    PresentationToneBadge(text: drift.state.label, tone: drift.state.tone)
+                }
             }
 
             Text(drift.summary)
@@ -488,6 +502,12 @@ private struct HandoffDriftCard: View {
         }
         .padding(.vertical, 6)
     }
+
+    private var titleLabel: some View {
+        Label("Current Drift", systemImage: "arrow.left.arrow.right")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
 }
 
 private struct HandoffCarryoverCard: View {
@@ -495,12 +515,16 @@ private struct HandoffCarryoverCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Label("Carryover", systemImage: "arrow.triangle.branch")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                PresentationToneBadge(text: status.state.label, tone: status.state.tone)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    PresentationToneBadge(text: status.state.label, tone: status.state.tone)
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    PresentationToneBadge(text: status.state.label, tone: status.state.tone)
+                }
             }
 
             Text(status.summary)
@@ -508,15 +532,29 @@ private struct HandoffCarryoverCard: View {
                 .foregroundStyle(.secondary)
 
             ForEach(status.items) { item in
-                HStack(alignment: .top, spacing: 10) {
-                    HandoffFocusAreaBadge(area: item.area)
-                    Text(item.detail)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .top, spacing: 10) {
+                        HandoffFocusAreaBadge(area: item.area)
+                        Text(item.detail)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    VStack(alignment: .leading, spacing: 6) {
+                        HandoffFocusAreaBadge(area: item.area)
+                        Text(item.detail)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
         }
         .padding(.vertical, 6)
+    }
+
+    private var titleLabel: some View {
+        Label("Carryover", systemImage: "arrow.triangle.branch")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
     }
 }
 
@@ -525,12 +563,16 @@ private struct HandoffReadinessCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Label("Readiness", systemImage: "checkmark.seal")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                PresentationToneBadge(text: status.state.label, tone: status.state.tone)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    PresentationToneBadge(text: status.state.label, tone: status.state.tone)
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    PresentationToneBadge(text: status.state.label, tone: status.state.tone)
+                }
             }
 
             Text(status.summary)
@@ -545,6 +587,12 @@ private struct HandoffReadinessCard: View {
         }
         .padding(.vertical, 6)
     }
+
+    private var titleLabel: some View {
+        Label("Readiness", systemImage: "checkmark.seal")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
 }
 
 private struct HandoffCheckInCard: View {
@@ -552,12 +600,16 @@ private struct HandoffCheckInCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Label("Check-in Window", systemImage: "timer")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                PresentationToneBadge(text: status.state.label, tone: status.state.tone)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    PresentationToneBadge(text: status.state.label, tone: status.state.tone)
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    PresentationToneBadge(text: status.state.label, tone: status.state.tone)
+                }
             }
 
             Text(status.dueLabel)
@@ -569,6 +621,12 @@ private struct HandoffCheckInCard: View {
                 .foregroundStyle(.secondary)
         }
         .padding(.vertical, 6)
+    }
+
+    private var titleLabel: some View {
+        Label("Check-in Window", systemImage: "timer")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
     }
 }
 
@@ -592,11 +650,10 @@ private struct HandoffStatsRow: View {
     let liveAlertCount: Int
 
     var body: some View {
-        HStack(spacing: 10) {
+        FlowLayout(spacing: 10) {
             HandoffStatPill(value: queueCount, label: String(localized: "Queued"))
             HandoffStatPill(value: criticalCount, label: String(localized: "Critical"))
             HandoffStatPill(value: liveAlertCount, label: String(localized: "Live"))
-            Spacer()
         }
     }
 }
@@ -606,24 +663,15 @@ private struct HandoffTimelineRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(item.entry.createdAt, format: .dateTime.month(.abbreviated).day().hour().minute())
-                        .font(.subheadline.weight(.semibold))
-                    Text(item.entry.createdAt, style: .relative)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    timelineSummary
+                    Spacer(minLength: 8)
+                    timelineBadges(alignment: .trailing)
                 }
-
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 6) {
-                    HandoffKindBadge(kind: item.entry.kind)
-
-                    PresentationToneBadge(
-                        text: item.gapToOlderEntry == nil ? String(localized: "Latest") : item.gapLabel,
-                        tone: item.gapTone
-                    )
+                VStack(alignment: .leading, spacing: 6) {
+                    timelineSummary
+                    timelineBadges(alignment: .leading)
                 }
             }
 
@@ -634,11 +682,10 @@ private struct HandoffTimelineRow: View {
                     .lineLimit(2)
             }
 
-            HStack(spacing: 10) {
+            FlowLayout(spacing: 10) {
                 HandoffStatPill(value: item.entry.queueCount, label: String(localized: "Queued"))
                 HandoffStatPill(value: item.entry.criticalCount, label: String(localized: "Critical"))
                 HandoffStatPill(value: item.entry.checklist.completedCount, label: String(localized: "Checks"))
-                Spacer()
             }
 
             if !item.entry.focusAreas.items.isEmpty {
@@ -655,6 +702,28 @@ private struct HandoffTimelineRow: View {
         }
         .padding(.vertical, 4)
     }
+
+    private var timelineSummary: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(item.entry.createdAt, format: .dateTime.month(.abbreviated).day().hour().minute())
+                .font(.subheadline.weight(.semibold))
+            Text(item.entry.createdAt, style: .relative)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder
+    private func timelineBadges(alignment: HorizontalAlignment) -> some View {
+        VStack(alignment: alignment, spacing: 6) {
+            HandoffKindBadge(kind: item.entry.kind)
+
+            PresentationToneBadge(
+                text: item.gapToOlderEntry == nil ? String(localized: "Latest") : item.gapLabel,
+                tone: item.gapTone
+            )
+        }
+    }
 }
 
 private struct HandoffFreshnessCard: View {
@@ -665,12 +734,16 @@ private struct HandoffFreshnessCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Label("Handoff Freshness", systemImage: "clock.badge.checkmark")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
+                }
             }
 
             Text(freshnessSummary)
@@ -698,6 +771,12 @@ private struct HandoffFreshnessCard: View {
         }
         .padding(.vertical, 6)
     }
+
+    private var titleLabel: some View {
+        Label("Handoff Freshness", systemImage: "clock.badge.checkmark")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
 }
 
 private struct HandoffCoverageCard: View {
@@ -706,30 +785,58 @@ private struct HandoffCoverageCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Label("Recent Coverage", systemImage: "list.bullet.clipboard")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(entries.isEmpty ? String(localized: "No history") : String(localized: "\(entries.count) snapshots"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    coverageCountLabel
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    coverageCountLabel
+                }
             }
 
             ForEach(Array(HandoffChecklistKey.allCases.enumerated()), id: \.element.rawValue) { _, key in
                 let coverageTone = HandoffChecklistState.coverageTone(for: coverageCount(key))
-                HStack {
-                    Label(key.label, systemImage: key.symbolName)
-                        .font(.caption)
-                        .foregroundStyle(.primary)
-                    Spacer()
-                    Text("\(coverageCount(key))/\(max(entries.count, 1))")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(coverageTone.color)
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .firstTextBaseline, spacing: 12) {
+                        coverageLabel(for: key)
+                        Spacer(minLength: 8)
+                        coverageValue(for: key, tone: coverageTone)
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        coverageLabel(for: key)
+                        coverageValue(for: key, tone: coverageTone)
+                    }
                 }
             }
         }
         .padding(.vertical, 6)
+    }
+
+    private var titleLabel: some View {
+        Label("Recent Coverage", systemImage: "list.bullet.clipboard")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
+
+    private var coverageCountLabel: some View {
+        Text(entries.isEmpty ? String(localized: "No history") : String(localized: "\(entries.count) snapshots"))
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+    }
+
+    private func coverageLabel(for key: HandoffChecklistKey) -> some View {
+        Label(key.label, systemImage: key.symbolName)
+            .font(.caption)
+            .foregroundStyle(.primary)
+    }
+
+    private func coverageValue(for key: HandoffChecklistKey, tone: PresentationTone) -> some View {
+        Text("\(coverageCount(key))/\(max(entries.count, 1))")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(tone.color)
     }
 }
 
@@ -986,15 +1093,16 @@ struct HandoffFocusSummaryRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Label("Focus", systemImage: "scope")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(focusAreas.summaryLabel)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    summaryLabel
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    titleLabel
+                    summaryLabel
+                }
             }
 
             if !focusAreas.items.isEmpty {
@@ -1008,6 +1116,19 @@ struct HandoffFocusSummaryRow: View {
             }
         }
     }
+
+    private var titleLabel: some View {
+        Label("Focus", systemImage: "scope")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
+
+    private var summaryLabel: some View {
+        Text(focusAreas.summaryLabel)
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .lineLimit(2)
+    }
 }
 
 struct HandoffFollowUpSummaryRow: View {
@@ -1015,14 +1136,16 @@ struct HandoffFollowUpSummaryRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Label("Follow-ups", systemImage: "checklist.unchecked")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(items.count == 1 ? String(localized: "1 item") : String(localized: "\(items.count) items"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    itemCountLabel
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    titleLabel
+                    itemCountLabel
+                }
             }
 
             ForEach(Array(items.prefix(2).enumerated()), id: \.offset) { index, item in
@@ -1033,6 +1156,18 @@ struct HandoffFollowUpSummaryRow: View {
             }
         }
     }
+
+    private var titleLabel: some View {
+        Label("Follow-ups", systemImage: "checklist.unchecked")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
+
+    private var itemCountLabel: some View {
+        Text(items.count == 1 ? String(localized: "1 item") : String(localized: "\(items.count) items"))
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+    }
 }
 
 struct HandoffCheckInSummaryRow: View {
@@ -1040,16 +1175,30 @@ struct HandoffCheckInSummaryRow: View {
     let createdAt: Date
 
     var body: some View {
-        HStack {
-            Label("Check-in", systemImage: "timer")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-            Spacer()
-            Text(window.dueLabel(from: createdAt))
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                titleLabel
+                Spacer(minLength: 8)
+                dueLabel
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                titleLabel
+                dueLabel
+            }
         }
+    }
+
+    private var titleLabel: some View {
+        Label("Check-in", systemImage: "timer")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
+
+    private var dueLabel: some View {
+        Text(window.dueLabel(from: createdAt))
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .lineLimit(2)
     }
 }
 
@@ -1077,24 +1226,15 @@ private struct HandoffEntryCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(entry.createdAt, format: .dateTime.month(.abbreviated).day().hour().minute())
-                        .font(.subheadline.weight(.semibold))
-                    Text(entry.createdAt, style: .relative)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    entrySummary
+                    Spacer(minLength: 8)
+                    entryControls
                 }
-
-                Spacer()
-
-                HStack(spacing: 10) {
-                    HandoffKindBadge(kind: entry.kind)
-
-                    ShareLink(item: entry.shareText) {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                    .buttonStyle(.plain)
+                VStack(alignment: .leading, spacing: 6) {
+                    entrySummary
+                    entryControls
                 }
             }
 
@@ -1132,6 +1272,27 @@ private struct HandoffEntryCard: View {
         }
         .padding(.vertical, 6)
     }
+
+    private var entrySummary: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(entry.createdAt, format: .dateTime.month(.abbreviated).day().hour().minute())
+                .font(.subheadline.weight(.semibold))
+            Text(entry.createdAt, style: .relative)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var entryControls: some View {
+        HStack(spacing: 10) {
+            HandoffKindBadge(kind: entry.kind)
+
+            ShareLink(item: entry.shareText) {
+                Image(systemName: "square.and.arrow.up")
+            }
+            .buttonStyle(.plain)
+        }
+    }
 }
 
 private struct HandoffChecklistStatusRow: View {
@@ -1139,14 +1300,16 @@ private struct HandoffChecklistStatusRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Label("Checklist", systemImage: "checklist")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(checklist.progressLabel)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(checklist.tone.color)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    progressLabel
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    titleLabel
+                    progressLabel
+                }
             }
 
             Text(checklist.summaryLabel)
@@ -1154,5 +1317,17 @@ private struct HandoffChecklistStatusRow: View {
                 .foregroundStyle(checklist.tone.color)
                 .lineLimit(2)
         }
+    }
+
+    private var titleLabel: some View {
+        Label("Checklist", systemImage: "checklist")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
+
+    private var progressLabel: some View {
+        Text(checklist.progressLabel)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(checklist.tone.color)
     }
 }
