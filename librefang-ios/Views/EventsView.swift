@@ -266,27 +266,23 @@ private struct EventRow: View {
                     .frame(width: 18)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    ViewThatFits(in: .horizontal) {
-                        HStack(alignment: .firstTextBaseline, spacing: 12) {
-                            titleLabel
-                            Spacer(minLength: 8)
-                            timestampLabel
-                        }
-                        VStack(alignment: .leading, spacing: 2) {
-                            titleLabel
-                            timestampLabel
-                        }
+                    ResponsiveAccessoryRow(
+                        horizontalAlignment: .firstTextBaseline,
+                        verticalSpacing: 2
+                    ) {
+                        titleLabel
+                    } accessory: {
+                        timestampLabel
                     }
 
-                    ViewThatFits(in: .horizontal) {
-                        HStack(alignment: .firstTextBaseline, spacing: 8) {
-                            agentLabel
-                            outcomeBadge
-                        }
-                        VStack(alignment: .leading, spacing: 4) {
-                            agentLabel
-                            outcomeBadge
-                        }
+                    ResponsiveAccessoryRow(
+                        horizontalAlignment: .firstTextBaseline,
+                        horizontalSpacing: 8,
+                        spacerMinLength: 0
+                    ) {
+                        agentLabel
+                    } accessory: {
+                        outcomeBadge
                     }
 
                     if !entry.detail.isEmpty {

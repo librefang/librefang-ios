@@ -333,18 +333,10 @@ private struct CommsEventRow: View {
                         timestampLabel
                     }
 
-                    ViewThatFits(in: .horizontal) {
-                        HStack(spacing: 6) {
-                            sourceTargetLabel
-                        }
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(sourceLabel)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                            Text(targetLabel)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                        }
+                    ResponsiveIconDetailRow(horizontalSpacing: 6, verticalSpacing: 2, spacerMinLength: 0) {
+                        sourceLabelView
+                    } detail: {
+                        targetLabelView
                     }
 
                     if !event.detail.isEmpty {
@@ -400,8 +392,16 @@ private struct CommsEventRow: View {
             .foregroundStyle(.tertiary)
     }
 
-    private var sourceTargetLabel: some View {
-        Text("\(sourceLabel) → \(targetLabel)")
+    private var sourceLabelView: some View {
+        Text(sourceLabel)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+            .truncationMode(.middle)
+    }
+
+    private var targetLabelView: some View {
+        Text(targetLabel)
             .font(.caption.weight(.semibold))
             .foregroundStyle(.secondary)
             .lineLimit(1)

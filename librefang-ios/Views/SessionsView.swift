@@ -621,17 +621,10 @@ private struct SessionMonitorRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    summaryBlock
-                    Spacer()
-                    trailingBlock
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    summaryBlock
-                    trailingBlock
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 6) {
+                summaryBlock
+            } accessory: {
+                trailingBlock
             }
 
             FlowLayout(spacing: 8) {
