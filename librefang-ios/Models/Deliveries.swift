@@ -36,13 +36,13 @@ nonisolated enum DeliveryStatus: String, Codable, Sendable, Hashable {
     var label: String {
         switch self {
         case .sent:
-            return "Sent"
+            return String(localized: "Sent")
         case .delivered:
-            return "Delivered"
+            return String(localized: "Delivered")
         case .failed:
-            return "Failed"
+            return String(localized: "Failed")
         case .bestEffort:
-            return "Best Effort"
+            return String(localized: "Best Effort")
         }
     }
 }

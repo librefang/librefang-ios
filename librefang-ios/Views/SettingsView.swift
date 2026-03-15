@@ -36,6 +36,10 @@ struct SettingsView: View {
                         }
                     }
                     .disabled(isSaving)
+
+                    Text(serverConnectionHint)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
 
                 Section("Auto Refresh") {
@@ -67,6 +71,14 @@ struct SettingsView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
+                    }
+                }
+
+                Section("Runtime Catalogs") {
+                    NavigationLink {
+                        ToolProfilesView()
+                    } label: {
+                        Label("Tool Profiles", systemImage: "person.crop.rectangle.stack")
                     }
                 }
 
@@ -385,6 +397,18 @@ struct SettingsView: View {
         if deps.dashboardViewModel.health?.isHealthy == true {
             showSuccess = true
         }
+    }
+
+    private var serverConnectionHint: String {
+        let normalized = serverURL
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+
+        if normalized.contains("127.0.0.1") || normalized.contains("localhost") {
+            return String(localized: "127.0.0.1 and localhost only work when the daemon is reachable from the same host. On a physical iPhone, use your Mac's LAN IP, for example http://192.168.x.x:4545.")
+        }
+
+        return String(localized: "The app connects to this base URL on launch and refreshes the dashboard immediately after you save.")
     }
 
     private var auditStatus: String {

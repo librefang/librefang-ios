@@ -36,27 +36,27 @@ enum ApprovalDecisionAction: Identifiable {
     var title: String {
         switch self {
         case .approve:
-            return "Approve Request"
+            return String(localized: "Approve Request")
         case .reject:
-            return "Reject Request"
+            return String(localized: "Reject Request")
         }
     }
 
     var message: String {
         switch self {
         case .approve(let approval):
-            return "Allow \(approval.agentName) to proceed with \(approval.toolName)?"
+            return String(localized: "Allow \(approval.agentName) to proceed with \(approval.toolName)?")
         case .reject(let approval):
-            return "Reject \(approval.actionSummary) for \(approval.agentName)?"
+            return String(localized: "Reject \(approval.actionSummary) for \(approval.agentName)?")
         }
     }
 
     var confirmLabel: String {
         switch self {
         case .approve:
-            return "Approve"
+            return String(localized: "Approve")
         case .reject:
-            return "Reject"
+            return String(localized: "Reject")
         }
     }
 
@@ -95,9 +95,9 @@ enum ApprovalDecisionAction: Identifiable {
     private var defaultSuccessMessage: String {
         switch self {
         case .approve:
-            return "Approval marked as approved."
+            return String(localized: "Approval marked as approved.")
         case .reject:
-            return "Approval marked as rejected."
+            return String(localized: "Approval marked as rejected.")
         }
     }
 }
@@ -124,26 +124,26 @@ enum AgentSessionControlAction: Identifiable {
     var title: String {
         switch self {
         case .stopRun:
-            return "Stop Active Run"
+            return String(localized: "Stop Active Run")
         case .compact:
-            return "Compact Session"
+            return String(localized: "Compact Session")
         case .reset:
-            return "Reset Session"
+            return String(localized: "Reset Session")
         case .switchSession:
-            return "Switch Session"
+            return String(localized: "Switch Session")
         }
     }
 
     var confirmLabel: String {
         switch self {
         case .stopRun:
-            return "Stop Run"
+            return String(localized: "Stop Run")
         case .compact:
-            return "Compact"
+            return String(localized: "Compact")
         case .reset:
-            return "Reset"
+            return String(localized: "Reset")
         case .switchSession:
-            return "Switch"
+            return String(localized: "Switch")
         }
     }
 
@@ -159,13 +159,13 @@ enum AgentSessionControlAction: Identifiable {
     var message: String {
         switch self {
         case .stopRun(_, let agentName):
-            return "Cancel the active LLM run for \(agentName)?"
+            return String(localized: "Cancel the active LLM run for \(agentName)?")
         case .compact(_, let agentName):
-            return "Ask LibreFang to compact the current session context for \(agentName)?"
+            return String(localized: "Ask LibreFang to compact the current session context for \(agentName)?")
         case .reset(_, let agentName):
-            return "Reset the current session for \(agentName)? This clears the active conversational context."
+            return String(localized: "Reset the current session for \(agentName)? This clears the active conversational context.")
         case .switchSession(_, let agentName, let session):
-            return "Make \(session.displayTitle) the active session for \(agentName)?"
+            return String(localized: "Make \(session.displayTitle) the active session for \(agentName)?")
         }
     }
 
@@ -192,13 +192,13 @@ enum AgentSessionControlAction: Identifiable {
     private var defaultSuccessMessage: String {
         switch self {
         case .stopRun:
-            return "Run cancelled."
+            return String(localized: "Run cancelled.")
         case .compact:
-            return "Session compaction requested."
+            return String(localized: "Session compaction requested.")
         case .reset:
-            return "Session reset."
+            return String(localized: "Session reset.")
         case .switchSession:
-            return "Session switched."
+            return String(localized: "Session switched.")
         }
     }
 }

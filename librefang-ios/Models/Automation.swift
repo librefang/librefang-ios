@@ -79,7 +79,16 @@ nonisolated enum WorkflowRunState: String, Codable, Sendable, CaseIterable {
     case failed
 
     var label: String {
-        rawValue.replacingOccurrences(of: "_", with: " ").capitalized
+        switch self {
+        case .pending:
+            String(localized: "Pending")
+        case .running:
+            String(localized: "Running")
+        case .completed:
+            String(localized: "Completed")
+        case .failed:
+            String(localized: "Failed")
+        }
     }
 }
 
@@ -135,41 +144,41 @@ nonisolated struct TriggerDefinition: Codable, Identifiable, Sendable {
             return friendlyTriggerLabel(kind: entry.key, payload: entry.value)
         }
 
-        return "Custom trigger"
+        return String(localized: "Custom trigger")
     }
 
     private func friendlyTriggerLabel(kind: String, payload: JSONValue?) -> String {
         switch kind {
         case "lifecycle":
-            return "Lifecycle events"
+            return String(localized: "Lifecycle events")
         case "agent_spawned":
             if let namePattern = payload?.objectValue?["name_pattern"]?.stringValue, !namePattern.isEmpty {
-                return "Agent spawned · \(namePattern)"
+                return String(localized: "Agent spawned · \(namePattern)")
             }
-            return "Agent spawned"
+            return String(localized: "Agent spawned")
         case "agent_terminated":
-            return "Agent terminated"
+            return String(localized: "Agent terminated")
         case "system":
-            return "System events"
+            return String(localized: "System events")
         case "system_keyword":
             if let keyword = payload?.objectValue?["keyword"]?.stringValue, !keyword.isEmpty {
-                return "System keyword · \(keyword)"
+                return String(localized: "System keyword · \(keyword)")
             }
-            return "System keyword"
+            return String(localized: "System keyword")
         case "memory_update":
-            return "Memory updates"
+            return String(localized: "Memory updates")
         case "memory_key_pattern":
             if let keyPattern = payload?.objectValue?["key_pattern"]?.stringValue, !keyPattern.isEmpty {
-                return "Memory key · \(keyPattern)"
+                return String(localized: "Memory key · \(keyPattern)")
             }
-            return "Memory key pattern"
+            return String(localized: "Memory key pattern")
         case "all":
-            return "All events"
+            return String(localized: "All events")
         case "content_match":
             if let substring = payload?.objectValue?["substring"]?.stringValue, !substring.isEmpty {
-                return "Content match · \(substring)"
+                return String(localized: "Content match · \(substring)")
             }
-            return "Content match"
+            return String(localized: "Content match")
         default:
             return kind.replacingOccurrences(of: "_", with: " ").capitalized
         }

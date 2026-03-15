@@ -63,30 +63,30 @@ final class OnCallNotificationManager {
     var authorizationLabel: String {
         switch authorizationStatus {
         case .authorized, .provisional, .ephemeral:
-            "Allowed"
+            String(localized: "Allowed")
         case .denied:
-            "Denied"
+            String(localized: "Denied")
         case .notDetermined:
-            "Not Requested"
+            String(localized: "Not Requested")
         @unknown default:
-            "Unknown"
+            String(localized: "Unknown")
         }
     }
 
     var authorizationSummary: String {
         switch authorizationStatus {
         case .authorized:
-            "iOS banners and sounds are enabled for on-call reminders."
+            String(localized: "iOS banners and sounds are enabled for on-call reminders.")
         case .provisional:
-            "Notifications can be delivered quietly. Promote them in Settings if you want banners."
+            String(localized: "Notifications can be delivered quietly. Promote them in Settings if you want banners.")
         case .ephemeral:
-            "Notifications are temporarily allowed for this app session."
+            String(localized: "Notifications are temporarily allowed for this app session.")
         case .denied:
-            "Notifications are disabled in iOS Settings for this app."
+            String(localized: "Notifications are disabled in iOS Settings for this app.")
         case .notDetermined:
-            "Request permission once, then the app can arm background reminders."
+            String(localized: "Request permission once, then the app can arm background reminders.")
         @unknown default:
-            "Notification authorization state is unavailable."
+            String(localized: "Notification authorization state is unavailable.")
         }
     }
 
@@ -94,7 +94,7 @@ final class OnCallNotificationManager {
         if let pendingReminderDate {
             return RelativeDateTimeFormatter().localizedString(for: pendingReminderDate, relativeTo: Date())
         }
-        return "Not armed"
+        return String(localized: "Not armed")
     }
 
     var delayOptions: [Int] {
@@ -102,7 +102,9 @@ final class OnCallNotificationManager {
     }
 
     var pendingReminderSourceLabel: String {
-        pendingReminderDate == nil ? "Not armed" : (pendingReminderSource ?? "Standby delay")
+        pendingReminderDate == nil
+            ? String(localized: "Not armed")
+            : (pendingReminderSource ?? String(localized: "Standby delay"))
     }
 
     func refreshAuthorizationStatus() async {
@@ -197,7 +199,7 @@ final class OnCallNotificationManager {
     private func scheduledReminderSource(for snapshot: OnCallReminderSnapshot, scheduledDate: Date) -> String {
         guard let suggestedDate = snapshot.suggestedDeliveryDate,
               let schedulingHint = snapshot.schedulingHint else {
-            return "Standby delay"
+            return String(localized: "Standby delay")
         }
 
         let earliestPermitted = Date().addingTimeInterval(Self.minimumLeadTime)
@@ -206,7 +208,7 @@ final class OnCallNotificationManager {
             return schedulingHint
         }
 
-        return "Standby delay"
+        return String(localized: "Standby delay")
     }
 
     private func notificationSettings() async -> UNNotificationSettings {

@@ -55,17 +55,17 @@ nonisolated enum CommsEventKind: String, Codable, Sendable, CaseIterable {
     var label: String {
         switch self {
         case .agentMessage:
-            "Message"
+            String(localized: "Message")
         case .agentSpawned:
-            "Spawned"
+            String(localized: "Spawned")
         case .agentTerminated:
-            "Terminated"
+            String(localized: "Terminated")
         case .taskPosted:
-            "Task Posted"
+            String(localized: "Task Posted")
         case .taskClaimed:
-            "Task Claimed"
+            String(localized: "Task Claimed")
         case .taskCompleted:
-            "Task Completed"
+            String(localized: "Task Completed")
         }
     }
 

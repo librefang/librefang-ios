@@ -44,6 +44,16 @@ struct ToolProfilesView: View {
                 } footer: {
                     Text("Tool profiles are server-defined bundles. They explain what an agent can and cannot call even when the rest of the runtime looks healthy.")
                 }
+            } else if let selectedProfileName, !selectedProfileName.isEmpty, !isLoading, loadError == nil {
+                Section {
+                    ContentUnavailableView(
+                        "Current Profile Missing",
+                        systemImage: "person.crop.circle.badge.exclamationmark",
+                        description: Text("LibreFang did not return a tool profile named \"\(selectedProfileName)\".")
+                    )
+                } header: {
+                    Text("Current Profile")
+                }
             }
 
             if let loadError {

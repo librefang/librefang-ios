@@ -10,22 +10,22 @@ enum OnCallFocusMode: String, CaseIterable, Identifiable {
     var label: String {
         switch self {
         case .balanced:
-            "Balanced"
+            String(localized: "Balanced")
         case .criticalOnly:
-            "Critical Only"
+            String(localized: "Critical Only")
         case .watchlistFirst:
-            "Watchlist First"
+            String(localized: "Watchlist First")
         }
     }
 
     var summary: String {
         switch self {
         case .balanced:
-            "Mix live alerts, approvals, watchlist pressure, and session hotspots."
+            String(localized: "Mix live alerts, approvals, watchlist pressure, and session hotspots.")
         case .criticalOnly:
-            "Only surface critical incidents unless you open deeper queues."
+            String(localized: "Only surface critical incidents unless you open deeper queues.")
         case .watchlistFirst:
-            "Pin watched agents to the front so their issues never get buried."
+            String(localized: "Pin watched agents to the front so their issues never get buried.")
         }
     }
 }
@@ -40,22 +40,22 @@ enum OnCallSurfacePreference: String, CaseIterable, Identifiable {
     var label: String {
         switch self {
         case .onCall:
-            "On Call"
+            String(localized: "On Call")
         case .nightWatch:
-            "Night Watch"
+            String(localized: "Night Watch")
         case .standbyDigest:
-            "Standby Digest"
+            String(localized: "Standby Digest")
         }
     }
 
     var summary: String {
         switch self {
         case .onCall:
-            "Open the full triage queue with supporting sections."
+            String(localized: "Open the full triage queue with supporting sections.")
         case .nightWatch:
-            "Jump straight into the minimal high-priority watch surface."
+            String(localized: "Jump straight into the minimal high-priority watch surface.")
         case .standbyDigest:
-            "Open the lockscreen-style glance view with the smallest possible incident summary."
+            String(localized: "Open the lockscreen-style glance view with the smallest possible incident summary.")
         }
     }
 }

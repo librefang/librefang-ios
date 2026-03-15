@@ -10,22 +10,22 @@ enum OnCallReminderScope: String, CaseIterable, Identifiable {
     var label: String {
         switch self {
         case .criticalOnly:
-            "Critical Only"
+            String(localized: "Critical Only")
         case .liveAlerts:
-            "Live Alerts"
+            String(localized: "Live Alerts")
         case .fullQueue:
-            "Full Queue"
+            String(localized: "Full Queue")
         }
     }
 
     var summary: String {
         switch self {
         case .criticalOnly:
-            "Only remind when critical items remain in the on-call queue."
+            String(localized: "Only remind when critical items remain in the on-call queue.")
         case .liveAlerts:
-            "Remind for active monitoring alerts and approval backlog, but skip watchlist-only noise."
+            String(localized: "Remind for active monitoring alerts and approval backlog, but skip watchlist-only noise.")
         case .fullQueue:
-            "Include watchlist agents, session pressure, and critical event follow-up in reminders."
+            String(localized: "Include watchlist agents, session pressure, and critical event follow-up in reminders.")
         }
     }
 }
@@ -65,12 +65,12 @@ extension DashboardViewModel {
         let title: String
         if criticalCount > 0 {
             title = criticalCount == 1
-                ? "1 critical item still needs review"
-                : "\(criticalCount) critical items still need review"
+                ? String(localized: "1 critical item still needs review")
+                : String(localized: "\(criticalCount) critical items still need review")
         } else if priorityItems.count == 1 {
             title = priorityItems[0].title
         } else {
-            title = "\(priorityItems.count) on-call items still queued"
+            title = String(localized: "\(priorityItems.count) on-call items still queued")
         }
 
         let watchIssueCount = watchedAttentionItems.filter { $0.severity > 0 }.count
@@ -80,12 +80,20 @@ extension DashboardViewModel {
         switch scope {
         case .criticalOnly:
             if criticalCount > 0 {
-                detailParts.append(criticalCount == 1 ? "Critical on-call pressure remains active" : "\(criticalCount) critical pressures remain active")
+                detailParts.append(
+                    criticalCount == 1
+                        ? String(localized: "Critical on-call pressure remains active")
+                        : String(localized: "\(criticalCount) critical pressures remain active")
+                )
             }
         case .liveAlerts:
             let liveAlertCount = visibleAlerts.count
             if liveAlertCount > 0 {
-                detailParts.append(liveAlertCount == 1 ? "1 live alert still active" : "\(liveAlertCount) live alerts still active")
+                detailParts.append(
+                    liveAlertCount == 1
+                        ? String(localized: "1 live alert still active")
+                        : String(localized: "\(liveAlertCount) live alerts still active")
+                )
             }
         case .fullQueue:
             if let handoffCheckInStatus {
@@ -93,27 +101,47 @@ extension DashboardViewModel {
                 case .scheduled:
                     break
                 case .dueSoon:
-                    detailParts.append("Handoff check-in is due soon")
+                    detailParts.append(String(localized: "Handoff check-in is due soon"))
                 case .overdue:
-                    detailParts.append("Handoff check-in is overdue")
+                    detailParts.append(String(localized: "Handoff check-in is overdue"))
                 }
             }
             if pendingFollowUpCount > 0 {
-                detailParts.append(pendingFollowUpCount == 1 ? "1 handoff follow-up is still open" : "\(pendingFollowUpCount) handoff follow-ups are still open")
+                detailParts.append(
+                    pendingFollowUpCount == 1
+                        ? String(localized: "1 handoff follow-up is still open")
+                        : String(localized: "\(pendingFollowUpCount) handoff follow-ups are still open")
+                )
             }
             if watchIssueCount > 0 {
-                detailParts.append(watchIssueCount == 1 ? "1 watched agent needs review" : "\(watchIssueCount) watched agents need review")
+                detailParts.append(
+                    watchIssueCount == 1
+                        ? String(localized: "1 watched agent needs review")
+                        : String(localized: "\(watchIssueCount) watched agents need review")
+                )
             }
             if sessionAttentionCount > 0 {
-                detailParts.append(sessionAttentionCount == 1 ? "1 session hotspot remains" : "\(sessionAttentionCount) session hotspots remain")
+                detailParts.append(
+                    sessionAttentionCount == 1
+                        ? String(localized: "1 session hotspot remains")
+                        : String(localized: "\(sessionAttentionCount) session hotspots remain")
+                )
             }
             if recentCriticalAuditCount > 0 {
-                detailParts.append(recentCriticalAuditCount == 1 ? "1 critical event follow-up remains" : "\(recentCriticalAuditCount) critical event follow-ups remain")
+                detailParts.append(
+                    recentCriticalAuditCount == 1
+                        ? String(localized: "1 critical event follow-up remains")
+                        : String(localized: "\(recentCriticalAuditCount) critical event follow-ups remain")
+                )
             }
         }
 
         if pendingApprovalCount > 0 {
-            detailParts.append(pendingApprovalCount == 1 ? "1 approval is still waiting" : "\(pendingApprovalCount) approvals are still waiting")
+            detailParts.append(
+                pendingApprovalCount == 1
+                    ? String(localized: "1 approval is still waiting")
+                    : String(localized: "\(pendingApprovalCount) approvals are still waiting")
+            )
         }
 
         for item in priorityItems.prefix(2) where detailParts.count < 3 {
@@ -140,10 +168,10 @@ extension DashboardViewModel {
                 schedulingHint = nil
             case .dueSoon:
                 suggestedDeliveryDate = handoffCheckInStatus.dueDate
-                schedulingHint = "Handoff check-in"
+                schedulingHint = String(localized: "Handoff check-in")
             case .overdue:
                 suggestedDeliveryDate = Date().addingTimeInterval(30)
-                schedulingHint = "Handoff check-in overdue"
+                schedulingHint = String(localized: "Handoff check-in overdue")
             }
             destinationTarget = .surface(.handoffCenter)
         } else if let followUpReminderDriver = followUpReminderDriver(
@@ -162,7 +190,7 @@ extension DashboardViewModel {
         return OnCallReminderSnapshot(
             signature: signature,
             title: title,
-            body: body.isEmpty ? "Open LibreFang to review the on-call queue." : body,
+            body: body.isEmpty ? String(localized: "Open LibreFang to review the on-call queue.") : body,
             itemCount: priorityItems.count,
             criticalCount: criticalCount,
             destinationTarget: destinationTarget,
@@ -219,9 +247,9 @@ extension DashboardViewModel {
             return nil
         case .dueSoon:
             guard followUpItem.severity == .critical else { return nil }
-            return (handoffCheckInStatus.dueDate, "Handoff follow-ups due soon")
+            return (handoffCheckInStatus.dueDate, String(localized: "Handoff follow-ups due soon"))
         case .overdue:
-            return (Date().addingTimeInterval(30), "Handoff follow-ups overdue")
+            return (Date().addingTimeInterval(30), String(localized: "Handoff follow-ups overdue"))
         }
     }
 }

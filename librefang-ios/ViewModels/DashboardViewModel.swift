@@ -45,6 +45,7 @@ final class DashboardViewModel {
 
     private let api: APIClientProtocol
     private var refreshTask: Task<Void, Never>?
+    private var isRefreshInFlight = false
 
     init(api: APIClientProtocol) {
         self.api = api
@@ -71,8 +72,16 @@ final class DashboardViewModel {
 
     @MainActor
     func refresh() async {
+        guard !isRefreshInFlight else { return }
+
+        isRefreshInFlight = true
         isLoading = true
         error = nil
+        defer {
+            lastRefresh = Date()
+            isLoading = false
+            isRefreshInFlight = false
+        }
 
         await withTaskGroup(of: Void.self) { group in
             group.addTask { @MainActor in
@@ -233,9 +242,6 @@ final class DashboardViewModel {
                 catch { /* Cron inventory is optional */ }
             }
         }
-
-        lastRefresh = Date()
-        isLoading = false
     }
 
     @MainActor

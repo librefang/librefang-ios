@@ -8,11 +8,11 @@ enum AuditEventSeverity: Int, CaseIterable {
     var shortLabel: String {
         switch self {
         case .info:
-            "Info"
+            String(localized: "Info")
         case .warning:
-            "Warn"
+            String(localized: "Warn")
         case .critical:
-            "Critical"
+            String(localized: "Critical")
         }
     }
 
@@ -39,13 +39,13 @@ enum AuditSeverityScope: String, CaseIterable, Identifiable {
     var label: String {
         switch self {
         case .all:
-            "All"
+            String(localized: "All")
         case .critical:
-            "Critical"
+            String(localized: "Critical")
         case .warning:
-            "Warn"
+            String(localized: "Warn")
         case .info:
-            "Info"
+            String(localized: "Info")
         }
     }
 
@@ -94,33 +94,33 @@ extension AuditEntry {
     var friendlyAction: String {
         switch action {
         case "AgentSpawn":
-            "Agent Created"
+            String(localized: "Agent Created")
         case "AgentKill", "AgentTerminated":
-            "Agent Stopped"
+            String(localized: "Agent Stopped")
         case "ToolInvoke":
-            "Tool Used"
+            String(localized: "Tool Used")
         case "ToolResult":
-            "Tool Completed"
+            String(localized: "Tool Completed")
         case "AgentMessage":
-            "Message Received"
+            String(localized: "Message Received")
         case "NetworkAccess":
-            "Network Access"
+            String(localized: "Network Access")
         case "ShellExec":
-            "Shell Command"
+            String(localized: "Shell Command")
         case "FileAccess":
-            "File Access"
+            String(localized: "File Access")
         case "MemoryAccess":
-            "Memory Access"
+            String(localized: "Memory Access")
         case "AuthAttempt":
-            "Login Attempt"
+            String(localized: "Login Attempt")
         case "AuthSuccess":
-            "Login Success"
+            String(localized: "Login Success")
         case "AuthFailure":
-            "Login Failure"
+            String(localized: "Login Failure")
         case "CapabilityDenied":
-            "Capability Denied"
+            String(localized: "Capability Denied")
         case "RateLimited":
-            "Rate Limited"
+            String(localized: "Rate Limited")
         default:
             action.splitCamelCase
         }

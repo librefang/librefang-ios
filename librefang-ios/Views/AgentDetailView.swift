@@ -456,6 +456,13 @@ struct AgentDetailView: View {
                                 .multilineTextAlignment(.trailing)
                         }
                     }
+                } else {
+                    DetailRow(
+                        icon: "person.crop.circle.badge.exclamationmark",
+                        label: "Profile Check",
+                        value: "Unknown profile",
+                        valueColor: .orange
+                    )
                 }
             }
         }

@@ -73,6 +73,15 @@ struct OverviewView: View {
     private var preferredOnCallSurface: OnCallSurfacePreference {
         deps.onCallFocusStore.preferredSurface
     }
+    private var configuredServerURL: String {
+        ServerConfig.saved.baseURL
+    }
+    private var isLoopbackServer: Bool {
+        let normalized = configuredServerURL
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+        return normalized.contains("127.0.0.1") || normalized.contains("localhost")
+    }
     private var latestHandoffGapLabel: String? {
         deps.onCallHandoffStore.timelineItems.first?.gapToOlderEntry.map(OnCallHandoffStore.formatInterval)
     }
@@ -362,13 +371,11 @@ struct OverviewView: View {
             }
             .overlay {
                 if vm.isLoading && vm.agents.isEmpty && vm.error == nil {
-                    VStack(spacing: 12) {
-                        ProgressView()
-                            .controlSize(.large)
-                        Text("Connecting to server...")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
+                    StartupConnectionCard(
+                        serverURL: configuredServerURL,
+                        showsLoopbackHint: isLoopbackServer
+                    )
+                    .padding()
                 }
             }
         }
@@ -623,6 +630,40 @@ private struct HandoffBadge: View {
         .padding(.vertical, 6)
         .background(.secondary.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
+}
+
+private struct StartupConnectionCard: View {
+    let serverURL: String
+    let showsLoopbackHint: Bool
+
+    var body: some View {
+        VStack(spacing: 14) {
+            ProgressView()
+                .controlSize(.large)
+
+            VStack(spacing: 6) {
+                Text("Connecting to LibreFang")
+                    .font(.headline)
+
+                Text(serverURL)
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            if showsLoopbackHint {
+                Text("If this app is running on a physical iPhone, 127.0.0.1 or localhost points to the phone itself. Use your Mac's LAN IP in Settings.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .padding(20)
+        .frame(maxWidth: 360)
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .shadow(color: .black.opacity(0.08), radius: 18, y: 8)
     }
 }
 

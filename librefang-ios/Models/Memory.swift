@@ -32,7 +32,7 @@ extension JSONValue {
         switch self {
         case .string(let value):
             let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
-            return trimmed.isEmpty ? "Empty string" : trimmed
+            return trimmed.isEmpty ? String(localized: "Empty string") : trimmed
         case .number(let value):
             if value.rounded() == value {
                 return String(Int(value))
@@ -41,9 +41,13 @@ extension JSONValue {
         case .bool(let value):
             return value ? "true" : "false"
         case .object(let value):
-            return "\(value.count) field\(value.count == 1 ? "" : "s")"
+            return value.count == 1
+                ? String(localized: "1 field")
+                : String(localized: "\(value.count) fields")
         case .array(let value):
-            return "\(value.count) item\(value.count == 1 ? "" : "s")"
+            return value.count == 1
+                ? String(localized: "1 item")
+                : String(localized: "\(value.count) items")
         case .null:
             return "null"
         }
