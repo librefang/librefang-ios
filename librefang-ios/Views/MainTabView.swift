@@ -5,8 +5,11 @@ struct MainTabView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedTab = 0
     @State private var showOnCall = false
+    @State private var showHandoffCenter = false
     @State private var incidentCue: ActiveIncidentCue?
     @State private var hasObservedCriticalState = false
+    @State private var handoffCue: ActiveHandoffCue?
+    @State private var hasObservedCheckInState = false
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
     private var visibleMonitoringAlerts: [MonitoringAlertItem] {
@@ -20,6 +23,13 @@ struct MainTabView: View {
     }
     private var visibleCriticalAlertCount: Int {
         visibleCriticalAlerts.count
+    }
+    private var handoffCheckInStatus: HandoffCheckInStatus? {
+        deps.onCallHandoffStore.latestCheckInStatus
+    }
+    private var handoffBannerStatus: HandoffCheckInStatus? {
+        guard let handoffCheckInStatus, handoffCheckInStatus.state != .scheduled else { return nil }
+        return handoffCheckInStatus
     }
     private var isCurrentSnapshotAcknowledged: Bool {
         deps.incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
@@ -52,6 +62,29 @@ struct MainTabView: View {
                 .map { "\($0.id)|\($0.title)|\($0.detail)" }
                 .sorted()
                 .joined(separator: "||")
+        )
+    }
+    private var handoffCheckInTrackingState: HandoffCheckInTrackingState {
+        guard let handoffBannerStatus else { return .init(level: 0, signature: "none") }
+        return HandoffCheckInTrackingState(
+            level: handoffBannerStatus.state == .overdue ? 2 : 1,
+            signature: "\(handoffBannerStatus.state.label)|\(handoffBannerStatus.dueDate.timeIntervalSinceReferenceDate.rounded())"
+        )
+    }
+    private var onCallPriorityItems: [OnCallPriorityItem] {
+        vm.onCallPriorityItems(
+            visibleAlerts: visibleMonitoringAlerts,
+            watchedAttentionItems: watchedAttentionItems,
+            handoffCheckInStatus: handoffCheckInStatus
+        )
+    }
+    private var handoffText: String {
+        vm.onCallHandoffText(
+            visibleAlerts: visibleMonitoringAlerts,
+            watchedAttentionItems: watchedAttentionItems,
+            mutedAlertCount: activeMutedAlertCount,
+            isAcknowledged: isCurrentSnapshotAcknowledged,
+            handoffCheckInStatus: handoffCheckInStatus
         )
     }
 
@@ -104,6 +137,9 @@ struct MainTabView: View {
         .onChange(of: criticalTrackingState) { oldValue, newValue in
             handleCriticalTrackingChange(from: oldValue, to: newValue)
         }
+        .onChange(of: handoffCheckInTrackingState) { oldValue, newValue in
+            handleHandoffCheckInChange(from: oldValue, to: newValue)
+        }
         .onChange(of: isCurrentSnapshotAcknowledged) { _, isAcknowledged in
             if isAcknowledged {
                 incidentCue = nil
@@ -112,6 +148,7 @@ struct MainTabView: View {
         .onChange(of: showsForegroundCues) { _, isEnabled in
             if !isEnabled {
                 incidentCue = nil
+                handoffCue = nil
             }
         }
         .onChange(of: scenePhase) { _, newPhase in
@@ -126,6 +163,7 @@ struct MainTabView: View {
             case .background:
                 deps.dashboardViewModel.stopAutoRefresh()
                 incidentCue = nil
+                handoffCue = nil
                 Task {
                     await deps.onCallNotificationManager.armStandbyReminder(snapshot: reminderSnapshot)
                 }
@@ -139,9 +177,25 @@ struct MainTabView: View {
             guard incidentCue?.id == cueID else { return }
             incidentCue = nil
         }
+        .task(id: handoffCue?.id) {
+            guard let cueID = handoffCue?.id else { return }
+            try? await Task.sleep(nanoseconds: 8_000_000_000)
+            guard handoffCue?.id == cueID else { return }
+            handoffCue = nil
+        }
         .sheet(isPresented: $showOnCall) {
             NavigationStack {
                 preferredSurfaceView
+            }
+        }
+        .sheet(isPresented: $showHandoffCenter) {
+            NavigationStack {
+                HandoffCenterView(
+                    summary: handoffText,
+                    queueCount: onCallPriorityItems.count,
+                    criticalCount: visibleCriticalAlertCount,
+                    liveAlertCount: visibleMonitoringAlerts.count
+                )
             }
         }
     }
@@ -165,7 +219,7 @@ struct MainTabView: View {
             watchedAttentionItems: watchedAttentionItems,
             scope: deps.onCallNotificationManager.scope,
             isAcknowledged: isCurrentSnapshotAcknowledged,
-            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
+            handoffCheckInStatus: handoffCheckInStatus
         )
     }
 
@@ -197,6 +251,13 @@ struct MainTabView: View {
                     }
                 }
                 .buttonStyle(.plain)
+            } else if let handoffBannerStatus {
+                Button {
+                    openHandoffCenter()
+                } label: {
+                    HandoffCheckInBanner(status: handoffBannerStatus)
+                }
+                .buttonStyle(.plain)
             }
 
             if let activeIncidentCue = incidentCue, showsForegroundCues {
@@ -213,9 +274,20 @@ struct MainTabView: View {
                 )
                 .padding(.horizontal, 12)
                 .transition(.move(edge: .top).combined(with: .opacity))
+            } else if let handoffCue, showsForegroundCues {
+                HandoffCueBanner(
+                    cue: handoffCue,
+                    onOpen: { openHandoffCenter() },
+                    onDismiss: {
+                        self.handoffCue = nil
+                    }
+                )
+                .padding(.horizontal, 12)
+                .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
         .animation(.spring(response: 0.28, dampingFraction: 0.86), value: incidentCue?.id)
+        .animation(.spring(response: 0.28, dampingFraction: 0.86), value: handoffCue?.id)
     }
 
     private func handleCriticalTrackingChange(from oldValue: CriticalTrackingState, to newValue: CriticalTrackingState) {
@@ -263,9 +335,57 @@ struct MainTabView: View {
         HapticManager.notification(.error)
     }
 
+    private func handleHandoffCheckInChange(from oldValue: HandoffCheckInTrackingState, to newValue: HandoffCheckInTrackingState) {
+        guard scenePhase == .active else {
+            hasObservedCheckInState = true
+            return
+        }
+
+        guard showsForegroundCues else {
+            handoffCue = nil
+            hasObservedCheckInState = true
+            return
+        }
+
+        guard hasObservedCheckInState else {
+            hasObservedCheckInState = true
+            return
+        }
+
+        guard visibleCriticalAlertCount == 0 else {
+            handoffCue = nil
+            return
+        }
+
+        guard newValue.level > 0, newValue.signature != oldValue.signature, newValue.level >= oldValue.level else {
+            if newValue.level == 0 {
+                handoffCue = nil
+            }
+            return
+        }
+
+        guard let handoffBannerStatus else { return }
+
+        handoffCue = ActiveHandoffCue(
+            id: newValue.signature,
+            title: handoffBannerStatus.state == .overdue ? "Handoff check-in overdue" : "Handoff check-in due soon",
+            detail: "\(handoffBannerStatus.dueLabel) · \(handoffBannerStatus.summary)"
+        )
+        HapticManager.notification(handoffBannerStatus.state == .overdue ? .error : .warning)
+    }
+
     private func openPreferredSurface() {
         incidentCue = nil
+        handoffCue = nil
+        showHandoffCenter = false
         showOnCall = true
+    }
+
+    private func openHandoffCenter() {
+        incidentCue = nil
+        handoffCue = nil
+        showOnCall = false
+        showHandoffCenter = true
     }
 }
 
@@ -275,6 +395,17 @@ private struct CriticalTrackingState: Equatable {
 }
 
 private struct ActiveIncidentCue: Identifiable, Equatable {
+    let id: String
+    let title: String
+    let detail: String
+}
+
+private struct HandoffCheckInTrackingState: Equatable {
+    let level: Int
+    let signature: String
+}
+
+private struct ActiveHandoffCue: Identifiable, Equatable {
     let id: String
     let title: String
     let detail: String
@@ -328,6 +459,41 @@ private struct CriticalIncidentBanner: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(.red.opacity(0.92))
+    }
+}
+
+private struct HandoffCheckInBanner: View {
+    let status: HandoffCheckInStatus
+
+    private var tint: Color {
+        status.state == .overdue ? .red : .orange
+    }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "timer")
+                .font(.caption)
+            Text(status.state == .overdue ? "Handoff check-in overdue" : "Handoff check-in due soon")
+                .font(.caption.weight(.semibold))
+            Spacer()
+            Text(status.window.label)
+                .font(.caption2.weight(.medium))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(.white.opacity(0.12))
+                .clipShape(Capsule())
+            Text("Handoff")
+                .font(.caption2.weight(.medium))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(.white.opacity(0.18))
+                .clipShape(Capsule())
+        }
+        .foregroundStyle(.white)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(tint.opacity(0.92))
     }
 }
 
@@ -419,6 +585,64 @@ private struct IncidentCueBanner: View {
         .background(
             LinearGradient(
                 colors: [Color(red: 0.38, green: 0.08, blue: 0.10), Color(red: 0.17, green: 0.05, blue: 0.10)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(.white.opacity(0.08))
+        )
+        .shadow(color: .black.opacity(0.18), radius: 16, y: 6)
+    }
+}
+
+private struct HandoffCueBanner: View {
+    let cue: ActiveHandoffCue
+    let onOpen: () -> Void
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "timer")
+                    .font(.title3)
+                    .foregroundStyle(.white)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(cue.title)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Text(cue.detail)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.88))
+                        .lineLimit(3)
+                }
+
+                Spacer()
+
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.9))
+                        .padding(8)
+                        .background(.white.opacity(0.12))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+            }
+
+            Button(action: onOpen) {
+                Label("Open Handoff Center", systemImage: "arrow.up.forward.app")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(IncidentCueActionButtonStyle(fill: .white.opacity(0.20)))
+        }
+        .padding(14)
+        .background(
+            LinearGradient(
+                colors: [Color(red: 0.42, green: 0.19, blue: 0.04), Color(red: 0.18, green: 0.08, blue: 0.06)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )

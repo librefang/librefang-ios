@@ -5,6 +5,8 @@ struct IncidentsView: View {
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
     private var incidentStateStore: IncidentStateStore { deps.incidentStateStore }
+    private var watchlistStore: AgentWatchlistStore { deps.agentWatchlistStore }
+    private var handoffStore: OnCallHandoffStore { deps.onCallHandoffStore }
     private var visibleAlerts: [MonitoringAlertItem] {
         incidentStateStore.visibleAlerts(from: vm.monitoringAlerts)
     }
@@ -17,6 +19,73 @@ struct IncidentsView: View {
     private var currentAcknowledgedAt: Date? {
         incidentStateStore.currentAcknowledgementDate(for: vm.monitoringAlerts)
     }
+    private var watchedAttentionItems: [AgentAttentionItem] {
+        watchlistStore.watchedAgents(from: vm.agents)
+            .map { vm.attentionItem(for: $0) }
+            .filter { $0.severity > 0 }
+            .sorted { lhs, rhs in
+                if lhs.severity != rhs.severity {
+                    return lhs.severity > rhs.severity
+                }
+                if lhs.agent.isRunning != rhs.agent.isRunning {
+                    return lhs.agent.isRunning && !rhs.agent.isRunning
+                }
+                return lhs.agent.name.localizedCompare(rhs.agent.name) == .orderedAscending
+            }
+    }
+    private var handoffCheckInStatus: HandoffCheckInStatus? {
+        guard let status = handoffStore.latestCheckInStatus, status.state != .scheduled else { return nil }
+        return status
+    }
+    private var handoffReadiness: HandoffReadinessStatus {
+        handoffStore.evaluateDraftReadiness(
+            note: handoffStore.draftNote,
+            checklist: handoffStore.draftChecklist,
+            focusAreas: handoffStore.draftFocusAreas,
+            followUpItems: handoffStore.draftFollowUpItems,
+            checkInWindow: handoffStore.draftCheckInWindow,
+            liveAlertCount: visibleAlerts.count,
+            pendingApprovalCount: vm.pendingApprovalCount,
+            watchlistIssueCount: watchedAttentionItems.count,
+            sessionAttentionCount: vm.sessionAttentionCount,
+            criticalAuditCount: vm.recentCriticalAuditCount,
+            carryover: handoffStore.carryoverFromLatest(
+                liveAlertCount: visibleAlerts.count,
+                pendingApprovalCount: vm.pendingApprovalCount,
+                watchlistIssueCount: watchedAttentionItems.count,
+                sessionAttentionCount: vm.sessionAttentionCount,
+                criticalAuditCount: vm.recentCriticalAuditCount
+            )
+        )
+    }
+    private var handoffIssueCount: Int {
+        (handoffCheckInStatus == nil ? 0 : 1) + (handoffReadiness.state == .ready ? 0 : 1)
+    }
+    private var onCallPriorityItems: [OnCallPriorityItem] {
+        vm.onCallPriorityItems(
+            visibleAlerts: visibleAlerts,
+            watchedAttentionItems: watchedAttentionItems,
+            handoffCheckInStatus: handoffCheckInStatus
+        )
+    }
+    private var handoffText: String {
+        vm.onCallHandoffText(
+            visibleAlerts: visibleAlerts,
+            watchedAttentionItems: watchedAttentionItems,
+            mutedAlertCount: mutedAlerts.count,
+            isAcknowledged: isCurrentSnapshotAcknowledged,
+            handoffCheckInStatus: handoffCheckInStatus
+        )
+    }
+    private var hasVisibleIncidents: Bool {
+        !visibleAlerts.isEmpty
+            || !mutedAlerts.isEmpty
+            || !vm.approvals.isEmpty
+            || !vm.attentionAgents.isEmpty
+            || !vm.sessionAttentionItems.isEmpty
+            || !vm.criticalAuditEntries.isEmpty
+            || handoffIssueCount > 0
+    }
 
     var body: some View {
         List {
@@ -27,7 +96,8 @@ struct IncidentsView: View {
                     mutedCount: mutedAlerts.count,
                     approvalCount: vm.pendingApprovalCount,
                     agentCount: vm.issueAgentCount,
-                    sessionCount: vm.sessionAttentionCount
+                    sessionCount: vm.sessionAttentionCount,
+                    handoffCount: handoffIssueCount
                 )
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
             }
@@ -43,6 +113,29 @@ struct IncidentsView: View {
                         onClearAcknowledgement: { incidentStateStore.clearAcknowledgement() },
                         onUnmuteAll: { incidentStateStore.unmuteAll() }
                     )
+                }
+            }
+
+            if handoffIssueCount > 0 {
+                Section {
+                    NavigationLink {
+                        HandoffCenterView(
+                            summary: handoffText,
+                            queueCount: onCallPriorityItems.count,
+                            criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
+                            liveAlertCount: visibleAlerts.count
+                        )
+                    } label: {
+                        IncidentShiftCoverageCard(
+                            checkInStatus: handoffCheckInStatus,
+                            readiness: handoffReadiness,
+                            latestEntry: handoffStore.latestEntry
+                        )
+                    }
+                } header: {
+                    Text("Shift Coverage")
+                } footer: {
+                    Text("These handoff signals are local to this iPhone and help keep operator follow-through visible inside the incident flow.")
                 }
             }
 
@@ -142,17 +235,12 @@ struct IncidentsView: View {
                 }
             }
 
-            if vm.monitoringAlerts.isEmpty
-                && mutedAlerts.isEmpty
-                && vm.approvals.isEmpty
-                && vm.attentionAgents.isEmpty
-                && vm.sessionAttentionItems.isEmpty
-                && vm.criticalAuditEntries.isEmpty {
+            if !hasVisibleIncidents {
                 Section("Incidents") {
                     ContentUnavailableView(
                         "No Active Incidents",
                         systemImage: "checkmark.shield",
-                        description: Text("The current mobile monitoring snapshot does not show blocked actions, critical events, or unhealthy agents.")
+                        description: Text("The current mobile monitoring snapshot does not show blocked actions, critical events, unhealthy agents, or overdue local handoff checkpoints.")
                     )
                 }
             }
@@ -185,6 +273,7 @@ private struct IncidentScoreboard: View {
     let approvalCount: Int
     let agentCount: Int
     let sessionCount: Int
+    let handoffCount: Int
 
     private let columns = [
         GridItem(.flexible(), spacing: 10),
@@ -229,6 +318,12 @@ private struct IncidentScoreboard: View {
                 label: "Sessions",
                 icon: "rectangle.stack",
                 color: sessionCount > 0 ? .orange : .secondary
+            )
+            StatBadge(
+                value: "\(handoffCount)",
+                label: "Handoff",
+                icon: "timer",
+                color: handoffCount > 0 ? .orange : .secondary
             )
         }
         .padding(.horizontal)
@@ -383,6 +478,112 @@ private struct IncidentOperatorCard: View {
         }
 
         return "Acknowledge the current alert snapshot after review, or mute noisy alert classes locally if they are already understood."
+    }
+}
+
+private struct IncidentShiftCoverageCard: View {
+    let checkInStatus: HandoffCheckInStatus?
+    let readiness: HandoffReadinessStatus
+    let latestEntry: OnCallHandoffEntry?
+
+    private var readinessColor: Color {
+        switch readiness.state {
+        case .ready:
+            .green
+        case .caution:
+            .orange
+        case .blocked:
+            .red
+        }
+    }
+
+    private var checkInColor: Color {
+        guard let checkInStatus else { return Color.secondary }
+        switch checkInStatus.state {
+        case .scheduled:
+            return Color.secondary
+        case .dueSoon:
+            return Color.orange
+        case .overdue:
+            return Color.red
+        }
+    }
+
+    private var topIssue: HandoffReadinessIssue? {
+        readiness.blockingIssues.first ?? readiness.advisoryIssues.first
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("Local Handoff Pressure", systemImage: "person.crop.rectangle.badge.clock")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                if let checkInStatus {
+                    Text(checkInStatus.state.label)
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(checkInColor.opacity(0.12))
+                        .foregroundStyle(checkInColor)
+                        .clipShape(Capsule())
+                }
+                if readiness.state != .ready {
+                    Text(readiness.state.label)
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(readinessColor.opacity(0.12))
+                        .foregroundStyle(readinessColor)
+                        .clipShape(Capsule())
+                }
+            }
+
+            if let checkInStatus {
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: "timer")
+                        .foregroundStyle(checkInColor)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(checkInStatus.state == .overdue ? "Handoff check-in missed" : "Handoff check-in approaching")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.primary)
+                        Text(checkInStatus.summary)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            if readiness.state != .ready {
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: readiness.state == .blocked ? "exclamationmark.octagon" : "checkmark.seal")
+                        .foregroundStyle(readinessColor)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Next handoff draft needs work")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.primary)
+                        Text(topIssue?.message ?? readiness.summary)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            } else if let latestEntry {
+                Text("Last local handoff saved \(latestEntry.createdAt, style: .relative) ago.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            HStack {
+                Label("Open Handoff Center", systemImage: "text.badge.plus")
+                    .font(.caption.weight(.semibold))
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
     }
 }
 
