@@ -11,7 +11,7 @@ final class WatchedAgentDiagnosticsStore {
         summaries[agentID]
     }
 
-    func refresh(api: APIClientProtocol, agents: [Agent]) async {
+    func refresh(api: APIClientProtocol, agents: [Agent], catalogModels: [CatalogModel]) async {
         let watchedAgents = agents
         guard !watchedAgents.isEmpty else {
             summaries = [:]
@@ -32,19 +32,33 @@ final class WatchedAgentDiagnosticsStore {
                 group.addTask {
                     async let deliveriesResponse = try? api.agentDeliveries(agentId: agent.id, limit: 20)
                     async let filesResponse = try? api.agentFiles(agentId: agent.id)
+                    async let agentDetail = try? api.agentDetail(agentId: agent.id)
 
                     let deliveries = await deliveriesResponse?.receipts ?? []
                     let files = await filesResponse?.files ?? []
+                    let fallbackModels = await agentDetail?.fallbackModels ?? []
 
                     let failedDeliveries = deliveries.filter { $0.status == .failed }.count
                     let unsettledDeliveries = deliveries.filter { $0.status == .sent || $0.status == .bestEffort }.count
                     let missingIdentityFiles = files.filter { !$0.exists }.map(\.name)
+                    let unavailableFallbackModels = fallbackModels.compactMap { fallback -> String? in
+                        let match = catalogModels.first { model in
+                            model.provider.compare(fallback.provider, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame &&
+                            model.id.compare(fallback.model, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+                        }
+
+                        guard let match, match.available else {
+                            return "\(fallback.provider)/\(fallback.model)"
+                        }
+                        return nil
+                    }
 
                     let summary = WatchedAgentDiagnosticsSummary(
                         agentID: agent.id,
                         failedDeliveries: failedDeliveries,
                         unsettledDeliveries: unsettledDeliveries,
-                        missingIdentityFiles: missingIdentityFiles
+                        missingIdentityFiles: missingIdentityFiles,
+                        unavailableFallbackModels: unavailableFallbackModels
                     )
 
                     if summary.hasIssues {
@@ -72,15 +86,17 @@ nonisolated struct WatchedAgentDiagnosticsSummary: Sendable, Hashable {
     let failedDeliveries: Int
     let unsettledDeliveries: Int
     let missingIdentityFiles: [String]
+    let unavailableFallbackModels: [String]
 
     var hasIssues: Bool {
-        failedDeliveries > 0 || unsettledDeliveries > 0 || !missingIdentityFiles.isEmpty
+        failedDeliveries > 0 || unsettledDeliveries > 0 || !missingIdentityFiles.isEmpty || !unavailableFallbackModels.isEmpty
     }
 
     var issueCount: Int {
         let deliveryIssues = (failedDeliveries > 0 ? 1 : 0) + (unsettledDeliveries > 0 ? 1 : 0)
         let fileIssues = missingIdentityFiles.isEmpty ? 0 : 1
-        return deliveryIssues + fileIssues
+        let fallbackIssues = unavailableFallbackModels.isEmpty ? 0 : 1
+        return deliveryIssues + fileIssues + fallbackIssues
     }
 
     var summaryLine: String {
@@ -93,6 +109,9 @@ nonisolated struct WatchedAgentDiagnosticsSummary: Sendable, Hashable {
         }
         if !missingIdentityFiles.isEmpty {
             parts.append("\(missingIdentityFiles.count) identity files missing")
+        }
+        if !unavailableFallbackModels.isEmpty {
+            parts.append("\(unavailableFallbackModels.count) fallback models unavailable")
         }
         return parts.joined(separator: " • ")
     }

@@ -11,13 +11,13 @@ private enum HandoffHistoryFilter: String, CaseIterable, Identifiable {
     var label: String {
         switch self {
         case .all:
-            "All"
+            String(localized: "All")
         case .critical:
-            "Critical"
+            String(localized: "Critical")
         case .queued:
-            "Queued"
+            String(localized: "Queued")
         case .calm:
-            "Calm"
+            String(localized: "Calm")
         }
     }
 }
@@ -128,24 +128,24 @@ struct HandoffCenterView: View {
         var items: [String] = []
 
         if liveAlertCount > 0 {
-            items.append("Review \(liveAlertCount) live alerts and confirm owner or next check.")
+            items.append(String(localized: "Review \(liveAlertCount) live alerts and confirm owner or next check."))
         }
         if vm.pendingApprovalCount > 0 {
-            items.append("Triage \(vm.pendingApprovalCount) pending approvals.")
+            items.append(String(localized: "Triage \(vm.pendingApprovalCount) pending approvals."))
         }
         let watchIssues = watchlistStore.watchedAgents(from: vm.agents).filter { vm.attentionItem(for: $0).severity > 0 }.count
         if watchIssues > 0 {
-            items.append("Re-check \(watchIssues) watchlist agents for readiness, auth, or stale-session issues.")
+            items.append(String(localized: "Re-check \(watchIssues) watchlist agents for readiness, auth, or stale-session issues."))
         }
         if vm.sessionAttentionCount > 0 {
-            items.append("Inspect \(vm.sessionAttentionCount) session hotspots for backlog or unlabeled sessions.")
+            items.append(String(localized: "Inspect \(vm.sessionAttentionCount) session hotspots for backlog or unlabeled sessions."))
         }
         if vm.recentCriticalAuditCount > 0 {
-            items.append("Review \(vm.recentCriticalAuditCount) recent critical audit events.")
+            items.append(String(localized: "Review \(vm.recentCriticalAuditCount) recent critical audit events."))
         }
         if let carryoverStatus, carryoverStatus.unresolvedCount > 0 {
             let labels = carryoverStatus.items.filter(\.isActive).map { $0.area.label }.joined(separator: ", ")
-            items.append("Close remaining carryover focus: \(labels).")
+            items.append(String(localized: "Close remaining carryover focus: \(labels)."))
         }
 
         return items
@@ -155,7 +155,7 @@ struct HandoffCenterView: View {
         List {
             Section {
                 HandoffFreshnessCard(
-                    freshnessLabel: handoffStore.freshnessLabel,
+                    freshnessState: handoffStore.freshnessState,
                     freshnessSummary: handoffStore.freshnessSummary,
                     latestEntry: handoffStore.latestEntry,
                     uncoveredChecklistKeys: handoffStore.uncoveredChecklistKeys
@@ -167,7 +167,7 @@ struct HandoffCenterView: View {
                 )
 
                 HandoffCadenceCard(
-                    cadenceLabel: handoffStore.cadenceState.label,
+                    cadenceState: handoffStore.cadenceState,
                     cadenceSummary: handoffStore.cadenceSummary,
                     warningCount: handoffStore.cadenceWarningCount
                 )
@@ -314,7 +314,7 @@ struct HandoffCenterView: View {
                         )
                     } label: {
                         Label(
-                            draftReadiness.state == .blocked ? "Save Snapshot Anyway" : "Save Snapshot",
+                            draftReadiness.state == .blocked ? String(localized: "Save Snapshot Anyway") : String(localized: "Save Snapshot"),
                             systemImage: "square.and.arrow.down"
                         )
                             .frame(maxWidth: .infinity)
@@ -433,17 +433,17 @@ struct HandoffCenterView: View {
 }
 
 private struct HandoffCadenceCard: View {
-    let cadenceLabel: String
+    let cadenceState: HandoffCadenceState
     let cadenceSummary: String
     let warningCount: Int
 
     private var cadenceColor: Color {
-        switch cadenceLabel {
-        case "Steady":
+        switch cadenceState {
+        case .steady:
             .green
-        case "Sparse":
+        case .sparse:
             .orange
-        default:
+        case .missing, .single:
             .secondary
         }
     }
@@ -455,7 +455,7 @@ private struct HandoffCadenceCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(cadenceLabel)
+                Text(cadenceState.label)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -469,7 +469,11 @@ private struct HandoffCadenceCard: View {
                 .foregroundStyle(.secondary)
 
             if warningCount > 0 {
-                Text(warningCount == 1 ? "1 recent handoff gap crossed the warning threshold." : "\(warningCount) recent handoff gaps crossed the warning threshold.")
+                Text(
+                    warningCount == 1
+                        ? String(localized: "1 recent handoff gap crossed the warning threshold.")
+                        : String(localized: "\(warningCount) recent handoff gaps crossed the warning threshold.")
+                )
                     .font(.caption2)
                     .foregroundStyle(.orange)
             }
@@ -689,9 +693,9 @@ private struct HandoffStatsRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            HandoffStatPill(value: queueCount, label: "Queued")
-            HandoffStatPill(value: criticalCount, label: "Critical")
-            HandoffStatPill(value: liveAlertCount, label: "Live")
+            HandoffStatPill(value: queueCount, label: String(localized: "Queued"))
+            HandoffStatPill(value: criticalCount, label: String(localized: "Critical"))
+            HandoffStatPill(value: liveAlertCount, label: String(localized: "Live"))
             Spacer()
         }
     }
@@ -716,7 +720,7 @@ private struct HandoffTimelineRow: View {
                 VStack(alignment: .trailing, spacing: 6) {
                     HandoffKindBadge(kind: item.entry.kind)
 
-                    Text(item.gapToOlderEntry == nil ? "Latest" : item.gapLabel)
+                    Text(item.gapToOlderEntry == nil ? String(localized: "Latest") : item.gapLabel)
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
@@ -734,9 +738,9 @@ private struct HandoffTimelineRow: View {
             }
 
             HStack(spacing: 10) {
-                HandoffStatPill(value: item.entry.queueCount, label: "Queued")
-                HandoffStatPill(value: item.entry.criticalCount, label: "Critical")
-                HandoffStatPill(value: item.entry.checklist.completedCount, label: "Checks")
+                HandoffStatPill(value: item.entry.queueCount, label: String(localized: "Queued"))
+                HandoffStatPill(value: item.entry.criticalCount, label: String(localized: "Critical"))
+                HandoffStatPill(value: item.entry.checklist.completedCount, label: String(localized: "Checks"))
                 Spacer()
             }
 
@@ -757,18 +761,18 @@ private struct HandoffTimelineRow: View {
 }
 
 private struct HandoffFreshnessCard: View {
-    let freshnessLabel: String
+    let freshnessState: HandoffFreshnessState
     let freshnessSummary: String
     let latestEntry: OnCallHandoffEntry?
     let uncoveredChecklistKeys: [HandoffChecklistKey]
 
     private var freshnessColor: Color {
-        switch freshnessLabel {
-        case "Fresh":
+        switch freshnessState {
+        case .fresh:
             .green
-        case "Stale":
+        case .stale:
             .orange
-        default:
+        case .missing:
             .red
         }
     }
@@ -780,7 +784,7 @@ private struct HandoffFreshnessCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(freshnessLabel)
+                Text(freshnessState.label)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -806,7 +810,7 @@ private struct HandoffFreshnessCard: View {
                     .font(.caption2)
                     .foregroundStyle(.green)
             } else {
-                Text("Recent gap: \(uncoveredChecklistKeys.map(\.label).joined(separator: ", "))")
+                Text(String(localized: "Recent gap: \(uncoveredChecklistKeys.map(\.label).joined(separator: ", "))"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
@@ -827,7 +831,7 @@ private struct HandoffCoverageCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(entries.isEmpty ? "No history" : "\(entries.count) snapshots")
+                Text(entries.isEmpty ? String(localized: "No history") : String(localized: "\(entries.count) snapshots"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -911,7 +915,7 @@ private struct HandoffFollowUpTrackerCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(pendingCount == 0 ? "Clear" : "\(pendingCount) pending")
+                Text(pendingCount == 0 ? String(localized: "Clear") : String(localized: "\(pendingCount) pending"))
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -920,13 +924,15 @@ private struct HandoffFollowUpTrackerCard: View {
                     .clipShape(Capsule())
             }
 
-            Text(pendingCount == 0
-                ? "All follow-up items from the latest local handoff are complete on this iPhone."
-                : "\(pendingCount) of \(statuses.count) local handoff follow-ups still need operator follow-through.")
+            Text(
+                pendingCount == 0
+                    ? String(localized: "All follow-up items from the latest local handoff are complete on this iPhone.")
+                    : String(localized: "\(pendingCount) of \(statuses.count) local handoff follow-ups still need operator follow-through.")
+            )
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            Text("\(completedCount) complete · \(pendingCount) pending")
+            Text(String(localized: "\(completedCount) complete · \(pendingCount) pending"))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
@@ -967,7 +973,7 @@ private struct HandoffFocusComposer: View {
                 Text("Focus areas")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
-                Text(focusAreas.items.isEmpty ? "None" : "\(focusAreas.items.count)")
+                Text(focusAreas.items.isEmpty ? String(localized: "None") : String(localized: "\(focusAreas.items.count)"))
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
             }
@@ -1030,13 +1036,13 @@ private struct HandoffFollowUpComposer: View {
                 Text("Follow-ups")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
-                Text(items.isEmpty ? "None" : "\(items.count)")
+                Text(items.isEmpty ? String(localized: "None") : String(localized: "\(items.count)"))
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
             }
 
             HStack(spacing: 10) {
-                TextField("Add follow-up item", text: $draftText)
+                TextField(String(localized: "Add follow-up item"), text: $draftText)
                     .textInputAutocapitalization(.sentences)
 
                 Button(action: addAction) {
@@ -1100,7 +1106,7 @@ private struct HandoffCheckInComposer: View {
                 .foregroundStyle(.secondary)
 
             if window != .none {
-                Text("Next check-in \(window.dueLabel(from: Date()))")
+                Text(String(localized: "Next check-in \(window.dueLabel(from: Date()))"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -1176,7 +1182,7 @@ struct HandoffFollowUpSummaryRow: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(items.count == 1 ? "1 item" : "\(items.count) items")
+                Text(items.count == 1 ? String(localized: "1 item") : String(localized: "\(items.count) items"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -1310,7 +1316,7 @@ private struct HandoffChecklistStatusRow: View {
                     .font(.caption2)
                     .foregroundStyle(.green)
             } else {
-                Text("Pending: \(checklist.pendingLabels.joined(separator: ", "))")
+                Text(String(localized: "Pending: \(checklist.pendingLabels.joined(separator: ", "))"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)

@@ -11,13 +11,13 @@ enum HandoffSnapshotKind: String, CaseIterable, Codable, Identifiable {
     var label: String {
         switch self {
         case .routine:
-            "Routine"
+            String(localized: "Routine")
         case .watch:
-            "Watch"
+            String(localized: "Watch")
         case .incident:
-            "Incident"
+            String(localized: "Incident")
         case .recovery:
-            "Recovery"
+            String(localized: "Recovery")
         }
     }
 
@@ -37,26 +37,26 @@ enum HandoffSnapshotKind: String, CaseIterable, Codable, Identifiable {
     var summary: String {
         switch self {
         case .routine:
-            "Normal shift coverage with no unusual incident pressure."
+            String(localized: "Normal shift coverage with no unusual incident pressure.")
         case .watch:
-            "Use when the next operator should focus on pinned agents, approvals, or session hotspots."
+            String(localized: "Use when the next operator should focus on pinned agents, approvals, or session hotspots.")
         case .incident:
-            "Use when active critical incidents or escalations are driving the queue."
+            String(localized: "Use when active critical incidents or escalations are driving the queue.")
         case .recovery:
-            "Use when pressure is easing and the next operator mainly needs verification and follow-through."
+            String(localized: "Use when pressure is easing and the next operator mainly needs verification and follow-through.")
         }
     }
 
     func suggestedNote(queueCount: Int, criticalCount: Int, liveAlertCount: Int) -> String {
         switch self {
         case .routine:
-            return "Routine shift snapshot. Queue \(queueCount), live alerts \(liveAlertCount). Continue normal monitoring."
+            return String(localized: "Routine shift snapshot. Queue \(queueCount), live alerts \(liveAlertCount). Continue normal monitoring.")
         case .watch:
-            return "Watchlist-focused handoff. Prioritize pinned agents, pending approvals, and any stale sessions."
+            return String(localized: "Watchlist-focused handoff. Prioritize pinned agents, pending approvals, and any stale sessions.")
         case .incident:
-            return "Incident handoff. \(criticalCount) critical and \(liveAlertCount) live alerts remain in play. Stay on the priority queue until conditions settle."
+            return String(localized: "Incident handoff. \(criticalCount) critical and \(liveAlertCount) live alerts remain in play. Stay on the priority queue until conditions settle.")
         case .recovery:
-            return "Recovery handoff. Pressure is easing, but confirm approvals, session hotspots, and recent audit activity stay stable."
+            return String(localized: "Recovery handoff. Pressure is easing, but confirm approvals, session hotspots, and recent audit activity stay stable.")
         }
     }
 }
@@ -73,15 +73,15 @@ enum HandoffFocusArea: String, CaseIterable, Codable, Identifiable {
     var label: String {
         switch self {
         case .alerts:
-            "Alerts"
+            String(localized: "Alerts")
         case .approvals:
-            "Approvals"
+            String(localized: "Approvals")
         case .watchlist:
-            "Watchlist"
+            String(localized: "Watchlist")
         case .sessions:
-            "Sessions"
+            String(localized: "Sessions")
         case .audit:
-            "Audit"
+            String(localized: "Audit")
         }
     }
 
@@ -110,13 +110,30 @@ enum HandoffCadenceState {
     var label: String {
         switch self {
         case .missing:
-            "Missing"
+            String(localized: "Missing")
         case .single:
-            "Single"
+            String(localized: "Single")
         case .steady:
-            "Steady"
+            String(localized: "Steady")
         case .sparse:
-            "Sparse"
+            String(localized: "Sparse")
+        }
+    }
+}
+
+enum HandoffFreshnessState {
+    case missing
+    case stale
+    case fresh
+
+    var label: String {
+        switch self {
+        case .missing:
+            String(localized: "Missing")
+        case .stale:
+            String(localized: "Stale")
+        case .fresh:
+            String(localized: "Fresh")
         }
     }
 }
@@ -130,13 +147,13 @@ enum HandoffDriftState {
     var label: String {
         switch self {
         case .steady:
-            "Steady"
+            String(localized: "Steady")
         case .improving:
-            "Improving"
+            String(localized: "Improving")
         case .worsening:
-            "Worsening"
+            String(localized: "Worsening")
         case .mixed:
-            "Mixed"
+            String(localized: "Mixed")
         }
     }
 }
@@ -149,11 +166,11 @@ enum HandoffCarryoverState {
     var label: String {
         switch self {
         case .cleared:
-            "Cleared"
+            String(localized: "Cleared")
         case .partial:
-            "Partial"
+            String(localized: "Partial")
         case .active:
-            "Active"
+            String(localized: "Active")
         }
     }
 }
@@ -166,11 +183,11 @@ enum HandoffReadinessState {
     var label: String {
         switch self {
         case .ready:
-            "Ready"
+            String(localized: "Ready")
         case .caution:
-            "Caution"
+            String(localized: "Caution")
         case .blocked:
-            "Blocked"
+            String(localized: "Blocked")
         }
     }
 }
@@ -189,38 +206,38 @@ enum HandoffCheckInWindow: String, CaseIterable, Codable, Identifiable {
     var label: String {
         switch self {
         case .none:
-            "None"
+            String(localized: "None")
         case .fifteenMinutes:
-            "15 min"
+            String(localized: "15 min")
         case .thirtyMinutes:
-            "30 min"
+            String(localized: "30 min")
         case .oneHour:
-            "1 hour"
+            String(localized: "1 hour")
         case .twoHours:
-            "2 hours"
+            String(localized: "2 hours")
         case .fourHours:
-            "4 hours"
+            String(localized: "4 hours")
         case .nextShift:
-            "Next shift"
+            String(localized: "Next shift")
         }
     }
 
     var summary: String {
         switch self {
         case .none:
-            "No explicit re-check window is attached to this handoff."
+            String(localized: "No explicit re-check window is attached to this handoff.")
         case .fifteenMinutes:
-            "Use when the next operator should re-check almost immediately."
+            String(localized: "Use when the next operator should re-check almost immediately.")
         case .thirtyMinutes:
-            "Use for short follow-through after the handoff lands."
+            String(localized: "Use for short follow-through after the handoff lands.")
         case .oneHour:
-            "Good default when incident pressure is active but stable."
+            String(localized: "Good default when incident pressure is active but stable.")
         case .twoHours:
-            "Use when the next shift needs a defined medium-term checkpoint."
+            String(localized: "Use when the next shift needs a defined medium-term checkpoint.")
         case .fourHours:
-            "Use for slower recovery work that still needs a same-shift check."
+            String(localized: "Use for slower recovery work that still needs a same-shift check.")
         case .nextShift:
-            "Use when the next meaningful re-check is expected at the next shift boundary."
+            String(localized: "Use when the next meaningful re-check is expected at the next shift boundary.")
         }
     }
 
@@ -249,8 +266,8 @@ enum HandoffCheckInWindow: String, CaseIterable, Codable, Identifiable {
     }
 
     func dueLabel(from start: Date) -> String {
-        guard let dueDate = dueDate(from: start) else { return "No check-in window" }
-        return "\(label) · \(dueDate.formatted(date: .omitted, time: .shortened))"
+        guard let dueDate = dueDate(from: start) else { return String(localized: "No check-in window") }
+        return String(localized: "\(label) · \(dueDate.formatted(date: .omitted, time: .shortened))")
     }
 }
 
@@ -262,11 +279,11 @@ enum HandoffCheckInState {
     var label: String {
         switch self {
         case .scheduled:
-            "Scheduled"
+            String(localized: "Scheduled")
         case .dueSoon:
-            "Due Soon"
+            String(localized: "Due Soon")
         case .overdue:
-            "Overdue"
+            String(localized: "Overdue")
         }
     }
 }
@@ -281,16 +298,16 @@ struct HandoffCheckInStatus {
     var summary: String {
         switch state {
         case .scheduled:
-            return "Next check-in is \(RelativeDateTimeFormatter().localizedString(for: dueDate, relativeTo: Date()))."
+            return String(localized: "Next check-in is \(RelativeDateTimeFormatter().localizedString(for: dueDate, relativeTo: Date())).")
         case .dueSoon:
-            return "Check-in is due soon at \(dueDate.formatted(date: .omitted, time: .shortened))."
+            return String(localized: "Check-in is due soon at \(dueDate.formatted(date: .omitted, time: .shortened)).")
         case .overdue:
-            return "Check-in passed \(RelativeDateTimeFormatter().localizedString(for: dueDate, relativeTo: Date()))."
+            return String(localized: "Check-in passed \(RelativeDateTimeFormatter().localizedString(for: dueDate, relativeTo: Date())).")
         }
     }
 
     var dueLabel: String {
-        "\(window.label) · \(dueDate.formatted(date: .omitted, time: .shortened))"
+        String(localized: "\(window.label) · \(dueDate.formatted(date: .omitted, time: .shortened))")
     }
 }
 
@@ -317,7 +334,7 @@ struct HandoffTimelineItem: Identifiable {
     var id: String { entry.id }
 
     var gapLabel: String {
-        guard let gapToOlderEntry else { return "Latest in window" }
+        guard let gapToOlderEntry else { return String(localized: "Latest in window") }
         return OnCallHandoffStore.formatInterval(gapToOlderEntry)
     }
 
@@ -348,11 +365,11 @@ struct HandoffReadinessStatus {
     var summary: String {
         switch state {
         case .ready:
-            return "Checklist is complete and active monitoring pressure is reflected in the handoff draft."
+            return String(localized: "Checklist is complete and active monitoring pressure is reflected in the handoff draft.")
         case .caution:
-            return "The handoff draft is usable, but some operator context is still thin."
+            return String(localized: "The handoff draft is usable, but some operator context is still thin.")
         case .blocked:
-            return "The handoff draft is missing required context for current runtime pressure."
+            return String(localized: "The handoff draft is missing required context for current runtime pressure.")
         }
     }
 }
@@ -377,11 +394,11 @@ struct HandoffCarryoverStatus {
     var summary: String {
         switch state {
         case .cleared:
-            return "All focus areas from the last handoff have settled."
+            return String(localized: "All focus areas from the last handoff have settled.")
         case .partial:
-            return "\(unresolvedCount) of \(items.count) handoff focus areas are still active."
+            return String(localized: "\(unresolvedCount) of \(items.count) handoff focus areas are still active.")
         case .active:
-            return "All \(items.count) handoff focus areas are still active on this shift."
+            return String(localized: "All \(items.count) handoff focus areas are still active on this shift.")
         }
     }
 }
@@ -395,14 +412,14 @@ struct HandoffSnapshotDrift {
 
     var compactSummary: String {
         [
-            "Queue \(Self.formatChange(queueChange))",
-            "Critical \(Self.formatChange(criticalChange))",
-            "Live \(Self.formatChange(liveAlertChange))"
+            String(localized: "Queue \(Self.formatChange(queueChange))"),
+            String(localized: "Critical \(Self.formatChange(criticalChange))"),
+            String(localized: "Live \(Self.formatChange(liveAlertChange))")
         ].joined(separator: " · ")
     }
 
     var summary: String {
-        "Since the last handoff: \(compactSummary)."
+        String(localized: "Since the last handoff: \(compactSummary).")
     }
 
     private static func formatChange(_ value: Int) -> String {
@@ -421,13 +438,13 @@ enum HandoffChecklistKey: String, CaseIterable, Codable, Identifiable {
     var label: String {
         switch self {
         case .criticalsReviewed:
-            "Criticals reviewed"
+            String(localized: "Criticals reviewed")
         case .approvalsTriaged:
-            "Approvals triaged"
+            String(localized: "Approvals triaged")
         case .watchlistChecked:
-            "Watchlist checked"
+            String(localized: "Watchlist checked")
         case .reminderArmed:
-            "Standby reminder armed"
+            String(localized: "Standby reminder armed")
         }
     }
 
@@ -529,7 +546,7 @@ struct HandoffFocusState: Codable, Equatable {
     }
 
     var summaryLabel: String {
-        labels.isEmpty ? "None" : labels.joined(separator: ", ")
+        labels.isEmpty ? String(localized: "None") : labels.joined(separator: ", ")
     }
 }
 
@@ -635,34 +652,34 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         followUpItems: [String],
         checkInWindow: HandoffCheckInWindow
     ) -> String {
-        var lines = ["LibreFang handoff snapshot · \(timestamp.formatted(date: .abbreviated, time: .shortened))"]
+        var lines = [String(localized: "LibreFang handoff snapshot · \(timestamp.formatted(date: .abbreviated, time: .shortened))")]
 
         if !note.isEmpty {
-            lines.append("Operator note: \(note)")
+            lines.append(String(localized: "Operator note: \(note)"))
         }
 
-        lines.append("Type: \(kind.label)")
-        lines.append("Queue: \(queueCount) · Critical: \(criticalCount) · Live alerts: \(liveAlertCount)")
-        lines.append("Checklist: \(checklist.progressLabel)")
+        lines.append(String(localized: "Type: \(kind.label)"))
+        lines.append(String(localized: "Queue: \(queueCount) · Critical: \(criticalCount) · Live alerts: \(liveAlertCount)"))
+        lines.append(String(localized: "Checklist: \(checklist.progressLabel)"))
         if !focusAreas.labels.isEmpty {
-            lines.append("Focus: \(focusAreas.labels.joined(separator: ", "))")
+            lines.append(String(localized: "Focus: \(focusAreas.labels.joined(separator: ", "))"))
         }
 
         if !checklist.completedLabels.isEmpty {
-            lines.append("Completed: \(checklist.completedLabels.joined(separator: ", "))")
+            lines.append(String(localized: "Completed: \(checklist.completedLabels.joined(separator: ", "))"))
         }
 
         if !checklist.pendingLabels.isEmpty {
-            lines.append("Pending: \(checklist.pendingLabels.joined(separator: ", "))")
+            lines.append(String(localized: "Pending: \(checklist.pendingLabels.joined(separator: ", "))"))
         }
 
         if !followUpItems.isEmpty {
-            lines.append("Follow-ups:")
+            lines.append(String(localized: "Follow-ups:"))
             lines.append(contentsOf: followUpItems.map { "- \($0)" })
         }
 
         if checkInWindow != .none {
-            lines.append("Check-in: \(checkInWindow.dueLabel(from: timestamp))")
+            lines.append(String(localized: "Check-in: \(checkInWindow.dueLabel(from: timestamp))"))
         }
 
         lines.append("")
@@ -767,21 +784,25 @@ final class OnCallHandoffStore {
         return latestEntryAge >= staleThreshold
     }
 
+    var freshnessState: HandoffFreshnessState {
+        guard latestEntry != nil else { return .missing }
+        return isLatestEntryStale ? .stale : .fresh
+    }
+
     var freshnessLabel: String {
-        guard latestEntry != nil else { return "Missing" }
-        return isLatestEntryStale ? "Stale" : "Fresh"
+        freshnessState.label
     }
 
     var freshnessSummary: String {
         guard let latestEntry else {
-            return "No local handoff snapshot saved on this iPhone yet."
+            return String(localized: "No local handoff snapshot saved on this iPhone yet.")
         }
 
         let relative = RelativeDateTimeFormatter().localizedString(for: latestEntry.createdAt, relativeTo: Date())
         if isLatestEntryStale {
-            return "Last handoff was \(relative). Review the queue before the next shift change."
+            return String(localized: "Last handoff was \(relative). Review the queue before the next shift change.")
         }
-        return "Last handoff was \(relative). This iPhone has recent local shift context."
+        return String(localized: "Last handoff was \(relative). This iPhone has recent local shift context.")
     }
 
     var recentEntries: [OnCallHandoffEntry] {
@@ -820,16 +841,16 @@ final class OnCallHandoffStore {
     var cadenceSummary: String {
         switch cadenceState {
         case .missing:
-            return "No recent local handoff history on this iPhone."
+            return String(localized: "No recent local handoff history on this iPhone.")
         case .single:
-            return "Only one recent handoff is saved. Cadence needs more history."
+            return String(localized: "Only one recent handoff is saved. Cadence needs more history.")
         case .steady:
             let latestGapLabel = latestGap.map(Self.formatInterval) ?? "--"
             let averageGapLabel = averageGap.map(Self.formatInterval) ?? "--"
-            return "Latest gap \(latestGapLabel). Average recent cadence \(averageGapLabel)."
+            return String(localized: "Latest gap \(latestGapLabel). Average recent cadence \(averageGapLabel).")
         case .sparse:
             let latestGapLabel = latestGap.map(Self.formatInterval) ?? "--"
-            return "Latest handoff gap stretched to \(latestGapLabel). Review shift coverage."
+            return String(localized: "Latest handoff gap stretched to \(latestGapLabel). Review shift coverage.")
         }
     }
 
@@ -927,35 +948,45 @@ final class OnCallHandoffStore {
                 return HandoffCarryoverItem(
                     area: area,
                     isActive: isActive,
-                    detail: isActive ? "\(liveAlertCount) live alerts are still active." : "Live alerts are cleared."
+                    detail: isActive
+                        ? String(localized: "\(liveAlertCount) live alerts are still active.")
+                        : String(localized: "Live alerts are cleared.")
                 )
             case .approvals:
                 let isActive = pendingApprovalCount > 0
                 return HandoffCarryoverItem(
                     area: area,
                     isActive: isActive,
-                    detail: isActive ? "\(pendingApprovalCount) approvals still need review." : "Pending approvals are cleared."
+                    detail: isActive
+                        ? String(localized: "\(pendingApprovalCount) approvals still need review.")
+                        : String(localized: "Pending approvals are cleared.")
                 )
             case .watchlist:
                 let isActive = watchlistIssueCount > 0
                 return HandoffCarryoverItem(
                     area: area,
                     isActive: isActive,
-                    detail: isActive ? "\(watchlistIssueCount) watched agents still need attention." : "Watchlist attention is clear."
+                    detail: isActive
+                        ? String(localized: "\(watchlistIssueCount) watched agents still need attention.")
+                        : String(localized: "Watchlist attention is clear.")
                 )
             case .sessions:
                 let isActive = sessionAttentionCount > 0
                 return HandoffCarryoverItem(
                     area: area,
                     isActive: isActive,
-                    detail: isActive ? "\(sessionAttentionCount) session hotspots are still present." : "Session pressure is clear."
+                    detail: isActive
+                        ? String(localized: "\(sessionAttentionCount) session hotspots are still present.")
+                        : String(localized: "Session pressure is clear.")
                 )
             case .audit:
                 let isActive = criticalAuditCount > 0
                 return HandoffCarryoverItem(
                     area: area,
                     isActive: isActive,
-                    detail: isActive ? "\(criticalAuditCount) critical audit events are still recent." : "Critical audit carryover is clear."
+                    detail: isActive
+                        ? String(localized: "\(criticalAuditCount) critical audit events are still recent.")
+                        : String(localized: "Critical audit carryover is clear.")
                 )
             }
         }
@@ -997,7 +1028,7 @@ final class OnCallHandoffStore {
             issues.append(
                 HandoffReadinessIssue(
                     id: "checklist",
-                    message: "Checklist incomplete: \(checklist.pendingLabels.joined(separator: ", ")).",
+                    message: String(localized: "Checklist incomplete: \(checklist.pendingLabels.joined(separator: ", "))."),
                     isBlocking: true
                 )
             )
@@ -1007,7 +1038,7 @@ final class OnCallHandoffStore {
             issues.append(
                 HandoffReadinessIssue(
                     id: "note",
-                    message: "Add a short operator note so the next shift has direct context.",
+                    message: String(localized: "Add a short operator note so the next shift has direct context."),
                     isBlocking: false
                 )
             )
@@ -1024,7 +1055,7 @@ final class OnCallHandoffStore {
             issues.append(
                 HandoffReadinessIssue(
                     id: "followups",
-                    message: "Active runtime pressure exists, but no follow-up items are captured for the next shift.",
+                    message: String(localized: "Active runtime pressure exists, but no follow-up items are captured for the next shift."),
                     isBlocking: true
                 )
             )
@@ -1034,7 +1065,7 @@ final class OnCallHandoffStore {
             issues.append(
                 HandoffReadinessIssue(
                     id: "checkin",
-                    message: "Active runtime pressure exists, but no check-in window is set for the next shift.",
+                    message: String(localized: "Active runtime pressure exists, but no check-in window is set for the next shift."),
                     isBlocking: true
                 )
             )
@@ -1042,7 +1073,7 @@ final class OnCallHandoffStore {
             issues.append(
                 HandoffReadinessIssue(
                     id: "checkin-advisory",
-                    message: "Follow-up items exist, but there is no explicit next check-in window.",
+                    message: String(localized: "Follow-up items exist, but there is no explicit next check-in window."),
                     isBlocking: false
                 )
             )
@@ -1052,7 +1083,7 @@ final class OnCallHandoffStore {
             issues.append(
                 HandoffReadinessIssue(
                     id: "alerts",
-                    message: "\(liveAlertCount) live alerts are active, but Alerts is not included in handoff focus.",
+                    message: String(localized: "\(liveAlertCount) live alerts are active, but Alerts is not included in handoff focus."),
                     isBlocking: true
                 )
             )
@@ -1062,7 +1093,7 @@ final class OnCallHandoffStore {
             issues.append(
                 HandoffReadinessIssue(
                     id: "approvals",
-                    message: "\(pendingApprovalCount) pending approvals are not captured in handoff focus.",
+                    message: String(localized: "\(pendingApprovalCount) pending approvals are not captured in handoff focus."),
                     isBlocking: true
                 )
             )
@@ -1072,7 +1103,7 @@ final class OnCallHandoffStore {
             issues.append(
                 HandoffReadinessIssue(
                     id: "watchlist",
-                    message: "\(watchlistIssueCount) watched agents still need attention, but Watchlist is not included.",
+                    message: String(localized: "\(watchlistIssueCount) watched agents still need attention, but Watchlist is not included."),
                     isBlocking: true
                 )
             )
@@ -1082,7 +1113,7 @@ final class OnCallHandoffStore {
             issues.append(
                 HandoffReadinessIssue(
                     id: "sessions",
-                    message: "\(sessionAttentionCount) session hotspots are active, but Sessions is not included.",
+                    message: String(localized: "\(sessionAttentionCount) session hotspots are active, but Sessions is not included."),
                     isBlocking: true
                 )
             )
@@ -1092,7 +1123,7 @@ final class OnCallHandoffStore {
             issues.append(
                 HandoffReadinessIssue(
                     id: "audit",
-                    message: "\(criticalAuditCount) critical audit events are still recent, but Audit is not included.",
+                    message: String(localized: "\(criticalAuditCount) critical audit events are still recent, but Audit is not included."),
                     isBlocking: true
                 )
             )
@@ -1107,7 +1138,7 @@ final class OnCallHandoffStore {
                 issues.append(
                     HandoffReadinessIssue(
                         id: "carryover",
-                        message: "Unresolved carryover is missing from focus: \(missingCarryover.joined(separator: ", ")).",
+                        message: String(localized: "Unresolved carryover is missing from focus: \(missingCarryover.joined(separator: ", "))."),
                         isBlocking: true
                     )
                 )
@@ -1353,6 +1384,6 @@ final class OnCallHandoffStore {
         formatter.allowedUnits = interval >= 3600 ? [.hour, .minute] : [.minute]
         formatter.unitsStyle = .abbreviated
         formatter.maximumUnitCount = 2
-        return formatter.string(from: interval) ?? "<1m"
+        return formatter.string(from: interval) ?? String(localized: "<1 min")
     }
 }

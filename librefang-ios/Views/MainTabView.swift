@@ -235,7 +235,11 @@ struct MainTabView: View {
 
     @MainActor
     private func refreshWatchedAgentDiagnostics() async {
-        await deps.watchedAgentDiagnosticsStore.refresh(api: deps.apiClient, agents: watchedAgents)
+        await deps.watchedAgentDiagnosticsStore.refresh(
+            api: deps.apiClient,
+            agents: watchedAgents,
+            catalogModels: deps.dashboardViewModel.catalogModels
+        )
     }
 
     private var budgetAlertBadge: Int {

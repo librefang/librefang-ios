@@ -16,23 +16,23 @@ enum AppShortcutSurface: String, CaseIterable, Identifiable {
     var label: String {
         switch self {
         case .onCall:
-            "On Call"
+            String(localized: "On Call")
         case .incidents:
-            "Incidents"
+            String(localized: "Incidents")
         case .approvals:
-            "Approvals"
+            String(localized: "Approvals")
         case .handoffCenter:
-            "Handoff Center"
+            String(localized: "Handoff Center")
         case .nightWatch:
-            "Night Watch"
+            String(localized: "Night Watch")
         case .standbyDigest:
-            "Standby Digest"
+            String(localized: "Standby Digest")
         case .automation:
-            "Automation"
+            String(localized: "Automation")
         case .diagnostics:
-            "Diagnostics"
+            String(localized: "Diagnostics")
         case .integrations:
-            "Integrations"
+            String(localized: "Integrations")
         }
     }
 
@@ -106,19 +106,19 @@ enum AppShortcutLaunchTarget: Hashable, Identifiable {
         case .surface(let surface):
             return surface.label
         case .agent:
-            return "Agent Detail"
+            return String(localized: "Agent Detail")
         case .sessionsAttention:
-            return "Session Monitor"
+            return String(localized: "Session Monitor")
         case .sessionsSearch:
-            return "Filtered Sessions"
+            return String(localized: "Filtered Sessions")
         case .eventsCritical:
-            return "Critical Events"
+            return String(localized: "Critical Events")
         case .eventsSearch:
-            return "Filtered Events"
+            return String(localized: "Filtered Events")
         case .integrationsAttention:
-            return "Integration Attention"
+            return String(localized: "Integration Attention")
         case .integrationsSearch:
-            return "Filtered Integrations"
+            return String(localized: "Filtered Integrations")
         }
     }
 
@@ -488,6 +488,16 @@ enum AppShortcutLaunchBridge {
     @discardableResult
     static func consume(defaults: UserDefaults = .standard) -> AppShortcutLaunchTarget? {
         let target = pendingTarget(defaults: defaults)
+        let hasPendingState =
+            target != nil
+            || pendingToken(defaults: defaults) != nil
+            || defaults.object(forKey: StorageKey.pendingTargetKind) != nil
+            || defaults.object(forKey: StorageKey.pendingTargetValue) != nil
+
+        guard hasPendingState else {
+            return nil
+        }
+
         defaults.removeObject(forKey: StorageKey.pendingTargetKind)
         defaults.removeObject(forKey: StorageKey.pendingTargetValue)
         defaults.removeObject(forKey: StorageKey.pendingToken)

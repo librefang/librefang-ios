@@ -38,13 +38,13 @@ private enum StandbyTone {
     var label: String {
         switch self {
         case .calm:
-            "Calm"
+            String(localized: "Calm")
         case .watch:
-            "Watching"
+            String(localized: "Watching")
         case .alert:
-            "Attention"
+            String(localized: "Attention")
         case .critical:
-            "Critical"
+            String(localized: "Critical")
         }
     }
 }
@@ -226,9 +226,9 @@ struct StandbyDigestView: View {
                 .lineLimit(3)
 
             HStack(spacing: 10) {
-                StandbyCountPill(value: criticalCount, label: "Critical")
-                StandbyCountPill(value: priorityItems.count, label: "Queued")
-                StandbyCountPill(value: watchItems.count, label: "Watched")
+                StandbyCountPill(value: criticalCount, label: String(localized: "Critical"))
+                StandbyCountPill(value: priorityItems.count, label: String(localized: "Queued"))
+                StandbyCountPill(value: watchItems.count, label: String(localized: "Watched"))
                 Spacer()
             }
 
@@ -268,9 +268,11 @@ struct StandbyDigestView: View {
                 Label("Standby is quiet", systemImage: "checkmark.shield")
                     .font(.headline.weight(.semibold))
                     .foregroundStyle(.white)
-                Text(mutedAlertCount > 0
-                     ? "\(mutedAlertCount) muted alerts remain hidden on this iPhone."
-                     : "No live critical pressure is visible right now.")
+                Text(
+                    mutedAlertCount > 0
+                        ? String(localized: "\(mutedAlertCount) muted alerts remain hidden on this iPhone.")
+                        : String(localized: "No live critical pressure is visible right now.")
+                )
                     .font(.subheadline)
                     .foregroundStyle(.white.opacity(0.76))
             }
@@ -285,7 +287,7 @@ struct StandbyDigestView: View {
                         .font(.headline.weight(.semibold))
                         .foregroundStyle(.white)
                     Spacer()
-                    Text(primaryItems.count == 1 ? "1 card" : "\(primaryItems.count) cards")
+                    Text(primaryItems.count == 1 ? String(localized: "1 card") : String(localized: "\(primaryItems.count) cards"))
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.white.opacity(0.74))
                 }
@@ -310,7 +312,7 @@ struct StandbyDigestView: View {
                     .font(.headline.weight(.semibold))
                     .foregroundStyle(.white)
                 Spacer()
-                Text(watchItems.count == 1 ? "1 agent" : "\(watchItems.count) agents")
+                Text(watchItems.count == 1 ? String(localized: "1 agent") : String(localized: "\(watchItems.count) agents"))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.white.opacity(0.74))
             }
@@ -323,7 +325,7 @@ struct StandbyDigestView: View {
                                 .font(.subheadline.weight(.semibold))
                                 .foregroundStyle(.white)
                             Spacer()
-                            Text(item.agent.isRunning ? "Running" : "Idle")
+                            Text(item.agent.isRunning ? String(localized: "Running") : String(localized: "Idle"))
                                 .font(.caption2.weight(.medium))
                                 .foregroundStyle(.white.opacity(0.72))
                         }
@@ -356,8 +358,8 @@ struct StandbyDigestView: View {
                 NightWatchView()
             } label: {
                 StandbyActionRow(
-                    title: "Night Watch",
-                    detail: "Open the stronger triage surface with deeper priority ordering.",
+                    title: String(localized: "Night Watch"),
+                    detail: String(localized: "Open the stronger triage surface with deeper priority ordering."),
                     systemImage: "moon.stars"
                 )
             }
@@ -367,8 +369,8 @@ struct StandbyDigestView: View {
                 OnCallView()
             } label: {
                 StandbyActionRow(
-                    title: "Full On Call Queue",
-                    detail: "Open the complete queue with sections, watchlist, and quick links.",
+                    title: String(localized: "Full On Call Queue"),
+                    detail: String(localized: "Open the complete queue with sections, watchlist, and quick links."),
                     systemImage: "waveform.path.ecg"
                 )
             }
@@ -376,8 +378,8 @@ struct StandbyDigestView: View {
 
             NavigationLink(value: OnCallRoute.incidents) {
                 StandbyActionRow(
-                    title: "Incidents Center",
-                    detail: "Inspect all live alerts, muted alerts, and pending approvals.",
+                    title: String(localized: "Incidents Center"),
+                    detail: String(localized: "Inspect all live alerts, muted alerts, and pending approvals."),
                     systemImage: "bell.badge"
                 )
             }
@@ -392,8 +394,8 @@ struct StandbyDigestView: View {
                 )
             } label: {
                 StandbyActionRow(
-                    title: "Handoff Center",
-                    detail: "Save a local note and keep recent handoff snapshots on this iPhone.",
+                    title: String(localized: "Handoff Center"),
+                    detail: String(localized: "Save a local note and keep recent handoff snapshots on this iPhone."),
                     systemImage: "text.badge.plus"
                 )
             }
@@ -401,8 +403,8 @@ struct StandbyDigestView: View {
 
             ShareLink(item: handoffText) {
                 StandbyActionRow(
-                    title: "Share Handoff Summary",
-                    detail: "Export the current standby snapshot as plain text.",
+                    title: String(localized: "Share Handoff Summary"),
+                    detail: String(localized: "Export the current standby snapshot as plain text."),
                     systemImage: "square.and.arrow.up"
                 )
             }

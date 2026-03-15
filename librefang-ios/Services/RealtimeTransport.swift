@@ -58,7 +58,10 @@ actor AuditEventStreamClient {
                     let request = try connectionInfo.request(path: "/api/logs/stream")
                     let (bytes, response) = try await session.bytes(for: request)
                     guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-                        throw APIError.httpError((response as? HTTPURLResponse)?.statusCode ?? -1, "Audit stream unavailable")
+                        throw APIError.httpError(
+                            (response as? HTTPURLResponse)?.statusCode ?? -1,
+                            String(localized: "Audit stream unavailable")
+                        )
                     }
 
                     var eventLines: [String] = []
@@ -123,7 +126,10 @@ actor CommsEventStreamClient {
                     let request = try connectionInfo.request(path: "/api/comms/events/stream")
                     let (bytes, response) = try await session.bytes(for: request)
                     guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-                        throw APIError.httpError((response as? HTTPURLResponse)?.statusCode ?? -1, "Comms stream unavailable")
+                        throw APIError.httpError(
+                            (response as? HTTPURLResponse)?.statusCode ?? -1,
+                            String(localized: "Comms stream unavailable")
+                        )
                     }
 
                     var eventLines: [String] = []
@@ -315,7 +321,7 @@ actor AgentWebSocketClient {
         case "silent_complete":
             return .silentComplete(inputTokens: envelope.inputTokens, outputTokens: envelope.outputTokens)
         case "error":
-            return .error(envelope.content ?? envelope.message ?? "Unknown realtime error")
+            return .error(envelope.content ?? envelope.message ?? String(localized: "Unknown realtime error"))
         default:
             return nil
         }
@@ -329,9 +335,9 @@ private enum RealtimeTransportError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notConnected:
-            return "Realtime channel is not connected"
+            return String(localized: "Realtime channel is not connected")
         case .encodingFailed:
-            return "Could not encode realtime payload"
+            return String(localized: "Could not encode realtime payload")
         }
     }
 }

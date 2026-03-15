@@ -22,7 +22,7 @@ LibreFang is an iOS companion application designed to monitor and manage your Li
 
 ## Requirements
 
-*   iOS 16.0+
+*   iOS 17.0+
 *   Xcode 15.0+
 *   Swift 5.9+
 

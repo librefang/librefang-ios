@@ -8,11 +8,11 @@ enum OnCallPrioritySeverity: Int {
     var label: String {
         switch self {
         case .advisory:
-            "Advisory"
+            String(localized: "Advisory")
         case .warning:
-            "Warning"
+            String(localized: "Warning")
         case .critical:
-            "Critical"
+            String(localized: "Critical")
         }
     }
 }
@@ -88,7 +88,7 @@ extension DashboardViewModel {
                 id: "alert:\(alert.id)",
                 title: alert.title,
                 detail: alert.detail,
-                footnote: "Monitoring alert",
+                footnote: String(localized: "Monitoring alert"),
                 symbolName: alert.symbolName,
                 severity: onCallSeverity(for: alert.severity),
                 rank: onCallRank(for: alert.severity),
@@ -100,13 +100,13 @@ extension DashboardViewModel {
             let risk = approval.riskLevel.lowercased()
             let severity: OnCallPrioritySeverity = (risk.contains("critical") || risk.contains("high")) ? .critical : .warning
             let rank = severity == .critical ? 95 : 84
-            let requested = approval.requestedAt.onCallRelativeTimestamp ?? "Awaiting review"
+            let requested = approval.requestedAt.onCallRelativeTimestamp ?? String(localized: "Awaiting review")
 
             return OnCallPriorityItem(
                 id: "approval:\(approval.id)",
                 title: approval.actionSummary,
                 detail: "\(approval.agentName) · \(approval.toolName)",
-                footnote: "Approval requested \(requested)",
+                footnote: String(localized: "Approval requested \(requested)"),
                 symbolName: "exclamationmark.shield",
                 severity: severity,
                 rank: rank,
@@ -126,12 +126,12 @@ extension DashboardViewModel {
                     severity = .advisory
                 }
 
-                let lead = item.reasons.first ?? "Needs review"
+                let lead = item.reasons.first ?? String(localized: "Needs review")
                 return OnCallPriorityItem(
                     id: "watched-agent:\(item.agent.id)",
                     title: item.agent.name,
                     detail: item.reasons.prefix(2).joined(separator: " • "),
-                    footnote: "Watched agent · \(lead)",
+                    footnote: String(localized: "Watched agent · \(lead)"),
                     symbolName: "star.fill",
                     severity: severity,
                     rank: 70 + min(item.severity, 20),
@@ -145,7 +145,8 @@ extension DashboardViewModel {
                 id: "audit:\(entry.id)",
                 title: entry.friendlyAction,
                 detail: entry.detail.isEmpty ? target : "\(target) · \(entry.detail)",
-                footnote: "Critical event \(entry.timestamp.onCallRelativeTimestamp ?? "")".trimmingCharacters(in: .whitespaces),
+                footnote: String(localized: "Critical event \(entry.timestamp.onCallRelativeTimestamp ?? "")")
+                    .trimmingCharacters(in: .whitespaces),
                 symbolName: entry.severity.symbolName,
                 severity: .critical,
                 rank: 78,
@@ -170,8 +171,10 @@ extension DashboardViewModel {
                 return OnCallPriorityItem(
                     id: "session:\(item.id)",
                     title: title,
-                    detail: "\(owner) · \(item.session.messageCount) msgs",
-                    footnote: watched ? "Watched agent session pressure" : item.reasons.prefix(2).joined(separator: " • "),
+                    detail: String(localized: "\(owner) · \(item.session.messageCount) msgs"),
+                    footnote: watched
+                        ? String(localized: "Watched agent session pressure")
+                        : item.reasons.prefix(2).joined(separator: " • "),
                     symbolName: "rectangle.stack",
                     severity: severity,
                     rank: watched ? 72 : 62,
@@ -224,15 +227,15 @@ extension DashboardViewModel {
         if !visibleAlerts.isEmpty {
             if isAcknowledged {
                 let base = liveCritical > 0
-                    ? "\(liveCritical) critical items acknowledged on this iPhone"
-                    : "\(visibleAlerts.count) live alerts acknowledged on this iPhone"
+                    ? String(localized: "\(liveCritical) critical items acknowledged on this iPhone")
+                    : String(localized: "\(visibleAlerts.count) live alerts acknowledged on this iPhone")
                 return [base, automationSummary, integrationsSummary, checkInSummary, followUpSummary].compactMap { $0 }.joined(separator: " · ")
             }
 
             return [
-                "\(visibleAlerts.count) live alerts",
-                "\(pendingApprovalCount) approvals",
-                "\(watchIssues) watched agents need review",
+                String(localized: "\(visibleAlerts.count) live alerts"),
+                String(localized: "\(pendingApprovalCount) approvals"),
+                String(localized: "\(watchIssues) watched agents need review"),
                 automationSummary,
                 integrationsSummary,
                 checkInSummary,
@@ -244,14 +247,14 @@ extension DashboardViewModel {
 
         if mutedAlertCount > 0 {
             let base = mutedAlertCount == 1
-                ? "1 alert is muted locally; watchlist and sessions remain active"
-                : "\(mutedAlertCount) alerts are muted locally; watchlist and sessions remain active"
+                ? String(localized: "1 alert is muted locally; watchlist and sessions remain active")
+                : String(localized: "\(mutedAlertCount) alerts are muted locally; watchlist and sessions remain active")
             return [base, automationSummary, integrationsSummary, checkInSummary, followUpSummary].compactMap { $0 }.joined(separator: " · ")
         }
 
         if watchIssues > 0 {
             return [
-                "\(watchIssues) watched agents still need review even though no live alert card is visible",
+                String(localized: "\(watchIssues) watched agents still need review even though no live alert card is visible"),
                 automationSummary,
                 integrationsSummary,
                 checkInSummary,
@@ -270,7 +273,7 @@ extension DashboardViewModel {
             return remainingSummaries.joined(separator: " · ")
         }
 
-        return "No live alerts. Monitoring is currently in a calm state on this iPhone."
+        return String(localized: "No live alerts. Monitoring is currently in a calm state on this iPhone.")
     }
 
     private func onCallIntegrationItems() -> [OnCallPriorityItem] {
@@ -284,9 +287,13 @@ extension DashboardViewModel {
                 : .integrationsAttention
             items.append(OnCallPriorityItem(
                 id: "integrations:providers",
-                title: unreachableLocalProviderCount == 1 ? "1 local provider unreachable" : "\(unreachableLocalProviderCount) local providers unreachable",
-                detail: preview.isEmpty ? "Review local model endpoints and provider probes." : preview,
-                footnote: allLocalProvidersDown ? "All local providers in the latest snapshot are down" : "Local provider probes are failing",
+                title: unreachableLocalProviderCount == 1
+                    ? String(localized: "1 local provider unreachable")
+                    : String(localized: "\(unreachableLocalProviderCount) local providers unreachable"),
+                detail: preview.isEmpty ? String(localized: "Review local model endpoints and provider probes.") : preview,
+                footnote: allLocalProvidersDown
+                    ? String(localized: "All local providers in the latest snapshot are down")
+                    : String(localized: "Local provider probes are failing"),
                 symbolName: "network.slash",
                 severity: allLocalProvidersDown ? .critical : .warning,
                 rank: allLocalProvidersDown ? 88 : 78,
@@ -301,9 +308,13 @@ extension DashboardViewModel {
                 : .integrationsAttention
             items.append(OnCallPriorityItem(
                 id: "integrations:channels",
-                title: channelRequiredFieldGapCount == 1 ? "1 channel missing required fields" : "\(channelRequiredFieldGapCount) channels missing required fields",
-                detail: preview.isEmpty ? "Configured delivery channels are missing required secrets or config fields." : preview,
-                footnote: missingRequiredChannelFieldCount == 1 ? "1 required channel field missing" : "\(missingRequiredChannelFieldCount) required channel fields missing",
+                title: channelRequiredFieldGapCount == 1
+                    ? String(localized: "1 channel missing required fields")
+                    : String(localized: "\(channelRequiredFieldGapCount) channels missing required fields"),
+                detail: preview.isEmpty ? String(localized: "Configured delivery channels are missing required secrets or config fields.") : preview,
+                footnote: missingRequiredChannelFieldCount == 1
+                    ? String(localized: "1 required channel field missing")
+                    : String(localized: "\(missingRequiredChannelFieldCount) required channel fields missing"),
                 symbolName: "bubble.left.and.exclamationmark.bubble.right",
                 severity: .warning,
                 rank: 70,
@@ -314,9 +325,9 @@ extension DashboardViewModel {
         if hasEmptyModelCatalog {
             items.append(OnCallPriorityItem(
                 id: "integrations:catalog-empty",
-                title: "Model catalog has no available models",
-                detail: "Providers are configured, but LibreFang currently exposes zero executable catalog models.",
-                footnote: "Catalog / provider hub",
+                title: String(localized: "Model catalog has no available models"),
+                detail: String(localized: "Providers are configured, but LibreFang currently exposes zero executable catalog models."),
+                footnote: String(localized: "Catalog / provider hub"),
                 symbolName: "square.stack.3d.up.slash",
                 severity: .critical,
                 rank: 87,
@@ -328,9 +339,13 @@ extension DashboardViewModel {
             let unavailableCount = unavailableModelAgentCount
             let title: String
             if unavailableCount > 0 {
-                title = unavailableCount == 1 ? "1 agent on unavailable model" : "\(unavailableCount) agents on unavailable models"
+                title = unavailableCount == 1
+                    ? String(localized: "1 agent on unavailable model")
+                    : String(localized: "\(unavailableCount) agents on unavailable models")
             } else {
-                title = agentsWithModelDiagnostics.count == 1 ? "1 agent has model drift" : "\(agentsWithModelDiagnostics.count) agents have model drift"
+                title = agentsWithModelDiagnostics.count == 1
+                    ? String(localized: "1 agent has model drift")
+                    : String(localized: "\(agentsWithModelDiagnostics.count) agents have model drift")
             }
             let preview = agentsWithModelDiagnostics.prefix(2).map(\.agent.name).joined(separator: " • ")
             let route: OnCallRoute = agentsWithModelDiagnostics.count == 1
@@ -340,8 +355,8 @@ extension DashboardViewModel {
                 OnCallPriorityItem(
                     id: "integrations:model-drift",
                     title: title,
-                    detail: preview.isEmpty ? "Review provider and model catalog drift in integrations diagnostics." : preview,
-                    footnote: "Model catalog / provider mismatch",
+                    detail: preview.isEmpty ? String(localized: "Review provider and model catalog drift in integrations diagnostics.") : preview,
+                    footnote: String(localized: "Model catalog / provider mismatch"),
                     symbolName: "square.stack.3d.up.slash",
                     severity: unavailableCount > 0 ? .warning : .advisory,
                     rank: unavailableCount > 0 ? 76 : 66,
@@ -359,13 +374,15 @@ extension DashboardViewModel {
         if failedWorkflowRunCount > 0 {
             items.append(OnCallPriorityItem(
                 id: "automation:workflow-failures",
-                title: failedWorkflowRunCount == 1 ? "1 workflow run failed" : "\(failedWorkflowRunCount) workflow runs failed",
+                title: failedWorkflowRunCount == 1
+                    ? String(localized: "1 workflow run failed")
+                    : String(localized: "\(failedWorkflowRunCount) workflow runs failed"),
                 detail: workflowRuns
                     .filter { $0.state == .failed }
                     .prefix(2)
                     .map(\.workflowName)
                     .joined(separator: " • "),
-                footnote: "Automation monitor",
+                footnote: String(localized: "Automation monitor"),
                 symbolName: "flowchart",
                 severity: failedWorkflowRunCount >= 2 ? .critical : .warning,
                 rank: failedWorkflowRunCount >= 2 ? 86 : 74,
@@ -376,9 +393,11 @@ extension DashboardViewModel {
         if exhaustedTriggerCount > 0 {
             items.append(OnCallPriorityItem(
                 id: "automation:trigger-exhausted",
-                title: exhaustedTriggerCount == 1 ? "1 trigger exhausted" : "\(exhaustedTriggerCount) triggers exhausted",
-                detail: "Event-driven wakeups reached max fire count and stopped dispatching.",
-                footnote: "Automation monitor",
+                title: exhaustedTriggerCount == 1
+                    ? String(localized: "1 trigger exhausted")
+                    : String(localized: "\(exhaustedTriggerCount) triggers exhausted"),
+                detail: String(localized: "Event-driven wakeups reached max fire count and stopped dispatching."),
+                footnote: String(localized: "Automation monitor"),
                 symbolName: "bolt.badge.clock",
                 severity: .warning,
                 rank: 72,
@@ -389,9 +408,11 @@ extension DashboardViewModel {
         if stalledCronJobCount > 0 {
             items.append(OnCallPriorityItem(
                 id: "automation:cron-stalled",
-                title: stalledCronJobCount == 1 ? "1 cron job missing next run" : "\(stalledCronJobCount) cron jobs missing next run",
-                detail: "Enabled scheduler entries exist without a next execution timestamp.",
-                footnote: "Automation monitor",
+                title: stalledCronJobCount == 1
+                    ? String(localized: "1 cron job missing next run")
+                    : String(localized: "\(stalledCronJobCount) cron jobs missing next run"),
+                detail: String(localized: "Enabled scheduler entries exist without a next execution timestamp."),
+                footnote: String(localized: "Automation monitor"),
                 symbolName: "calendar.badge.exclamationmark",
                 severity: .warning,
                 rank: 75,
@@ -404,44 +425,50 @@ extension DashboardViewModel {
 
     private func automationDigestSummary() -> String? {
         if failedWorkflowRunCount > 0 && stalledCronJobCount > 0 {
-            return "\(failedWorkflowRunCount) workflow failures and \(stalledCronJobCount) stalled cron jobs"
+            return String(localized: "\(failedWorkflowRunCount) workflow failures and \(stalledCronJobCount) stalled cron jobs")
         }
         if failedWorkflowRunCount > 0 {
-            return failedWorkflowRunCount == 1 ? "1 workflow failure needs review" : "\(failedWorkflowRunCount) workflow failures need review"
+            return failedWorkflowRunCount == 1
+                ? String(localized: "1 workflow failure needs review")
+                : String(localized: "\(failedWorkflowRunCount) workflow failures need review")
         }
         if exhaustedTriggerCount > 0 && stalledCronJobCount > 0 {
-            return "\(exhaustedTriggerCount) exhausted triggers and \(stalledCronJobCount) stalled cron jobs"
+            return String(localized: "\(exhaustedTriggerCount) exhausted triggers and \(stalledCronJobCount) stalled cron jobs")
         }
         if exhaustedTriggerCount > 0 {
-            return exhaustedTriggerCount == 1 ? "1 trigger is exhausted" : "\(exhaustedTriggerCount) triggers are exhausted"
+            return exhaustedTriggerCount == 1
+                ? String(localized: "1 trigger is exhausted")
+                : String(localized: "\(exhaustedTriggerCount) triggers are exhausted")
         }
         if stalledCronJobCount > 0 {
-            return stalledCronJobCount == 1 ? "1 cron job is missing a next run" : "\(stalledCronJobCount) cron jobs are missing a next run"
+            return stalledCronJobCount == 1
+                ? String(localized: "1 cron job is missing a next run")
+                : String(localized: "\(stalledCronJobCount) cron jobs are missing a next run")
         }
         return nil
     }
 
     private func integrationsDigestSummary() -> String? {
         if hasEmptyModelCatalog {
-            return "model catalog has no available models"
+            return String(localized: "model catalog has no available models")
         }
         if !unreachableLocalProviders.isEmpty && channelRequiredFieldGapCount > 0 {
-            return "\(unreachableLocalProviderCount) local providers unreachable and \(channelRequiredFieldGapCount) channels missing required fields"
+            return String(localized: "\(unreachableLocalProviderCount) local providers unreachable and \(channelRequiredFieldGapCount) channels missing required fields")
         }
         if !unreachableLocalProviders.isEmpty {
             return unreachableLocalProviderCount == 1
-                ? "1 local provider is unreachable"
-                : "\(unreachableLocalProviderCount) local providers are unreachable"
+                ? String(localized: "1 local provider is unreachable")
+                : String(localized: "\(unreachableLocalProviderCount) local providers are unreachable")
         }
         if channelRequiredFieldGapCount > 0 {
             return channelRequiredFieldGapCount == 1
-                ? "1 configured channel is missing required fields"
-                : "\(channelRequiredFieldGapCount) configured channels are missing required fields"
+                ? String(localized: "1 configured channel is missing required fields")
+                : String(localized: "\(channelRequiredFieldGapCount) configured channels are missing required fields")
         }
         if !agentsWithModelDiagnostics.isEmpty {
             return agentsWithModelDiagnostics.count == 1
-                ? "1 agent still has model drift"
-                : "\(agentsWithModelDiagnostics.count) agents still have model drift"
+                ? String(localized: "1 agent still has model drift")
+                : String(localized: "\(agentsWithModelDiagnostics.count) agents still have model drift")
         }
         return nil
     }
@@ -477,9 +504,9 @@ extension DashboardViewModel {
         case .dueSoon:
             return OnCallPriorityItem(
                 id: "handoff-checkin:due-soon",
-                title: "Handoff check-in due soon",
+                title: String(localized: "Handoff check-in due soon"),
                 detail: status.dueLabel,
-                footnote: "Local handoff checkpoint \(RelativeDateTimeFormatter().localizedString(for: status.baseline.createdAt, relativeTo: Date()))",
+                footnote: String(localized: "Local handoff checkpoint \(RelativeDateTimeFormatter().localizedString(for: status.baseline.createdAt, relativeTo: Date()))"),
                 symbolName: "timer",
                 severity: .warning,
                 rank: 76,
@@ -488,9 +515,9 @@ extension DashboardViewModel {
         case .overdue:
             return OnCallPriorityItem(
                 id: "handoff-checkin:overdue",
-                title: "Handoff check-in overdue",
+                title: String(localized: "Handoff check-in overdue"),
                 detail: status.dueLabel,
-                footnote: "Local handoff checkpoint \(RelativeDateTimeFormatter().localizedString(for: status.baseline.createdAt, relativeTo: Date()))",
+                footnote: String(localized: "Local handoff checkpoint \(RelativeDateTimeFormatter().localizedString(for: status.baseline.createdAt, relativeTo: Date()))"),
                 symbolName: "timer",
                 severity: .critical,
                 rank: 92,
@@ -506,9 +533,9 @@ extension DashboardViewModel {
         case .scheduled:
             return nil
         case .dueSoon:
-            return "handoff check-in due soon"
+            return String(localized: "handoff check-in due soon")
         case .overdue:
-            return "handoff check-in overdue"
+            return String(localized: "handoff check-in overdue")
         }
     }
 
@@ -537,23 +564,23 @@ extension DashboardViewModel {
         switch handoffCheckInStatus?.state {
         case .overdue:
             title = pending.count == 1
-                ? "1 handoff follow-up overdue"
-                : "\(pending.count) handoff follow-ups overdue"
-            footnote = "Local handoff check-in is overdue with open follow-ups"
+                ? String(localized: "1 handoff follow-up overdue")
+                : String(localized: "\(pending.count) handoff follow-ups overdue")
+            footnote = String(localized: "Local handoff check-in is overdue with open follow-ups")
             severity = .critical
             rank = 90
         case .dueSoon:
             title = pending.count == 1
-                ? "1 handoff follow-up open before check-in"
-                : "\(pending.count) handoff follow-ups open before check-in"
-            footnote = "Local handoff checkpoint is due soon"
+                ? String(localized: "1 handoff follow-up open before check-in")
+                : String(localized: "\(pending.count) handoff follow-ups open before check-in")
+            footnote = String(localized: "Local handoff checkpoint is due soon")
             severity = pending.count >= 3 ? .critical : .warning
             rank = pending.count >= 3 ? 82 : 76
         case .scheduled, .none:
             title = pending.count == 1
-                ? "1 handoff follow-up still open"
-                : "\(pending.count) handoff follow-ups still open"
-            footnote = "Latest local handoff follow-through"
+                ? String(localized: "1 handoff follow-up still open")
+                : String(localized: "\(pending.count) handoff follow-ups still open")
+            footnote = String(localized: "Latest local handoff follow-through")
             severity = pending.count >= 3 ? .warning : .advisory
             rank = pending.count >= 3 ? 74 : 64
         }
@@ -580,16 +607,16 @@ extension DashboardViewModel {
         switch handoffCheckInStatus?.state {
         case .overdue:
             return pendingCount == 1
-                ? "1 handoff follow-up is still open after the local check-in deadline"
-                : "\(pendingCount) handoff follow-ups are still open after the local check-in deadline"
+                ? String(localized: "1 handoff follow-up is still open after the local check-in deadline")
+                : String(localized: "\(pendingCount) handoff follow-ups are still open after the local check-in deadline")
         case .dueSoon:
             return pendingCount == 1
-                ? "1 handoff follow-up is still open before the next local check-in"
-                : "\(pendingCount) handoff follow-ups are still open before the next local check-in"
+                ? String(localized: "1 handoff follow-up is still open before the next local check-in")
+                : String(localized: "\(pendingCount) handoff follow-ups are still open before the next local check-in")
         case .scheduled, .none:
             return pendingCount == 1
-                ? "1 handoff follow-up still open"
-                : "\(pendingCount) handoff follow-ups still open"
+                ? String(localized: "1 handoff follow-up still open")
+                : String(localized: "\(pendingCount) handoff follow-ups still open")
         }
     }
 }

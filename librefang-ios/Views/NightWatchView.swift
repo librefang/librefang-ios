@@ -9,13 +9,13 @@ private enum NightWatchTone {
     var label: String {
         switch self {
         case .calm:
-            "Calm"
+            String(localized: "Calm")
         case .watching:
-            "Watching"
+            String(localized: "Watching")
         case .elevated:
-            "Elevated"
+            String(localized: "Elevated")
         case .critical:
-            "Critical"
+            String(localized: "Critical")
         }
     }
 
@@ -242,7 +242,7 @@ struct NightWatchView: View {
                 detail: calmStateDetail
             )
         } else {
-            NightWatchSectionCard(title: "Immediate Queue", detail: focusSummary) {
+            NightWatchSectionCard(title: String(localized: "Immediate Queue"), detail: focusSummary) {
                 ForEach(primaryItems) { item in
                     NavigationLink(value: item.route) {
                         NightWatchPriorityCard(
@@ -260,7 +260,10 @@ struct NightWatchView: View {
     @ViewBuilder
     private var secondaryQueueCard: some View {
         if !secondaryItems.isEmpty {
-            NightWatchSectionCard(title: "Follow-up Queue", detail: "Lower on the page, but still above the fold for one-hand triage.") {
+            NightWatchSectionCard(
+                title: String(localized: "Follow-up Queue"),
+                detail: String(localized: "Lower on the page, but still above the fold for one-hand triage.")
+            ) {
                 ForEach(secondaryItems) { item in
                     NavigationLink(value: item.route) {
                         NightWatchPriorityCard(
@@ -280,8 +283,8 @@ struct NightWatchView: View {
         let activeWatched = watchedAttentionItems.filter { $0.severity > 0 }
         if !activeWatched.isEmpty && focusStore.mode != .criticalOnly {
             NightWatchSectionCard(
-                title: "Pinned Agents",
-                detail: "Locally watched on this iPhone so they stay visible during on-call."
+                title: String(localized: "Pinned Agents"),
+                detail: String(localized: "Locally watched on this iPhone so they stay visible during on-call.")
             ) {
                 ForEach(activeWatched.prefix(3)) { item in
                     NavigationLink(value: OnCallRoute.agent(item.agent.id)) {
@@ -311,13 +314,16 @@ struct NightWatchView: View {
     }
 
     private var quickLinksCard: some View {
-        NightWatchSectionCard(title: "Jump To", detail: "Use the full queue when you need broader runtime context.") {
+        NightWatchSectionCard(
+            title: String(localized: "Jump To"),
+            detail: String(localized: "Use the full queue when you need broader runtime context.")
+        ) {
             NavigationLink {
                 OnCallView()
             } label: {
                 NightWatchActionRow(
-                    title: "Open Full On Call Queue",
-                    detail: "Switch back to the complete triage surface.",
+                    title: String(localized: "Open Full On Call Queue"),
+                    detail: String(localized: "Switch back to the complete triage surface."),
                     systemImage: "waveform.path.ecg"
                 )
             }
@@ -325,8 +331,8 @@ struct NightWatchView: View {
 
             NavigationLink(value: OnCallRoute.incidents) {
                 NightWatchActionRow(
-                    title: "Open Incidents Center",
-                    detail: "Review muted alerts, approvals, and current incident state.",
+                    title: String(localized: "Open Incidents Center"),
+                    detail: String(localized: "Review muted alerts, approvals, and current incident state."),
                     systemImage: "bell.badge"
                 )
             }
@@ -334,8 +340,8 @@ struct NightWatchView: View {
 
             NavigationLink(value: OnCallRoute.sessionsAttention) {
                 NightWatchActionRow(
-                    title: "Session Pressure",
-                    detail: "Inspect duplicated, unlabeled, or high-volume sessions.",
+                    title: String(localized: "Session Pressure"),
+                    detail: String(localized: "Inspect duplicated, unlabeled, or high-volume sessions."),
                     systemImage: "rectangle.stack"
                 )
             }
@@ -343,8 +349,8 @@ struct NightWatchView: View {
 
             NavigationLink(value: OnCallRoute.eventsCritical) {
                 NightWatchActionRow(
-                    title: "Critical Event Feed",
-                    detail: "Jump straight into recent critical audit entries.",
+                    title: String(localized: "Critical Event Feed"),
+                    detail: String(localized: "Jump straight into recent critical audit entries."),
                     systemImage: "list.bullet.rectangle.portrait"
                 )
             }
@@ -475,16 +481,16 @@ struct NightWatchView: View {
 
     private var calmStateTitle: String {
         if focusStore.mode == .criticalOnly {
-            return "No Critical Incidents"
+            return String(localized: "No Critical Incidents")
         }
-        return "Queue Is Quiet"
+        return String(localized: "Queue Is Quiet")
     }
 
     private var calmStateDetail: String {
         if focusStore.mode == .criticalOnly, !allPriorityItems.isEmpty {
-            return "Lower-severity items still exist in the broader on-call queue, but critical-only mode is intentionally suppressing them here."
+            return String(localized: "Lower-severity items still exist in the broader on-call queue, but critical-only mode is intentionally suppressing them here.")
         }
-        return "No urgent work is currently surfacing on this phone. Pull to refresh or open the full on-call queue for more detail."
+        return String(localized: "No urgent work is currently surfacing on this phone. Pull to refresh or open the full on-call queue for more detail.")
     }
 }
 
@@ -528,9 +534,9 @@ private struct NightWatchHeroCard: View {
             }
 
             HStack(spacing: 10) {
-                NightWatchCountPill(value: queueCount, label: "Queued")
-                NightWatchCountPill(value: criticalCount, label: "Critical")
-                NightWatchCountPill(value: watchCount, label: "Watched")
+                NightWatchCountPill(value: queueCount, label: String(localized: "Queued"))
+                NightWatchCountPill(value: criticalCount, label: String(localized: "Critical"))
+                NightWatchCountPill(value: watchCount, label: String(localized: "Watched"))
             }
 
             HStack(spacing: 10) {
@@ -579,10 +585,14 @@ private struct NightWatchMutedSummaryCard: View {
             Image(systemName: "bell.slash.fill")
                 .foregroundStyle(.orange)
             VStack(alignment: .leading, spacing: 3) {
-                Text(mutedAlertCount == 1 ? "1 alert muted locally" : "\(mutedAlertCount) alerts muted locally")
+                Text(
+                    mutedAlertCount == 1
+                        ? String(localized: "1 alert muted locally")
+                        : String(localized: "\(mutedAlertCount) alerts muted locally")
+                )
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.white)
-                Text("Muted alerts stay out of the queue until you unmute them in Incidents.")
+                Text(String(localized: "Muted alerts stay out of the queue until you unmute them in Incidents."))
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.72))
             }
@@ -747,7 +757,7 @@ private struct NightWatchWatchlistRow: View {
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.white)
                     Spacer()
-                    Text(item.severity >= 10 ? "Critical" : "Watch")
+                    Text(item.severity >= 10 ? String(localized: "Critical") : String(localized: "Watch"))
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
@@ -775,7 +785,10 @@ private struct NightWatchControlsCard: View {
     @Binding var showsMutedSummary: Bool
 
     var body: some View {
-        NightWatchSectionCard(title: "Display Controls", detail: "All settings are local to this iPhone.") {
+        NightWatchSectionCard(
+            title: String(localized: "Display Controls"),
+            detail: String(localized: "All settings are local to this iPhone.")
+        ) {
             LabeledContent("Queue Mode") {
                 Menu {
                     ForEach(OnCallFocusMode.allCases) { option in

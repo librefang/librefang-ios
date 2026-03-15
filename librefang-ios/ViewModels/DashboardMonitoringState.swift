@@ -143,8 +143,8 @@ extension DashboardViewModel {
         if health?.isHealthy != true {
             items.append(MonitoringAlertItem(
                 id: "server-disconnected",
-                title: "Server disconnected",
-                detail: "The app cannot confirm the current LibreFang status.",
+                title: String(localized: "Server disconnected"),
+                detail: String(localized: "The app cannot confirm the current LibreFang status."),
                 severity: .critical,
                 symbolName: "bolt.horizontal.circle"
             ))
@@ -153,8 +153,8 @@ extension DashboardViewModel {
         if isDataStale {
             items.append(MonitoringAlertItem(
                 id: "monitoring-stale",
-                title: "Monitoring data is stale",
-                detail: "The dashboard has not refreshed for more than two minutes.",
+                title: String(localized: "Monitoring data is stale"),
+                detail: String(localized: "The dashboard has not refreshed for more than two minutes."),
                 severity: .warning,
                 symbolName: "clock.badge.exclamationmark"
             ))
@@ -165,8 +165,8 @@ extension DashboardViewModel {
             if budget.alertThreshold > 0, maxPct >= budget.alertThreshold {
                 items.append(MonitoringAlertItem(
                     id: "budget-threshold",
-                    title: "Budget threshold reached",
-                    detail: "Current spend is at \(Int(maxPct * 100))% of the configured limit.",
+                    title: String(localized: "Budget threshold reached"),
+                    detail: String(localized: "Current spend is at \(Int(maxPct * 100))% of the configured limit."),
                     severity: .warning,
                     symbolName: "chart.line.uptrend.xyaxis"
                 ))
@@ -176,8 +176,10 @@ extension DashboardViewModel {
         if pendingApprovalCount > 0 {
             items.append(MonitoringAlertItem(
                 id: "pending-approvals",
-                title: pendingApprovalCount == 1 ? "1 approval waiting" : "\(pendingApprovalCount) approvals waiting",
-                detail: "Sensitive agent actions are blocked pending operator review.",
+                title: pendingApprovalCount == 1
+                    ? String(localized: "1 approval waiting")
+                    : String(localized: "\(pendingApprovalCount) approvals waiting"),
+                detail: String(localized: "Sensitive agent actions are blocked pending operator review."),
                 severity: .critical,
                 symbolName: "exclamationmark.shield"
             ))
@@ -186,8 +188,10 @@ extension DashboardViewModel {
         if degradedHandCount > 0 {
             items.append(MonitoringAlertItem(
                 id: "degraded-hands",
-                title: degradedHandCount == 1 ? "1 hand degraded" : "\(degradedHandCount) hands degraded",
-                detail: "At least one autonomous hand is active but not fully healthy.",
+                title: degradedHandCount == 1
+                    ? String(localized: "1 hand degraded")
+                    : String(localized: "\(degradedHandCount) hands degraded"),
+                detail: String(localized: "At least one autonomous hand is active but not fully healthy."),
                 severity: .warning,
                 symbolName: "hand.raised.slash"
             ))
@@ -196,8 +200,8 @@ extension DashboardViewModel {
         if hasPeerNetworkIssue {
             items.append(MonitoringAlertItem(
                 id: "peer-network-idle",
-                title: "Peer network idle",
-                detail: "OFP networking is enabled but no peers are currently connected.",
+                title: String(localized: "Peer network idle"),
+                detail: String(localized: "OFP networking is enabled but no peers are currently connected."),
                 severity: .warning,
                 symbolName: "point.3.connected.trianglepath.dotted"
             ))
@@ -206,8 +210,8 @@ extension DashboardViewModel {
         if hasAuditIntegrityIssue {
             items.append(MonitoringAlertItem(
                 id: "audit-integrity",
-                title: "Audit chain verification failed",
-                detail: auditVerify?.error ?? "The forensic chain could not be verified.",
+                title: String(localized: "Audit chain verification failed"),
+                detail: auditVerify?.error ?? String(localized: "The forensic chain could not be verified."),
                 severity: .critical,
                 symbolName: "checkmark.shield.fill"
             ))
@@ -216,8 +220,10 @@ extension DashboardViewModel {
         if recentCriticalAuditCount > 0 {
             items.append(MonitoringAlertItem(
                 id: "recent-critical-audit",
-                title: recentCriticalAuditCount == 1 ? "1 critical audit event" : "\(recentCriticalAuditCount) critical audit events",
-                detail: "Recent activity includes failures, denials, or terminated agents that should be reviewed.",
+                title: recentCriticalAuditCount == 1
+                    ? String(localized: "1 critical audit event")
+                    : String(localized: "\(recentCriticalAuditCount) critical audit events"),
+                detail: String(localized: "Recent activity includes failures, denials, or terminated agents that should be reviewed."),
                 severity: .critical,
                 symbolName: "xmark.octagon"
             ))
@@ -226,8 +232,10 @@ extension DashboardViewModel {
         if sessionAttentionCount > 0 {
             items.append(MonitoringAlertItem(
                 id: "session-watchlist",
-                title: sessionAttentionCount == 1 ? "1 session needs review" : "\(sessionAttentionCount) sessions need review",
-                detail: "High-volume, unlabeled, or duplicated sessions are building up in the workspace.",
+                title: sessionAttentionCount == 1
+                    ? String(localized: "1 session needs review")
+                    : String(localized: "\(sessionAttentionCount) sessions need review"),
+                detail: String(localized: "High-volume, unlabeled, or duplicated sessions are building up in the workspace."),
                 severity: highVolumeSessionCount > 0 || multiSessionAgentCount > 0 ? .warning : .info,
                 symbolName: "rectangle.stack.badge.person.crop"
             ))
@@ -236,8 +244,8 @@ extension DashboardViewModel {
         if hasMCPConnectivityIssue {
             items.append(MonitoringAlertItem(
                 id: "mcp-disconnected",
-                title: "MCP disconnected",
-                detail: "Extension servers are configured but none are currently connected.",
+                title: String(localized: "MCP disconnected"),
+                detail: String(localized: "Extension servers are configured but none are currently connected."),
                 severity: .warning,
                 symbolName: "shippingbox"
             ))
@@ -246,8 +254,8 @@ extension DashboardViewModel {
         if hasHealthDatabaseIssue {
             items.append(MonitoringAlertItem(
                 id: "health-database",
-                title: "Kernel database degraded",
-                detail: "Deep health diagnostics report the runtime database as unavailable or unhealthy.",
+                title: String(localized: "Kernel database degraded"),
+                detail: String(localized: "Deep health diagnostics report the runtime database as unavailable or unhealthy."),
                 severity: .critical,
                 symbolName: "externaldrive.badge.xmark"
             ))
@@ -256,8 +264,10 @@ extension DashboardViewModel {
         if diagnosticsConfigWarningCount > 0 {
             items.append(MonitoringAlertItem(
                 id: "config-warnings",
-                title: diagnosticsConfigWarningCount == 1 ? "1 config warning" : "\(diagnosticsConfigWarningCount) config warnings",
-                detail: "Runtime validation found configuration warnings that should be reviewed in diagnostics.",
+                title: diagnosticsConfigWarningCount == 1
+                    ? String(localized: "1 config warning")
+                    : String(localized: "\(diagnosticsConfigWarningCount) config warnings"),
+                detail: String(localized: "Runtime validation found configuration warnings that should be reviewed in diagnostics."),
                 severity: .warning,
                 symbolName: "gear.badge.questionmark"
             ))
@@ -267,8 +277,10 @@ extension DashboardViewModel {
         if supervisorEvents > 0 {
             items.append(MonitoringAlertItem(
                 id: "supervisor-events",
-                title: supervisorEvents == 1 ? "1 supervisor event" : "\(supervisorEvents) supervisor events",
-                detail: "\(supervisorPanicCount) panics and \(supervisorRestartCount) restarts have been observed since startup.",
+                title: supervisorEvents == 1
+                    ? String(localized: "1 supervisor event")
+                    : String(localized: "\(supervisorEvents) supervisor events"),
+                detail: String(localized: "\(supervisorPanicCount) panics and \(supervisorRestartCount) restarts have been observed since startup."),
                 severity: supervisorPanicCount > 0 ? .critical : .warning,
                 symbolName: "bolt.trianglebadge.exclamationmark"
             ))
@@ -277,8 +289,10 @@ extension DashboardViewModel {
         if staleRunningAgentCount > 0 {
             items.append(MonitoringAlertItem(
                 id: "stale-agents",
-                title: staleRunningAgentCount == 1 ? "1 running agent looks stale" : "\(staleRunningAgentCount) running agents look stale",
-                detail: "These agents are running but have not reported activity for at least 30 minutes.",
+                title: staleRunningAgentCount == 1
+                    ? String(localized: "1 running agent looks stale")
+                    : String(localized: "\(staleRunningAgentCount) running agents look stale"),
+                detail: String(localized: "These agents are running but have not reported activity for at least 30 minutes."),
                 severity: .warning,
                 symbolName: "bolt.heart"
             ))
@@ -287,8 +301,10 @@ extension DashboardViewModel {
         if failedWorkflowRunCount > 0 {
             items.append(MonitoringAlertItem(
                 id: "workflow-runs-failed",
-                title: failedWorkflowRunCount == 1 ? "1 workflow run failed" : "\(failedWorkflowRunCount) workflow runs failed",
-                detail: "Automation pipelines recently stopped in a failed state and should be reviewed.",
+                title: failedWorkflowRunCount == 1
+                    ? String(localized: "1 workflow run failed")
+                    : String(localized: "\(failedWorkflowRunCount) workflow runs failed"),
+                detail: String(localized: "Automation pipelines recently stopped in a failed state and should be reviewed."),
                 severity: .warning,
                 symbolName: "point.3.filled.connected.trianglepath.dotted"
             ))
@@ -297,8 +313,10 @@ extension DashboardViewModel {
         if exhaustedTriggerCount > 0 {
             items.append(MonitoringAlertItem(
                 id: "trigger-budget-exhausted",
-                title: exhaustedTriggerCount == 1 ? "1 trigger exhausted" : "\(exhaustedTriggerCount) triggers exhausted",
-                detail: "Event-driven automations hit their max fire count and will no longer wake agents.",
+                title: exhaustedTriggerCount == 1
+                    ? String(localized: "1 trigger exhausted")
+                    : String(localized: "\(exhaustedTriggerCount) triggers exhausted"),
+                detail: String(localized: "Event-driven automations hit their max fire count and will no longer wake agents."),
                 severity: .warning,
                 symbolName: "bolt.badge.clock"
             ))
@@ -307,8 +325,10 @@ extension DashboardViewModel {
         if stalledCronJobCount > 0 {
             items.append(MonitoringAlertItem(
                 id: "cron-next-run-missing",
-                title: stalledCronJobCount == 1 ? "1 cron job missing next run" : "\(stalledCronJobCount) cron jobs missing next run",
-                detail: "Enabled cron jobs exist without a next execution time in the scheduler.",
+                title: stalledCronJobCount == 1
+                    ? String(localized: "1 cron job missing next run")
+                    : String(localized: "\(stalledCronJobCount) cron jobs missing next run"),
+                detail: String(localized: "Enabled cron jobs exist without a next execution time in the scheduler."),
                 severity: .warning,
                 symbolName: "calendar.badge.exclamationmark"
             ))
@@ -317,8 +337,8 @@ extension DashboardViewModel {
         if hasAutomationIdleCoverage {
             items.append(MonitoringAlertItem(
                 id: "automation-idle",
-                title: "Automation inventory is idle",
-                detail: "Triggers, schedules, or cron jobs exist, but all of them are currently disabled.",
+                title: String(localized: "Automation inventory is idle"),
+                detail: String(localized: "Triggers, schedules, or cron jobs exist, but all of them are currently disabled."),
                 severity: .info,
                 symbolName: "pause.circle"
             ))
@@ -327,8 +347,8 @@ extension DashboardViewModel {
         if configuredProviderCount == 0 {
             items.append(MonitoringAlertItem(
                 id: "no-provider",
-                title: "No provider configured",
-                detail: "Agents may exist, but the model layer is not ready.",
+                title: String(localized: "No provider configured"),
+                detail: String(localized: "Agents may exist, but the model layer is not ready."),
                 severity: .warning,
                 symbolName: "key.slash"
             ))
@@ -337,8 +357,10 @@ extension DashboardViewModel {
         if unreachableLocalProviderCount > 0 {
             items.append(MonitoringAlertItem(
                 id: "local-provider-unreachable",
-                title: unreachableLocalProviderCount == 1 ? "1 local provider unreachable" : "\(unreachableLocalProviderCount) local providers unreachable",
-                detail: "At least one local model endpoint probe failed. Review provider diagnostics for reachability and latency.",
+                title: unreachableLocalProviderCount == 1
+                    ? String(localized: "1 local provider unreachable")
+                    : String(localized: "\(unreachableLocalProviderCount) local providers unreachable"),
+                detail: String(localized: "At least one local model endpoint probe failed. Review provider diagnostics for reachability and latency."),
                 severity: .warning,
                 symbolName: "network.slash"
             ))
@@ -347,8 +369,8 @@ extension DashboardViewModel {
         if hasEmptyModelCatalog {
             items.append(MonitoringAlertItem(
                 id: "no-available-models",
-                title: "No available models in catalog",
-                detail: "Providers are configured, but the model catalog currently shows no available models for agent execution.",
+                title: String(localized: "No available models in catalog"),
+                detail: String(localized: "Providers are configured, but the model catalog currently shows no available models for agent execution."),
                 severity: .warning,
                 symbolName: "square.stack.3d.up.slash"
             ))
@@ -357,8 +379,10 @@ extension DashboardViewModel {
         if channelRequiredFieldGapCount > 0 {
             items.append(MonitoringAlertItem(
                 id: "channel-credential-gap",
-                title: channelRequiredFieldGapCount == 1 ? "1 configured channel missing required fields" : "\(channelRequiredFieldGapCount) configured channels missing required fields",
-                detail: "Some configured delivery channels are missing required secrets or config fields.",
+                title: channelRequiredFieldGapCount == 1
+                    ? String(localized: "1 configured channel missing required fields")
+                    : String(localized: "\(channelRequiredFieldGapCount) configured channels missing required fields"),
+                detail: String(localized: "Some configured delivery channels are missing required secrets or config fields."),
                 severity: .info,
                 symbolName: "bubble.left.and.exclamationmark.bubble.right"
             ))
@@ -367,8 +391,10 @@ extension DashboardViewModel {
         if !agentsWithModelDiagnostics.isEmpty {
             items.append(MonitoringAlertItem(
                 id: "agent-model-drift",
-                title: agentsWithModelDiagnostics.count == 1 ? "1 agent has model drift" : "\(agentsWithModelDiagnostics.count) agents have model drift",
-                detail: "Some agents point at unavailable, unknown, or provider-mismatched catalog models.",
+                title: agentsWithModelDiagnostics.count == 1
+                    ? String(localized: "1 agent has model drift")
+                    : String(localized: "\(agentsWithModelDiagnostics.count) agents have model drift"),
+                detail: String(localized: "Some agents point at unavailable, unknown, or provider-mismatched catalog models."),
                 severity: unavailableModelAgentCount > 0 ? .warning : .info,
                 symbolName: "square.stack.3d.up.slash"
             ))
@@ -377,8 +403,8 @@ extension DashboardViewModel {
         if runningCount > 0 && readyChannelCount == 0 {
             items.append(MonitoringAlertItem(
                 id: "no-ready-channel",
-                title: "No ready delivery channel",
-                detail: "Agents are running, but no configured channel currently has a valid token.",
+                title: String(localized: "No ready delivery channel"),
+                detail: String(localized: "Agents are running, but no configured channel currently has a valid token."),
                 severity: .info,
                 symbolName: "bubble.left.and.exclamationmark.bubble.right"
             ))
@@ -429,19 +455,21 @@ extension DashboardViewModel {
 
         var reasons: [String] = []
         if approvals > 0 {
-            reasons.append(approvals == 1 ? "Approval blocked" : "\(approvals) approvals blocked")
+            reasons.append(approvals == 1
+                ? String(localized: "Approval blocked")
+                : String(localized: "\(approvals) approvals blocked"))
         }
         if !agent.ready {
-            reasons.append("Not ready")
+            reasons.append(String(localized: "Not ready"))
         }
         if authIssue {
-            reasons.append("Auth issue")
+            reasons.append(String(localized: "Auth issue"))
         }
         if stale {
-            reasons.append("Inactive for 30m+")
+            reasons.append(String(localized: "Inactive for 30m+"))
         }
         if sessionPressure {
-            reasons.append("Session pressure")
+            reasons.append(String(localized: "Session pressure"))
         }
         if let modelDiagnostic {
             reasons.append(modelDiagnostic.issueSummary)
@@ -476,20 +504,20 @@ extension DashboardViewModel {
         var severity = 0
 
         if session.messageCount >= MonitoringThresholds.veryHighVolumeSessionMessages {
-            reasons.append("Very high volume")
+            reasons.append(String(localized: "Very high volume"))
             severity += 6
         } else if session.messageCount >= MonitoringThresholds.highVolumeSessionMessages {
-            reasons.append("High volume")
+            reasons.append(String(localized: "High volume"))
             severity += 4
         }
 
         if !hasLabel {
-            reasons.append("Unlabeled")
+            reasons.append(String(localized: "Unlabeled"))
             severity += 2
         }
 
         if duplicateCount > 1 {
-            reasons.append("\(duplicateCount) sessions on one agent")
+            reasons.append(String(localized: "\(duplicateCount) sessions on one agent"))
             severity += 4
         }
 

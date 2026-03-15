@@ -152,9 +152,11 @@ final class ChatViewModel {
             return tools.map(\.name).joined(separator: ", ")
         }
         if let images = message.images, !images.isEmpty {
-            return "\(images.count) image attachment\(images.count == 1 ? "" : "s")"
+            return images.count == 1
+                ? String(localized: "1 image attachment")
+                : String(localized: "\(images.count) image attachments")
         }
-        return "No message content"
+        return String(localized: "No message content")
     }
 
     private func connectRealtimeIfNeeded() async {
@@ -232,8 +234,10 @@ final class ChatViewModel {
                 .compactMap { $0 }
                 .map(String.init)
                 .joined(separator: " / ")
-            let suffix = tokensSummary.isEmpty ? "" : " (\(tokensSummary) tokens)"
-            messages.append(ChatMessage(role: .system, content: "Agent completed without a text reply\(suffix)."))
+            let content = tokensSummary.isEmpty
+                ? String(localized: "Agent completed without a text reply.")
+                : String(localized: "Agent completed without a text reply (\(tokensSummary) tokens).")
+            messages.append(ChatMessage(role: .system, content: content))
 
         case .error(let message):
             finishLiveMessage()

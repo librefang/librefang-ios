@@ -680,37 +680,37 @@ private struct OnCallScoreboard: View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatBadge(
                 value: "\(criticalCount)",
-                label: String(localized: "Critical"),
+                label: "Critical",
                 icon: "xmark.octagon",
                 color: criticalCount > 0 ? .red : .secondary
             )
             StatBadge(
                 value: "\(liveAlertCount)",
-                label: String(localized: "Live Alerts"),
+                label: "Live Alerts",
                 icon: "bell.badge",
                 color: liveAlertCount > 0 ? .orange : .secondary
             )
             StatBadge(
                 value: "\(approvalCount)",
-                label: String(localized: "Approvals"),
+                label: "Approvals",
                 icon: "exclamationmark.shield",
                 color: approvalCount > 0 ? .red : .secondary
             )
             StatBadge(
                 value: "\(watchIssueCount)",
-                label: String(localized: "Watchlist"),
+                label: "Watchlist",
                 icon: "star.fill",
                 color: watchIssueCount > 0 ? .yellow : .secondary
             )
             StatBadge(
                 value: "\(sessionCount)",
-                label: String(localized: "Sessions"),
+                label: "Sessions",
                 icon: "rectangle.stack",
                 color: sessionCount > 0 ? .orange : .secondary
             )
             StatBadge(
                 value: "\(eventCount)",
-                label: String(localized: "Events"),
+                label: "Events",
                 icon: "list.bullet.rectangle.portrait",
                 color: eventCount > 0 ? .red : .secondary
             )

@@ -1,5 +1,38 @@
 import SwiftUI
 
+private enum SettingsSnapshotStatus {
+    case clear
+    case muted
+    case acknowledged
+    case needsReview
+
+    var label: String {
+        switch self {
+        case .clear:
+            String(localized: "Clear")
+        case .muted:
+            String(localized: "Muted")
+        case .acknowledged:
+            String(localized: "Acknowledged")
+        case .needsReview:
+            String(localized: "Needs review")
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .needsReview:
+            .red
+        case .acknowledged:
+            .orange
+        case .muted:
+            .secondary
+        case .clear:
+            .green
+        }
+    }
+}
+
 struct SettingsView: View {
     @Environment(\.dependencies) private var deps
     @State private var serverURL = ServerConfig.saved.baseURL
@@ -234,8 +267,8 @@ struct SettingsView: View {
                         }
                         LabeledContent("Follow-ups") {
                             Text(latest.followUpItems.isEmpty
-                                ? "None"
-                                : "\(deps.onCallHandoffStore.pendingLatestFollowUpCount) pending · \(deps.onCallHandoffStore.completedLatestFollowUpCount) done")
+                                ? String(localized: "None")
+                                : String(localized: "\(deps.onCallHandoffStore.pendingLatestFollowUpCount) pending · \(deps.onCallHandoffStore.completedLatestFollowUpCount) done"))
                                 .foregroundStyle(
                                     latest.followUpItems.isEmpty
                                         ? Color.secondary
@@ -247,7 +280,7 @@ struct SettingsView: View {
                                 Text(checkInStatus.state.label)
                                     .foregroundStyle(handoffCheckInColor(for: checkInStatus))
                             } else {
-                                Text(latest.checkInWindow == .none ? "None" : latest.checkInWindow.label)
+                                Text(latest.checkInWindow == .none ? String(localized: "None") : latest.checkInWindow.label)
                                     .foregroundStyle(latest.checkInWindow == .none ? Color.secondary : Color.primary)
                             }
                         }
@@ -294,7 +327,7 @@ struct SettingsView: View {
                                 .foregroundStyle(handoffCadenceColor)
                         }
                         if !latest.checklist.pendingLabels.isEmpty {
-                            Text("Pending: \(latest.checklist.pendingLabels.joined(separator: ", "))")
+                            Text(String(localized: "Pending: \(latest.checklist.pendingLabels.joined(separator: ", "))"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -357,8 +390,8 @@ struct SettingsView: View {
                             .foregroundStyle(activeMutedAlertCount > 0 ? .secondary : .tertiary)
                     }
                     LabeledContent("Incident Snapshot") {
-                        Text(snapshotStatus)
-                            .foregroundStyle(snapshotStatusColor)
+                        Text(snapshotStatus.label)
+                            .foregroundStyle(snapshotStatus.color)
                     }
                     LabeledContent("Audit") {
                         Text(auditStatus)
@@ -412,8 +445,8 @@ struct SettingsView: View {
     }
 
     private var auditStatus: String {
-        guard let verify = deps.dashboardViewModel.auditVerify else { return "Unavailable" }
-        return verify.valid ? "Verified" : "Broken"
+        guard let verify = deps.dashboardViewModel.auditVerify else { return String(localized: "Unavailable") }
+        return verify.valid ? String(localized: "Verified") : String(localized: "Broken")
     }
 
     private var activeMutedAlertCount: Int {
@@ -484,27 +517,14 @@ struct SettingsView: View {
         )
     }
 
-    private var snapshotStatus: String {
+    private var snapshotStatus: SettingsSnapshotStatus {
         if visibleAlerts.isEmpty {
-            return activeMutedAlertCount > 0 ? "Muted" : "Clear"
+            return activeMutedAlertCount > 0 ? .muted : .clear
         }
 
         return deps.incidentStateStore.isCurrentSnapshotAcknowledged(alerts: deps.dashboardViewModel.monitoringAlerts)
-            ? "Acknowledged"
-            : "Needs review"
-    }
-
-    private var snapshotStatusColor: Color {
-        switch snapshotStatus {
-        case "Needs review":
-            .red
-        case "Acknowledged":
-            .orange
-        case "Muted":
-            .secondary
-        default:
-            .green
-        }
+            ? .acknowledged
+            : .needsReview
     }
 
     private var notificationAuthorizationColor: Color {
@@ -519,12 +539,12 @@ struct SettingsView: View {
     }
 
     private var handoffFreshnessColor: Color {
-        switch deps.onCallHandoffStore.freshnessLabel {
-        case "Fresh":
+        switch deps.onCallHandoffStore.freshnessState {
+        case .fresh:
             .green
-        case "Stale":
+        case .stale:
             .orange
-        default:
+        case .missing:
             .red
         }
     }
