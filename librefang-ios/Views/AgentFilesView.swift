@@ -76,16 +76,16 @@ struct AgentFilesView: View {
     var body: some View {
         List {
             Section {
-                LabeledContent("Agent") {
+                AgentFilesSummaryRow(label: "Agent") {
                     Text(agent.name)
                         .foregroundStyle(.secondary)
                 }
-                LabeledContent("Present") {
+                AgentFilesSummaryRow(label: "Present") {
                     Text("\(existingCount)/\(files.count)")
                         .foregroundStyle(workspaceIdentitySummary.tone.color)
                         .monospacedDigit()
                 }
-                LabeledContent("Missing") {
+                AgentFilesSummaryRow(label: "Missing") {
                     Text(missingCount.formatted())
                         .foregroundStyle(missingStatus.tone.color)
                         .monospacedDigit()
@@ -175,6 +175,32 @@ struct AgentFilesView: View {
             loadError = nil
         } catch {
             loadError = error.localizedDescription
+        }
+    }
+}
+
+private struct AgentFilesSummaryRow<Content: View>: View {
+    let label: LocalizedStringKey
+    let content: Content
+
+    init(label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
+        self.label = label
+        self.content = content()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(label)
+                Spacer(minLength: 8)
+                content
+                    .multilineTextAlignment(.trailing)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                content
+                    .multilineTextAlignment(.leading)
+            }
         }
     }
 }

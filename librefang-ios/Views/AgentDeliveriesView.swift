@@ -101,25 +101,25 @@ struct AgentDeliveriesView: View {
     var body: some View {
         List {
             Section {
-                LabeledContent("Agent") {
+                DeliverySummaryRow(label: "Agent") {
                     Text(agent.name)
                         .foregroundStyle(.secondary)
                 }
-                LabeledContent("Receipts") {
+                DeliverySummaryRow(label: "Receipts") {
                     Text(receipts.count.formatted())
                         .monospacedDigit()
                 }
-                LabeledContent("Delivered") {
+                DeliverySummaryRow(label: "Delivered") {
                     Text(deliveredCount.formatted())
                         .foregroundStyle(deliveredStatus.tone.color)
                         .monospacedDigit()
                 }
-                LabeledContent("Failed") {
+                DeliverySummaryRow(label: "Failed") {
                     Text(failedCount.formatted())
                         .foregroundStyle(failedStatus.tone.color)
                         .monospacedDigit()
                 }
-                LabeledContent("Unsettled") {
+                DeliverySummaryRow(label: "Unsettled") {
                     Text(unsettledCount.formatted())
                         .foregroundStyle(unsettledStatus.tone.color)
                         .monospacedDigit()
@@ -209,6 +209,32 @@ struct AgentDeliveriesView: View {
             loadError = nil
         } catch {
             loadError = error.localizedDescription
+        }
+    }
+}
+
+private struct DeliverySummaryRow<Content: View>: View {
+    let label: LocalizedStringKey
+    let content: Content
+
+    init(label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
+        self.label = label
+        self.content = content()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(label)
+                Spacer(minLength: 8)
+                content
+                    .multilineTextAlignment(.trailing)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                content
+                    .multilineTextAlignment(.leading)
+            }
         }
     }
 }

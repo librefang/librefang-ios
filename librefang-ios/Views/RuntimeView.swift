@@ -126,19 +126,21 @@ struct RuntimeView: View {
     private var systemSection: some View {
         if let status = vm.status {
             Section("System") {
-                LabeledContent("Kernel") {
+                RuntimeSystemRow(label: "Kernel") {
                     StatusPill(text: status.localizedStatusLabel, color: status.statusTone.color)
                 }
-                LabeledContent("Version", value: status.version)
-                LabeledContent("Uptime") {
+                RuntimeSystemRow(label: "Version") {
+                    Text(status.version)
+                }
+                RuntimeSystemRow(label: "Uptime") {
                     Text(formatDuration(status.uptimeSeconds))
                         .monospacedDigit()
                 }
-                LabeledContent("Agents") {
+                RuntimeSystemRow(label: "Agents") {
                     Text("\(status.agentCount)")
                         .monospacedDigit()
                 }
-                LabeledContent("Default Model") {
+                RuntimeSystemRow(label: "Default Model") {
                     VStack(alignment: .trailing, spacing: 2) {
                         Text(status.defaultModel)
                             .lineLimit(1)
@@ -147,7 +149,7 @@ struct RuntimeView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                LabeledContent("Network") {
+                RuntimeSystemRow(label: "Network") {
                     StatusPill(text: status.networkEnabled ? String(localized: "Enabled") : String(localized: "Disabled"), color: status.networkEnabled ? .green : .orange)
                 }
             }
@@ -791,6 +793,32 @@ struct RuntimeView: View {
                 title: action.title,
                 message: error.localizedDescription
             )
+        }
+    }
+}
+
+private struct RuntimeSystemRow<Content: View>: View {
+    let label: LocalizedStringKey
+    let content: Content
+
+    init(label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
+        self.label = label
+        self.content = content()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(label)
+                Spacer(minLength: 8)
+                content
+                    .multilineTextAlignment(.trailing)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                content
+                    .multilineTextAlignment(.leading)
+            }
         }
     }
 }
