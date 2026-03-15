@@ -144,6 +144,15 @@ struct MainTabView: View {
             || pendingLatestFollowUpCount > 0
             || activeMutedAlertCount > 0
     }
+    private var overlaySectionCount: Int {
+        [
+            !deps.networkMonitor.isConnected || visibleCriticalAlertCount > 0 || handoffBannerStatus != nil,
+            (incidentCue != nil && showsForegroundCues) || (handoffCue != nil && showsForegroundCues),
+            shouldShowOverlayDeck
+        ]
+        .filter { $0 }
+        .count
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -385,6 +394,7 @@ struct MainTabView: View {
                 if shouldShowOverlayDeck {
                     OperatorOverlayDeck(
                         summary: overlaySummaryLine,
+                        sectionCount: overlaySectionCount,
                         criticalCount: visibleCriticalAlertCount,
                         approvalCount: vm.pendingApprovalCount,
                         watchIssueCount: watchedIssueCount,
@@ -744,6 +754,7 @@ private struct ActiveHandoffCue: Identifiable, Equatable {
 
 private struct OperatorOverlayDeck: View {
     let summary: String
+    let sectionCount: Int
     let criticalCount: Int
     let approvalCount: Int
     let watchIssueCount: Int
@@ -797,6 +808,17 @@ private struct OperatorOverlayDeck: View {
                 supportActionCount: supportActions.count,
                 badgedActionCount: badgedActionCount,
                 criticalActionCount: criticalActionCount
+            )
+
+            OperatorOverlaySectionDeck(
+                sectionCount: sectionCount,
+                isOffline: isOffline,
+                hasActions: !primaryActions.isEmpty || !supportActions.isEmpty,
+                criticalCount: criticalCount,
+                approvalCount: approvalCount,
+                watchIssueCount: watchIssueCount,
+                sessionCount: sessionCount,
+                pendingFollowUpCount: pendingFollowUpCount
             )
 
             OperatorOverlayPressureDeck(
@@ -869,6 +891,74 @@ private struct OperatorOverlayDeck: View {
             .background(.white.opacity(0.10), in: Capsule())
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct OperatorOverlaySectionDeck: View {
+    let sectionCount: Int
+    let isOffline: Bool
+    let hasActions: Bool
+    let criticalCount: Int
+    let approvalCount: Int
+    let watchIssueCount: Int
+    let sessionCount: Int
+    let pendingFollowUpCount: Int
+
+    private var activePressureCount: Int {
+        [
+            isOffline,
+            criticalCount > 0,
+            approvalCount > 0,
+            watchIssueCount > 0,
+            sessionCount > 0,
+            pendingFollowUpCount > 0
+        ]
+        .filter { $0 }
+        .count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ResponsiveAccessoryRow(horizontalSpacing: 10, verticalSpacing: 6) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section inventory"))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(String(localized: "Keep overlay coverage readable before the quick-action rails and pressure badges."))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } accessory: {
+                GlassCapsuleBadge(
+                    text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                    foregroundStyle: .secondary,
+                    backgroundOpacity: 0.08
+                )
+            }
+
+            FlowLayout(spacing: 8) {
+                GlassCapsuleBadge(
+                    text: activePressureCount == 1 ? String(localized: "1 pressure bucket") : String(localized: "\(activePressureCount) pressure buckets"),
+                    foregroundStyle: .primary,
+                    backgroundOpacity: 0.10
+                )
+                if hasActions {
+                    GlassCapsuleBadge(
+                        text: String(localized: "Actions ready"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if isOffline {
+                    GlassCapsuleBadge(
+                        text: String(localized: "Offline banner"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+            }
+        }
     }
 }
 
