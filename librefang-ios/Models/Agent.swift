@@ -26,12 +26,45 @@ nonisolated struct Agent: Codable, Identifiable, Sendable {
     }
 
     var isRunning: Bool { state == "Running" }
+    var stateLabel: String {
+        Agent.localizedStateLabel(for: state)
+    }
+
     var stateColor: String {
         switch state {
         case "Running": return "green"
         case "Suspended": return "yellow"
         case "Terminated": return "red"
         default: return "gray"
+        }
+    }
+
+    var authStatusLabel: String? {
+        guard let authStatus else { return nil }
+        switch authStatus.lowercased() {
+        case "configured":
+            return String(localized: "Configured")
+        case "missing":
+            return String(localized: "Missing")
+        case "invalid":
+            return String(localized: "Invalid")
+        case "unconfigured", "not_configured":
+            return String(localized: "Not configured")
+        default:
+            return authStatus
+        }
+    }
+
+    static func localizedStateLabel(for state: String) -> String {
+        switch state {
+        case "Running":
+            return String(localized: "Running")
+        case "Suspended":
+            return String(localized: "Suspended")
+        case "Terminated":
+            return String(localized: "Terminated")
+        default:
+            return state
         }
     }
 }

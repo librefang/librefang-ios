@@ -100,7 +100,12 @@ struct AgentsView: View {
                                 Button {
                                     watchlistStore.toggle(item.agent)
                                 } label: {
-                                    Label(watchlistStore.isWatched(item.agent) ? "Unwatch" : "Watch", systemImage: watchlistStore.isWatched(item.agent) ? "star.slash" : "star")
+                                    Label(
+                                        watchlistStore.isWatched(item.agent)
+                                            ? String(localized: "Unwatch")
+                                            : String(localized: "Watch"),
+                                        systemImage: watchlistStore.isWatched(item.agent) ? "star.slash" : "star"
+                                    )
                                 }
                                 .tint(.yellow)
                             }
@@ -109,7 +114,7 @@ struct AgentsView: View {
                                     Button {
                                         // future: stop agent
                                     } label: {
-                                        Label("Message", systemImage: "paperplane")
+                                        Label(String(localized: "Message"), systemImage: "paperplane")
                                     }
                                     .tint(.blue)
                                 }
@@ -179,8 +184,8 @@ private enum AgentFilter: CaseIterable {
     var label: String {
         switch self {
         case .all: String(localized: "All")
-        case .attention: "Attention"
-        case .watchlist: "Watchlist"
+        case .attention: String(localized: "Attention")
+        case .watchlist: String(localized: "Watchlist")
         case .running: String(localized: "Running")
         case .stopped: String(localized: "Stopped")
         }
@@ -227,7 +232,9 @@ private struct AgentRow: View {
 
                     if attention.pendingApprovals > 0 {
                         InlineStatusPill(
-                            label: attention.pendingApprovals == 1 ? "1 approval" : "\(attention.pendingApprovals) approvals",
+                            label: attention.pendingApprovals == 1
+                                ? String(localized: "1 approval")
+                                : String(localized: "\(attention.pendingApprovals) approvals"),
                             color: .red,
                             systemImage: "exclamationmark.shield"
                         )
@@ -235,7 +242,7 @@ private struct AgentRow: View {
 
                     if !agent.ready {
                         InlineStatusPill(
-                            label: "Not ready",
+                            label: String(localized: "Not ready"),
                             color: .orange,
                             systemImage: "hourglass"
                         )
@@ -243,7 +250,7 @@ private struct AgentRow: View {
 
                     if attention.hasAuthIssue {
                         InlineStatusPill(
-                            label: "Auth",
+                            label: String(localized: "Auth"),
                             color: .red,
                             systemImage: "lock.slash"
                         )
@@ -251,7 +258,7 @@ private struct AgentRow: View {
 
                     if attention.isStale {
                         InlineStatusPill(
-                            label: "Stale",
+                            label: String(localized: "Stale"),
                             color: .orange,
                             systemImage: "clock.badge.exclamationmark"
                         )
@@ -259,7 +266,7 @@ private struct AgentRow: View {
 
                     if attention.sessionPressure {
                         InlineStatusPill(
-                            label: "Sessions",
+                            label: String(localized: "Sessions"),
                             color: .orange,
                             systemImage: "rectangle.stack.badge.person.crop"
                         )
@@ -267,7 +274,7 @@ private struct AgentRow: View {
 
                     if attention.modelDiagnostic != nil {
                         InlineStatusPill(
-                            label: "Model",
+                            label: String(localized: "Model"),
                             color: .orange,
                             systemImage: "square.stack.3d.up.slash"
                         )
@@ -306,7 +313,7 @@ private struct StatePill: View {
     let state: String
 
     var body: some View {
-        Text(state)
+        Text(Agent.localizedStateLabel(for: state))
             .font(.caption2.weight(.medium))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
@@ -351,15 +358,17 @@ private struct AgentFleetSummaryCard: View {
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 10) {
-                SummaryChip(value: "\(runningCount)", label: "Running", color: .green)
-                SummaryChip(value: "\(issueCount)", label: "Attention", color: issueCount > 0 ? .orange : .secondary)
-                SummaryChip(value: "\(staleCount)", label: "Stale", color: staleCount > 0 ? .orange : .secondary)
-                SummaryChip(value: "\(approvalCount)", label: "Approvals", color: approvalCount > 0 ? .red : .secondary)
+                SummaryChip(value: "\(runningCount)", label: String(localized: "Running"), color: .green)
+                SummaryChip(value: "\(issueCount)", label: String(localized: "Attention"), color: issueCount > 0 ? .orange : .secondary)
+                SummaryChip(value: "\(staleCount)", label: String(localized: "Stale"), color: staleCount > 0 ? .orange : .secondary)
+                SummaryChip(value: "\(approvalCount)", label: String(localized: "Approvals"), color: approvalCount > 0 ? .red : .secondary)
             }
 
             HStack {
                 Label(
-                    watchlistCount == 1 ? "1 watched agent pinned on this iPhone" : "\(watchlistCount) watched agents pinned on this iPhone",
+                    watchlistCount == 1
+                        ? String(localized: "1 watched agent pinned on this iPhone")
+                        : String(localized: "\(watchlistCount) watched agents pinned on this iPhone"),
                     systemImage: "star.fill"
                 )
                 .font(.caption)

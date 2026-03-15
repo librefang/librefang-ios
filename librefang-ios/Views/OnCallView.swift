@@ -71,17 +71,10 @@ struct OnCallView: View {
     }
 
     private var watchedAttentionItems: [AgentAttentionItem] {
-        watchedAgents
-            .map { vm.attentionItem(for: $0) }
-            .sorted { lhs, rhs in
-                if lhs.severity != rhs.severity {
-                    return lhs.severity > rhs.severity
-                }
-                if lhs.agent.isRunning != rhs.agent.isRunning {
-                    return lhs.agent.isRunning && !rhs.agent.isRunning
-                }
-                return lhs.agent.name.localizedCompare(rhs.agent.name) == .orderedAscending
-            }
+        watchedAgentAttentionItemsSorted(
+            watchedAgents.map { vm.attentionItem(for: $0) },
+            summaries: watchedDiagnostics
+        )
     }
     private var watchedDiagnosticPriorityItems: [OnCallPriorityItem] {
         watchedAgentDiagnosticPriorityItems(
@@ -249,7 +242,9 @@ struct OnCallView: View {
             if !watchedAttentionItems.isEmpty {
                 Section {
                     ForEach(watchedAttentionItems.prefix(6)) { item in
-                        NavigationLink(value: OnCallRoute.agent(item.agent.id)) {
+                        NavigationLink {
+                            watchedDiagnosticsDestination(for: item)
+                        } label: {
                             WatchedAgentRow(
                                 agent: item.agent,
                                 reasons: item.reasons,
@@ -381,6 +376,17 @@ struct OnCallView: View {
                 criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
                 liveAlertCount: visibleAlerts.count
             )
+        }
+    }
+
+    @ViewBuilder
+    private func watchedDiagnosticsDestination(for item: AgentAttentionItem) -> some View {
+        if let summary = watchedDiagnostics[item.agent.id], summary.failedDeliveries > 0 {
+            AgentDeliveriesView(agent: item.agent, initialScope: .failed)
+        } else if let summary = watchedDiagnostics[item.agent.id], !summary.missingIdentityFiles.isEmpty {
+            AgentFilesView(agent: item.agent, initialScope: .missing)
+        } else {
+            AgentDetailView(agent: item.agent)
         }
     }
 
@@ -877,6 +883,13 @@ private struct WatchedAgentRow: View {
                         .background(Color.red.opacity(0.12))
                         .foregroundStyle(.red)
                         .clipShape(Capsule())
+                    Text(watchedAgentDiagnosticHeadline(summary: diagnostics))
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.orange.opacity(0.12))
+                        .foregroundStyle(.orange)
+                        .clipShape(Capsule())
                 }
             }
 
@@ -901,7 +914,7 @@ private struct WatchedAgentRow: View {
             }
 
             HStack(spacing: 8) {
-                Text(agent.state)
+                Text(agent.stateLabel)
                     .font(.caption2.weight(.medium))
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)

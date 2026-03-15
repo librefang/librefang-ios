@@ -90,8 +90,8 @@ extension DashboardViewModel {
                     resolvedModel: resolvedModel,
                     resolvedAlias: alias,
                     kind: .unavailableModel,
-                    issueSummary: "Catalog model unavailable",
-                    detail: "\(resolvedModel.displayName) is present in the catalog but not currently available for execution.",
+                    issueSummary: String(localized: "Catalog model unavailable"),
+                    detail: String(localized: "\(resolvedModel.displayName) is present in the catalog but not currently available for execution."),
                     severity: 4
                 )
             }
@@ -104,8 +104,8 @@ extension DashboardViewModel {
                     resolvedModel: resolvedModel,
                     resolvedAlias: alias,
                     kind: .providerMismatch,
-                    issueSummary: "Provider drift",
-                    detail: "Agent expects \(agentProvider), but the catalog resolves \(requestedModel) to \(resolvedModel.provider).",
+                    issueSummary: String(localized: "Provider drift"),
+                    detail: String(localized: "Agent expects \(agentProvider), but the catalog resolves \(requestedModel) to \(resolvedModel.provider)."),
                     severity: 2
                 )
             }
@@ -119,8 +119,8 @@ extension DashboardViewModel {
             resolvedModel: nil,
             resolvedAlias: alias,
             kind: .unknownModel,
-            issueSummary: "Model missing from catalog",
-            detail: "LibreFang cannot resolve \(requestedModel) from the current model catalog or alias map.",
+            issueSummary: String(localized: "Model missing from catalog"),
+            detail: String(localized: "LibreFang cannot resolve \(requestedModel) from the current model catalog or alias map."),
             severity: 5
         )
     }

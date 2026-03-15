@@ -21,7 +21,7 @@ extension DashboardViewModel {
         let timestamp = Date().formatted(date: .abbreviated, time: .shortened)
 
         var lines: [String] = []
-        lines.append("LibreFang on-call handoff · \(timestamp)")
+        lines.append(String(localized: "LibreFang on-call handoff · \(timestamp)"))
         lines.append(onCallDigestLine(
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
@@ -30,39 +30,39 @@ extension DashboardViewModel {
             handoffCheckInStatus: handoffCheckInStatus,
             handoffFollowUpStatuses: handoffFollowUpStatuses
         ))
-        lines.append("Live alerts: \(visibleAlerts.count) (\(criticalCount) critical)")
-        lines.append("Approvals: \(pendingApprovalCount)")
-        lines.append("Watchlist issues: \(watchIssueCount)")
-        lines.append("Session hotspots: \(sessionAttentionCount)")
-        lines.append("Critical audit events: \(recentCriticalAuditCount)")
+        lines.append(String(localized: "Live alerts: \(visibleAlerts.count) (\(criticalCount) critical)"))
+        lines.append(String(localized: "Approvals: \(pendingApprovalCount)"))
+        lines.append(String(localized: "Watchlist issues: \(watchIssueCount)"))
+        lines.append(String(localized: "Session hotspots: \(sessionAttentionCount)"))
+        lines.append(String(localized: "Critical audit events: \(recentCriticalAuditCount)"))
 
         if let handoffCheckInStatus {
-            lines.append("Handoff check-in: \(handoffCheckInStatus.state.label) · \(handoffCheckInStatus.dueLabel)")
+            lines.append(String(localized: "Handoff check-in: \(handoffCheckInStatus.state.label) · \(handoffCheckInStatus.dueLabel)"))
         }
 
         if !handoffFollowUpStatuses.isEmpty {
             let pendingCount = handoffFollowUpStatuses.filter { !$0.isCompleted }.count
             let completedCount = handoffFollowUpStatuses.count - pendingCount
-            lines.append("Handoff follow-ups: \(pendingCount) pending · \(completedCount) done")
+            lines.append(String(localized: "Handoff follow-ups: \(pendingCount) pending · \(completedCount) done"))
         }
 
         if mutedAlertCount > 0 {
-            lines.append("Muted locally: \(mutedAlertCount)")
+            lines.append(String(localized: "Muted locally: \(mutedAlertCount)"))
         }
 
         if isAcknowledged {
-            lines.append("Snapshot acknowledged on this iPhone")
+            lines.append(String(localized: "Snapshot acknowledged on this iPhone"))
         }
 
         if let lastRefresh {
-            lines.append("Last refresh: \(RelativeDateTimeFormatter().localizedString(for: lastRefresh, relativeTo: Date()))")
+            lines.append(String(localized: "Last refresh: \(RelativeDateTimeFormatter().localizedString(for: lastRefresh, relativeTo: Date()))"))
         }
 
         if !queue.isEmpty {
             lines.append("")
-            lines.append("Priority queue:")
+            lines.append(String(localized: "Priority queue:"))
             for item in queue.prefix(5) {
-                lines.append("- \(item.title): \(item.detail)")
+                lines.append(String(localized: "- \(item.title): \(item.detail)"))
             }
         }
 
@@ -75,15 +75,15 @@ extension DashboardViewModel {
         ]
 
         lines.append("")
-        lines.append("Mobile links:")
+        lines.append(String(localized: "Mobile links:"))
         for target in baseTargets {
-            lines.append("- \(target.label): \(target.deepLinkURL.absoluteString)")
+            lines.append(String(localized: "- \(target.label): \(target.deepLinkURL.absoluteString)"))
         }
 
         if let leadItem = queue.first {
             let leadTarget = leadItem.route.launchTarget
             if !baseTargets.contains(leadTarget) {
-                lines.append("- Lead focus (\(leadItem.title)): \(leadTarget.deepLinkURL.absoluteString)")
+                lines.append(String(localized: "- Lead focus (\(leadItem.title)): \(leadTarget.deepLinkURL.absoluteString)"))
             }
         }
 

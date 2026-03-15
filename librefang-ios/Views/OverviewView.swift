@@ -1,5 +1,28 @@
 import SwiftUI
 
+private enum OverviewHandoffFreshness {
+    case fresh
+    case stale
+
+    var label: String {
+        switch self {
+        case .fresh:
+            String(localized: "Fresh")
+        case .stale:
+            String(localized: "Stale")
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .fresh:
+            .green
+        case .stale:
+            .orange
+        }
+    }
+}
+
 struct OverviewView: View {
     @Environment(\.dependencies) private var deps
 
@@ -14,17 +37,11 @@ struct OverviewView: View {
         deps.incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
     }
     private var watchedAttentionItems: [AgentAttentionItem] {
-        deps.agentWatchlistStore.watchedAgents(from: vm.agents)
-            .map { vm.attentionItem(for: $0) }
-            .sorted { lhs, rhs in
-                if lhs.severity != rhs.severity {
-                    return lhs.severity > rhs.severity
-                }
-                if lhs.agent.isRunning != rhs.agent.isRunning {
-                    return lhs.agent.isRunning && !rhs.agent.isRunning
-                }
-                return lhs.agent.name.localizedCompare(rhs.agent.name) == .orderedAscending
-            }
+        watchedAgentAttentionItemsSorted(
+            deps.agentWatchlistStore.watchedAgents(from: vm.agents)
+                .map { vm.attentionItem(for: $0) },
+            summaries: watchedDiagnostics
+        )
     }
     private var watchedDiagnostics: [String: WatchedAgentDiagnosticsSummary] {
         deps.watchedAgentDiagnosticsStore.summaries
@@ -429,7 +446,7 @@ private struct AlertsCard: View {
             }
 
             if alerts.isEmpty {
-                Text("All current alert cards are muted on this iPhone. Open incidents to review or unmute them.")
+                Text(String(localized: "All current alert cards are muted on this iPhone. Open incidents to review or unmute them."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
@@ -453,7 +470,11 @@ private struct AlertsCard: View {
             }
 
             if mutedCount > 0 {
-                Text(mutedCount == 1 ? "1 alert is muted locally." : "\(mutedCount) alerts are muted locally.")
+                Text(
+                    mutedCount == 1
+                        ? String(localized: "1 alert is muted locally.")
+                        : String(localized: "\(mutedCount) alerts are muted locally.")
+                )
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -472,12 +493,14 @@ private struct AlertsCard: View {
 
     private var statusText: String {
         if alerts.isEmpty && mutedCount > 0 {
-            return "Muted"
+            return String(localized: "Muted")
         }
         if snapshotAcknowledged {
-            return "Acked"
+            return String(localized: "Acked")
         }
-        return alerts.count == 1 ? "1 live" : "\(alerts.count) live"
+        return alerts.count == 1
+            ? String(localized: "1 live")
+            : String(localized: "\(alerts.count) live")
     }
 
     private func color(for severity: MonitoringAlertSeverity) -> Color {
@@ -529,17 +552,17 @@ private struct RecentHandoffCard: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
 
-            Text(entry.createdAt, style: .relative)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+                Text(entry.createdAt, style: .relative)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
 
             HStack(spacing: 10) {
-                HandoffBadge(value: entry.queueCount, label: "Queued")
-                HandoffBadge(value: entry.criticalCount, label: "Critical")
-                HandoffBadge(value: entry.liveAlertCount, label: "Live")
-                HandoffBadge(value: entry.checklist.completedCount, label: "Checks")
+                HandoffBadge(value: entry.queueCount, label: String(localized: "Queued"))
+                HandoffBadge(value: entry.criticalCount, label: String(localized: "Critical"))
+                HandoffBadge(value: entry.liveAlertCount, label: String(localized: "Live"))
+                HandoffBadge(value: entry.checklist.completedCount, label: String(localized: "Checks"))
                 Spacer()
-                Text("Open")
+                Text(String(localized: "Open"))
                     .font(.caption2.weight(.medium))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -547,52 +570,56 @@ private struct RecentHandoffCard: View {
                     .clipShape(Capsule())
             }
 
-            Text(entry.checklist.pendingLabels.isEmpty ? "Checklist complete" : "Pending: \(entry.checklist.pendingLabels.joined(separator: ", "))")
+            Text(
+                entry.checklist.pendingLabels.isEmpty
+                    ? String(localized: "Checklist complete")
+                    : String(localized: "Pending: \(entry.checklist.pendingLabels.joined(separator: ", "))")
+            )
                 .font(.caption2)
                 .foregroundStyle(entry.checklist.pendingLabels.isEmpty ? .green : .secondary)
                 .lineLimit(2)
 
             if !entry.focusAreas.items.isEmpty {
-                Text("Focus: \(entry.focusAreas.summaryLabel)")
+                Text(String(localized: "Focus: \(entry.focusAreas.summaryLabel)"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
 
             if !entry.followUpItems.isEmpty {
-                Text("Follow-ups: \(pendingFollowUpCount) pending · \(completedFollowUpCount) done")
+                Text(String(localized: "Follow-ups: \(pendingFollowUpCount) pending · \(completedFollowUpCount) done"))
                     .font(.caption2)
                     .foregroundStyle(pendingFollowUpCount == 0 ? .green : .secondary)
             }
 
             if let checkInStatus {
-                Text("Check-in: \(checkInStatus.state.label) · \(checkInStatus.dueLabel)")
+                Text(String(localized: "Check-in: \(checkInStatus.state.label) · \(checkInStatus.dueLabel)"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             } else if entry.checkInWindow != .none {
-                Text("Check-in: \(entry.checkInWindow.dueLabel(from: entry.createdAt))")
+                Text(String(localized: "Check-in: \(entry.checkInWindow.dueLabel(from: entry.createdAt))"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
 
             if let drift {
-                Text("Drift: \(drift.state.label) · \(drift.compactSummary)")
+                Text(String(localized: "Drift: \(drift.state.label) · \(drift.compactSummary)"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
 
             if let carryover {
-                Text("Carryover: \(carryover.state.label) · \(carryover.summary)")
+                Text(String(localized: "Carryover: \(carryover.state.label) · \(carryover.summary)"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
 
             if let gapLabel {
-                Text("Gap to prior handoff: \(gapLabel)")
+                Text(String(localized: "Gap to prior handoff: \(gapLabel)"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -602,15 +629,19 @@ private struct RecentHandoffCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    private func statusText(for entry: OnCallHandoffEntry) -> String {
+    private func freshnessState(for entry: OnCallHandoffEntry) -> OverviewHandoffFreshness {
         if Date().timeIntervalSince(entry.createdAt) >= 8 * 60 * 60 {
-            return "Stale"
+            return .stale
         }
-        return "Fresh"
+        return .fresh
+    }
+
+    private func statusText(for entry: OnCallHandoffEntry) -> String {
+        freshnessState(for: entry).label
     }
 
     private func statusColor(for entry: OnCallHandoffEntry) -> Color {
-        statusText(for: entry) == "Fresh" ? .green : .orange
+        freshnessState(for: entry).color
     }
 }
 
@@ -718,7 +749,7 @@ private struct ConnectionCard: View {
             return String(localized: "Disconnected")
         }
         if isStale {
-            return "Connected (stale)"
+            return String(localized: "Connected (stale)")
         }
         return String(localized: "Connected")
     }
@@ -768,25 +799,31 @@ private struct SystemSnapshotCard: View {
 
             Divider()
 
-            OverviewMetricRow(label: "Default Provider", value: status.defaultProvider)
-            OverviewMetricRow(label: "Default Model", value: status.defaultModel)
-            OverviewMetricRow(label: "Network", value: status.networkEnabled ? "Enabled" : "Disabled")
-            OverviewMetricRow(label: "Configured Providers", value: "\(connectedProviders)")
+            OverviewMetricRow(label: String(localized: "Default Provider"), value: status.defaultProvider)
+            OverviewMetricRow(label: String(localized: "Default Model"), value: status.defaultModel)
+            OverviewMetricRow(
+                label: String(localized: "Network"),
+                value: status.networkEnabled ? String(localized: "Enabled") : String(localized: "Disabled")
+            )
+            OverviewMetricRow(label: String(localized: "Configured Providers"), value: "\(connectedProviders)")
             if let networkStatus {
-                OverviewMetricRow(label: "Connected Peers", value: "\(networkStatus.connectedPeers)/\(networkStatus.totalPeers)")
+                OverviewMetricRow(
+                    label: String(localized: "Connected Peers"),
+                    value: "\(networkStatus.connectedPeers)/\(networkStatus.totalPeers)"
+                )
             }
-            OverviewMetricRow(label: "Sessions", value: "\(sessionCount)")
-            OverviewMetricRow(label: "MCP Servers", value: "\(mcpConnectedServers)")
+            OverviewMetricRow(label: String(localized: "Sessions"), value: "\(sessionCount)")
+            OverviewMetricRow(label: String(localized: "MCP Servers"), value: "\(mcpConnectedServers)")
 
             if let usageSummary {
                 OverviewMetricRow(
-                    label: "Total Tokens",
+                    label: String(localized: "Total Tokens"),
                     value: (usageSummary.totalInputTokens + usageSummary.totalOutputTokens).formatted()
                 )
             }
 
             if let security {
-                OverviewMetricRow(label: "Security Features", value: "\(security.totalFeatures)")
+                OverviewMetricRow(label: String(localized: "Security Features"), value: "\(security.totalFeatures)")
             }
         }
         .padding()
@@ -800,12 +837,12 @@ private struct SystemSnapshotCard: View {
         let minutes = (seconds % 3_600) / 60
 
         if days > 0 {
-            return "\(days)d \(hours)h"
+            return String(localized: "\(days)d \(hours)h")
         }
         if hours > 0 {
-            return "\(hours)h \(minutes)m"
+            return String(localized: "\(hours)h \(minutes)m")
         }
-        return "\(minutes)m"
+        return String(localized: "\(minutes)m")
     }
 }
 
@@ -844,33 +881,45 @@ private struct ReadinessCard: View {
                 .foregroundStyle(.secondary)
 
             ReadinessRow(
-                title: "Model Layer",
-                subtitle: providerCount > 0 ? "\(providerCount) provider ready" : "No provider configured",
+                title: String(localized: "Model Layer"),
+                subtitle: providerCount > 0
+                    ? String(localized: "\(providerCount) provider ready")
+                    : String(localized: "No provider configured"),
                 color: providerCount > 0 ? .green : .orange
             )
             ReadinessRow(
-                title: "Channels",
-                subtitle: channelCount > 0 ? "\(channelCount) channel delivering" : "No channel configured",
+                title: String(localized: "Channels"),
+                subtitle: channelCount > 0
+                    ? String(localized: "\(channelCount) channel delivering")
+                    : String(localized: "No channel configured"),
                 color: channelCount > 0 ? .green : .secondary
             )
             ReadinessRow(
-                title: "Autonomous Hands",
-                subtitle: activeHands > 0 ? "\(activeHands) active, \(degradedHands) degraded" : "No active hands",
+                title: String(localized: "Autonomous Hands"),
+                subtitle: activeHands > 0
+                    ? String(localized: "\(activeHands) active, \(degradedHands) degraded")
+                    : String(localized: "No active hands"),
                 color: degradedHands > 0 ? .orange : activeHands > 0 ? .green : .secondary
             )
             ReadinessRow(
-                title: "Approvals",
-                subtitle: pendingApprovals > 0 ? "\(pendingApprovals) action waiting" : "No approval backlog",
+                title: String(localized: "Approvals"),
+                subtitle: pendingApprovals > 0
+                    ? String(localized: "\(pendingApprovals) action waiting")
+                    : String(localized: "No approval backlog"),
                 color: pendingApprovals > 0 ? .red : .green
             )
             ReadinessRow(
-                title: "Peer Network",
-                subtitle: totalPeers > 0 ? "\(connectedPeers)/\(totalPeers) peer links active" : "No peer links discovered",
+                title: String(localized: "Peer Network"),
+                subtitle: totalPeers > 0
+                    ? String(localized: "\(connectedPeers)/\(totalPeers) peer links active")
+                    : String(localized: "No peer links discovered"),
                 color: connectedPeers > 0 ? .green : .secondary
             )
             ReadinessRow(
-                title: "Tooling",
-                subtitle: configuredMCPServers > 0 ? "\(connectedMCPServers)/\(configuredMCPServers) MCP servers online" : "No MCP extension servers configured",
+                title: String(localized: "Tooling"),
+                subtitle: configuredMCPServers > 0
+                    ? String(localized: "\(connectedMCPServers)/\(configuredMCPServers) MCP servers online")
+                    : String(localized: "No MCP extension servers configured"),
                 color: connectedMCPServers > 0 ? .green : configuredMCPServers > 0 ? .orange : .secondary
             )
         }
@@ -916,9 +965,9 @@ private struct UsageSnapshotCard: View {
                 .foregroundStyle(.secondary)
 
             HStack(spacing: 10) {
-                CompactMetric(value: usageSummary.totalInputTokens.formatted(), label: "Input")
-                CompactMetric(value: usageSummary.totalOutputTokens.formatted(), label: "Output")
-                CompactMetric(value: usageSummary.totalToolCalls.formatted(), label: "Tools")
+                CompactMetric(value: usageSummary.totalInputTokens.formatted(), label: String(localized: "Input"))
+                CompactMetric(value: usageSummary.totalOutputTokens.formatted(), label: String(localized: "Output"))
+                CompactMetric(value: usageSummary.totalToolCalls.formatted(), label: String(localized: "Tools"))
             }
 
             Divider()
@@ -1007,7 +1056,7 @@ private struct BudgetGaugesCard: View {
 }
 
 private struct GaugeItem: View {
-    let label: LocalizedStringKey
+    let label: LocalizedStringResource
     let spend: Double
     let limit: Double
     let pct: Double
@@ -1149,7 +1198,13 @@ private struct AutomationOverviewCard: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(issueCount == 0 ? "Stable" : issueCount == 1 ? "1 issue" : "\(issueCount) issues")
+                Text(
+                    issueCount == 0
+                        ? String(localized: "Stable")
+                        : (issueCount == 1
+                            ? String(localized: "1 issue")
+                            : String(localized: "\(issueCount) issues"))
+                )
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -1159,13 +1214,13 @@ private struct AutomationOverviewCard: View {
             }
 
             HStack(spacing: 12) {
-                automationMetric("\(vm.workflowCount)", label: "Workflows", systemImage: "flowchart")
-                automationMetric("\(vm.enabledTriggerCount)/\(vm.triggers.count)", label: "Triggers", systemImage: "bolt.horizontal.circle")
-                automationMetric("\(vm.enabledScheduleCount + vm.enabledCronJobCount)", label: "Active Jobs", systemImage: "calendar.badge.clock")
+                automationMetric("\(vm.workflowCount)", label: String(localized: "Workflows"), systemImage: "flowchart")
+                automationMetric("\(vm.enabledTriggerCount)/\(vm.triggers.count)", label: String(localized: "Triggers"), systemImage: "bolt.horizontal.circle")
+                automationMetric("\(vm.enabledScheduleCount + vm.enabledCronJobCount)", label: String(localized: "Active Jobs"), systemImage: "calendar.badge.clock")
             }
 
             if issueCount == 0 {
-                Text("Workflow runs, triggers, schedules, and cron jobs are visible without active scheduler pressure.")
+                Text(String(localized: "Workflow runs, triggers, schedules, and cron jobs are visible without active scheduler pressure."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
@@ -1174,21 +1229,27 @@ private struct AutomationOverviewCard: View {
                         issueRow(
                             icon: "exclamationmark.triangle.fill",
                             color: .red,
-                            text: vm.failedWorkflowRunCount == 1 ? "1 workflow run failed" : "\(vm.failedWorkflowRunCount) workflow runs failed"
+                            text: vm.failedWorkflowRunCount == 1
+                                ? String(localized: "1 workflow run failed")
+                                : String(localized: "\(vm.failedWorkflowRunCount) workflow runs failed")
                         )
                     }
                     if vm.exhaustedTriggerCount > 0 {
                         issueRow(
                             icon: "bolt.badge.clock",
                             color: .orange,
-                            text: vm.exhaustedTriggerCount == 1 ? "1 trigger exhausted" : "\(vm.exhaustedTriggerCount) triggers exhausted"
+                            text: vm.exhaustedTriggerCount == 1
+                                ? String(localized: "1 trigger exhausted")
+                                : String(localized: "\(vm.exhaustedTriggerCount) triggers exhausted")
                         )
                     }
                     if vm.stalledCronJobCount > 0 {
                         issueRow(
                             icon: "calendar.badge.exclamationmark",
                             color: .orange,
-                            text: vm.stalledCronJobCount == 1 ? "1 cron job missing next run" : "\(vm.stalledCronJobCount) cron jobs missing next run"
+                            text: vm.stalledCronJobCount == 1
+                                ? String(localized: "1 cron job missing next run")
+                                : String(localized: "\(vm.stalledCronJobCount) cron jobs missing next run")
                         )
                     }
                 }
@@ -1261,17 +1322,17 @@ private struct DiagnosticsOverviewCard: View {
             HStack(spacing: 12) {
                 diagnosticsMetric(
                     vm.healthDetail?.database.capitalized ?? "--",
-                    label: "Database",
+                    label: String(localized: "Database"),
                     systemImage: "externaldrive"
                 )
                 diagnosticsMetric(
                     "\(vm.diagnosticsConfigWarningCount)",
-                    label: "Warnings",
+                    label: String(localized: "Warnings"),
                     systemImage: "exclamationmark.triangle"
                 )
                 diagnosticsMetric(
                     "\(supervisorEvents)",
-                    label: "Supervisor",
+                    label: String(localized: "Supervisor"),
                     systemImage: "bolt.trianglebadge.exclamationmark"
                 )
             }
@@ -1294,12 +1355,12 @@ private struct DiagnosticsOverviewCard: View {
 
     private var statusLabel: String {
         if vm.hasHealthDatabaseIssue {
-            return "Degraded"
+            return String(localized: "Degraded")
         }
         if vm.hasDiagnosticsIssue {
-            return "Warn"
+            return String(localized: "Warn")
         }
-        return "Healthy"
+        return String(localized: "Healthy")
     }
 
     private var statusColor: Color {
@@ -1341,9 +1402,13 @@ private struct IntegrationsOverviewCard: View {
 
     private var summaryLabel: String {
         if vm.hasEmptyModelCatalog || vm.unavailableModelAgentCount > 0 {
-            return "Degraded"
+            return String(localized: "Degraded")
         }
-        return issueCount == 0 ? "Stable" : issueCount == 1 ? "1 issue" : "\(issueCount) issues"
+        return issueCount == 0
+            ? String(localized: "Stable")
+            : (issueCount == 1
+                ? String(localized: "1 issue")
+                : String(localized: "\(issueCount) issues"))
     }
 
     private var hasCatalogFreshnessIssue: Bool {
@@ -1369,23 +1434,23 @@ private struct IntegrationsOverviewCard: View {
             HStack(spacing: 12) {
                 integrationMetric(
                     "\(vm.configuredProviderCount)/\(vm.providers.count)",
-                    label: "Providers",
+                    label: String(localized: "Providers"),
                     systemImage: "key.horizontal"
                 )
                 integrationMetric(
                     "\(vm.readyChannelCount)/\(vm.configuredChannelCount)",
-                    label: "Channels",
+                    label: String(localized: "Channels"),
                     systemImage: "bubble.left.and.bubble.right"
                 )
                 integrationMetric(
                     "\(vm.availableCatalogModelCount)",
-                    label: "Models",
+                    label: String(localized: "Models"),
                     systemImage: "square.stack.3d.up"
                 )
             }
 
             if issueCount == 0 {
-                Text("Providers, channels, and the model catalog look consistent from the latest mobile snapshot.")
+                Text(String(localized: "Providers, channels, and the model catalog look consistent from the latest mobile snapshot."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
@@ -1394,7 +1459,9 @@ private struct IntegrationsOverviewCard: View {
                         issueRow(
                             icon: "network.slash",
                             color: .orange,
-                            text: vm.unreachableLocalProviderCount == 1 ? "1 local provider probe failed" : "\(vm.unreachableLocalProviderCount) local provider probes failed",
+                            text: vm.unreachableLocalProviderCount == 1
+                                ? String(localized: "1 local provider probe failed")
+                                : String(localized: "\(vm.unreachableLocalProviderCount) local provider probes failed"),
                             detail: vm.unreachableLocalProviders.prefix(2).map(\.displayName).joined(separator: " • ")
                         )
                     }
@@ -1402,23 +1469,29 @@ private struct IntegrationsOverviewCard: View {
                         issueRow(
                             icon: "bubble.left.and.exclamationmark.bubble.right",
                             color: .orange,
-                            text: vm.channelRequiredFieldGapCount == 1 ? "1 configured channel is missing required fields" : "\(vm.channelRequiredFieldGapCount) configured channels are missing required fields",
-                            detail: vm.missingRequiredChannelFieldCount == 1 ? "1 required field missing" : "\(vm.missingRequiredChannelFieldCount) required fields missing"
+                            text: vm.channelRequiredFieldGapCount == 1
+                                ? String(localized: "1 configured channel is missing required fields")
+                                : String(localized: "\(vm.channelRequiredFieldGapCount) configured channels are missing required fields"),
+                            detail: vm.missingRequiredChannelFieldCount == 1
+                                ? String(localized: "1 required field missing")
+                                : String(localized: "\(vm.missingRequiredChannelFieldCount) required fields missing")
                         )
                     }
                     if vm.hasEmptyModelCatalog {
                         issueRow(
                             icon: "square.stack.3d.up.slash",
                             color: .red,
-                            text: "The catalog currently exposes no available models",
-                            detail: "\(vm.configuredProviderCount) configured providers are not yielding executable models"
+                            text: String(localized: "The catalog currently exposes no available models"),
+                            detail: String(localized: "\(vm.configuredProviderCount) configured providers are not yielding executable models")
                         )
                     }
                     if hasCatalogFreshnessIssue {
                         issueRow(
                             icon: "clock.arrow.trianglehead.counterclockwise.rotate.90",
                             color: vm.catalogModels.isEmpty ? .red : .orange,
-                            text: vm.catalogLastSyncDate == nil ? "Catalog sync timestamp missing" : "Catalog sync is stale",
+                            text: vm.catalogLastSyncDate == nil
+                                ? String(localized: "Catalog sync timestamp missing")
+                                : String(localized: "Catalog sync is stale"),
                             detail: catalogFreshnessDetail
                         )
                     }
@@ -1426,7 +1499,9 @@ private struct IntegrationsOverviewCard: View {
                         issueRow(
                             icon: "cpu",
                             color: vm.unavailableModelAgentCount > 0 ? .red : .orange,
-                            text: vm.agentsWithModelDiagnostics.count == 1 ? "1 agent resolves to a drifted catalog model" : "\(vm.agentsWithModelDiagnostics.count) agents resolve to drifted catalog models",
+                            text: vm.agentsWithModelDiagnostics.count == 1
+                                ? String(localized: "1 agent resolves to a drifted catalog model")
+                                : String(localized: "\(vm.agentsWithModelDiagnostics.count) agents resolve to drifted catalog models"),
                             detail: vm.agentsWithModelDiagnostics.prefix(2).map { "\($0.agent.name) (\($0.issueSummary))" }.joined(separator: " • ")
                         )
                     }
@@ -1447,9 +1522,11 @@ private struct IntegrationsOverviewCard: View {
 
     private var catalogFreshnessDetail: String {
         guard let catalogLastSyncDate = vm.catalogLastSyncDate else {
-            return vm.catalogModels.isEmpty ? "The server has not reported a sync timestamp and the catalog is empty." : "The server did not report a catalog sync timestamp."
+            return vm.catalogModels.isEmpty
+                ? String(localized: "The server has not reported a sync timestamp and the catalog is empty.")
+                : String(localized: "The server did not report a catalog sync timestamp.")
         }
-        return "Last synced " + RelativeDateTimeFormatter().localizedString(for: catalogLastSyncDate, relativeTo: Date())
+        return String(localized: "Last synced \(RelativeDateTimeFormatter().localizedString(for: catalogLastSyncDate, relativeTo: Date()))")
     }
 
     @ViewBuilder
@@ -1502,14 +1579,14 @@ private struct WatchlistCard: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(items.count == 1 ? "1 pinned" : "\(items.count) pinned")
+                Text(items.count == 1 ? String(localized: "1 pinned") : String(localized: "\(items.count) pinned"))
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }
 
             ForEach(items.prefix(4)) { item in
                 NavigationLink {
-                    AgentDetailView(agent: item.agent)
+                    destination(for: item)
                 } label: {
                     HStack(alignment: .top, spacing: 10) {
                         Text(item.agent.identity?.emoji ?? "🤖")
@@ -1525,7 +1602,7 @@ private struct WatchlistCard: View {
                                     .font(.caption2)
                                     .foregroundStyle(.yellow)
                                 if item.severity > 0 {
-                                    Text(item.reasons.prefix(1).first ?? "Needs attention")
+                                    Text(item.reasons.prefix(1).first ?? String(localized: "Needs attention"))
                                         .font(.caption2.weight(.semibold))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
@@ -1534,18 +1611,25 @@ private struct WatchlistCard: View {
                                         .clipShape(Capsule())
                                 }
                                 if let summary = diagnostics[item.agent.id], summary.hasIssues {
-                                    Text(summary.issueCount == 1 ? "1 operator issue" : "\(summary.issueCount) operator issues")
+                                    Text(summary.issueCount == 1 ? String(localized: "1 operator issue") : String(localized: "\(summary.issueCount) operator issues"))
                                         .font(.caption2.weight(.semibold))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color.red.opacity(0.12))
                                         .foregroundStyle(.red)
                                         .clipShape(Capsule())
+                                    Text(watchedAgentDiagnosticHeadline(summary: summary))
+                                        .font(.caption2.weight(.semibold))
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.orange.opacity(0.12))
+                                        .foregroundStyle(.orange)
+                                        .clipShape(Capsule())
                                 }
                             }
 
                             if item.reasons.isEmpty, diagnostics[item.agent.id] == nil {
-                                Text(item.agent.isRunning ? "Running normally" : "Not currently running")
+                                Text(item.agent.isRunning ? String(localized: "Running normally") : String(localized: "Not currently running"))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             } else if let summary = diagnostics[item.agent.id], summary.hasIssues {
@@ -1589,6 +1673,17 @@ private struct WatchlistCard: View {
         }
         return .secondary
     }
+
+    @ViewBuilder
+    private func destination(for item: AgentAttentionItem) -> some View {
+        if let summary = diagnostics[item.agent.id], summary.failedDeliveries > 0 {
+            AgentDeliveriesView(agent: item.agent, initialScope: .failed)
+        } else if let summary = diagnostics[item.agent.id], !summary.missingIdentityFiles.isEmpty {
+            AgentFilesView(agent: item.agent, initialScope: .missing)
+        } else {
+            AgentDetailView(agent: item.agent)
+        }
+    }
 }
 
 private struct AttentionAgentsCard: View {
@@ -1618,7 +1713,7 @@ private struct AttentionAgentsCard: View {
                                 .font(.subheadline.weight(.medium))
                             Spacer()
                             if item.pendingApprovals > 0 {
-                                Text(item.pendingApprovals == 1 ? "1 approval" : "\(item.pendingApprovals) approvals")
+                                Text(item.pendingApprovals == 1 ? String(localized: "1 approval") : String(localized: "\(item.pendingApprovals) approvals"))
                                     .font(.caption2.weight(.semibold))
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
@@ -1699,7 +1794,7 @@ private struct SessionWatchlistCard: View {
                     Text(displayTitle(item))
                         .font(.subheadline.weight(.medium))
                     Spacer()
-                    Text("\(item.session.messageCount) msgs")
+                    Text(String(localized: "\(item.session.messageCount) msgs"))
                         .font(.caption2.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
@@ -1848,7 +1943,7 @@ private struct AgentPreviewCard: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text("\(agents.count) total")
+                Text(String(localized: "\(agents.count) total"))
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }
@@ -1868,7 +1963,7 @@ private struct AgentPreviewCard: View {
             }
 
             if agents.count > 4 {
-                Text("+\(agents.count - 4) more")
+                Text(String(localized: "+\(agents.count - 4) more"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

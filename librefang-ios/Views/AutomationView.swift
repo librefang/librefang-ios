@@ -10,11 +10,11 @@ private enum AutomationMonitorScope: String, CaseIterable, Identifiable {
     var label: String {
         switch self {
         case .all:
-            "All"
+            String(localized: "All")
         case .attention:
-            "Attention"
+            String(localized: "Attention")
         case .active:
-            "Active"
+            String(localized: "Active")
         }
     }
 }
@@ -162,9 +162,15 @@ struct AutomationView: View {
                     && !vm.isLoading {
                     Section("Automation") {
                         ContentUnavailableView(
-                            searchText.isEmpty ? "No Matching Automation" : "No Search Results",
+                            searchText.isEmpty
+                                ? String(localized: "No Matching Automation")
+                                : String(localized: "No Search Results"),
                             systemImage: scope == .all ? "flowchart" : "line.3.horizontal.decrease.circle",
-                            description: Text(searchText.isEmpty ? "Widen the scope or wait for the next dashboard refresh." : "Try a different workflow, trigger, or agent query.")
+                            description: Text(
+                                searchText.isEmpty
+                                    ? String(localized: "Widen the scope or wait for the next dashboard refresh.")
+                                    : String(localized: "Try a different workflow, trigger, or agent query.")
+                            )
                         )
                     }
                 } else {
@@ -354,17 +360,21 @@ struct AutomationView: View {
         case .cron:
             if let expr = schedule.expr, !expr.isEmpty {
                 if let tz = schedule.tz, !tz.isEmpty {
-                    return "\(expr) · \(tz)"
+                    return String(localized: "\(expr) · \(tz)")
                 }
                 return expr
             }
-            return "Cron schedule"
+            return String(localized: "Cron schedule")
         case .every:
-            guard let everySecs = schedule.everySecs else { return "Recurring interval" }
-            return everySecs >= 3600 ? "Every \(everySecs / 3600)h" : "Every \(everySecs / 60)m"
+            guard let everySecs = schedule.everySecs else { return String(localized: "Recurring interval") }
+            return everySecs >= 3600
+                ? String(localized: "Every \(everySecs / 3600)h")
+                : String(localized: "Every \(everySecs / 60)m")
         case .at:
-            guard let at = schedule.at, let date = at.automationISO8601Date else { return schedule.at ?? "One-shot" }
-            return "At \(RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date()))"
+            guard let at = schedule.at, let date = at.automationISO8601Date else {
+                return schedule.at ?? String(localized: "One-shot")
+            }
+            return String(localized: "At \(RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date()))")
         }
     }
 
@@ -372,25 +382,25 @@ struct AutomationView: View {
         switch action.kind {
         case .agentTurn:
             let summary = (action.message ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-            return summary.isEmpty ? "Agent turn" : summary
+            return summary.isEmpty ? String(localized: "Agent turn") : summary
         case .systemEvent:
             let summary = (action.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-            return summary.isEmpty ? "System event" : summary
+            return summary.isEmpty ? String(localized: "System event") : summary
         }
     }
 
     private func cronDeliverySummary(_ delivery: CronDeliveryDescriptor) -> String {
         switch delivery.kind {
         case .none:
-            return "No delivery"
+            return String(localized: "No delivery")
         case .lastChannel:
-            return "Last channel"
+            return String(localized: "Last channel")
         case .channel:
-            let channel = delivery.channel ?? "channel"
-            let to = delivery.to ?? "recipient"
-            return "\(channel) → \(to)"
+            let channel = delivery.channel ?? String(localized: "channel")
+            let to = delivery.to ?? String(localized: "recipient")
+            return String(localized: "\(channel) → \(to)")
         case .webhook:
-            return delivery.url ?? "Webhook"
+            return delivery.url ?? String(localized: "Webhook")
         }
     }
 }
@@ -474,11 +484,21 @@ private struct WorkflowDefinitionRow: View {
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 4) {
-                    MonitoringPill(text: "\(workflow.steps) steps", tone: .neutral)
+                    MonitoringPill(text: String(localized: "\(workflow.steps) steps"), tone: .neutral)
                     if failedRuns > 0 {
-                        MonitoringPill(text: failedRuns == 1 ? "1 failed run" : "\(failedRuns) failed", tone: .critical)
+                        MonitoringPill(
+                            text: failedRuns == 1
+                                ? String(localized: "1 failed run")
+                                : String(localized: "\(failedRuns) failed"),
+                            tone: .critical
+                        )
                     } else if runningRuns > 0 {
-                        MonitoringPill(text: runningRuns == 1 ? "1 running" : "\(runningRuns) running", tone: .warning)
+                        MonitoringPill(
+                            text: runningRuns == 1
+                                ? String(localized: "1 running")
+                                : String(localized: "\(runningRuns) running"),
+                            tone: .warning
+                        )
                     }
                 }
             }
@@ -492,7 +512,7 @@ private struct WorkflowDefinitionRow: View {
 
     private func relativeText(from value: String) -> String {
         guard let date = value.automationISO8601Date else { return value }
-        return "Created " + RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+        return String(localized: "Created \(RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date()))")
     }
 }
 
@@ -583,9 +603,11 @@ private struct TriggerRow: View {
 
     private var statusLabel: String {
         if trigger.isExhausted {
-            return "Exhausted"
+            return String(localized: "Exhausted")
         }
-        return trigger.enabled ? "Enabled" : "Disabled"
+        return trigger.enabled
+            ? String(localized: "Enabled")
+            : String(localized: "Disabled")
     }
 
     private var tone: MonitoringPill.Tone {
@@ -611,7 +633,12 @@ private struct ScheduleRow: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                MonitoringPill(text: schedule.enabled ? "Enabled" : "Paused", tone: schedule.enabled ? .good : .warning)
+                MonitoringPill(
+                    text: schedule.enabled
+                        ? String(localized: "Enabled")
+                        : String(localized: "Paused"),
+                    tone: schedule.enabled ? .good : .warning
+                )
             }
 
             HStack(spacing: 12) {
@@ -690,9 +717,11 @@ private struct CronJobRow: View {
 
     private var statusLabel: String {
         if !job.enabled {
-            return "Paused"
+            return String(localized: "Paused")
         }
-        return job.nextRun == nil ? "Missing next run" : "Enabled"
+        return job.nextRun == nil
+            ? String(localized: "Missing next run")
+            : String(localized: "Enabled")
     }
 
     private var tone: MonitoringPill.Tone {

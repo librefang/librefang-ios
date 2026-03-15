@@ -35,6 +35,7 @@ private enum SettingsSnapshotStatus {
 
 struct SettingsView: View {
     @Environment(\.dependencies) private var deps
+    @Environment(\.openURL) private var openURL
     @State private var serverURL = ServerConfig.saved.baseURL
     @State private var apiKey = ServerConfig.saved.apiKey
     @State private var refreshInterval: Double = UserDefaults.standard.double(forKey: "refreshInterval").clamped(to: 10...300, default: 30)
@@ -89,6 +90,31 @@ struct SettingsView: View {
                         UserDefaults.standard.set(refreshInterval, forKey: "refreshInterval")
                         deps.dashboardViewModel.startAutoRefresh(interval: refreshInterval)
                     }
+                }
+
+                Section("Language") {
+                    LabeledContent("Current") {
+                        Text(currentLanguageLabel)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    LabeledContent("Supported") {
+                        Text(supportedLanguageLabels.joined(separator: " · "))
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.trailing)
+                    }
+
+                    Button {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            openURL(url)
+                        }
+                    } label: {
+                        Label("Open iPhone Language Settings", systemImage: "globe")
+                    }
+
+                    Text("LibreFang iOS follows iPhone per-app language settings so String Catalog translations stay consistent across SwiftUI views and system surfaces. In Settings, open the app page and choose Language.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
 
                 Section("A2A Network") {
@@ -447,6 +473,25 @@ struct SettingsView: View {
     private var auditStatus: String {
         guard let verify = deps.dashboardViewModel.auditVerify else { return String(localized: "Unavailable") }
         return verify.valid ? String(localized: "Verified") : String(localized: "Broken")
+    }
+
+    private var currentLanguageLabel: String {
+        if let languageCode = Bundle.main.preferredLocalizations.first ?? Locale.preferredLanguages.first {
+            return localizedLanguageName(for: languageCode)
+        }
+        return String(localized: "System Default")
+    }
+
+    private var supportedLanguageLabels: [String] {
+        let rawLocalizations = Bundle.main.localizations.filter { $0 != "Base" }
+        let deduplicated = Array(Set(rawLocalizations)).sorted()
+        return deduplicated.map(localizedLanguageName(for:))
+    }
+
+    private func localizedLanguageName(for identifier: String) -> String {
+        Locale.current.localizedString(forIdentifier: identifier)
+            ?? Locale(identifier: identifier).localizedString(forIdentifier: identifier)
+            ?? identifier
     }
 
     private var activeMutedAlertCount: Int {

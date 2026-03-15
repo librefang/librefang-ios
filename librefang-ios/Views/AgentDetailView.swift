@@ -393,9 +393,9 @@ struct AgentDetailView: View {
 
     private var statusSection: some View {
         Section("Status") {
-            DetailRow(icon: "power", label: "State", value: agent.state, valueColor: stateColor)
+            DetailRow(icon: "power", label: "State", value: agent.stateLabel, valueColor: stateColor)
             DetailRow(icon: "gearshape.2", label: "Mode", value: agent.mode)
-            DetailRow(icon: "checkmark.circle", label: "Ready", value: agent.ready ? "Yes" : "No",
+            DetailRow(icon: "checkmark.circle", label: "Ready", value: agent.ready ? String(localized: "Yes") : String(localized: "No"),
                       valueColor: agent.ready ? .green : .orange)
             if let provider = agent.modelProvider {
                 DetailRow(icon: "cloud", label: "Provider", value: provider)
@@ -422,8 +422,12 @@ struct AgentDetailView: View {
                 DetailRow(icon: "star", label: "Tier", value: tier)
             }
             if let auth = agent.authStatus {
-                DetailRow(icon: "lock", label: "Auth", value: auth,
-                          valueColor: auth == "configured" ? .green : .red)
+                DetailRow(
+                    icon: "lock",
+                    label: "Auth",
+                    value: agent.authStatusLabel ?? auth,
+                    valueColor: auth == "configured" ? .green : .red
+                )
             }
             if !isLoadingDeliveries {
                 DetailRow(
@@ -437,7 +441,9 @@ struct AgentDetailView: View {
                 DetailRow(
                     icon: "doc.badge.gearshape",
                     label: "Workspace Check",
-                    value: missingWorkspaceFileCount == 0 ? "Identity files present" : "\(missingWorkspaceFileCount) missing",
+                    value: missingWorkspaceFileCount == 0
+                        ? String(localized: "Identity files present")
+                        : String(localized: "\(missingWorkspaceFileCount) missing"),
                     valueColor: missingWorkspaceFileCount == 0 ? .green : .orange
                 )
             }
@@ -454,7 +460,7 @@ struct AgentDetailView: View {
                     DetailRow(
                         icon: "sparkles",
                         label: "Skills",
-                        value: assignmentSummary(agentSkills, emptyLabel: "All skills"),
+                        value: assignmentSummary(agentSkills, emptyLabel: String(localized: "All skills")),
                         valueColor: agentSkills.usesAllowlist ? .orange : .green
                     )
                 }
@@ -462,7 +468,7 @@ struct AgentDetailView: View {
                     DetailRow(
                         icon: "shippingbox",
                         label: "MCP Scope",
-                        value: assignmentSummary(agentMCPServers, emptyLabel: "All servers"),
+                        value: assignmentSummary(agentMCPServers, emptyLabel: String(localized: "All servers")),
                         valueColor: agentMCPServers.usesAllowlist ? .orange : .green
                     )
                 }
@@ -505,7 +511,7 @@ struct AgentDetailView: View {
                     DetailRow(
                         icon: "person.crop.circle.badge.exclamationmark",
                         label: "Profile Check",
-                        value: "Unknown profile",
+                        value: String(localized: "Unknown profile"),
                         valueColor: .orange
                     )
                 }
@@ -543,14 +549,18 @@ struct AgentDetailView: View {
                     DetailRow(
                         icon: "checkmark.circle",
                         label: "Availability",
-                        value: resolvedCatalogModel.available ? "Available" : "Unavailable",
+                        value: resolvedCatalogModel.available
+                            ? String(localized: "Available")
+                            : String(localized: "Unavailable"),
                         valueColor: resolvedCatalogModel.available ? .green : .orange
                     )
                     if let providerMatchesResolvedModel {
                         DetailRow(
                             icon: "arrow.triangle.branch",
                             label: "Provider Match",
-                            value: providerMatchesResolvedModel ? "Match" : "Drift",
+                            value: providerMatchesResolvedModel
+                                ? String(localized: "Match")
+                                : String(localized: "Drift"),
                             valueColor: providerMatchesResolvedModel ? .green : .orange
                         )
                     }
@@ -568,7 +578,7 @@ struct AgentDetailView: View {
                     DetailRow(
                         icon: "questionmark.square.dashed",
                         label: "Catalog Match",
-                        value: "No match found",
+                        value: String(localized: "No match found"),
                         valueColor: .orange
                     )
                 }
@@ -581,7 +591,10 @@ struct AgentDetailView: View {
             } header: {
                 Text("Model Resolution")
             } footer: {
-                Text(modelDiagnostic?.detail ?? "This section resolves the agent's requested model through LibreFang's alias map and active model catalog.")
+                Text(
+                    modelDiagnostic?.detail
+                        ?? String(localized: "This section resolves the agent's requested model through LibreFang's alias map and active model catalog.")
+                )
             }
         }
     }
@@ -620,7 +633,11 @@ struct AgentDetailView: View {
                                 .font(.subheadline.weight(.medium))
 
                             if let match = fallbackCatalogModel(for: fallback) {
-                                Text(match.available ? "Catalog available" : "Catalog unavailable")
+                                Text(
+                                    match.available
+                                        ? String(localized: "Catalog available")
+                                        : String(localized: "Catalog unavailable")
+                                )
                                     .font(.caption)
                                     .foregroundStyle(match.available ? .green : .orange)
                             } else {
@@ -643,7 +660,7 @@ struct AgentDetailView: View {
                     DetailRow(
                         icon: "wrench.and.screwdriver",
                         label: "Manifest Tools",
-                        value: "\(agentDetailSnapshot.capabilities.tools.count) grants"
+                        value: String(localized: "\(agentDetailSnapshot.capabilities.tools.count) grants")
                     )
                 }
 
@@ -651,7 +668,7 @@ struct AgentDetailView: View {
                     DetailRow(
                         icon: "network",
                         label: "Network Grants",
-                        value: "\(agentDetailSnapshot.capabilities.network.count) hosts"
+                        value: String(localized: "\(agentDetailSnapshot.capabilities.network.count) hosts")
                     )
                 }
             } header: {
@@ -752,7 +769,7 @@ struct AgentDetailView: View {
     private func sessionSummarySection(_ snapshot: AgentSessionSnapshot) -> some View {
         Section("Session") {
             LabeledContent("Label") {
-                Text((snapshot.label?.isEmpty == false ? snapshot.label : nil) ?? "Current")
+                Text((snapshot.label?.isEmpty == false ? snapshot.label : nil) ?? String(localized: "Current"))
                     .foregroundStyle(.secondary)
             }
             LabeledContent("Messages") {
@@ -1074,7 +1091,12 @@ struct AgentDetailView: View {
             Button {
                 deps.agentWatchlistStore.toggle(agent)
             } label: {
-                Label(isWatched ? "Remove From Watchlist" : "Add To Watchlist", systemImage: isWatched ? "star.slash" : "star")
+                Label(
+                    isWatched
+                        ? String(localized: "Remove From Watchlist")
+                        : String(localized: "Add To Watchlist"),
+                    systemImage: isWatched ? "star.slash" : "star"
+                )
             }
 
             NavigationLink {
@@ -1168,15 +1190,15 @@ struct AgentDetailView: View {
 
     private var deliveryStatusSummary: String {
         if failedDeliveryCount > 0 {
-            return "\(failedDeliveryCount) failed"
+            return String(localized: "\(failedDeliveryCount) failed")
         }
         if unsettledDeliveryCount > 0 {
-            return "\(unsettledDeliveryCount) unsettled"
+            return String(localized: "\(unsettledDeliveryCount) unsettled")
         }
         if !agentDeliveries.isEmpty {
-            return "No recent failures"
+            return String(localized: "No recent failures")
         }
-        return "No recent sends"
+        return String(localized: "No recent sends")
     }
 
     private var deliveryStatusColor: Color {
@@ -1197,24 +1219,26 @@ struct AgentDetailView: View {
     private func capabilitySummary(for model: CatalogModel) -> String {
         var capabilities: [String] = []
         if model.supportsTools {
-            capabilities.append("tools")
+            capabilities.append(String(localized: "tools"))
         }
         if model.supportsVision {
-            capabilities.append("vision")
+            capabilities.append(String(localized: "vision"))
         }
         if model.supportsStreaming {
-            capabilities.append("streaming")
+            capabilities.append(String(localized: "streaming"))
         }
-        return capabilities.isEmpty ? "No extra capabilities advertised" : capabilities.joined(separator: " • ")
+        return capabilities.isEmpty
+            ? String(localized: "No extra capabilities advertised")
+            : capabilities.joined(separator: " • ")
     }
 
     private func contextSummary(for model: CatalogModel) -> String {
-        let contextWindow = model.contextWindow.map { "\($0.formatted()) ctx" }
-        let maxOutput = model.maxOutputTokens.map { "\($0.formatted()) out" }
+        let contextWindow = model.contextWindow.map { String(localized: "\($0.formatted()) ctx") }
+        let maxOutput = model.maxOutputTokens.map { String(localized: "\($0.formatted()) out") }
         return [contextWindow, maxOutput]
             .compactMap { $0 }
             .joined(separator: " • ")
-            .ifEmpty("Catalog did not publish token limits")
+            .ifEmpty(String(localized: "Catalog did not publish token limits"))
     }
 
     @MainActor
@@ -1332,18 +1356,20 @@ struct AgentDetailView: View {
     private func toolScopeSummary(_ filters: AgentToolFilters) -> String {
         switch (filters.toolAllowlist.isEmpty, filters.toolBlocklist.isEmpty) {
         case (true, true):
-            return "All tools"
+            return String(localized: "All tools")
         case (false, true):
-            return "\(filters.toolAllowlist.count) allowed"
+            return String(localized: "\(filters.toolAllowlist.count) allowed")
         case (true, false):
-            return "\(filters.toolBlocklist.count) blocked"
+            return String(localized: "\(filters.toolBlocklist.count) blocked")
         case (false, false):
-            return "\(filters.toolAllowlist.count) allow / \(filters.toolBlocklist.count) block"
+            return String(localized: "\(filters.toolAllowlist.count) allow / \(filters.toolBlocklist.count) block")
         }
     }
 
     private func assignmentSummary(_ assignment: AgentAssignmentScope, emptyLabel: String) -> String {
-        assignment.usesAllowlist ? "\(assignment.assigned.count) assigned" : emptyLabel
+        assignment.usesAllowlist
+            ? String(localized: "\(assignment.assigned.count) assigned")
+            : emptyLabel
     }
 
     private var approvalActionConfirmationPresented: Binding<Bool> {
@@ -1466,12 +1492,12 @@ struct AgentDetailView: View {
             showCreateSessionSheet = false
             newSessionLabel = ""
             operatorNotice = OperatorActionNotice(
-                title: "Fresh Session",
-                message: switchResponse.message ?? "Created and switched to the new session."
+                title: String(localized: "Fresh Session"),
+                message: switchResponse.message ?? String(localized: "Created and switched to the new session.")
             )
         } catch {
             operatorNotice = OperatorActionNotice(
-                title: "Fresh Session",
+                title: String(localized: "Fresh Session"),
                 message: error.localizedDescription
             )
         }
@@ -1513,12 +1539,15 @@ struct AgentDetailView: View {
             await loadSession()
             await loadSessions()
             operatorNotice = OperatorActionNotice(
-                title: "Session Label",
-                message: response.message ?? (trimmedLabel.isEmpty ? "Session label cleared." : "Session label updated.")
+                title: String(localized: "Session Label"),
+                message: response.message
+                    ?? (trimmedLabel.isEmpty
+                        ? String(localized: "Session label cleared.")
+                        : String(localized: "Session label updated."))
             )
         } catch {
             operatorNotice = OperatorActionNotice(
-                title: "Session Label",
+                title: String(localized: "Session Label"),
                 message: error.localizedDescription
             )
         }
@@ -1538,12 +1567,12 @@ struct AgentDetailView: View {
             await loadSession()
             await loadSessions()
             operatorNotice = OperatorActionNotice(
-                title: "Delete Session",
-                message: response.message ?? "Session deleted."
+                title: String(localized: "Delete Session"),
+                message: response.message ?? String(localized: "Session deleted.")
             )
         } catch {
             operatorNotice = OperatorActionNotice(
-                title: "Delete Session",
+                title: String(localized: "Delete Session"),
                 message: error.localizedDescription
             )
         }
@@ -1560,7 +1589,7 @@ private extension String {
 
 private struct DetailRow: View {
     let icon: String
-    let label: LocalizedStringKey
+    let label: LocalizedStringResource
     let value: String
     var valueColor: Color = .primary
 
@@ -1581,7 +1610,7 @@ private struct DetailRow: View {
 // MARK: - Budget Period Row
 
 private struct BudgetPeriodRow: View {
-    let label: LocalizedStringKey
+    let label: LocalizedStringResource
     let period: BudgetPeriod
 
     var body: some View {
@@ -1684,9 +1713,11 @@ private struct SessionPreviewRow: View {
             return tools.map(\.name).joined(separator: ", ")
         }
         if let images = message.images, !images.isEmpty {
-            return "\(images.count) image attachment\(images.count == 1 ? "" : "s")"
+            return images.count == 1
+                ? String(localized: "1 image attachment")
+                : String(localized: "\(images.count) image attachments")
         }
-        return "No message content"
+        return String(localized: "No message content")
     }
 }
 

@@ -1104,7 +1104,7 @@ private struct IncidentAgentRow: View {
                 Text(item.agent.name)
                     .font(.subheadline.weight(.medium))
                 Spacer()
-                Text(item.agent.state)
+                Text(item.agent.stateLabel)
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(item.agent.isRunning ? .green : .secondary)
             }
@@ -1155,11 +1155,11 @@ private struct IncidentIntegrationAgentRow: View {
     private var statusText: String {
         switch diagnostic.kind {
         case .unknownModel:
-            "Unknown"
+            String(localized: "Unknown")
         case .unavailableModel:
-            "Unavailable"
+            String(localized: "Unavailable")
         case .providerMismatch:
-            "Mismatch"
+            String(localized: "Mismatch")
         }
     }
 
@@ -1297,7 +1297,7 @@ private struct IncidentSessionRow: View {
                 Text(displayTitle)
                     .font(.subheadline.weight(.medium))
                 Spacer()
-                Text("\(item.session.messageCount) msgs")
+                Text(String(localized: "\(item.session.messageCount) msgs"))
                     .font(.caption2.monospacedDigit())
                     .foregroundStyle(item.severity >= 6 ? .red : .orange)
             }

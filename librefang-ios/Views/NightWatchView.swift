@@ -160,11 +160,11 @@ struct NightWatchView: View {
     private var focusSummary: String {
         switch focusStore.mode {
         case .balanced:
-            "Balanced triage keeps live alerts, approvals, watchlist issues, and session hotspots together."
+            String(localized: "Balanced triage keeps live alerts, approvals, watchlist issues, and session hotspots together.")
         case .criticalOnly:
-            "Critical-only mode suppresses lower-severity noise so the top screen stays quiet until something truly urgent lands."
+            String(localized: "Critical-only mode suppresses lower-severity noise so the top screen stays quiet until something truly urgent lands.")
         case .watchlistFirst:
-            "Watchlist-first mode promotes pinned agents above the rest of the queue."
+            String(localized: "Watchlist-first mode promotes pinned agents above the rest of the queue.")
         }
     }
 
@@ -462,7 +462,7 @@ struct NightWatchView: View {
         case .eventsSearch(let query):
             return watchedAgentIDs.contains(query) ? 85 : 0
         default:
-            return item.footnote.localizedCaseInsensitiveContains("Watched") ? 70 : 0
+            return 0
         }
     }
 

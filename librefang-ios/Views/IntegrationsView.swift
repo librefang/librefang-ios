@@ -10,11 +10,11 @@ private enum IntegrationsModelFilter: String, CaseIterable, Identifiable {
     var label: String {
         switch self {
         case .available:
-            "Available"
+            String(localized: "Available")
         case .all:
-            "All"
+            String(localized: "All")
         case .unavailable:
-            "Unavailable"
+            String(localized: "Unavailable")
         }
     }
 }
@@ -28,9 +28,9 @@ enum IntegrationsScope: String, CaseIterable, Identifiable {
     var label: String {
         switch self {
         case .attention:
-            "Attention"
+            String(localized: "Attention")
         case .all:
-            "All"
+            String(localized: "All")
         }
     }
 }
@@ -203,7 +203,11 @@ struct IntegrationsView: View {
                 }
                 .pickerStyle(.segmented)
             } footer: {
-                Text(scope == .attention ? "Attention mode shows only provider outages, channel field gaps, unavailable models, and agent drift." : "All mode shows the full provider, channel, model, and alias inventory.")
+                Text(
+                    scope == .attention
+                        ? String(localized: "Attention mode shows only provider outages, channel field gaps, unavailable models, and agent drift.")
+                        : String(localized: "All mode shows the full provider, channel, model, and alias inventory.")
+                )
             }
 
             if vm.catalogStatus != nil || !vm.catalogModels.isEmpty {
@@ -397,12 +401,12 @@ struct IntegrationsView: View {
             let result = try await deps.apiClient.testProvider(name: provider.id)
             providerProbeResults[provider.id] = result
             operatorNotice = OperatorActionNotice(
-                title: "\(provider.displayName) Test",
+                title: String(localized: "\(provider.displayName) Test"),
                 message: probeSummary(for: result)
             )
         } catch {
             operatorNotice = OperatorActionNotice(
-                title: "\(provider.displayName) Test",
+                title: String(localized: "\(provider.displayName) Test"),
                 message: error.localizedDescription
             )
         }
@@ -417,12 +421,12 @@ struct IntegrationsView: View {
             let result = try await deps.apiClient.testChannel(name: channel.name)
             channelProbeResults[channel.id] = result
             operatorNotice = OperatorActionNotice(
-                title: "\(channel.displayName) Test",
+                title: String(localized: "\(channel.displayName) Test"),
                 message: probeSummary(for: result)
             )
         } catch {
             operatorNotice = OperatorActionNotice(
-                title: "\(channel.displayName) Test",
+                title: String(localized: "\(channel.displayName) Test"),
                 message: error.localizedDescription
             )
         }
@@ -439,9 +443,13 @@ struct IntegrationsView: View {
             return note
         }
         if let latencyMs = result.latencyMs {
-            return result.isHealthy ? "Probe passed in \(latencyMs) ms." : "Probe failed after \(latencyMs) ms."
+            return result.isHealthy
+                ? String(localized: "Probe passed in \(latencyMs) ms.")
+                : String(localized: "Probe failed after \(latencyMs) ms.")
         }
-        return result.isHealthy ? "Probe passed." : "Probe failed."
+        return result.isHealthy
+            ? String(localized: "Probe passed.")
+            : String(localized: "Probe failed.")
     }
 }
 
@@ -532,15 +540,15 @@ private struct IntegrationCatalogStatusCard: View {
 
     private var statusText: String {
         if vm.hasEmptyModelCatalog {
-            return "Empty"
+            return String(localized: "Empty")
         }
         if vm.isCatalogSyncStale {
-            return "Stale"
+            return String(localized: "Stale")
         }
         if vm.catalogLastSyncDate == nil {
-            return "Unknown"
+            return String(localized: "Unknown")
         }
-        return "Fresh"
+        return String(localized: "Fresh")
     }
 
     private var statusColor: Color {
@@ -560,13 +568,13 @@ private struct IntegrationCatalogStatusCard: View {
         if let catalogLastSyncDate = vm.catalogLastSyncDate {
             let relative = RelativeDateTimeFormatter().localizedString(for: catalogLastSyncDate, relativeTo: Date())
             if vm.isCatalogSyncStale {
-                return "The model catalog last synced \(relative). Review provider hub freshness if newly added models are missing."
+                return String(localized: "The model catalog last synced \(relative). Review provider hub freshness if newly added models are missing.")
             }
-            return "The model catalog last synced \(relative). Current aliases and provider auth were enriched from that snapshot."
+            return String(localized: "The model catalog last synced \(relative). Current aliases and provider auth were enriched from that snapshot.")
         }
         return vm.catalogModels.isEmpty
-            ? "This server has not reported a catalog sync timestamp and currently exposes no catalog models."
-            : "This server did not report a catalog sync timestamp, but the current cached catalog is still available."
+            ? String(localized: "This server has not reported a catalog sync timestamp and currently exposes no catalog models.")
+            : String(localized: "This server did not report a catalog sync timestamp, but the current cached catalog is still available.")
     }
 
     private var relativeSyncText: String? {
@@ -619,7 +627,7 @@ private struct IntegrationProviderRow: View {
             HStack(spacing: 12) {
                 Label("\(provider.modelCount)", systemImage: "square.stack.3d.up")
                 if provider.keyRequired {
-                    Label(provider.apiKeyEnv ?? "API key", systemImage: "key.horizontal")
+                    Label(provider.apiKeyEnv ?? String(localized: "API key"), systemImage: "key.horizontal")
                 }
                 if let latencyMs = provider.latencyMs, provider.isLocal == true {
                     Label("\(latencyMs) ms", systemImage: "speedometer")
@@ -649,14 +657,16 @@ private struct IntegrationProviderRow: View {
     private var statusText: String {
         if provider.isLocal == true {
             if provider.reachable == true {
-                return "Reachable"
+                return String(localized: "Reachable")
             }
             if provider.reachable == false {
-                return "Unavailable"
+                return String(localized: "Unavailable")
             }
-            return "Local"
+            return String(localized: "Local")
         }
-        return provider.isConfigured ? "Configured" : "Missing"
+        return provider.isConfigured
+            ? String(localized: "Configured")
+            : String(localized: "Missing")
     }
 
     private var statusColor: Color {
@@ -677,9 +687,13 @@ private struct IntegrationProviderRow: View {
             return note
         }
         if let latencyMs = result.latencyMs {
-            return result.isHealthy ? "Last manual probe: \(latencyMs) ms" : "Last manual probe failed in \(latencyMs) ms"
+            return result.isHealthy
+                ? String(localized: "Last manual probe: \(latencyMs) ms")
+                : String(localized: "Last manual probe failed in \(latencyMs) ms")
         }
-        return result.isHealthy ? "Last manual probe passed." : "Last manual probe failed."
+        return result.isHealthy
+            ? String(localized: "Last manual probe passed.")
+            : String(localized: "Last manual probe failed.")
     }
 }
 
@@ -775,9 +789,11 @@ private struct IntegrationChannelRow: View {
 
     private var statusText: String {
         if channel.configured {
-            return channel.hasToken ? "Ready" : "Needs Token"
+            return channel.hasToken
+                ? String(localized: "Ready")
+                : String(localized: "Needs Token")
         }
-        return "Not Set"
+        return String(localized: "Not Set")
     }
 
     private var statusColor: Color {
@@ -794,15 +810,19 @@ private struct IntegrationChannelRow: View {
         if let error = result.error, !error.isEmpty {
             return error
         }
-        return result.isHealthy ? "Credential probe passed." : "Credential probe failed."
+        return result.isHealthy
+            ? String(localized: "Credential probe passed.")
+            : String(localized: "Credential probe failed.")
     }
 
     private var missingFieldSummary: String {
         let preview = missingRequiredFields.prefix(3).map { field in
             field.envVar ?? field.label
         }
-        let suffix = missingRequiredFields.count > preview.count ? " +\(missingRequiredFields.count - preview.count) more" : ""
-        return "Missing required fields: \(preview.joined(separator: " • "))\(suffix)"
+        let suffix = missingRequiredFields.count > preview.count
+            ? String(localized: " +\(missingRequiredFields.count - preview.count) more")
+            : ""
+        return String(localized: "Missing required fields: \(preview.joined(separator: " • "))\(suffix)")
     }
 }
 
@@ -820,7 +840,12 @@ private struct IntegrationModelRow: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                IntegrationStatusChip(text: model.available ? "Available" : "Unavailable", color: model.available ? .green : .orange)
+                IntegrationStatusChip(
+                    text: model.available
+                        ? String(localized: "Available")
+                        : String(localized: "Unavailable"),
+                    color: model.available ? .green : .orange
+                )
             }
 
             HStack(spacing: 12) {
@@ -837,9 +862,9 @@ private struct IntegrationModelRow: View {
             .foregroundStyle(.secondary)
 
             HStack(spacing: 8) {
-                capabilityTag("Tools", isEnabled: model.supportsTools)
-                capabilityTag("Vision", isEnabled: model.supportsVision)
-                capabilityTag("Streaming", isEnabled: model.supportsStreaming)
+                capabilityTag(String(localized: "Tools"), isEnabled: model.supportsTools)
+                capabilityTag(String(localized: "Vision"), isEnabled: model.supportsVision)
+                capabilityTag(String(localized: "Streaming"), isEnabled: model.supportsStreaming)
             }
 
             if model.inputCostPerM != nil || model.outputCostPerM != nil {
@@ -852,9 +877,13 @@ private struct IntegrationModelRow: View {
     }
 
     private var costLine: String {
-        let input = model.inputCostPerM.map { String(format: "$%.2f/M in", $0) } ?? "n/a in"
-        let output = model.outputCostPerM.map { String(format: "$%.2f/M out", $0) } ?? "n/a out"
-        return "\(input) · \(output)"
+        let input = model.inputCostPerM.map {
+            String(localized: "$\($0.formatted(.number.precision(.fractionLength(2))))/M in")
+        } ?? String(localized: "n/a in")
+        let output = model.outputCostPerM.map {
+            String(localized: "$\($0.formatted(.number.precision(.fractionLength(2))))/M out")
+        } ?? String(localized: "n/a out")
+        return String(localized: "\(input) · \(output)")
     }
 
     private func capabilityTag(_ title: String, isEnabled: Bool) -> some View {
@@ -923,11 +952,11 @@ private struct IntegrationAgentModelRow: View {
     private var statusText: String {
         switch diagnostic.kind {
         case .unknownModel:
-            "Unknown"
+            String(localized: "Unknown")
         case .unavailableModel:
-            "Unavailable"
+            String(localized: "Unavailable")
         case .providerMismatch:
-            "Mismatch"
+            String(localized: "Mismatch")
         }
     }
 

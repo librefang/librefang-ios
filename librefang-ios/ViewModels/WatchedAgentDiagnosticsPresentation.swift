@@ -74,3 +74,58 @@ func watchedAgentDiagnosticDigestSummary(
         ? String(localized: "\(issueAgents.count) watched agents have operator issues")
         : parts.joined(separator: " · ")
 }
+
+func watchedAgentAttentionItemsSorted(
+    _ items: [AgentAttentionItem],
+    summaries: [String: WatchedAgentDiagnosticsSummary]
+) -> [AgentAttentionItem] {
+    items.sorted { lhs, rhs in
+        let lhsDiagnosticRank = watchedAgentDiagnosticRank(summary: summaries[lhs.agent.id])
+        let rhsDiagnosticRank = watchedAgentDiagnosticRank(summary: summaries[rhs.agent.id])
+
+        if lhsDiagnosticRank != rhsDiagnosticRank {
+            return lhsDiagnosticRank > rhsDiagnosticRank
+        }
+        if lhs.severity != rhs.severity {
+            return lhs.severity > rhs.severity
+        }
+        if lhs.agent.isRunning != rhs.agent.isRunning {
+            return lhs.agent.isRunning && !rhs.agent.isRunning
+        }
+        return lhs.agent.name.localizedCompare(rhs.agent.name) == .orderedAscending
+    }
+}
+
+func watchedAgentDiagnosticHeadline(summary: WatchedAgentDiagnosticsSummary) -> String {
+    if summary.failedDeliveries > 0 {
+        return String(localized: "Delivery failures")
+    }
+    if !summary.unavailableFallbackModels.isEmpty {
+        return String(localized: "Fallback drift")
+    }
+    if !summary.missingIdentityFiles.isEmpty {
+        return String(localized: "Identity files missing")
+    }
+    if summary.unsettledDeliveries > 0 {
+        return String(localized: "Unsettled deliveries")
+    }
+    return String(localized: "Operator issue")
+}
+
+private func watchedAgentDiagnosticRank(summary: WatchedAgentDiagnosticsSummary?) -> Int {
+    guard let summary, summary.hasIssues else { return 0 }
+
+    if summary.failedDeliveries > 0 {
+        return 400 + summary.failedDeliveries
+    }
+    if !summary.unavailableFallbackModels.isEmpty {
+        return 300 + summary.unavailableFallbackModels.count
+    }
+    if !summary.missingIdentityFiles.isEmpty {
+        return 200 + summary.missingIdentityFiles.count
+    }
+    if summary.unsettledDeliveries > 0 {
+        return 100 + summary.unsettledDeliveries
+    }
+    return summary.issueCount
+}
