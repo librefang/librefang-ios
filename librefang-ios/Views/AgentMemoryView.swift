@@ -92,6 +92,14 @@ struct AgentMemoryView: View {
                 }
             } else {
                 Section("Memory") {
+                    AgentMemoryInventoryDeck(
+                        entries: filteredEntries,
+                        totalEntries: entries.count,
+                        searchText: searchText,
+                        exportReady: exportSnapshot != nil,
+                        isExporting: isExporting
+                    )
+
                     ForEach(filteredEntries) { entry in
                         AgentMemoryRow(entry: entry, isBusy: actionInFlightKey == entry.key)
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -665,6 +673,107 @@ private struct AgentMemoryRow: View {
             if isBusy {
                 ProgressView()
                     .controlSize(.small)
+            }
+        }
+    }
+}
+
+private struct AgentMemoryInventoryDeck: View {
+    let entries: [AgentMemoryEntry]
+    let totalEntries: Int
+    let searchText: String
+    let exportReady: Bool
+    let isExporting: Bool
+
+    private var hasActiveSearch: Bool {
+        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var structuredCount: Int {
+        entries.filter(\.isStructured).count
+    }
+
+    private var scalarCount: Int {
+        entries.count - structuredCount
+    }
+
+    private var longestKey: String? {
+        entries.max { $0.key.count < $1.key.count }?.key
+    }
+
+    private var summaryCharacterCount: Int {
+        entries.reduce(0) { $0 + $1.summary.count }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: hasActiveSearch
+                    ? String(localized: "The filtered memory slice stays compact before the editable key list.")
+                    : String(localized: "The active memory slice stays compact before the editable key list."),
+                detail: hasActiveSearch
+                    ? (entries.count == 1
+                        ? String(localized: "1 memory key matches the current search.")
+                        : String(localized: "\(entries.count) memory keys match the current search."))
+                    : String(localized: "Use the deck to gauge structured memory, current export state, and the longest key before opening individual memory rows."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: entries.count == totalEntries
+                            ? (entries.count == 1 ? String(localized: "1 visible key") : String(localized: "\(entries.count) visible keys"))
+                            : String(localized: "\(entries.count) of \(totalEntries) visible"),
+                        tone: .positive
+                    )
+                    if structuredCount > 0 {
+                        PresentationToneBadge(
+                            text: structuredCount == 1 ? String(localized: "1 structured") : String(localized: "\(structuredCount) structured"),
+                            tone: .warning
+                        )
+                    }
+                    if scalarCount > 0 {
+                        PresentationToneBadge(
+                            text: scalarCount == 1 ? String(localized: "1 scalar") : String(localized: "\(scalarCount) scalar"),
+                            tone: .neutral
+                        )
+                    }
+                    if summaryCharacterCount > 0 {
+                        PresentationToneBadge(
+                            text: summaryCharacterCount == 1 ? String(localized: "1 summary char") : String(localized: "\(summaryCharacterCount) summary chars"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Memory Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep export state, visible structure mix, and the longest key visible while editing or triaging durable memory."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if isExporting {
+                    ProgressView()
+                        .controlSize(.small)
+                } else if exportReady {
+                    PresentationToneBadge(text: String(localized: "Export Ready"), tone: .positive)
+                }
+            } facts: {
+                Label(
+                    structuredCount == 1 ? String(localized: "1 structured key") : String(localized: "\(structuredCount) structured keys"),
+                    systemImage: "square.brackets"
+                )
+                Label(
+                    scalarCount == 1 ? String(localized: "1 scalar key") : String(localized: "\(scalarCount) scalar keys"),
+                    systemImage: "text.cursor"
+                )
+                if let longestKey {
+                    Label(longestKey, systemImage: "arrow.left.and.right.text.vertical")
+                }
             }
         }
     }

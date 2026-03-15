@@ -272,6 +272,13 @@ struct AgentDeliveriesView: View {
                 }
             } else {
                 Section("Receipts") {
+                    DeliveryReceiptsInventoryDeck(
+                        receipts: filteredReceipts,
+                        totalReceipts: receipts.count,
+                        scope: scope,
+                        searchText: searchText
+                    )
+
                     ForEach(filteredReceipts) { receipt in
                         DeliveryReceiptRow(receipt: receipt)
                     }
@@ -373,6 +380,117 @@ enum DeliveryScope: CaseIterable {
         case .unsettled:
             return .warning
         }
+    }
+}
+
+private struct DeliveryReceiptsInventoryDeck: View {
+    let receipts: [DeliveryReceipt]
+    let totalReceipts: Int
+    let scope: DeliveryScope
+    let searchText: String
+
+    private var hasActiveSearch: Bool {
+        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var failedCount: Int {
+        receipts.filter { $0.status == .failed }.count
+    }
+
+    private var unsettledCount: Int {
+        receipts.filter { $0.status == .sent || $0.status == .bestEffort }.count
+    }
+
+    private var channelCount: Int {
+        Set(receipts.map(\.channel)).count
+    }
+
+    private var recipientCount: Int {
+        Set(receipts.map(\.recipient)).count
+    }
+
+    private var dominantChannel: String? {
+        receipts
+            .reduce(into: [String: Int]()) { counts, receipt in
+                counts[receipt.channel, default: 0] += 1
+            }
+            .max { $0.value < $1.value }?
+            .key
+    }
+
+    private var latestReceiptLabel: String? {
+        guard let latest = receipts.first else { return nil }
+        guard let date = latest.timestamp.agentSessionISO8601Date else { return latest.timestamp }
+        return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: hasActiveSearch
+                    ? String(localized: "The filtered delivery slice stays compact before the full receipt list.")
+                    : String(localized: "The active delivery slice stays compact before the full receipt list."),
+                detail: hasActiveSearch
+                    ? (receipts.count == 1
+                        ? String(localized: "1 receipt matches the current delivery search.")
+                        : String(localized: "\(receipts.count) receipts match the current delivery search."))
+                    : String(localized: "Use the deck to gauge channel spread, recent failures, and unsettled sends before opening each receipt row."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: receipts.count == totalReceipts
+                            ? (receipts.count == 1 ? String(localized: "1 visible receipt") : String(localized: "\(receipts.count) visible receipts"))
+                            : String(localized: "\(receipts.count) of \(totalReceipts) visible"),
+                        tone: .positive
+                    )
+                    if failedCount > 0 {
+                        PresentationToneBadge(
+                            text: failedCount == 1 ? String(localized: "1 failed receipt") : String(localized: "\(failedCount) failed receipts"),
+                            tone: .critical
+                        )
+                    }
+                    if unsettledCount > 0 {
+                        PresentationToneBadge(
+                            text: unsettledCount == 1 ? String(localized: "1 unsettled receipt") : String(localized: "\(unsettledCount) unsettled receipts"),
+                            tone: .warning
+                        )
+                    }
+                    PresentationToneBadge(
+                        text: channelCount == 1 ? String(localized: "1 channel") : String(localized: "\(channelCount) channels"),
+                        tone: .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Receipt Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the active scope, channel spread, dominant delivery lane, and latest receipt timing visible while scanning delivery history."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: scope.label, tone: scope.tone)
+            } facts: {
+                Label(
+                    recipientCount == 1 ? String(localized: "1 recipient") : String(localized: "\(recipientCount) recipients"),
+                    systemImage: "person.2"
+                )
+                if let dominantChannel {
+                    Label(localizedChannelLabel(for: dominantChannel), systemImage: "paperplane")
+                }
+                if let latestReceiptLabel {
+                    Label(latestReceiptLabel, systemImage: "clock")
+                }
+            }
+        }
+    }
+
+    private func localizedChannelLabel(for channel: String) -> String {
+        receipts.first(where: { $0.channel == channel })?.localizedChannelLabel ?? channel
     }
 }
 

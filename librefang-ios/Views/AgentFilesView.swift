@@ -224,6 +224,13 @@ struct AgentFilesView: View {
                 }
             } else {
                 Section("Files") {
+                    AgentFilesInventoryDeck(
+                        files: filteredFiles,
+                        totalFiles: files.count,
+                        scope: scope,
+                        searchText: searchText
+                    )
+
                     ForEach(filteredFiles) { file in
                         if file.exists {
                             NavigationLink {
@@ -332,6 +339,98 @@ enum AgentFileScope: CaseIterable {
             return .warning
         case .present:
             return .positive
+        }
+    }
+}
+
+private struct AgentFilesInventoryDeck: View {
+    let files: [AgentWorkspaceFileSummary]
+    let totalFiles: Int
+    let scope: AgentFileScope
+    let searchText: String
+
+    private var hasActiveSearch: Bool {
+        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var presentFiles: [AgentWorkspaceFileSummary] {
+        files.filter(\.exists)
+    }
+
+    private var missingCount: Int {
+        files.count - presentFiles.count
+    }
+
+    private var totalVisibleBytes: Int {
+        presentFiles.reduce(0) { $0 + $1.sizeBytes }
+    }
+
+    private var largestVisibleFile: AgentWorkspaceFileSummary? {
+        presentFiles.max { $0.sizeBytes < $1.sizeBytes }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: hasActiveSearch
+                    ? String(localized: "The filtered workspace identity slice stays compact before the full file list.")
+                    : String(localized: "The active workspace identity slice stays compact before the full file list."),
+                detail: hasActiveSearch
+                    ? (files.count == 1
+                        ? String(localized: "1 file matches the current workspace search.")
+                        : String(localized: "\(files.count) files match the current workspace search."))
+                    : String(localized: "Use the deck to gauge missing files, visible footprint, and the largest present file before opening each workspace row."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: files.count == totalFiles
+                            ? (files.count == 1 ? String(localized: "1 visible file") : String(localized: "\(files.count) visible files"))
+                            : String(localized: "\(files.count) of \(totalFiles) visible"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: presentFiles.count == 1 ? String(localized: "1 present") : String(localized: "\(presentFiles.count) present"),
+                        tone: presentFiles.isEmpty ? .neutral : .positive
+                    )
+                    if missingCount > 0 {
+                        PresentationToneBadge(
+                            text: missingCount == 1 ? String(localized: "1 missing") : String(localized: "\(missingCount) missing"),
+                            tone: .warning
+                        )
+                    }
+                    if totalVisibleBytes > 0 {
+                        PresentationToneBadge(
+                            text: ByteCountFormatter.string(fromByteCount: Int64(totalVisibleBytes), countStyle: .file),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workspace Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the active scope, visible file footprint, and the heaviest identity file visible while scanning workspace identity."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: scope.label, tone: scope.tone)
+            } facts: {
+                if let largestVisibleFile {
+                    Label(largestVisibleFile.name, systemImage: "doc.text")
+                }
+                if totalVisibleBytes > 0 {
+                    Label(ByteCountFormatter.string(fromByteCount: Int64(totalVisibleBytes), countStyle: .file), systemImage: "externaldrive")
+                }
+                Label(
+                    missingCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingCount) missing files"),
+                    systemImage: "doc.badge.gearshape"
+                )
+            }
         }
     }
 }
