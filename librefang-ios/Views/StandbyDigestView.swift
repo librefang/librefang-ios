@@ -352,18 +352,16 @@ struct StandbyDigestView: View {
             .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         } else {
             VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Label {
-                        Text(String(localized: "At a Glance"))
-                    } icon: {
-                        Image(systemName: "rectangle.inset.filled")
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .firstTextBaseline, spacing: 12) {
+                        glanceTitle
+                        Spacer(minLength: 8)
+                        glanceCount
                     }
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(.white)
-                    Spacer()
-                    Text(primaryItems.count == 1 ? String(localized: "1 card") : String(localized: "\(primaryItems.count) cards"))
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.74))
+                    VStack(alignment: .leading, spacing: 6) {
+                        glanceTitle
+                        glanceCount
+                    }
                 }
 
                 ForEach(primaryItems) { item in
@@ -379,33 +377,49 @@ struct StandbyDigestView: View {
         }
     }
 
+    private var glanceTitle: some View {
+        Label {
+            Text(String(localized: "At a Glance"))
+        } icon: {
+            Image(systemName: "rectangle.inset.filled")
+        }
+        .font(.headline.weight(.semibold))
+        .foregroundStyle(.white)
+    }
+
+    private var glanceCount: some View {
+        Text(primaryItems.count == 1 ? String(localized: "1 card") : String(localized: "\(primaryItems.count) cards"))
+            .font(.caption.weight(.medium))
+            .foregroundStyle(.white.opacity(0.74))
+    }
+
     private var watchlistCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Label {
-                    Text(String(localized: "Pinned Watchlist"))
-                } icon: {
-                    Image(systemName: "star.fill")
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    watchlistTitle
+                    Spacer(minLength: 8)
+                    watchlistCount
                 }
-                    .font(.headline.weight(.semibold))
-                    .foregroundStyle(.white)
-                Spacer()
-                Text(watchItems.count == 1 ? String(localized: "1 agent") : String(localized: "\(watchItems.count) agents"))
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.white.opacity(0.74))
+                VStack(alignment: .leading, spacing: 6) {
+                    watchlistTitle
+                    watchlistCount
+                }
             }
 
             ForEach(watchItems) { item in
                 NavigationLink(value: OnCallRoute.agent(item.agent.id)) {
                     VStack(alignment: .leading, spacing: 5) {
-                        HStack {
-                            Text(item.agent.name)
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(.white)
-                            Spacer()
-                            Text(item.agent.isRunning ? String(localized: "Running") : String(localized: "Idle"))
-                                .font(.caption2.weight(.medium))
-                                .foregroundStyle(.white.opacity(0.72))
+                        ViewThatFits(in: .horizontal) {
+                            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                                watchItemName(item)
+                                Spacer(minLength: 8)
+                                watchItemState(item)
+                            }
+                            VStack(alignment: .leading, spacing: 4) {
+                                watchItemName(item)
+                                watchItemState(item)
+                            }
                         }
 
                         Text(item.reasons.prefix(2).joined(separator: " · "))
@@ -424,6 +438,35 @@ struct StandbyDigestView: View {
         .padding(18)
         .background(.white.opacity(0.09))
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+    }
+
+    private var watchlistTitle: some View {
+        Label {
+            Text(String(localized: "Pinned Watchlist"))
+        } icon: {
+            Image(systemName: "star.fill")
+        }
+        .font(.headline.weight(.semibold))
+        .foregroundStyle(.white)
+    }
+
+    private var watchlistCount: some View {
+        Text(watchItems.count == 1 ? String(localized: "1 agent") : String(localized: "\(watchItems.count) agents"))
+            .font(.caption.weight(.medium))
+            .foregroundStyle(.white.opacity(0.74))
+    }
+
+    private func watchItemName(_ item: AgentAttentionItem) -> some View {
+        Text(item.agent.name)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.white)
+            .lineLimit(2)
+    }
+
+    private func watchItemState(_ item: AgentAttentionItem) -> some View {
+        Text(item.agent.isRunning ? String(localized: "Running") : String(localized: "Idle"))
+            .font(.caption2.weight(.medium))
+            .foregroundStyle(.white.opacity(0.72))
     }
 
     private var actionCard: some View {
