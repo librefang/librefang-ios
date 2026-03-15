@@ -1,5 +1,18 @@
 import SwiftUI
 
+private enum IncidentSectionAnchor: Hashable {
+    case operatorState
+    case shiftCoverage
+    case automation
+    case integrations
+    case activeAlerts
+    case approvals
+    case agents
+    case watchedDiagnostics
+    case sessions
+    case criticalEvents
+}
+
 struct IncidentsView: View {
     @Environment(\.dependencies) private var deps
     @State private var pendingApprovalAction: ApprovalDecisionAction?
@@ -137,21 +150,23 @@ struct IncidentsView: View {
     }
 
     var body: some View {
-        List {
-            incidentSections
-        }
-        .navigationTitle("Incidents")
-        .refreshable {
-            await vm.refresh()
-        }
-        .overlay {
-            if vm.isLoading && vm.lastRefresh == nil {
-                ProgressView("Loading incidents...")
+        ScrollViewReader { proxy in
+            List {
+                incidentSections(proxy)
             }
-        }
-        .task {
-            if vm.lastRefresh == nil {
+            .navigationTitle("Incidents")
+            .refreshable {
                 await vm.refresh()
+            }
+            .overlay {
+                if vm.isLoading && vm.lastRefresh == nil {
+                    ProgressView("Loading incidents...")
+                }
+            }
+            .task {
+                if vm.lastRefresh == nil {
+                    await vm.refresh()
+                }
             }
         }
         .confirmationDialog(
@@ -177,10 +192,11 @@ struct IncidentsView: View {
     }
 
     @ViewBuilder
-    private var incidentSections: some View {
+    private func incidentSections(_ proxy: ScrollViewProxy) -> some View {
         scoreboardSection
         snapshotSection
         quickLinksSection
+        queueFocusSection(proxy)
 
         if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
             operatorStateSection
@@ -289,6 +305,172 @@ struct IncidentsView: View {
         }
     }
 
+    private func queueFocusSection(_ proxy: ScrollViewProxy) -> some View {
+        Section {
+            if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
+                Button {
+                    jump(proxy, to: .operatorState)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Operator State"),
+                        detail: String(localized: "Jump to acknowledgement, muted alerts, and local incident state controls."),
+                        systemImage: "person.crop.circle.badge.checkmark",
+                        tone: isCurrentSnapshotAcknowledged ? .neutral : .warning
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if handoffIssueCount > 0 {
+                Button {
+                    jump(proxy, to: .shiftCoverage)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Shift Coverage"),
+                        detail: String(localized: "Jump to handoff readiness, check-in pressure, and follow-up coverage."),
+                        systemImage: "text.badge.plus",
+                        tone: handoffReadiness.state.tone,
+                        badgeText: handoffIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(handoffIssueCount) issues"),
+                        badgeTone: handoffReadiness.state.tone
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if automationIssueCount > 0 {
+                Button {
+                    jump(proxy, to: .automation)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Automation Pressure"),
+                        detail: String(localized: "Jump to workflow, trigger, and cron incidents already promoted into this queue."),
+                        systemImage: "flowchart",
+                        tone: .warning,
+                        badgeText: automationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(automationIssueCount) issues"),
+                        badgeTone: .warning
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if integrationIssueCount > 0 {
+                Button {
+                    jump(proxy, to: .integrations)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Integration Pressure"),
+                        detail: String(localized: "Jump to provider, channel, and model-catalog incidents surfaced in the current queue."),
+                        systemImage: "square.3.layers.3d.down.forward",
+                        tone: .critical,
+                        badgeText: integrationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(integrationIssueCount) issues"),
+                        badgeTone: .critical
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !visibleAlerts.isEmpty {
+                Button {
+                    jump(proxy, to: .activeAlerts)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Active Alerts"),
+                        detail: String(localized: "Jump to the live alert queue without passing through every grouped bucket."),
+                        systemImage: "bell.badge",
+                        tone: criticalAlertCount > 0 ? .critical : .warning,
+                        badgeText: visibleAlerts.count == 1 ? String(localized: "1 live") : String(localized: "\(visibleAlerts.count) live"),
+                        badgeTone: criticalAlertCount > 0 ? .critical : .warning
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !vm.approvals.isEmpty {
+                Button {
+                    jump(proxy, to: .approvals)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Pending Approvals"),
+                        detail: String(localized: "Jump to approvals already promoted into the incident queue."),
+                        systemImage: "checkmark.shield",
+                        tone: .critical,
+                        badgeText: vm.pendingApprovalCount == 1 ? String(localized: "1 waiting") : String(localized: "\(vm.pendingApprovalCount) waiting"),
+                        badgeTone: .critical
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !vm.attentionAgents.isEmpty {
+                Button {
+                    jump(proxy, to: .agents)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Agent Attention"),
+                        detail: String(localized: "Jump to agents with runtime, approval, auth, or delivery pressure."),
+                        systemImage: "cpu",
+                        tone: .warning,
+                        badgeText: vm.attentionAgents.count == 1 ? String(localized: "1 agent") : String(localized: "\(vm.attentionAgents.count) agents"),
+                        badgeTone: .warning
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !watchedDiagnosticRows.isEmpty {
+                Button {
+                    jump(proxy, to: .watchedDiagnostics)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Watched Diagnostics"),
+                        detail: String(localized: "Jump to watched-agent delivery and workspace problems surfaced on this phone."),
+                        systemImage: "star.fill",
+                        tone: .caution,
+                        badgeText: watchedDiagnosticRows.count == 1 ? String(localized: "1 watched") : String(localized: "\(watchedDiagnosticRows.count) watched"),
+                        badgeTone: .caution
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !vm.sessionAttentionItems.isEmpty {
+                Button {
+                    jump(proxy, to: .sessions)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Session Hotspots"),
+                        detail: String(localized: "Jump to duplicated, unlabeled, or high-volume sessions already promoted into the queue."),
+                        systemImage: "rectangle.stack",
+                        tone: .warning,
+                        badgeText: vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"),
+                        badgeTone: .warning
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !vm.criticalAuditEntries.isEmpty {
+                Button {
+                    jump(proxy, to: .criticalEvents)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Critical Events"),
+                        detail: String(localized: "Jump to the critical audit trail already attached to this incident queue."),
+                        systemImage: "list.bullet.rectangle.portrait",
+                        tone: .critical,
+                        badgeText: vm.criticalAuditEntries.count == 1 ? String(localized: "1 event") : String(localized: "\(vm.criticalAuditEntries.count) events"),
+                        badgeTone: .critical
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        } header: {
+            Text("Queue Sections")
+        } footer: {
+            Text("These jump targets move around the long incident queue itself, not just out to dedicated monitors.")
+        }
+    }
+
     private var operatorStateSection: some View {
         Section("Operator State") {
             IncidentOperatorCard(
@@ -301,6 +483,7 @@ struct IncidentsView: View {
                 onUnmuteAll: { incidentStateStore.unmuteAll() }
             )
         }
+        .id(IncidentSectionAnchor.operatorState)
     }
 
     private var shiftCoverageSection: some View {
@@ -326,6 +509,7 @@ struct IncidentsView: View {
         } footer: {
             Text("These handoff signals are local to this iPhone and help keep operator follow-through visible inside the incident flow.")
         }
+        .id(IncidentSectionAnchor.shiftCoverage)
     }
 
     private var automationSection: some View {
@@ -340,6 +524,7 @@ struct IncidentsView: View {
         } footer: {
             Text("Workflow failures, exhausted triggers, and stalled cron jobs now flow into the mobile incident queue.")
         }
+        .id(IncidentSectionAnchor.automation)
     }
 
     private var integrationsSection: some View {
@@ -392,6 +577,7 @@ struct IncidentsView: View {
         } footer: {
             Text("Local provider reachability, delivery channel secrets, and model catalog drift now surface as first-class mobile incidents.")
         }
+        .id(IncidentSectionAnchor.integrations)
     }
 
     private var activeAlertsSection: some View {
@@ -406,6 +592,7 @@ struct IncidentsView: View {
         } footer: {
             Text("Muted alerts stay out of the overview attention card and the global critical banner on this iPhone.")
         }
+        .id(IncidentSectionAnchor.activeAlerts)
     }
 
     private var mutedAlertsSection: some View {
@@ -443,6 +630,7 @@ struct IncidentsView: View {
         } footer: {
             Text("Approvals block sensitive actions until an operator responds. Mobile can now resolve them directly after confirmation.")
         }
+        .id(IncidentSectionAnchor.approvals)
     }
 
     private var agentsSection: some View {
@@ -459,6 +647,7 @@ struct IncidentsView: View {
         } footer: {
             Text("\(vm.issueAgentCount) agents currently need attention")
         }
+        .id(IncidentSectionAnchor.agents)
     }
 
     private var watchedDiagnosticsSection: some View {
@@ -475,6 +664,7 @@ struct IncidentsView: View {
         } footer: {
             Text("Pinned agents can surface operator issues here even when they are otherwise healthy enough to stay out of the general attention list.")
         }
+        .id(IncidentSectionAnchor.watchedDiagnostics)
     }
 
     private var sessionsSection: some View {
@@ -501,6 +691,7 @@ struct IncidentsView: View {
         } footer: {
             Text("\(vm.sessionAttentionCount) sessions need review")
         }
+        .id(IncidentSectionAnchor.sessions)
     }
 
     private var criticalEventsSection: some View {
@@ -530,6 +721,13 @@ struct IncidentsView: View {
             Text("Critical Events")
         } footer: {
             Text("\(vm.recentCriticalAuditCount) recent critical audit events already surfaced on mobile")
+        }
+        .id(IncidentSectionAnchor.criticalEvents)
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: IncidentSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
         }
     }
 

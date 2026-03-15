@@ -1,5 +1,16 @@
 import SwiftUI
 
+private enum RuntimeSectionAnchor: Hashable {
+    case system
+    case diagnostics
+    case integrations
+    case automation
+    case sessions
+    case approvals
+    case audit
+    case security
+}
+
 struct RuntimeView: View {
     @Environment(\.dependencies) private var deps
     @State private var pendingApprovalAction: ApprovalDecisionAction?
@@ -59,42 +70,45 @@ struct RuntimeView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                errorSection
-                scoreboardSection
-                runtimeSnapshotSection
-                systemSection
-                diagnosticsSection
-                integrationsSection
-                usageSection
-                automationSection
-                sessionsSection
-                providersSection
-                toolingSection
-                channelsSection
-                a2aSection
-                commsSection
-                ofpNetworkSection
-                handsSection
-                approvalsSection
-                auditSection
-                securitySection
-            }
-            .navigationTitle("Runtime")
-            .toolbar {
-                runtimeToolbar
-            }
-            .refreshable {
-                await vm.refresh()
-            }
-            .overlay {
-                if vm.isLoading && vm.status == nil && vm.providers.isEmpty && vm.channels.isEmpty {
-                    ProgressView("Loading runtime...")
+            ScrollViewReader { proxy in
+                List {
+                    errorSection
+                    scoreboardSection
+                    runtimeSnapshotSection
+                    runtimeFocusSection(proxy)
+                    systemSection
+                    diagnosticsSection
+                    integrationsSection
+                    usageSection
+                    automationSection
+                    sessionsSection
+                    providersSection
+                    toolingSection
+                    channelsSection
+                    a2aSection
+                    commsSection
+                    ofpNetworkSection
+                    handsSection
+                    approvalsSection
+                    auditSection
+                    securitySection
                 }
-            }
-            .task {
-                if vm.status == nil && vm.providers.isEmpty {
+                .navigationTitle("Runtime")
+                .toolbar {
+                    runtimeToolbar
+                }
+                .refreshable {
                     await vm.refresh()
+                }
+                .overlay {
+                    if vm.isLoading && vm.status == nil && vm.providers.isEmpty && vm.channels.isEmpty {
+                        ProgressView("Loading runtime...")
+                    }
+                }
+                .task {
+                    if vm.status == nil && vm.providers.isEmpty {
+                        await vm.refresh()
+                    }
                 }
             }
         }
@@ -200,6 +214,138 @@ struct RuntimeView: View {
         }
     }
 
+    private func runtimeFocusSection(_ proxy: ScrollViewProxy) -> some View {
+        Section {
+            if vm.status != nil {
+                Button {
+                    jump(proxy, to: .system)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "System Overview"),
+                        detail: String(localized: "Jump to kernel status, uptime, agent count, and default model routing."),
+                        systemImage: "server.rack",
+                        tone: vm.status?.statusTone ?? .neutral
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || vm.metricsSnapshot != nil {
+                Button {
+                    jump(proxy, to: .diagnostics)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Deep Diagnostics"),
+                        detail: String(localized: "Jump to health detail, config warnings, build metadata, and runtime metrics."),
+                        systemImage: "stethoscope",
+                        tone: vm.diagnosticsSummaryTone,
+                        badgeText: vm.diagnosticsConfigWarningCount == 0 ? nil : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"),
+                        badgeTone: .warning
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
+                Button {
+                    jump(proxy, to: .integrations)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Integrations"),
+                        detail: String(localized: "Jump to provider, channel, and model-catalog readiness from the runtime page."),
+                        systemImage: "square.3.layers.3d.down.forward",
+                        tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                        badgeText: vm.integrationPressureIssueCategoryCount == 0 ? nil : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"),
+                        badgeTone: .critical
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
+                Button {
+                    jump(proxy, to: .automation)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Automation"),
+                        detail: String(localized: "Jump to workflow, trigger, schedule, and cron pressure without scrolling the full runtime page."),
+                        systemImage: "flowchart",
+                        tone: vm.automationPressureTone,
+                        badgeText: vm.automationPressureIssueCategoryCount == 0 ? nil : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"),
+                        badgeTone: vm.automationPressureTone
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !vm.sessions.isEmpty {
+                Button {
+                    jump(proxy, to: .sessions)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Sessions"),
+                        detail: String(localized: "Jump to recent sessions and hotspot counts without passing through the full runtime inventory."),
+                        systemImage: "rectangle.stack",
+                        tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                        badgeText: vm.sessionAttentionCount == 0 ? nil : String(localized: "\(vm.sessionAttentionCount) hotspots"),
+                        badgeTone: .warning
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !vm.approvals.isEmpty {
+                Button {
+                    jump(proxy, to: .approvals)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Pending Approvals"),
+                        detail: String(localized: "Jump directly to the mobile approval queue from the top of the runtime page."),
+                        systemImage: "checkmark.shield",
+                        tone: .critical,
+                        badgeText: vm.pendingApprovalCount == 1 ? String(localized: "1 waiting") : String(localized: "\(vm.pendingApprovalCount) waiting"),
+                        badgeTone: .critical
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !vm.recentAudit.isEmpty {
+                Button {
+                    jump(proxy, to: .audit)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Recent Audit"),
+                        detail: String(localized: "Jump to the loaded audit feed and current critical events."),
+                        systemImage: "list.bullet.rectangle.portrait",
+                        tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
+                        badgeText: vm.recentCriticalAuditCount == 0 ? nil : String(localized: "\(vm.recentCriticalAuditCount) critical"),
+                        badgeTone: .critical
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if vm.security != nil {
+                Button {
+                    jump(proxy, to: .security)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Security"),
+                        detail: String(localized: "Jump to auth, audit integrity, and runtime protection status."),
+                        systemImage: "lock.shield",
+                        tone: .neutral
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        } header: {
+            Text("Focus Areas")
+        } footer: {
+            Text("These jump targets keep the longest runtime sections reachable on a single-handed mobile layout.")
+        }
+    }
+
     @ViewBuilder
     private var systemSection: some View {
         if let status = vm.status {
@@ -231,6 +377,7 @@ struct RuntimeView: View {
                     StatusPill(text: status.networkEnabled ? String(localized: "Enabled") : String(localized: "Disabled"), color: status.networkEnabled ? .green : .orange)
                 }
             }
+            .id(RuntimeSectionAnchor.system)
         }
     }
 
@@ -285,6 +432,7 @@ struct RuntimeView: View {
             } footer: {
                 Text("This section surfaces daemon-level health and build drift that the higher-level monitoring cards can miss.")
             }
+            .id(RuntimeSectionAnchor.diagnostics)
         }
     }
 
@@ -367,6 +515,7 @@ struct RuntimeView: View {
             } footer: {
                 Text("This section focuses on model providers, delivery channels, and the model catalog rather than runtime execution.")
             }
+            .id(RuntimeSectionAnchor.integrations)
         }
     }
 
@@ -448,6 +597,7 @@ struct RuntimeView: View {
             } footer: {
                 Text("\(vm.automationDefinitionCount) total automation objects across workflows, triggers, schedules, and cron")
             }
+            .id(RuntimeSectionAnchor.automation)
         }
     }
 
@@ -477,6 +627,7 @@ struct RuntimeView: View {
             } footer: {
                 Text("\(vm.totalSessionCount) sessions across the workspace, \(vm.sessionAttentionCount) need attention")
             }
+            .id(RuntimeSectionAnchor.sessions)
         }
     }
 
@@ -689,6 +840,7 @@ struct RuntimeView: View {
                     Text("High-risk tool approvals can now be resolved directly from mobile after confirmation.")
                 }
             }
+            .id(RuntimeSectionAnchor.approvals)
         }
     }
 
@@ -721,6 +873,7 @@ struct RuntimeView: View {
                     Label("Open Full Event Feed", systemImage: "list.bullet.rectangle.portrait")
                 }
             }
+            .id(RuntimeSectionAnchor.audit)
         }
     }
 
@@ -751,6 +904,13 @@ struct RuntimeView: View {
                     )
                 }
             }
+            .id(RuntimeSectionAnchor.security)
+        }
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: RuntimeSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
         }
     }
 
