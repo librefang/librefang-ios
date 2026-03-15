@@ -603,19 +603,17 @@ private struct HandoffCarryoverCard: View {
                 .foregroundStyle(.secondary)
 
             ForEach(status.items) { item in
-                ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .top, spacing: 10) {
-                        HandoffFocusAreaBadge(area: item.area)
-                        Text(item.detail)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                    VStack(alignment: .leading, spacing: 6) {
-                        HandoffFocusAreaBadge(area: item.area)
-                        Text(item.detail)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
+                ResponsiveValueRow(
+                    horizontalAlignment: .top,
+                    horizontalSpacing: 10,
+                    verticalSpacing: 6,
+                    horizontalTextAlignment: .leading
+                ) {
+                    HandoffFocusAreaBadge(area: item.area)
+                } value: {
+                    Text(item.detail)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
             }
         }
@@ -723,16 +721,10 @@ private struct HandoffTimelineRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 12) {
-                    timelineSummary
-                    Spacer(minLength: 8)
-                    timelineBadges(alignment: .trailing)
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    timelineSummary
-                    timelineBadges(alignment: .leading)
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top) {
+                timelineSummary
+            } accessory: {
+                timelineBadges(alignment: .trailing)
             }
 
             if !item.entry.note.isEmpty {
@@ -1064,16 +1056,16 @@ private struct HandoffFollowUpComposer: View {
                 itemCountLabel
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 10) {
-                    followUpField
-                    addButton
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    followUpField
-                    addButton
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                }
+            ResponsiveAccessoryRow(
+                horizontalAlignment: .center,
+                horizontalSpacing: 10,
+                verticalSpacing: 8,
+                spacerMinLength: 10
+            ) {
+                followUpField
+            } accessory: {
+                addButton
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             }
 
             if items.isEmpty {

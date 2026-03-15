@@ -92,6 +92,22 @@ struct BudgetView: View {
                     }
                 }
 
+                if let usageSummary = vm.usageSummary {
+                    Section {
+                        BudgetSignalsCard(
+                            budget: vm.budget,
+                            usageSummary: usageSummary,
+                            visibleAgentCount: visibleAgents.count,
+                            sortOrderLabel: sortOrder.label,
+                            projectedMonthlyCost: projectedMonthlyCost(usageSummary)
+                        )
+                    } header: {
+                        Text("Signals")
+                    } footer: {
+                        Text("These badges keep current cost pressure visible before the trend chart and the longer per-model and per-agent lists.")
+                    }
+                }
+
                 if !vm.usageDaily.isEmpty {
                     Section {
                         DailyCostTrendChart(days: vm.usageDaily)
@@ -886,6 +902,61 @@ private struct BudgetSnapshotCard: View {
                                 .lineLimit(2)
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+private struct BudgetSignalsCard: View {
+    let budget: BudgetOverview?
+    let usageSummary: UsageSummary
+    let visibleAgentCount: Int
+    let sortOrderLabel: String
+    let projectedMonthlyCost: Double?
+
+    private var avgCostPerCall: Double {
+        guard usageSummary.callCount > 0 else { return 0 }
+        return usageSummary.totalCostUsd / Double(usageSummary.callCount)
+    }
+
+    var body: some View {
+        MonitoringSnapshotCard(
+            summary: String(localized: "Budget pressure is summarized for quick mobile review."),
+            detail: String(localized: "Use the current badges to decide whether to inspect limits, trends, models, or top-spending agents next."),
+            verticalPadding: 4
+        ) {
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(text: sortOrderLabel, tone: .neutral)
+                PresentationToneBadge(
+                    text: usageSummary.callCount == 1 ? String(localized: "1 call recorded") : String(localized: "\(usageSummary.callCount) calls recorded"),
+                    tone: usageSummary.callCount > 0 ? .positive : .neutral
+                )
+                PresentationToneBadge(
+                    text: String(localized: "Avg \(localizedUSDCurrency(avgCostPerCall)) / call"),
+                    tone: avgCostPerCall > 0 ? .neutral : .neutral
+                )
+                if let projectedMonthlyCost {
+                    PresentationToneBadge(
+                        text: String(localized: "30-day \(localizedUSDCurrency(projectedMonthlyCost))"),
+                        tone: .warning
+                    )
+                }
+                if visibleAgentCount > 0 {
+                    PresentationToneBadge(
+                        text: visibleAgentCount == 1 ? String(localized: "1 agent shown") : String(localized: "\(visibleAgentCount) agents shown"),
+                        tone: .neutral
+                    )
+                }
+                if let budget {
+                    PresentationToneBadge(
+                        text: String(localized: "Daily \(Int(budget.dailyPct * 100))%"),
+                        tone: StatusPresentation.budgetUtilizationStatus(for: budget.dailyPct)?.tone ?? .neutral
+                    )
+                    PresentationToneBadge(
+                        text: String(localized: "Monthly \(Int(budget.monthlyPct * 100))%"),
+                        tone: StatusPresentation.budgetUtilizationStatus(for: budget.monthlyPct)?.tone ?? .neutral
+                    )
                 }
             }
         }

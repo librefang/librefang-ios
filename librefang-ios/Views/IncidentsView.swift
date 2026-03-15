@@ -166,6 +166,24 @@ struct IncidentsView: View {
                 Text("This summary keeps the top incident buckets visible before the long sectioned queue.")
             }
 
+            Section {
+                IncidentQuickLinksCard(
+                    approvalCount: vm.pendingApprovalCount,
+                    sessionCount: vm.sessionAttentionCount,
+                    eventCount: vm.recentCriticalAuditCount,
+                    automationIssueCount: automationIssueCount,
+                    integrationIssueCount: integrationIssueCount,
+                    handoffIssueCount: handoffIssueCount,
+                    handoffText: handoffText,
+                    queueCount: onCallPriorityItems.count,
+                    criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
+                    liveAlertCount: visibleAlerts.count,
+                    api: deps.apiClient
+                )
+            } footer: {
+                Text("These links keep the highest-value incident drilldowns visible before the long grouped queue.")
+            }
+
             if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
                 Section("Operator State") {
                     IncidentOperatorCard(
@@ -697,6 +715,174 @@ private struct IncidentScoreboard: View {
             )
         }
         .padding(.horizontal)
+    }
+}
+
+private struct IncidentQuickLinksCard: View {
+    let approvalCount: Int
+    let sessionCount: Int
+    let eventCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let handoffIssueCount: Int
+    let handoffText: String
+    let queueCount: Int
+    let criticalCount: Int
+    let liveAlertCount: Int
+    let api: APIClient
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Incident drilldowns stay visible so the operator can jump directly to the right queue."),
+                detail: String(localized: "Use these shortcuts when the snapshot already tells you which surface needs attention next.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    if approvalCount > 0 {
+                        PresentationToneBadge(
+                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                            tone: .critical
+                        )
+                    }
+                    if sessionCount > 0 {
+                        PresentationToneBadge(
+                            text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                            tone: .warning
+                        )
+                    }
+                    if eventCount > 0 {
+                        PresentationToneBadge(
+                            text: eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
+                            tone: .critical
+                        )
+                    }
+                    if automationIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                            tone: .warning
+                        )
+                    }
+                    if integrationIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                            tone: .critical
+                        )
+                    }
+                    if handoffIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: handoffIssueCount == 1 ? String(localized: "1 handoff issue") : String(localized: "\(handoffIssueCount) handoff issues"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            VStack(spacing: 10) {
+                NavigationLink {
+                    ApprovalsView()
+                } label: {
+                    IncidentQuickLinkRow(
+                        title: String(localized: "Open Approval Queue"),
+                        detail: approvalCount > 0
+                            ? (approvalCount == 1
+                                ? String(localized: "1 approval is still waiting for action.")
+                                : String(localized: "\(approvalCount) approvals are still waiting for action."))
+                            : String(localized: "Review the full approval backlog from the mobile queue."),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    SessionsView(initialFilter: .attention)
+                } label: {
+                    IncidentQuickLinkRow(
+                        title: String(localized: "Open Session Monitor"),
+                        detail: sessionCount > 0
+                            ? (sessionCount == 1
+                                ? String(localized: "1 session hotspot is already surfaced in incidents.")
+                                : String(localized: "\(sessionCount) session hotspots are already surfaced in incidents."))
+                            : String(localized: "Inspect duplicated, unlabeled, or high-volume sessions."),
+                        systemImage: "rectangle.stack"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    EventsView(api: api, initialScope: .critical)
+                } label: {
+                    IncidentQuickLinkRow(
+                        title: String(localized: "Open Critical Event Feed"),
+                        detail: eventCount > 0
+                            ? (eventCount == 1
+                                ? String(localized: "1 critical audit event still needs review.")
+                                : String(localized: "\(eventCount) critical audit events still need review."))
+                            : String(localized: "Jump into the recent critical audit trail."),
+                        systemImage: "list.bullet.rectangle.portrait"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    HandoffCenterView(
+                        summary: handoffText,
+                        queueCount: queueCount,
+                        criticalCount: criticalCount,
+                        liveAlertCount: liveAlertCount
+                    )
+                } label: {
+                    IncidentQuickLinkRow(
+                        title: String(localized: "Open Handoff Center"),
+                        detail: String(localized: "Capture incident context and keep follow-ups visible for the next operator."),
+                        systemImage: "text.badge.plus"
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
+
+private struct IncidentQuickLinkRow: View {
+    let title: String
+    let detail: String
+    let systemImage: String
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 12) {
+                iconBadge
+                contentBlock
+                Spacer(minLength: 8)
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                iconBadge
+                contentBlock
+            }
+        }
+        .padding(12)
+        .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
+    }
+
+    private var iconBadge: some View {
+        Image(systemName: systemImage)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .frame(width: 34, height: 34)
+            .background(.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var contentBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.primary)
+            Text(detail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 

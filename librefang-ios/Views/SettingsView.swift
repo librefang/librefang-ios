@@ -12,6 +12,91 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section("Snapshot") {
+                    MonitoringSnapshotCard(
+                        summary: String(localized: "Settings keeps server, language, refresh, and on-call state visible before the longer forms."),
+                        detail: String(localized: "Use this summary when you need to confirm device-level monitoring behavior without digging through each section.")
+                    ) {
+                        FlowLayout(spacing: 8) {
+                            SettingsBadge(text: currentLanguageLabel, tone: .neutral)
+                            SettingsBadge(
+                                text: String(localized: "\(Int(refreshInterval))s refresh"),
+                                tone: .neutral
+                            )
+                            SettingsBadge(
+                                text: snapshotStatus.settingsLabel,
+                                tone: snapshotStatus.tone
+                            )
+                            SettingsBadge(
+                                text: onCallQueueCount == 1 ? String(localized: "1 on-call item") : String(localized: "\(onCallQueueCount) on-call items"),
+                                tone: onCallQueueStatus.tone
+                            )
+                            SettingsBadge(
+                                text: deps.onCallNotificationManager.authorizationLabel,
+                                tone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning
+                            )
+                            if deps.onCallNotificationManager.pendingReminderDate != nil {
+                                SettingsBadge(text: deps.onCallNotificationManager.pendingReminderSourceLabel, tone: .caution)
+                            }
+                        }
+                    }
+                } footer: {
+                    Text("This snapshot is device-local and complements the runtime and on-call pages rather than replacing them.")
+                }
+
+                Section("Quick Links") {
+                    NavigationLink {
+                        OnCallView()
+                    } label: {
+                        SettingsQuickLinkRow(
+                            title: String(localized: "Open On Call"),
+                            detail: onCallQueueCount == 1
+                                ? String(localized: "1 queued item is currently visible on this iPhone.")
+                                : String(localized: "\(onCallQueueCount) queued items are currently visible on this iPhone."),
+                            systemImage: "waveform.path.ecg"
+                        )
+                    }
+
+                    NavigationLink {
+                        IncidentsView()
+                    } label: {
+                        SettingsQuickLinkRow(
+                            title: String(localized: "Open Incidents Center"),
+                            detail: currentCriticalCount > 0
+                                ? (currentCriticalCount == 1
+                                    ? String(localized: "1 critical incident is already surfaced in incidents.")
+                                    : String(localized: "\(currentCriticalCount) critical incidents are already surfaced in incidents."))
+                                : String(localized: "Review alerts, approvals, and shift coverage from one mobile queue."),
+                            systemImage: "bell.badge"
+                        )
+                    }
+
+                    NavigationLink {
+                        DiagnosticsView()
+                    } label: {
+                        SettingsQuickLinkRow(
+                            title: String(localized: "Open Diagnostics"),
+                            detail: String(localized: "Inspect deep health, build info, config warnings, and metrics."),
+                            systemImage: "stethoscope"
+                        )
+                    }
+
+                    NavigationLink {
+                        HandoffCenterView(
+                            summary: handoffText,
+                            queueCount: onCallQueueCount,
+                            criticalCount: currentCriticalCount,
+                            liveAlertCount: visibleAlertCount
+                        )
+                    } label: {
+                        SettingsQuickLinkRow(
+                            title: String(localized: "Open Handoff Center"),
+                            detail: String(localized: "Review local handoff freshness, readiness, and follow-up state."),
+                            systemImage: "text.badge.plus"
+                        )
+                    }
+                }
+
                 Section("Server") {
                     TextField("Server URL", text: $serverURL)
                         .keyboardType(.URL)
@@ -690,6 +775,48 @@ private struct SettingsBadge: View {
             horizontalPadding: 10,
             verticalPadding: 6
         )
+    }
+}
+
+private struct SettingsQuickLinkRow: View {
+    let title: String
+    let detail: String
+    let systemImage: String
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 12) {
+                iconBadge
+                contentBlock
+                Spacer(minLength: 8)
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                iconBadge
+                contentBlock
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var iconBadge: some View {
+        Image(systemName: systemImage)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .frame(width: 34, height: 34)
+            .background(.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var contentBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.primary)
+            Text(detail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 

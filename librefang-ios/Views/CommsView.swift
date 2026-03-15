@@ -327,17 +327,10 @@ private struct CommsEventRow: View {
                     .frame(width: 18)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    ViewThatFits(in: .horizontal) {
-                        HStack {
-                            titleLabel
-                            Spacer()
-                            timestampLabel
-                        }
-
-                        VStack(alignment: .leading, spacing: 4) {
-                            titleLabel
-                            timestampLabel
-                        }
+                    ResponsiveAccessoryRow(horizontalAlignment: .top, horizontalSpacing: 8, verticalSpacing: 4, spacerMinLength: 10) {
+                        titleLabel
+                    } accessory: {
+                        timestampLabel
                     }
 
                     ViewThatFits(in: .horizontal) {

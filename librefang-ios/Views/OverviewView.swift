@@ -177,6 +177,17 @@ struct OverviewView: View {
                         handoffTone: deps.onCallHandoffStore.freshnessState.tone
                     )
 
+                    OverviewQuickLinksCard(
+                        criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                        approvalCount: vm.pendingApprovalCount,
+                        sessionCount: vm.sessionAttentionCount,
+                        automationIssueCount: vm.automationPressureIssueCategoryCount,
+                        integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                        handoffText: handoffText,
+                        queueCount: onCallPriorityItems.count,
+                        liveAlertCount: visibleMonitoringAlerts.count
+                    )
+
                     LazyVGrid(columns: summaryColumns, spacing: 10) {
                         StatBadge(
                             value: "\(vm.runningCount)",
@@ -452,6 +463,157 @@ private struct OverviewTriageCard: View {
                 }
                 PresentationToneBadge(text: handoffStateLabel, tone: handoffTone)
             }
+        }
+    }
+}
+
+private struct OverviewQuickLinksCard: View {
+    let criticalCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let handoffText: String
+    let queueCount: Int
+    let liveAlertCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Quick jumps keep the operator moving from overview into the most relevant mobile surface."),
+                detail: String(localized: "Use these links when the top cards already show enough context and you just need the next action surface.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if approvalCount > 0 {
+                        PresentationToneBadge(
+                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                            tone: .warning
+                        )
+                    }
+                    if sessionCount > 0 {
+                        PresentationToneBadge(
+                            text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                            tone: .warning
+                        )
+                    }
+                    if automationIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                            tone: .warning
+                        )
+                    }
+                    if integrationIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            VStack(spacing: 10) {
+                NavigationLink {
+                    IncidentsView()
+                } label: {
+                    OverviewQuickLinkRow(
+                        title: String(localized: "Open Incidents Center"),
+                        detail: criticalCount > 0
+                            ? (criticalCount == 1
+                                ? String(localized: "1 critical item is already active in the incident queue.")
+                                : String(localized: "\(criticalCount) critical items are already active in the incident queue."))
+                            : String(localized: "Review live alerts, muted alerts, approvals, and shift coverage in one place."),
+                        systemImage: "bell.badge"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    OverviewQuickLinkRow(
+                        title: String(localized: "Open Runtime"),
+                        detail: String(localized: "Inspect providers, channels, hands, sessions, and approvals from the runtime monitor."),
+                        systemImage: "waveform.path.ecg"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    DiagnosticsView()
+                } label: {
+                    OverviewQuickLinkRow(
+                        title: String(localized: "Open Diagnostics"),
+                        detail: String(localized: "Jump into health detail, build info, config warnings, and metrics."),
+                        systemImage: "stethoscope"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    HandoffCenterView(
+                        summary: handoffText,
+                        queueCount: queueCount,
+                        criticalCount: criticalCount,
+                        liveAlertCount: liveAlertCount
+                    )
+                } label: {
+                    OverviewQuickLinkRow(
+                        title: String(localized: "Open Handoff Center"),
+                        detail: String(localized: "Capture the current queue and keep the next operator aligned on this iPhone."),
+                        systemImage: "text.badge.plus"
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
+
+private struct OverviewQuickLinkRow: View {
+    let title: String
+    let detail: String
+    let systemImage: String
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 12) {
+                iconBadge
+                contentBlock
+                Spacer(minLength: 8)
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                iconBadge
+                contentBlock
+            }
+        }
+        .padding(12)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var iconBadge: some View {
+        Image(systemName: systemImage)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .frame(width: 34, height: 34)
+            .background(.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var contentBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.primary)
+            Text(detail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }
