@@ -81,16 +81,9 @@ struct ChatView: View {
             Divider()
 
             // Input Bar
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .bottom, spacing: 8) {
-                    messageField
-                    sendButton
-                }
-
-                VStack(alignment: .trailing, spacing: 8) {
-                    messageField
-                    sendButton
-                }
+            ResponsiveInlineGroup(horizontalSpacing: 8, verticalSpacing: 8, verticalAlignment: .trailing) {
+                messageField
+                sendButton
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
@@ -161,34 +154,13 @@ private struct SessionBanner: View {
 
     var body: some View {
         if viewModel.messageCount > 0 || viewModel.contextWindowTokens > 0 || viewModel.sessionLabel != nil {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 12) {
-                    sessionSummary
-                    Spacer(minLength: 8)
-                    HStack(alignment: .top, spacing: 10) {
-                        realtimeIndicator
-                        if viewModel.contextWindowTokens > 0 {
-                            contextTokens
-                        }
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 10) {
-                    sessionSummary
-                    ViewThatFits(in: .horizontal) {
-                        HStack(alignment: .top, spacing: 10) {
-                            realtimeIndicator
-                            if viewModel.contextWindowTokens > 0 {
-                                contextTokens
-                            }
-                        }
-
-                        VStack(alignment: .leading, spacing: 8) {
-                            realtimeIndicator
-                            if viewModel.contextWindowTokens > 0 {
-                                contextTokens
-                            }
-                        }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 10) {
+                sessionSummary
+            } accessory: {
+                FlowLayout(spacing: 10) {
+                    realtimeIndicator
+                    if viewModel.contextWindowTokens > 0 {
+                        contextTokens
                     }
                 }
             }
@@ -218,30 +190,16 @@ private struct SessionBanner: View {
     }
 
     private var contextTokens: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 6) {
-                PresentationToneBadge(
-                    text: viewModel.contextWindowTokens.formatted(),
-                    tone: .neutral,
-                    horizontalPadding: 10,
-                    verticalPadding: 6
-                )
-                Text("context tokens")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-
-            VStack(alignment: .leading, spacing: 3) {
-                PresentationToneBadge(
-                    text: viewModel.contextWindowTokens.formatted(),
-                    tone: .neutral,
-                    horizontalPadding: 10,
-                    verticalPadding: 6
-                )
-                Text("context tokens")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
+        ResponsiveInlineGroup(horizontalSpacing: 6, verticalSpacing: 3) {
+            PresentationToneBadge(
+                text: viewModel.contextWindowTokens.formatted(),
+                tone: .neutral,
+                horizontalPadding: 10,
+                verticalPadding: 6
+            )
+            Text("context tokens")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
         }
     }
 }
@@ -288,11 +246,15 @@ private struct MessageBubble: View {
                     .frame(maxWidth: .infinity, alignment: bubbleAlignment)
                 }
 
-                // Metadata
-                ViewThatFits(in: .horizontal) {
-                    metadataInline
-                    metadataStacked
+                ResponsiveInlineGroup(
+                    horizontalSpacing: 6,
+                    verticalSpacing: 3,
+                    verticalAlignment: message.role == .user ? .trailing : .leading
+                ) {
+                    metadataContent
                 }
+                .font(.caption2)
+                .foregroundStyle(.quaternary)
                 .frame(maxWidth: .infinity, alignment: bubbleAlignment)
             }
             .frame(maxWidth: .infinity, alignment: bubbleAlignment)
@@ -301,29 +263,10 @@ private struct MessageBubble: View {
         }
     }
 
-    private var metadataInline: some View {
-        HStack(spacing: 6) {
-            agentUsageMetadata
-            deliveryMetadata
-        }
-        .font(.caption2)
-        .foregroundStyle(.quaternary)
-    }
-
-    private var metadataStacked: some View {
-        VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 3) {
-            if message.role == .agent, hasUsageMetadata {
-                HStack(spacing: 6) {
-                    agentUsageMetadata
-                }
-            }
-
-            HStack(spacing: 6) {
-                deliveryMetadata
-            }
-        }
-        .font(.caption2)
-        .foregroundStyle(.quaternary)
+    @ViewBuilder
+    private var metadataContent: some View {
+        agentUsageMetadata
+        deliveryMetadata
     }
 
     @ViewBuilder

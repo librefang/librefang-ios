@@ -557,32 +557,16 @@ private struct NightWatchHeroCard: View {
                 NightWatchCountPill(value: watchCount, label: String(localized: "Watched"))
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 10) {
-                    if let acknowledgementAction {
-                        acknowledgementAction
-                    }
-                    fullQueueButton
+            ResponsiveInlineGroup(horizontalSpacing: 10, verticalSpacing: 10) {
+                if let acknowledgementAction {
+                    acknowledgementAction
                 }
-
-                VStack(spacing: 10) {
-                    if let acknowledgementAction {
-                        acknowledgementAction
-                    }
-                    fullQueueButton
-                }
+                fullQueueButton
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    acknowledgementFootnote
-                    refreshFootnote
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    acknowledgementFootnote
-                    refreshFootnote
-                }
+            ResponsiveInlineGroup(horizontalSpacing: 12, verticalSpacing: 6) {
+                acknowledgementFootnote
+                refreshFootnote
             }
             .font(.caption2)
             .foregroundStyle(.white.opacity(0.68))
@@ -804,21 +788,13 @@ private struct NightWatchCalmCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: "checkmark.shield.fill")
-                        .foregroundStyle(.green)
-                    Text(title)
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    Image(systemName: "checkmark.shield.fill")
-                        .foregroundStyle(.green)
-                    Text(title)
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                }
+            ResponsiveIconDetailRow(horizontalAlignment: .top, horizontalSpacing: 10, verticalSpacing: 8) {
+                Image(systemName: "checkmark.shield.fill")
+                    .foregroundStyle(.green)
+            } detail: {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(.white)
             }
 
             Text(detail)

@@ -129,3 +129,34 @@ struct ResponsiveIconDetailRow<Icon: View, Detail: View>: View {
         }
     }
 }
+
+struct ResponsiveInlineGroup<Content: View>: View {
+    let horizontalSpacing: CGFloat
+    let verticalSpacing: CGFloat
+    let verticalAlignment: HorizontalAlignment
+    let content: Content
+
+    init(
+        horizontalSpacing: CGFloat = 12,
+        verticalSpacing: CGFloat = 8,
+        verticalAlignment: HorizontalAlignment = .leading,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.horizontalSpacing = horizontalSpacing
+        self.verticalSpacing = verticalSpacing
+        self.verticalAlignment = verticalAlignment
+        self.content = content()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: horizontalSpacing) {
+                content
+            }
+
+            VStack(alignment: verticalAlignment, spacing: verticalSpacing) {
+                content
+            }
+        }
+    }
+}

@@ -243,19 +243,10 @@ struct StandbyDigestView: View {
                 StandbyCountPill(value: watchItems.count, label: String(localized: "Watched"))
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 10) {
-                    acknowledgeButton
-                    if isAcknowledged {
-                        clearAcknowledgementButton
-                    }
-                }
-
-                VStack(spacing: 10) {
-                    acknowledgeButton
-                    if isAcknowledged {
-                        clearAcknowledgementButton
-                    }
+            ResponsiveInlineGroup(horizontalSpacing: 10, verticalSpacing: 10) {
+                acknowledgeButton
+                if isAcknowledged {
+                    clearAcknowledgementButton
                 }
             }
         }
@@ -602,16 +593,10 @@ private struct StandbyPriorityRow: View {
     }
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: 12) {
-                iconBadge
-                contentBlock
-                Spacer(minLength: 8)
-            }
-            VStack(alignment: .leading, spacing: 10) {
-                iconBadge
-                contentBlock
-            }
+        ResponsiveIconDetailRow(horizontalAlignment: .top, verticalSpacing: 10) {
+            iconBadge
+        } detail: {
+            contentBlock
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
@@ -661,21 +646,12 @@ private struct StandbySnapshotCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    Label("Standby Snapshot", systemImage: "rectangle.inset.filled")
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(.white)
-                    Spacer(minLength: 8)
-                    GlassCapsuleBadge(text: toneLabel, backgroundOpacity: 0.14)
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Label("Standby Snapshot", systemImage: "rectangle.inset.filled")
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(.white)
-                    GlassCapsuleBadge(text: toneLabel, backgroundOpacity: 0.14)
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 8) {
+                Label("Standby Snapshot", systemImage: "rectangle.inset.filled")
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(.white)
+            } accessory: {
+                GlassCapsuleBadge(text: toneLabel, backgroundOpacity: 0.14)
             }
 
             Text(String(localized: "Standby keeps the top queue, muted pressure, and handoff follow-ups visible while the phone stays calm."))
@@ -747,16 +723,10 @@ private struct StandbyActionRow: View {
     let systemImage: String
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 12) {
-                iconBadge
-                contentBlock
-                Spacer(minLength: 8)
-            }
-            VStack(alignment: .leading, spacing: 10) {
-                iconBadge
-                contentBlock
-            }
+        ResponsiveIconDetailRow(horizontalAlignment: .top, verticalSpacing: 10) {
+            iconBadge
+        } detail: {
+            contentBlock
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
