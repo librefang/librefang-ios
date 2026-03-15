@@ -43,11 +43,11 @@ struct CommsView: View {
             }
 
             Section("Topology") {
-                LabeledContent("Agents") {
+                CommsSummaryRow(label: "Agents") {
                     Text("\(viewModel.nodeCount)")
                         .monospacedDigit()
                 }
-                LabeledContent("Links") {
+                CommsSummaryRow(label: "Links") {
                     Text("\(viewModel.edgeCount)")
                         .monospacedDigit()
                 }
@@ -129,6 +129,32 @@ struct CommsView: View {
     private func shortID(_ id: String) -> String {
         guard id.count > 8 else { return id }
         return String(id.prefix(8))
+    }
+}
+
+private struct CommsSummaryRow<Content: View>: View {
+    let label: LocalizedStringKey
+    let content: Content
+
+    init(label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
+        self.label = label
+        self.content = content()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(label)
+                Spacer(minLength: 8)
+                content
+                    .multilineTextAlignment(.trailing)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                content
+                    .multilineTextAlignment(.leading)
+            }
+        }
     }
 }
 

@@ -8,17 +8,23 @@ struct ErrorBanner: View {
     @State private var isRetrying = false
 
     var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(.yellow)
-                .font(.caption)
-
-            Text(message)
-                .font(.caption)
-                .lineLimit(2)
-                .foregroundStyle(.white)
-
-            Spacer()
+        VStack(alignment: .leading, spacing: 10) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 10) {
+                    messageSummary
+                    Spacer(minLength: 8)
+                    if let onDismiss {
+                        dismissButton(onDismiss)
+                    }
+                }
+                VStack(alignment: .leading, spacing: 8) {
+                    messageSummary
+                    if let onDismiss {
+                        dismissButton(onDismiss)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                }
+            }
 
             if let onRetry {
                 Button {
@@ -40,16 +46,6 @@ struct ErrorBanner: View {
                 }
                 .disabled(isRetrying)
             }
-
-            if let onDismiss {
-                Button {
-                    withAnimation { onDismiss() }
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.7))
-                }
-            }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
@@ -57,5 +53,28 @@ struct ErrorBanner: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .padding(.horizontal)
         .transition(.move(edge: .top).combined(with: .opacity))
+    }
+
+    private var messageSummary: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.yellow)
+                .font(.caption)
+
+            Text(message)
+                .font(.caption)
+                .lineLimit(3)
+                .foregroundStyle(.white)
+        }
+    }
+
+    private func dismissButton(_ action: @escaping () -> Void) -> some View {
+        Button {
+            withAnimation { action() }
+        } label: {
+            Image(systemName: "xmark")
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.7))
+        }
     }
 }

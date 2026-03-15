@@ -699,46 +699,28 @@ private struct IncidentCueBanner: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: "waveform.path.ecg.rectangle")
-                    .font(.title3)
-                    .foregroundStyle(.white)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(cue.title)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                    Text(cue.detail)
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.88))
-                        .lineLimit(3)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 10) {
+                    cueSummary
+                    Spacer(minLength: 8)
+                    dismissButton
                 }
-
-                Spacer()
-
-                Button(action: onDismiss) {
-                    Image(systemName: "xmark")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(.white.opacity(0.9))
-                        .padding(8)
-                        .background(.white.opacity(0.12))
-                        .clipShape(Circle())
+                VStack(alignment: .leading, spacing: 8) {
+                    cueSummary
+                    dismissButton
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-                .buttonStyle(.plain)
             }
 
-            HStack(spacing: 10) {
-                Button(action: onAcknowledge) {
-                    Label("Acknowledge", systemImage: "checkmark.seal")
-                        .frame(maxWidth: .infinity)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) {
+                    acknowledgeButton
+                    openButton
                 }
-                .buttonStyle(IncidentCueActionButtonStyle(fill: .white.opacity(0.12)))
-
-                Button(action: onOpen) {
-                    Label("Open", systemImage: "arrow.up.forward.app")
-                        .frame(maxWidth: .infinity)
+                VStack(alignment: .leading, spacing: 8) {
+                    acknowledgeButton
+                    openButton
                 }
-                .buttonStyle(IncidentCueActionButtonStyle(fill: .white.opacity(0.22)))
             }
         }
         .padding(14)
@@ -756,6 +738,52 @@ private struct IncidentCueBanner: View {
         )
         .shadow(color: .black.opacity(0.18), radius: 16, y: 6)
     }
+
+    private var cueSummary: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "waveform.path.ecg.rectangle")
+                .font(.title3)
+                .foregroundStyle(.white)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(cue.title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                Text(cue.detail)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.88))
+                    .lineLimit(3)
+            }
+        }
+    }
+
+    private var dismissButton: some View {
+        Button(action: onDismiss) {
+            Image(systemName: "xmark")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.white.opacity(0.9))
+                .padding(8)
+                .background(.white.opacity(0.12))
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var acknowledgeButton: some View {
+        Button(action: onAcknowledge) {
+            Label("Acknowledge", systemImage: "checkmark.seal")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(IncidentCueActionButtonStyle(fill: .white.opacity(0.12)))
+    }
+
+    private var openButton: some View {
+        Button(action: onOpen) {
+            Label("Open", systemImage: "arrow.up.forward.app")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(IncidentCueActionButtonStyle(fill: .white.opacity(0.22)))
+    }
 }
 
 private struct HandoffCueBanner: View {
@@ -765,32 +793,17 @@ private struct HandoffCueBanner: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: "timer")
-                    .font(.title3)
-                    .foregroundStyle(.white)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(cue.title)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                    Text(cue.detail)
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.88))
-                        .lineLimit(3)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 10) {
+                    cueSummary
+                    Spacer(minLength: 8)
+                    dismissButton
                 }
-
-                Spacer()
-
-                Button(action: onDismiss) {
-                    Image(systemName: "xmark")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(.white.opacity(0.9))
-                        .padding(8)
-                        .background(.white.opacity(0.12))
-                        .clipShape(Circle())
+                VStack(alignment: .leading, spacing: 8) {
+                    cueSummary
+                    dismissButton
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-                .buttonStyle(.plain)
             }
 
             Button(action: onOpen) {
@@ -813,6 +826,36 @@ private struct HandoffCueBanner: View {
                 .strokeBorder(.white.opacity(0.08))
         )
         .shadow(color: .black.opacity(0.18), radius: 16, y: 6)
+    }
+
+    private var cueSummary: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "timer")
+                .font(.title3)
+                .foregroundStyle(.white)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(cue.title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                Text(cue.detail)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.88))
+                    .lineLimit(3)
+            }
+        }
+    }
+
+    private var dismissButton: some View {
+        Button(action: onDismiss) {
+            Image(systemName: "xmark")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.white.opacity(0.9))
+                .padding(8)
+                .background(.white.opacity(0.12))
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
     }
 }
 
