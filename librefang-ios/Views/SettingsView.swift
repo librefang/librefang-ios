@@ -207,6 +207,10 @@ struct SettingsView: View {
                             Text(latest.kind.label)
                                 .foregroundStyle(handoffKindColor(for: latest.kind))
                         }
+                        LabeledContent("Focus") {
+                            Text(latest.focusAreas.summaryLabel)
+                                .foregroundStyle(latest.focusAreas.items.isEmpty ? Color.secondary : Color.primary)
+                        }
                         LabeledContent("Freshness") {
                             Text(deps.onCallHandoffStore.freshnessLabel)
                                 .foregroundStyle(handoffFreshnessColor)

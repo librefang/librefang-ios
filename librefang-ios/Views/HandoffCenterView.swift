@@ -33,6 +33,8 @@ struct HandoffCenterView: View {
     let liveAlertCount: Int
 
     private var handoffStore: OnCallHandoffStore { deps.onCallHandoffStore }
+    private var vm: DashboardViewModel { deps.dashboardViewModel }
+    private var watchlistStore: AgentWatchlistStore { deps.agentWatchlistStore }
     private var currentShareText: String {
         OnCallHandoffEntry.buildShareText(
             timestamp: Date(),
@@ -42,7 +44,8 @@ struct HandoffCenterView: View {
             queueCount: queueCount,
             criticalCount: criticalCount,
             liveAlertCount: liveAlertCount,
-            checklist: handoffStore.draftChecklist
+            checklist: handoffStore.draftChecklist,
+            focusAreas: handoffStore.draftFocusAreas
         )
     }
     private var suggestedTemplateNote: String {
@@ -62,6 +65,27 @@ struct HandoffCenterView: View {
     }
     private var timelineItems: [HandoffTimelineItem] {
         handoffStore.timelineItems
+    }
+    private var suggestedFocusAreas: Set<HandoffFocusArea> {
+        var areas = Set<HandoffFocusArea>()
+
+        if liveAlertCount > 0 || criticalCount > 0 {
+            areas.insert(.alerts)
+        }
+        if vm.pendingApprovalCount > 0 {
+            areas.insert(.approvals)
+        }
+        if watchlistStore.watchedAgents(from: vm.agents).contains(where: { vm.attentionItem(for: $0).severity > 0 }) {
+            areas.insert(.watchlist)
+        }
+        if vm.sessionAttentionCount > 0 {
+            areas.insert(.sessions)
+        }
+        if vm.recentCriticalAuditCount > 0 {
+            areas.insert(.audit)
+        }
+
+        return areas
     }
 
     var body: some View {
@@ -146,6 +170,30 @@ struct HandoffCenterView: View {
                         checklist: handoffStore.draftChecklist,
                         toggle: { handoffStore.toggleDraftChecklist($0) }
                     )
+
+                    HandoffFocusComposer(
+                        focusAreas: handoffStore.draftFocusAreas,
+                        toggle: { handoffStore.toggleDraftFocusArea($0) }
+                    )
+
+                    Button {
+                        handoffStore.setDraftFocusAreas(suggestedFocusAreas)
+                    } label: {
+                        Label("Use Suggested Focus", systemImage: "scope")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(suggestedFocusAreas.isEmpty)
+
+                    if !suggestedFocusAreas.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(HandoffFocusArea.allCases.filter { suggestedFocusAreas.contains($0) }) { area in
+                                    HandoffFocusAreaBadge(area: area)
+                                }
+                            }
+                        }
+                    }
 
                     Button {
                         handoffStore.saveSnapshot(
@@ -400,6 +448,10 @@ private struct HandoffTimelineRow: View {
                 HandoffStatPill(value: item.entry.checklist.completedCount, label: "Checks")
                 Spacer()
             }
+
+            if !item.entry.focusAreas.items.isEmpty {
+                HandoffFocusSummaryRow(focusAreas: item.entry.focusAreas)
+            }
         }
         .padding(.vertical, 4)
     }
@@ -537,6 +589,125 @@ private struct HandoffChecklistComposer: View {
     }
 }
 
+private struct HandoffFocusComposer: View {
+    let focusAreas: HandoffFocusState
+    let toggle: (HandoffFocusArea) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Focus areas")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                Text(focusAreas.items.isEmpty ? "None" : "\(focusAreas.items.count)")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+
+            ForEach(HandoffFocusArea.allCases) { area in
+                Button {
+                    toggle(area)
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: area.symbolName)
+                            .foregroundStyle(focusAreas.contains(area) ? focusColor(for: area) : Color.secondary)
+                            .frame(width: 18)
+
+                        Text(area.label)
+                            .foregroundStyle(.primary)
+
+                        Spacer()
+
+                        if focusAreas.contains(area) {
+                            Image(systemName: "checkmark")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(focusColor(for: area))
+                        }
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(.secondary.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private func focusColor(for area: HandoffFocusArea) -> Color {
+        switch area {
+        case .alerts:
+            .red
+        case .approvals:
+            .orange
+        case .watchlist:
+            .yellow
+        case .sessions:
+            .blue
+        case .audit:
+            .purple
+        }
+    }
+}
+
+struct HandoffFocusAreaBadge: View {
+    let area: HandoffFocusArea
+
+    private var accentColor: Color {
+        switch area {
+        case .alerts:
+            .red
+        case .approvals:
+            .orange
+        case .watchlist:
+            .yellow
+        case .sessions:
+            .blue
+        case .audit:
+            .purple
+        }
+    }
+
+    var body: some View {
+        Label(area.label, systemImage: area.symbolName)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(accentColor.opacity(0.12))
+            .foregroundStyle(accentColor)
+            .clipShape(Capsule())
+    }
+}
+
+struct HandoffFocusSummaryRow: View {
+    let focusAreas: HandoffFocusState
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Label("Focus", systemImage: "scope")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(focusAreas.summaryLabel)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+
+            if !focusAreas.items.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(focusAreas.items) { area in
+                            HandoffFocusAreaBadge(area: area)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 private struct HandoffStatPill: View {
     let value: Int
     let label: String
@@ -601,6 +772,10 @@ private struct HandoffEntryCard: View {
             )
 
             HandoffChecklistStatusRow(checklist: entry.checklist)
+
+            if !entry.focusAreas.items.isEmpty {
+                HandoffFocusSummaryRow(focusAreas: entry.focusAreas)
+            }
         }
         .padding(.vertical, 6)
     }

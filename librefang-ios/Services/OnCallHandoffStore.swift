@@ -61,6 +61,46 @@ enum HandoffSnapshotKind: String, CaseIterable, Codable, Identifiable {
     }
 }
 
+enum HandoffFocusArea: String, CaseIterable, Codable, Identifiable {
+    case alerts
+    case approvals
+    case watchlist
+    case sessions
+    case audit
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .alerts:
+            "Alerts"
+        case .approvals:
+            "Approvals"
+        case .watchlist:
+            "Watchlist"
+        case .sessions:
+            "Sessions"
+        case .audit:
+            "Audit"
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .alerts:
+            "bell.badge"
+        case .approvals:
+            "checkmark.shield"
+        case .watchlist:
+            "star"
+        case .sessions:
+            "rectangle.stack"
+        case .audit:
+            "list.bullet.rectangle.portrait"
+        }
+    }
+}
+
 enum HandoffCadenceState {
     case missing
     case single
@@ -182,6 +222,46 @@ struct HandoffChecklistState: Codable, Equatable {
     }
 }
 
+struct HandoffFocusState: Codable, Equatable {
+    private(set) var selectedAreas: Set<HandoffFocusArea> = []
+
+    init(selectedAreas: Set<HandoffFocusArea> = []) {
+        self.selectedAreas = selectedAreas
+    }
+
+    func contains(_ area: HandoffFocusArea) -> Bool {
+        selectedAreas.contains(area)
+    }
+
+    mutating func toggle(_ area: HandoffFocusArea) {
+        if selectedAreas.contains(area) {
+            selectedAreas.remove(area)
+        } else {
+            selectedAreas.insert(area)
+        }
+    }
+
+    mutating func set(_ areas: Set<HandoffFocusArea>) {
+        selectedAreas = areas
+    }
+
+    mutating func clear() {
+        selectedAreas.removeAll()
+    }
+
+    var items: [HandoffFocusArea] {
+        HandoffFocusArea.allCases.filter { selectedAreas.contains($0) }
+    }
+
+    var labels: [String] {
+        items.map(\.label)
+    }
+
+    var summaryLabel: String {
+        labels.isEmpty ? "None" : labels.joined(separator: ", ")
+    }
+}
+
 struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
     let id: String
     let createdAt: Date
@@ -192,6 +272,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
     let criticalCount: Int
     let liveAlertCount: Int
     let checklist: HandoffChecklistState
+    let focusAreas: HandoffFocusState
 
     private enum CodingKeys: String, CodingKey {
         case id
@@ -203,6 +284,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         case criticalCount
         case liveAlertCount
         case checklist
+        case focusAreas
     }
 
     init(
@@ -214,7 +296,8 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         queueCount: Int,
         criticalCount: Int,
         liveAlertCount: Int,
-        checklist: HandoffChecklistState = HandoffChecklistState()
+        checklist: HandoffChecklistState = HandoffChecklistState(),
+        focusAreas: HandoffFocusState = HandoffFocusState()
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -225,6 +308,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         self.criticalCount = criticalCount
         self.liveAlertCount = liveAlertCount
         self.checklist = checklist
+        self.focusAreas = focusAreas
     }
 
     init(from decoder: any Decoder) throws {
@@ -238,6 +322,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         criticalCount = try container.decode(Int.self, forKey: .criticalCount)
         liveAlertCount = try container.decode(Int.self, forKey: .liveAlertCount)
         checklist = try container.decodeIfPresent(HandoffChecklistState.self, forKey: .checklist) ?? HandoffChecklistState()
+        focusAreas = try container.decodeIfPresent(HandoffFocusState.self, forKey: .focusAreas) ?? HandoffFocusState()
     }
 
     func encode(to encoder: any Encoder) throws {
@@ -251,6 +336,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         try container.encode(criticalCount, forKey: .criticalCount)
         try container.encode(liveAlertCount, forKey: .liveAlertCount)
         try container.encode(checklist, forKey: .checklist)
+        try container.encode(focusAreas, forKey: .focusAreas)
     }
 
     static func buildShareText(
@@ -261,7 +347,8 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         queueCount: Int,
         criticalCount: Int,
         liveAlertCount: Int,
-        checklist: HandoffChecklistState
+        checklist: HandoffChecklistState,
+        focusAreas: HandoffFocusState
     ) -> String {
         var lines = ["LibreFang handoff snapshot · \(timestamp.formatted(date: .abbreviated, time: .shortened))"]
 
@@ -272,6 +359,9 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         lines.append("Type: \(kind.label)")
         lines.append("Queue: \(queueCount) · Critical: \(criticalCount) · Live alerts: \(liveAlertCount)")
         lines.append("Checklist: \(checklist.progressLabel)")
+        if !focusAreas.labels.isEmpty {
+            lines.append("Focus: \(focusAreas.labels.joined(separator: ", "))")
+        }
 
         if !checklist.completedLabels.isEmpty {
             lines.append("Completed: \(checklist.completedLabels.joined(separator: ", "))")
@@ -295,7 +385,8 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
             queueCount: queueCount,
             criticalCount: criticalCount,
             liveAlertCount: liveAlertCount,
-            checklist: checklist
+            checklist: checklist,
+            focusAreas: focusAreas
         )
     }
 }
@@ -308,6 +399,7 @@ final class OnCallHandoffStore {
         static let draftNote = "oncall.handoff.draftNote"
         static let draftChecklist = "oncall.handoff.draftChecklist"
         static let draftKind = "oncall.handoff.draftKind"
+        static let draftFocusAreas = "oncall.handoff.draftFocusAreas"
     }
 
     private let defaults: UserDefaults
@@ -332,6 +424,12 @@ final class OnCallHandoffStore {
     var draftKind: HandoffSnapshotKind {
         didSet {
             defaults.set(draftKind.rawValue, forKey: StorageKey.draftKind)
+        }
+    }
+
+    var draftFocusAreas: HandoffFocusState {
+        didSet {
+            persistDraftFocusAreas()
         }
     }
 
@@ -439,6 +537,12 @@ final class OnCallHandoffStore {
         } else {
             self.draftChecklist = HandoffChecklistState()
         }
+        if let data = defaults.data(forKey: StorageKey.draftFocusAreas),
+           let decoded = try? decoder.decode(HandoffFocusState.self, from: data) {
+            self.draftFocusAreas = decoded
+        } else {
+            self.draftFocusAreas = HandoffFocusState()
+        }
 
         if let data = defaults.data(forKey: StorageKey.entries),
            let decoded = try? decoder.decode([OnCallHandoffEntry].self, from: data) {
@@ -461,7 +565,8 @@ final class OnCallHandoffStore {
             queueCount: queueCount,
             criticalCount: criticalCount,
             liveAlertCount: liveAlertCount,
-            checklist: draftChecklist
+            checklist: draftChecklist,
+            focusAreas: draftFocusAreas
         )
 
         entries.insert(entry, at: 0)
@@ -492,6 +597,14 @@ final class OnCallHandoffStore {
         draftChecklist.toggle(key)
     }
 
+    func toggleDraftFocusArea(_ area: HandoffFocusArea) {
+        draftFocusAreas.toggle(area)
+    }
+
+    func setDraftFocusAreas(_ areas: Set<HandoffFocusArea>) {
+        draftFocusAreas.set(areas)
+    }
+
     func useSuggestedDraftNote(
         queueCount: Int,
         criticalCount: Int,
@@ -508,6 +621,7 @@ final class OnCallHandoffStore {
         draftNote = ""
         draftChecklist = HandoffChecklistState()
         draftKind = .routine
+        draftFocusAreas = HandoffFocusState()
     }
 
     private func persistEntries() {
@@ -519,6 +633,12 @@ final class OnCallHandoffStore {
     private func persistDraftChecklist() {
         if let data = try? encoder.encode(draftChecklist) {
             defaults.set(data, forKey: StorageKey.draftChecklist)
+        }
+    }
+
+    private func persistDraftFocusAreas() {
+        if let data = try? encoder.encode(draftFocusAreas) {
+            defaults.set(data, forKey: StorageKey.draftFocusAreas)
         }
     }
 

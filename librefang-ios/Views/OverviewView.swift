@@ -443,6 +443,13 @@ private struct RecentHandoffCard: View {
                 .foregroundStyle(entry.checklist.pendingLabels.isEmpty ? .green : .secondary)
                 .lineLimit(2)
 
+            if !entry.focusAreas.items.isEmpty {
+                Text("Focus: \(entry.focusAreas.summaryLabel)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+
             if let gapLabel {
                 Text("Gap to prior handoff: \(gapLabel)")
                     .font(.caption2)

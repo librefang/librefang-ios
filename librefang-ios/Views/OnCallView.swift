@@ -389,6 +389,10 @@ private struct OnCallHandoffStatusRow: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
+
+                if !latestEntry.focusAreas.items.isEmpty {
+                    HandoffFocusSummaryRow(focusAreas: latestEntry.focusAreas)
+                }
             }
         }
     }
