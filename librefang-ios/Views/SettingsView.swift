@@ -27,7 +27,7 @@ struct SettingsView: View {
                     Section {
                         MonitoringSnapshotCard(
                             summary: String(localized: "Settings keeps server, language, refresh, and on-call state visible before the longer forms."),
-                            detail: String(localized: "Use this summary when you need to confirm device-level monitoring behavior without digging through each section.")
+                            detail: String(localized: "Use this summary to confirm device-level monitoring behavior without digging through each section.")
                         ) {
                             FlowLayout(spacing: 8) {
                                 SettingsBadge(text: currentLanguageLabel, tone: .neutral)
@@ -52,13 +52,7 @@ struct SettingsView: View {
                                 }
                             }
                         }
-                    } header: {
-                        Text("Snapshot")
-                    } footer: {
-                        Text("This snapshot is device-local and complements the runtime and on-call pages rather than replacing them.")
-                    }
 
-                    Section {
                         MonitoringSurfaceGroupCard(
                             title: String(localized: "Surface Rail"),
                             detail: String(localized: "Keep the highest-value monitoring exits grouped together before the longer device-control form.")
@@ -243,7 +237,7 @@ struct SettingsView: View {
                     } header: {
                         Text("Operator Deck")
                     } footer: {
-                        Text("Surface exits and device-control jumps now stay together before the longer settings form.")
+                        Text("Snapshot, surface exits, and device-control jumps stay together before the longer settings form.")
                     }
 
                     Section("Server") {
@@ -334,7 +328,7 @@ struct SettingsView: View {
                                         title: String(localized: "External Agents"),
                                         systemImage: "link.circle",
                                         tone: .neutral,
-                                        badgeText: deps.dashboardViewModel.a2aAgents?.total.map(String.init)
+                                        badgeText: deps.dashboardViewModel.a2aAgents.map { String($0.total) }
                                     )
                                 }
                                 .buttonStyle(.plain)

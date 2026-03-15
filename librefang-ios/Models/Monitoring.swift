@@ -92,6 +92,36 @@ nonisolated struct ModelUsage: Codable, Identifiable, Sendable {
     }
 
     var totalTokens: Int { totalInputTokens + totalOutputTokens }
+
+    var displayName: String {
+        if let last = model.split(separator: "/").last {
+            return String(last)
+        }
+        return model
+    }
+
+    var inferredProviderName: String {
+        let lower = model.lowercased()
+        if lower.contains("claude") || lower.contains("haiku") || lower.contains("sonnet") || lower.contains("opus") {
+            return "Anthropic"
+        }
+        if lower.contains("gemini") || lower.contains("gemma") {
+            return "Google"
+        }
+        if lower.contains("gpt") || lower.contains("o1") || lower.contains("o3") || lower.contains("o4") {
+            return "OpenAI"
+        }
+        if lower.contains("groq") || lower.contains("llama") || lower.contains("mixtral") {
+            return "Groq"
+        }
+        if lower.contains("deepseek") {
+            return "DeepSeek"
+        }
+        if lower.contains("mistral") {
+            return "Mistral"
+        }
+        return String(localized: "Other")
+    }
 }
 
 nonisolated struct UsageDailyResponse: Codable, Sendable {

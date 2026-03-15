@@ -165,7 +165,7 @@ struct ApprovalsView: View {
             } header: {
                 Text("Operator Deck")
             } footer: {
-                Text("Queue severity, drilldown routes, and filter controls now stay together before the approval list itself.")
+                Text("Queue severity, routes, and filters stay together before the approval list.")
             }
 
             if filteredApprovals.isEmpty && !vm.isLoading {
