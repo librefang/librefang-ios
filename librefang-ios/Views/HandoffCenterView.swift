@@ -251,6 +251,17 @@ struct HandoffCenterView: View {
             controlDeckSection
 
             Section {
+                HandoffDraftSectionInventoryDeck(
+                    readiness: draftReadiness,
+                    kind: handoffStore.draftKind,
+                    note: handoffStore.draftNote,
+                    focusCount: handoffStore.draftFocusAreas.items.count,
+                    followUpCount: handoffStore.draftFollowUpItems.count,
+                    suggestedFocusCount: suggestedFocusAreas.count,
+                    suggestedFollowUpCount: suggestedFollowUps.count,
+                    checkInWindow: handoffStore.draftCheckInWindow
+                )
+
                 HandoffDraftContextCard(
                     kind: Binding(
                         get: { handoffStore.draftKind },
@@ -735,6 +746,105 @@ private struct HandoffDraftContextCard: View {
             HandoffCheckInComposer(window: $checkInWindow)
         }
         .padding(.vertical, 4)
+    }
+}
+
+private struct HandoffDraftSectionInventoryDeck: View {
+    let readiness: HandoffReadinessStatus
+    let kind: OnCallHandoffKind
+    let note: String
+    let focusCount: Int
+    let followUpCount: Int
+    let suggestedFocusCount: Int
+    let suggestedFollowUpCount: Int
+    let checkInWindow: HandoffCheckInWindow
+
+    private var hasNote: Bool {
+        !note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: kind.label, tone: kindTone)
+                    PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
+                    PresentationToneBadge(
+                        text: hasNote ? String(localized: "Note ready") : String(localized: "Note empty"),
+                        tone: hasNote ? .positive : .neutral
+                    )
+                    if checkInWindow != .none {
+                        PresentationToneBadge(text: checkInWindow.label, tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Draft inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep note coverage, focus scope, and follow-up load visible before composing the handoff draft on mobile."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: focusCount == 1 ? String(localized: "1 focus area") : String(localized: "\(focusCount) focus areas"),
+                    tone: focusCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    followUpCount == 1 ? String(localized: "1 draft follow-up") : String(localized: "\(followUpCount) draft follow-ups"),
+                    systemImage: "arrow.triangle.2.circlepath"
+                )
+                if suggestedFocusCount > 0 {
+                    Label(
+                        suggestedFocusCount == 1 ? String(localized: "1 suggested focus") : String(localized: "\(suggestedFocusCount) suggested focus areas"),
+                        systemImage: "scope"
+                    )
+                }
+                if suggestedFollowUpCount > 0 {
+                    Label(
+                        suggestedFollowUpCount == 1 ? String(localized: "1 suggested follow-up") : String(localized: "\(suggestedFollowUpCount) suggested follow-ups"),
+                        systemImage: "wand.and.stars"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        switch readiness.state {
+        case .ready:
+            return String(localized: "Draft coverage is ready before you edit the handoff note.")
+        case .caution:
+            return String(localized: "Draft coverage is usable, but still missing a bit of operator context.")
+        case .blocked:
+            return String(localized: "Draft coverage is blocked until the note or follow-up context catches up.")
+        }
+    }
+
+    private var detailLine: String {
+        String(localized: "Note coverage, focus scope, and follow-up load stay summarized here before the draft form expands into editing controls.")
+    }
+
+    private var kindTone: PresentationTone {
+        switch kind {
+        case .routine:
+            .neutral
+        case .watch:
+            .warning
+        case .incident:
+            .critical
+        case .recovery:
+            .positive
+        }
     }
 }
 
