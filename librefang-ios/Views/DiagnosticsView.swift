@@ -42,26 +42,12 @@ struct DiagnosticsView: View {
                 if hasDiagnosticsData {
                     Section {
                         DiagnosticsStatusDeckCard(vm: vm, metrics: metrics)
-                    } header: {
-                        Text("Status Deck")
-                    } footer: {
-                        Text("Keep feed availability, warning pressure, and metrics state in one compact diagnostic digest before the long sections.")
-                    }
-
-                    Section {
                         diagnosticsFocusSection(proxy)
-                    } header: {
-                        Text("Focus Areas")
-                    } footer: {
-                        Text("Use these jump targets to move around the deep runtime monitor without scanning the whole page.")
-                    }
-
-                    Section {
                         diagnosticsOperatorSurfaces
                     } header: {
-                        Text("Operator Surfaces")
+                        Text("Operator Deck")
                     } footer: {
-                        Text("Use these one-tap routes when diagnostics already tells you the next operator surface you need.")
+                        Text("Keep diagnostic state, deeper focus jumps, and neighboring operator surfaces together before the long sections.")
                     }
                 }
 
@@ -251,113 +237,103 @@ struct DiagnosticsView: View {
 
     @ViewBuilder
     private func diagnosticsFocusSection(_ proxy: ScrollViewProxy) -> some View {
-        if let healthDetail = vm.healthDetail {
-            Button {
-                jump(proxy, to: .health)
-            } label: {
-                MonitoringJumpRow(
-                    title: String(localized: "Health Detail"),
-                    detail: healthDetail.isHealthy
-                        ? String(localized: "Jump to kernel health, uptime, and supervisor status.")
-                        : String(localized: "Jump to degraded health, database state, and supervisor recovery counters."),
-                    systemImage: "stethoscope",
-                    tone: healthDetail.isHealthy ? .positive : .warning,
-                    badgeText: healthDetail.localizedStatusLabel,
-                    badgeTone: healthDetail.isHealthy ? .positive : .warning
-                )
-            }
-            .buttonStyle(.plain)
+        MonitoringSurfaceGroupCard(
+            title: String(localized: "Focus Areas"),
+            detail: String(localized: "Keep the longest diagnostic sections reachable as compact jump targets without scanning the full monitor.")
+        ) {
+            FlowLayout(spacing: 8) {
+                if let healthDetail = vm.healthDetail {
+                    Button {
+                        jump(proxy, to: .health)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Health Detail"),
+                            systemImage: "stethoscope",
+                            tone: healthDetail.isHealthy ? .positive : .warning,
+                            badgeText: healthDetail.localizedStatusLabel
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-            if !healthDetail.configWarnings.isEmpty {
-                Button {
-                    jump(proxy, to: .warnings)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Config Warnings"),
-                        detail: String(localized: "Jump to the config validator warnings before they become runtime drift."),
-                        systemImage: "exclamationmark.triangle",
-                        tone: .warning,
-                        badgeText: healthDetail.configWarnings.count == 1 ? String(localized: "1 warning") : String(localized: "\(healthDetail.configWarnings.count) warnings"),
-                        badgeTone: .warning
-                    )
+                    if !healthDetail.configWarnings.isEmpty {
+                        Button {
+                            jump(proxy, to: .warnings)
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Config Warnings"),
+                                systemImage: "exclamationmark.triangle",
+                                tone: .warning,
+                                badgeText: healthDetail.configWarnings.count == 1 ? String(localized: "1 warning") : String(localized: "\(healthDetail.configWarnings.count) warnings")
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
-                .buttonStyle(.plain)
-            }
-        }
 
-        if vm.versionInfo != nil {
-            Button {
-                jump(proxy, to: .build)
-            } label: {
-                MonitoringJumpRow(
-                    title: String(localized: "Build Metadata"),
-                    detail: String(localized: "Jump to version, git SHA, and toolchain details for this runtime."),
-                    systemImage: "shippingbox",
-                    tone: .neutral
-                )
-            }
-            .buttonStyle(.plain)
-        }
-
-        if vm.configSummary != nil {
-            Button {
-                jump(proxy, to: .config)
-            } label: {
-                MonitoringJumpRow(
-                    title: String(localized: "Runtime Config"),
-                    detail: String(localized: "Jump to the redacted runtime config snapshot exposed by the server."),
-                    systemImage: "gearshape.2",
-                    tone: .neutral
-                )
-            }
-            .buttonStyle(.plain)
-        }
-
-        if let metrics {
-            Button {
-                jump(proxy, to: .metrics)
-            } label: {
-                MonitoringJumpRow(
-                    title: String(localized: "Metrics Snapshot"),
-                    detail: String(localized: "Jump to Prometheus counters for agents, tokens, tool calls, and supervisor state."),
-                    systemImage: "chart.xyaxis.line",
-                    tone: .neutral,
-                    badgeText: metrics.totalRollingTokens.formatted(),
-                    badgeTone: .neutral
-                )
-            }
-            .buttonStyle(.plain)
-
-            if !metrics.tokenLeaders.isEmpty {
-                Button {
-                    jump(proxy, to: .tokenLeaders)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Top Token Usage"),
-                        detail: String(localized: "Jump to the heaviest token consumers in the current metrics window."),
-                        systemImage: "number",
-                        tone: .warning,
-                        badgeText: metrics.tokenLeaders.count == 1 ? String(localized: "1 leader") : String(localized: "\(metrics.tokenLeaders.count) leaders"),
-                        badgeTone: .neutral
-                    )
+                if vm.versionInfo != nil {
+                    Button {
+                        jump(proxy, to: .build)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Build Metadata"),
+                            systemImage: "shippingbox"
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-            }
 
-            if !metrics.toolCallLeaders.isEmpty {
-                Button {
-                    jump(proxy, to: .toolLeaders)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Top Tool Calls"),
-                        detail: String(localized: "Jump to the agents driving the most tool activity in the current metrics window."),
-                        systemImage: "wrench.and.screwdriver",
-                        tone: .warning,
-                        badgeText: metrics.toolCallLeaders.count == 1 ? String(localized: "1 leader") : String(localized: "\(metrics.toolCallLeaders.count) leaders"),
-                        badgeTone: .neutral
-                    )
+                if vm.configSummary != nil {
+                    Button {
+                        jump(proxy, to: .config)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Runtime Config"),
+                            systemImage: "gearshape.2"
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+
+                if let metrics {
+                    Button {
+                        jump(proxy, to: .metrics)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Metrics Snapshot"),
+                            systemImage: "chart.xyaxis.line",
+                            badgeText: metrics.totalRollingTokens.formatted()
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    if !metrics.tokenLeaders.isEmpty {
+                        Button {
+                            jump(proxy, to: .tokenLeaders)
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Top Token Usage"),
+                                systemImage: "number",
+                                tone: .warning,
+                                badgeText: metrics.tokenLeaders.count == 1 ? String(localized: "1 leader") : String(localized: "\(metrics.tokenLeaders.count) leaders")
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    if !metrics.toolCallLeaders.isEmpty {
+                        Button {
+                            jump(proxy, to: .toolLeaders)
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Top Tool Calls"),
+                                systemImage: "wrench.and.screwdriver",
+                                tone: .warning,
+                                badgeText: metrics.toolCallLeaders.count == 1 ? String(localized: "1 leader") : String(localized: "\(metrics.toolCallLeaders.count) leaders")
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
             }
         }
     }
@@ -366,116 +342,109 @@ struct DiagnosticsView: View {
         VStack(alignment: .leading, spacing: 14) {
             MonitoringSnapshotCard(
                 summary: String(localized: "Primary Surfaces"),
-                detail: String(localized: "Keep the next diagnostic exits closest to health and metrics.")
+                detail: String(localized: "Keep the next diagnostic exits visible as compact shortcuts beside the deep-diagnostic digest.")
             ) {
-                VStack(spacing: 10) {
+                FlowLayout(spacing: 8) {
                     NavigationLink {
                         RuntimeView()
                     } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Runtime"),
-                            detail: String(localized: "Return to the compact runtime digest and operational buckets."),
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Runtime"),
                             systemImage: "server.rack",
                             tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
                             badgeText: vm.runtimeAlertCount > 0
                                 ? (vm.runtimeAlertCount == 1 ? String(localized: "1 alert") : String(localized: "\(vm.runtimeAlertCount) alerts"))
-                                : nil,
-                            badgeTone: .warning
+                                : nil
                         )
                     }
+                    .buttonStyle(.plain)
 
                     NavigationLink {
                         IncidentsView()
                     } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Incidents"),
-                            detail: String(localized: "Switch to active alerts, approvals, and shift coverage from diagnostics."),
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Incidents"),
                             systemImage: "bell.badge",
                             tone: vm.monitoringAlerts.contains { $0.severity == .critical } ? .critical : .neutral,
                             badgeText: vm.monitoringAlerts.isEmpty
                                 ? nil
-                                : (vm.monitoringAlerts.count == 1 ? String(localized: "1 alert") : String(localized: "\(vm.monitoringAlerts.count) alerts")),
-                            badgeTone: vm.monitoringAlerts.contains { $0.severity == .critical } ? .critical : .warning
+                                : (vm.monitoringAlerts.count == 1 ? String(localized: "1 alert") : String(localized: "\(vm.monitoringAlerts.count) alerts"))
                         )
                     }
+                    .buttonStyle(.plain)
 
                     NavigationLink {
                         IntegrationsView(initialScope: .attention)
                     } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Integrations"),
-                            detail: String(localized: "Switch to provider, channel, and catalog diagnostics when health points to integration drift."),
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Integrations"),
                             systemImage: "square.3.layers.3d.down.forward",
                             tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
                             badgeText: vm.integrationPressureIssueCategoryCount > 0
                                 ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
-                                : nil,
-                            badgeTone: .critical
+                                : nil
                         )
                     }
+                    .buttonStyle(.plain)
 
                     NavigationLink {
                         SessionsView(initialFilter: .attention)
                     } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Sessions"),
-                            detail: String(localized: "Switch to the session monitor when runtime metrics or health implies active pressure."),
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Sessions"),
                             systemImage: "text.bubble",
                             tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
                             badgeText: vm.sessionAttentionCount > 0
                                 ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
-                                : nil,
-                            badgeTone: .warning
+                                : nil
                         )
                     }
+                    .buttonStyle(.plain)
 
                     NavigationLink {
                         EventsView(api: deps.apiClient, initialScope: .critical)
                     } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Critical Events"),
-                            detail: String(localized: "Switch to the critical event feed when restarts or health drift need recent audit context."),
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Critical Events"),
                             systemImage: "text.justify.leading",
                             tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
                             badgeText: vm.recentCriticalAuditCount > 0
                                 ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
-                                : nil,
-                            badgeTone: .critical
+                                : nil
                         )
                     }
+                    .buttonStyle(.plain)
                 }
             }
 
             MonitoringSnapshotCard(
                 summary: String(localized: "Supporting Surfaces"),
-                detail: String(localized: "Keep workflow and comms drilldowns separate from the primary diagnostic exits.")
+                detail: String(localized: "Keep workflow and comms drilldowns visible as secondary shortcuts instead of another long route stack.")
             ) {
-                VStack(spacing: 10) {
+                FlowLayout(spacing: 8) {
                     NavigationLink {
                         AutomationView(initialScope: .attention)
                     } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Automation"),
-                            detail: String(localized: "Switch to failed workflow runs, paused schedules, and exhausted triggers."),
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Automation"),
                             systemImage: "flowchart",
                             tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
                             badgeText: vm.automationPressureIssueCategoryCount > 0
                                 ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
-                                : nil,
-                            badgeTone: .warning
+                                : nil
                         )
                     }
+                    .buttonStyle(.plain)
 
                     NavigationLink {
                         CommsView(api: deps.apiClient)
                     } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Comms"),
-                            detail: String(localized: "Switch to live comms when diagnostics need inter-agent traffic and coordination context."),
-                            systemImage: "point.3.connected.trianglepath.dotted",
-                            tone: .neutral
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Comms"),
+                            systemImage: "point.3.connected.trianglepath.dotted"
                         )
                     }
+                    .buttonStyle(.plain)
                 }
             }
         }

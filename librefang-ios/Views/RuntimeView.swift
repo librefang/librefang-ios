@@ -74,9 +74,7 @@ struct RuntimeView: View {
                 List {
                     errorSection
                     scoreboardSection
-                    runtimeStatusDeckSection
-                    runtimeOperatorSurfacesSection
-                    runtimeFocusSection(proxy)
+                    runtimeOperatorDeckSection(proxy)
                     systemSection
                     diagnosticsSection
                     integrationsSection
@@ -157,166 +155,162 @@ struct RuntimeView: View {
         }
     }
 
-    private var runtimeStatusDeckSection: some View {
+    private func runtimeOperatorDeckSection(_ proxy: ScrollViewProxy) -> some View {
         Section {
             RuntimeStatusDeckCard(vm: vm, runtimeSnapshotSummary: runtimeSnapshotSummary)
+            runtimeSurfaceDeckCard
+            runtimeFocusDeckCard(proxy)
         } header: {
-            Text("Status Deck")
+            Text("Operator Deck")
         } footer: {
-            Text("Keep the compact runtime digest in one place before drilling into diagnostics, integrations, sessions, or approvals.")
+            Text("Keep the compact runtime digest, routes, and focus jumps together before drilling into diagnostics, integrations, sessions, or approvals.")
         }
     }
 
-    private var runtimeOperatorSurfacesSection: some View {
-        Section {
+    private var runtimeSurfaceDeckCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Primary Surfaces"),
-                detail: String(localized: "Keep the next operator drills closest to the digest and focus rail.")
+                detail: String(localized: "Keep the next operator drills visible as compact shortcuts right below the runtime digest.")
             ) {
-                NavigationLink {
-                    DiagnosticsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Diagnostics"),
-                        detail: String(localized: "Switch from runtime digest to deep health, config, build, and metrics analysis."),
-                        systemImage: "stethoscope",
-                        tone: vm.diagnosticsSummaryTone,
-                        badgeText: vm.diagnosticsConfigWarningCount > 0
-                            ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
-                            : nil,
-                        badgeTone: .warning
-                    )
-                }
+                FlowLayout(spacing: 8) {
+                    NavigationLink {
+                        DiagnosticsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Diagnostics"),
+                            systemImage: "stethoscope",
+                            tone: vm.diagnosticsSummaryTone,
+                            badgeText: vm.diagnosticsConfigWarningCount > 0
+                                ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    IntegrationsView(initialScope: .attention)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Integrations"),
-                        detail: String(localized: "Switch to provider, channel, model, and catalog diagnostics from the runtime hub."),
-                        systemImage: "square.3.layers.3d.down.forward",
-                        tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
-                        badgeText: vm.integrationPressureIssueCategoryCount > 0
-                            ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
-                            : nil,
-                        badgeTone: .critical
-                    )
-                }
+                    NavigationLink {
+                        IntegrationsView(initialScope: .attention)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Integrations"),
+                            systemImage: "square.3.layers.3d.down.forward",
+                            tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                            badgeText: vm.integrationPressureIssueCategoryCount > 0
+                                ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    ApprovalsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Approvals"),
-                        detail: String(localized: "Switch to the approval queue with compact operator actions."),
-                        systemImage: "checkmark.shield",
-                        tone: vm.pendingApprovalCount > 0 ? .critical : .neutral,
-                        badgeText: vm.pendingApprovalCount > 0
-                            ? (vm.pendingApprovalCount == 1 ? String(localized: "1 pending") : String(localized: "\(vm.pendingApprovalCount) pending"))
-                            : nil,
-                        badgeTone: .critical
-                    )
-                }
+                    NavigationLink {
+                        ApprovalsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Approvals"),
+                            systemImage: "checkmark.shield",
+                            tone: vm.pendingApprovalCount > 0 ? .critical : .neutral,
+                            badgeText: vm.pendingApprovalCount > 0
+                                ? (vm.pendingApprovalCount == 1 ? String(localized: "1 pending") : String(localized: "\(vm.pendingApprovalCount) pending"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    SessionsView(initialFilter: .attention)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Sessions"),
-                        detail: String(localized: "Switch to the session monitor focused on current hotspots."),
-                        systemImage: "text.bubble",
-                        tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
-                        badgeText: vm.sessionAttentionCount > 0
-                            ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
-                            : nil,
-                        badgeTone: .warning
-                    )
-                }
+                    NavigationLink {
+                        SessionsView(initialFilter: .attention)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Sessions"),
+                            systemImage: "text.bubble",
+                            tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                            badgeText: vm.sessionAttentionCount > 0
+                                ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    EventsView(api: deps.apiClient, initialScope: .critical)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Critical Events"),
-                        detail: String(localized: "Switch to the critical audit feed without leaving the mobile runtime path."),
-                        systemImage: "text.justify.leading",
-                        tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
-                        badgeText: vm.recentCriticalAuditCount > 0
-                            ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
-                            : nil,
-                        badgeTone: .critical
-                    )
+                    NavigationLink {
+                        EventsView(api: deps.apiClient, initialScope: .critical)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Critical Events"),
+                            systemImage: "text.justify.leading",
+                            tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
+                            badgeText: vm.recentCriticalAuditCount > 0
+                                ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
 
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Supporting Surfaces"),
-                detail: String(localized: "Keep slower infrastructure and configuration routes behind the primary runtime exits.")
+                detail: String(localized: "Keep slower infrastructure and configuration routes visible as a secondary shortcut rail.")
             ) {
-                NavigationLink {
-                    AutomationView(initialScope: .attention)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Automation"),
-                        detail: String(localized: "Switch to workflow pressure, stalled schedules, and cron issues."),
-                        systemImage: "flowchart",
-                        tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
-                        badgeText: vm.automationPressureIssueCategoryCount > 0
-                            ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
-                            : nil,
-                        badgeTone: .warning
-                    )
-                }
+                FlowLayout(spacing: 8) {
+                    NavigationLink {
+                        AutomationView(initialScope: .attention)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Automation"),
+                            systemImage: "flowchart",
+                            tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                            badgeText: vm.automationPressureIssueCategoryCount > 0
+                                ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    CommsView(api: deps.apiClient)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Comms"),
-                        detail: String(localized: "Switch to live inter-agent traffic and topology from the runtime hub."),
-                        systemImage: "point.3.connected.trianglepath.dotted",
-                        tone: .neutral
-                    )
-                }
+                    NavigationLink {
+                        CommsView(api: deps.apiClient)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Comms"),
+                            systemImage: "point.3.connected.trianglepath.dotted"
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    A2AAgentsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open A2A Agents"),
-                        detail: String(localized: "Switch to external-agent inventory when runtime pressure involves A2A connectivity."),
-                        systemImage: "link.circle",
-                        tone: .neutral
-                    )
-                }
+                    NavigationLink {
+                        A2AAgentsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "A2A Agents"),
+                            systemImage: "link.circle"
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    SettingsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Settings"),
-                        detail: String(localized: "Switch to server, refresh, reminder, and on-call preferences without leaving mobile triage."),
-                        systemImage: "gearshape",
-                        tone: .neutral
-                    )
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Settings"),
+                            systemImage: "gearshape"
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
-        } header: {
-            Text("Operator Surfaces")
-        } footer: {
-            Text("Use these one-tap routes when the runtime digest already tells you which deeper monitor you need next.")
         }
     }
 
-    private func runtimeFocusSection(_ proxy: ScrollViewProxy) -> some View {
-        Section {
+    private func runtimeFocusDeckCard(_ proxy: ScrollViewProxy) -> some View {
+        MonitoringSurfaceGroupCard(
+            title: String(localized: "Focus Areas"),
+            detail: String(localized: "Keep the longest runtime sections reachable as compact jump targets on a single-handed layout.")
+        ) {
+            FlowLayout(spacing: 8) {
             if vm.status != nil {
                 Button {
                     jump(proxy, to: .system)
                 } label: {
-                    MonitoringJumpRow(
+                    MonitoringSurfaceShortcutChip(
                         title: String(localized: "System Overview"),
-                        detail: String(localized: "Jump to kernel status, uptime, agent count, and default model routing."),
                         systemImage: "server.rack",
                         tone: vm.status?.statusTone ?? .neutral
                     )
@@ -328,13 +322,11 @@ struct RuntimeView: View {
                 Button {
                     jump(proxy, to: .diagnostics)
                 } label: {
-                    MonitoringJumpRow(
+                    MonitoringSurfaceShortcutChip(
                         title: String(localized: "Deep Diagnostics"),
-                        detail: String(localized: "Jump to health detail, config warnings, build metadata, and runtime metrics."),
                         systemImage: "stethoscope",
                         tone: vm.diagnosticsSummaryTone,
-                        badgeText: vm.diagnosticsConfigWarningCount == 0 ? nil : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"),
-                        badgeTone: .warning
+                        badgeText: vm.diagnosticsConfigWarningCount == 0 ? nil : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings")
                     )
                 }
                 .buttonStyle(.plain)
@@ -344,13 +336,11 @@ struct RuntimeView: View {
                 Button {
                     jump(proxy, to: .integrations)
                 } label: {
-                    MonitoringJumpRow(
+                    MonitoringSurfaceShortcutChip(
                         title: String(localized: "Integrations"),
-                        detail: String(localized: "Jump to provider, channel, and model-catalog readiness from the runtime page."),
                         systemImage: "square.3.layers.3d.down.forward",
                         tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
-                        badgeText: vm.integrationPressureIssueCategoryCount == 0 ? nil : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"),
-                        badgeTone: .critical
+                        badgeText: vm.integrationPressureIssueCategoryCount == 0 ? nil : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues")
                     )
                 }
                 .buttonStyle(.plain)
@@ -360,13 +350,11 @@ struct RuntimeView: View {
                 Button {
                     jump(proxy, to: .automation)
                 } label: {
-                    MonitoringJumpRow(
+                    MonitoringSurfaceShortcutChip(
                         title: String(localized: "Automation"),
-                        detail: String(localized: "Jump to workflow, trigger, schedule, and cron pressure without scrolling the full runtime page."),
                         systemImage: "flowchart",
                         tone: vm.automationPressureTone,
-                        badgeText: vm.automationPressureIssueCategoryCount == 0 ? nil : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"),
-                        badgeTone: vm.automationPressureTone
+                        badgeText: vm.automationPressureIssueCategoryCount == 0 ? nil : String(localized: "\(vm.automationPressureIssueCategoryCount) issues")
                     )
                 }
                 .buttonStyle(.plain)
@@ -376,13 +364,11 @@ struct RuntimeView: View {
                 Button {
                     jump(proxy, to: .sessions)
                 } label: {
-                    MonitoringJumpRow(
+                    MonitoringSurfaceShortcutChip(
                         title: String(localized: "Sessions"),
-                        detail: String(localized: "Jump to recent sessions and hotspot counts without passing through the full runtime inventory."),
                         systemImage: "rectangle.stack",
                         tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
-                        badgeText: vm.sessionAttentionCount == 0 ? nil : String(localized: "\(vm.sessionAttentionCount) hotspots"),
-                        badgeTone: .warning
+                        badgeText: vm.sessionAttentionCount == 0 ? nil : String(localized: "\(vm.sessionAttentionCount) hotspots")
                     )
                 }
                 .buttonStyle(.plain)
@@ -392,13 +378,11 @@ struct RuntimeView: View {
                 Button {
                     jump(proxy, to: .approvals)
                 } label: {
-                    MonitoringJumpRow(
+                    MonitoringSurfaceShortcutChip(
                         title: String(localized: "Pending Approvals"),
-                        detail: String(localized: "Jump directly to the mobile approval queue from the top of the runtime page."),
                         systemImage: "checkmark.shield",
                         tone: .critical,
-                        badgeText: vm.pendingApprovalCount == 1 ? String(localized: "1 waiting") : String(localized: "\(vm.pendingApprovalCount) waiting"),
-                        badgeTone: .critical
+                        badgeText: vm.pendingApprovalCount == 1 ? String(localized: "1 waiting") : String(localized: "\(vm.pendingApprovalCount) waiting")
                     )
                 }
                 .buttonStyle(.plain)
@@ -408,13 +392,11 @@ struct RuntimeView: View {
                 Button {
                     jump(proxy, to: .audit)
                 } label: {
-                    MonitoringJumpRow(
+                    MonitoringSurfaceShortcutChip(
                         title: String(localized: "Recent Audit"),
-                        detail: String(localized: "Jump to the loaded audit feed and current critical events."),
                         systemImage: "list.bullet.rectangle.portrait",
                         tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
-                        badgeText: vm.recentCriticalAuditCount == 0 ? nil : String(localized: "\(vm.recentCriticalAuditCount) critical"),
-                        badgeTone: .critical
+                        badgeText: vm.recentCriticalAuditCount == 0 ? nil : String(localized: "\(vm.recentCriticalAuditCount) critical")
                     )
                 }
                 .buttonStyle(.plain)
@@ -424,19 +406,15 @@ struct RuntimeView: View {
                 Button {
                     jump(proxy, to: .security)
                 } label: {
-                    MonitoringJumpRow(
+                    MonitoringSurfaceShortcutChip(
                         title: String(localized: "Security"),
-                        detail: String(localized: "Jump to auth, audit integrity, and runtime protection status."),
                         systemImage: "lock.shield",
                         tone: .neutral
                     )
                 }
                 .buttonStyle(.plain)
             }
-        } header: {
-            Text("Focus Areas")
-        } footer: {
-            Text("These jump targets keep the longest runtime sections reachable on a single-handed mobile layout.")
+            }
         }
     }
 
