@@ -684,13 +684,12 @@ private struct SettingsBadge: View {
     let tone: PresentationTone
 
     var body: some View {
-        Text(text)
-            .font(.caption.weight(.semibold))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(tone.badgeBackgroundColor)
-            .foregroundStyle(tone.color)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: text,
+            tone: tone,
+            horizontalPadding: 10,
+            verticalPadding: 6
+        )
     }
 }
 

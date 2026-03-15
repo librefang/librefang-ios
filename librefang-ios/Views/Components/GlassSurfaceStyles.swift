@@ -99,6 +99,68 @@ struct TintedLabelCapsuleBadge: View {
     }
 }
 
+struct SelectableCapsuleBadge: View {
+    let text: String
+    let isSelected: Bool
+    let horizontalPadding: CGFloat
+    let verticalPadding: CGFloat
+
+    init(
+        text: String,
+        isSelected: Bool,
+        horizontalPadding: CGFloat = 12,
+        verticalPadding: CGFloat = 8
+    ) {
+        self.text = text
+        self.isSelected = isSelected
+        self.horizontalPadding = horizontalPadding
+        self.verticalPadding = verticalPadding
+    }
+
+    var body: some View {
+        TintedCapsuleBadge(
+            text: text,
+            foregroundStyle: isSelected ? .accentColor : .secondary,
+            backgroundStyle: isSelected ? Color.accentColor.opacity(0.16) : Color.secondary.opacity(0.12),
+            horizontalPadding: horizontalPadding,
+            verticalPadding: verticalPadding
+        )
+    }
+}
+
+struct SelectableLabelCapsuleBadge: View {
+    let text: String
+    let systemImage: String
+    let isSelected: Bool
+    let horizontalPadding: CGFloat
+    let verticalPadding: CGFloat
+
+    init(
+        text: String,
+        systemImage: String,
+        isSelected: Bool,
+        horizontalPadding: CGFloat = 12,
+        verticalPadding: CGFloat = 8
+    ) {
+        self.text = text
+        self.systemImage = systemImage
+        self.isSelected = isSelected
+        self.horizontalPadding = horizontalPadding
+        self.verticalPadding = verticalPadding
+    }
+
+    var body: some View {
+        TintedLabelCapsuleBadge(
+            text: text,
+            systemImage: systemImage,
+            foregroundStyle: isSelected ? .accentColor : .secondary,
+            backgroundStyle: isSelected ? Color.accentColor.opacity(0.16) : Color.secondary.opacity(0.12),
+            horizontalPadding: horizontalPadding,
+            verticalPadding: verticalPadding
+        )
+    }
+}
+
 struct GlassLabelBadge: View {
     let text: String
     let systemImage: String

@@ -270,15 +270,16 @@ private struct MessageBubble: View {
                                 NavigationLink {
                                     UploadAssetView(image: image)
                                 } label: {
-                                    Label(image.filename, systemImage: "photo")
-                                        .font(.caption2.weight(.medium))
-                                        .lineLimit(1)
-                                        .truncationMode(.middle)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 6)
-                                        .background(Color.blue.opacity(0.12))
-                                        .foregroundStyle(.blue)
-                                        .clipShape(Capsule())
+                                    TintedLabelCapsuleBadge(
+                                        text: image.filename,
+                                        systemImage: "photo",
+                                        foregroundStyle: .blue,
+                                        backgroundStyle: Color.blue.opacity(0.12),
+                                        horizontalPadding: 8,
+                                        verticalPadding: 6
+                                    )
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
                                 }
                                 .buttonStyle(.plain)
                             }

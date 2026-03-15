@@ -269,21 +269,7 @@ private struct ApprovalFilterChip: View {
     let isSelected: Bool
 
     var body: some View {
-        Text(label)
-            .font(.caption.weight(.semibold))
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(backgroundColor)
-            .foregroundStyle(foregroundColor)
-            .clipShape(Capsule())
-    }
-
-    private var backgroundColor: Color {
-        isSelected ? Color.accentColor.opacity(0.16) : Color.secondary.opacity(0.12)
-    }
-
-    private var foregroundColor: Color {
-        isSelected ? .accentColor : .secondary
+        SelectableCapsuleBadge(text: label, isSelected: isSelected)
     }
 }
 
