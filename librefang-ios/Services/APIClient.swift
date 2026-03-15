@@ -11,13 +11,13 @@ enum APIError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidURL:
-            return "Invalid server URL"
+            return String(localized: "Invalid server URL")
         case .httpError(let code, let message):
-            return "HTTP \(code): \(message)"
+            return String(localized: "HTTP \(code): \(message)")
         case .decodingError(let error):
-            return "Decoding error: \(error.localizedDescription)"
+            return String(localized: "Decoding error: \(error.localizedDescription)")
         case .networkError(let error):
-            return "Network error: \(error.localizedDescription)"
+            return String(localized: "Network error: \(error.localizedDescription)")
         }
     }
 }
@@ -89,6 +89,9 @@ protocol APIClientProtocol: Sendable {
     func agentDeliveries(agentId: String, limit: Int) async throws -> AgentDeliveryReceiptResponse
     func agentFiles(agentId: String) async throws -> AgentWorkspaceFileListResponse
     func agentFile(agentId: String, name: String) async throws -> AgentWorkspaceFileDetail
+    func agentToolFilters(agentId: String) async throws -> AgentToolFilters
+    func agentSkills(agentId: String) async throws -> AgentAssignmentScope
+    func agentMCPServers(agentId: String) async throws -> AgentAssignmentScope
     func profiles() async throws -> [ToolProfileSummary]
     func profile(name: String) async throws -> ToolProfileSummary
     func connectionInfo() async throws -> APIConnectionInfo
@@ -346,7 +349,7 @@ actor APIClient: APIClientProtocol {
         }
 
         if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
-            let message = String(data: data, encoding: .utf8) ?? "Unknown error"
+            let message = String(data: data, encoding: .utf8) ?? String(localized: "Unknown error")
             throw APIError.httpError(http.statusCode, message)
         }
 
@@ -364,6 +367,18 @@ actor APIClient: APIClientProtocol {
 
     func agentFile(agentId: String, name: String) async throws -> AgentWorkspaceFileDetail {
         try await get("/api/agents/\(agentId)/files/\(encodedPathComponent(name))")
+    }
+
+    func agentToolFilters(agentId: String) async throws -> AgentToolFilters {
+        try await get("/api/agents/\(agentId)/tools")
+    }
+
+    func agentSkills(agentId: String) async throws -> AgentAssignmentScope {
+        try await get("/api/agents/\(agentId)/skills")
+    }
+
+    func agentMCPServers(agentId: String) async throws -> AgentAssignmentScope {
+        try await get("/api/agents/\(agentId)/mcp_servers")
     }
 
     func profiles() async throws -> [ToolProfileSummary] {
@@ -443,7 +458,7 @@ actor APIClient: APIClientProtocol {
         }
 
         if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
-            let message = String(data: data, encoding: .utf8) ?? "Unknown error"
+            let message = String(data: data, encoding: .utf8) ?? String(localized: "Unknown error")
             throw APIError.httpError(http.statusCode, message)
         }
 
@@ -465,7 +480,7 @@ actor APIClient: APIClientProtocol {
         if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
             let message = (try? JSONDecoder().decode([String: String].self, from: data))?["error"]
                 ?? String(data: data, encoding: .utf8)
-                ?? "Unknown error"
+                ?? String(localized: "Unknown error")
             throw APIError.httpError(http.statusCode, message)
         }
 
@@ -483,7 +498,7 @@ private enum DecodingFailure: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidTextEncoding:
-            return "Response text encoding is invalid"
+            return String(localized: "Response text encoding is invalid")
         }
     }
 }

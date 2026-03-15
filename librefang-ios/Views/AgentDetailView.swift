@@ -10,6 +10,9 @@ struct AgentDetailView: View {
     @State private var agentFiles: [AgentWorkspaceFileSummary] = []
     @State private var agentDeliveries: [DeliveryReceipt] = []
     @State private var agentProfileSummary: ToolProfileSummary?
+    @State private var agentToolFilters: AgentToolFilters?
+    @State private var agentSkills: AgentAssignmentScope?
+    @State private var agentMCPServers: AgentAssignmentScope?
     @State private var pendingApprovalAction: ApprovalDecisionAction?
     @State private var approvalActionInFlightID: String?
     @State private var pendingSessionAction: AgentSessionControlAction?
@@ -35,6 +38,7 @@ struct AgentDetailView: View {
     @State private var isLoadingFiles = true
     @State private var isLoadingDeliveries = true
     @State private var isLoadingProfile = true
+    @State private var isLoadingCapabilities = true
 
     private var agentApprovals: [ApprovalItem] {
         deps.dashboardViewModel.approvals.filter { $0.agentId == agent.id || $0.agentName == agent.name }
@@ -148,6 +152,7 @@ struct AgentDetailView: View {
             await loadDeliveries()
             await loadFiles()
             await loadProfile()
+            await loadCapabilities()
         }
         .sheet(isPresented: $showChat) {
             NavigationStack {
@@ -431,6 +436,42 @@ struct AgentDetailView: View {
                     value: missingWorkspaceFileCount == 0 ? "Identity files present" : "\(missingWorkspaceFileCount) missing",
                     valueColor: missingWorkspaceFileCount == 0 ? .green : .orange
                 )
+            }
+            if !isLoadingCapabilities {
+                if let agentToolFilters {
+                    DetailRow(
+                        icon: "slider.horizontal.3",
+                        label: "Tool Scope",
+                        value: toolScopeSummary(agentToolFilters),
+                        valueColor: agentToolFilters.isRestricted ? .orange : .green
+                    )
+                }
+                if let agentSkills {
+                    DetailRow(
+                        icon: "sparkles",
+                        label: "Skills",
+                        value: assignmentSummary(agentSkills, emptyLabel: "All skills"),
+                        valueColor: agentSkills.usesAllowlist ? .orange : .green
+                    )
+                }
+                if let agentMCPServers {
+                    DetailRow(
+                        icon: "shippingbox",
+                        label: "MCP Scope",
+                        value: assignmentSummary(agentMCPServers, emptyLabel: "All servers"),
+                        valueColor: agentMCPServers.usesAllowlist ? .orange : .green
+                    )
+                }
+                NavigationLink {
+                    AgentCapabilitiesView(
+                        agent: agent,
+                        initialToolFilters: agentToolFilters,
+                        initialSkills: agentSkills,
+                        initialMCPServers: agentMCPServers
+                    )
+                } label: {
+                    Label("Inspect Capabilities", systemImage: "slider.horizontal.3")
+                }
             }
             if let profile = agent.profile {
                 NavigationLink {
@@ -965,6 +1006,17 @@ struct AgentDetailView: View {
                 Label("Inspect Delivery Receipts", systemImage: "paperplane")
             }
 
+            NavigationLink {
+                AgentCapabilitiesView(
+                    agent: agent,
+                    initialToolFilters: agentToolFilters,
+                    initialSkills: agentSkills,
+                    initialMCPServers: agentMCPServers
+                )
+            } label: {
+                Label("Inspect Capabilities", systemImage: "slider.horizontal.3")
+            }
+
             if let profile = agent.profile {
                 NavigationLink {
                     ToolProfilesView(selectedProfileName: profile)
@@ -1142,6 +1194,42 @@ struct AgentDetailView: View {
         } catch {
             agentProfileSummary = nil
         }
+    }
+
+    @MainActor
+    private func loadCapabilities() async {
+        defer { isLoadingCapabilities = false }
+
+        do {
+            async let toolFilters = deps.apiClient.agentToolFilters(agentId: agent.id)
+            async let skills = deps.apiClient.agentSkills(agentId: agent.id)
+            async let mcpServers = deps.apiClient.agentMCPServers(agentId: agent.id)
+
+            agentToolFilters = try await toolFilters
+            agentSkills = try await skills
+            agentMCPServers = try await mcpServers
+        } catch {
+            agentToolFilters = nil
+            agentSkills = nil
+            agentMCPServers = nil
+        }
+    }
+
+    private func toolScopeSummary(_ filters: AgentToolFilters) -> String {
+        switch (filters.toolAllowlist.isEmpty, filters.toolBlocklist.isEmpty) {
+        case (true, true):
+            return "All tools"
+        case (false, true):
+            return "\(filters.toolAllowlist.count) allowed"
+        case (true, false):
+            return "\(filters.toolBlocklist.count) blocked"
+        case (false, false):
+            return "\(filters.toolAllowlist.count) allow / \(filters.toolBlocklist.count) block"
+        }
+    }
+
+    private func assignmentSummary(_ assignment: AgentAssignmentScope, emptyLabel: String) -> String {
+        assignment.usesAllowlist ? "\(assignment.assigned.count) assigned" : emptyLabel
     }
 
     private var approvalActionConfirmationPresented: Binding<Bool> {
