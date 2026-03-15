@@ -58,6 +58,14 @@ struct CommsView: View {
             }
 
             Section {
+                if let topology = viewModel.topology {
+                    CommsTopologyInventoryDeck(
+                        topology: topology,
+                        visibleEdges: visibleEdges
+                    )
+                    .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
+                }
+
                 CommsSummaryRow(label: "Agents") {
                     Text("\(viewModel.nodeCount)")
                         .monospacedDigit()
@@ -393,6 +401,99 @@ private struct CommsTrafficInventoryDeck: View {
             return String(localized: "Live links and transport state stay summarized before the traffic feed.")
         }
         return String(localized: "Filtered by \"\(query)\" before the traffic feed.")
+    }
+}
+
+private struct CommsTopologyInventoryDeck: View {
+    let topology: CommsTopology
+    let visibleEdges: [CommsEdge]
+
+    private var peerCount: Int {
+        topology.edges.filter { $0.kind == .peer }.count
+    }
+
+    private var parentChildCount: Int {
+        topology.edges.filter { $0.kind == .parentChild }.count
+    }
+
+    private var representedNodeCount: Int {
+        Set(visibleEdges.flatMap { [$0.from, $0.to] }).count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine) {
+                FlowLayout(spacing: 6) {
+                    PresentationToneBadge(
+                        text: topology.nodes.count == 1 ? String(localized: "1 agent mapped") : String(localized: "\(topology.nodes.count) agents mapped"),
+                        tone: topology.nodes.count > 1 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: topology.edges.count == 1 ? String(localized: "1 live link") : String(localized: "\(topology.edges.count) live links"),
+                        tone: topology.edges.isEmpty ? .neutral : .positive
+                    )
+                    if peerCount > 0 {
+                        PresentationToneBadge(
+                            text: peerCount == 1 ? String(localized: "1 peer link") : String(localized: "\(peerCount) peer links"),
+                            tone: .positive
+                        )
+                    }
+                    if parentChildCount > 0 {
+                        PresentationToneBadge(
+                            text: parentChildCount == 1 ? String(localized: "1 parent-child link") : String(localized: "\(parentChildCount) parent-child links"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Topology inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep node spread, relationship mix, and visible route depth summarized before the link rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleEdges.count == topology.edges.count
+                        ? String(localized: "Full topology")
+                        : String(localized: "\(visibleEdges.count)/\(topology.edges.count) visible"),
+                    tone: visibleEdges.count == topology.edges.count ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    representedNodeCount == 1 ? String(localized: "1 visible endpoint") : String(localized: "\(representedNodeCount) visible endpoints"),
+                    systemImage: "circle.grid.2x2"
+                )
+                Label(
+                    peerCount == 1 ? String(localized: "1 peer route") : String(localized: "\(peerCount) peer routes"),
+                    systemImage: "arrow.left.arrow.right"
+                )
+                Label(
+                    parentChildCount == 1 ? String(localized: "1 parent-child route") : String(localized: "\(parentChildCount) parent-child routes"),
+                    systemImage: "arrow.down.forward.and.arrow.up.backward"
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if topology.edges.isEmpty {
+            return String(localized: "Topology is ready for the first live agent link.")
+        }
+        if visibleEdges.count == topology.edges.count {
+            return topology.edges.count == 1
+                ? String(localized: "The topology section is showing the only live comms link.")
+                : String(localized: "The topology section is showing all \(topology.edges.count) live comms links.")
+        }
+        return String(localized: "The topology section is showing \(visibleEdges.count) of \(topology.edges.count) live comms links.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Agent count, link mix, and route visibility stay summarized here before the topology rows.")
     }
 }
 

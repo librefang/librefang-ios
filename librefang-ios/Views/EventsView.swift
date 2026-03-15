@@ -31,68 +31,16 @@ struct EventsView: View {
             return .positive
         }
     }
+    private var trimmedSearchText: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     var body: some View {
         List {
-            if let error = viewModel.error, viewModel.entries.isEmpty {
-                Section {
-                    ErrorBanner(message: error, onRetry: {
-                        await viewModel.refresh()
-                    }, onDismiss: {
-                        viewModel.error = nil
-                    })
-                    .listRowInsets(.init())
-                    .listRowBackground(Color.clear)
-                }
-            }
-
-            Section {
-                EventScoreboard(viewModel: viewModel)
-                    .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-            }
-
-            Section {
-                eventsStatusDeckCard
-                eventsControlDeckCard
-            } header: {
-                Text("Controls")
-            } footer: {
-                Text("Event pressure, routes, and filters stay together before the feed.")
-            }
-
-            if filteredEntries.isEmpty && !viewModel.isLoading {
-                Section("Feed") {
-                    ContentUnavailableView(
-                        searchText.isEmpty ? String(localized: "No Matching Events") : String(localized: "No Search Results"),
-                        systemImage: scope == .all ? "list.bullet.rectangle" : "line.3.horizontal.decrease.circle",
-                        description: Text(searchText.isEmpty ? String(localized: "Pull to refresh or widen the severity filter.") : String(localized: "Try a different agent, action, or detail query."))
-                    )
-                }
-            } else {
-                Section {
-                    EventFeedInventoryDeck(
-                        visibleCount: filteredEntries.count,
-                        totalCount: viewModel.entries.count,
-                        criticalCount: filteredEntries.filter { $0.presentation.severity == .critical }.count,
-                        isStreaming: viewModel.isStreaming,
-                        searchText: searchText
-                    )
-                    .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
-
-                    ForEach(filteredEntries) { entry in
-                        EventRow(entry: entry, agentName: agentName(for: entry.agentId))
-                    }
-                } header: {
-                    Text("Feed")
-                } footer: {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("\(filteredEntries.count) of \(viewModel.entries.count) events visible")
-                        if let tipHash = viewModel.tipHash, !tipHash.isEmpty {
-                            Text("Tip \(String(tipHash.prefix(16)))...")
-                        }
-                    }
-                }
-            }
+            eventsErrorSection
+            eventsScoreboardSection
+            eventsControlsSection
+            eventsFeedSection
         }
         .navigationTitle("Events")
         .searchable(text: $searchText, prompt: "Search action, detail, or agent")
@@ -125,6 +73,81 @@ struct EventsView: View {
 
     private func agentName(for id: String) -> String? {
         deps.dashboardViewModel.agents.first(where: { $0.id == id })?.name
+    }
+
+    @ViewBuilder
+    private var eventsErrorSection: some View {
+        if let error = viewModel.error, viewModel.entries.isEmpty {
+            Section {
+                ErrorBanner(message: error, onRetry: {
+                    await viewModel.refresh()
+                }, onDismiss: {
+                    viewModel.error = nil
+                })
+                .listRowInsets(.init())
+                .listRowBackground(Color.clear)
+            }
+        }
+    }
+
+    private var eventsScoreboardSection: some View {
+        Section {
+            EventScoreboard(viewModel: viewModel)
+                .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+        }
+    }
+
+    private var eventsControlsSection: some View {
+        Section {
+            eventsStatusDeckCard
+            eventsControlDeckCard
+        } header: {
+            Text("Controls")
+        } footer: {
+            Text("Event pressure, routes, and filters stay together before the feed.")
+        }
+    }
+
+    @ViewBuilder
+    private var eventsFeedSection: some View {
+        if filteredEntries.isEmpty && !viewModel.isLoading {
+            Section("Feed") {
+                ContentUnavailableView(
+                    trimmedSearchText.isEmpty ? String(localized: "No Matching Events") : String(localized: "No Search Results"),
+                    systemImage: scope == .all ? "list.bullet.rectangle" : "line.3.horizontal.decrease.circle",
+                    description: Text(trimmedSearchText.isEmpty ? String(localized: "Pull to refresh or widen the severity filter.") : String(localized: "Try a different agent, action, or detail query."))
+                )
+            }
+        } else {
+            Section {
+                EventFeedInventoryDeck(
+                    visibleCount: filteredEntries.count,
+                    totalCount: viewModel.entries.count,
+                    criticalCount: filteredEntries.filter { $0.severity == .critical }.count,
+                    isStreaming: viewModel.isStreaming,
+                    searchText: searchText
+                )
+                .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
+
+                ForEach(filteredEntries) { entry in
+                    EventRow(entry: entry, agentName: agentName(for: entry.agentId))
+                }
+            } header: {
+                Text("Feed")
+            } footer: {
+                eventsFeedFooter
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var eventsFeedFooter: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("\(filteredEntries.count) of \(viewModel.entries.count) events visible")
+            if let tipHash = viewModel.tipHash, !tipHash.isEmpty {
+                Text("Tip \(String(tipHash.prefix(16)))...")
+            }
+        }
     }
 
     private var eventsStatusDeckCard: some View {
