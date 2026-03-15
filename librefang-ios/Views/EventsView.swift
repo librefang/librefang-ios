@@ -259,38 +259,36 @@ private struct EventRow: View {
     let agentName: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: entry.severity.symbolName)
-                    .foregroundStyle(entry.severity.tone.color)
-                    .frame(width: 18)
+        ResponsiveIconDetailRow(horizontalAlignment: .top, horizontalSpacing: 10, verticalSpacing: 8, spacerMinLength: 0) {
+            Image(systemName: entry.severity.symbolName)
+                .foregroundStyle(entry.severity.tone.color)
+                .frame(width: 18)
+        } detail: {
+            VStack(alignment: .leading, spacing: 4) {
+                ResponsiveAccessoryRow(
+                    horizontalAlignment: .firstTextBaseline,
+                    verticalSpacing: 2
+                ) {
+                    titleLabel
+                } accessory: {
+                    timestampLabel
+                }
 
-                VStack(alignment: .leading, spacing: 4) {
-                    ResponsiveAccessoryRow(
-                        horizontalAlignment: .firstTextBaseline,
-                        verticalSpacing: 2
-                    ) {
-                        titleLabel
-                    } accessory: {
-                        timestampLabel
-                    }
+                ResponsiveAccessoryRow(
+                    horizontalAlignment: .firstTextBaseline,
+                    horizontalSpacing: 8,
+                    spacerMinLength: 0
+                ) {
+                    agentLabel
+                } accessory: {
+                    outcomeBadge
+                }
 
-                    ResponsiveAccessoryRow(
-                        horizontalAlignment: .firstTextBaseline,
-                        horizontalSpacing: 8,
-                        spacerMinLength: 0
-                    ) {
-                        agentLabel
-                    } accessory: {
-                        outcomeBadge
-                    }
-
-                    if !entry.detail.isEmpty {
-                        Text(entry.detail)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(3)
-                    }
+                if !entry.detail.isEmpty {
+                    Text(entry.detail)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
                 }
             }
         }

@@ -1348,7 +1348,7 @@ private struct HandoffEntryCard: View {
     }
 
     private var entryControls: some View {
-        HStack(spacing: 10) {
+        ResponsiveInlineGroup(horizontalSpacing: 10, verticalSpacing: 6) {
             HandoffKindBadge(kind: entry.kind)
 
             ShareLink(item: entry.shareText) {

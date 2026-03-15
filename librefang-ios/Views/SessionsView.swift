@@ -658,7 +658,7 @@ private struct SessionMonitorRow: View {
     }
 
     private var trailingBlock: some View {
-        HStack(spacing: 8) {
+        ResponsiveInlineGroup(horizontalSpacing: 8, verticalSpacing: 4) {
             if isBusy {
                 ProgressView()
                     .controlSize(.small)

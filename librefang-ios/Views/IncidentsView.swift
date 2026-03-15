@@ -1851,7 +1851,7 @@ private struct IncidentWatchedDiagnosticRow: View {
     }
 
     private var agentHeader: some View {
-        HStack(spacing: 8) {
+        ResponsiveInlineGroup(horizontalSpacing: 8, verticalSpacing: 4) {
             headerContent
         }
     }
@@ -1866,7 +1866,7 @@ private struct IncidentWatchedDiagnosticRow: View {
                 .lineLimit(2)
             Image(systemName: "star.fill")
                 .font(.caption2)
-                .foregroundStyle(.yellow)
+                .foregroundStyle(PresentationTone.caution.color)
         }
     }
 

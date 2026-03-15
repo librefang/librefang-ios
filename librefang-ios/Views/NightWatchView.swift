@@ -914,11 +914,11 @@ private struct NightWatchWatchlistRow: View {
     let item: AgentAttentionItem
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        ResponsiveIconDetailRow(horizontalAlignment: .top, horizontalSpacing: 12, verticalSpacing: 8, spacerMinLength: 0) {
             Image(systemName: "star.fill")
-                .foregroundStyle(.yellow)
+                .foregroundStyle(PresentationTone.caution.color)
                 .frame(width: 18)
-
+        } detail: {
             VStack(alignment: .leading, spacing: 5) {
                 ResponsiveAccessoryRow(verticalSpacing: 6) {
                     agentName
@@ -1017,10 +1017,11 @@ private struct NightWatchActionRow: View {
     let systemImage: String
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        ResponsiveIconDetailRow(horizontalAlignment: .top, horizontalSpacing: 12, verticalSpacing: 8, spacerMinLength: 0) {
             Image(systemName: systemImage)
                 .foregroundStyle(.white.opacity(0.82))
                 .frame(width: 20)
+        } detail: {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.subheadline.weight(.semibold))
@@ -1030,7 +1031,6 @@ private struct NightWatchActionRow: View {
                     .foregroundStyle(.white.opacity(0.68))
                     .fixedSize(horizontal: false, vertical: true)
             }
-            Spacer()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
