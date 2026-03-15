@@ -153,16 +153,10 @@ struct BudgetView: View {
                             AgentCostRow(item: item)
                         }
                     } header: {
-                        ViewThatFits(in: .horizontal) {
-                            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                                Text("Per-Agent Cost")
-                                Spacer()
-                                sortMenu
-                            }
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text("Per-Agent Cost")
-                                sortMenu
-                            }
+                        ResponsiveAccessoryRow(verticalSpacing: 6) {
+                            Text("Per-Agent Cost")
+                        } accessory: {
+                            sortMenu
                         }
                     } footer: {
                         if sortedAgents.count > visibleAgents.count {
@@ -435,17 +429,10 @@ private struct CostDistributionCard: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(topSlices) { slice in
-                    ViewThatFits(in: .horizontal) {
-                        HStack(spacing: 8) {
-                            sliceTitle(slice)
-                            Spacer()
-                            sliceValues(slice)
-                        }
-
-                        VStack(alignment: .leading, spacing: 4) {
-                            sliceTitle(slice)
-                            sliceValues(slice)
-                        }
+                    ResponsiveAccessoryRow(verticalSpacing: 4) {
+                        sliceTitle(slice)
+                    } accessory: {
+                        sliceValues(slice)
                     }
                 }
             }
@@ -562,19 +549,18 @@ private struct BudgetLimitRow: View {
 
     @ViewBuilder
     private func spendSummary(utilizationStatus: BudgetUtilizationStatus) -> some View {
-        ViewThatFits(in: .horizontal) {
+        ResponsiveAccessoryRow(
+            horizontalAlignment: .firstTextBaseline,
+            horizontalSpacing: 4,
+            verticalSpacing: 2,
+            spacerMinLength: 4
+        ) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 amountLabel
                 limitLabel
-                utilizationLabel(utilizationStatus: utilizationStatus)
             }
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    amountLabel
-                    limitLabel
-                }
-                utilizationLabel(utilizationStatus: utilizationStatus)
-            }
+        } accessory: {
+            utilizationLabel(utilizationStatus: utilizationStatus)
         }
     }
 

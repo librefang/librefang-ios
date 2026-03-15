@@ -8,17 +8,10 @@ struct ApprovalOperatorRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 10) {
-                    titleSummary
-                    Spacer()
-                    riskBadge
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    titleSummary
-                    riskBadge
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 6) {
+                titleSummary
+            } accessory: {
+                riskBadge
             }
 
             if !approval.description.isEmpty {
@@ -28,28 +21,15 @@ struct ApprovalOperatorRow: View {
                     .lineLimit(3)
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    metadataLabels
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    metadataLabels
-                }
+            FlowLayout(spacing: 12) {
+                metadataLabels
             }
             .font(.caption2)
             .foregroundStyle(.tertiary)
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 10) {
-                    approveButton
-                    rejectButton
-                }
-
-                VStack(alignment: .leading, spacing: 10) {
-                    approveButton
-                    rejectButton
-                }
+            ResponsiveInlineGroup(horizontalSpacing: 10, verticalSpacing: 10) {
+                approveButton
+                rejectButton
             }
             .font(.caption.weight(.semibold))
         }

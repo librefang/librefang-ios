@@ -1043,25 +1043,13 @@ private struct IncidentOperatorCard: View {
                     .foregroundStyle(.secondary)
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 10) {
-                    if activeAlertCount > 0 {
-                        acknowledgeButton
-                    }
-
-                    if mutedAlertCount > 0 {
-                        unmuteButton
-                    }
+            ResponsiveInlineGroup(horizontalSpacing: 10, verticalSpacing: 10) {
+                if activeAlertCount > 0 {
+                    acknowledgeButton
                 }
 
-                VStack(alignment: .leading, spacing: 10) {
-                    if activeAlertCount > 0 {
-                        acknowledgeButton
-                    }
-
-                    if mutedAlertCount > 0 {
-                        unmuteButton
-                    }
+                if mutedAlertCount > 0 {
+                    unmuteButton
                 }
             }
         }
@@ -1572,14 +1560,8 @@ private struct IncidentIntegrationAgentRow: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    metadataLabels
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    metadataLabels
-                }
+            FlowLayout(spacing: 12) {
+                metadataLabels
             }
             .font(.caption2)
             .foregroundStyle(.secondary)
@@ -1631,14 +1613,8 @@ private struct IncidentWatchedDiagnosticRow: View {
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) {
-                    issuePills
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    issuePills
-                }
+            FlowLayout(spacing: 8) {
+                issuePills
             }
         }
         .padding(.vertical, 2)

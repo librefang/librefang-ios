@@ -9,20 +9,12 @@ struct ErrorBanner: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 10) {
-                    messageSummary
-                    Spacer(minLength: 8)
-                    if let onDismiss {
-                        dismissButton(onDismiss)
-                    }
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    messageSummary
-                    if let onDismiss {
-                        dismissButton(onDismiss)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                messageSummary
+            } accessory: {
+                if let onDismiss {
+                    dismissButton(onDismiss)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                 }
             }
 
