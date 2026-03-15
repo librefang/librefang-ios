@@ -1181,7 +1181,7 @@ private struct IncidentAlertRow: View {
     }
 
     private var controlsRow: some View {
-        HStack(spacing: 8) {
+        ResponsiveInlineGroup(horizontalSpacing: 8, verticalSpacing: 4) {
             muteButton
             severityBadge
         }

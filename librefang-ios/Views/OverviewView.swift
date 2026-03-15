@@ -1,5 +1,15 @@
 import SwiftUI
 
+private enum OverviewSectionAnchor: Hashable {
+    case diagnostics
+    case integrations
+    case automation
+    case watchlist
+    case sessions
+    case audit
+    case agents
+}
+
 struct OverviewView: View {
     @Environment(\.dependencies) private var deps
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -106,209 +116,244 @@ struct OverviewView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    if let error = vm.error {
-                        ErrorBanner(message: error, onRetry: {
-                            await vm.refresh()
-                        }, onDismiss: {
-                            vm.error = nil
-                        })
-                    }
-
-                    ConnectionCard(health: vm.health, lastRefresh: vm.lastRefresh, isStale: vm.isDataStale)
-
-                    if !visibleMonitoringAlerts.isEmpty || activeMutedAlertCount > 0 {
-                        NavigationLink {
-                            IncidentsView()
-                        } label: {
-                            AlertsCard(
-                                alerts: visibleMonitoringAlerts,
-                                mutedCount: activeMutedAlertCount,
-                                snapshotAcknowledged: isCurrentSnapshotAcknowledged
-                            )
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 16) {
+                        if let error = vm.error {
+                            ErrorBanner(message: error, onRetry: {
+                                await vm.refresh()
+                            }, onDismiss: {
+                                vm.error = nil
+                            })
                         }
-                        .buttonStyle(.plain)
-                    }
 
-                    NavigationLink {
-                        preferredSurfaceView
-                    } label: {
-                        OnCallDigestCard(
-                            queueCount: onCallPriorityItems.count,
-                            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                            watchCount: watchedAttentionItems.count,
-                            summary: onCallDigestLine
-                        )
-                    }
-                    .buttonStyle(.plain)
+                        ConnectionCard(health: vm.health, lastRefresh: vm.lastRefresh, isStale: vm.isDataStale)
 
-                    if let latestHandoff = deps.onCallHandoffStore.latestEntry {
+                        if !visibleMonitoringAlerts.isEmpty || activeMutedAlertCount > 0 {
+                            NavigationLink {
+                                IncidentsView()
+                            } label: {
+                                AlertsCard(
+                                    alerts: visibleMonitoringAlerts,
+                                    mutedCount: activeMutedAlertCount,
+                                    snapshotAcknowledged: isCurrentSnapshotAcknowledged
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+
                         NavigationLink {
-                            HandoffCenterView(
-                                summary: handoffText,
+                            preferredSurfaceView
+                        } label: {
+                            OnCallDigestCard(
                                 queueCount: onCallPriorityItems.count,
                                 criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                                liveAlertCount: visibleMonitoringAlerts.count
-                            )
-                        } label: {
-                            RecentHandoffCard(
-                                entry: latestHandoff,
-                                gapLabel: latestHandoffGapLabel,
-                                checkInStatus: deps.onCallHandoffStore.latestCheckInStatus,
-                                drift: latestHandoffDrift,
-                                carryover: latestHandoffCarryover,
-                                pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
-                                completedFollowUpCount: deps.onCallHandoffStore.completedLatestFollowUpCount
+                                watchCount: watchedAttentionItems.count,
+                                summary: onCallDigestLine
                             )
                         }
                         .buttonStyle(.plain)
-                    }
 
-                    OverviewTriageCard(
-                        queueCount: onCallPriorityItems.count,
-                        criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                        approvalCount: vm.pendingApprovalCount,
-                        sessionCount: vm.sessionAttentionCount,
-                        watchIssueCount: overviewWatchIssueCount,
-                        automationIssueCount: vm.automationPressureIssueCategoryCount,
-                        integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                        handoffStateLabel: deps.onCallHandoffStore.freshnessLabel,
-                        handoffTone: deps.onCallHandoffStore.freshnessState.tone
-                    )
-
-                    OverviewQuickLinksCard(
-                        criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                        approvalCount: vm.pendingApprovalCount,
-                        sessionCount: vm.sessionAttentionCount,
-                        automationIssueCount: vm.automationPressureIssueCategoryCount,
-                        integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                        handoffText: handoffText,
-                        queueCount: onCallPriorityItems.count,
-                        liveAlertCount: visibleMonitoringAlerts.count
-                    )
-
-                    LazyVGrid(columns: summaryColumns, spacing: 10) {
-                        StatBadge(
-                            value: "\(vm.runningCount)",
-                            label: "Running",
-                            icon: "play.circle.fill",
-                            color: vm.runningAgentStatus.color(positive: .green)
-                        )
-                        StatBadge(
-                            value: formatCost(vm.budget?.dailySpend),
-                            label: "Today",
-                            icon: "dollarsign.circle",
-                            color: StatusPresentation.budgetUtilizationStatus(for: vm.budget?.dailyPct)?.color() ?? .primary
-                        )
-                        StatBadge(
-                            value: "\(vm.pendingApprovalCount)",
-                            label: "Approvals",
-                            icon: "exclamationmark.shield",
-                            color: vm.approvalBacklogStatus.color(positive: .green)
-                        )
-                        StatBadge(
-                            value: "\(vm.configuredProviderCount)",
-                            label: "Providers",
-                            icon: "key.horizontal",
-                            color: vm.providerReadinessStatus.color(positive: .blue)
-                        )
-                        StatBadge(
-                            value: "\(vm.readyChannelCount)",
-                            label: "Channels",
-                            icon: "bubble.left.and.bubble.right",
-                            color: vm.channelReadinessStatus.color(positive: .teal)
-                        )
-                        StatBadge(
-                            value: "\(vm.activeHandCount)",
-                            label: "Hands",
-                            icon: "hand.raised",
-                            color: vm.handReadinessStatus.color(positive: .indigo)
-                        )
-                    }
-
-                    if let status = vm.status {
-                        SystemSnapshotCard(
-                            status: status,
-                            security: vm.security,
-                            usageSummary: vm.usageSummary,
-                            connectedProviders: vm.configuredProviderCount,
-                            networkStatus: vm.networkStatus,
-                            sessionCount: vm.totalSessionCount,
-                            mcpConnectedServers: vm.connectedMCPServerCount
-                        )
-                    }
-
-                    if vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil {
-                        NavigationLink {
-                            DiagnosticsView()
-                        } label: {
-                            DiagnosticsOverviewCard(vm: vm)
+                        if let latestHandoff = deps.onCallHandoffStore.latestEntry {
+                            NavigationLink {
+                                HandoffCenterView(
+                                    summary: handoffText,
+                                    queueCount: onCallPriorityItems.count,
+                                    criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                                    liveAlertCount: visibleMonitoringAlerts.count
+                                )
+                            } label: {
+                                RecentHandoffCard(
+                                    entry: latestHandoff,
+                                    gapLabel: latestHandoffGapLabel,
+                                    checkInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+                                    drift: latestHandoffDrift,
+                                    carryover: latestHandoffCarryover,
+                                    pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
+                                    completedFollowUpCount: deps.onCallHandoffStore.completedLatestFollowUpCount
+                                )
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
-                    }
 
-                    if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
-                        NavigationLink {
-                            IntegrationsView()
-                        } label: {
-                            IntegrationsOverviewCard(vm: vm)
+                        OverviewTriageCard(
+                            queueCount: onCallPriorityItems.count,
+                            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                            approvalCount: vm.pendingApprovalCount,
+                            sessionCount: vm.sessionAttentionCount,
+                            watchIssueCount: overviewWatchIssueCount,
+                            automationIssueCount: vm.automationPressureIssueCategoryCount,
+                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                            handoffStateLabel: deps.onCallHandoffStore.freshnessLabel,
+                            handoffTone: deps.onCallHandoffStore.freshnessState.tone
+                        )
+
+                        OverviewQuickLinksCard(
+                            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                            approvalCount: vm.pendingApprovalCount,
+                            sessionCount: vm.sessionAttentionCount,
+                            automationIssueCount: vm.automationPressureIssueCategoryCount,
+                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                            handoffText: handoffText,
+                            queueCount: onCallPriorityItems.count,
+                            liveAlertCount: visibleMonitoringAlerts.count
+                        )
+
+                        OverviewSurfaceRailCard(
+                            diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                            automationIssueCount: vm.automationPressureIssueCategoryCount,
+                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                            budgetDailyCost: vm.budget?.dailySpend
+                        )
+
+                        OverviewFocusRailCard(
+                            diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                            automationIssueCount: vm.automationPressureIssueCategoryCount,
+                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                            watchIssueCount: overviewWatchIssueCount,
+                            sessionCount: vm.sessionAttentionCount,
+                            auditCount: vm.recentAudit.count,
+                            agentCount: vm.attentionAgents.isEmpty ? vm.agents.count : vm.attentionAgents.count,
+                            showsDiagnostics: vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil,
+                            showsIntegrations: !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty,
+                            showsAutomation: vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty,
+                            showsWatchlist: !watchedAttentionItems.isEmpty,
+                            showsSessions: !vm.sessionAttentionItems.isEmpty,
+                            showsAudit: !vm.recentAudit.isEmpty,
+                            showsAgents: !vm.agents.isEmpty
+                        ) { anchor in
+                            jump(proxy, to: anchor)
                         }
-                        .buttonStyle(.plain)
-                    }
 
-                    ReadinessCard(vm: vm)
-
-                    if let usageSummary = vm.usageSummary {
-                        UsageSnapshotCard(usageSummary: usageSummary)
-                    }
-
-                    if let budget = vm.budget {
-                        BudgetGaugesCard(budget: budget)
-                    }
-
-                    if let ranking = vm.budgetAgents, !ranking.agents.isEmpty {
-                        TopSpendersCard(agents: ranking.agents)
-                    }
-
-                    if !vm.activeHands.isEmpty || !vm.approvals.isEmpty {
-                        LiveSignalsCard(activeHands: vm.activeHands, approvals: vm.approvals, hands: vm.hands)
-                    }
-
-                    if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
-                        NavigationLink {
-                            AutomationView()
-                        } label: {
-                            AutomationOverviewCard(vm: vm)
+                        LazyVGrid(columns: summaryColumns, spacing: 10) {
+                            StatBadge(
+                                value: "\(vm.runningCount)",
+                                label: "Running",
+                                icon: "play.circle.fill",
+                                color: vm.runningAgentStatus.color(positive: .green)
+                            )
+                            StatBadge(
+                                value: formatCost(vm.budget?.dailySpend),
+                                label: "Today",
+                                icon: "dollarsign.circle",
+                                color: StatusPresentation.budgetUtilizationStatus(for: vm.budget?.dailyPct)?.color() ?? .primary
+                            )
+                            StatBadge(
+                                value: "\(vm.pendingApprovalCount)",
+                                label: "Approvals",
+                                icon: "exclamationmark.shield",
+                                color: vm.approvalBacklogStatus.color(positive: .green)
+                            )
+                            StatBadge(
+                                value: "\(vm.configuredProviderCount)",
+                                label: "Providers",
+                                icon: "key.horizontal",
+                                color: vm.providerReadinessStatus.color(positive: .blue)
+                            )
+                            StatBadge(
+                                value: "\(vm.readyChannelCount)",
+                                label: "Channels",
+                                icon: "bubble.left.and.bubble.right",
+                                color: vm.channelReadinessStatus.color(positive: .teal)
+                            )
+                            StatBadge(
+                                value: "\(vm.activeHandCount)",
+                                label: "Hands",
+                                icon: "hand.raised",
+                                color: vm.handReadinessStatus.color(positive: .indigo)
+                            )
                         }
-                        .buttonStyle(.plain)
-                    }
 
-                    if !watchedAttentionItems.isEmpty {
-                        WatchlistCard(items: watchedAttentionItems, diagnostics: watchedDiagnostics)
-                    }
+                        if let status = vm.status {
+                            SystemSnapshotCard(
+                                status: status,
+                                security: vm.security,
+                                usageSummary: vm.usageSummary,
+                                connectedProviders: vm.configuredProviderCount,
+                                networkStatus: vm.networkStatus,
+                                sessionCount: vm.totalSessionCount,
+                                mcpConnectedServers: vm.connectedMCPServerCount
+                            )
+                        }
 
-                    if !vm.sessionAttentionItems.isEmpty {
-                        SessionWatchlistCard(items: vm.sessionAttentionItems)
-                    }
+                        if vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil {
+                            NavigationLink {
+                                DiagnosticsView()
+                            } label: {
+                                DiagnosticsOverviewCard(vm: vm)
+                            }
+                            .buttonStyle(.plain)
+                            .id(OverviewSectionAnchor.diagnostics)
+                        }
 
-                    if !vm.attentionAgents.isEmpty {
-                        AttentionAgentsCard(items: vm.attentionAgents)
-                    }
+                        if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
+                            NavigationLink {
+                                IntegrationsView()
+                            } label: {
+                                IntegrationsOverviewCard(vm: vm)
+                            }
+                            .buttonStyle(.plain)
+                            .id(OverviewSectionAnchor.integrations)
+                        }
 
-                    if !vm.recentAudit.isEmpty {
-                        AuditFeedCard(entries: vm.recentAudit)
-                    }
+                        ReadinessCard(vm: vm)
 
-                    if let a2a = vm.a2aAgents, a2a.total > 0 {
-                        A2ASummaryCard(count: a2a.total)
-                    }
+                        if let usageSummary = vm.usageSummary {
+                            UsageSnapshotCard(usageSummary: usageSummary)
+                        }
 
-                    if !vm.agents.isEmpty {
-                        AgentPreviewCard(agents: vm.attentionAgents.isEmpty ? vm.agents : vm.attentionAgents.map(\.agent))
+                        if let budget = vm.budget {
+                            BudgetGaugesCard(budget: budget)
+                        }
+
+                        if let ranking = vm.budgetAgents, !ranking.agents.isEmpty {
+                            TopSpendersCard(agents: ranking.agents)
+                        }
+
+                        if !vm.activeHands.isEmpty || !vm.approvals.isEmpty {
+                            LiveSignalsCard(activeHands: vm.activeHands, approvals: vm.approvals, hands: vm.hands)
+                        }
+
+                        if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
+                            NavigationLink {
+                                AutomationView()
+                            } label: {
+                                AutomationOverviewCard(vm: vm)
+                            }
+                            .buttonStyle(.plain)
+                            .id(OverviewSectionAnchor.automation)
+                        }
+
+                        if !watchedAttentionItems.isEmpty {
+                            WatchlistCard(items: watchedAttentionItems, diagnostics: watchedDiagnostics)
+                                .id(OverviewSectionAnchor.watchlist)
+                        }
+
+                        if !vm.sessionAttentionItems.isEmpty {
+                            SessionWatchlistCard(items: vm.sessionAttentionItems)
+                                .id(OverviewSectionAnchor.sessions)
+                        }
+
+                        if !vm.attentionAgents.isEmpty {
+                            AttentionAgentsCard(items: vm.attentionAgents)
+                        }
+
+                        if !vm.recentAudit.isEmpty {
+                            AuditFeedCard(entries: vm.recentAudit)
+                                .id(OverviewSectionAnchor.audit)
+                        }
+
+                        if let a2a = vm.a2aAgents, a2a.total > 0 {
+                            A2ASummaryCard(count: a2a.total)
+                        }
+
+                        if !vm.agents.isEmpty {
+                            AgentPreviewCard(agents: vm.attentionAgents.isEmpty ? vm.agents : vm.attentionAgents.map(\.agent))
+                                .id(OverviewSectionAnchor.agents)
+                        }
                     }
+                    .padding()
                 }
-                .padding()
             }
             .navigationTitle("LibreFang")
             .toolbar {
@@ -411,6 +456,12 @@ struct OverviewView: View {
             NightWatchView()
         case .standbyDigest:
             StandbyDigestView()
+        }
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: OverviewSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
         }
     }
 }
@@ -575,6 +626,275 @@ private struct OverviewQuickLinksCard: View {
     }
 }
 
+private struct OverviewSurfaceRailCard: View {
+    let diagnosticsWarningCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let budgetDailyCost: Double?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Operator surfaces stay one tap away from overview on compact screens."),
+                detail: String(localized: "Use this rail when you know which monitor you need and do not want to traverse intermediate cards.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    if diagnosticsWarningCount > 0 {
+                        PresentationToneBadge(
+                            text: diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
+                            tone: .warning
+                        )
+                    }
+                    if automationIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                            tone: .warning
+                        )
+                    }
+                    if integrationIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                            tone: .critical
+                        )
+                    }
+                    if let budgetDailyCost {
+                        PresentationToneBadge(
+                            text: String(localized: "Today \(localizedUSDCurrency(budgetDailyCost))"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            VStack(spacing: 10) {
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Runtime Monitor"),
+                        detail: String(localized: "Inspect providers, channels, sessions, hands, approvals, and runtime security."),
+                        systemImage: "waveform.path.ecg",
+                        tone: .neutral
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    DiagnosticsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Deep Diagnostics"),
+                        detail: String(localized: "Jump straight into health detail, build metadata, config warnings, and metrics."),
+                        systemImage: "stethoscope",
+                        tone: diagnosticsWarningCount > 0 ? .warning : .neutral,
+                        badgeText: diagnosticsWarningCount == 0 ? nil : String(localized: "\(diagnosticsWarningCount) warnings"),
+                        badgeTone: .warning
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    IntegrationsView(initialScope: .attention)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Integrations"),
+                        detail: String(localized: "Inspect provider outages, channel gaps, model catalog availability, and agent drift."),
+                        systemImage: "square.3.layers.3d.down.forward",
+                        tone: integrationIssueCount > 0 ? .critical : .neutral,
+                        badgeText: integrationIssueCount == 0 ? nil : String(localized: "\(integrationIssueCount) issues"),
+                        badgeTone: .critical
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    AutomationView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Automation"),
+                        detail: String(localized: "Inspect workflows, recent runs, triggers, schedules, and cron pressure."),
+                        systemImage: "flowchart",
+                        tone: automationIssueCount > 0 ? .warning : .neutral,
+                        badgeText: automationIssueCount == 0 ? nil : String(localized: "\(automationIssueCount) issues"),
+                        badgeTone: .warning
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    BudgetView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Budget"),
+                        detail: String(localized: "Inspect spend limits, daily trend, model cost distribution, and per-agent usage."),
+                        systemImage: "chart.bar",
+                        tone: .neutral,
+                        badgeText: budgetDailyCost.map { localizedUSDCurrency($0) },
+                        badgeTone: .neutral
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    SettingsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Settings"),
+                        detail: String(localized: "Adjust server connection, refresh behavior, language, and on-call device settings."),
+                        systemImage: "gearshape",
+                        tone: .neutral
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
+
+private struct OverviewFocusRailCard: View {
+    let diagnosticsWarningCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let watchIssueCount: Int
+    let sessionCount: Int
+    let auditCount: Int
+    let agentCount: Int
+    let showsDiagnostics: Bool
+    let showsIntegrations: Bool
+    let showsAutomation: Bool
+    let showsWatchlist: Bool
+    let showsSessions: Bool
+    let showsAudit: Bool
+    let showsAgents: Bool
+    let onJump: (OverviewSectionAnchor) -> Void
+
+    var body: some View {
+        MonitoringSnapshotCard(
+            summary: String(localized: "Keep compact overview sections reachable without long thumb-scrolling."),
+            detail: String(localized: "These jump targets stay inside overview and land on the deepest mobile monitoring cards.")
+        ) {
+            VStack(alignment: .leading, spacing: 10) {
+                if showsDiagnostics {
+                    jumpButton(
+                        title: String(localized: "Diagnostics Summary"),
+                        detail: String(localized: "Jump to runtime health, config, and metrics snapshot."),
+                        systemImage: "stethoscope",
+                        tone: diagnosticsWarningCount > 0 ? .warning : .neutral,
+                        badgeText: diagnosticsWarningCount > 0
+                            ? (diagnosticsWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(diagnosticsWarningCount) warnings"))
+                            : nil,
+                        badgeTone: diagnosticsWarningCount > 0 ? .warning : .neutral,
+                        anchor: .diagnostics
+                    )
+                }
+
+                if showsIntegrations {
+                    jumpButton(
+                        title: String(localized: "Integrations Summary"),
+                        detail: String(localized: "Jump to provider, channel, model, and catalog readiness."),
+                        systemImage: "square.3.layers.3d.down.forward",
+                        tone: integrationIssueCount > 0 ? .warning : .neutral,
+                        badgeText: integrationIssueCount > 0
+                            ? (integrationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(integrationIssueCount) issues"))
+                            : nil,
+                        badgeTone: integrationIssueCount > 0 ? .warning : .neutral,
+                        anchor: .integrations
+                    )
+                }
+
+                if showsAutomation {
+                    jumpButton(
+                        title: String(localized: "Automation Summary"),
+                        detail: String(localized: "Jump to workflow runs, schedules, triggers, and cron pressure."),
+                        systemImage: "flowchart",
+                        tone: automationIssueCount > 0 ? .warning : .neutral,
+                        badgeText: automationIssueCount > 0
+                            ? (automationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(automationIssueCount) issues"))
+                            : nil,
+                        badgeTone: automationIssueCount > 0 ? .warning : .neutral,
+                        anchor: .automation
+                    )
+                }
+
+                if showsWatchlist {
+                    jumpButton(
+                        title: String(localized: "Watchlist"),
+                        detail: String(localized: "Jump to watched agents with delivery, identity, and runtime pressure."),
+                        systemImage: "star.fill",
+                        tone: watchIssueCount > 0 ? .warning : .neutral,
+                        badgeText: watchIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(watchIssueCount) issues"),
+                        badgeTone: watchIssueCount > 0 ? .warning : .neutral,
+                        anchor: .watchlist
+                    )
+                }
+
+                if showsSessions {
+                    jumpButton(
+                        title: String(localized: "Sessions"),
+                        detail: String(localized: "Jump to session hotspots and current attention queue."),
+                        systemImage: "text.bubble",
+                        tone: sessionCount > 0 ? .warning : .neutral,
+                        badgeText: sessionCount == 1 ? String(localized: "1 hot session") : String(localized: "\(sessionCount) hot sessions"),
+                        badgeTone: sessionCount > 0 ? .warning : .neutral,
+                        anchor: .sessions
+                    )
+                }
+
+                if showsAudit {
+                    jumpButton(
+                        title: String(localized: "Audit Feed"),
+                        detail: String(localized: "Jump to the most recent audit and event pressure from overview."),
+                        systemImage: "text.justify.leading",
+                        tone: auditCount > 0 ? .neutral : .neutral,
+                        badgeText: auditCount == 1 ? String(localized: "1 recent event") : String(localized: "\(auditCount) recent events"),
+                        badgeTone: .neutral,
+                        anchor: .audit
+                    )
+                }
+
+                if showsAgents {
+                    jumpButton(
+                        title: String(localized: "Fleet Preview"),
+                        detail: String(localized: "Jump to the agent preview rail at the bottom of overview."),
+                        systemImage: "person.3",
+                        tone: .neutral,
+                        badgeText: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                        badgeTone: .neutral,
+                        anchor: .agents
+                    )
+                }
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func jumpButton(
+        title: String,
+        detail: String,
+        systemImage: String,
+        tone: PresentationTone,
+        badgeText: String?,
+        badgeTone: PresentationTone,
+        anchor: OverviewSectionAnchor
+    ) -> some View {
+        Button {
+            onJump(anchor)
+        } label: {
+            MonitoringJumpRow(
+                title: title,
+                detail: detail,
+                systemImage: systemImage,
+                tone: tone,
+                badgeText: badgeText,
+                badgeTone: badgeTone
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 private struct OverviewQuickLinkRow: View {
     let title: String
     let detail: String
@@ -692,11 +1012,11 @@ private struct RecentHandoffCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
+            ResponsiveAccessoryRow(horizontalAlignment: .firstTextBaseline, verticalSpacing: 8) {
                 Label("Last Handoff", systemImage: "text.badge.plus")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
-                Spacer()
+            } accessory: {
                 let freshnessState = freshnessState(for: entry)
                 PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
             }

@@ -1,5 +1,16 @@
 import SwiftUI
 
+private enum SettingsSectionAnchor: Hashable {
+    case server
+    case refresh
+    case language
+    case onCall
+    case reminder
+    case handoff
+    case monitoring
+    case about
+}
+
 struct SettingsView: View {
     @Environment(\.dependencies) private var deps
     @Environment(\.openURL) private var openURL
@@ -11,95 +22,192 @@ struct SettingsView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    MonitoringSnapshotCard(
-                        summary: String(localized: "Settings keeps server, language, refresh, and on-call state visible before the longer forms."),
-                        detail: String(localized: "Use this summary when you need to confirm device-level monitoring behavior without digging through each section.")
-                    ) {
-                        FlowLayout(spacing: 8) {
-                            SettingsBadge(text: currentLanguageLabel, tone: .neutral)
-                            SettingsBadge(
-                                text: String(localized: "\(Int(refreshInterval))s refresh"),
-                                tone: .neutral
-                            )
-                            SettingsBadge(
-                                text: snapshotStatus.settingsLabel,
-                                tone: snapshotStatus.tone
-                            )
-                            SettingsBadge(
-                                text: onCallQueueCount == 1 ? String(localized: "1 on-call item") : String(localized: "\(onCallQueueCount) on-call items"),
-                                tone: onCallQueueStatus.tone
-                            )
-                            SettingsBadge(
-                                text: deps.onCallNotificationManager.authorizationLabel,
-                                tone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning
-                            )
-                            if deps.onCallNotificationManager.pendingReminderDate != nil {
-                                SettingsBadge(text: deps.onCallNotificationManager.pendingReminderSourceLabel, tone: .caution)
+            ScrollViewReader { proxy in
+                Form {
+                    Section {
+                        MonitoringSnapshotCard(
+                            summary: String(localized: "Settings keeps server, language, refresh, and on-call state visible before the longer forms."),
+                            detail: String(localized: "Use this summary when you need to confirm device-level monitoring behavior without digging through each section.")
+                        ) {
+                            FlowLayout(spacing: 8) {
+                                SettingsBadge(text: currentLanguageLabel, tone: .neutral)
+                                SettingsBadge(
+                                    text: String(localized: "\(Int(refreshInterval))s refresh"),
+                                    tone: .neutral
+                                )
+                                SettingsBadge(
+                                    text: snapshotStatus.settingsLabel,
+                                    tone: snapshotStatus.tone
+                                )
+                                SettingsBadge(
+                                    text: onCallQueueCount == 1 ? String(localized: "1 on-call item") : String(localized: "\(onCallQueueCount) on-call items"),
+                                    tone: onCallQueueStatus.tone
+                                )
+                                SettingsBadge(
+                                    text: deps.onCallNotificationManager.authorizationLabel,
+                                    tone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning
+                                )
+                                if deps.onCallNotificationManager.pendingReminderDate != nil {
+                                    SettingsBadge(text: deps.onCallNotificationManager.pendingReminderSourceLabel, tone: .caution)
+                                }
                             }
                         }
-                    }
-                } header: {
-                    Text("Snapshot")
-                } footer: {
-                    Text("This snapshot is device-local and complements the runtime and on-call pages rather than replacing them.")
-                }
-
-                Section("Quick Links") {
-                    NavigationLink {
-                        OnCallView()
-                    } label: {
-                        SettingsQuickLinkRow(
-                            title: String(localized: "Open On Call"),
-                            detail: onCallQueueCount == 1
-                                ? String(localized: "1 queued item is currently visible on this iPhone.")
-                                : String(localized: "\(onCallQueueCount) queued items are currently visible on this iPhone."),
-                            systemImage: "waveform.path.ecg"
-                        )
+                    } header: {
+                        Text("Snapshot")
+                    } footer: {
+                        Text("This snapshot is device-local and complements the runtime and on-call pages rather than replacing them.")
                     }
 
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        SettingsQuickLinkRow(
-                            title: String(localized: "Open Incidents Center"),
-                            detail: currentCriticalCount > 0
-                                ? (currentCriticalCount == 1
-                                    ? String(localized: "1 critical incident is already surfaced in incidents.")
-                                    : String(localized: "\(currentCriticalCount) critical incidents are already surfaced in incidents."))
-                                : String(localized: "Review alerts, approvals, and shift coverage from one mobile queue."),
-                            systemImage: "bell.badge"
-                        )
+                    Section("Quick Links") {
+                        NavigationLink {
+                            OnCallView()
+                        } label: {
+                            SettingsQuickLinkRow(
+                                title: String(localized: "Open On Call"),
+                                detail: onCallQueueCount == 1
+                                    ? String(localized: "1 queued item is currently visible on this iPhone.")
+                                    : String(localized: "\(onCallQueueCount) queued items are currently visible on this iPhone."),
+                                systemImage: "waveform.path.ecg"
+                            )
+                        }
+
+                        NavigationLink {
+                            IncidentsView()
+                        } label: {
+                            SettingsQuickLinkRow(
+                                title: String(localized: "Open Incidents Center"),
+                                detail: currentCriticalCount > 0
+                                    ? (currentCriticalCount == 1
+                                        ? String(localized: "1 critical incident is already surfaced in incidents.")
+                                        : String(localized: "\(currentCriticalCount) critical incidents are already surfaced in incidents."))
+                                    : String(localized: "Review alerts, approvals, and shift coverage from one mobile queue."),
+                                systemImage: "bell.badge"
+                            )
+                        }
+
+                        NavigationLink {
+                            DiagnosticsView()
+                        } label: {
+                            SettingsQuickLinkRow(
+                                title: String(localized: "Open Diagnostics"),
+                                detail: String(localized: "Inspect deep health, build info, config warnings, and metrics."),
+                                systemImage: "stethoscope"
+                            )
+                        }
+
+                        NavigationLink {
+                            HandoffCenterView(
+                                summary: handoffText,
+                                queueCount: onCallQueueCount,
+                                criticalCount: currentCriticalCount,
+                                liveAlertCount: visibleAlertCount
+                            )
+                        } label: {
+                            SettingsQuickLinkRow(
+                                title: String(localized: "Open Handoff Center"),
+                                detail: String(localized: "Review local handoff freshness, readiness, and follow-up state."),
+                                systemImage: "text.badge.plus"
+                            )
+                        }
                     }
 
-                    NavigationLink {
-                        DiagnosticsView()
-                    } label: {
-                        SettingsQuickLinkRow(
-                            title: String(localized: "Open Diagnostics"),
-                            detail: String(localized: "Inspect deep health, build info, config warnings, and metrics."),
-                            systemImage: "stethoscope"
-                        )
+                    Section("Control Center") {
+                        Button {
+                            jump(proxy, to: .server)
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Server Connection"),
+                                detail: String(localized: "Jump to server URL and API key settings for this device."),
+                                systemImage: "server.rack",
+                                tone: snapshotStatus.tone
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        Button {
+                            jump(proxy, to: .refresh)
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Refresh Interval"),
+                                detail: String(localized: "Jump to the device-local polling interval used by the monitoring dashboard."),
+                                systemImage: "arrow.clockwise",
+                                tone: .neutral,
+                                badgeText: String(localized: "\(Int(refreshInterval))s"),
+                                badgeTone: .neutral
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        Button {
+                            jump(proxy, to: .language)
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Language"),
+                                detail: String(localized: "Jump to the current app language and supported translation surfaces."),
+                                systemImage: "globe",
+                                tone: .neutral,
+                                badgeText: currentLanguageLabel,
+                                badgeTone: .neutral
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        Button {
+                            jump(proxy, to: .onCall)
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "On-Call Focus"),
+                                detail: String(localized: "Jump to queue mode, critical banner preference, and foreground cue behavior."),
+                                systemImage: "waveform.path.ecg",
+                                tone: onCallQueueStatus.tone,
+                                badgeText: onCallQueueCount == 1 ? String(localized: "1 queued") : String(localized: "\(onCallQueueCount) queued"),
+                                badgeTone: onCallQueueStatus.tone
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        Button {
+                            jump(proxy, to: .reminder)
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Standby Reminder"),
+                                detail: String(localized: "Jump to notification authorization, reminder scope, and pending reminder state."),
+                                systemImage: "bell.badge",
+                                tone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning,
+                                badgeText: deps.onCallNotificationManager.authorizationLabel,
+                                badgeTone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        Button {
+                            jump(proxy, to: .handoff)
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Handoff"),
+                                detail: String(localized: "Jump to local handoff freshness, readiness, and recent operator context."),
+                                systemImage: "text.badge.plus",
+                                tone: deps.onCallHandoffStore.freshnessState.tone
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        Button {
+                            jump(proxy, to: .monitoring)
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Monitoring Summary"),
+                                detail: String(localized: "Jump to the device-local monitoring and incident snapshot summary."),
+                                systemImage: "chart.bar.xaxis",
+                                tone: snapshotStatus.tone
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    } footer: {
+                        Text("These jump targets keep the longest settings groups reachable on a single-handed mobile layout.")
                     }
 
-                    NavigationLink {
-                        HandoffCenterView(
-                            summary: handoffText,
-                            queueCount: onCallQueueCount,
-                            criticalCount: currentCriticalCount,
-                            liveAlertCount: visibleAlertCount
-                        )
-                    } label: {
-                        SettingsQuickLinkRow(
-                            title: String(localized: "Open Handoff Center"),
-                            detail: String(localized: "Review local handoff freshness, readiness, and follow-up state."),
-                            systemImage: "text.badge.plus"
-                        )
-                    }
-                }
-
-                Section("Server") {
+                    Section("Server") {
                     TextField("Server URL", text: $serverURL)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
@@ -129,8 +237,9 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                .id(SettingsSectionAnchor.server)
 
-                Section("Auto Refresh") {
+                    Section("Auto Refresh") {
                     SettingsValueRow("Interval") {
                         Text("\(Int(refreshInterval))s")
                             .foregroundStyle(.secondary)
@@ -143,8 +252,9 @@ struct SettingsView: View {
                         deps.dashboardViewModel.startAutoRefresh(interval: refreshInterval)
                     }
                 }
+                .id(SettingsSectionAnchor.refresh)
 
-                Section("Language") {
+                    Section("Language") {
                     SettingsValueRow("Current") {
                         Text(currentLanguageLabel)
                             .foregroundStyle(.secondary)
@@ -166,6 +276,7 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                .id(SettingsSectionAnchor.language)
 
                 Section("A2A Network") {
                     NavigationLink {
@@ -191,7 +302,7 @@ struct SettingsView: View {
                     }
                 }
 
-                Section("On Call Focus") {
+                    Section("On Call Focus") {
                     SettingsBadgeFlow(items: onCallFocusBadges)
 
                     Picker("Queue Mode", selection: Binding(
@@ -234,8 +345,9 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                .id(SettingsSectionAnchor.onCall)
 
-                Section("Standby Reminder") {
+                    Section("Standby Reminder") {
                     SettingsBadgeFlow(items: standbyReminderBadges)
 
                     Toggle("Enable Reminder", isOn: Binding(
@@ -304,8 +416,9 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .id(SettingsSectionAnchor.reminder)
 
-                Section("Handoff") {
+                    Section("Handoff") {
                     NavigationLink {
                         HandoffCenterView(
                             summary: handoffText,
@@ -419,8 +532,9 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .id(SettingsSectionAnchor.handoff)
 
-                Section("Monitoring") {
+                    Section("Monitoring") {
                     SettingsValueRow("Agents") {
                         Text(deps.dashboardViewModel.agentAttentionStatus.summary)
                             .foregroundStyle(deps.dashboardViewModel.agentAttentionStatus.tone.color)
@@ -478,8 +592,9 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .id(SettingsSectionAnchor.monitoring)
 
-                Section("About") {
+                    Section("About") {
                     SettingsValueRow("App") {
                         Text("LibreFang iOS")
                     }
@@ -494,12 +609,20 @@ struct SettingsView: View {
                     if let refresh = deps.dashboardViewModel.lastRefresh {
                         SettingsValueRow("Last Refresh") {
                             Text(refresh, style: .relative)
-                                .foregroundStyle(.secondary)
+                            .foregroundStyle(.secondary)
                         }
                     }
                 }
+                .id(SettingsSectionAnchor.about)
+                }
+                .navigationTitle("Settings")
             }
-            .navigationTitle("Settings")
+        }
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: SettingsSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
         }
     }
 

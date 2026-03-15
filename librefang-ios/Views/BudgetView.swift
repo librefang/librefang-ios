@@ -1,6 +1,14 @@
 import SwiftUI
 import Charts
 
+private enum BudgetSectionAnchor: Hashable {
+    case limits
+    case signals
+    case trend
+    case models
+    case agents
+}
+
 struct BudgetView: View {
     @Environment(\.dependencies) private var deps
     @State private var sortOrder: BudgetSort = .costDesc
@@ -26,166 +34,261 @@ struct BudgetView: View {
         }
     }
 
+    private var budgetFocusSummary: String {
+        if let budget = vm.budget {
+            return String(localized: "Daily spend is \(formatCost(budget.dailySpend)) against a limit of \(formatCost(budget.dailyLimit)).")
+        }
+        if let usageSummary = vm.usageSummary {
+            return String(localized: "Recorded cost is \(formatCost(usageSummary.totalCostUsd)) across the current usage window.")
+        }
+        return String(localized: "Use the focus areas to jump between limits, trends, models, and per-agent spend.")
+    }
+
     var body: some View {
         NavigationStack {
-            List {
-                if let budget = vm.budget {
-                    Section {
-                        BudgetBarChart(budget: budget)
-                            .frame(height: 180)
-                            .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
-                    }
-
-                    Section("Limits") {
-                        BudgetLimitRow(label: "Hourly", spend: budget.hourlySpend, limit: budget.hourlyLimit, pct: budget.hourlyPct)
-                        BudgetLimitRow(label: "Daily", spend: budget.dailySpend, limit: budget.dailyLimit, pct: budget.dailyPct)
-                        BudgetLimitRow(label: "Monthly", spend: budget.monthlySpend, limit: budget.monthlyLimit, pct: budget.monthlyPct)
-                    }
-
-                    Section("Alert") {
-                        BudgetValueRow(label: "Threshold") {
-                            Text("\(Int(budget.alertThreshold * 100))%")
-                                .foregroundStyle(.orange)
+            ScrollViewReader { proxy in
+                List {
+                    if let budget = vm.budget {
+                        Section {
+                            BudgetBarChart(budget: budget)
+                                .frame(height: 180)
+                                .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
                         }
-                        if let maxTokens = budget.defaultMaxLlmTokensPerHour, maxTokens > 0 {
-                            BudgetValueRow(label: "Default Token Limit/hr") {
-                                Text(maxTokens.formatted())
-                                    .monospacedDigit()
+
+                        Section("Limits") {
+                            BudgetLimitRow(label: "Hourly", spend: budget.hourlySpend, limit: budget.hourlyLimit, pct: budget.hourlyPct)
+                            BudgetLimitRow(label: "Daily", spend: budget.dailySpend, limit: budget.dailyLimit, pct: budget.dailyPct)
+                            BudgetLimitRow(label: "Monthly", spend: budget.monthlySpend, limit: budget.monthlyLimit, pct: budget.monthlyPct)
+                        }
+                        .id(BudgetSectionAnchor.limits)
+
+                        Section("Alert") {
+                            BudgetValueRow(label: "Threshold") {
+                                Text("\(Int(budget.alertThreshold * 100))%")
+                                    .foregroundStyle(.orange)
+                            }
+                            if let maxTokens = budget.defaultMaxLlmTokensPerHour, maxTokens > 0 {
+                                BudgetValueRow(label: "Default Token Limit/hr") {
+                                    Text(maxTokens.formatted())
+                                        .monospacedDigit()
+                                }
                             }
                         }
                     }
-                }
 
-                if let usageSummary = vm.usageSummary {
-                    Section("Cost Signals") {
-                        BudgetValueRow(label: "Total Recorded Cost") {
-                            Text(formatCost(usageSummary.totalCostUsd))
-                                .monospacedDigit()
-                        }
-                        BudgetValueRow(label: "Avg Cost / Call") {
-                            Text(formatCost(averageCostPerCall(usageSummary)))
-                                .monospacedDigit()
-                        }
-                        if let projected = projectedMonthlyCost(usageSummary) {
-                            BudgetValueRow(label: "Projected 30-Day Cost") {
-                                Text(formatCost(projected))
+                    if let usageSummary = vm.usageSummary {
+                        Section("Cost Signals") {
+                            BudgetValueRow(label: "Total Recorded Cost") {
+                                Text(formatCost(usageSummary.totalCostUsd))
                                     .monospacedDigit()
+                            }
+                            BudgetValueRow(label: "Avg Cost / Call") {
+                                Text(formatCost(averageCostPerCall(usageSummary)))
+                                    .monospacedDigit()
+                            }
+                            if let projected = projectedMonthlyCost(usageSummary) {
+                                BudgetValueRow(label: "Projected 30-Day Cost") {
+                                    Text(formatCost(projected))
+                                        .monospacedDigit()
+                                }
+                            }
+                        }
+                        .id(BudgetSectionAnchor.signals)
+                    }
+
+                    if vm.budget != nil || !vm.usageDaily.isEmpty || !sortedModels.isEmpty || !sortedAgents.isEmpty {
+                        Section {
+                            BudgetSnapshotCard(
+                                trendDays: vm.usageDaily.count,
+                                modelCount: sortedModels.count,
+                                agentCount: sortedAgents.count,
+                                sortOrderLabel: sortOrder.label,
+                                topAgentName: visibleAgents.first?.name,
+                                topAgentCost: visibleAgents.first?.dailyCostUsd
+                            )
+                        } header: {
+                            Text("Breakdown")
+                        } footer: {
+                            Text("This snapshot keeps the highest-signal budget breakdowns visible before the charts and long lists.")
+                        }
+
+                        Section {
+                            Button {
+                                jump(proxy, to: .limits)
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Limits"),
+                                    detail: String(localized: "Jump to hourly, daily, and monthly spend versus limit."),
+                                    systemImage: "gauge.medium",
+                                    tone: .neutral
+                                )
+                            }
+                            .buttonStyle(.plain)
+
+                            Button {
+                                jump(proxy, to: .signals)
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Cost Signals"),
+                                    detail: budgetFocusSummary,
+                                    systemImage: "chart.line.uptrend.xyaxis",
+                                    tone: .warning
+                                )
+                            }
+                            .buttonStyle(.plain)
+
+                            if !vm.usageDaily.isEmpty {
+                                Button {
+                                    jump(proxy, to: .trend)
+                                } label: {
+                                    MonitoringJumpRow(
+                                        title: String(localized: "Trend"),
+                                        detail: String(localized: "Jump to the 7-day trend and daily spend breakdown."),
+                                        systemImage: "chart.xyaxis.line",
+                                        tone: .neutral,
+                                        badgeText: String(localized: "\(vm.usageDaily.count) days"),
+                                        badgeTone: .neutral
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+
+                            if !sortedModels.isEmpty {
+                                Button {
+                                    jump(proxy, to: .models)
+                                } label: {
+                                    MonitoringJumpRow(
+                                        title: String(localized: "By Model"),
+                                        detail: String(localized: "Jump to model distribution and top model spenders."),
+                                        systemImage: "square.stack.3d.up",
+                                        tone: .neutral,
+                                        badgeText: String(localized: "\(sortedModels.count) models"),
+                                        badgeTone: .neutral
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+
+                            if !sortedAgents.isEmpty {
+                                Button {
+                                    jump(proxy, to: .agents)
+                                } label: {
+                                    MonitoringJumpRow(
+                                        title: String(localized: "Per-Agent Cost"),
+                                        detail: String(localized: "Jump to the per-agent ranking sorted by the current order."),
+                                        systemImage: "person.3",
+                                        tone: .neutral,
+                                        badgeText: String(localized: "\(sortedAgents.count) agents"),
+                                        badgeTone: .neutral
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        } header: {
+                            Text("Focus Areas")
+                        } footer: {
+                            Text("These jump targets keep the longest budget charts and rankings reachable on a compact mobile layout.")
+                        }
+                    }
+
+                    if let usageSummary = vm.usageSummary {
+                        Section {
+                            BudgetSignalsCard(
+                                budget: vm.budget,
+                                usageSummary: usageSummary,
+                                visibleAgentCount: visibleAgents.count,
+                                sortOrderLabel: sortOrder.label,
+                                projectedMonthlyCost: projectedMonthlyCost(usageSummary)
+                            )
+                        } header: {
+                            Text("Signals")
+                        } footer: {
+                            Text("These badges keep current cost pressure visible before the trend chart and the longer per-model and per-agent lists.")
+                        }
+                    }
+
+                    if !vm.usageDaily.isEmpty {
+                        Section {
+                            DailyCostTrendChart(days: vm.usageDaily)
+                                .frame(height: 210)
+                                .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+                        } header: {
+                            Text("7-Day Cost Trend")
+                        } footer: {
+                            Text("Today: \(formatCost(vm.usageTodayCost))")
+                        }
+                        .id(BudgetSectionAnchor.trend)
+
+                        Section("Daily Breakdown") {
+                            ForEach(vm.usageDaily.reversed()) { day in
+                                DailyUsageRow(day: day)
                             }
                         }
                     }
-                }
 
-                if vm.budget != nil || !vm.usageDaily.isEmpty || !sortedModels.isEmpty || !sortedAgents.isEmpty {
-                    Section {
-                        BudgetSnapshotCard(
-                            trendDays: vm.usageDaily.count,
-                            modelCount: sortedModels.count,
-                            agentCount: sortedAgents.count,
-                            sortOrderLabel: sortOrder.label,
-                            topAgentName: visibleAgents.first?.name,
-                            topAgentCost: visibleAgents.first?.dailyCostUsd
+                    if !sortedModels.isEmpty {
+                        Section {
+                            CostDistributionCard(models: sortedModels)
+                                .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+                        } header: {
+                            Text("Model Cost Distribution")
+                        }
+                        .id(BudgetSectionAnchor.models)
+
+                        Section {
+                            ForEach(sortedModels.prefix(8)) { model in
+                                ModelCostRow(model: model, maxCost: max(vm.highestModelCost, 0.01))
+                            }
+                        } header: {
+                            Text("By Model")
+                        } footer: {
+                            if sortedModels.count > 8 {
+                                Text("Showing top 8 of \(sortedModels.count) models")
+                            }
+                        }
+                    }
+
+                    if !sortedAgents.isEmpty {
+                        Section {
+                            ForEach(visibleAgents) { item in
+                                AgentCostRow(item: item)
+                            }
+                        } header: {
+                            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                                Text("Per-Agent Cost")
+                            } accessory: {
+                                sortMenu
+                            }
+                        } footer: {
+                            if sortedAgents.count > visibleAgents.count {
+                                Text("Showing \(visibleAgents.count) of \(sortedAgents.count) agents")
+                            }
+                        }
+                        .id(BudgetSectionAnchor.agents)
+                    }
+
+                    if vm.budget == nil && !vm.isLoading {
+                        ContentUnavailableView(
+                            "No Budget Data",
+                            systemImage: "chart.bar",
+                            description: Text("Pull to refresh or check server connection.")
                         )
-                    } header: {
-                        Text("Breakdown")
-                    } footer: {
-                        Text("This snapshot keeps the highest-signal budget breakdowns visible before the charts and long lists.")
                     }
                 }
-
-                if let usageSummary = vm.usageSummary {
-                    Section {
-                        BudgetSignalsCard(
-                            budget: vm.budget,
-                            usageSummary: usageSummary,
-                            visibleAgentCount: visibleAgents.count,
-                            sortOrderLabel: sortOrder.label,
-                            projectedMonthlyCost: projectedMonthlyCost(usageSummary)
-                        )
-                    } header: {
-                        Text("Signals")
-                    } footer: {
-                        Text("These badges keep current cost pressure visible before the trend chart and the longer per-model and per-agent lists.")
-                    }
-                }
-
-                if !vm.usageDaily.isEmpty {
-                    Section {
-                        DailyCostTrendChart(days: vm.usageDaily)
-                            .frame(height: 210)
-                            .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
-                    } header: {
-                        Text("7-Day Cost Trend")
-                    } footer: {
-                        Text("Today: \(formatCost(vm.usageTodayCost))")
-                    }
-
-                    Section("Daily Breakdown") {
-                        ForEach(vm.usageDaily.reversed()) { day in
-                            DailyUsageRow(day: day)
-                        }
-                    }
-                }
-
-                if !sortedModels.isEmpty {
-                    Section {
-                        CostDistributionCard(models: sortedModels)
-                            .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
-                    } header: {
-                        Text("Model Cost Distribution")
-                    }
-
-                    Section {
-                        ForEach(sortedModels.prefix(8)) { model in
-                            ModelCostRow(model: model, maxCost: max(vm.highestModelCost, 0.01))
-                        }
-                    } header: {
-                        Text("By Model")
-                    } footer: {
-                        if sortedModels.count > 8 {
-                            Text("Showing top 8 of \(sortedModels.count) models")
-                        }
-                    }
-                }
-
-                if !sortedAgents.isEmpty {
-                    Section {
-                        ForEach(visibleAgents) { item in
-                            AgentCostRow(item: item)
-                        }
-                    } header: {
-                        ResponsiveAccessoryRow(verticalSpacing: 6) {
-                            Text("Per-Agent Cost")
-                        } accessory: {
-                            sortMenu
-                        }
-                    } footer: {
-                        if sortedAgents.count > visibleAgents.count {
-                            Text("Showing \(visibleAgents.count) of \(sortedAgents.count) agents")
-                        }
-                    }
-                }
-
-                if vm.budget == nil && !vm.isLoading {
-                    ContentUnavailableView(
-                        "No Budget Data",
-                        systemImage: "chart.bar",
-                        description: Text("Pull to refresh or check server connection.")
-                    )
-                }
-            }
-            .navigationTitle("Budget")
-            .refreshable {
-                HapticManager.impact(.light)
-                await vm.refresh()
-            }
-            .overlay {
-                if vm.isLoading && vm.budget == nil && vm.usageDaily.isEmpty {
-                    ProgressView("Loading...")
-                }
-            }
-            .task {
-                if vm.budget == nil && vm.usageDaily.isEmpty {
+                .navigationTitle("Budget")
+                .refreshable {
+                    HapticManager.impact(.light)
                     await vm.refresh()
+                }
+                .overlay {
+                    if vm.isLoading && vm.budget == nil && vm.usageDaily.isEmpty {
+                        ProgressView("Loading...")
+                    }
+                }
+                .task {
+                    if vm.budget == nil && vm.usageDaily.isEmpty {
+                        await vm.refresh()
+                    }
                 }
             }
         }
@@ -225,6 +328,12 @@ struct BudgetView: View {
         let elapsed = max(Date().timeIntervalSince(firstDate), 86_400)
         let days = elapsed / 86_400
         return (usage.totalCostUsd / days) * 30
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: BudgetSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
+        }
     }
 }
 
@@ -451,7 +560,7 @@ private struct CostDistributionCard: View {
     }
 
     private func sliceTitle(_ slice: CostSlice) -> some View {
-        HStack(spacing: 8) {
+        ResponsiveInlineGroup(horizontalSpacing: 8, verticalSpacing: 4) {
             Circle()
                 .fill(slice.color)
                 .frame(width: 8, height: 8)
@@ -462,7 +571,7 @@ private struct CostDistributionCard: View {
     }
 
     private func sliceValues(_ slice: CostSlice) -> some View {
-        HStack(spacing: 8) {
+        ResponsiveInlineGroup(horizontalSpacing: 8, verticalSpacing: 2, verticalAlignment: .trailing) {
             Text(formatCost(slice.value))
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(.secondary)
