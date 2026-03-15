@@ -382,7 +382,7 @@ struct HandoffCenterView: View {
         } header: {
             Text("Operator Deck")
         } footer: {
-            Text("Keep live queue pressure, draft readiness, and the next shift-facing routes together before editing the handoff draft.")
+            Text("Keep live pressure, draft readiness, and next shift routes together before editing.")
         }
     }
 
@@ -391,7 +391,7 @@ struct HandoffCenterView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(String(localized: "Handoff signal facts"))
                     .font(.subheadline.weight(.medium))
-                Text(String(localized: "Keep live queue shape, follow-up load, and draft composition state visible before editing the full handoff draft."))
+                Text(String(localized: "Keep live queue shape, follow-up load, and draft state visible before editing."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
@@ -445,7 +445,7 @@ struct HandoffCenterView: View {
         VStack(alignment: .leading, spacing: 12) {
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Primary Routes"),
-                detail: String(localized: "Keep the live queue and shift-facing exits visible as compact shortcuts closest to the handoff draft.")
+                detail: String(localized: "Keep the live queue and shift-facing exits closest to the handoff draft.")
             ) {
                 FlowLayout(spacing: 8) {
                     NavigationLink {
@@ -500,7 +500,7 @@ struct HandoffCenterView: View {
 
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Support Routes"),
-                detail: String(localized: "Keep runtime, diagnostics, and preference routes visible as a secondary shortcut rail.")
+                detail: String(localized: "Keep runtime, diagnostics, and settings in a secondary rail.")
             ) {
                 FlowLayout(spacing: 8) {
                     NavigationLink {

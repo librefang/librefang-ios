@@ -263,11 +263,11 @@ struct OnCallView: View {
                     integrationIssueCount: integrationIssueCount,
                     handoffText: handoffText
                 )
-            } header: {
-                Text("Operator Deck")
-            } footer: {
-                Text("Queue shape, acknowledgement state, handoff readiness, and the next routes stay together before queue work.")
-            }
+        } header: {
+            Text("Operator Deck")
+        } footer: {
+            Text("Queue shape, ack state, handoff readiness, and next routes stay together before queue work.")
+        }
 
             if !priorityItems.isEmpty {
                 Section {

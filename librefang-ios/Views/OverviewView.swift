@@ -602,7 +602,7 @@ private struct OverviewEntryDeckCard: View {
         VStack(alignment: .leading, spacing: 12) {
             MonitoringSnapshotCard(
                 summary: String(localized: "Overview control deck keeps the next operator surfaces visible without stacking multiple similar cards."),
-                detail: String(localized: "Use these grouped exits when the top snapshot already tells you whether to work the live queue or branch into a deeper monitor.")
+                detail: String(localized: "Use these exits when the top snapshot already tells you where to go next.")
             ) {
                 FlowLayout(spacing: 8) {
                     if criticalCount > 0 {
@@ -652,7 +652,7 @@ private struct OverviewEntryDeckCard: View {
 
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Primary Routes"),
-                detail: String(localized: "Keep the first operator exits visible as compact shortcuts right below the overview triage summary.")
+                detail: String(localized: "Keep the first operator exits right below the overview snapshot.")
             ) {
                 FlowLayout(spacing: 8) {
                     NavigationLink {
@@ -717,7 +717,7 @@ private struct OverviewEntryDeckCard: View {
 
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Support Routes"),
-                detail: String(localized: "Keep slower spend and configuration routes visible as a secondary shortcut rail.")
+                detail: String(localized: "Keep slower spend and config routes in a secondary rail.")
             ) {
                 FlowLayout(spacing: 8) {
                     NavigationLink {
@@ -774,7 +774,7 @@ private struct OverviewEntryDeckCard: View {
 
             MonitoringShortcutRail(
                 title: String(localized: "Jump Rail"),
-                detail: String(localized: "Keep compact overview sections reachable without long thumb-scrolling.")
+                detail: String(localized: "Jump to lower overview sections without long thumb-scrolling.")
             ) {
                 if showsDiagnostics {
                     jumpChip(

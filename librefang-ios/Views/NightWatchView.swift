@@ -410,7 +410,7 @@ struct NightWatchView: View {
     private var surfaceDeckCard: some View {
         NightWatchSectionCard(
             title: String(localized: "Surface Deck"),
-            detail: String(localized: "Keep the next drills grouped in one deck so the night-duty path stays compact on a phone.")
+            detail: String(localized: "Keep the next night-duty drills in one compact deck.")
         ) {
             NightWatchSurfaceGroupLabel(title: String(localized: "Primary Routes"))
 

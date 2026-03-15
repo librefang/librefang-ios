@@ -531,7 +531,7 @@ struct StandbyDigestView: View {
     private var surfaceDeckCard: some View {
         StandbySurfaceSectionCard(
             title: String(localized: "Surface Deck"),
-            detail: String(localized: "Keep the next standby drills grouped in one deck so the page stays tighter on a phone.")
+            detail: String(localized: "Keep the next standby drills in one compact deck.")
         ) {
             StandbySurfaceGroupLabel(title: String(localized: "Primary Routes"))
 

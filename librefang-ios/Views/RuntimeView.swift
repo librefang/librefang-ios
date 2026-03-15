@@ -162,18 +162,18 @@ struct RuntimeView: View {
         } header: {
             Text("Operator Deck")
         } footer: {
-            Text("Keep the compact runtime digest, routes, and focus jumps together before drilling into diagnostics, integrations, sessions, or approvals.")
+            Text("Keep the runtime digest, routes, and focus jumps together before drilling deeper.")
         }
     }
 
     private func runtimeRouteDeckCard(_ proxy: ScrollViewProxy) -> some View {
         MonitoringSurfaceGroupCard(
             title: String(localized: "Route Deck"),
-            detail: String(localized: "Keep runtime surfaces and long-section jumps in one compact deck instead of separate route stacks.")
+            detail: String(localized: "Keep runtime surfaces and long-section jumps in one compact deck.")
         ) {
             MonitoringShortcutRail(
                 title: String(localized: "Primary Routes"),
-                detail: String(localized: "Keep the next operator drills visible right below the runtime digest.")
+                detail: String(localized: "Keep the next runtime drills right below the digest.")
             ) {
                 NavigationLink {
                     DiagnosticsView()
@@ -248,7 +248,7 @@ struct RuntimeView: View {
 
             MonitoringShortcutRail(
                 title: String(localized: "Support Routes"),
-                detail: String(localized: "Keep slower infrastructure and configuration routes visible as a secondary rail.")
+                detail: String(localized: "Keep slower infra and config routes in a secondary rail.")
             ) {
                 NavigationLink {
                     AutomationView(initialScope: .attention)
