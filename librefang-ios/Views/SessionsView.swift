@@ -83,18 +83,11 @@ struct SessionsView: View {
 
             Section {
                 sessionsStatusDeckCard
-            } header: {
-                Text("Status Deck")
-            } footer: {
-                Text("Keep session backlog pressure, filter scope, and visible result volume in one compact digest before deeper queue work.")
-            }
-
-            Section {
                 sessionsControlDeckCard
             } header: {
-                Text("Control Deck")
+                Text("Operator Deck")
             } footer: {
-                Text("Keep session drilldowns and filter controls grouped together before the long queue.")
+                Text("Keep session backlog pressure, drilldowns, and filter scope grouped together before the long queue.")
             }
 
             if filteredItems.isEmpty && !vm.isLoading {

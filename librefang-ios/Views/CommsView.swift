@@ -50,18 +50,11 @@ struct CommsView: View {
 
             Section {
                 commsStatusDeckCard
-            } header: {
-                Text("Status Deck")
-            } footer: {
-                Text("Keep comms pressure, transport mode, and visible event flow in one compact digest before topology and recent events.")
-            }
-
-            Section {
                 commsControlDeckCard
             } header: {
-                Text("Control Deck")
+                Text("Operator Deck")
             } footer: {
-                Text("Keep comms drilldowns and filter state grouped together before topology and recent events.")
+                Text("Keep comms pressure, transport mode, drilldowns, and filter state grouped together before topology and recent events.")
             }
 
             Section {

@@ -53,18 +53,11 @@ struct EventsView: View {
 
             Section {
                 eventsStatusDeckCard
-            } header: {
-                Text("Status Deck")
-            } footer: {
-                Text("Keep event pressure, transport state, and visible result volume in one compact digest before scanning the feed.")
-            }
-
-            Section {
                 eventsControlDeckCard
             } header: {
-                Text("Control Deck")
+                Text("Operator Deck")
             } footer: {
-                Text("Keep event drilldowns and filter controls grouped together before the long feed.")
+                Text("Keep event pressure, transport state, drilldowns, and filter scope grouped together before the long feed.")
             }
 
             if filteredEntries.isEmpty && !viewModel.isLoading {
