@@ -455,7 +455,7 @@ struct RuntimeView: View {
                     title: String(localized: "Routes"),
                     detail: String(localized: "Open deeper diagnostics without another long text row.")
                 ) {
-                    MonitoringShortcutRail(title: String(localized: "Primary Routes")) {
+                    MonitoringShortcutRail(title: String(localized: "Primary")) {
                         NavigationLink {
                             DiagnosticsView()
                         } label: {
@@ -528,7 +528,7 @@ struct RuntimeView: View {
                     title: String(localized: "Routes"),
                     detail: String(localized: "Open provider, channel, and catalog diagnostics without another full-width text row.")
                 ) {
-                    MonitoringShortcutRail(title: String(localized: "Primary Routes")) {
+                    MonitoringShortcutRail(title: String(localized: "Primary")) {
                         NavigationLink {
                             IntegrationsView(initialScope: .attention)
                         } label: {
@@ -670,10 +670,10 @@ struct RuntimeView: View {
         if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
             Section {
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Automation Routes"),
+                    title: String(localized: "Routes"),
                     detail: String(localized: "Open workflow pressure and scheduler diagnostics without another dense text row.")
                 ) {
-                    MonitoringShortcutRail(title: String(localized: "Primary Routes")) {
+                    MonitoringShortcutRail(title: String(localized: "Primary")) {
                         NavigationLink {
                             AutomationView()
                         } label: {
@@ -738,7 +738,7 @@ struct RuntimeView: View {
                     title: String(localized: "Routes"),
                     detail: String(localized: "Jump into the session monitor when the compact runtime list is not enough.")
                 ) {
-                    MonitoringShortcutRail(title: String(localized: "Primary Routes")) {
+                    MonitoringShortcutRail(title: String(localized: "Primary")) {
                         NavigationLink {
                             SessionsView(initialFilter: .attention)
                         } label: {

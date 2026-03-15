@@ -94,11 +94,11 @@ struct ApprovalsView: View {
                     hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 )
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Surface Rail"),
+                    title: String(localized: "Routes"),
                     detail: String(localized: "Keep the incident, on-call, and runtime exits closest to approval review.")
                 ) {
                     MonitoringShortcutRail(
-                        title: String(localized: "Primary Routes"),
+                        title: String(localized: "Primary"),
                         detail: String(localized: "Use the main operator routes first when approval pressure needs broader queue context.")
                     ) {
                         NavigationLink {
@@ -139,7 +139,7 @@ struct ApprovalsView: View {
                     }
 
                     MonitoringShortcutRail(
-                        title: String(localized: "Support Routes"),
+                        title: String(localized: "Support"),
                         detail: String(localized: "Use fleet context when approval requests cluster around the same agents.")
                     ) {
                         NavigationLink {
@@ -163,7 +163,7 @@ struct ApprovalsView: View {
                     totalCount: vm.approvals.count
                 )
             } header: {
-                Text("Operator Deck")
+                Text("Controls")
             } footer: {
                 Text("Queue severity, routes, and filters stay together before the approval list.")
             }

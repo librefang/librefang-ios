@@ -380,7 +380,7 @@ struct HandoffCenterView: View {
                 handoffSurfaceDeckCard
             }
         } header: {
-            Text("Operator Deck")
+            Text("Controls")
         } footer: {
             Text("Keep live pressure, draft readiness, and next shift routes together before editing.")
         }
@@ -444,7 +444,7 @@ struct HandoffCenterView: View {
     private var handoffSurfaceDeckCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Primary Routes"),
+                title: String(localized: "Primary"),
                 detail: String(localized: "Keep the live queue and shift-facing exits closest to the handoff draft.")
             ) {
                 FlowLayout(spacing: 8) {
@@ -499,7 +499,7 @@ struct HandoffCenterView: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Support Routes"),
+                title: String(localized: "Support"),
                 detail: String(localized: "Keep runtime, diagnostics, and settings in a secondary rail.")
             ) {
                 FlowLayout(spacing: 8) {

@@ -245,7 +245,7 @@ struct IntegrationsView: View {
                         driftAttentionCount: driftAttentionCount
                     )
                 } header: {
-                    Text("Status Deck")
+                    Text("Snapshot")
                 } footer: {
                     Text("Keep scope, attention filters, and highest-signal integration counts in one compact digest.")
                 }
@@ -306,7 +306,7 @@ struct IntegrationsView: View {
                             detail: String(localized: "Keep the next operator exits compact and visible above the provider, channel, and drift inventory.")
                         ) {
                             MonitoringShortcutRail(
-                                title: String(localized: "Primary Routes"),
+                                title: String(localized: "Primary"),
                                 detail: String(localized: "Use these routes first when provider, channel, or drift diagnostics need broader context.")
                             ) {
                                 NavigationLink {
@@ -367,7 +367,7 @@ struct IntegrationsView: View {
                             }
 
                             MonitoringShortcutRail(
-                                title: String(localized: "Support Routes"),
+                                title: String(localized: "Support"),
                                 detail: String(localized: "Keep slower spend, automation, and routing drilldowns behind the primary exits.")
                             ) {
                                 NavigationLink {
@@ -406,7 +406,7 @@ struct IntegrationsView: View {
                             }
                         }
                     } header: {
-                        Text("Route Deck")
+                        Text("Controls")
                     } footer: {
                         Text("Use these routes when provider, channel, model, or drift diagnostics need runtime, incident, or fleet context.")
                     }

@@ -423,11 +423,11 @@ struct BudgetView: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Surface Rail"),
+                title: String(localized: "Routes"),
                 detail: String(localized: "Keep budget triage connected to the broader mobile monitoring path.")
             ) {
                 MonitoringShortcutRail(
-                    title: String(localized: "Primary Routes"),
+                    title: String(localized: "Primary"),
                     detail: String(localized: "Use the overview and runtime exits first when cost pressure needs broader context.")
                 ) {
                     NavigationLink {
@@ -454,7 +454,7 @@ struct BudgetView: View {
                 }
 
                 MonitoringShortcutRail(
-                    title: String(localized: "Support Routes"),
+                    title: String(localized: "Support"),
                     detail: String(localized: "Use deeper diagnostics and routing checks when spend concentration hints at runtime drift.")
                 ) {
                     NavigationLink {
@@ -482,7 +482,7 @@ struct BudgetView: View {
                 }
             }
         } header: {
-            Text("Operator Deck")
+            Text("Controls")
         } footer: {
             Text("Breakdown summary, focus jumps, and broader exits stay together before the longer cost lists.")
         }

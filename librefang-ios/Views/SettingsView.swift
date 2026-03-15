@@ -54,11 +54,11 @@ struct SettingsView: View {
                         }
 
                         MonitoringSurfaceGroupCard(
-                            title: String(localized: "Surface Rail"),
+                            title: String(localized: "Routes"),
                             detail: String(localized: "Keep the highest-value monitoring exits grouped together before the longer device-control form.")
                         ) {
                             MonitoringShortcutRail(
-                                title: String(localized: "Primary Routes"),
+                                title: String(localized: "Primary"),
                                 detail: String(localized: "Keep the shift-management routes closest to settings.")
                             ) {
                                 NavigationLink {
@@ -103,7 +103,7 @@ struct SettingsView: View {
                             }
 
                             MonitoringShortcutRail(
-                                title: String(localized: "Support Routes"),
+                                title: String(localized: "Support"),
                                 detail: String(localized: "Keep runtime and diagnostics behind the primary shift-management exits.")
                             ) {
                                 NavigationLink {
@@ -131,11 +131,11 @@ struct SettingsView: View {
                         }
 
                         MonitoringSurfaceGroupCard(
-                            title: String(localized: "Control Rail"),
+                            title: String(localized: "Controls"),
                             detail: String(localized: "Keep the longest settings groups reachable on a single-handed mobile layout.")
                         ) {
                             MonitoringShortcutRail(
-                                title: String(localized: "Primary Controls"),
+                                title: String(localized: "Primary"),
                                 detail: String(localized: "Keep the most frequently adjusted device settings closest to the top of the form.")
                             ) {
                                 Button {
@@ -186,7 +186,7 @@ struct SettingsView: View {
                             }
 
                             MonitoringShortcutRail(
-                                title: String(localized: "Supporting Controls"),
+                                title: String(localized: "Support"),
                                 detail: String(localized: "Keep reminders, handoff state, monitoring summary, and app metadata behind the primary jumps.")
                             ) {
                                 Button {
@@ -235,7 +235,7 @@ struct SettingsView: View {
                             }
                         }
                     } header: {
-                        Text("Operator Deck")
+                        Text("Controls")
                     } footer: {
                         Text("Snapshot, surface exits, and device-control jumps stay together before the longer settings form.")
                     }

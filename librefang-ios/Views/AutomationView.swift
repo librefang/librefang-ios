@@ -172,11 +172,11 @@ struct AutomationView: View {
                     )
 
                     MonitoringSurfaceGroupCard(
-                        title: String(localized: "Route Deck"),
+                        title: String(localized: "Routes"),
                         detail: String(localized: "Keep the next automation exits compact and visible above the grouped workflow lists.")
                     ) {
                         MonitoringShortcutRail(
-                            title: String(localized: "Primary Routes"),
+                            title: String(localized: "Primary"),
                             detail: String(localized: "Use these routes first when workflow or scheduler pressure needs broader context.")
                         ) {
                             NavigationLink {
@@ -237,7 +237,7 @@ struct AutomationView: View {
                         }
 
                         MonitoringShortcutRail(
-                            title: String(localized: "Support Routes"),
+                            title: String(localized: "Support"),
                             detail: String(localized: "Keep integration context behind the primary automation exits.")
                         ) {
                             NavigationLink {
@@ -263,7 +263,7 @@ struct AutomationView: View {
                         totalCount: totalItemCount
                     )
                 } header: {
-                    Text("Operator Deck")
+                    Text("Controls")
                 } footer: {
                     Text("Keep automation status, routes, and filters together before the grouped workflow sections.")
                 }
