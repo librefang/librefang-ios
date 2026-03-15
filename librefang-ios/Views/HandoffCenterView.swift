@@ -94,11 +94,25 @@ struct HandoffCenterView: View {
     private var pendingLatestFollowUpCount: Int {
         latestFollowUpStatuses.filter { !$0.isCompleted }.count
     }
+    private var completedLatestFollowUpCount: Int {
+        latestFollowUpStatuses.filter(\.isCompleted).count
+    }
+    private var watchlistIssueCount: Int {
+        watchlistStore.watchedAgents(from: vm.agents)
+            .filter { vm.attentionItem(for: $0).severity > 0 }
+            .count
+    }
+    private var uncoveredChecklistCount: Int {
+        handoffStore.uncoveredChecklistKeys.count
+    }
+    private var timelineGapWarningCount: Int {
+        timelineItems.filter(\.isGapWarning).count
+    }
     private var carryoverStatus: HandoffCarryoverStatus? {
         handoffStore.carryoverFromLatest(
             liveAlertCount: liveAlertCount,
             pendingApprovalCount: vm.pendingApprovalCount,
-            watchlistIssueCount: watchlistStore.watchedAgents(from: vm.agents).filter { vm.attentionItem(for: $0).severity > 0 }.count,
+            watchlistIssueCount: watchlistIssueCount,
             sessionAttentionCount: vm.sessionAttentionCount,
             criticalAuditCount: vm.recentCriticalAuditCount
         )
@@ -112,7 +126,7 @@ struct HandoffCenterView: View {
             checkInWindow: handoffStore.draftCheckInWindow,
             liveAlertCount: liveAlertCount,
             pendingApprovalCount: vm.pendingApprovalCount,
-            watchlistIssueCount: watchlistStore.watchedAgents(from: vm.agents).filter { vm.attentionItem(for: $0).severity > 0 }.count,
+            watchlistIssueCount: watchlistIssueCount,
             sessionAttentionCount: vm.sessionAttentionCount,
             criticalAuditCount: vm.recentCriticalAuditCount,
             carryover: carryoverStatus
@@ -127,7 +141,7 @@ struct HandoffCenterView: View {
         if vm.pendingApprovalCount > 0 {
             areas.insert(.approvals)
         }
-        if watchlistStore.watchedAgents(from: vm.agents).contains(where: { vm.attentionItem(for: $0).severity > 0 }) {
+        if watchlistIssueCount > 0 {
             areas.insert(.watchlist)
         }
         if vm.sessionAttentionCount > 0 {
@@ -148,9 +162,8 @@ struct HandoffCenterView: View {
         if vm.pendingApprovalCount > 0 {
             items.append(String(localized: "Triage \(vm.pendingApprovalCount) pending approvals."))
         }
-        let watchIssues = watchlistStore.watchedAgents(from: vm.agents).filter { vm.attentionItem(for: $0).severity > 0 }.count
-        if watchIssues > 0 {
-            items.append(String(localized: "Re-check \(watchIssues) watchlist agents for readiness, auth, or stale-session issues."))
+        if watchlistIssueCount > 0 {
+            items.append(String(localized: "Re-check \(watchlistIssueCount) watchlist agents for readiness, auth, or stale-session issues."))
         }
         if vm.sessionAttentionCount > 0 {
             items.append(String(localized: "Inspect \(vm.sessionAttentionCount) session hotspots for backlog or unlabeled sessions."))
@@ -169,6 +182,20 @@ struct HandoffCenterView: View {
     var body: some View {
         List {
             Section {
+                HandoffShiftContextInventoryDeck(
+                    coverageCount: coverageEntries.count,
+                    freshnessState: handoffStore.freshnessState,
+                    cadenceState: handoffStore.cadenceState,
+                    readiness: draftReadiness,
+                    checkInStatus: handoffStore.latestCheckInStatus,
+                    pendingFollowUpCount: pendingLatestFollowUpCount,
+                    completedFollowUpCount: completedLatestFollowUpCount,
+                    uncoveredChecklistCount: uncoveredChecklistCount,
+                    carryoverStatus: carryoverStatus,
+                    drift: currentDrift,
+                    latestEntryDate: coverageEntries.map(\.createdAt).max()
+                )
+
                 HandoffFreshnessCard(
                     freshnessState: handoffStore.freshnessState,
                     freshnessSummary: handoffStore.freshnessSummary,
@@ -254,6 +281,17 @@ struct HandoffCenterView: View {
 
             Section {
                 VStack(alignment: .leading, spacing: 14) {
+                    HandoffActionDeckInventoryCard(
+                        kind: handoffStore.draftKind,
+                        readiness: draftReadiness,
+                        checklist: handoffStore.draftChecklist,
+                        focusAreas: handoffStore.draftFocusAreas,
+                        followUpCount: handoffStore.draftFollowUpItems.count,
+                        suggestedFocusCount: suggestedFocusAreas.count,
+                        suggestedFollowUpCount: suggestedFollowUps.count,
+                        checkInWindow: handoffStore.draftCheckInWindow
+                    )
+
                     HandoffChecklistComposer(
                         checklist: handoffStore.draftChecklist,
                         toggle: { handoffStore.toggleDraftChecklist($0) }
@@ -327,6 +365,11 @@ struct HandoffCenterView: View {
 
             if !timelineItems.isEmpty {
                 Section {
+                    HandoffTimelineInventoryDeck(
+                        items: timelineItems,
+                        gapWarningCount: timelineGapWarningCount
+                    )
+
                     ForEach(timelineItems, id: \.id) { item in
                         HandoffTimelineRow(item: item)
                     }
@@ -777,6 +820,327 @@ private struct HandoffDraftActionsCard: View {
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)
+    }
+}
+
+private struct HandoffShiftContextInventoryDeck: View {
+    let coverageCount: Int
+    let freshnessState: HandoffFreshnessState
+    let cadenceState: HandoffCadenceState
+    let readiness: HandoffReadinessStatus
+    let checkInStatus: HandoffCheckInStatus?
+    let pendingFollowUpCount: Int
+    let completedFollowUpCount: Int
+    let uncoveredChecklistCount: Int
+    let carryoverStatus: HandoffCarryoverStatus?
+    let drift: HandoffSnapshotDrift?
+    let latestEntryDate: Date?
+
+    private var activeCarryoverCount: Int {
+        carryoverStatus?.unresolvedCount ?? 0
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
+                    PresentationToneBadge(text: cadenceState.label, tone: cadenceState.tone)
+                    PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
+                    if let checkInStatus {
+                        PresentationToneBadge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
+                    }
+                    if let carryoverStatus {
+                        PresentationToneBadge(text: carryoverStatus.state.label, tone: carryoverStatus.state.tone)
+                    }
+                    if let drift {
+                        PresentationToneBadge(text: drift.state.label, tone: drift.state.tone)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Shift context inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use this compact context slice to verify freshness, cadence, carryover, and follow-up load before opening the full handoff cards."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: coverageCount == 1 ? String(localized: "1 recent handoff") : String(localized: "\(coverageCount) recent handoffs"),
+                    tone: coverageCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if pendingFollowUpCount > 0 {
+                    Label(
+                        pendingFollowUpCount == 1 ? String(localized: "1 pending follow-up") : String(localized: "\(pendingFollowUpCount) pending follow-ups"),
+                        systemImage: "checklist.unchecked"
+                    )
+                }
+                if completedFollowUpCount > 0 {
+                    Label(
+                        completedFollowUpCount == 1 ? String(localized: "1 follow-up done") : String(localized: "\(completedFollowUpCount) follow-ups done"),
+                        systemImage: "checkmark.circle"
+                    )
+                }
+                if uncoveredChecklistCount > 0 {
+                    Label(
+                        uncoveredChecklistCount == 1 ? String(localized: "1 checklist gap") : String(localized: "\(uncoveredChecklistCount) checklist gaps"),
+                        systemImage: "square.dashed"
+                    )
+                }
+                if activeCarryoverCount > 0 {
+                    Label(
+                        activeCarryoverCount == 1 ? String(localized: "1 carryover focus") : String(localized: "\(activeCarryoverCount) carryover focus areas"),
+                        systemImage: "arrow.triangle.branch"
+                    )
+                }
+                if let latestSavedLabel {
+                    Label(latestSavedLabel, systemImage: "clock.arrow.circlepath")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        switch readiness.state {
+        case .ready:
+            return String(localized: "Shift context is ready for handoff drafting.")
+        case .caution:
+            return String(localized: "Shift context is usable, but some operator context still needs review.")
+        case .blocked:
+            return String(localized: "Shift context still has blocking gaps before the draft should be saved.")
+        }
+    }
+
+    private var detailLine: String {
+        if coverageCount == 0 {
+            return String(localized: "No local handoff history exists yet, so cadence and carryover can only be inferred from the live queue.")
+        }
+        if activeCarryoverCount > 0 {
+            return String(localized: "Recent handoffs exist, but unresolved carryover areas still need explicit coverage before the next shift takes over.")
+        }
+        return String(localized: "Recent handoffs, cadence, and follow-up state are all visible here so the draft can stay focused on the next operator handoff.")
+    }
+
+    private var latestSavedLabel: String? {
+        guard let latestEntryDate else { return nil }
+        return String(localized: "Latest \(RelativeDateTimeFormatter().localizedString(for: latestEntryDate, relativeTo: Date()))")
+    }
+}
+
+private struct HandoffActionDeckInventoryCard: View {
+    let kind: HandoffSnapshotKind
+    let readiness: HandoffReadinessStatus
+    let checklist: HandoffChecklistState
+    let focusAreas: HandoffFocusState
+    let followUpCount: Int
+    let suggestedFocusCount: Int
+    let suggestedFollowUpCount: Int
+    let checkInWindow: HandoffCheckInWindow
+
+    private var pendingChecklistCount: Int {
+        checklist.totalCount - checklist.completedCount
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: kind.label, tone: kindTone)
+                    PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
+                    PresentationToneBadge(text: String(localized: "Checklist \(checklist.progressLabel)"), tone: checklist.tone)
+                    if checkInWindow != .none {
+                        PresentationToneBadge(text: checkInWindow.label, tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Draft action inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "This compact deck keeps checklist progress, focus scope, and follow-up load visible before composing or saving the handoff."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: followUpCount == 1 ? String(localized: "1 draft follow-up") : String(localized: "\(followUpCount) draft follow-ups"),
+                    tone: followUpCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    focusAreas.items.count == 1 ? String(localized: "1 selected focus area") : String(localized: "\(focusAreas.items.count) selected focus areas"),
+                    systemImage: "scope"
+                )
+                if pendingChecklistCount > 0 {
+                    Label(
+                        pendingChecklistCount == 1 ? String(localized: "1 checklist item pending") : String(localized: "\(pendingChecklistCount) checklist items pending"),
+                        systemImage: "square.dashed"
+                    )
+                }
+                if suggestedFocusCount > 0 {
+                    Label(
+                        suggestedFocusCount == 1 ? String(localized: "1 suggested focus") : String(localized: "\(suggestedFocusCount) suggested focus areas"),
+                        systemImage: "lightbulb"
+                    )
+                }
+                if suggestedFollowUpCount > 0 {
+                    Label(
+                        suggestedFollowUpCount == 1 ? String(localized: "1 suggested follow-up") : String(localized: "\(suggestedFollowUpCount) suggested follow-ups"),
+                        systemImage: "wand.and.stars"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        switch readiness.state {
+        case .ready:
+            return String(localized: "Action Deck is ready to save or share.")
+        case .caution:
+            return String(localized: "Action Deck is usable, but the draft still needs a little more operator context.")
+        case .blocked:
+            return String(localized: "Action Deck is blocked until the draft covers the current runtime pressure.")
+        }
+    }
+
+    private var detailLine: String {
+        if followUpCount == 0 && focusAreas.items.isEmpty {
+            return String(localized: "Checklist work is visible, but focus areas and follow-ups are still empty, so the saved handoff may feel thin.")
+        }
+        return String(localized: "Checklist progress, selected focus areas, and saved follow-ups are compacted here so the operator can finish the draft without hunting across the section.")
+    }
+
+    private var kindTone: PresentationTone {
+        switch kind {
+        case .routine:
+            .neutral
+        case .watch:
+            .warning
+        case .incident:
+            .critical
+        case .recovery:
+            .positive
+        }
+    }
+}
+
+private struct HandoffTimelineInventoryDeck: View {
+    let items: [HandoffTimelineItem]
+    let gapWarningCount: Int
+
+    private var queuedEntryCount: Int {
+        items.filter { $0.entry.queueCount > 0 || $0.entry.liveAlertCount > 0 }.count
+    }
+
+    private var criticalEntryCount: Int {
+        items.filter { $0.entry.criticalCount > 0 }.count
+    }
+
+    private var largestGap: TimeInterval? {
+        items.compactMap(\.gapToOlderEntry).max()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: items.count == 1 ? String(localized: "1 timeline entry") : String(localized: "\(items.count) timeline entries"),
+                        tone: .neutral
+                    )
+                    if gapWarningCount > 0 {
+                        PresentationToneBadge(
+                            text: gapWarningCount == 1 ? String(localized: "1 cadence gap") : String(localized: "\(gapWarningCount) cadence gaps"),
+                            tone: .warning
+                        )
+                    }
+                    if let latestLabel {
+                        PresentationToneBadge(text: latestLabel, tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Timeline inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the compact timeline slice to spot cadence gaps before opening every saved handoff row in the chronology below."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: gapWarningCount == 0 ? String(localized: "Cadence steady") : String(localized: "Needs timeline review"),
+                    tone: gapWarningCount == 0 ? .positive : .warning
+                )
+            } facts: {
+                if queuedEntryCount > 0 {
+                    Label(
+                        queuedEntryCount == 1 ? String(localized: "1 queued handoff") : String(localized: "\(queuedEntryCount) queued handoffs"),
+                        systemImage: "tray.full"
+                    )
+                }
+                if criticalEntryCount > 0 {
+                    Label(
+                        criticalEntryCount == 1 ? String(localized: "1 critical handoff") : String(localized: "\(criticalEntryCount) critical handoffs"),
+                        systemImage: "exclamationmark.octagon"
+                    )
+                }
+                if let largestGap {
+                    Label(
+                        String(localized: "Largest gap \(OnCallHandoffStore.formatInterval(largestGap))"),
+                        systemImage: "clock.badge.exclamationmark"
+                    )
+                }
+                if let oldestLabel {
+                    Label(oldestLabel, systemImage: "clock")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        gapWarningCount == 0
+            ? String(localized: "Timeline is showing a steady local handoff cadence.")
+            : String(localized: "Timeline is showing \(gapWarningCount) cadence gaps across recent local handoffs.")
+    }
+
+    private var detailLine: String {
+        String(localized: "The timeline deck summarizes recent local handoff spacing before you drill into the full chronology row by row.")
+    }
+
+    private var latestLabel: String? {
+        guard let latest = items.map(\.entry.createdAt).max() else { return nil }
+        return String(localized: "Latest \(RelativeDateTimeFormatter().localizedString(for: latest, relativeTo: Date()))")
+    }
+
+    private var oldestLabel: String? {
+        guard let oldest = items.map(\.entry.createdAt).min() else { return nil }
+        return String(localized: "Oldest \(RelativeDateTimeFormatter().localizedString(for: oldest, relativeTo: Date()))")
     }
 }
 
