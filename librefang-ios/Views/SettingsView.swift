@@ -20,6 +20,12 @@ struct SettingsView: View {
     @State private var isSaving = false
     @State private var showSuccess = false
 
+    private var primaryRouteCount: Int { 3 }
+    private var supportRouteCount: Int { 2 }
+    private var primaryControlCount: Int { 4 }
+    private var supportControlCount: Int { 4 }
+    private var utilityRouteCount: Int { 2 }
+
     var body: some View {
         NavigationStack {
             ScrollViewReader { proxy in
@@ -52,6 +58,18 @@ struct SettingsView: View {
                                 }
                             }
                         }
+
+                        SettingsRouteInventoryDeck(
+                            primaryRouteCount: primaryRouteCount,
+                            supportRouteCount: supportRouteCount,
+                            primaryControlCount: primaryControlCount,
+                            supportControlCount: supportControlCount,
+                            utilityRouteCount: utilityRouteCount,
+                            onCallQueueCount: onCallQueueCount,
+                            currentCriticalCount: currentCriticalCount,
+                            refreshIntervalLabel: "\(Int(refreshInterval))s",
+                            languageLabel: currentLanguageLabel
+                        )
 
                         MonitoringSurfaceGroupCard(
                             title: String(localized: "Routes"),
@@ -1184,6 +1202,70 @@ private struct SettingsReminderSnapshotCard: View {
             return String(localized: "Standby reminders are currently disabled on this device.")
         }
         return String(localized: "Standby reminders are armed for queued on-call pressure on this device.")
+    }
+}
+
+private struct SettingsRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let primaryControlCount: Int
+    let supportControlCount: Int
+    let utilityRouteCount: Int
+    let onCallQueueCount: Int
+    let currentCriticalCount: Int
+    let refreshIntervalLabel: String
+    let languageLabel: String
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: primaryControlCount == 1 ? String(localized: "1 primary control") : String(localized: "\(primaryControlCount) primary controls"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: supportControlCount == 1 ? String(localized: "1 support control") : String(localized: "\(supportControlCount) support controls"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: utilityRouteCount == 1 ? String(localized: "1 utility route") : String(localized: "\(utilityRouteCount) utility routes"),
+                    tone: utilityRouteCount > 0 ? .positive : .neutral
+                )
+                if onCallQueueCount > 0 {
+                    PresentationToneBadge(
+                        text: onCallQueueCount == 1 ? String(localized: "1 on-call item") : String(localized: "\(onCallQueueCount) on-call items"),
+                        tone: .warning
+                    )
+                }
+                if currentCriticalCount > 0 {
+                    PresentationToneBadge(
+                        text: currentCriticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(currentCriticalCount) critical"),
+                        tone: .critical
+                    )
+                }
+                PresentationToneBadge(text: refreshIntervalLabel, tone: .neutral)
+                PresentationToneBadge(text: languageLabel, tone: .neutral)
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        let totalItems = primaryRouteCount + supportRouteCount + primaryControlCount + supportControlCount + utilityRouteCount
+        return totalItems == 1
+            ? String(localized: "1 settings route or control is grouped in this deck.")
+            : String(localized: "\(totalItems) settings routes and controls are grouped in this deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Monitoring exits, device controls, and utility routes stay summarized here before the longer settings form.")
     }
 }
 

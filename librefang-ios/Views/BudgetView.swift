@@ -79,6 +79,12 @@ struct BudgetView: View {
     private var topAgentBudgetItem: AgentBudgetItem? {
         visibleAgents.first
     }
+    private var budgetPrimaryAreaCount: Int {
+        2 + (!vm.usageDaily.isEmpty ? 1 : 0)
+    }
+    private var budgetSupportAreaCount: Int {
+        (!sortedModels.isEmpty ? 1 : 0) + (!sortedAgents.isEmpty ? 1 : 0)
+    }
 
     var body: some View {
         NavigationStack {
@@ -361,6 +367,16 @@ struct BudgetView: View {
                 title: String(localized: "Focus Rail"),
                 detail: String(localized: "Keep the longest budget charts and rankings reachable from the compact mobile view.")
             ) {
+                BudgetRouteInventoryDeck(
+                    primaryAreaCount: budgetPrimaryAreaCount,
+                    supportAreaCount: budgetSupportAreaCount,
+                    primaryRouteCount: 2,
+                    supportRouteCount: 2,
+                    trendDays: vm.usageDaily.count,
+                    modelCount: sortedModels.count,
+                    agentCount: sortedAgents.count
+                )
+
                 MonitoringShortcutRail(
                     title: String(localized: "Primary Areas"),
                     detail: budgetFocusSummary
@@ -1650,6 +1666,68 @@ private struct BudgetStatusDeckCard: View {
                 }
             }
         }
+    }
+}
+
+private struct BudgetRouteInventoryDeck: View {
+    let primaryAreaCount: Int
+    let supportAreaCount: Int
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let trendDays: Int
+    let modelCount: Int
+    let agentCount: Int
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: primaryAreaCount == 1 ? String(localized: "1 primary area") : String(localized: "\(primaryAreaCount) primary areas"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: supportAreaCount == 1 ? String(localized: "1 support area") : String(localized: "\(supportAreaCount) support areas"),
+                    tone: supportAreaCount > 0 ? .positive : .neutral
+                )
+                PresentationToneBadge(
+                    text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                    tone: .neutral
+                )
+                if trendDays > 0 {
+                    PresentationToneBadge(
+                        text: trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
+                        tone: .positive
+                    )
+                }
+                if modelCount > 0 {
+                    PresentationToneBadge(
+                        text: modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
+                        tone: .neutral
+                    )
+                }
+                if agentCount > 0 {
+                    PresentationToneBadge(
+                        text: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                        tone: .neutral
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        let totalItems = primaryAreaCount + supportAreaCount + primaryRouteCount + supportRouteCount
+        return totalItems == 1
+            ? String(localized: "1 budget focus and route item is grouped in this deck.")
+            : String(localized: "\(totalItems) budget focus and route items are grouped in this deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Focus areas and operator exits stay summarized here before the longer charts and spend rankings.")
     }
 }
 
