@@ -246,17 +246,14 @@ struct OnCallView: View {
                     isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
                 )
 
-                OnCallStatusCard(
+                OnCallShiftInventoryCard(
                     digestLine: digestLine,
                     liveAlertCount: visibleAlerts.count,
                     acknowledgedAt: incidentStateStore.currentAcknowledgementDate(for: vm.monitoringAlerts),
                     isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
                     mutedAlertCount: mutedAlertCount,
                     watchCount: watchedAgents.count,
-                    lastRefresh: vm.lastRefresh
-                )
-
-                OnCallHandoffStatusRow(
+                    lastRefresh: vm.lastRefresh,
                     freshnessState: handoffStore.freshnessState,
                     freshnessSummary: handoffStore.freshnessSummary,
                     cadenceState: handoffStore.cadenceState,
@@ -294,6 +291,17 @@ struct OnCallView: View {
             }
 
             Section {
+                OnCallRouteInventoryDeck(
+                    queueCount: priorityItems.count,
+                    liveAlertCount: visibleAlerts.count,
+                    criticalCount: criticalCount,
+                    approvalCount: vm.pendingApprovalCount,
+                    sessionCount: vm.sessionAttentionCount,
+                    eventCount: vm.recentCriticalAuditCount,
+                    automationIssueCount: automationIssueCount,
+                    integrationIssueCount: integrationIssueCount
+                )
+
                 OnCallSurfaceDeckCard(
                     approvalCount: vm.pendingApprovalCount,
                     sessionCount: vm.sessionAttentionCount,
@@ -480,6 +488,94 @@ struct OnCallView: View {
     }
 }
 
+private struct OnCallShiftInventoryCard: View {
+    let digestLine: String
+    let liveAlertCount: Int
+    let acknowledgedAt: Date?
+    let isAcknowledged: Bool
+    let mutedAlertCount: Int
+    let watchCount: Int
+    let lastRefresh: Date?
+    let freshnessState: HandoffFreshnessState
+    let freshnessSummary: String
+    let cadenceState: HandoffCadenceState
+    let cadenceSummary: String
+    let latestEntry: OnCallHandoffEntry?
+    let checkInStatus: HandoffCheckInStatus?
+    let drift: HandoffSnapshotDrift?
+    let carryover: HandoffCarryoverStatus?
+    let readiness: HandoffReadinessStatus
+    let followUpStatuses: [HandoffFollowUpStatus]
+
+    private var snapshotTone: PresentationTone {
+        if isAcknowledged {
+            return .positive
+        }
+        return liveAlertCount > 0 ? .critical : .neutral
+    }
+
+    private var pendingFollowUpCount: Int {
+        followUpStatuses.filter { !$0.isCompleted }.count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Operator snapshot and latest handoff context now stay in one compact deck."),
+                detail: String(localized: "Live queue state, acknowledgement, freshness, cadence, and follow-up pressure stay together before the route deck."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: isAcknowledged ? String(localized: "Acked") : String(localized: "Live"),
+                        tone: snapshotTone
+                    )
+                    PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
+                    PresentationToneBadge(text: cadenceState.label, tone: cadenceState.tone)
+                    PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
+                    if let checkInStatus {
+                        PresentationToneBadge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
+                    }
+                }
+            }
+
+            OnCallStatusCard(
+                digestLine: digestLine,
+                liveAlertCount: liveAlertCount,
+                acknowledgedAt: acknowledgedAt,
+                isAcknowledged: isAcknowledged,
+                mutedAlertCount: mutedAlertCount,
+                watchCount: watchCount,
+                lastRefresh: lastRefresh
+            )
+
+            OnCallHandoffStatusRow(
+                freshnessState: freshnessState,
+                freshnessSummary: freshnessSummary,
+                cadenceState: cadenceState,
+                cadenceSummary: cadenceSummary,
+                latestEntry: latestEntry,
+                checkInStatus: checkInStatus,
+                drift: drift,
+                carryover: carryover,
+                readiness: readiness,
+                followUpStatuses: followUpStatuses
+            )
+
+            if pendingFollowUpCount > 0 {
+                Text(
+                    pendingFollowUpCount == 1
+                        ? String(localized: "1 handoff follow-up is still open in the current deck.")
+                        : String(localized: "\(pendingFollowUpCount) handoff follow-ups are still open in the current deck.")
+                )
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
 private struct OnCallStatusDeckCard: View {
     let queueCount: Int
     let criticalCount: Int
@@ -579,6 +675,105 @@ private struct OnCallStatusDeckCard: View {
                 }
             }
         }
+    }
+}
+
+private struct OnCallRouteInventoryDeck: View {
+    let queueCount: Int
+    let liveAlertCount: Int
+    let criticalCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let eventCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+
+    private let primaryRouteCount = 6
+    private let supportRouteCount = 6
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "The route deck keeps \(primaryRouteCount) primary exits and \(supportRouteCount) support drills grouped above the fold."),
+                detail: String(localized: "Queue-first routes stay ahead of slower systemic drilldowns and export actions."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: queueCount == 1 ? String(localized: "1 queued route context") : String(localized: "\(queueCount) queued route context"),
+                        tone: queueCount > 0 ? .warning : .neutral
+                    )
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical route") : String(localized: "\(criticalCount) critical routes"),
+                            tone: .critical
+                        )
+                    }
+                    if liveAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: liveAlertCount == 1 ? String(localized: "1 live alert route") : String(localized: "\(liveAlertCount) live alert routes"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the compact surface inventory to judge whether the next move should stay queue-first or jump into slower runtime and platform drills."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
+                    tone: .neutral
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                Label(
+                    supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                    systemImage: "square.grid.2x2"
+                )
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if sessionCount > 0 {
+                    Label(
+                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        systemImage: "rectangle.stack"
+                    )
+                }
+                if eventCount > 0 {
+                    Label(
+                        eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
+                        systemImage: "list.bullet.rectangle.portrait"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
