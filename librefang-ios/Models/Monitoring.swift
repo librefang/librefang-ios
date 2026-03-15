@@ -381,6 +381,20 @@ nonisolated struct SessionInfo: Codable, Identifiable, Sendable {
     }
 }
 
+nonisolated struct SessionLabelLookupResult: Codable, Sendable {
+    let sessionId: String
+    let agentId: String
+    let label: String?
+    let messageCount: Int
+
+    enum CodingKeys: String, CodingKey {
+        case label
+        case sessionId = "session_id"
+        case agentId = "agent_id"
+        case messageCount = "message_count"
+    }
+}
+
 nonisolated struct AuditRecentResponse: Codable, Sendable {
     let entries: [AuditEntry]
     let total: Int

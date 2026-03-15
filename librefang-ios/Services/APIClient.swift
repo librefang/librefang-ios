@@ -72,6 +72,7 @@ protocol APIClientProtocol: Sendable {
     func testProvider(name: String) async throws -> IntegrationProbeResult
     func testChannel(name: String) async throws -> IntegrationProbeResult
     func createSession(agentId: String, label: String?) async throws -> SessionInfo
+    func findSessionByLabel(agentId: String, label: String) async throws -> SessionLabelLookupResult
     func setSessionLabel(id: String, label: String?) async throws -> OperatorActionResponse
     func deleteSession(id: String) async throws -> OperatorActionResponse
     func setAgentMemory(agentId: String, key: String, value: JSONValue) async throws -> OperatorActionResponse
@@ -273,6 +274,10 @@ actor APIClient: APIClientProtocol {
 
     func createSession(agentId: String, label: String?) async throws -> SessionInfo {
         try await post("/api/agents/\(agentId)/sessions", body: CreateSessionRequest(label: label))
+    }
+
+    func findSessionByLabel(agentId: String, label: String) async throws -> SessionLabelLookupResult {
+        try await get("/api/agents/\(agentId)/sessions/by-label/\(encodedPathComponent(label))")
     }
 
     func setSessionLabel(id: String, label: String?) async throws -> OperatorActionResponse {

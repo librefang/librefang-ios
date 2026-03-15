@@ -17,8 +17,13 @@ struct AgentDetailView: View {
     @State private var sessionCatalogActionInFlightID: String?
     @State private var operatorNotice: OperatorActionNotice?
     @State private var showCreateSessionSheet = false
+    @State private var showFindSessionSheet = false
     @State private var newSessionLabel = ""
+    @State private var sessionLookupLabel = ""
+    @State private var sessionLookupResult: SessionLabelLookupResult?
+    @State private var sessionLookupError: String?
     @State private var isCreatingSession = false
+    @State private var isLookingUpSession = false
     @State private var showChat = false
     @State private var isLoadingBudget = true
     @State private var isLoadingSession = true
@@ -160,6 +165,82 @@ struct AgentDetailView: View {
                             }
                         }
                         .disabled(isCreatingSession)
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showFindSessionSheet) {
+            NavigationStack {
+                Form {
+                    Section {
+                        TextField("incident_review", text: $sessionLookupLabel)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+
+                        Button {
+                            Task { await lookupSessionByLabel() }
+                        } label: {
+                            if isLookingUpSession {
+                                ProgressView()
+                                    .controlSize(.small)
+                            } else {
+                                Label("Find Session", systemImage: "magnifyingglass")
+                            }
+                        }
+                        .disabled(isLookingUpSession || sessionLookupLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    } header: {
+                        Text("Session Label")
+                    } footer: {
+                        Text("LibreFang resolves labels server-side for this agent, so this works even when the current inventory is stale.")
+                    }
+
+                    if let sessionLookupResult {
+                        Section("Result") {
+                            LabeledContent("Session") {
+                                Text((sessionLookupResult.label?.isEmpty == false ? sessionLookupResult.label : nil) ?? String(sessionLookupResult.sessionId.prefix(8)))
+                                    .foregroundStyle(.secondary)
+                            }
+                            LabeledContent("Messages") {
+                                Text(sessionLookupResult.messageCount.formatted())
+                                    .monospacedDigit()
+                            }
+
+                            if sessionLookupResult.sessionId == currentSessionID {
+                                Label("This is already the active session.", systemImage: "checkmark.circle")
+                                    .foregroundStyle(.green)
+                            } else {
+                                Button {
+                                    pendingSessionAction = .switchSession(
+                                        agentID: agent.id,
+                                        agentName: agent.name,
+                                        session: SessionInfo(
+                                            sessionId: sessionLookupResult.sessionId,
+                                            agentId: sessionLookupResult.agentId,
+                                            messageCount: sessionLookupResult.messageCount,
+                                            createdAt: "",
+                                            label: sessionLookupResult.label
+                                        )
+                                    )
+                                    showFindSessionSheet = false
+                                } label: {
+                                    Label("Switch To This Session", systemImage: "arrow.triangle.swap")
+                                }
+                            }
+                        }
+                    } else if let sessionLookupError {
+                        Section("Result") {
+                            Text(sessionLookupError)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .navigationTitle("Find Session")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Close") {
+                            showFindSessionSheet = false
+                        }
                     }
                 }
             }
@@ -503,6 +584,16 @@ struct AgentDetailView: View {
                 }
                 .disabled(hasActiveSessionOperation)
             }
+
+            Button {
+                sessionLookupResult = nil
+                sessionLookupError = nil
+                sessionLookupLabel = currentSessionInfo?.label ?? ""
+                showFindSessionSheet = true
+            } label: {
+                Label("Find Session by Label", systemImage: "magnifyingglass")
+            }
+            .disabled(hasActiveSessionOperation)
 
             Button {
                 pendingSessionAction = .compact(agentID: agent.id, agentName: agent.name)
@@ -919,6 +1010,23 @@ struct AgentDetailView: View {
                 title: "Fresh Session",
                 message: error.localizedDescription
             )
+        }
+    }
+
+    @MainActor
+    private func lookupSessionByLabel() async {
+        let trimmedLabel = sessionLookupLabel.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedLabel.isEmpty else { return }
+
+        isLookingUpSession = true
+        defer { isLookingUpSession = false }
+
+        do {
+            sessionLookupResult = try await deps.apiClient.findSessionByLabel(agentId: agent.id, label: trimmedLabel)
+            sessionLookupError = nil
+        } catch {
+            sessionLookupResult = nil
+            sessionLookupError = error.localizedDescription
         }
     }
 
