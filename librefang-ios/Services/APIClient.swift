@@ -48,6 +48,7 @@ protocol APIClientProtocol: Sendable {
     func activeHands() async throws -> ActiveHandList
     func approvals() async throws -> ApprovalQueue
     func sessions() async throws -> SessionListResponse
+    func agentMemory(agentId: String) async throws -> AgentMemoryListResponse
     func recentAudit(limit: Int) async throws -> AuditRecentResponse
     func auditVerify() async throws -> AuditVerifyStatus
     func security() async throws -> SecurityStatus
@@ -73,6 +74,8 @@ protocol APIClientProtocol: Sendable {
     func createSession(agentId: String, label: String?) async throws -> SessionInfo
     func setSessionLabel(id: String, label: String?) async throws -> OperatorActionResponse
     func deleteSession(id: String) async throws -> OperatorActionResponse
+    func setAgentMemory(agentId: String, key: String, value: JSONValue) async throws -> OperatorActionResponse
+    func deleteAgentMemory(agentId: String, key: String) async throws -> OperatorActionResponse
     func switchSession(agentId: String, sessionId: String) async throws -> OperatorActionResponse
     func resetSession(agentId: String) async throws -> OperatorActionResponse
     func compactSession(agentId: String) async throws -> OperatorActionResponse
@@ -176,6 +179,10 @@ actor APIClient: APIClientProtocol {
         try await get("/api/sessions")
     }
 
+    func agentMemory(agentId: String) async throws -> AgentMemoryListResponse {
+        try await get("/api/memory/agents/\(agentId)/kv")
+    }
+
     func recentAudit(limit: Int) async throws -> AuditRecentResponse {
         try await get("/api/audit/recent?n=\(limit)")
     }
@@ -276,6 +283,14 @@ actor APIClient: APIClientProtocol {
         try await delete("/api/sessions/\(id)")
     }
 
+    func setAgentMemory(agentId: String, key: String, value: JSONValue) async throws -> OperatorActionResponse {
+        try await put("/api/memory/agents/\(agentId)/kv/\(encodedPathComponent(key))", body: MemoryValueRequest(value: value))
+    }
+
+    func deleteAgentMemory(agentId: String, key: String) async throws -> OperatorActionResponse {
+        try await delete("/api/memory/agents/\(agentId)/kv/\(encodedPathComponent(key))")
+    }
+
     func switchSession(agentId: String, sessionId: String) async throws -> OperatorActionResponse {
         try await post("/api/agents/\(agentId)/sessions/\(sessionId)/switch")
     }
@@ -361,6 +376,12 @@ actor APIClient: APIClientProtocol {
         return request
     }
 
+    private func encodedPathComponent(_ value: String) -> String {
+        var allowed = CharacterSet.urlPathAllowed
+        allowed.remove(charactersIn: "/")
+        return value.addingPercentEncoding(withAllowedCharacters: allowed) ?? value
+    }
+
     private func getText(_ path: String) async throws -> String {
         let request = try buildRequest(path: path, method: "GET")
         let data: Data
@@ -419,6 +440,10 @@ private enum DecodingFailure: LocalizedError {
 
 private nonisolated struct CreateSessionRequest: Encodable, Sendable {
     let label: String?
+}
+
+private nonisolated struct MemoryValueRequest: Encodable, Sendable {
+    let value: JSONValue
 }
 
 private nonisolated struct SessionLabelRequest: Encodable, Sendable {

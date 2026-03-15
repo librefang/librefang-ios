@@ -6,6 +6,7 @@ struct AgentDetailView: View {
     @State private var budgetDetail: AgentBudgetDetail?
     @State private var sessionSnapshot: AgentSessionSnapshot?
     @State private var agentSessions: [SessionInfo] = []
+    @State private var agentMemory: [AgentMemoryEntry] = []
     @State private var pendingApprovalAction: ApprovalDecisionAction?
     @State private var approvalActionInFlightID: String?
     @State private var pendingSessionAction: AgentSessionControlAction?
@@ -22,6 +23,7 @@ struct AgentDetailView: View {
     @State private var isLoadingBudget = true
     @State private var isLoadingSession = true
     @State private var isLoadingSessions = true
+    @State private var isLoadingMemory = true
 
     private var agentApprovals: [ApprovalItem] {
         deps.dashboardViewModel.approvals.filter { $0.agentId == agent.id || $0.agentName == agent.name }
@@ -97,6 +99,7 @@ struct AgentDetailView: View {
             approvalsSection
             budgetSections
             sessionSections
+            memorySection
             recentAuditSection
             actionsSection
         }
@@ -116,6 +119,7 @@ struct AgentDetailView: View {
             await loadBudget()
             await loadSession()
             await loadSessions()
+            await loadMemory()
         }
         .sheet(isPresented: $showChat) {
             NavigationStack {
@@ -598,6 +602,53 @@ struct AgentDetailView: View {
         }
     }
 
+    private var memorySection: some View {
+        Section {
+            if isLoadingMemory {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                        .controlSize(.small)
+                    Spacer()
+                }
+            } else {
+                LabeledContent("Keys") {
+                    Text(agentMemory.count.formatted())
+                        .monospacedDigit()
+                }
+
+                LabeledContent("Structured") {
+                    let structured = agentMemory.filter(\.isStructured).count
+                    Text(structured.formatted())
+                        .foregroundStyle(structured > 0 ? .orange : .secondary)
+                        .monospacedDigit()
+                }
+
+                if agentMemory.isEmpty {
+                    Text("No agent memory keys stored.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(agentMemory.prefix(3)) { entry in
+                        AgentMemorySummaryRow(entry: entry)
+                    }
+                }
+
+                NavigationLink {
+                    AgentMemoryView(agent: agent, initialEntries: agentMemory) { updatedEntries in
+                        agentMemory = updatedEntries
+                        isLoadingMemory = false
+                    }
+                } label: {
+                    Label("Open Agent Memory", systemImage: "internaldrive")
+                }
+            }
+        } header: {
+            Text("Memory")
+        } footer: {
+            Text("Agent memory is durable KV state shared across runs. Use it when the current session does not explain agent behavior.")
+        }
+    }
+
     @ViewBuilder
     private var recentAuditSection: some View {
         if !agentRecentEvents.isEmpty {
@@ -726,6 +777,17 @@ struct AgentDetailView: View {
             agentSessions = (try await deps.apiClient.agentSessions(agentId: agent.id)).sessions
         } catch {
             /* Multi-session inventory is optional */
+        }
+    }
+
+    @MainActor
+    private func loadMemory() async {
+        defer { isLoadingMemory = false }
+        do {
+            agentMemory = (try await deps.apiClient.agentMemory(agentId: agent.id)).kvPairs
+                .sorted { $0.key.localizedCaseInsensitiveCompare($1.key) == .orderedAscending }
+        } catch {
+            agentMemory = []
         }
     }
 
@@ -1185,6 +1247,35 @@ private struct AgentAuditRow: View {
         case .info:
             .green
         }
+    }
+}
+
+private struct AgentMemorySummaryRow: View {
+    let entry: AgentMemoryEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(entry.key)
+                    .font(.subheadline.weight(.medium))
+                Spacer()
+                if entry.isStructured {
+                    Text("Structured")
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.orange.opacity(0.12))
+                        .foregroundStyle(.orange)
+                        .clipShape(Capsule())
+                }
+            }
+
+            Text(entry.summary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+        .padding(.vertical, 2)
     }
 }
 
