@@ -127,6 +127,56 @@ struct SessionsView: View {
             }
 
             Section {
+                MonitoringFactsRow {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(String(localized: "Session queue facts"))
+                            .font(.subheadline.weight(.medium))
+                        Text(String(localized: "Keep backlog scope, hotspot counts, and current result volume visible before working through the session list."))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                } accessory: {
+                    PresentationToneBadge(text: filter.label, tone: snapshotFilterTone)
+                } facts: {
+                    Label(
+                        vm.totalSessionCount == 1 ? String(localized: "1 total session") : String(localized: "\(vm.totalSessionCount) total sessions"),
+                        systemImage: "text.bubble"
+                    )
+                    if vm.sessionAttentionCount > 0 {
+                        Label(
+                            vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"),
+                            systemImage: "exclamationmark.triangle"
+                        )
+                    }
+                    if vm.highVolumeSessionCount > 0 {
+                        Label(
+                            vm.highVolumeSessionCount == 1 ? String(localized: "1 high-volume session") : String(localized: "\(vm.highVolumeSessionCount) high-volume sessions"),
+                            systemImage: "chart.bar.xaxis"
+                        )
+                    }
+                    if vm.unlabeledSessionCount > 0 {
+                        Label(
+                            vm.unlabeledSessionCount == 1 ? String(localized: "1 unlabeled session") : String(localized: "\(vm.unlabeledSessionCount) unlabeled sessions"),
+                            systemImage: "tag.slash"
+                        )
+                    }
+                    if vm.multiSessionAgentCount > 0 {
+                        Label(
+                            vm.multiSessionAgentCount == 1 ? String(localized: "1 multi-session agent") : String(localized: "\(vm.multiSessionAgentCount) multi-session agents"),
+                            systemImage: "person.3"
+                        )
+                    }
+                    Label(
+                        filteredItems.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredItems.count) visible results"),
+                        systemImage: "line.3.horizontal.decrease.circle"
+                    )
+                }
+            } footer: {
+                Text("This compact facts row keeps session backlog and filter scope readable before deeper queue work.")
+            }
+
+            Section {
                 NavigationLink {
                     RuntimeView()
                 } label: {
@@ -184,6 +234,17 @@ struct SessionsView: View {
                             ? (vm.multiSessionAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(vm.multiSessionAgentCount) agents"))
                             : nil,
                         badgeTone: .warning
+                    )
+                }
+
+                NavigationLink {
+                    EventsView(api: deps.apiClient, initialScope: .warning)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Events"),
+                        detail: String(localized: "Switch to the audit feed when session backlog may be tied to recent warnings or critical events."),
+                        systemImage: "list.bullet.rectangle.portrait",
+                        tone: .warning
                     )
                 }
             } header: {

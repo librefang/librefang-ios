@@ -209,6 +209,55 @@ struct AutomationView: View {
                 }
 
                 Section {
+                    MonitoringFactsRow {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(String(localized: "Automation signal facts"))
+                                .font(.subheadline.weight(.medium))
+                            Text(String(localized: "Keep scope, inventory size, and failure categories visible before drilling into workflows, runs, triggers, schedules, and cron jobs."))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                        }
+                    } accessory: {
+                        PresentationToneBadge(
+                            text: scope.label,
+                            tone: scope == .attention ? .warning : scope == .active ? .positive : .neutral
+                        )
+                    } facts: {
+                        Label(
+                            vm.workflows.count == 1 ? String(localized: "1 workflow") : String(localized: "\(vm.workflows.count) workflows"),
+                            systemImage: "flowchart"
+                        )
+                        Label(
+                            vm.workflowRuns.count == 1 ? String(localized: "1 run") : String(localized: "\(vm.workflowRuns.count) runs"),
+                            systemImage: "play.circle"
+                        )
+                        Label(
+                            vm.triggers.count == 1 ? String(localized: "1 trigger") : String(localized: "\(vm.triggers.count) triggers"),
+                            systemImage: "bolt.badge.clock"
+                        )
+                        Label(
+                            visibleItemCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleItemCount) visible results"),
+                            systemImage: "line.3.horizontal.decrease.circle"
+                        )
+                        if vm.failedWorkflowRunCount > 0 {
+                            Label(
+                                vm.failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(vm.failedWorkflowRunCount) failed runs"),
+                                systemImage: "xmark.octagon"
+                            )
+                        }
+                        if vm.stalledCronJobCount > 0 {
+                            Label(
+                                vm.stalledCronJobCount == 1 ? String(localized: "1 stalled cron") : String(localized: "\(vm.stalledCronJobCount) stalled cron jobs"),
+                                systemImage: "clock.badge.exclamationmark"
+                            )
+                        }
+                    }
+                } footer: {
+                    Text("This facts row keeps scope and failure pressure readable before you scroll through the grouped automation sections.")
+                }
+
+                Section {
                     AutomationFilterCard(
                         scope: $scope,
                         searchText: searchText,
@@ -275,6 +324,21 @@ struct AutomationView: View {
                             tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
                             badgeText: vm.recentCriticalAuditCount > 0
                                 ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
+                                : nil,
+                            badgeTone: .critical
+                        )
+                    }
+
+                    NavigationLink {
+                        IntegrationsView(initialScope: .attention)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Integrations"),
+                            detail: String(localized: "Switch to providers, channels, and model drift when automation failures may be rooted in integration trouble."),
+                            systemImage: "square.3.layers.3d.down.forward",
+                            tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                            badgeText: vm.integrationPressureIssueCategoryCount > 0
+                                ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) integration issues"))
                                 : nil,
                             badgeTone: .critical
                         )

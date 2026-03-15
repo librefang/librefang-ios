@@ -122,6 +122,54 @@ struct ApprovalsView: View {
             }
 
             Section {
+                MonitoringFactsRow {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(String(localized: "Approval queue facts"))
+                            .font(.subheadline.weight(.medium))
+                        Text(String(localized: "Keep queue severity, agent spread, and visible results clear before acting on requests from the phone."))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                } accessory: {
+                    PresentationToneBadge(
+                        text: filter.label,
+                        tone: filter == .critical ? .critical : filter == .high ? .warning : .neutral
+                    )
+                } facts: {
+                    Label(
+                        vm.pendingApprovalCount == 1 ? String(localized: "1 pending approval") : String(localized: "\(vm.pendingApprovalCount) pending approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                    if criticalApprovalCount > 0 {
+                        Label(
+                            criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"),
+                            systemImage: "xmark.octagon"
+                        )
+                    }
+                    if highRiskApprovalCount > 0 {
+                        Label(
+                            highRiskApprovalCount == 1 ? String(localized: "1 high-risk request") : String(localized: "\(highRiskApprovalCount) high-risk requests"),
+                            systemImage: "exclamationmark.triangle"
+                        )
+                    }
+                    Label(
+                        approvalAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(approvalAgentCount) agents"),
+                        systemImage: "person.3"
+                    )
+                    Label(
+                        filteredApprovals.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredApprovals.count) visible results"),
+                        systemImage: "line.3.horizontal.decrease.circle"
+                    )
+                    if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Label(String(localized: "Scoped search"), systemImage: "magnifyingglass")
+                    }
+                }
+            } footer: {
+                Text("This facts row keeps approval severity and scope visible above the action queue.")
+            }
+
+            Section {
                 NavigationLink {
                     IncidentsView()
                 } label: {

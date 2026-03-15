@@ -91,6 +91,47 @@ struct EventsView: View {
             }
 
             Section {
+                MonitoringFactsRow {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(String(localized: "Event feed facts"))
+                            .font(.subheadline.weight(.medium))
+                        Text(String(localized: "Keep severity scope, transport mode, and visible audit pressure readable before opening the full event list."))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                } accessory: {
+                    PresentationToneBadge(text: scope.label, tone: scopeTone)
+                } facts: {
+                    Label(
+                        filteredEntries.count == 1 ? String(localized: "1 visible event") : String(localized: "\(filteredEntries.count) visible events"),
+                        systemImage: "list.bullet.rectangle"
+                    )
+                    Label(
+                        viewModel.isStreaming ? String(localized: "Live transport") : String(localized: "Polling transport"),
+                        systemImage: "dot.radiowaves.left.and.right"
+                    )
+                    if viewModel.criticalCount > 0 {
+                        Label(
+                            viewModel.criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(viewModel.criticalCount) critical"),
+                            systemImage: "xmark.octagon"
+                        )
+                    }
+                    if viewModel.warningCount > 0 {
+                        Label(
+                            viewModel.warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(viewModel.warningCount) warnings"),
+                            systemImage: "exclamationmark.triangle"
+                        )
+                    }
+                    if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Label(String(localized: "Scoped search"), systemImage: "magnifyingglass")
+                    }
+                }
+            } footer: {
+                Text("This compact facts row keeps severity and transport state visible before you scan the event feed.")
+            }
+
+            Section {
                 NavigationLink {
                     IncidentsView()
                 } label: {
@@ -141,6 +182,17 @@ struct EventsView: View {
                         title: String(localized: "Open Diagnostics"),
                         detail: String(localized: "Switch to diagnostics when audit activity may reflect deeper runtime problems."),
                         systemImage: "stethoscope",
+                        tone: .neutral
+                    )
+                }
+
+                NavigationLink {
+                    CommsView(api: deps.apiClient)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Comms"),
+                        detail: String(localized: "Switch to live inter-agent traffic when audit events need communication context."),
+                        systemImage: "point.3.connected.trianglepath.dotted",
                         tone: .neutral
                     )
                 }
