@@ -272,13 +272,12 @@ private struct StatePill: View {
     let state: String
 
     var body: some View {
-        Text(Agent.localizedStateLabel(for: state))
-            .font(.caption2.weight(.medium))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(Agent.stateTone(for: state).color.opacity(0.15))
-            .foregroundStyle(Agent.stateTone(for: state).color)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: Agent.localizedStateLabel(for: state),
+            tone: Agent.stateTone(for: state),
+            horizontalPadding: 6,
+            verticalPadding: 2
+        )
     }
 }
 
@@ -288,13 +287,13 @@ private struct InlineStatusPill: View {
     let systemImage: String
 
     var body: some View {
-        Label(label, systemImage: systemImage)
-            .font(.caption2.weight(.medium))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(tone.badgeBackgroundColor)
-            .foregroundStyle(tone.color)
-            .clipShape(Capsule())
+        PresentationToneLabelBadge(
+            text: label,
+            systemImage: systemImage,
+            tone: tone,
+            horizontalPadding: 6,
+            verticalPadding: 2
+        )
     }
 }
 

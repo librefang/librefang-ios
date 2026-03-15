@@ -830,13 +830,12 @@ private struct WatchedAgentRow: View {
             }
 
             HStack(spacing: 8) {
-                Text(agent.stateLabel)
-                    .font(.caption2.weight(.medium))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(watchedAgentStateTone(agent: agent, severity: severity, diagnostics: diagnostics).color.opacity(0.12))
-                    .foregroundStyle(watchedAgentStateTone(agent: agent, severity: severity, diagnostics: diagnostics).color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(
+                    text: agent.stateLabel,
+                    tone: watchedAgentStateTone(agent: agent, severity: severity, diagnostics: diagnostics),
+                    horizontalPadding: 6,
+                    verticalPadding: 2
+                )
 
                 if let lastActive = agent.lastActive {
                     OnCallRelativeTimeText(dateString: lastActive)
