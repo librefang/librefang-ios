@@ -120,6 +120,31 @@ struct AgentDetailView: View {
         agentFiles.filter { !$0.exists }.count
     }
 
+    private var diagnosticsShareText: String {
+        let structuredMemoryCount = agentMemory.filter(\.isStructured).count
+        let currentSessionLabel = currentSessionInfo?.label?.isEmpty == false
+            ? currentSessionInfo?.label
+            : currentSessionID.map { String($0.prefix(8)) }
+
+        let lines = [
+            String(localized: "LibreFang Agent Diagnostics"),
+            String(localized: "Agent: \(agent.name)"),
+            String(localized: "State: \(agent.stateLabel)"),
+            String(localized: "Model: \(requestedModelReference ?? agent.modelName ?? String(localized: "Unknown"))"),
+            String(localized: "Current session: \(currentSessionLabel ?? String(localized: "Unavailable"))"),
+            String(localized: "Pending approvals: \(agentApprovals.count)"),
+            String(localized: "Session inventory: \(agentSessions.count)"),
+            String(localized: "Memory keys: \(agentMemory.count)"),
+            String(localized: "Structured memory: \(structuredMemoryCount)"),
+            String(localized: "Identity files missing: \(missingWorkspaceFileCount)"),
+            String(localized: "Delivery failures: \(failedDeliveryCount)"),
+            String(localized: "Unsettled deliveries: \(unsettledDeliveryCount)"),
+            String(localized: "Recent audit events: \(agentRecentEvents.count)")
+        ]
+
+        return lines.joined(separator: "\n")
+    }
+
     var body: some View {
         List {
             identitySection
@@ -138,7 +163,17 @@ struct AgentDetailView: View {
         .navigationTitle(agent.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                ShareLink(
+                    item: diagnosticsShareText,
+                    preview: SharePreview(
+                        String(localized: "\(agent.name) Diagnostics"),
+                        image: Image(systemName: "stethoscope")
+                    )
+                ) {
+                    Image(systemName: "square.and.arrow.up")
+                }
+
                 Button {
                     deps.agentWatchlistStore.toggle(agent)
                 } label: {
