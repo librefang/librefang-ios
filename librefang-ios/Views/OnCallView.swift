@@ -294,25 +294,21 @@ struct OnCallView: View {
             }
 
             Section {
-                OnCallJumpCard(
+                OnCallSurfaceDeckCard(
                     approvalCount: vm.pendingApprovalCount,
                     sessionCount: vm.sessionAttentionCount,
                     eventCount: vm.recentCriticalAuditCount,
                     criticalCount: criticalCount,
                     queueCount: priorityItems.count,
-                    liveAlertCount: visibleAlerts.count
-                )
-
-                OnCallSupportingSurfacesCard(
+                    liveAlertCount: visibleAlerts.count,
                     automationIssueCount: automationIssueCount,
                     integrationIssueCount: integrationIssueCount,
-                    handoffText: handoffText,
-                    liveAlertCount: visibleAlerts.count
+                    handoffText: handoffText
                 )
             } header: {
                 Text("Operator Surfaces")
             } footer: {
-                Text("Primary surfaces stay first; supporting drilldowns and sharing sit in their own card so the on-call page reads more clearly on a phone.")
+                Text("Keep queue-first routes, slower systemic drilldowns, and export actions in one compact surface deck on the on-call page.")
             }
 
             if priorityItems.isEmpty
@@ -653,27 +649,26 @@ private struct OnCallQueueSnapshotCard: View {
     }
 }
 
-private struct OnCallJumpCard: View {
+private struct OnCallSurfaceDeckCard: View {
     let approvalCount: Int
     let sessionCount: Int
     let eventCount: Int
     let criticalCount: Int
     let queueCount: Int
     let liveAlertCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let handoffText: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Primary Surfaces", systemImage: "arrowshape.turn.up.right")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-
             MonitoringFactsRow(
                 verticalSpacing: 10,
                 headerVerticalSpacing: 6,
                 factsFont: .caption2
             ) {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Keep the highest-value queue drilldowns first so operator actions stay above the fold."))
+                    Text(String(localized: "Keep queue-first routes, slower systemic drilldowns, and export actions in one compact surface deck above the fold."))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -713,7 +708,23 @@ private struct OnCallJumpCard: View {
                         systemImage: "list.bullet.rectangle.portrait"
                     )
                 }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
             }
+
+            Label("Primary Surfaces", systemImage: "arrowshape.turn.up.right")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
 
             FlowLayout(spacing: 8) {
                 NavigationLink(value: OnCallRoute.incidents) {
@@ -796,52 +807,10 @@ private struct OnCallJumpCard: View {
                 }
                 .buttonStyle(.plain)
             }
-        }
-        .padding(.vertical, 4)
-    }
-}
 
-private struct OnCallSupportingSurfacesCard: View {
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-    let handoffText: String
-    let liveAlertCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
             Label("Supporting Surfaces", systemImage: "square.grid.2x2")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
-
-            MonitoringFactsRow(
-                verticalSpacing: 10,
-                headerVerticalSpacing: 6,
-                factsFont: .caption2
-            ) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Keep slower systemic drilldowns and export actions separate from the queue-first routes."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: liveAlertCount == 0 ? String(localized: "Calm") : String(localized: "Live"),
-                    tone: liveAlertCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                if automationIssueCount > 0 {
-                    Label(
-                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        systemImage: "flowchart"
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    Label(
-                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        systemImage: "square.3.layers.3d.down.forward"
-                    )
-                }
-            }
 
             FlowLayout(spacing: 8) {
                 NavigationLink {
