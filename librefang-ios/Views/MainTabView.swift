@@ -584,32 +584,52 @@ private struct CriticalIncidentBanner: View {
     let mutedCount: Int
 
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "bell.badge.fill")
-                .font(.caption)
-            Text(count == 1 ? String(localized: "1 critical incident active") : String(localized: "\(count) critical incidents active"))
-                .font(.caption.weight(.semibold))
-            Spacer()
-            if mutedCount > 0 {
-                Text(String(localized: "\(mutedCount) muted"))
-                    .font(.caption2.weight(.medium))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.white.opacity(0.12))
-                    .clipShape(Capsule())
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                summaryLabel
+                Spacer(minLength: 8)
+                bannerBadges
             }
-            Text("On Call")
-                .font(.caption2.weight(.medium))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(.white.opacity(0.18))
-                .clipShape(Capsule())
+            VStack(alignment: .leading, spacing: 8) {
+                summaryLabel
+                bannerBadges
+            }
         }
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(.red.opacity(0.92))
+    }
+
+    private var summaryLabel: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "bell.badge.fill")
+                .font(.caption)
+            Text(count == 1 ? String(localized: "1 critical incident active") : String(localized: "\(count) critical incidents active"))
+                .font(.caption.weight(.semibold))
+                .lineLimit(2)
+        }
+    }
+
+    private var bannerBadges: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                mutedBadge
+                GlassCapsuleBadge(text: String(localized: "On Call"), backgroundOpacity: 0.18)
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                mutedBadge
+                GlassCapsuleBadge(text: String(localized: "On Call"), backgroundOpacity: 0.18)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var mutedBadge: some View {
+        if mutedCount > 0 {
+            GlassCapsuleBadge(text: String(localized: "\(mutedCount) muted"))
+        }
     }
 }
 
@@ -622,38 +642,56 @@ private struct HandoffCheckInBanner: View {
     }
 
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "timer")
-                .font(.caption)
-            Text(status.state == .overdue ? String(localized: "Handoff check-in overdue") : String(localized: "Handoff check-in due soon"))
-                .font(.caption.weight(.semibold))
-            Spacer()
-            Text(status.window.label)
-                .font(.caption2.weight(.medium))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(.white.opacity(0.12))
-                .clipShape(Capsule())
-            if pendingFollowUpCount > 0 {
-                Text(pendingFollowUpCount == 1 ? String(localized: "1 open") : String(localized: "\(pendingFollowUpCount) open"))
-                    .font(.caption2.weight(.medium))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.white.opacity(0.12))
-                    .clipShape(Capsule())
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                summaryLabel
+                Spacer(minLength: 8)
+                bannerBadges
             }
-            Text("Handoff")
-                .font(.caption2.weight(.medium))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(.white.opacity(0.18))
-                .clipShape(Capsule())
+            VStack(alignment: .leading, spacing: 8) {
+                summaryLabel
+                bannerBadges
+            }
         }
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(tint.opacity(0.92))
+    }
+
+    private var summaryLabel: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "timer")
+                .font(.caption)
+            Text(status.state == .overdue ? String(localized: "Handoff check-in overdue") : String(localized: "Handoff check-in due soon"))
+                .font(.caption.weight(.semibold))
+                .lineLimit(2)
+        }
+    }
+
+    private var bannerBadges: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                GlassCapsuleBadge(text: status.window.label)
+                pendingFollowUpBadge
+                GlassCapsuleBadge(text: String(localized: "Handoff"), backgroundOpacity: 0.18)
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                GlassCapsuleBadge(text: status.window.label)
+                pendingFollowUpBadge
+                GlassCapsuleBadge(text: String(localized: "Handoff"), backgroundOpacity: 0.18)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var pendingFollowUpBadge: some View {
+        if pendingFollowUpCount > 0 {
+            GlassCapsuleBadge(
+                text: pendingFollowUpCount == 1 ? String(localized: "1 open") : String(localized: "\(pendingFollowUpCount) open")
+            )
+        }
     }
 }
 
@@ -662,32 +700,52 @@ private struct AcknowledgedIncidentBanner: View {
     let mutedCount: Int
 
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "checkmark.seal.fill")
-                .font(.caption)
-            Text(count == 1 ? String(localized: "1 critical incident acknowledged") : String(localized: "\(count) critical incidents acknowledged"))
-                .font(.caption.weight(.semibold))
-            Spacer()
-            if mutedCount > 0 {
-                Text(String(localized: "\(mutedCount) muted"))
-                    .font(.caption2.weight(.medium))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.white.opacity(0.12))
-                    .clipShape(Capsule())
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                summaryLabel
+                Spacer(minLength: 8)
+                bannerBadges
             }
-            Text("On Call")
-                .font(.caption2.weight(.medium))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(.white.opacity(0.18))
-                .clipShape(Capsule())
+            VStack(alignment: .leading, spacing: 8) {
+                summaryLabel
+                bannerBadges
+            }
         }
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(.orange.opacity(0.92))
+    }
+
+    private var summaryLabel: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "checkmark.seal.fill")
+                .font(.caption)
+            Text(count == 1 ? String(localized: "1 critical incident acknowledged") : String(localized: "\(count) critical incidents acknowledged"))
+                .font(.caption.weight(.semibold))
+                .lineLimit(2)
+        }
+    }
+
+    private var bannerBadges: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                mutedBadge
+                GlassCapsuleBadge(text: String(localized: "On Call"), backgroundOpacity: 0.18)
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                mutedBadge
+                GlassCapsuleBadge(text: String(localized: "On Call"), backgroundOpacity: 0.18)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var mutedBadge: some View {
+        if mutedCount > 0 {
+            GlassCapsuleBadge(text: String(localized: "\(mutedCount) muted"))
+        }
     }
 }
 
@@ -774,7 +832,7 @@ private struct IncidentCueBanner: View {
             Label("Acknowledge", systemImage: "checkmark.seal")
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(IncidentCueActionButtonStyle(fill: .white.opacity(0.12)))
+        .buttonStyle(GlassPanelButtonStyle(fillOpacity: 0.12))
     }
 
     private var openButton: some View {
@@ -782,7 +840,7 @@ private struct IncidentCueBanner: View {
             Label("Open", systemImage: "arrow.up.forward.app")
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(IncidentCueActionButtonStyle(fill: .white.opacity(0.22)))
+        .buttonStyle(GlassPanelButtonStyle(fillOpacity: 0.22))
     }
 }
 
@@ -810,7 +868,7 @@ private struct HandoffCueBanner: View {
                 Label("Open Handoff Center", systemImage: "arrow.up.forward.app")
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(IncidentCueActionButtonStyle(fill: .white.opacity(0.20)))
+            .buttonStyle(GlassPanelButtonStyle(fillOpacity: 0.20))
         }
         .padding(14)
         .background(
@@ -856,20 +914,5 @@ private struct HandoffCueBanner: View {
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
-    }
-}
-
-private struct IncidentCueActionButtonStyle: ButtonStyle {
-    let fill: Color
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.white)
-            .padding(.vertical, 10)
-            .padding(.horizontal, 12)
-            .background(fill.opacity(configuration.isPressed ? 0.8 : 1))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .scaleEffect(configuration.isPressed ? 0.98 : 1)
     }
 }

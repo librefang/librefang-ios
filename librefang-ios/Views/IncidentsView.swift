@@ -842,37 +842,23 @@ private struct IncidentShiftCoverageCard: View {
             }
 
             if let checkInStatus {
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: "timer")
-                        .foregroundStyle(checkInColor)
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(
-                            checkInStatus.state == .overdue
-                                ? String(localized: "Handoff check-in missed")
-                                : String(localized: "Handoff check-in approaching")
-                        )
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.primary)
-                        Text(checkInStatus.summary)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+                issueRow(
+                    icon: "timer",
+                    color: checkInColor,
+                    title: checkInStatus.state == .overdue
+                        ? String(localized: "Handoff check-in missed")
+                        : String(localized: "Handoff check-in approaching"),
+                    detail: checkInStatus.summary
+                )
             }
 
             if readiness.state != .ready {
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: readiness.state == .blocked ? "exclamationmark.octagon" : "checkmark.seal")
-                        .foregroundStyle(readinessColor)
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(String(localized: "Next handoff draft needs work"))
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.primary)
-                        Text(topIssue?.message ?? readiness.summary)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+                issueRow(
+                    icon: readiness.state == .blocked ? "exclamationmark.octagon" : "checkmark.seal",
+                    color: readinessColor,
+                    title: String(localized: "Next handoff draft needs work"),
+                    detail: topIssue?.message ?? readiness.summary
+                )
             } else if let latestEntry {
                 Text("Last local handoff saved \(latestEntry.createdAt, style: .relative) ago.")
                     .font(.caption)
@@ -885,27 +871,24 @@ private struct IncidentShiftCoverageCard: View {
                     completedCount: completedFollowUpCount
                 )
 
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: followUpSummary.symbolName)
-                        .foregroundStyle(followUpSummary.tone.color)
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(followUpSummary.headlineLabel)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.primary)
-                        Text(followUpSummary.detailLabel)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+                issueRow(
+                    icon: followUpSummary.symbolName,
+                    color: followUpSummary.tone.color,
+                    title: followUpSummary.headlineLabel,
+                    detail: followUpSummary.detailLabel
+                )
             }
 
-            HStack {
-                Label("Open Handoff Center", systemImage: "text.badge.plus")
-                    .font(.caption.weight(.semibold))
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.tertiary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    openLabel
+                    Spacer(minLength: 8)
+                    chevronLabel
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    openLabel
+                    chevronLabel
+                }
             }
             .foregroundStyle(.secondary)
         }
@@ -918,7 +901,7 @@ private struct IncidentShiftCoverageCard: View {
     }
 
     private var headerBadges: some View {
-        HStack(spacing: 8) {
+        FlowLayout(spacing: 8) {
             if let checkInStatus {
                 badge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
             }
@@ -930,6 +913,44 @@ private struct IncidentShiftCoverageCard: View {
 
     private func badge(text: String, tone: PresentationTone) -> some View {
         PresentationToneBadge(text: text, tone: tone)
+    }
+
+    private var openLabel: some View {
+        Label("Open Handoff Center", systemImage: "text.badge.plus")
+            .font(.caption.weight(.semibold))
+    }
+
+    private var chevronLabel: some View {
+        Image(systemName: "chevron.right")
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(.tertiary)
+    }
+
+    private func issueRow(icon: String, color: Color, title: String, detail: String) -> some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                issueTextBlock(title: title, detail: detail)
+                Spacer(minLength: 8)
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                issueTextBlock(title: title, detail: detail)
+            }
+        }
+    }
+
+    private func issueTextBlock(title: String, detail: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.primary)
+            Text(detail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
     }
 }
 
@@ -988,13 +1009,16 @@ private struct IncidentAutomationCard: View {
                 )
             }
 
-            HStack {
-                Label("Open Automation Monitor", systemImage: "flowchart")
-                    .font(.caption.weight(.semibold))
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.tertiary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    openLabel
+                    Spacer(minLength: 8)
+                    chevronLabel
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    openLabel
+                    chevronLabel
+                }
             }
             .foregroundStyle(.secondary)
         }
@@ -1015,18 +1039,41 @@ private struct IncidentAutomationCard: View {
 
     @ViewBuilder
     private func automationIssueRow(icon: String, color: Color, title: String, detail: String) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: icon)
-                .foregroundStyle(color)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.primary)
-                if !detail.isEmpty {
-                    Text(detail)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                issueText(title: title, detail: detail)
+                Spacer(minLength: 8)
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                issueText(title: title, detail: detail)
+            }
+        }
+    }
+
+    private var openLabel: some View {
+        Label("Open Automation Monitor", systemImage: "flowchart")
+            .font(.caption.weight(.semibold))
+    }
+
+    private var chevronLabel: some View {
+        Image(systemName: "chevron.right")
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(.tertiary)
+    }
+
+    private func issueText(title: String, detail: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.primary)
+            if !detail.isEmpty {
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
     }
@@ -1117,13 +1164,16 @@ private struct IncidentIntegrationsCard: View {
                 )
             }
 
-            HStack {
-                Label("Open Integrations Diagnostics", systemImage: "square.3.layers.3d.down.forward")
-                    .font(.caption.weight(.semibold))
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.tertiary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    openLabel
+                    Spacer(minLength: 8)
+                    chevronLabel
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    openLabel
+                    chevronLabel
+                }
             }
             .foregroundStyle(.secondary)
         }
@@ -1153,18 +1203,41 @@ private struct IncidentIntegrationsCard: View {
 
     @ViewBuilder
     private func integrationIssueRow(icon: String, color: Color, title: String, detail: String) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: icon)
-                .foregroundStyle(color)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.primary)
-                if !detail.isEmpty {
-                    Text(detail)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                issueText(title: title, detail: detail)
+                Spacer(minLength: 8)
+            }
+            VStack(alignment: .leading, spacing: 6) {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                issueText(title: title, detail: detail)
+            }
+        }
+    }
+
+    private var openLabel: some View {
+        Label("Open Integrations Diagnostics", systemImage: "square.3.layers.3d.down.forward")
+            .font(.caption.weight(.semibold))
+    }
+
+    private var chevronLabel: some View {
+        Image(systemName: "chevron.right")
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(.tertiary)
+    }
+
+    private func issueText(title: String, detail: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.primary)
+            if !detail.isEmpty {
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
     }
@@ -1359,12 +1432,24 @@ private struct IncidentWatchedDiagnosticRow: View {
     }
 
     private var agentHeader: some View {
-        HStack(spacing: 8) {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 8) {
+                headerContent
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                headerContent
+            }
+        }
+    }
+
+    private var headerContent: some View {
+        Group {
             Text(agent.identity?.emoji ?? "🤖")
                 .font(.body)
             Text(agent.name)
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(.primary)
+                .lineLimit(2)
             Image(systemName: "star.fill")
                 .font(.caption2)
                 .foregroundStyle(.yellow)
@@ -1443,6 +1528,7 @@ private struct IncidentSessionRow: View {
     private var titleLabel: some View {
         Text(displayTitle)
             .font(.subheadline.weight(.medium))
+            .lineLimit(2)
     }
 
     private var messageCountLabel: some View {
@@ -1490,11 +1576,14 @@ private struct IncidentEventRow: View {
     private var titleLabel: some View {
         Text(entry.friendlyAction)
             .font(.subheadline.weight(.medium))
+            .lineLimit(2)
     }
 
     private var agentLabel: some View {
         Text(agentName ?? shortAgentId)
             .font(.caption2)
             .foregroundStyle(.tertiary)
+            .lineLimit(1)
+            .truncationMode(.middle)
     }
 }

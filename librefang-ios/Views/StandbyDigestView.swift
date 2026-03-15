@@ -275,13 +275,7 @@ struct StandbyDigestView: View {
 
     private var heroStatus: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(tone.label)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(.white.opacity(0.14))
-                .clipShape(Capsule())
+            GlassCapsuleBadge(text: tone.label, backgroundOpacity: 0.14, horizontalPadding: 10, verticalPadding: 6)
 
             if let lastRefresh = vm.lastRefresh {
                 Text(lastRefresh, style: .relative)
@@ -308,7 +302,7 @@ struct StandbyDigestView: View {
             }
             .frame(maxWidth: .infinity)
         }
-        .buttonStyle(StandbyActionButtonStyle(fill: .white.opacity(0.12)))
+        .buttonStyle(GlassPanelButtonStyle(fillOpacity: 0.12, cornerRadius: 14))
     }
 
     private var clearAcknowledgementButton: some View {
@@ -322,7 +316,7 @@ struct StandbyDigestView: View {
             }
             .frame(maxWidth: .infinity)
         }
-        .buttonStyle(StandbyActionButtonStyle(fill: .white.opacity(0.16)))
+        .buttonStyle(GlassPanelButtonStyle(fillOpacity: 0.16, cornerRadius: 14))
     }
 
     @ViewBuilder
@@ -464,9 +458,11 @@ struct StandbyDigestView: View {
     }
 
     private func watchItemState(_ item: AgentAttentionItem) -> some View {
-        Text(item.agent.isRunning ? String(localized: "Running") : String(localized: "Idle"))
-            .font(.caption2.weight(.medium))
-            .foregroundStyle(.white.opacity(0.72))
+        GlassCapsuleBadge(
+            text: item.agent.isRunning ? String(localized: "Running") : String(localized: "Idle"),
+            foregroundStyle: .white.opacity(0.88),
+            backgroundOpacity: 0.10
+        )
     }
 
     private var actionCard: some View {
@@ -718,20 +714,5 @@ private struct StandbyCountPill: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.white.opacity(0.10))
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-    }
-}
-
-private struct StandbyActionButtonStyle: ButtonStyle {
-    let fill: Color
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.white)
-            .padding(.vertical, 11)
-            .padding(.horizontal, 12)
-            .background(fill.opacity(configuration.isPressed ? 0.75 : 1))
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .scaleEffect(configuration.isPressed ? 0.98 : 1)
     }
 }
