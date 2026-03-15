@@ -947,7 +947,7 @@ private struct OnCallHandoffStatusRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             MonitoringFactsRow(
                 verticalSpacing: 10,
                 headerVerticalSpacing: 6,
@@ -1035,7 +1035,7 @@ private struct OnCallHandoffStatusRow: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                .padding(12)
+                .padding(10)
                 .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
             }
         }
@@ -1142,7 +1142,7 @@ private struct OnCallStatusCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             MonitoringFactsRow(
                 verticalSpacing: 10,
                 headerVerticalSpacing: 6,
@@ -1173,7 +1173,7 @@ private struct OnCallStatusCard: View {
                 )
             }
 
-            ResponsiveInlineGroup(horizontalSpacing: 12, verticalSpacing: 6) {
+            ResponsiveInlineGroup(horizontalSpacing: 10, verticalSpacing: 4) {
                 if let acknowledgedAt, isAcknowledged {
                     Text("Acknowledged \(acknowledgedAt, style: .relative) ago")
                 }
@@ -1193,13 +1193,13 @@ private struct OnCallPriorityRow: View {
     let item: OnCallPriorityItem
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 10) {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top, spacing: 8) {
                 Image(systemName: item.symbolName)
                     .foregroundStyle(item.severity.tone.color)
                     .frame(width: 18)
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 3) {
                     HStack {
                         Text(item.title)
                             .font(.subheadline.weight(.medium))
@@ -1241,8 +1241,8 @@ private struct WatchedAgentRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
                 Text(agent.identity?.emoji ?? "🤖")
                     .font(.body)
                 Text(agent.name)
@@ -1290,7 +1290,7 @@ private struct WatchedAgentRow: View {
                     .lineLimit(2)
             }
 
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 PresentationToneBadge(
                     text: agent.stateLabel,
                     tone: watchedAgentStateTone(agent: agent, severity: severity, diagnostics: diagnostics),

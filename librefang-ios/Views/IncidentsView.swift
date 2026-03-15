@@ -1309,7 +1309,7 @@ private struct IncidentAlertRow: View {
     let onToggleMute: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 5) {
             ResponsiveAccessoryRow(horizontalAlignment: .top) {
                 titleLabel
             } accessory: {
@@ -1381,7 +1381,7 @@ private struct IncidentOperatorCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             ResponsiveAccessoryRow {
                 operatorTitle
             } accessory: {
@@ -1398,7 +1398,7 @@ private struct IncidentOperatorCard: View {
                     .foregroundStyle(.secondary)
             }
 
-            ResponsiveInlineGroup(horizontalSpacing: 10, verticalSpacing: 10) {
+            ResponsiveInlineGroup(horizontalSpacing: 8, verticalSpacing: 8) {
                 if activeAlertCount > 0 {
                     acknowledgeButton
                 }
@@ -1496,7 +1496,7 @@ private struct IncidentShiftCoverageCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             ResponsiveAccessoryRow {
                 headerTitle
             } accessory: {
@@ -1607,7 +1607,7 @@ private struct IncidentAutomationCard: View {
     let vm: DashboardViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             ResponsiveAccessoryRow {
                 headerTitle
             } accessory: {
@@ -1695,7 +1695,7 @@ private struct IncidentAutomationCard: View {
     }
 
     private func issueText(title: String, detail: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 3) {
             Text(title)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.primary)
@@ -1716,7 +1716,7 @@ private struct IncidentIntegrationsCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             ResponsiveAccessoryRow {
                 headerTitle
             } accessory: {
@@ -1839,7 +1839,7 @@ private struct IncidentIntegrationsCard: View {
     }
 
     private func issueText(title: String, detail: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 3) {
             Text(title)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.primary)
@@ -1872,7 +1872,7 @@ private struct IncidentAgentRow: View {
     let item: AgentAttentionItem
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 5) {
             ResponsiveAccessoryRow(verticalSpacing: 6) {
                 titleLabel
             } accessory: {
@@ -1951,7 +1951,7 @@ private struct IncidentWatchedDiagnosticRow: View {
     let summary: WatchedAgentDiagnosticsSummary
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             ResponsiveAccessoryRow(horizontalAlignment: .center, verticalSpacing: 6) {
                 agentHeader
             } accessory: {
@@ -2064,7 +2064,7 @@ private struct IncidentSessionRow: View {
     let item: SessionAttentionItem
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 5) {
             ResponsiveAccessoryRow(verticalSpacing: 6) {
                 titleLabel
             } accessory: {
@@ -2106,7 +2106,7 @@ private struct IncidentEventRow: View {
     let agentName: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 5) {
             ResponsiveAccessoryRow(verticalSpacing: 6) {
                 titleLabel
             } accessory: {
