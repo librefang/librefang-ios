@@ -294,6 +294,21 @@ struct HandoffCheckInStatus {
     }
 }
 
+struct HandoffFollowUpStatus: Identifiable {
+    let baseline: OnCallHandoffEntry
+    let index: Int
+    let item: String
+    let isCompleted: Bool
+
+    var id: String {
+        OnCallHandoffStore.followUpCompletionKey(
+            entryID: baseline.id,
+            index: index,
+            item: item
+        )
+    }
+}
+
 struct HandoffTimelineItem: Identifiable {
     let entry: OnCallHandoffEntry
     let gapToOlderEntry: TimeInterval?
@@ -683,6 +698,7 @@ final class OnCallHandoffStore {
         static let draftFocusAreas = "oncall.handoff.draftFocusAreas"
         static let draftFollowUpItems = "oncall.handoff.draftFollowUpItems"
         static let draftCheckInWindow = "oncall.handoff.draftCheckInWindow"
+        static let completedFollowUps = "oncall.handoff.completedFollowUps"
     }
 
     private let defaults: UserDefaults
@@ -726,6 +742,12 @@ final class OnCallHandoffStore {
     var draftCheckInWindow: HandoffCheckInWindow {
         didSet {
             defaults.set(draftCheckInWindow.rawValue, forKey: StorageKey.draftCheckInWindow)
+        }
+    }
+
+    private var completedFollowUpKeys: Set<String> {
+        didSet {
+            persistCompletedFollowUpKeys()
         }
     }
 
@@ -840,6 +862,19 @@ final class OnCallHandoffStore {
             remaining: remaining,
             state: state
         )
+    }
+
+    var latestFollowUpStatuses: [HandoffFollowUpStatus] {
+        guard let latestEntry else { return [] }
+        return followUpStatuses(for: latestEntry)
+    }
+
+    var pendingLatestFollowUpCount: Int {
+        latestFollowUpStatuses.filter { !$0.isCompleted }.count
+    }
+
+    var completedLatestFollowUpCount: Int {
+        latestFollowUpStatuses.filter(\.isCompleted).count
     }
 
     func driftFromLatest(
@@ -1125,6 +1160,14 @@ final class OnCallHandoffStore {
             self.draftFollowUpItems = []
         }
         self.draftCheckInWindow = HandoffCheckInWindow(rawValue: defaults.string(forKey: StorageKey.draftCheckInWindow) ?? "") ?? .none
+        if let data = defaults.data(forKey: StorageKey.completedFollowUps),
+           let decoded = try? decoder.decode(Set<String>.self, from: data) {
+            self.completedFollowUpKeys = decoded
+        } else if let array = defaults.array(forKey: StorageKey.completedFollowUps) as? [String] {
+            self.completedFollowUpKeys = Set(array)
+        } else {
+            self.completedFollowUpKeys = []
+        }
 
         if let data = defaults.data(forKey: StorageKey.entries),
            let decoded = try? decoder.decode([OnCallHandoffEntry].self, from: data) {
@@ -1132,6 +1175,8 @@ final class OnCallHandoffStore {
         } else {
             self.entries = []
         }
+
+        cleanupCompletedFollowUpKeys()
     }
 
     func saveSnapshot(
@@ -1175,6 +1220,31 @@ final class OnCallHandoffStore {
     func clearAll() {
         entries.removeAll()
         persistEntries()
+    }
+
+    func followUpStatuses(for entry: OnCallHandoffEntry) -> [HandoffFollowUpStatus] {
+        entry.followUpItems.enumerated().map { index, item in
+            let key = Self.followUpCompletionKey(entryID: entry.id, index: index, item: item)
+            return HandoffFollowUpStatus(
+                baseline: entry,
+                index: index,
+                item: item,
+                isCompleted: completedFollowUpKeys.contains(key)
+            )
+        }
+    }
+
+    func toggleFollowUpCompletion(_ status: HandoffFollowUpStatus) {
+        setFollowUpCompletion(!status.isCompleted, for: status)
+    }
+
+    func setFollowUpCompletion(_ isCompleted: Bool, for status: HandoffFollowUpStatus) {
+        let key = status.id
+        if isCompleted {
+            completedFollowUpKeys.insert(key)
+        } else {
+            completedFollowUpKeys.remove(key)
+        }
     }
 
     func toggleDraftChecklist(_ key: HandoffChecklistKey) {
@@ -1230,6 +1300,7 @@ final class OnCallHandoffStore {
     }
 
     private func persistEntries() {
+        cleanupCompletedFollowUpKeys()
         if let data = try? encoder.encode(entries) {
             defaults.set(data, forKey: StorageKey.entries)
         }
@@ -1251,6 +1322,30 @@ final class OnCallHandoffStore {
         if let data = try? encoder.encode(draftFollowUpItems) {
             defaults.set(data, forKey: StorageKey.draftFollowUpItems)
         }
+    }
+
+    private func persistCompletedFollowUpKeys() {
+        if let data = try? encoder.encode(completedFollowUpKeys) {
+            defaults.set(data, forKey: StorageKey.completedFollowUps)
+        }
+    }
+
+    private func cleanupCompletedFollowUpKeys() {
+        let validKeys = Set(
+            entries.flatMap { entry in
+                entry.followUpItems.enumerated().map { index, item in
+                    Self.followUpCompletionKey(entryID: entry.id, index: index, item: item)
+                }
+            }
+        )
+        let filtered = completedFollowUpKeys.intersection(validKeys)
+        if filtered != completedFollowUpKeys {
+            completedFollowUpKeys = filtered
+        }
+    }
+
+    static func followUpCompletionKey(entryID: String, index: Int, item: String) -> String {
+        "\(entryID)::\(index)::\(item.trimmingCharacters(in: .whitespacesAndNewlines).lowercased())"
     }
 
     static func formatInterval(_ interval: TimeInterval) -> String {

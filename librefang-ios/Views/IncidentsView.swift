@@ -59,7 +59,9 @@ struct IncidentsView: View {
         )
     }
     private var handoffIssueCount: Int {
-        (handoffCheckInStatus == nil ? 0 : 1) + (handoffReadiness.state == .ready ? 0 : 1)
+        (handoffCheckInStatus == nil ? 0 : 1)
+            + (handoffReadiness.state == .ready ? 0 : 1)
+            + (handoffStore.pendingLatestFollowUpCount > 0 ? 1 : 0)
     }
     private var onCallPriorityItems: [OnCallPriorityItem] {
         vm.onCallPriorityItems(
@@ -129,7 +131,9 @@ struct IncidentsView: View {
                         IncidentShiftCoverageCard(
                             checkInStatus: handoffCheckInStatus,
                             readiness: handoffReadiness,
-                            latestEntry: handoffStore.latestEntry
+                            latestEntry: handoffStore.latestEntry,
+                            pendingFollowUpCount: handoffStore.pendingLatestFollowUpCount,
+                            completedFollowUpCount: handoffStore.completedLatestFollowUpCount
                         )
                     }
                 } header: {
@@ -485,6 +489,8 @@ private struct IncidentShiftCoverageCard: View {
     let checkInStatus: HandoffCheckInStatus?
     let readiness: HandoffReadinessStatus
     let latestEntry: OnCallHandoffEntry?
+    let pendingFollowUpCount: Int
+    let completedFollowUpCount: Int
 
     private var readinessColor: Color {
         switch readiness.state {
@@ -571,6 +577,23 @@ private struct IncidentShiftCoverageCard: View {
                 Text("Last local handoff saved \(latestEntry.createdAt, style: .relative) ago.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+
+            if (pendingFollowUpCount + completedFollowUpCount) > 0 {
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: pendingFollowUpCount == 0 ? "checkmark.circle" : "checklist")
+                        .foregroundStyle(pendingFollowUpCount == 0 ? Color.green : Color.orange)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(pendingFollowUpCount == 0 ? "Handoff follow-ups are clear" : "Handoff follow-ups still open")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.primary)
+                        Text(pendingFollowUpCount == 0
+                            ? "\(completedFollowUpCount) follow-up items from the latest local handoff are complete on this iPhone."
+                            : "\(pendingFollowUpCount) of \(pendingFollowUpCount + completedFollowUpCount) latest local follow-up items are still pending.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
 
             HStack {

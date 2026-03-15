@@ -132,7 +132,9 @@ struct OverviewView: View {
                                 gapLabel: latestHandoffGapLabel,
                                 checkInStatus: deps.onCallHandoffStore.latestCheckInStatus,
                                 drift: latestHandoffDrift,
-                                carryover: latestHandoffCarryover
+                                carryover: latestHandoffCarryover,
+                                pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
+                                completedFollowUpCount: deps.onCallHandoffStore.completedLatestFollowUpCount
                             )
                         }
                         .buttonStyle(.plain)
@@ -419,6 +421,8 @@ private struct RecentHandoffCard: View {
     let checkInStatus: HandoffCheckInStatus?
     let drift: HandoffSnapshotDrift?
     let carryover: HandoffCarryoverStatus?
+    let pendingFollowUpCount: Int
+    let completedFollowUpCount: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -479,9 +483,9 @@ private struct RecentHandoffCard: View {
             }
 
             if !entry.followUpItems.isEmpty {
-                Text("Follow-ups: \(entry.followUpItems.count)")
+                Text("Follow-ups: \(pendingFollowUpCount) pending · \(completedFollowUpCount) done")
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(pendingFollowUpCount == 0 ? .green : .secondary)
             }
 
             if let checkInStatus {

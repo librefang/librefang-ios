@@ -76,6 +76,9 @@ struct HandoffCenterView: View {
             liveAlertCount: liveAlertCount
         )
     }
+    private var latestFollowUpStatuses: [HandoffFollowUpStatus] {
+        handoffStore.latestFollowUpStatuses
+    }
     private var carryoverStatus: HandoffCarryoverStatus? {
         handoffStore.carryoverFromLatest(
             liveAlertCount: liveAlertCount,
@@ -173,6 +176,13 @@ struct HandoffCenterView: View {
 
                 if let checkInStatus = handoffStore.latestCheckInStatus {
                     HandoffCheckInCard(status: checkInStatus)
+                }
+
+                if !latestFollowUpStatuses.isEmpty {
+                    HandoffFollowUpTrackerCard(
+                        statuses: latestFollowUpStatuses,
+                        onToggle: { handoffStore.toggleFollowUpCompletion($0) }
+                    )
                 }
 
                 if let carryoverStatus {
@@ -875,6 +885,75 @@ private struct HandoffChecklistComposer: View {
                 .buttonStyle(.plain)
             }
         }
+    }
+}
+
+private struct HandoffFollowUpTrackerCard: View {
+    let statuses: [HandoffFollowUpStatus]
+    let onToggle: (HandoffFollowUpStatus) -> Void
+
+    private var pendingCount: Int {
+        statuses.filter { !$0.isCompleted }.count
+    }
+
+    private var completedCount: Int {
+        statuses.filter(\.isCompleted).count
+    }
+
+    private var accentColor: Color {
+        pendingCount == 0 ? .green : .orange
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label("Follow-up Tracker", systemImage: "checklist")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(pendingCount == 0 ? "Clear" : "\(pendingCount) pending")
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(accentColor.opacity(0.12))
+                    .foregroundStyle(accentColor)
+                    .clipShape(Capsule())
+            }
+
+            Text(pendingCount == 0
+                ? "All follow-up items from the latest local handoff are complete on this iPhone."
+                : "\(pendingCount) of \(statuses.count) local handoff follow-ups still need operator follow-through.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Text("\(completedCount) complete · \(pendingCount) pending")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
+            ForEach(statuses) { status in
+                Button {
+                    onToggle(status)
+                } label: {
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: status.isCompleted ? "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(status.isCompleted ? Color.green : accentColor)
+                            .font(.body)
+                        Text(status.item)
+                            .font(.caption)
+                            .foregroundStyle(status.isCompleted ? .secondary : .primary)
+                            .strikethrough(status.isCompleted, color: .secondary)
+                            .multilineTextAlignment(.leading)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(.secondary.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.vertical, 6)
     }
 }
 

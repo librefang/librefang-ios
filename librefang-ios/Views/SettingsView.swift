@@ -221,8 +221,14 @@ struct SettingsView: View {
                                 .foregroundStyle(latest.focusAreas.items.isEmpty ? Color.secondary : Color.primary)
                         }
                         LabeledContent("Follow-ups") {
-                            Text(latest.followUpItems.isEmpty ? "None" : "\(latest.followUpItems.count)")
-                                .foregroundStyle(latest.followUpItems.isEmpty ? Color.secondary : Color.primary)
+                            Text(latest.followUpItems.isEmpty
+                                ? "None"
+                                : "\(deps.onCallHandoffStore.pendingLatestFollowUpCount) pending · \(deps.onCallHandoffStore.completedLatestFollowUpCount) done")
+                                .foregroundStyle(
+                                    latest.followUpItems.isEmpty
+                                        ? Color.secondary
+                                        : (deps.onCallHandoffStore.pendingLatestFollowUpCount == 0 ? Color.green : Color.primary)
+                                )
                         }
                         LabeledContent("Check-in") {
                             if let checkInStatus = deps.onCallHandoffStore.latestCheckInStatus {

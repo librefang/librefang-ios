@@ -139,6 +139,9 @@ struct OnCallView: View {
             carryover: currentHandoffCarryover
         )
     }
+    private var latestFollowUpStatuses: [HandoffFollowUpStatus] {
+        handoffStore.latestFollowUpStatuses
+    }
 
     var body: some View {
         List {
@@ -174,7 +177,8 @@ struct OnCallView: View {
                     checkInStatus: handoffStore.latestCheckInStatus,
                     drift: currentHandoffDrift,
                     carryover: currentHandoffCarryover,
-                    readiness: draftHandoffReadiness
+                    readiness: draftHandoffReadiness,
+                    followUpStatuses: latestFollowUpStatuses
                 )
 
                 NavigationLink(value: OnCallRoute.incidents) {
@@ -369,6 +373,7 @@ private struct OnCallHandoffStatusRow: View {
     let drift: HandoffSnapshotDrift?
     let carryover: HandoffCarryoverStatus?
     let readiness: HandoffReadinessStatus
+    let followUpStatuses: [HandoffFollowUpStatus]
 
     private var freshnessColor: Color {
         switch freshnessLabel {
@@ -436,6 +441,14 @@ private struct OnCallHandoffStatusRow: View {
         case .overdue:
             .red
         }
+    }
+
+    private var pendingFollowUpCount: Int {
+        followUpStatuses.filter { !$0.isCompleted }.count
+    }
+
+    private var completedFollowUpCount: Int {
+        followUpStatuses.filter(\.isCompleted).count
     }
 
     var body: some View {
@@ -558,6 +571,28 @@ private struct OnCallHandoffStatusRow: View {
                     .foregroundStyle(.secondary)
             }
 
+            if !followUpStatuses.isEmpty {
+                HStack {
+                    Text("Follow-ups")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(pendingFollowUpCount == 0 ? "Clear" : "\(pendingFollowUpCount) pending")
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background((pendingFollowUpCount == 0 ? Color.green : Color.orange).opacity(0.12))
+                        .foregroundStyle(pendingFollowUpCount == 0 ? Color.green : Color.orange)
+                        .clipShape(Capsule())
+                }
+
+                Text(pendingFollowUpCount == 0
+                    ? "Latest handoff follow-up items are complete on this iPhone."
+                    : "\(pendingFollowUpCount) of \(followUpStatuses.count) latest handoff follow-up items are still open.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
             if let latestEntry {
                 HStack {
                     HandoffKindBadge(kind: latestEntry.kind)
@@ -577,6 +612,12 @@ private struct OnCallHandoffStatusRow: View {
 
                 if !latestEntry.followUpItems.isEmpty {
                     HandoffFollowUpSummaryRow(items: latestEntry.followUpItems)
+                }
+
+                if !followUpStatuses.isEmpty {
+                    Text("\(completedFollowUpCount) complete · \(pendingFollowUpCount) pending")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
             }
         }
