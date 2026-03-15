@@ -1,5 +1,15 @@
 import SwiftUI
 
+private enum DiagnosticsSectionAnchor: Hashable {
+    case health
+    case warnings
+    case build
+    case config
+    case metrics
+    case tokenLeaders
+    case toolLeaders
+}
+
 struct DiagnosticsView: View {
     @Environment(\.dependencies) private var deps
 
@@ -10,207 +20,343 @@ struct DiagnosticsView: View {
     }
 
     var body: some View {
-        List {
-            if let error = vm.error, !hasDiagnosticsData {
-                Section {
-                    ErrorBanner(message: error, onRetry: {
-                        await vm.refresh()
-                    }, onDismiss: {
-                        vm.error = nil
-                    })
-                    .listRowInsets(.init())
-                    .listRowBackground(Color.clear)
-                }
-            }
-
-            Section {
-                DiagnosticsScoreboard(vm: vm, metrics: metrics)
-                    .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-            }
-
-            if hasDiagnosticsData {
-                Section {
-                    DiagnosticsSnapshotCard(vm: vm, metrics: metrics)
-                } header: {
-                    Text("Snapshot")
-                } footer: {
-                    Text("These badges summarize which deep-diagnostic feeds are currently loaded into the mobile snapshot.")
-                }
-            }
-
-            if let healthDetail = vm.healthDetail {
-                Section {
-                    DiagnosticsMetricRow(
-                        label: String(localized: "Kernel Status"),
-                        value: healthDetail.localizedStatusLabel,
-                        detail: String(localized: "Database \(healthDetail.localizedDatabaseLabel)")
-                    )
-                    DiagnosticsMetricRow(
-                        label: String(localized: "Uptime"),
-                        value: formatDuration(healthDetail.uptimeSeconds),
-                        detail: healthDetail.agentCount == 1
-                            ? String(localized: "1 agent in registry")
-                            : String(localized: "\(healthDetail.agentCount) agents in registry")
-                    )
-                    DiagnosticsMetricRow(
-                        label: String(localized: "Supervisor"),
-                        value: String(localized: "\(healthDetail.panicCount) panics / \(healthDetail.restartCount) restarts"),
-                        detail: healthDetail.panicCount > 0 ? String(localized: "Kernel supervisor recovered at least one panic.") : String(localized: "No panic recovery recorded.")
-                    )
-                } header: {
-                    Text("Health Detail")
-                } footer: {
-                    Text(healthDetail.isHealthy ? String(localized: "Deep health diagnostics are currently healthy.") : String(localized: "Deep health diagnostics report degraded runtime state."))
-                }
-
-                if !healthDetail.configWarnings.isEmpty {
+        ScrollViewReader { proxy in
+            List {
+                if let error = vm.error, !hasDiagnosticsData {
                     Section {
-                        ForEach(Array(healthDetail.configWarnings.enumerated()), id: \.offset) { _, warning in
-                            DiagnosticsWarningRow(warning: warning)
-                        }
-                    } header: {
-                        Text("Config Warnings")
-                    } footer: {
-                        Text("These warnings come from the kernel config validator and usually explain drift before it becomes an outage.")
+                        ErrorBanner(message: error, onRetry: {
+                            await vm.refresh()
+                        }, onDismiss: {
+                            vm.error = nil
+                        })
+                        .listRowInsets(.init())
+                        .listRowBackground(Color.clear)
                     }
                 }
-            }
 
-            if let versionInfo = vm.versionInfo {
                 Section {
-                    DiagnosticsMetricRow(
-                        label: String(localized: "Version"),
-                        value: versionInfo.version,
-                        detail: versionInfo.name
-                    )
-                    DiagnosticsMetricRow(
-                        label: String(localized: "Git SHA"),
-                        value: shortSHA(versionInfo.gitSHA),
-                        detail: versionInfo.buildDate
-                    )
-                    DiagnosticsMetricRow(
-                        label: String(localized: "Toolchain"),
-                        value: versionInfo.rustVersion,
-                        detail: String(localized: "\(versionInfo.platform) / \(versionInfo.arch)")
-                    )
-                } header: {
-                    Text("Build")
+                    DiagnosticsScoreboard(vm: vm, metrics: metrics)
+                        .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
                 }
-            }
 
-            if let configSummary = vm.configSummary {
-                Section {
-                    DiagnosticsMetricRow(
-                        label: String(localized: "Home Dir"),
-                        value: configSummary.homeDir,
-                        detail: configSummary.dataDir
-                    )
-                    DiagnosticsMetricRow(
-                        label: String(localized: "Default Model"),
-                        value: configSummary.defaultModel.model,
-                        detail: configSummary.defaultModel.provider
-                    )
-                    DiagnosticsMetricRow(
-                        label: String(localized: "API Key"),
-                        value: configSummary.apiKey,
-                        detail: configSummary.defaultModel.apiKeyEnv ?? String(localized: "No provider env override")
-                    )
-                    DiagnosticsMetricRow(
-                        label: String(localized: "Memory Decay"),
-                        value: configSummary.memory.decayRate.formatted(.number.precision(.fractionLength(3))),
-                        detail: String(localized: "Kernel memory compaction / decay tuning")
-                    )
-                } header: {
-                    Text("Config")
-                } footer: {
-                    Text("This is the redacted runtime config view from the server, not local iPhone settings.")
+                if hasDiagnosticsData {
+                    Section {
+                        DiagnosticsSnapshotCard(vm: vm, metrics: metrics)
+                    } header: {
+                        Text("Snapshot")
+                    } footer: {
+                        Text("These badges summarize which deep-diagnostic feeds are currently loaded into the mobile snapshot.")
+                    }
+
+                    Section {
+                        diagnosticsFocusSection(proxy)
+                    } header: {
+                        Text("Focus Areas")
+                    } footer: {
+                        Text("Use these jump targets to move around the deep runtime monitor without scanning the whole page.")
+                    }
                 }
-            }
 
-            if let metrics {
-                Section {
-                    DiagnosticsMetricRow(
-                        label: String(localized: "Agents"),
-                        value: String(localized: "\(metrics.activeAgents)/\(metrics.totalAgents) active"),
-                        detail: String(localized: "Prometheus gauge snapshot")
-                    )
-                    DiagnosticsMetricRow(
-                        label: String(localized: "Rolling Tokens"),
-                        value: metrics.totalRollingTokens.formatted(),
-                        detail: metrics.totalRollingToolCalls == 1
-                            ? String(localized: "1 tool call in the current metrics window")
-                            : String(localized: "\(metrics.totalRollingToolCalls.formatted()) tool calls in the current metrics window")
-                    )
-                    DiagnosticsMetricRow(
-                        label: String(localized: "Supervisor Counters"),
-                        value: String(localized: "\(metrics.panicCount) panics / \(metrics.restartCount) restarts"),
-                        detail: String(localized: "Exported through /api/metrics")
-                    )
-                    if let versionLabel = metrics.versionLabel {
+                if let healthDetail = vm.healthDetail {
+                    Section {
                         DiagnosticsMetricRow(
-                            label: String(localized: "Metrics Version"),
-                            value: versionLabel,
-                            detail: String(localized: "Version label from librefang_info")
+                            label: String(localized: "Kernel Status"),
+                            value: healthDetail.localizedStatusLabel,
+                            detail: String(localized: "Database \(healthDetail.localizedDatabaseLabel)")
+                        )
+                        DiagnosticsMetricRow(
+                            label: String(localized: "Uptime"),
+                            value: formatDuration(healthDetail.uptimeSeconds),
+                            detail: healthDetail.agentCount == 1
+                                ? String(localized: "1 agent in registry")
+                                : String(localized: "\(healthDetail.agentCount) agents in registry")
+                        )
+                        DiagnosticsMetricRow(
+                            label: String(localized: "Supervisor"),
+                            value: String(localized: "\(healthDetail.panicCount) panics / \(healthDetail.restartCount) restarts"),
+                            detail: healthDetail.panicCount > 0 ? String(localized: "Kernel supervisor recovered at least one panic.") : String(localized: "No panic recovery recorded.")
+                        )
+                    } header: {
+                        Text("Health Detail")
+                    } footer: {
+                        Text(healthDetail.isHealthy ? String(localized: "Deep health diagnostics are currently healthy.") : String(localized: "Deep health diagnostics report degraded runtime state."))
+                    }
+                    .id(DiagnosticsSectionAnchor.health)
+
+                    if !healthDetail.configWarnings.isEmpty {
+                        Section {
+                            ForEach(Array(healthDetail.configWarnings.enumerated()), id: \.offset) { _, warning in
+                                DiagnosticsWarningRow(warning: warning)
+                            }
+                        } header: {
+                            Text("Config Warnings")
+                        } footer: {
+                            Text("These warnings come from the kernel config validator and usually explain drift before it becomes an outage.")
+                        }
+                        .id(DiagnosticsSectionAnchor.warnings)
+                    }
+                }
+
+                if let versionInfo = vm.versionInfo {
+                    Section {
+                        DiagnosticsMetricRow(
+                            label: String(localized: "Version"),
+                            value: versionInfo.version,
+                            detail: versionInfo.name
+                        )
+                        DiagnosticsMetricRow(
+                            label: String(localized: "Git SHA"),
+                            value: shortSHA(versionInfo.gitSHA),
+                            detail: versionInfo.buildDate
+                        )
+                        DiagnosticsMetricRow(
+                            label: String(localized: "Toolchain"),
+                            value: versionInfo.rustVersion,
+                            detail: String(localized: "\(versionInfo.platform) / \(versionInfo.arch)")
+                        )
+                    } header: {
+                        Text("Build")
+                    }
+                    .id(DiagnosticsSectionAnchor.build)
+                }
+
+                if let configSummary = vm.configSummary {
+                    Section {
+                        DiagnosticsMetricRow(
+                            label: String(localized: "Home Dir"),
+                            value: configSummary.homeDir,
+                            detail: configSummary.dataDir
+                        )
+                        DiagnosticsMetricRow(
+                            label: String(localized: "Default Model"),
+                            value: configSummary.defaultModel.model,
+                            detail: configSummary.defaultModel.provider
+                        )
+                        DiagnosticsMetricRow(
+                            label: String(localized: "API Key"),
+                            value: configSummary.apiKey,
+                            detail: configSummary.defaultModel.apiKeyEnv ?? String(localized: "No provider env override")
+                        )
+                        DiagnosticsMetricRow(
+                            label: String(localized: "Memory Decay"),
+                            value: configSummary.memory.decayRate.formatted(.number.precision(.fractionLength(3))),
+                            detail: String(localized: "Kernel memory compaction / decay tuning")
+                        )
+                    } header: {
+                        Text("Config")
+                    } footer: {
+                        Text("This is the redacted runtime config view from the server, not local iPhone settings.")
+                    }
+                    .id(DiagnosticsSectionAnchor.config)
+                }
+
+                if let metrics {
+                    Section {
+                        DiagnosticsMetricRow(
+                            label: String(localized: "Agents"),
+                            value: String(localized: "\(metrics.activeAgents)/\(metrics.totalAgents) active"),
+                            detail: String(localized: "Prometheus gauge snapshot")
+                        )
+                        DiagnosticsMetricRow(
+                            label: String(localized: "Rolling Tokens"),
+                            value: metrics.totalRollingTokens.formatted(),
+                            detail: metrics.totalRollingToolCalls == 1
+                                ? String(localized: "1 tool call in the current metrics window")
+                                : String(localized: "\(metrics.totalRollingToolCalls.formatted()) tool calls in the current metrics window")
+                        )
+                        DiagnosticsMetricRow(
+                            label: String(localized: "Supervisor Counters"),
+                            value: String(localized: "\(metrics.panicCount) panics / \(metrics.restartCount) restarts"),
+                            detail: String(localized: "Exported through /api/metrics")
+                        )
+                        if let versionLabel = metrics.versionLabel {
+                            DiagnosticsMetricRow(
+                                label: String(localized: "Metrics Version"),
+                                value: versionLabel,
+                                detail: String(localized: "Version label from librefang_info")
+                            )
+                        }
+                    } header: {
+                        Text("Metrics")
+                    }
+                    .id(DiagnosticsSectionAnchor.metrics)
+
+                    if !metrics.tokenLeaders.isEmpty {
+                        Section {
+                            ForEach(Array(metrics.tokenLeaders.prefix(5).enumerated()), id: \.offset) { index, sample in
+                                DiagnosticsMetricListRow(
+                                    rank: index + 1,
+                                    title: sample.labels["agent"] ?? String(localized: "Unknown agent"),
+                                    subtitle: sample.labels["model"] ?? sample.labels["provider"] ?? String(localized: "Token usage"),
+                                    value: Int(sample.value).formatted()
+                                )
+                            }
+                        } header: {
+                            Text("Top Token Usage")
+                        }
+                        .id(DiagnosticsSectionAnchor.tokenLeaders)
+                    }
+
+                    if !metrics.toolCallLeaders.isEmpty {
+                        Section {
+                            ForEach(Array(metrics.toolCallLeaders.prefix(5).enumerated()), id: \.offset) { index, sample in
+                                DiagnosticsMetricListRow(
+                                    rank: index + 1,
+                                    title: sample.labels["agent"] ?? String(localized: "Unknown agent"),
+                                    subtitle: String(localized: "Tool calls"),
+                                    value: Int(sample.value).formatted()
+                                )
+                            }
+                        } header: {
+                            Text("Top Tool Calls")
+                        }
+                        .id(DiagnosticsSectionAnchor.toolLeaders)
+                    }
+                }
+
+                if !hasDiagnosticsData && !vm.isLoading {
+                    Section("Diagnostics") {
+                        ContentUnavailableView(
+                            "No Diagnostic Snapshot",
+                            systemImage: "stethoscope",
+                            description: Text("Deep runtime diagnostics are not available from the current server snapshot.")
                         )
                     }
-                } header: {
-                    Text("Metrics")
-                }
-
-                if !metrics.tokenLeaders.isEmpty {
-                    Section {
-                        ForEach(Array(metrics.tokenLeaders.prefix(5).enumerated()), id: \.offset) { index, sample in
-                            DiagnosticsMetricListRow(
-                                rank: index + 1,
-                                title: sample.labels["agent"] ?? String(localized: "Unknown agent"),
-                                subtitle: sample.labels["model"] ?? sample.labels["provider"] ?? String(localized: "Token usage"),
-                                value: Int(sample.value).formatted()
-                            )
-                        }
-                    } header: {
-                        Text("Top Token Usage")
-                    }
-                }
-
-                if !metrics.toolCallLeaders.isEmpty {
-                    Section {
-                        ForEach(Array(metrics.toolCallLeaders.prefix(5).enumerated()), id: \.offset) { index, sample in
-                            DiagnosticsMetricListRow(
-                                rank: index + 1,
-                                title: sample.labels["agent"] ?? String(localized: "Unknown agent"),
-                                subtitle: String(localized: "Tool calls"),
-                                value: Int(sample.value).formatted()
-                            )
-                        }
-                    } header: {
-                        Text("Top Tool Calls")
-                    }
                 }
             }
-
-            if !hasDiagnosticsData && !vm.isLoading {
-                Section("Diagnostics") {
-                    ContentUnavailableView(
-                        "No Diagnostic Snapshot",
-                        systemImage: "stethoscope",
-                        description: Text("Deep runtime diagnostics are not available from the current server snapshot.")
-                    )
-                }
-            }
-        }
-        .navigationTitle("Diagnostics")
-        .refreshable {
-            await vm.refresh()
-        }
-        .overlay {
-            if vm.isLoading && !hasDiagnosticsData {
-                ProgressView("Loading diagnostics...")
-            }
-        }
-        .task {
-            if !hasDiagnosticsData {
+            .navigationTitle("Diagnostics")
+            .refreshable {
                 await vm.refresh()
             }
+            .overlay {
+                if vm.isLoading && !hasDiagnosticsData {
+                    ProgressView("Loading diagnostics...")
+                }
+            }
+            .task {
+                if !hasDiagnosticsData {
+                    await vm.refresh()
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func diagnosticsFocusSection(_ proxy: ScrollViewProxy) -> some View {
+        if let healthDetail = vm.healthDetail {
+            Button {
+                jump(proxy, to: .health)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Health Detail"),
+                    detail: healthDetail.isHealthy
+                        ? String(localized: "Jump to kernel health, uptime, and supervisor status.")
+                        : String(localized: "Jump to degraded health, database state, and supervisor recovery counters."),
+                    systemImage: "stethoscope",
+                    tone: healthDetail.isHealthy ? .positive : .warning,
+                    badgeText: healthDetail.localizedStatusLabel,
+                    badgeTone: healthDetail.isHealthy ? .positive : .warning
+                )
+            }
+            .buttonStyle(.plain)
+
+            if !healthDetail.configWarnings.isEmpty {
+                Button {
+                    jump(proxy, to: .warnings)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Config Warnings"),
+                        detail: String(localized: "Jump to the config validator warnings before they become runtime drift."),
+                        systemImage: "exclamationmark.triangle",
+                        tone: .warning,
+                        badgeText: healthDetail.configWarnings.count == 1 ? String(localized: "1 warning") : String(localized: "\(healthDetail.configWarnings.count) warnings"),
+                        badgeTone: .warning
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+
+        if vm.versionInfo != nil {
+            Button {
+                jump(proxy, to: .build)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Build Metadata"),
+                    detail: String(localized: "Jump to version, git SHA, and toolchain details for this runtime."),
+                    systemImage: "shippingbox",
+                    tone: .neutral
+                )
+            }
+            .buttonStyle(.plain)
+        }
+
+        if vm.configSummary != nil {
+            Button {
+                jump(proxy, to: .config)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Runtime Config"),
+                    detail: String(localized: "Jump to the redacted runtime config snapshot exposed by the server."),
+                    systemImage: "gearshape.2",
+                    tone: .neutral
+                )
+            }
+            .buttonStyle(.plain)
+        }
+
+        if let metrics {
+            Button {
+                jump(proxy, to: .metrics)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Metrics Snapshot"),
+                    detail: String(localized: "Jump to Prometheus counters for agents, tokens, tool calls, and supervisor state."),
+                    systemImage: "chart.xyaxis.line",
+                    tone: .neutral,
+                    badgeText: metrics.totalRollingTokens.formatted(),
+                    badgeTone: .neutral
+                )
+            }
+            .buttonStyle(.plain)
+
+            if !metrics.tokenLeaders.isEmpty {
+                Button {
+                    jump(proxy, to: .tokenLeaders)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Top Token Usage"),
+                        detail: String(localized: "Jump to the heaviest token consumers in the current metrics window."),
+                        systemImage: "number",
+                        tone: .warning,
+                        badgeText: metrics.tokenLeaders.count == 1 ? String(localized: "1 leader") : String(localized: "\(metrics.tokenLeaders.count) leaders"),
+                        badgeTone: .neutral
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if !metrics.toolCallLeaders.isEmpty {
+                Button {
+                    jump(proxy, to: .toolLeaders)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Top Tool Calls"),
+                        detail: String(localized: "Jump to the agents driving the most tool activity in the current metrics window."),
+                        systemImage: "wrench.and.screwdriver",
+                        tone: .warning,
+                        badgeText: metrics.toolCallLeaders.count == 1 ? String(localized: "1 leader") : String(localized: "\(metrics.toolCallLeaders.count) leaders"),
+                        badgeTone: .neutral
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: DiagnosticsSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
         }
     }
 

@@ -198,10 +198,21 @@ struct AgentDetailView: View {
         return lines.joined(separator: "\n")
     }
 
+    private var currentSessionBadgeText: String? {
+        guard let currentSessionInfo else { return nil }
+        return sessionDisplayTitle(currentSessionInfo)
+    }
+
+    private var profileBadgeText: String? {
+        guard let profile = agent.profile else { return nil }
+        return profile
+    }
+
     var body: some View {
         List {
             identitySection
             diagnosticsSnapshotSection
+            operatorHubSection
             statusSection
             modelResolutionSection
             configSnapshotSection
@@ -462,6 +473,147 @@ struct AgentDetailView: View {
                 message: Text(notice.message),
                 dismissButton: .default(Text("OK"))
             )
+        }
+    }
+
+    private var operatorHubSection: some View {
+        Section {
+            NavigationLink {
+                SessionsView(initialSearchText: agent.id, initialFilter: .all)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Session Monitor"),
+                    detail: sessionIssueCount > 0
+                        ? (sessionIssueCount == 1
+                            ? String(localized: "1 session issue is already surfaced for this agent.")
+                            : String(localized: "\(sessionIssueCount) session issues are already surfaced for this agent."))
+                        : String(localized: "Jump straight into this agent's live and historical session inventory."),
+                    systemImage: "rectangle.stack",
+                    tone: sessionAttentionTone,
+                    badgeText: currentSessionBadgeText,
+                    badgeTone: .neutral
+                )
+            }
+
+            NavigationLink {
+                AgentDeliveriesView(agent: agent, initialReceipts: agentDeliveries)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Delivery Receipts"),
+                    detail: failedDeliveryCount > 0
+                        ? (failedDeliveryCount == 1
+                            ? String(localized: "1 delivery failure is already visible in the mobile snapshot.")
+                            : String(localized: "\(failedDeliveryCount) delivery failures are already visible in the mobile snapshot."))
+                        : String(localized: "Open delivery receipts to confirm outbound channel health for this agent."),
+                    systemImage: "paperplane",
+                    tone: failedDeliveryCount > 0 ? .critical : deliveredReceiptTone,
+                    badgeText: agentDeliveries.isEmpty
+                        ? String(localized: "No receipts")
+                        : String(localized: "\(agentDeliveries.count) receipts"),
+                    badgeTone: failedDeliveryCount > 0 ? .critical : .neutral
+                )
+            }
+
+            NavigationLink {
+                AgentFilesView(agent: agent, initialFiles: agentFiles)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Workspace Identity"),
+                    detail: missingWorkspaceFileCount > 0
+                        ? (missingWorkspaceFileCount == 1
+                            ? String(localized: "1 identity file is missing from the current workspace snapshot.")
+                            : String(localized: "\(missingWorkspaceFileCount) identity files are missing from the current workspace snapshot."))
+                        : String(localized: "Inspect SOUL, IDENTITY, and related files without leaving the operator flow."),
+                    systemImage: "doc.text.magnifyingglass",
+                    tone: workspaceIdentitySummary.tone,
+                    badgeText: workspaceIdentitySummary.progressLabel,
+                    badgeTone: workspaceIdentitySummary.tone
+                )
+            }
+
+            NavigationLink {
+                AgentMemoryView(agent: agent, initialEntries: agentMemory) { updatedEntries in
+                    agentMemory = updatedEntries
+                    isLoadingMemory = false
+                }
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Agent Memory"),
+                    detail: agentMemory.isEmpty
+                        ? String(localized: "No durable memory keys are cached yet for this agent.")
+                        : String(localized: "Inspect durable KV memory before assuming the current session explains the behavior."),
+                    systemImage: "internaldrive",
+                    tone: structuredMemoryTone,
+                    badgeText: agentMemory.isEmpty ? String(localized: "Empty") : String(localized: "\(agentMemory.count) keys"),
+                    badgeTone: structuredMemoryTone
+                )
+            }
+
+            NavigationLink {
+                EventsView(api: deps.apiClient, initialSearchText: agent.id)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Audit Event Feed"),
+                    detail: agentRecentEvents.isEmpty
+                        ? String(localized: "Open the full event feed filtered to this agent.")
+                        : String(localized: "Review recent audit events and keep the full feed scoped to this agent."),
+                    systemImage: "list.bullet.rectangle.portrait",
+                    tone: .neutral,
+                    badgeText: agentRecentEvents.isEmpty ? nil : String(localized: "\(agentRecentEvents.count) loaded"),
+                    badgeTone: .neutral
+                )
+            }
+
+            NavigationLink {
+                AgentCapabilitiesView(
+                    agent: agent,
+                    initialToolFilters: agentToolFilters,
+                    initialSkills: agentSkills,
+                    initialMCPServers: agentMCPServers
+                )
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Capabilities"),
+                    detail: String(localized: "Inspect tool scope, skills, MCP exposure, and other operator-facing capability grants."),
+                    systemImage: "slider.horizontal.3",
+                    tone: agentToolFilters?.scopeTone ?? .neutral
+                )
+            }
+
+            if let profile = agent.profile {
+                NavigationLink {
+                    ToolProfilesView(selectedProfileName: profile)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Tool Profile"),
+                        detail: agentProfileSummary?.tools.isEmpty == false
+                            ? String(localized: "Review the active tool profile without leaving the compact agent detail flow.")
+                            : String(localized: "Inspect the profile definition even when the current tool list is empty or stale."),
+                        systemImage: "person.crop.rectangle.stack",
+                        tone: profileToolCountTone,
+                        badgeText: profileBadgeText,
+                        badgeTone: .neutral
+                    )
+                }
+            }
+
+            if agent.isRunning {
+                Button {
+                    showChat = true
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Live Conversation"),
+                        detail: String(localized: "Jump into the agent chat stream without leaving the operator detail context."),
+                        systemImage: "bubble.left.and.bubble.right.fill",
+                        tone: .positive
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        } header: {
+            Text("Operator Hub")
+        } footer: {
+            Text("These jump surfaces keep the highest-value diagnostics close to the top of the agent detail screen.")
         }
     }
 
@@ -1260,7 +1412,7 @@ struct AgentDetailView: View {
     }
 
     private var actionsSection: some View {
-        Section("Actions") {
+        Section("Local Actions") {
             Button {
                 deps.agentWatchlistStore.toggle(agent)
             } label: {
@@ -1270,51 +1422,6 @@ struct AgentDetailView: View {
                         : String(localized: "Add To Watchlist"),
                     systemImage: isWatched ? "star.slash" : "star"
                 )
-            }
-
-            NavigationLink {
-                EventsView(api: deps.apiClient, initialSearchText: agent.id)
-            } label: {
-                Label("Inspect Audit Events", systemImage: "list.bullet.rectangle.portrait")
-            }
-
-            NavigationLink {
-                SessionsView(initialSearchText: agent.id, initialFilter: .all)
-            } label: {
-                Label("Inspect Agent Sessions", systemImage: "rectangle.stack")
-            }
-
-            NavigationLink {
-                AgentDeliveriesView(agent: agent, initialReceipts: agentDeliveries)
-            } label: {
-                Label("Inspect Delivery Receipts", systemImage: "paperplane")
-            }
-
-            NavigationLink {
-                AgentCapabilitiesView(
-                    agent: agent,
-                    initialToolFilters: agentToolFilters,
-                    initialSkills: agentSkills,
-                    initialMCPServers: agentMCPServers
-                )
-            } label: {
-                Label("Inspect Capabilities", systemImage: "slider.horizontal.3")
-            }
-
-            if let profile = agent.profile {
-                NavigationLink {
-                    ToolProfilesView(selectedProfileName: profile)
-                } label: {
-                    Label("Inspect Tool Profile", systemImage: "person.crop.rectangle.stack")
-                }
-            }
-
-            if agent.isRunning {
-                Button {
-                    showChat = true
-                } label: {
-                    Label("Open Conversation", systemImage: "bubble.left.and.bubble.right.fill")
-                }
             }
 
             Button {
