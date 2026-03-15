@@ -4,8 +4,7 @@ struct MainTabView: View {
     @Environment(\.dependencies) private var deps
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedTab = 0
-    @State private var showOnCall = false
-    @State private var showHandoffCenter = false
+    @State private var presentedSurface: PresentedMonitoringSurface?
     @State private var incidentCue: ActiveIncidentCue?
     @State private var hasObservedCriticalState = false
     @State private var handoffCue: ActiveHandoffCue?
@@ -148,6 +147,8 @@ struct MainTabView: View {
         }
         .onAppear {
             deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
+            deps.appShortcutLaunchStore.refreshFromDefaults()
+            handlePendingAppShortcut()
             Task { await deps.onCallNotificationManager.refreshAuthorizationStatus() }
         }
         .onChange(of: criticalTrackingState) { oldValue, newValue in
@@ -175,6 +176,10 @@ struct MainTabView: View {
                     await deps.dashboardViewModel.refresh()
                     await deps.onCallNotificationManager.refreshAuthorizationStatus()
                     await deps.onCallNotificationManager.cancelPendingReminder()
+                    await MainActor.run {
+                        deps.appShortcutLaunchStore.refreshFromDefaults()
+                        handlePendingAppShortcut()
+                    }
                 }
             case .background:
                 deps.dashboardViewModel.stopAutoRefresh()
@@ -186,6 +191,10 @@ struct MainTabView: View {
             default:
                 break
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+            deps.appShortcutLaunchStore.refreshFromDefaults()
+            handlePendingAppShortcut()
         }
         .task(id: incidentCue?.id) {
             guard let cueID = incidentCue?.id else { return }
@@ -199,19 +208,9 @@ struct MainTabView: View {
             guard handoffCue?.id == cueID else { return }
             handoffCue = nil
         }
-        .sheet(isPresented: $showOnCall) {
+        .sheet(item: $presentedSurface) { surface in
             NavigationStack {
-                preferredSurfaceView
-            }
-        }
-        .sheet(isPresented: $showHandoffCenter) {
-            NavigationStack {
-                HandoffCenterView(
-                    summary: handoffText,
-                    queueCount: onCallPriorityItems.count,
-                    criticalCount: visibleCriticalAlertCount,
-                    liveAlertCount: visibleMonitoringAlerts.count
-                )
+                monitoringSurfaceView(for: surface)
             }
         }
     }
@@ -238,18 +237,6 @@ struct MainTabView: View {
             handoffCheckInStatus: handoffCheckInStatus,
             handoffFollowUpStatuses: latestFollowUpStatuses
         )
-    }
-
-    @ViewBuilder
-    private var preferredSurfaceView: some View {
-        switch preferredOnCallSurface {
-        case .onCall:
-            OnCallView()
-        case .nightWatch:
-            NightWatchView()
-        case .standbyDigest:
-            StandbyDigestView()
-        }
     }
 
     @ViewBuilder
@@ -308,6 +295,27 @@ struct MainTabView: View {
         }
         .animation(.spring(response: 0.28, dampingFraction: 0.86), value: incidentCue?.id)
         .animation(.spring(response: 0.28, dampingFraction: 0.86), value: handoffCue?.id)
+    }
+
+    @ViewBuilder
+    private func monitoringSurfaceView(for surface: PresentedMonitoringSurface) -> some View {
+        switch surface {
+        case .onCall:
+            OnCallView()
+        case .handoffCenter:
+            HandoffCenterView(
+                summary: handoffText,
+                queueCount: onCallPriorityItems.count,
+                criticalCount: visibleCriticalAlertCount,
+                liveAlertCount: visibleMonitoringAlerts.count
+            )
+        case .incidents:
+            IncidentsView()
+        case .nightWatch:
+            NightWatchView()
+        case .standbyDigest:
+            StandbyDigestView()
+        }
     }
 
     private func handleCriticalTrackingChange(from oldValue: CriticalTrackingState, to newValue: CriticalTrackingState) {
@@ -430,17 +438,41 @@ struct MainTabView: View {
     }
 
     private func openPreferredSurface() {
-        incidentCue = nil
-        handoffCue = nil
-        showHandoffCenter = false
-        showOnCall = true
+        switch preferredOnCallSurface {
+        case .onCall:
+            openSurface(.onCall)
+        case .nightWatch:
+            openSurface(.nightWatch)
+        case .standbyDigest:
+            openSurface(.standbyDigest)
+        }
     }
 
     private func openHandoffCenter() {
+        openSurface(.handoffCenter)
+    }
+
+    private func openSurface(_ surface: PresentedMonitoringSurface) {
         incidentCue = nil
         handoffCue = nil
-        showOnCall = false
-        showHandoffCenter = true
+        presentedSurface = surface
+    }
+
+    private func handlePendingAppShortcut() {
+        guard let surface = deps.appShortcutLaunchStore.consumePendingSurface() else { return }
+
+        switch surface {
+        case .onCall:
+            openSurface(.onCall)
+        case .incidents:
+            openSurface(.incidents)
+        case .handoffCenter:
+            openSurface(.handoffCenter)
+        case .nightWatch:
+            openSurface(.nightWatch)
+        case .standbyDigest:
+            openSurface(.standbyDigest)
+        }
     }
 }
 
@@ -459,6 +491,16 @@ private struct HandoffCheckInTrackingState: Equatable {
     let level: Int
     let pendingFollowUpCount: Int
     let signature: String
+}
+
+private enum PresentedMonitoringSurface: String, Identifiable {
+    case onCall
+    case handoffCenter
+    case incidents
+    case nightWatch
+    case standbyDigest
+
+    var id: String { rawValue }
 }
 
 private struct ActiveHandoffCue: Identifiable, Equatable {
