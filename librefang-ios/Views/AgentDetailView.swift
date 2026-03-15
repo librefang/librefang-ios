@@ -122,16 +122,18 @@ struct AgentDetailView: View {
 
     private var diagnosticsShareText: String {
         let structuredMemoryCount = agentMemory.filter(\.isStructured).count
+        let diagnosticsModelLabel = requestedModelReference ?? agent.modelName ?? String(localized: "Unknown")
         let currentSessionLabel = currentSessionInfo?.label?.isEmpty == false
             ? currentSessionInfo?.label
             : currentSessionID.map { String($0.prefix(8)) }
+        let diagnosticsSessionLabel = currentSessionLabel ?? String(localized: "Unavailable")
 
         let lines = [
             String(localized: "LibreFang Agent Diagnostics"),
             String(localized: "Agent: \(agent.name)"),
             String(localized: "State: \(agent.stateLabel)"),
-            String(localized: "Model: \(requestedModelReference ?? agent.modelName ?? String(localized: "Unknown"))"),
-            String(localized: "Current session: \(currentSessionLabel ?? String(localized: "Unavailable"))"),
+            String(localized: "Model: \(diagnosticsModelLabel)"),
+            String(localized: "Current session: \(diagnosticsSessionLabel)"),
             String(localized: "Pending approvals: \(agentApprovals.count)"),
             String(localized: "Session inventory: \(agentSessions.count)"),
             String(localized: "Memory keys: \(agentMemory.count)"),
@@ -1678,7 +1680,7 @@ private struct SessionPreviewRow: View {
                     .foregroundStyle(roleColor)
                 Spacer()
                 if let toolCount = message.tools?.count, toolCount > 0 {
-                    Text("\(toolCount) tool\(toolCount == 1 ? "" : "s")")
+                    Text(toolSummaryLabel(toolCount))
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }
@@ -1689,7 +1691,7 @@ private struct SessionPreviewRow: View {
                 .lineLimit(4)
 
             if let images = message.images, !images.isEmpty {
-                Text("\(images.count) image attachment\(images.count == 1 ? "" : "s")")
+                Text(imageAttachmentSummaryLabel(images.count))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
 
@@ -1720,11 +1722,11 @@ private struct SessionPreviewRow: View {
     private var roleTitle: String {
         switch message.role {
         case "User":
-            "User"
+            String(localized: "User")
         case "System":
-            "System"
+            String(localized: "System")
         default:
-            "Agent"
+            String(localized: "Agent")
         }
     }
 
@@ -1753,6 +1755,18 @@ private struct SessionPreviewRow: View {
                 : String(localized: "\(images.count) image attachments")
         }
         return String(localized: "No message content")
+    }
+
+    private func toolSummaryLabel(_ count: Int) -> String {
+        count == 1
+            ? String(localized: "1 tool")
+            : String(localized: "\(count) tools")
+    }
+
+    private func imageAttachmentSummaryLabel(_ count: Int) -> String {
+        count == 1
+            ? String(localized: "1 image attachment")
+            : String(localized: "\(count) image attachments")
     }
 }
 
@@ -1884,7 +1898,7 @@ private struct AgentAuditRow: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
 
-            Text(entry.outcome.capitalized)
+            Text(entry.localizedOutcomeLabel)
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(outcomeColor)
         }
@@ -1959,7 +1973,7 @@ private struct AgentDeliverySummaryRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(receipt.channel.capitalized)
+                Text(receipt.localizedChannelLabel)
                     .font(.subheadline.weight(.medium))
                 Spacer()
                 Text(receipt.status.label)
