@@ -1438,66 +1438,29 @@ private struct ReadinessCard: View {
                 }
             }
 
-            ReadinessRow(
-                title: String(localized: "Model Layer"),
-                subtitle: vm.providerReadinessStatus.summary,
-                color: vm.providerReadinessStatus.tone.color
-            )
-            ReadinessRow(
-                title: String(localized: "Channels"),
-                subtitle: vm.channelReadinessStatus.summary,
-                color: vm.channelReadinessStatus.tone.color
-            )
-            ReadinessRow(
-                title: String(localized: "Autonomous Hands"),
-                subtitle: vm.handReadinessStatus.summary,
-                color: vm.handReadinessStatus.tone.color
-            )
-            ReadinessRow(
-                title: String(localized: "Approvals"),
-                subtitle: vm.approvalBacklogStatus.summary,
-                color: vm.approvalBacklogStatus.tone.color
-            )
-            ReadinessRow(
-                title: String(localized: "Peer Network"),
-                subtitle: vm.peerConnectivityStatus.summary,
-                color: vm.peerConnectivityStatus.tone.color
-            )
-            ReadinessRow(
-                title: String(localized: "Tooling"),
-                subtitle: vm.mcpConnectivityStatus.summary,
-                color: vm.mcpConnectivityStatus.tone.color
-            )
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Readiness inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep model, channel, hand, approval, peer, and tooling readiness visible without a long mobile list."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: vm.peerConnectivityStatus.summary, tone: vm.peerConnectivityStatus.tone)
+            } facts: {
+                Label(String(localized: "Model layer · \(vm.providerReadinessStatus.summary)"), systemImage: "key.horizontal")
+                Label(String(localized: "Channels · \(vm.channelReadinessStatus.summary)"), systemImage: "bubble.left.and.bubble.right")
+                Label(String(localized: "Hands · \(vm.handReadinessStatus.summary)"), systemImage: "hand.raised")
+                Label(String(localized: "Approvals · \(vm.approvalBacklogStatus.summary)"), systemImage: "checkmark.shield")
+                Label(String(localized: "Peers · \(vm.peerConnectivityStatus.summary)"), systemImage: "point.3.connected.trianglepath.dotted")
+                Label(String(localized: "Tooling · \(vm.mcpConnectivityStatus.summary)"), systemImage: "shippingbox")
+            }
         }
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-}
-
-private struct ReadinessRow: View {
-    let title: String
-    let subtitle: String
-    let color: Color
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Circle()
-                .fill(color)
-                .frame(width: 9, height: 9)
-                .padding(.top, 5)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.subheadline.weight(.medium))
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-        }
     }
 }
 
@@ -1506,9 +1469,26 @@ private struct UsageSnapshotCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Usage")
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.secondary)
+            MonitoringSnapshotCard(
+                summary: String(localized: "Usage inventory keeps spend, tokens, tool calls, and LLM calls visible on mobile."),
+                detail: String(localized: "Use this compact slice before opening budget, diagnostics, or per-agent usage views."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: String(localized: "\(usageSummary.callCount.formatted()) calls"),
+                        tone: usageSummary.callCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: String(localized: "\(usageSummary.totalToolCalls.formatted()) tool calls"),
+                        tone: usageSummary.totalToolCalls > 0 ? .warning : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: formatCost(usageSummary.totalCostUsd),
+                        tone: usageSummary.totalCostUsd > 0 ? .warning : .neutral
+                    )
+                }
+            }
 
             HStack(spacing: 10) {
                 CompactMetric(value: usageSummary.totalInputTokens.formatted(), label: String(localized: "Input"))
@@ -1516,24 +1496,29 @@ private struct UsageSnapshotCard: View {
                 CompactMetric(value: usageSummary.totalToolCalls.formatted(), label: String(localized: "Tools"))
             }
 
-            Divider()
-
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Accumulated Cost")
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Usage facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep accumulated spend, total traffic, and call volume visible without another full-width totals row."))
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    Text(formatCost(usageSummary.totalCostUsd))
-                        .font(.title3.weight(.semibold).monospacedDigit())
+                        .lineLimit(2)
                 }
-                Spacer()
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text("LLM Calls")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(usageSummary.callCount.formatted())
-                        .font(.headline.monospacedDigit())
-                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: formatCost(usageSummary.totalCostUsd),
+                    tone: usageSummary.totalCostUsd > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(usageSummary.callCount.formatted(), systemImage: "message")
+                Label((usageSummary.totalInputTokens + usageSummary.totalOutputTokens).formatted(), systemImage: "number")
+                Label(
+                    usageSummary.totalToolCalls == 1
+                        ? String(localized: "1 tool call")
+                        : String(localized: "\(usageSummary.totalToolCalls.formatted()) tool calls"),
+                    systemImage: "wrench.and.screwdriver"
+                )
             }
         }
         .padding()
