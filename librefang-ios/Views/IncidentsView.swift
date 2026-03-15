@@ -330,162 +330,172 @@ struct IncidentsView: View {
 
     private func queueFocusSection(_ proxy: ScrollViewProxy) -> some View {
         Section {
-            if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
-                Button {
-                    jump(proxy, to: .operatorState)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Operator State"),
-                        detail: String(localized: "Jump to acknowledgement, muted alerts, and local incident state controls."),
-                        systemImage: "person.crop.circle.badge.checkmark",
-                        tone: isCurrentSnapshotAcknowledged ? .neutral : .warning
-                    )
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Primary Queue Sections"),
+                detail: String(localized: "Keep the live operator controls and highest-priority incident buckets closest to the top of the queue.")
+            ) {
+                if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
+                    Button {
+                        jump(proxy, to: .operatorState)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Operator State"),
+                            detail: String(localized: "Jump to acknowledgement, muted alerts, and local incident state controls."),
+                            systemImage: "person.crop.circle.badge.checkmark",
+                            tone: isCurrentSnapshotAcknowledged ? .neutral : .warning
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+
+                if handoffIssueCount > 0 {
+                    Button {
+                        jump(proxy, to: .shiftCoverage)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Shift Coverage"),
+                            detail: String(localized: "Jump to handoff readiness, check-in pressure, and follow-up coverage."),
+                            systemImage: "text.badge.plus",
+                            tone: handoffReadiness.state.tone,
+                            badgeText: handoffIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(handoffIssueCount) issues"),
+                            badgeTone: handoffReadiness.state.tone
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                if !visibleAlerts.isEmpty {
+                    Button {
+                        jump(proxy, to: .activeAlerts)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Active Alerts"),
+                            detail: String(localized: "Jump to the live alert queue without passing through every grouped bucket."),
+                            systemImage: "bell.badge",
+                            tone: criticalAlertCount > 0 ? .critical : .warning,
+                            badgeText: visibleAlerts.count == 1 ? String(localized: "1 live") : String(localized: "\(visibleAlerts.count) live"),
+                            badgeTone: criticalAlertCount > 0 ? .critical : .warning
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                if !vm.approvals.isEmpty {
+                    Button {
+                        jump(proxy, to: .approvals)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Pending Approvals"),
+                            detail: String(localized: "Jump to approvals already promoted into the incident queue."),
+                            systemImage: "checkmark.shield",
+                            tone: .critical,
+                            badgeText: vm.pendingApprovalCount == 1 ? String(localized: "1 waiting") : String(localized: "\(vm.pendingApprovalCount) waiting"),
+                            badgeTone: .critical
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                if !vm.sessionAttentionItems.isEmpty {
+                    Button {
+                        jump(proxy, to: .sessions)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Session Hotspots"),
+                            detail: String(localized: "Jump to duplicated, unlabeled, or high-volume sessions already promoted into the queue."),
+                            systemImage: "rectangle.stack",
+                            tone: .warning,
+                            badgeText: vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"),
+                            badgeTone: .warning
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
             }
 
-            if handoffIssueCount > 0 {
-                Button {
-                    jump(proxy, to: .shiftCoverage)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Shift Coverage"),
-                        detail: String(localized: "Jump to handoff readiness, check-in pressure, and follow-up coverage."),
-                        systemImage: "text.badge.plus",
-                        tone: handoffReadiness.state.tone,
-                        badgeText: handoffIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(handoffIssueCount) issues"),
-                        badgeTone: handoffReadiness.state.tone
-                    )
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Supporting Queue Sections"),
+                detail: String(localized: "Keep slower infrastructure and secondary drilldowns behind the primary incident buckets.")
+            ) {
+                if automationIssueCount > 0 {
+                    Button {
+                        jump(proxy, to: .automation)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Automation Pressure"),
+                            detail: String(localized: "Jump to workflow, trigger, and cron incidents already promoted into this queue."),
+                            systemImage: "flowchart",
+                            tone: .warning,
+                            badgeText: automationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(automationIssueCount) issues"),
+                            badgeTone: .warning
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-            }
 
-            if automationIssueCount > 0 {
-                Button {
-                    jump(proxy, to: .automation)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Automation Pressure"),
-                        detail: String(localized: "Jump to workflow, trigger, and cron incidents already promoted into this queue."),
-                        systemImage: "flowchart",
-                        tone: .warning,
-                        badgeText: automationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(automationIssueCount) issues"),
-                        badgeTone: .warning
-                    )
+                if integrationIssueCount > 0 {
+                    Button {
+                        jump(proxy, to: .integrations)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Integration Pressure"),
+                            detail: String(localized: "Jump to provider, channel, and model-catalog incidents surfaced in the current queue."),
+                            systemImage: "square.3.layers.3d.down.forward",
+                            tone: .critical,
+                            badgeText: integrationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(integrationIssueCount) issues"),
+                            badgeTone: .critical
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-            }
 
-            if integrationIssueCount > 0 {
-                Button {
-                    jump(proxy, to: .integrations)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Integration Pressure"),
-                        detail: String(localized: "Jump to provider, channel, and model-catalog incidents surfaced in the current queue."),
-                        systemImage: "square.3.layers.3d.down.forward",
-                        tone: .critical,
-                        badgeText: integrationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(integrationIssueCount) issues"),
-                        badgeTone: .critical
-                    )
+                if !vm.attentionAgents.isEmpty {
+                    Button {
+                        jump(proxy, to: .agents)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Agent Attention"),
+                            detail: String(localized: "Jump to agents with runtime, approval, auth, or delivery pressure."),
+                            systemImage: "cpu",
+                            tone: .warning,
+                            badgeText: vm.attentionAgents.count == 1 ? String(localized: "1 agent") : String(localized: "\(vm.attentionAgents.count) agents"),
+                            badgeTone: .warning
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-            }
 
-            if !visibleAlerts.isEmpty {
-                Button {
-                    jump(proxy, to: .activeAlerts)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Active Alerts"),
-                        detail: String(localized: "Jump to the live alert queue without passing through every grouped bucket."),
-                        systemImage: "bell.badge",
-                        tone: criticalAlertCount > 0 ? .critical : .warning,
-                        badgeText: visibleAlerts.count == 1 ? String(localized: "1 live") : String(localized: "\(visibleAlerts.count) live"),
-                        badgeTone: criticalAlertCount > 0 ? .critical : .warning
-                    )
+                if !watchedDiagnosticRows.isEmpty {
+                    Button {
+                        jump(proxy, to: .watchedDiagnostics)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Watched Diagnostics"),
+                            detail: String(localized: "Jump to watched-agent delivery and workspace problems surfaced on this phone."),
+                            systemImage: "star.fill",
+                            tone: .caution,
+                            badgeText: watchedDiagnosticRows.count == 1 ? String(localized: "1 watched") : String(localized: "\(watchedDiagnosticRows.count) watched"),
+                            badgeTone: .caution
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-            }
 
-            if !vm.approvals.isEmpty {
-                Button {
-                    jump(proxy, to: .approvals)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Pending Approvals"),
-                        detail: String(localized: "Jump to approvals already promoted into the incident queue."),
-                        systemImage: "checkmark.shield",
-                        tone: .critical,
-                        badgeText: vm.pendingApprovalCount == 1 ? String(localized: "1 waiting") : String(localized: "\(vm.pendingApprovalCount) waiting"),
-                        badgeTone: .critical
-                    )
+                if !vm.criticalAuditEntries.isEmpty {
+                    Button {
+                        jump(proxy, to: .criticalEvents)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Critical Events"),
+                            detail: String(localized: "Jump to the critical audit trail already attached to this incident queue."),
+                            systemImage: "list.bullet.rectangle.portrait",
+                            tone: .critical,
+                            badgeText: vm.criticalAuditEntries.count == 1 ? String(localized: "1 event") : String(localized: "\(vm.criticalAuditEntries.count) events"),
+                            badgeTone: .critical
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-            }
-
-            if !vm.attentionAgents.isEmpty {
-                Button {
-                    jump(proxy, to: .agents)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Agent Attention"),
-                        detail: String(localized: "Jump to agents with runtime, approval, auth, or delivery pressure."),
-                        systemImage: "cpu",
-                        tone: .warning,
-                        badgeText: vm.attentionAgents.count == 1 ? String(localized: "1 agent") : String(localized: "\(vm.attentionAgents.count) agents"),
-                        badgeTone: .warning
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-
-            if !watchedDiagnosticRows.isEmpty {
-                Button {
-                    jump(proxy, to: .watchedDiagnostics)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Watched Diagnostics"),
-                        detail: String(localized: "Jump to watched-agent delivery and workspace problems surfaced on this phone."),
-                        systemImage: "star.fill",
-                        tone: .caution,
-                        badgeText: watchedDiagnosticRows.count == 1 ? String(localized: "1 watched") : String(localized: "\(watchedDiagnosticRows.count) watched"),
-                        badgeTone: .caution
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-
-            if !vm.sessionAttentionItems.isEmpty {
-                Button {
-                    jump(proxy, to: .sessions)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Session Hotspots"),
-                        detail: String(localized: "Jump to duplicated, unlabeled, or high-volume sessions already promoted into the queue."),
-                        systemImage: "rectangle.stack",
-                        tone: .warning,
-                        badgeText: vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"),
-                        badgeTone: .warning
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-
-            if !vm.criticalAuditEntries.isEmpty {
-                Button {
-                    jump(proxy, to: .criticalEvents)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Critical Events"),
-                        detail: String(localized: "Jump to the critical audit trail already attached to this incident queue."),
-                        systemImage: "list.bullet.rectangle.portrait",
-                        tone: .critical,
-                        badgeText: vm.criticalAuditEntries.count == 1 ? String(localized: "1 event") : String(localized: "\(vm.criticalAuditEntries.count) events"),
-                        badgeTone: .critical
-                    )
-                }
-                .buttonStyle(.plain)
             }
         } header: {
             Text("Queue Sections")
@@ -1158,7 +1168,10 @@ private struct IncidentQuickLinksCard: View {
                 }
             }
 
-            VStack(spacing: 10) {
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Primary Surfaces"),
+                detail: String(localized: "Keep the most likely next incident queues closest to the snapshot.")
+            ) {
                 NavigationLink {
                     ApprovalsView()
                 } label: {
@@ -1219,7 +1232,12 @@ private struct IncidentQuickLinksCard: View {
                     )
                 }
                 .buttonStyle(.plain)
+            }
 
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Supporting Surfaces"),
+                detail: String(localized: "Keep broader runtime and diagnostics routes behind the primary incident queues.")
+            ) {
                 NavigationLink {
                     RuntimeView()
                 } label: {

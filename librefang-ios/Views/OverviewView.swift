@@ -200,22 +200,17 @@ struct OverviewView: View {
                             integrationIssueCount: vm.integrationPressureIssueCategoryCount
                         )
 
-                        OverviewQuickLinksCard(
+                        OverviewControlDeckCard(
                             criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
                             approvalCount: vm.pendingApprovalCount,
                             sessionCount: vm.sessionAttentionCount,
                             automationIssueCount: vm.automationPressureIssueCategoryCount,
                             integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                            diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                            budgetDailyCost: vm.budget?.dailySpend,
                             handoffText: handoffText,
                             queueCount: onCallPriorityItems.count,
                             liveAlertCount: visibleMonitoringAlerts.count
-                        )
-
-                        OverviewSurfaceRailCard(
-                            diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                            automationIssueCount: vm.automationPressureIssueCategoryCount,
-                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                            budgetDailyCost: vm.budget?.dailySpend
                         )
 
                         OverviewFocusRailCard(
@@ -603,12 +598,14 @@ private struct OverviewSignalFactsCard: View {
     }
 }
 
-private struct OverviewQuickLinksCard: View {
+private struct OverviewControlDeckCard: View {
     let criticalCount: Int
     let approvalCount: Int
     let sessionCount: Int
     let automationIssueCount: Int
     let integrationIssueCount: Int
+    let diagnosticsWarningCount: Int
+    let budgetDailyCost: Double?
     let handoffText: String
     let queueCount: Int
     let liveAlertCount: Int
@@ -616,8 +613,8 @@ private struct OverviewQuickLinksCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             MonitoringSnapshotCard(
-                summary: String(localized: "Quick jumps keep the operator moving from overview into the most relevant mobile surface."),
-                detail: String(localized: "Use these links when the top cards already show enough context and you just need the next action surface.")
+                summary: String(localized: "Overview control deck keeps the next operator surfaces visible without stacking multiple similar cards."),
+                detail: String(localized: "Use these grouped exits when the top snapshot already tells you whether to work the live queue or branch into a deeper monitor.")
             ) {
                 FlowLayout(spacing: 8) {
                     if criticalCount > 0 {
@@ -650,10 +647,25 @@ private struct OverviewQuickLinksCard: View {
                             tone: .critical
                         )
                     }
+                    if diagnosticsWarningCount > 0 {
+                        PresentationToneBadge(
+                            text: diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
+                            tone: .warning
+                        )
+                    }
+                    if let budgetDailyCost {
+                        PresentationToneBadge(
+                            text: String(localized: "Today \(localizedUSDCurrency(budgetDailyCost))"),
+                            tone: .neutral
+                        )
+                    }
                 }
             }
 
-            VStack(spacing: 10) {
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Primary Surfaces"),
+                detail: String(localized: "Keep the first operator exits closest to the overview triage summary.")
+            ) {
                 NavigationLink {
                     IncidentsView()
                 } label: {
@@ -707,142 +719,54 @@ private struct OverviewQuickLinksCard: View {
                 }
                 .buttonStyle(.plain)
             }
-        }
-    }
-}
 
-private struct OverviewSurfaceRailCard: View {
-    let diagnosticsWarningCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-    let budgetDailyCost: Double?
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: String(localized: "Operator surfaces stay one tap away from overview on compact screens."),
-                detail: String(localized: "Use this rail when you know which monitor you need and do not want to traverse intermediate cards.")
-            ) {
-                FlowLayout(spacing: 8) {
-                    if diagnosticsWarningCount > 0 {
-                        PresentationToneBadge(
-                            text: diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
-                            tone: .warning
-                        )
-                    }
-                    if automationIssueCount > 0 {
-                        PresentationToneBadge(
-                            text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                            tone: .warning
-                        )
-                    }
-                    if integrationIssueCount > 0 {
-                        PresentationToneBadge(
-                            text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                            tone: .critical
-                        )
-                    }
-                    if let budgetDailyCost {
-                        PresentationToneBadge(
-                            text: String(localized: "Today \(localizedUSDCurrency(budgetDailyCost))"),
-                            tone: .neutral
-                        )
-                    }
-                }
-            }
-
-            MonitoringSnapshotCard(
-                summary: String(localized: "Primary Surfaces"),
-                detail: String(localized: "Keep the first operator exits closest to the overview triage summary.")
-            ) {
-                VStack(spacing: 10) {
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Runtime Monitor"),
-                            detail: String(localized: "Inspect providers, channels, sessions, hands, approvals, and runtime security."),
-                            systemImage: "waveform.path.ecg",
-                            tone: .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        DiagnosticsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Deep Diagnostics"),
-                            detail: String(localized: "Jump straight into health detail, build metadata, config warnings, and metrics."),
-                            systemImage: "stethoscope",
-                            tone: diagnosticsWarningCount > 0 ? .warning : .neutral,
-                            badgeText: diagnosticsWarningCount == 0 ? nil : String(localized: "\(diagnosticsWarningCount) warnings"),
-                            badgeTone: .warning
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        IntegrationsView(initialScope: .attention)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Integrations"),
-                            detail: String(localized: "Inspect provider outages, channel gaps, model catalog availability, and agent drift."),
-                            systemImage: "square.3.layers.3d.down.forward",
-                            tone: integrationIssueCount > 0 ? .critical : .neutral,
-                            badgeText: integrationIssueCount == 0 ? nil : String(localized: "\(integrationIssueCount) issues"),
-                            badgeTone: .critical
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-
-            MonitoringSnapshotCard(
-                summary: String(localized: "Supporting Surfaces"),
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Supporting Surfaces"),
                 detail: String(localized: "Keep slower spend and device-setting routes behind the primary overview exits.")
             ) {
-                VStack(spacing: 10) {
-                    NavigationLink {
-                        AutomationView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Automation"),
-                            detail: String(localized: "Inspect workflows, recent runs, triggers, schedules, and cron pressure."),
-                            systemImage: "flowchart",
-                            tone: automationIssueCount > 0 ? .warning : .neutral,
-                            badgeText: automationIssueCount == 0 ? nil : String(localized: "\(automationIssueCount) issues"),
-                            badgeTone: .warning
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        BudgetView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Budget"),
-                            detail: String(localized: "Inspect spend limits, daily trend, model cost distribution, and per-agent usage."),
-                            systemImage: "chart.bar",
-                            tone: .neutral,
-                            badgeText: budgetDailyCost.map { localizedUSDCurrency($0) },
-                            badgeTone: .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        SettingsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Settings"),
-                            detail: String(localized: "Adjust server connection, refresh behavior, language, and on-call device settings."),
-                            systemImage: "gearshape",
-                            tone: .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
+                NavigationLink {
+                    IntegrationsView(initialScope: .attention)
+                } label: {
+                    OverviewQuickLinkRow(
+                        title: String(localized: "Open Integrations"),
+                        detail: String(localized: "Inspect provider outages, channel gaps, model catalog availability, and agent drift."),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
                 }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    AutomationView()
+                } label: {
+                    OverviewQuickLinkRow(
+                        title: String(localized: "Open Automation"),
+                        detail: String(localized: "Inspect workflows, recent runs, triggers, schedules, and cron pressure."),
+                        systemImage: "flowchart"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    BudgetView()
+                } label: {
+                    OverviewQuickLinkRow(
+                        title: String(localized: "Open Budget"),
+                        detail: String(localized: "Inspect spend limits, daily trend, model cost distribution, and per-agent usage."),
+                        systemImage: "chart.bar"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    SettingsView()
+                } label: {
+                    OverviewQuickLinkRow(
+                        title: String(localized: "Open Settings"),
+                        detail: String(localized: "Adjust server connection, refresh behavior, language, and on-call device settings."),
+                        systemImage: "gearshape"
+                    )
+                }
+                .buttonStyle(.plain)
             }
         }
     }

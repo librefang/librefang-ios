@@ -124,97 +124,119 @@ struct SettingsView: View {
                     }
 
                     Section {
-                        Button {
-                            jump(proxy, to: .server)
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Server Connection"),
-                                detail: String(localized: "Jump to server URL and API key settings for this device."),
-                                systemImage: "server.rack",
-                                tone: snapshotStatus.tone
-                            )
-                        }
-                        .buttonStyle(.plain)
+                        MonitoringSurfaceGroupCard(
+                            title: String(localized: "Primary Controls"),
+                            detail: String(localized: "Keep the most frequently adjusted device settings closest to the top of the form.")
+                        ) {
+                            Button {
+                                jump(proxy, to: .server)
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Server Connection"),
+                                    detail: String(localized: "Jump to server URL and API key settings for this device."),
+                                    systemImage: "server.rack",
+                                    tone: snapshotStatus.tone
+                                )
+                            }
+                            .buttonStyle(.plain)
 
-                        Button {
-                            jump(proxy, to: .refresh)
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Refresh Interval"),
-                                detail: String(localized: "Jump to the device-local polling interval used by the monitoring dashboard."),
-                                systemImage: "arrow.clockwise",
-                                tone: .neutral,
-                                badgeText: String(localized: "\(Int(refreshInterval))s"),
-                                badgeTone: .neutral
-                            )
-                        }
-                        .buttonStyle(.plain)
+                            Button {
+                                jump(proxy, to: .refresh)
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Refresh Interval"),
+                                    detail: String(localized: "Jump to the device-local polling interval used by the monitoring dashboard."),
+                                    systemImage: "arrow.clockwise",
+                                    tone: .neutral,
+                                    badgeText: String(localized: "\(Int(refreshInterval))s"),
+                                    badgeTone: .neutral
+                                )
+                            }
+                            .buttonStyle(.plain)
 
-                        Button {
-                            jump(proxy, to: .language)
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Language"),
-                                detail: String(localized: "Jump to the current app language and supported translation surfaces."),
-                                systemImage: "globe",
-                                tone: .neutral,
-                                badgeText: currentLanguageLabel,
-                                badgeTone: .neutral
-                            )
-                        }
-                        .buttonStyle(.plain)
+                            Button {
+                                jump(proxy, to: .language)
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Language"),
+                                    detail: String(localized: "Jump to the current app language and supported translation surfaces."),
+                                    systemImage: "globe",
+                                    tone: .neutral,
+                                    badgeText: currentLanguageLabel,
+                                    badgeTone: .neutral
+                                )
+                            }
+                            .buttonStyle(.plain)
 
-                        Button {
-                            jump(proxy, to: .onCall)
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "On-Call Focus"),
-                                detail: String(localized: "Jump to queue mode, critical banner preference, and foreground cue behavior."),
-                                systemImage: "waveform.path.ecg",
-                                tone: onCallQueueStatus.tone,
-                                badgeText: onCallQueueCount == 1 ? String(localized: "1 queued") : String(localized: "\(onCallQueueCount) queued"),
-                                badgeTone: onCallQueueStatus.tone
-                            )
+                            Button {
+                                jump(proxy, to: .onCall)
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "On-Call Focus"),
+                                    detail: String(localized: "Jump to queue mode, critical banner preference, and foreground cue behavior."),
+                                    systemImage: "waveform.path.ecg",
+                                    tone: onCallQueueStatus.tone,
+                                    badgeText: onCallQueueCount == 1 ? String(localized: "1 queued") : String(localized: "\(onCallQueueCount) queued"),
+                                    badgeTone: onCallQueueStatus.tone
+                                )
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
 
-                        Button {
-                            jump(proxy, to: .reminder)
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Standby Reminder"),
-                                detail: String(localized: "Jump to notification authorization, reminder scope, and pending reminder state."),
-                                systemImage: "bell.badge",
-                                tone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning,
-                                badgeText: deps.onCallNotificationManager.authorizationLabel,
-                                badgeTone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning
-                            )
-                        }
-                        .buttonStyle(.plain)
+                        MonitoringSurfaceGroupCard(
+                            title: String(localized: "Supporting Controls"),
+                            detail: String(localized: "Keep reminders, handoff state, monitoring summary, and app metadata behind the primary settings jumps.")
+                        ) {
+                            Button {
+                                jump(proxy, to: .reminder)
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Standby Reminder"),
+                                    detail: String(localized: "Jump to notification authorization, reminder scope, and pending reminder state."),
+                                    systemImage: "bell.badge",
+                                    tone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning,
+                                    badgeText: deps.onCallNotificationManager.authorizationLabel,
+                                    badgeTone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning
+                                )
+                            }
+                            .buttonStyle(.plain)
 
-                        Button {
-                            jump(proxy, to: .handoff)
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Handoff"),
-                                detail: String(localized: "Jump to local handoff freshness, readiness, and recent operator context."),
-                                systemImage: "text.badge.plus",
-                                tone: deps.onCallHandoffStore.freshnessState.tone
-                            )
-                        }
-                        .buttonStyle(.plain)
+                            Button {
+                                jump(proxy, to: .handoff)
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Handoff"),
+                                    detail: String(localized: "Jump to local handoff freshness, readiness, and recent operator context."),
+                                    systemImage: "text.badge.plus",
+                                    tone: deps.onCallHandoffStore.freshnessState.tone
+                                )
+                            }
+                            .buttonStyle(.plain)
 
-                        Button {
-                            jump(proxy, to: .monitoring)
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Monitoring Summary"),
-                                detail: String(localized: "Jump to the device-local monitoring and incident snapshot summary."),
-                                systemImage: "chart.bar.xaxis",
-                                tone: snapshotStatus.tone
-                            )
+                            Button {
+                                jump(proxy, to: .monitoring)
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Monitoring Summary"),
+                                    detail: String(localized: "Jump to the device-local monitoring and incident snapshot summary."),
+                                    systemImage: "chart.bar.xaxis",
+                                    tone: snapshotStatus.tone
+                                )
+                            }
+                            .buttonStyle(.plain)
+
+                            Button {
+                                jump(proxy, to: .about)
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "About This App"),
+                                    detail: String(localized: "Jump to build, version, shortcut, and app-surface metadata for this device."),
+                                    systemImage: "info.circle",
+                                    tone: .neutral
+                                )
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     } header: {
                         Text("Control Center")
                     } footer: {
