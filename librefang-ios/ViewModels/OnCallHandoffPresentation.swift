@@ -71,6 +71,15 @@ extension DashboardViewModel {
         lines.append("- \(AppShortcutSurface.onCall.label): \(AppShortcutSurface.onCall.deepLinkURL.absoluteString)")
         lines.append("- \(AppShortcutSurface.incidents.label): \(AppShortcutSurface.incidents.deepLinkURL.absoluteString)")
         lines.append("- \(AppShortcutSurface.handoffCenter.label): \(AppShortcutSurface.handoffCenter.deepLinkURL.absoluteString)")
+        if let leadAgentID = queue.lazy.compactMap({ item -> String? in
+            if case .agent(let id) = item.route {
+                return id
+            }
+            return nil
+        }).first {
+            let leadAgentName = agents.first(where: { $0.id == leadAgentID })?.name ?? leadAgentID
+            lines.append("- Lead agent (\(leadAgentName)): \(AppShortcutLaunchTarget.agent(leadAgentID).deepLinkURL.absoluteString)")
+        }
 
         return lines.joined(separator: "\n")
     }

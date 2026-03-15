@@ -10,8 +10,13 @@ struct LibreFangApp: App {
             MainTabView()
                 .environment(\.dependencies, dependencies)
                 .onOpenURL { url in
-                    guard let surface = AppShortcutLaunchBridge.surface(from: url) else { return }
-                    dependencies.appShortcutLaunchStore.queue(surface)
+                    guard let target = AppShortcutLaunchBridge.target(from: url) else { return }
+                    switch target {
+                    case .surface(let surface):
+                        dependencies.appShortcutLaunchStore.queue(surface)
+                    case .agent(let id):
+                        dependencies.appShortcutLaunchStore.queue(agentID: id)
+                    }
                 }
         }
     }

@@ -4,7 +4,7 @@ struct MainTabView: View {
     @Environment(\.dependencies) private var deps
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedTab = 0
-    @State private var presentedSurface: PresentedMonitoringSurface?
+    @State private var presentedRoute: PresentedMonitoringRoute?
     @State private var incidentCue: ActiveIncidentCue?
     @State private var hasObservedCriticalState = false
     @State private var handoffCue: ActiveHandoffCue?
@@ -208,9 +208,9 @@ struct MainTabView: View {
             guard handoffCue?.id == cueID else { return }
             handoffCue = nil
         }
-        .sheet(item: $presentedSurface) { surface in
+        .sheet(item: $presentedRoute) { route in
             NavigationStack {
-                monitoringSurfaceView(for: surface)
+                monitoringRouteView(for: route)
             }
         }
     }
@@ -298,23 +298,33 @@ struct MainTabView: View {
     }
 
     @ViewBuilder
-    private func monitoringSurfaceView(for surface: PresentedMonitoringSurface) -> some View {
-        switch surface {
-        case .onCall:
+    private func monitoringRouteView(for route: PresentedMonitoringRoute) -> some View {
+        switch route {
+        case .surface(.onCall):
             OnCallView()
-        case .handoffCenter:
+        case .surface(.handoffCenter):
             HandoffCenterView(
                 summary: handoffText,
                 queueCount: onCallPriorityItems.count,
                 criticalCount: visibleCriticalAlertCount,
                 liveAlertCount: visibleMonitoringAlerts.count
             )
-        case .incidents:
+        case .surface(.incidents):
             IncidentsView()
-        case .nightWatch:
+        case .surface(.nightWatch):
             NightWatchView()
-        case .standbyDigest:
+        case .surface(.standbyDigest):
             StandbyDigestView()
+        case .agent(let id):
+            if let agent = vm.agents.first(where: { $0.id == id }) {
+                AgentDetailView(agent: agent)
+            } else {
+                ContentUnavailableView(
+                    "Agent Unavailable",
+                    systemImage: "cpu",
+                    description: Text("The requested agent is not available in the current dashboard snapshot.")
+                )
+            }
         }
     }
 
@@ -452,26 +462,28 @@ struct MainTabView: View {
         openSurface(.handoffCenter)
     }
 
-    private func openSurface(_ surface: PresentedMonitoringSurface) {
+    private func openSurface(_ surface: AppShortcutSurface) {
+        openRoute(.surface(surface))
+    }
+
+    private func openAgent(_ id: String) {
+        openRoute(.agent(id))
+    }
+
+    private func openRoute(_ route: PresentedMonitoringRoute) {
         incidentCue = nil
         handoffCue = nil
-        presentedSurface = surface
+        presentedRoute = route
     }
 
     private func handlePendingAppShortcut() {
-        guard let surface = deps.appShortcutLaunchStore.consumePendingSurface() else { return }
+        guard let target = deps.appShortcutLaunchStore.consumePendingTarget() else { return }
 
-        switch surface {
-        case .onCall:
-            openSurface(.onCall)
-        case .incidents:
-            openSurface(.incidents)
-        case .handoffCenter:
-            openSurface(.handoffCenter)
-        case .nightWatch:
-            openSurface(.nightWatch)
-        case .standbyDigest:
-            openSurface(.standbyDigest)
+        switch target {
+        case .surface(let surface):
+            openSurface(surface)
+        case .agent(let id):
+            openAgent(id)
         }
     }
 }
@@ -493,14 +505,18 @@ private struct HandoffCheckInTrackingState: Equatable {
     let signature: String
 }
 
-private enum PresentedMonitoringSurface: String, Identifiable {
-    case onCall
-    case handoffCenter
-    case incidents
-    case nightWatch
-    case standbyDigest
+private enum PresentedMonitoringRoute: Identifiable {
+    case surface(AppShortcutSurface)
+    case agent(String)
 
-    var id: String { rawValue }
+    var id: String {
+        switch self {
+        case .surface(let surface):
+            return "surface:\(surface.rawValue)"
+        case .agent(let id):
+            return "agent:\(id)"
+        }
+    }
 }
 
 private struct ActiveHandoffCue: Identifiable, Equatable {

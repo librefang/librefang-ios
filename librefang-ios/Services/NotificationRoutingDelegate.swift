@@ -10,8 +10,8 @@ final class NotificationRoutingDelegate: NSObject, UIApplicationDelegate, UNUser
         UNUserNotificationCenter.current().delegate = self
 
         if let notificationResponse = launchOptions?[.remoteNotification] as? [AnyHashable: Any],
-           let surface = AppShortcutLaunchBridge.surface(from: notificationResponse) {
-            AppShortcutLaunchBridge.queue(surface)
+           let target = AppShortcutLaunchBridge.target(from: notificationResponse) {
+            AppShortcutLaunchBridge.queue(target)
         }
 
         return true
@@ -22,8 +22,8 @@ final class NotificationRoutingDelegate: NSObject, UIApplicationDelegate, UNUser
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        if let surface = AppShortcutLaunchBridge.surface(from: response.notification.request.content.userInfo) {
-            AppShortcutLaunchBridge.queue(surface)
+        if let target = AppShortcutLaunchBridge.target(from: response.notification.request.content.userInfo) {
+            AppShortcutLaunchBridge.queue(target)
         }
 
         completionHandler()
