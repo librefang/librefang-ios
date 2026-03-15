@@ -547,12 +547,12 @@ private struct IntegrationCatalogStatusCard: View {
                 HStack {
                     titleLabel
                     Spacer()
-                    IntegrationStatusChip(text: vm.catalogSyncStatusLabel, color: vm.catalogSyncTone.color)
+                    IntegrationStatusChip(text: vm.catalogSyncStatusLabel, tone: vm.catalogSyncTone)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
                     titleLabel
-                    IntegrationStatusChip(text: vm.catalogSyncStatusLabel, color: vm.catalogSyncTone.color)
+                    IntegrationStatusChip(text: vm.catalogSyncStatusLabel, tone: vm.catalogSyncTone)
                 }
             }
 
@@ -697,7 +697,7 @@ private struct IntegrationProviderRow: View {
 
     private var providerControls: some View {
         VStack(alignment: .leading, spacing: 6) {
-            IntegrationStatusChip(text: provider.localizedStatusLabel, color: provider.statusTone.color)
+            IntegrationStatusChip(text: provider.localizedStatusLabel, tone: provider.statusTone)
             Button {
                 onTest()
             } label: {
@@ -828,7 +828,7 @@ private struct IntegrationChannelRow: View {
 
     private var channelControls: some View {
         VStack(alignment: .leading, spacing: 6) {
-            IntegrationStatusChip(text: channel.localizedConfigurationLabel, color: channel.configurationTone.color)
+            IntegrationStatusChip(text: channel.localizedConfigurationLabel, tone: channel.configurationTone)
             Button {
                 onTest()
             } label: {
@@ -932,13 +932,12 @@ private struct IntegrationModelRow: View {
     }
 
     private func capabilityTag(_ title: String, isEnabled: Bool) -> some View {
-        Text(title)
-            .font(.caption2.weight(.medium))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background((isEnabled ? Color.green : Color.secondary).opacity(0.12))
-            .foregroundStyle(isEnabled ? .green : .secondary)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: title,
+            tone: isEnabled ? .positive : .neutral,
+            horizontalPadding: 6,
+            verticalPadding: 2
+        )
     }
 
     private var modelSummary: some View {
@@ -956,7 +955,7 @@ private struct IntegrationModelRow: View {
     private var availabilityChip: some View {
         IntegrationStatusChip(
             text: model.localizedAvailabilityLabel,
-            color: model.availabilityTone.color
+            tone: model.availabilityTone
         )
     }
 
@@ -1005,12 +1004,12 @@ private struct IntegrationAgentModelRow: View {
                 HStack(alignment: .top, spacing: 12) {
                     diagnosticSummary
                     Spacer()
-                    IntegrationStatusChip(text: diagnostic.localizedStatusLabel, color: diagnostic.statusTone.color)
+                    IntegrationStatusChip(text: diagnostic.localizedStatusLabel, tone: diagnostic.statusTone)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
                     diagnosticSummary
-                    IntegrationStatusChip(text: diagnostic.localizedStatusLabel, color: diagnostic.statusTone.color)
+                    IntegrationStatusChip(text: diagnostic.localizedStatusLabel, tone: diagnostic.statusTone)
                 }
             }
 
@@ -1058,16 +1057,10 @@ private struct IntegrationAgentModelRow: View {
 
 private struct IntegrationStatusChip: View {
     let text: String
-    let color: Color
+    let tone: PresentationTone
 
     var body: some View {
-        Text(text)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(color.opacity(0.12))
-            .foregroundStyle(color)
-            .clipShape(Capsule())
+        PresentationToneBadge(text: text, tone: tone)
     }
 }
 

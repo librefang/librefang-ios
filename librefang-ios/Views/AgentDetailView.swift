@@ -1933,13 +1933,12 @@ private struct AgentSessionInventoryRow: View {
     }
 
     private var currentBadge: some View {
-        Text("Current")
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(currentSessionTone.badgeBackgroundColor)
-            .foregroundStyle(currentSessionTone.color)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: String(localized: "Current"),
+            tone: currentSessionTone,
+            horizontalPadding: 6,
+            verticalPadding: 2
+        )
     }
 
     @ViewBuilder
@@ -2030,13 +2029,12 @@ private struct AgentSessionInventoryRow: View {
     }
 
     private func reasonChip(_ reason: String) -> some View {
-        Text(reason)
-            .font(.caption2.weight(.medium))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(item.tone.color.opacity(0.12))
-            .foregroundStyle(item.tone.color)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: reason,
+            tone: item.tone,
+            horizontalPadding: 6,
+            verticalPadding: 2
+        )
     }
 
 }
@@ -2125,13 +2123,12 @@ private struct AgentMemorySummaryRow: View {
     private var structureBadge: some View {
         if let structureBadgeLabel = entry.structureBadgeLabel,
            let structureTone = entry.structureTone {
-            Text(structureBadgeLabel)
-                .font(.caption2.weight(.semibold))
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(structureTone.badgeBackgroundColor)
-                .foregroundStyle(structureTone.color)
-                .clipShape(Capsule())
+            PresentationToneBadge(
+                text: structureBadgeLabel,
+                tone: structureTone,
+                horizontalPadding: 6,
+                verticalPadding: 2
+            )
         }
     }
 }
@@ -2161,13 +2158,12 @@ private struct AgentDeliverySummaryRow: View {
                 Text(receipt.localizedChannelLabel)
                     .font(.subheadline.weight(.medium))
                 Spacer()
-                Text(receipt.status.label)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(receipt.status.tone.color.opacity(0.12))
-                    .foregroundStyle(receipt.status.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(
+                    text: receipt.status.label,
+                    tone: receipt.status.tone,
+                    horizontalPadding: 6,
+                    verticalPadding: 2
+                )
             }
 
             Text(receipt.recipient)
