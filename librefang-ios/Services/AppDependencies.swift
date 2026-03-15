@@ -10,6 +10,7 @@ final class AppDependencies {
     let networkMonitor: NetworkMonitor
     let incidentStateStore: IncidentStateStore
     let agentWatchlistStore: AgentWatchlistStore
+    let watchedAgentDiagnosticsStore: WatchedAgentDiagnosticsStore
     let appShortcutLaunchStore: AppShortcutLaunchStore
     let onCallFocusStore: OnCallFocusStore
     let onCallNotificationManager: OnCallNotificationManager
@@ -22,6 +23,7 @@ final class AppDependencies {
         self.networkMonitor = NetworkMonitor()
         self.incidentStateStore = IncidentStateStore()
         self.agentWatchlistStore = AgentWatchlistStore()
+        self.watchedAgentDiagnosticsStore = WatchedAgentDiagnosticsStore()
         self.appShortcutLaunchStore = AppShortcutLaunchStore()
         self.onCallFocusStore = OnCallFocusStore()
         self.onCallNotificationManager = OnCallNotificationManager()

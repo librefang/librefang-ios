@@ -66,6 +66,9 @@ struct OnCallView: View {
     private var watchedAgents: [Agent] {
         watchlistStore.watchedAgents(from: vm.agents)
     }
+    private var watchedDiagnostics: [String: WatchedAgentDiagnosticsSummary] {
+        deps.watchedAgentDiagnosticsStore.summaries
+    }
 
     private var watchedAttentionItems: [AgentAttentionItem] {
         watchedAgents
@@ -238,7 +241,8 @@ struct OnCallView: View {
                                 agent: item.agent,
                                 reasons: item.reasons,
                                 severity: item.severity,
-                                isHealthy: item.severity == 0
+                                isHealthy: item.severity == 0,
+                                diagnostics: watchedDiagnostics[item.agent.id]
                             )
                         }
                     }
@@ -822,6 +826,7 @@ private struct WatchedAgentRow: View {
     let reasons: [String]
     let severity: Int
     let isHealthy: Bool
+    let diagnostics: WatchedAgentDiagnosticsSummary?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -835,12 +840,26 @@ private struct WatchedAgentRow: View {
                 Image(systemName: "star.fill")
                     .font(.caption2)
                     .foregroundStyle(.yellow)
+                if let diagnostics, diagnostics.hasIssues {
+                    Text(diagnostics.issueCount == 1 ? "1 operator issue" : "\(diagnostics.issueCount) operator issues")
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.red.opacity(0.12))
+                        .foregroundStyle(.red)
+                        .clipShape(Capsule())
+                }
             }
 
-            if isHealthy {
+            if isHealthy, diagnostics == nil {
                 Text(agent.isRunning ? "Running normally" : "Pinned for watch, not currently running")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            } else if let diagnostics, diagnostics.hasIssues {
+                Text(([reasons.prefix(1).first].compactMap { $0 } + [diagnostics.summaryLine]).joined(separator: " • "))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
             } else {
                 Text(reasons.prefix(3).joined(separator: " • "))
                     .font(.caption)
@@ -868,6 +887,7 @@ private struct WatchedAgentRow: View {
     }
 
     private var stateColor: Color {
+        if let diagnostics, diagnostics.hasIssues { return .red }
         if severity >= 10 { return .red }
         if severity > 0 { return .orange }
         return agent.isRunning ? .green : .secondary

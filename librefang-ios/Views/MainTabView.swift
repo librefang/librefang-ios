@@ -11,6 +11,9 @@ struct MainTabView: View {
     @State private var hasObservedCheckInState = false
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
+    private var watchedAgents: [Agent] {
+        deps.agentWatchlistStore.watchedAgents(from: vm.agents)
+    }
     private var visibleMonitoringAlerts: [MonitoringAlertItem] {
         deps.incidentStateStore.visibleAlerts(from: vm.monitoringAlerts)
     }
@@ -53,8 +56,7 @@ struct MainTabView: View {
         deps.onCallFocusStore.showsForegroundCues
     }
     private var watchedAttentionItems: [AgentAttentionItem] {
-        deps.agentWatchlistStore
-            .watchedAgents(from: vm.agents)
+        watchedAgents
             .map { vm.attentionItem(for: $0) }
             .filter { $0.severity > 0 }
             .sorted { lhs, rhs in
@@ -150,6 +152,7 @@ struct MainTabView: View {
             deps.appShortcutLaunchStore.refreshFromDefaults()
             handlePendingAppShortcut()
             Task { await deps.onCallNotificationManager.refreshAuthorizationStatus() }
+            Task { await refreshWatchedAgentDiagnostics() }
         }
         .onChange(of: criticalTrackingState) { oldValue, newValue in
             handleCriticalTrackingChange(from: oldValue, to: newValue)
@@ -196,6 +199,12 @@ struct MainTabView: View {
             deps.appShortcutLaunchStore.refreshFromDefaults()
             handlePendingAppShortcut()
         }
+        .onChange(of: vm.lastRefresh) { _, _ in
+            Task { await refreshWatchedAgentDiagnostics() }
+        }
+        .onChange(of: deps.agentWatchlistStore.watchedAgentIDs) { _, _ in
+            Task { await refreshWatchedAgentDiagnostics() }
+        }
         .task(id: incidentCue?.id) {
             guard let cueID = incidentCue?.id else { return }
             try? await Task.sleep(nanoseconds: 8_000_000_000)
@@ -213,6 +222,11 @@ struct MainTabView: View {
                 monitoringRouteView(for: target)
             }
         }
+    }
+
+    @MainActor
+    private func refreshWatchedAgentDiagnostics() async {
+        await deps.watchedAgentDiagnosticsStore.refresh(api: deps.apiClient, agents: watchedAgents)
     }
 
     private var budgetAlertBadge: Int {

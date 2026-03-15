@@ -34,6 +34,9 @@ struct OverviewView: View {
             handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
         )
     }
+    private var watchedDiagnostics: [String: WatchedAgentDiagnosticsSummary] {
+        deps.watchedAgentDiagnosticsStore.summaries
+    }
     private var onCallDigestLine: String {
         vm.onCallDigestLine(
             visibleAlerts: visibleMonitoringAlerts,
@@ -250,7 +253,7 @@ struct OverviewView: View {
                     }
 
                     if !watchedAttentionItems.isEmpty {
-                        WatchlistCard(items: watchedAttentionItems)
+                        WatchlistCard(items: watchedAttentionItems, diagnostics: watchedDiagnostics)
                     }
 
                     if !vm.sessionAttentionItems.isEmpty {
@@ -1436,6 +1439,7 @@ private struct IntegrationsOverviewCard: View {
 
 private struct WatchlistCard: View {
     let items: [AgentAttentionItem]
+    let diagnostics: [String: WatchedAgentDiagnosticsSummary]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -1475,12 +1479,26 @@ private struct WatchlistCard: View {
                                         .foregroundStyle(signalColor(for: item))
                                         .clipShape(Capsule())
                                 }
+                                if let summary = diagnostics[item.agent.id], summary.hasIssues {
+                                    Text(summary.issueCount == 1 ? "1 operator issue" : "\(summary.issueCount) operator issues")
+                                        .font(.caption2.weight(.semibold))
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.red.opacity(0.12))
+                                        .foregroundStyle(.red)
+                                        .clipShape(Capsule())
+                                }
                             }
 
-                            if item.reasons.isEmpty {
+                            if item.reasons.isEmpty, diagnostics[item.agent.id] == nil {
                                 Text(item.agent.isRunning ? "Running normally" : "Not currently running")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
+                            } else if let summary = diagnostics[item.agent.id], summary.hasIssues {
+                                Text(([item.reasons.prefix(1).first].compactMap { $0 } + [summary.summaryLine]).joined(separator: " • "))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(2)
                             } else {
                                 Text(item.reasons.prefix(2).joined(separator: " • "))
                                     .font(.caption)
