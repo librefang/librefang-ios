@@ -18,6 +18,19 @@ struct DiagnosticsView: View {
     private var hasDiagnosticsData: Bool {
         vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || metrics != nil
     }
+    private var diagnosticsJumpCount: Int {
+        [
+            vm.healthDetail != nil,
+            !(vm.healthDetail?.configWarnings.isEmpty ?? true),
+            vm.versionInfo != nil,
+            vm.configSummary != nil,
+            metrics != nil,
+            !(metrics?.tokenLeaders.isEmpty ?? true),
+            !(metrics?.toolCallLeaders.isEmpty ?? true)
+        ]
+        .filter { $0 }
+        .count
+    }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -83,6 +96,11 @@ struct DiagnosticsView: View {
 
                     if !healthDetail.configWarnings.isEmpty {
                         Section {
+                            DiagnosticsWarningsInventoryCard(
+                                warnings: healthDetail.configWarnings,
+                                statusLabel: healthDetail.localizedStatusLabel
+                            )
+
                             ForEach(Array(healthDetail.configWarnings.enumerated()), id: \.offset) { _, warning in
                                 DiagnosticsWarningRow(warning: warning)
                             }
@@ -190,6 +208,16 @@ struct DiagnosticsView: View {
 
                     if !metrics.tokenLeaders.isEmpty {
                         Section {
+                            DiagnosticsLeadersInventoryCard(
+                                title: String(localized: "Token Leaderboard"),
+                                detail: String(localized: "Use the compact token slice to see top agent demand before reading the ranked rows."),
+                                samples: metrics.tokenLeaders,
+                                metricUnitSingular: String(localized: "token"),
+                                metricUnitPlural: String(localized: "tokens"),
+                                accessoryText: metrics.totalRollingTokens.formatted(),
+                                accessoryTone: .warning
+                            )
+
                             ForEach(Array(metrics.tokenLeaders.prefix(5).enumerated()), id: \.offset) { index, sample in
                                 DiagnosticsMetricListRow(
                                     rank: index + 1,
@@ -206,6 +234,16 @@ struct DiagnosticsView: View {
 
                     if !metrics.toolCallLeaders.isEmpty {
                         Section {
+                            DiagnosticsLeadersInventoryCard(
+                                title: String(localized: "Tool Leaderboard"),
+                                detail: String(localized: "Use the compact tool-call slice to see which agents are driving the most operator activity."),
+                                samples: metrics.toolCallLeaders,
+                                metricUnitSingular: String(localized: "tool call"),
+                                metricUnitPlural: String(localized: "tool calls"),
+                                accessoryText: metrics.totalRollingToolCalls.formatted(),
+                                accessoryTone: .warning
+                            )
+
                             ForEach(Array(metrics.toolCallLeaders.prefix(5).enumerated()), id: \.offset) { index, sample in
                                 DiagnosticsMetricListRow(
                                     rank: index + 1,
@@ -254,6 +292,15 @@ struct DiagnosticsView: View {
             title: String(localized: "Routes"),
             detail: String(localized: "Keep long diagnostic sections and nearby surfaces in one compact deck.")
         ) {
+            DiagnosticsRouteInventoryDeck(
+                primaryCount: 5,
+                supportCount: 2,
+                jumpCount: diagnosticsJumpCount,
+                warningCount: vm.diagnosticsConfigWarningCount,
+                panicCount: vm.supervisorPanicCount,
+                hasMetrics: metrics != nil
+            )
+
             MonitoringShortcutRail(
                 title: String(localized: "Jumps"),
                 detail: String(localized: "Jump through the longest diagnostic sections without scanning the full monitor.")
@@ -657,6 +704,64 @@ private struct DiagnosticsStatusDeckCard: View {
     }
 }
 
+private struct DiagnosticsRouteInventoryDeck: View {
+    let primaryCount: Int
+    let supportCount: Int
+    let jumpCount: Int
+    let warningCount: Int
+    let panicCount: Int
+    let hasMetrics: Bool
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: primaryCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryCount) primary routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: supportCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportCount) support routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: jumpCount == 1 ? String(localized: "1 jump") : String(localized: "\(jumpCount) jumps"),
+                    tone: jumpCount > 0 ? .positive : .neutral
+                )
+                if warningCount > 0 {
+                    PresentationToneBadge(
+                        text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                        tone: .warning
+                    )
+                }
+                if panicCount > 0 {
+                    PresentationToneBadge(
+                        text: panicCount == 1 ? String(localized: "1 panic") : String(localized: "\(panicCount) panics"),
+                        tone: .critical
+                    )
+                }
+                PresentationToneBadge(
+                    text: hasMetrics ? String(localized: "Metrics ready") : String(localized: "Metrics missing"),
+                    tone: hasMetrics ? .positive : .neutral
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        let totalRoutes = primaryCount + supportCount + jumpCount
+        return totalRoutes == 1
+            ? String(localized: "1 diagnostic route is grouped in this deck.")
+            : String(localized: "\(totalRoutes) diagnostic routes are grouped in this deck.")
+    }
+
+    private var detailLine: String {
+        if jumpCount == 0 {
+            return String(localized: "Primary and support routes stay grouped before the deep-diagnostic sections load.")
+        }
+        return String(localized: "Primary routes, support surfaces, and deep-section jumps stay grouped in one compact diagnostic deck.")
+    }
+}
+
 private struct HealthDetailInventoryCard: View {
     let healthDetail: HealthDetail
     let uptimeLabel: String
@@ -867,6 +972,204 @@ private struct MetricsInventoryCard: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct DiagnosticsWarningsInventoryCard: View {
+    let warnings: [String]
+    let statusLabel: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: warnings.count == 1
+                    ? String(localized: "1 validator warning is active in the current runtime snapshot.")
+                    : String(localized: "\(warnings.count) validator warnings are active in the current runtime snapshot."),
+                detail: String(localized: "Use the compact warning slice to judge config drift before reading each validator message."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: statusLabel, tone: .warning)
+                    PresentationToneBadge(
+                        text: warnings.count == 1 ? String(localized: "1 warning visible") : String(localized: "\(warnings.count) warnings visible"),
+                        tone: .warning
+                    )
+                    PresentationToneBadge(
+                        text: uniqueWarningWordCount == 1
+                            ? String(localized: "1 keyword cluster")
+                            : String(localized: "\(uniqueWarningWordCount) keyword clusters"),
+                        tone: uniqueWarningWordCount > 1 ? .caution : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Warning inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep validator depth, repeated warning themes, and kernel state visible before the warning list."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: warnings.count == 1 ? String(localized: "Single issue") : String(localized: "Drift cluster"),
+                    tone: warnings.count > 1 ? .warning : .caution
+                )
+            } facts: {
+                Label(
+                    warnings.count == 1 ? String(localized: "1 validator warning") : String(localized: "\(warnings.count) validator warnings"),
+                    systemImage: "exclamationmark.triangle"
+                )
+                Label(
+                    longestWarningLabel,
+                    systemImage: "text.alignleft"
+                )
+                Label(
+                    uniqueWarningWordCount == 1
+                        ? String(localized: "1 warning theme")
+                        : String(localized: "\(uniqueWarningWordCount) warning themes"),
+                    systemImage: "square.stack.3d.down.right"
+                )
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var uniqueWarningWordCount: Int {
+        Set(
+            warnings.compactMap { warning in
+                warning
+                    .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
+                    .first
+                    .map { String($0).lowercased() }
+            }
+        ).count
+    }
+
+    private var longestWarningLabel: String {
+        let maxLength = warnings.map(\.count).max() ?? 0
+        return maxLength > 80
+            ? String(localized: "Long-form warning present")
+            : String(localized: "Compact warning set")
+    }
+}
+
+private struct DiagnosticsLeadersInventoryCard: View {
+    let title: String
+    let detail: String
+    let samples: [PrometheusMetricSample]
+    let metricUnitSingular: String
+    let metricUnitPlural: String
+    let accessoryText: String
+    let accessoryTone: PresentationTone
+
+    private var visibleSamples: [PrometheusMetricSample] {
+        Array(samples.prefix(5))
+    }
+
+    private var leader: PrometheusMetricSample? {
+        visibleSamples.first
+    }
+
+    private var uniqueAgentCount: Int {
+        Set(visibleSamples.map { $0.labels["agent"] ?? String(localized: "Unknown agent") }).count
+    }
+
+    private var visibleValueTotal: Int {
+        Int(visibleSamples.reduce(0) { $0 + $1.value })
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if let leader {
+                        PresentationToneBadge(text: leaderTitle(for: leader), tone: accessoryTone)
+                    }
+                    PresentationToneBadge(
+                        text: visibleSamples.count == 1
+                            ? String(localized: "1 visible leader")
+                            : String(localized: "\(visibleSamples.count) visible leaders"),
+                        tone: .neutral
+                    )
+                    PresentationToneBadge(
+                        text: uniqueAgentCount == 1
+                            ? String(localized: "1 agent represented")
+                            : String(localized: "\(uniqueAgentCount) agents represented"),
+                        tone: uniqueAgentCount > 1 ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.subheadline.weight(.medium))
+                    Text(detail)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: accessoryText, tone: accessoryTone)
+            } facts: {
+                if let leader {
+                    Label(leaderTitle(for: leader), systemImage: "person.crop.circle")
+                    if let modelLabel = modelLabel(for: leader) {
+                        Label(modelLabel, systemImage: "square.stack.3d.up")
+                    }
+                    Label(valueLabel(for: leader), systemImage: "number")
+                }
+                Label(
+                    visibleValueTotal == 1
+                        ? String(localized: "1 visible \(metricUnitSingular)")
+                        : String(localized: "\(visibleValueTotal.formatted()) visible \(metricUnitPlural)"),
+                    systemImage: "chart.bar"
+                )
+                Label(
+                    uniqueAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(uniqueAgentCount) agents"),
+                    systemImage: "person.2"
+                )
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        guard let leader else {
+            return String(localized: "No leaders are available in this metrics slice.")
+        }
+        return String(localized: "\(leaderTitle(for: leader)) is currently leading this metrics slice.")
+    }
+
+    private var detailLine: String {
+        if visibleSamples.count == samples.count {
+            return samples.count == 1
+                ? String(localized: "The only ranked sample is surfaced before the leaderboard rows.")
+                : String(localized: "All \(samples.count) ranked samples are surfaced before the leaderboard rows.")
+        }
+        return String(localized: "\(visibleSamples.count) of \(samples.count) ranked samples are surfaced before the leaderboard rows.")
+    }
+
+    private func leaderTitle(for sample: PrometheusMetricSample) -> String {
+        sample.labels["agent"] ?? String(localized: "Unknown agent")
+    }
+
+    private func modelLabel(for sample: PrometheusMetricSample) -> String? {
+        sample.labels["model"] ?? sample.labels["provider"]
+    }
+
+    private func valueLabel(for sample: PrometheusMetricSample) -> String {
+        let value = Int(sample.value).formatted()
+        return Int(sample.value) == 1
+            ? String(localized: "\(value) \(metricUnitSingular)")
+            : String(localized: "\(value) \(metricUnitPlural)")
     }
 }
 

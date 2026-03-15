@@ -76,6 +76,21 @@ struct RuntimeView: View {
         return String(localized: "Runtime monitoring is collecting the latest system, integrations, automation, and approval state.")
     }
 
+    private var runtimeJumpCount: Int {
+        [
+            vm.status != nil,
+            vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || vm.metricsSnapshot != nil,
+            !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty,
+            vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty,
+            !vm.sessions.isEmpty,
+            !vm.approvals.isEmpty,
+            !vm.recentAudit.isEmpty,
+            vm.security != nil
+        ]
+        .filter { $0 }
+        .count
+    }
+
     var body: some View {
         NavigationStack {
             ScrollViewReader { proxy in
@@ -179,6 +194,15 @@ struct RuntimeView: View {
             title: String(localized: "Routes"),
             detail: String(localized: "Keep runtime surfaces and long-section jumps in one compact deck.")
         ) {
+            RuntimeRouteInventoryDeck(
+                primaryCount: 5,
+                supportCount: 4,
+                jumpCount: runtimeJumpCount,
+                pendingApprovalCount: vm.pendingApprovalCount,
+                sessionHotspotCount: vm.sessionAttentionCount,
+                runtimeAlertCount: vm.runtimeAlertCount
+            )
+
             MonitoringShortcutRail(
                 title: String(localized: "Primary"),
                 detail: String(localized: "Keep the next runtime drills right below the digest.")
@@ -1353,6 +1377,66 @@ private struct RuntimeStatusDeckCard: View {
                 )
             }
         }
+    }
+}
+
+private struct RuntimeRouteInventoryDeck: View {
+    let primaryCount: Int
+    let supportCount: Int
+    let jumpCount: Int
+    let pendingApprovalCount: Int
+    let sessionHotspotCount: Int
+    let runtimeAlertCount: Int
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: primaryCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryCount) primary routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: supportCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportCount) support routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: jumpCount == 1 ? String(localized: "1 jump") : String(localized: "\(jumpCount) jumps"),
+                    tone: jumpCount > 0 ? .positive : .neutral
+                )
+                if pendingApprovalCount > 0 {
+                    PresentationToneBadge(
+                        text: pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(pendingApprovalCount) approvals"),
+                        tone: .critical
+                    )
+                }
+                if sessionHotspotCount > 0 {
+                    PresentationToneBadge(
+                        text: sessionHotspotCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(sessionHotspotCount) hotspots"),
+                        tone: .warning
+                    )
+                }
+                if runtimeAlertCount > 0 {
+                    PresentationToneBadge(
+                        text: runtimeAlertCount == 1 ? String(localized: "1 alert") : String(localized: "\(runtimeAlertCount) alerts"),
+                        tone: .warning
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        let totalRoutes = primaryCount + supportCount + jumpCount
+        return totalRoutes == 1
+            ? String(localized: "1 runtime route is grouped in this deck.")
+            : String(localized: "\(totalRoutes) runtime routes are grouped in this deck.")
+    }
+
+    private var detailLine: String {
+        if jumpCount == 0 {
+            return String(localized: "Primary and support routes stay grouped before the longer runtime sections load.")
+        }
+        return String(localized: "Primary routes, support surfaces, and long-section jumps stay grouped in one compact runtime deck.")
     }
 }
 
