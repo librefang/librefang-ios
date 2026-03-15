@@ -255,6 +255,36 @@ struct AgentDetailView: View {
         return String(localized: "Budget guardrails stay visible before the detailed spend rows.")
     }
 
+    private var memorySnapshotSummary: String {
+        if agentMemory.contains(where: \.isStructured) {
+            return String(localized: "Structured memory stays visible before the key preview and deep memory route.")
+        }
+        if agentMemory.isEmpty {
+            return String(localized: "Memory state stays visible before any durable keys exist.")
+        }
+        return String(localized: "Memory state stays visible before the key preview and deep memory route.")
+    }
+
+    private var workspaceSnapshotSummary: String {
+        if missingWorkspaceFileCount > 0 {
+            return String(localized: "Workspace identity drift stays visible before the file preview and deep workspace route.")
+        }
+        if agentFiles.isEmpty {
+            return String(localized: "Workspace identity stays visible before the file inventory loads.")
+        }
+        return String(localized: "Workspace identity stays visible before the file preview and deep workspace route.")
+    }
+
+    private var deliveriesSnapshotSummary: String {
+        if failedDeliveryCount > 0 || unsettledDeliveryCount > 0 {
+            return String(localized: "Delivery pressure stays visible before the receipt preview and deep delivery route.")
+        }
+        if agentDeliveries.isEmpty {
+            return String(localized: "Delivery state stays visible before any recent receipts exist.")
+        }
+        return String(localized: "Delivery state stays visible before the receipt preview and deep delivery route.")
+    }
+
     var body: some View {
         List {
             identitySection
@@ -1466,16 +1496,21 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             } else {
-                AgentDetailValueRow("Keys") {
-                    Text(agentMemory.count.formatted())
-                        .monospacedDigit()
-                }
-
-                AgentDetailValueRow("Structured") {
-                    let structured = agentMemory.filter(\.isStructured).count
-                    Text(structured.formatted())
-                        .foregroundStyle(structuredMemoryTone.color)
-                        .monospacedDigit()
+                MonitoringSnapshotCard(
+                    summary: memorySnapshotSummary,
+                    detail: String(localized: "Use the full memory surface when the compact key preview is not enough to explain agent behavior.")
+                ) {
+                    FlowLayout(spacing: 8) {
+                        PresentationToneBadge(
+                            text: agentMemory.count == 1 ? String(localized: "1 key") : String(localized: "\(agentMemory.count) keys"),
+                            tone: agentMemory.isEmpty ? .neutral : .positive
+                        )
+                        let structured = agentMemory.filter(\.isStructured).count
+                        PresentationToneBadge(
+                            text: structured == 1 ? String(localized: "1 structured") : String(localized: "\(structured) structured"),
+                            tone: structuredMemoryTone
+                        )
+                    }
                 }
 
                 if agentMemory.isEmpty {
@@ -1513,10 +1548,22 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             } else {
-                AgentDetailValueRow("Identity Files") {
-                    Text(workspaceIdentitySummary.progressLabel)
-                        .foregroundStyle(workspaceIdentitySummary.tone.color)
-                        .monospacedDigit()
+                MonitoringSnapshotCard(
+                    summary: workspaceSnapshotSummary,
+                    detail: String(localized: "Use the full workspace identity surface when the previewed files are not enough to explain agent behavior.")
+                ) {
+                    FlowLayout(spacing: 8) {
+                        PresentationToneBadge(
+                            text: workspaceIdentitySummary.progressLabel,
+                            tone: workspaceIdentitySummary.tone
+                        )
+                        if missingWorkspaceFileCount > 0 {
+                            PresentationToneBadge(
+                                text: missingWorkspaceFileCount == 1 ? String(localized: "1 missing") : String(localized: "\(missingWorkspaceFileCount) missing"),
+                                tone: .warning
+                            )
+                        }
+                    }
                 }
 
                 ForEach(agentFiles.filter(\.exists).prefix(3)) { file in
@@ -1557,19 +1604,32 @@ struct AgentDetailView: View {
                 let failed = agentDeliveries.filter { $0.status == .failed }.count
                 let delivered = agentDeliveries.filter { $0.status == .delivered }.count
 
-                AgentDetailValueRow("Receipts") {
-                    Text(agentDeliveries.count.formatted())
-                        .monospacedDigit()
-                }
-                AgentDetailValueRow("Delivered") {
-                    Text(delivered.formatted())
-                        .foregroundStyle(deliveredReceiptTone.color)
-                        .monospacedDigit()
-                }
-                AgentDetailValueRow("Failed") {
-                    Text(failed.formatted())
-                        .foregroundStyle(failedReceiptTone.color)
-                        .monospacedDigit()
+                MonitoringSnapshotCard(
+                    summary: deliveriesSnapshotSummary,
+                    detail: String(localized: "Use the full receipt surface when the compact preview is not enough to explain channel behavior.")
+                ) {
+                    FlowLayout(spacing: 8) {
+                        PresentationToneBadge(
+                            text: agentDeliveries.count == 1 ? String(localized: "1 receipt") : String(localized: "\(agentDeliveries.count) receipts"),
+                            tone: agentDeliveries.isEmpty ? .neutral : .positive
+                        )
+                        PresentationToneBadge(
+                            text: delivered == 1 ? String(localized: "1 delivered") : String(localized: "\(delivered) delivered"),
+                            tone: deliveredReceiptTone
+                        )
+                        if failed > 0 {
+                            PresentationToneBadge(
+                                text: failed == 1 ? String(localized: "1 failed") : String(localized: "\(failed) failed"),
+                                tone: failedReceiptTone
+                            )
+                        }
+                        if unsettledDeliveryCount > 0 {
+                            PresentationToneBadge(
+                                text: unsettledDeliveryCount == 1 ? String(localized: "1 unsettled") : String(localized: "\(unsettledDeliveryCount) unsettled"),
+                                tone: .warning
+                            )
+                        }
+                    }
                 }
 
                 if agentDeliveries.isEmpty {
