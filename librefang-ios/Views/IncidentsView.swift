@@ -22,6 +22,33 @@ struct IncidentsView: View {
     private var currentAcknowledgedAt: Date? {
         incidentStateStore.currentAcknowledgementDate(for: vm.monitoringAlerts)
     }
+    private var watchedDiagnosticRows: [(agent: Agent, summary: WatchedAgentDiagnosticsSummary)] {
+        watchlistStore.watchedAgents(from: vm.agents)
+            .compactMap { agent in
+                guard let summary = deps.watchedAgentDiagnosticsStore.summary(for: agent.id), summary.hasIssues else {
+                    return nil
+                }
+                return (agent, summary)
+            }
+            .sorted { lhs, rhs in
+                if lhs.summary.failedDeliveries != rhs.summary.failedDeliveries {
+                    return lhs.summary.failedDeliveries > rhs.summary.failedDeliveries
+                }
+                if lhs.summary.unavailableFallbackModels.count != rhs.summary.unavailableFallbackModels.count {
+                    return lhs.summary.unavailableFallbackModels.count > rhs.summary.unavailableFallbackModels.count
+                }
+                if lhs.summary.missingIdentityFiles.count != rhs.summary.missingIdentityFiles.count {
+                    return lhs.summary.missingIdentityFiles.count > rhs.summary.missingIdentityFiles.count
+                }
+                if lhs.summary.unsettledDeliveries != rhs.summary.unsettledDeliveries {
+                    return lhs.summary.unsettledDeliveries > rhs.summary.unsettledDeliveries
+                }
+                return lhs.agent.name.localizedCompare(rhs.agent.name) == .orderedAscending
+            }
+    }
+    private var combinedAgentIssueCount: Int {
+        Set(vm.attentionAgents.map(\.agent.id) + watchedDiagnosticRows.map(\.agent.id)).count
+    }
     private var watchedAttentionItems: [AgentAttentionItem] {
         watchlistStore.watchedAgents(from: vm.agents)
             .map { vm.attentionItem(for: $0) }
@@ -100,6 +127,7 @@ struct IncidentsView: View {
             || !mutedAlerts.isEmpty
             || !vm.approvals.isEmpty
             || !vm.attentionAgents.isEmpty
+            || !watchedDiagnosticRows.isEmpty
             || !vm.sessionAttentionItems.isEmpty
             || !vm.criticalAuditEntries.isEmpty
             || automationIssueCount > 0
@@ -115,7 +143,7 @@ struct IncidentsView: View {
                     warningCount: visibleAlerts.filter { $0.severity == .warning }.count,
                     mutedCount: mutedAlerts.count,
                     approvalCount: vm.pendingApprovalCount,
-                    agentCount: vm.issueAgentCount,
+                    agentCount: combinedAgentIssueCount,
                     sessionCount: vm.sessionAttentionCount,
                     automationCount: automationIssueCount,
                     integrationCount: integrationIssueCount,
@@ -293,6 +321,22 @@ struct IncidentsView: View {
                     Text("Agents")
                 } footer: {
                     Text("\(vm.issueAgentCount) agents currently need attention")
+                }
+            }
+
+            if !watchedDiagnosticRows.isEmpty {
+                Section {
+                    ForEach(watchedDiagnosticRows.prefix(5), id: \.agent.id) { row in
+                        NavigationLink {
+                            AgentDetailView(agent: row.agent)
+                        } label: {
+                            IncidentWatchedDiagnosticRow(agent: row.agent, summary: row.summary)
+                        }
+                    }
+                } header: {
+                    Text("Watched Diagnostics")
+                } footer: {
+                    Text("Pinned agents can surface operator issues here even when they are otherwise healthy enough to stay out of the general attention list.")
                 }
             }
 
@@ -1117,6 +1161,102 @@ private struct IncidentIntegrationAgentRow: View {
         case .providerMismatch:
             .indigo
         }
+    }
+}
+
+private struct IncidentWatchedDiagnosticRow: View {
+    let agent: Agent
+    let summary: WatchedAgentDiagnosticsSummary
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .center, spacing: 8) {
+                Text(agent.identity?.emoji ?? "🤖")
+                    .font(.body)
+                Text(agent.name)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.primary)
+                Image(systemName: "star.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.yellow)
+                Spacer()
+                if summary.failedDeliveries > 0 {
+                    statusChip(
+                        label: summary.failedDeliveries == 1
+                            ? String(localized: "1 failed")
+                            : String(localized: "\(summary.failedDeliveries) failed"),
+                        color: .red
+                    )
+                } else if !summary.unavailableFallbackModels.isEmpty {
+                    statusChip(
+                        label: summary.unavailableFallbackModels.count == 1
+                            ? String(localized: "1 fallback drift")
+                            : String(localized: "\(summary.unavailableFallbackModels.count) fallback drift"),
+                        color: .orange
+                    )
+                } else {
+                    statusChip(
+                        label: summary.issueCount == 1
+                            ? String(localized: "1 issue")
+                            : String(localized: "\(summary.issueCount) issues"),
+                        color: .orange
+                    )
+                }
+            }
+
+            Text(summary.summaryLine)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+
+            HStack(spacing: 8) {
+                if summary.unsettledDeliveries > 0 {
+                    issuePill(
+                        text: summary.unsettledDeliveries == 1
+                            ? String(localized: "1 unsettled")
+                            : String(localized: "\(summary.unsettledDeliveries) unsettled"),
+                        color: .orange
+                    )
+                }
+                if !summary.missingIdentityFiles.isEmpty {
+                    issuePill(
+                        text: summary.missingIdentityFiles.count == 1
+                            ? String(localized: "1 file missing")
+                            : String(localized: "\(summary.missingIdentityFiles.count) files missing"),
+                        color: .orange
+                    )
+                }
+                if !summary.unavailableFallbackModels.isEmpty {
+                    issuePill(
+                        text: summary.unavailableFallbackModels.count == 1
+                            ? String(localized: "1 fallback")
+                            : String(localized: "\(summary.unavailableFallbackModels.count) fallbacks"),
+                        color: .orange
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private func statusChip(label: String, color: Color) -> some View {
+        Text(label)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(color.opacity(0.12))
+            .foregroundStyle(color)
+            .clipShape(Capsule())
+    }
+
+    private func issuePill(text: String, color: Color) -> some View {
+        Text(text)
+            .font(.caption2.weight(.medium))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(color.opacity(0.1))
+            .foregroundStyle(color)
+            .clipShape(Capsule())
     }
 }
 
