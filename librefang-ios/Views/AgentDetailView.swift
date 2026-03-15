@@ -212,6 +212,17 @@ struct AgentDetailView: View {
         agentApprovals.count + sessionIssueCount + failedDeliveryCount + missingWorkspaceFileCount
     }
 
+    private var agentBudgetTone: PresentationTone {
+        guard let budgetDetail else { return .neutral }
+        let utilization = max(
+            budgetDetail.hourly.pct,
+            budgetDetail.daily.pct,
+            budgetDetail.monthly.pct,
+            budgetDetail.tokens.pct
+        )
+        return StatusPresentation.budgetUtilizationStatus(for: utilization)?.tone ?? .neutral
+    }
+
     var body: some View {
         List {
             identitySection
@@ -509,6 +520,23 @@ struct AgentDetailView: View {
             }
 
             NavigationLink {
+                DiagnosticsView()
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Diagnostics"),
+                    detail: String(localized: "Jump to health detail, build metadata, config warnings, and metrics when this agent needs broader runtime evidence."),
+                    systemImage: "stethoscope",
+                    tone: deps.dashboardViewModel.diagnosticsSummaryTone,
+                    badgeText: deps.dashboardViewModel.diagnosticsConfigWarningCount > 0
+                        ? (deps.dashboardViewModel.diagnosticsConfigWarningCount == 1
+                            ? String(localized: "1 warning")
+                            : String(localized: "\(deps.dashboardViewModel.diagnosticsConfigWarningCount) warnings"))
+                        : nil,
+                    badgeTone: .warning
+                )
+            }
+
+            NavigationLink {
                 IntegrationsView(initialSearchText: integrationSearchText, initialScope: .attention)
             } label: {
                 MonitoringJumpRow(
@@ -518,6 +546,17 @@ struct AgentDetailView: View {
                     tone: modelDiagnostic?.statusTone ?? .neutral,
                     badgeText: requestedModelReference,
                     badgeTone: .neutral
+                )
+            }
+
+            NavigationLink {
+                BudgetView()
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Budget"),
+                    detail: String(localized: "Jump to spend limits, model cost distribution, and per-agent usage when this agent may be driving budget pressure."),
+                    systemImage: "chart.bar",
+                    tone: agentBudgetTone
                 )
             }
 
@@ -536,6 +575,21 @@ struct AgentDetailView: View {
                     badgeText: currentSessionBadgeText,
                     badgeTone: .neutral
                 )
+            }
+
+            if !agentApprovals.isEmpty {
+                NavigationLink {
+                    ApprovalsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Approval Queue"),
+                        detail: String(localized: "Jump to the full approval queue when this agent's pending actions need wider operator context."),
+                        systemImage: "checkmark.shield",
+                        tone: .critical,
+                        badgeText: agentApprovals.count == 1 ? String(localized: "1 approval") : String(localized: "\(agentApprovals.count) approvals"),
+                        badgeTone: .critical
+                    )
+                }
             }
 
             NavigationLink {

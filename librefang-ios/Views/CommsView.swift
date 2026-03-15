@@ -83,6 +83,49 @@ struct CommsView: View {
             }
 
             Section {
+                MonitoringFactsRow {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(String(localized: "Comms signal facts"))
+                            .font(.subheadline.weight(.medium))
+                        Text(String(localized: "Keep transport mode, topology depth, and event flow visible before opening longer comms sections or other monitors."))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                } accessory: {
+                    PresentationToneBadge(
+                        text: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                        tone: viewModel.isStreaming ? .positive : .warning
+                    )
+                } facts: {
+                    Label(
+                        viewModel.nodeCount == 1 ? String(localized: "1 agent") : String(localized: "\(viewModel.nodeCount) agents"),
+                        systemImage: "cpu"
+                    )
+                    Label(
+                        viewModel.edgeCount == 1 ? String(localized: "1 link") : String(localized: "\(viewModel.edgeCount) links"),
+                        systemImage: "point.3.connected.trianglepath.dotted"
+                    )
+                    Label(
+                        viewModel.taskEventCount == 1 ? String(localized: "1 task-flow event") : String(localized: "\(viewModel.taskEventCount) task-flow events"),
+                        systemImage: "checklist"
+                    )
+                    Label(
+                        filteredEvents.count == 1 ? String(localized: "1 visible event") : String(localized: "\(filteredEvents.count) visible events"),
+                        systemImage: "arrow.left.arrow.right.circle"
+                    )
+                    if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Label(String(localized: "Scoped search"), systemImage: "magnifyingglass")
+                    }
+                    if viewModel.topology != nil {
+                        Label(String(localized: "Topology loaded"), systemImage: "wave.3.right")
+                    }
+                }
+            } footer: {
+                Text("This compact facts row keeps the current communication shape visible before you scroll into topology and recent events.")
+            }
+
+            Section {
                 NavigationLink {
                     RuntimeView()
                 } label: {

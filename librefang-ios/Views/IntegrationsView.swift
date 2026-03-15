@@ -409,6 +409,28 @@ struct IntegrationsView: View {
                         }
 
                         NavigationLink {
+                            BudgetView()
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Budget"),
+                                detail: String(localized: "Switch to spend limits and model cost concentration when integration drift may already be showing up in usage."),
+                                systemImage: "chart.bar",
+                                tone: .neutral
+                            )
+                        }
+
+                        NavigationLink {
+                            CommsView(api: deps.apiClient)
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Comms"),
+                                detail: String(localized: "Switch to live inter-agent traffic when provider or channel drift may reflect routing behavior."),
+                                systemImage: "point.3.connected.trianglepath.dotted",
+                                tone: .neutral
+                            )
+                        }
+
+                        NavigationLink {
                             AgentsView()
                         } label: {
                             MonitoringJumpRow(
