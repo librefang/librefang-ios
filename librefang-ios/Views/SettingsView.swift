@@ -58,7 +58,7 @@ struct SettingsView: View {
                         Text("This snapshot is device-local and complements the runtime and on-call pages rather than replacing them.")
                     }
 
-                    Section("Quick Links") {
+                    Section("Primary Surfaces") {
                         NavigationLink {
                             OnCallView()
                         } label: {
@@ -86,16 +86,6 @@ struct SettingsView: View {
                         }
 
                         NavigationLink {
-                            DiagnosticsView()
-                        } label: {
-                            SettingsQuickLinkRow(
-                                title: String(localized: "Open Diagnostics"),
-                                detail: String(localized: "Inspect deep health, build info, config warnings, and metrics."),
-                                systemImage: "stethoscope"
-                            )
-                        }
-
-                        NavigationLink {
                             HandoffCenterView(
                                 summary: handoffText,
                                 queueCount: onCallQueueCount,
@@ -107,6 +97,28 @@ struct SettingsView: View {
                                 title: String(localized: "Open Handoff Center"),
                                 detail: String(localized: "Review local handoff freshness, readiness, and follow-up state."),
                                 systemImage: "text.badge.plus"
+                            )
+                        }
+                    }
+
+                    Section("Supporting Surfaces") {
+                        NavigationLink {
+                            RuntimeView()
+                        } label: {
+                            SettingsQuickLinkRow(
+                                title: String(localized: "Open Runtime"),
+                                detail: String(localized: "Inspect providers, channels, approvals, sessions, and runtime pressure from settings."),
+                                systemImage: "server.rack"
+                            )
+                        }
+
+                        NavigationLink {
+                            DiagnosticsView()
+                        } label: {
+                            SettingsQuickLinkRow(
+                                title: String(localized: "Open Diagnostics"),
+                                detail: String(localized: "Inspect deep health, build info, config warnings, and metrics."),
+                                systemImage: "stethoscope"
                             )
                         }
                     }

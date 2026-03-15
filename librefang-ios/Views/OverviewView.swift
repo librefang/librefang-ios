@@ -751,86 +751,98 @@ private struct OverviewSurfaceRailCard: View {
                 }
             }
 
-            VStack(spacing: 10) {
-                NavigationLink {
-                    RuntimeView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Runtime Monitor"),
-                        detail: String(localized: "Inspect providers, channels, sessions, hands, approvals, and runtime security."),
-                        systemImage: "waveform.path.ecg",
-                        tone: .neutral
-                    )
-                }
-                .buttonStyle(.plain)
+            MonitoringSnapshotCard(
+                summary: String(localized: "Primary Surfaces"),
+                detail: String(localized: "Keep the first operator exits closest to the overview triage summary.")
+            ) {
+                VStack(spacing: 10) {
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Runtime Monitor"),
+                            detail: String(localized: "Inspect providers, channels, sessions, hands, approvals, and runtime security."),
+                            systemImage: "waveform.path.ecg",
+                            tone: .neutral
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    DiagnosticsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Deep Diagnostics"),
-                        detail: String(localized: "Jump straight into health detail, build metadata, config warnings, and metrics."),
-                        systemImage: "stethoscope",
-                        tone: diagnosticsWarningCount > 0 ? .warning : .neutral,
-                        badgeText: diagnosticsWarningCount == 0 ? nil : String(localized: "\(diagnosticsWarningCount) warnings"),
-                        badgeTone: .warning
-                    )
-                }
-                .buttonStyle(.plain)
+                    NavigationLink {
+                        DiagnosticsView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Deep Diagnostics"),
+                            detail: String(localized: "Jump straight into health detail, build metadata, config warnings, and metrics."),
+                            systemImage: "stethoscope",
+                            tone: diagnosticsWarningCount > 0 ? .warning : .neutral,
+                            badgeText: diagnosticsWarningCount == 0 ? nil : String(localized: "\(diagnosticsWarningCount) warnings"),
+                            badgeTone: .warning
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    IntegrationsView(initialScope: .attention)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Integrations"),
-                        detail: String(localized: "Inspect provider outages, channel gaps, model catalog availability, and agent drift."),
-                        systemImage: "square.3.layers.3d.down.forward",
-                        tone: integrationIssueCount > 0 ? .critical : .neutral,
-                        badgeText: integrationIssueCount == 0 ? nil : String(localized: "\(integrationIssueCount) issues"),
-                        badgeTone: .critical
-                    )
+                    NavigationLink {
+                        IntegrationsView(initialScope: .attention)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Integrations"),
+                            detail: String(localized: "Inspect provider outages, channel gaps, model catalog availability, and agent drift."),
+                            systemImage: "square.3.layers.3d.down.forward",
+                            tone: integrationIssueCount > 0 ? .critical : .neutral,
+                            badgeText: integrationIssueCount == 0 ? nil : String(localized: "\(integrationIssueCount) issues"),
+                            badgeTone: .critical
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+            }
 
-                NavigationLink {
-                    AutomationView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Automation"),
-                        detail: String(localized: "Inspect workflows, recent runs, triggers, schedules, and cron pressure."),
-                        systemImage: "flowchart",
-                        tone: automationIssueCount > 0 ? .warning : .neutral,
-                        badgeText: automationIssueCount == 0 ? nil : String(localized: "\(automationIssueCount) issues"),
-                        badgeTone: .warning
-                    )
-                }
-                .buttonStyle(.plain)
+            MonitoringSnapshotCard(
+                summary: String(localized: "Supporting Surfaces"),
+                detail: String(localized: "Keep slower spend and device-setting routes behind the primary overview exits.")
+            ) {
+                VStack(spacing: 10) {
+                    NavigationLink {
+                        AutomationView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Automation"),
+                            detail: String(localized: "Inspect workflows, recent runs, triggers, schedules, and cron pressure."),
+                            systemImage: "flowchart",
+                            tone: automationIssueCount > 0 ? .warning : .neutral,
+                            badgeText: automationIssueCount == 0 ? nil : String(localized: "\(automationIssueCount) issues"),
+                            badgeTone: .warning
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    BudgetView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Budget"),
-                        detail: String(localized: "Inspect spend limits, daily trend, model cost distribution, and per-agent usage."),
-                        systemImage: "chart.bar",
-                        tone: .neutral,
-                        badgeText: budgetDailyCost.map { localizedUSDCurrency($0) },
-                        badgeTone: .neutral
-                    )
-                }
-                .buttonStyle(.plain)
+                    NavigationLink {
+                        BudgetView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Budget"),
+                            detail: String(localized: "Inspect spend limits, daily trend, model cost distribution, and per-agent usage."),
+                            systemImage: "chart.bar",
+                            tone: .neutral,
+                            badgeText: budgetDailyCost.map { localizedUSDCurrency($0) },
+                            badgeTone: .neutral
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    SettingsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Settings"),
-                        detail: String(localized: "Adjust server connection, refresh behavior, language, and on-call device settings."),
-                        systemImage: "gearshape",
-                        tone: .neutral
-                    )
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Settings"),
+                            detail: String(localized: "Adjust server connection, refresh behavior, language, and on-call device settings."),
+                            systemImage: "gearshape",
+                            tone: .neutral
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
         }
     }

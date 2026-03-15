@@ -414,106 +414,120 @@ struct DiagnosticsView: View {
     }
 
     private var diagnosticsOperatorSurfaces: some View {
-        Group {
-            NavigationLink {
-                RuntimeView()
-            } label: {
-                MonitoringJumpRow(
-                    title: String(localized: "Open Runtime"),
-                    detail: String(localized: "Return to the compact runtime digest and operational buckets."),
-                    systemImage: "server.rack",
-                    tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
-                    badgeText: vm.runtimeAlertCount > 0
-                        ? (vm.runtimeAlertCount == 1 ? String(localized: "1 alert") : String(localized: "\(vm.runtimeAlertCount) alerts"))
-                        : nil,
-                    badgeTone: .warning
-                )
+        VStack(alignment: .leading, spacing: 14) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Primary Surfaces"),
+                detail: String(localized: "Keep the next diagnostic exits closest to health and metrics.")
+            ) {
+                VStack(spacing: 10) {
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Runtime"),
+                            detail: String(localized: "Return to the compact runtime digest and operational buckets."),
+                            systemImage: "server.rack",
+                            tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
+                            badgeText: vm.runtimeAlertCount > 0
+                                ? (vm.runtimeAlertCount == 1 ? String(localized: "1 alert") : String(localized: "\(vm.runtimeAlertCount) alerts"))
+                                : nil,
+                            badgeTone: .warning
+                        )
+                    }
+
+                    NavigationLink {
+                        IncidentsView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Incidents"),
+                            detail: String(localized: "Switch to active alerts, approvals, and shift coverage from diagnostics."),
+                            systemImage: "bell.badge",
+                            tone: vm.monitoringAlerts.contains { $0.severity == .critical } ? .critical : .neutral,
+                            badgeText: vm.monitoringAlerts.isEmpty
+                                ? nil
+                                : (vm.monitoringAlerts.count == 1 ? String(localized: "1 alert") : String(localized: "\(vm.monitoringAlerts.count) alerts")),
+                            badgeTone: vm.monitoringAlerts.contains { $0.severity == .critical } ? .critical : .warning
+                        )
+                    }
+
+                    NavigationLink {
+                        IntegrationsView(initialScope: .attention)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Integrations"),
+                            detail: String(localized: "Switch to provider, channel, and catalog diagnostics when health points to integration drift."),
+                            systemImage: "square.3.layers.3d.down.forward",
+                            tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                            badgeText: vm.integrationPressureIssueCategoryCount > 0
+                                ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
+                                : nil,
+                            badgeTone: .critical
+                        )
+                    }
+
+                    NavigationLink {
+                        SessionsView(initialFilter: .attention)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Sessions"),
+                            detail: String(localized: "Switch to the session monitor when runtime metrics or health implies active pressure."),
+                            systemImage: "text.bubble",
+                            tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                            badgeText: vm.sessionAttentionCount > 0
+                                ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
+                                : nil,
+                            badgeTone: .warning
+                        )
+                    }
+
+                    NavigationLink {
+                        EventsView(api: deps.apiClient, initialScope: .critical)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Critical Events"),
+                            detail: String(localized: "Switch to the critical event feed when restarts or health drift need recent audit context."),
+                            systemImage: "text.justify.leading",
+                            tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
+                            badgeText: vm.recentCriticalAuditCount > 0
+                                ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
+                                : nil,
+                            badgeTone: .critical
+                        )
+                    }
+                }
             }
 
-            NavigationLink {
-                IncidentsView()
-            } label: {
-                MonitoringJumpRow(
-                    title: String(localized: "Open Incidents"),
-                    detail: String(localized: "Switch to active alerts, approvals, and shift coverage from diagnostics."),
-                    systemImage: "bell.badge",
-                    tone: vm.monitoringAlerts.contains { $0.severity == .critical } ? .critical : .neutral,
-                    badgeText: vm.monitoringAlerts.isEmpty
-                        ? nil
-                        : (vm.monitoringAlerts.count == 1 ? String(localized: "1 alert") : String(localized: "\(vm.monitoringAlerts.count) alerts")),
-                    badgeTone: vm.monitoringAlerts.contains { $0.severity == .critical } ? .critical : .warning
-                )
-            }
+            MonitoringSnapshotCard(
+                summary: String(localized: "Supporting Surfaces"),
+                detail: String(localized: "Keep workflow and comms drilldowns separate from the primary diagnostic exits.")
+            ) {
+                VStack(spacing: 10) {
+                    NavigationLink {
+                        AutomationView(initialScope: .attention)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Automation"),
+                            detail: String(localized: "Switch to failed workflow runs, paused schedules, and exhausted triggers."),
+                            systemImage: "flowchart",
+                            tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                            badgeText: vm.automationPressureIssueCategoryCount > 0
+                                ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
+                                : nil,
+                            badgeTone: .warning
+                        )
+                    }
 
-            NavigationLink {
-                IntegrationsView(initialScope: .attention)
-            } label: {
-                MonitoringJumpRow(
-                    title: String(localized: "Open Integrations"),
-                    detail: String(localized: "Switch to provider, channel, and catalog diagnostics when health points to integration drift."),
-                    systemImage: "square.3.layers.3d.down.forward",
-                    tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
-                    badgeText: vm.integrationPressureIssueCategoryCount > 0
-                        ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
-                        : nil,
-                    badgeTone: .critical
-                )
-            }
-
-            NavigationLink {
-                AutomationView(initialScope: .attention)
-            } label: {
-                MonitoringJumpRow(
-                    title: String(localized: "Open Automation"),
-                    detail: String(localized: "Switch to failed workflow runs, paused schedules, and exhausted triggers."),
-                    systemImage: "flowchart",
-                    tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
-                    badgeText: vm.automationPressureIssueCategoryCount > 0
-                        ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
-                        : nil,
-                    badgeTone: .warning
-                )
-            }
-
-            NavigationLink {
-                CommsView(api: deps.apiClient)
-            } label: {
-                MonitoringJumpRow(
-                    title: String(localized: "Open Comms"),
-                    detail: String(localized: "Switch to live comms when diagnostics need inter-agent traffic and coordination context."),
-                    systemImage: "point.3.connected.trianglepath.dotted",
-                    tone: .neutral
-                )
-            }
-
-            NavigationLink {
-                SessionsView(initialFilter: .attention)
-            } label: {
-                MonitoringJumpRow(
-                    title: String(localized: "Open Sessions"),
-                    detail: String(localized: "Switch to the session monitor when runtime metrics or health implies active pressure."),
-                    systemImage: "text.bubble",
-                    tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
-                    badgeText: vm.sessionAttentionCount > 0
-                        ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
-                        : nil,
-                    badgeTone: .warning
-                )
-            }
-
-            NavigationLink {
-                EventsView(api: deps.apiClient, initialScope: .critical)
-            } label: {
-                MonitoringJumpRow(
-                    title: String(localized: "Open Critical Events"),
-                    detail: String(localized: "Switch to the critical event feed when restarts or health drift need recent audit context."),
-                    systemImage: "text.justify.leading",
-                    tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
-                    badgeText: vm.recentCriticalAuditCount > 0
-                        ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
-                        : nil,
-                    badgeTone: .critical
-                )
+                    NavigationLink {
+                        CommsView(api: deps.apiClient)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Comms"),
+                            detail: String(localized: "Switch to live comms when diagnostics need inter-agent traffic and coordination context."),
+                            systemImage: "point.3.connected.trianglepath.dotted",
+                            tone: .neutral
+                        )
+                    }
+                }
             }
         }
     }
