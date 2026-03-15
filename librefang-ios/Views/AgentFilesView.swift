@@ -43,6 +43,14 @@ struct AgentFilesView: View {
         files.count - existingCount
     }
 
+    private var workspaceIdentitySummary: WorkspaceIdentitySummary {
+        .summarize(existingCount: existingCount, totalCount: files.count)
+    }
+
+    private var missingStatus: MonitoringSummaryStatus {
+        .countStatus(missingCount, activeTone: .warning)
+    }
+
     private var exportText: String {
         let header = [
             String(localized: "LibreFang Workspace Identity Snapshot"),
@@ -74,12 +82,12 @@ struct AgentFilesView: View {
                 }
                 LabeledContent("Present") {
                     Text("\(existingCount)/\(files.count)")
-                        .foregroundStyle(existingCount < files.count ? .orange : .green)
+                        .foregroundStyle(workspaceIdentitySummary.tone.color)
                         .monospacedDigit()
                 }
                 LabeledContent("Missing") {
                     Text(missingCount.formatted())
-                        .foregroundStyle(missingCount > 0 ? .orange : .secondary)
+                        .foregroundStyle(missingStatus.tone.color)
                         .monospacedDigit()
                 }
             } header: {

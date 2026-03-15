@@ -100,20 +100,23 @@ struct ToolProfilesView: View {
 
     @ViewBuilder
     private func profileHeader(_ profile: ToolProfileSummary, highlight: Bool) -> some View {
+        let profileStatus = MonitoringSummaryStatus(
+            summary: profile.tools.count == 1
+                ? String(localized: "1 tool")
+                : String(localized: "\(profile.tools.count) tools"),
+            tone: highlight ? .positive : .neutral
+        )
+
         HStack {
             Text(profile.name)
                 .font(.subheadline.weight(.semibold))
             Spacer()
-            Text(
-                profile.tools.count == 1
-                    ? String(localized: "1 tool")
-                    : String(localized: "\(profile.tools.count) tools")
-            )
+            Text(profileStatus.summary)
                 .font(.caption2.weight(.semibold))
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
-                .background((highlight ? Color.blue : Color.secondary).opacity(0.12))
-                .foregroundStyle(highlight ? .blue : .secondary)
+                .background(profileStatus.color(positive: .blue).opacity(0.12))
+                .foregroundStyle(profileStatus.color(positive: .blue))
                 .clipShape(Capsule())
         }
     }

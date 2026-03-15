@@ -59,6 +59,18 @@ struct AgentDeliveriesView: View {
         receipts.filter { $0.status == .sent || $0.status == .bestEffort }.count
     }
 
+    private var deliveredStatus: MonitoringSummaryStatus {
+        .countStatus(deliveredCount, activeTone: .positive)
+    }
+
+    private var failedStatus: MonitoringSummaryStatus {
+        .countStatus(failedCount, activeTone: .critical)
+    }
+
+    private var unsettledStatus: MonitoringSummaryStatus {
+        .countStatus(unsettledCount, activeTone: .warning)
+    }
+
     private var exportText: String {
         let header = [
             String(localized: "LibreFang Delivery Snapshot"),
@@ -99,17 +111,17 @@ struct AgentDeliveriesView: View {
                 }
                 LabeledContent("Delivered") {
                     Text(deliveredCount.formatted())
-                        .foregroundStyle(deliveredCount > 0 ? .green : .secondary)
+                        .foregroundStyle(deliveredStatus.tone.color)
                         .monospacedDigit()
                 }
                 LabeledContent("Failed") {
                     Text(failedCount.formatted())
-                        .foregroundStyle(failedCount > 0 ? .red : .secondary)
+                        .foregroundStyle(failedStatus.tone.color)
                         .monospacedDigit()
                 }
                 LabeledContent("Unsettled") {
                     Text(unsettledCount.formatted())
-                        .foregroundStyle(unsettledCount > 0 ? .orange : .secondary)
+                        .foregroundStyle(unsettledStatus.tone.color)
                         .monospacedDigit()
                 }
             } header: {

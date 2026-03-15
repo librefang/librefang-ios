@@ -42,6 +42,10 @@ struct AgentMemoryView: View {
         entries.count - structuredEntryCount
     }
 
+    private var structuredStatus: MonitoringSummaryStatus {
+        .countStatus(structuredEntryCount, activeTone: .warning)
+    }
+
     var body: some View {
         List {
             summarySection
@@ -220,7 +224,7 @@ struct AgentMemoryView: View {
 
             LabeledContent("Structured") {
                 Text(structuredEntryCount.formatted())
-                    .foregroundStyle(structuredEntryCount > 0 ? .orange : .secondary)
+                    .foregroundStyle(structuredStatus.tone.color)
                     .monospacedDigit()
             }
 
