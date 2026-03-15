@@ -560,12 +560,7 @@ private struct NightWatchHeroCard: View {
             .foregroundStyle(.white.opacity(0.68))
         }
         .padding(18)
-        .background(.black.opacity(0.26))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(.white.opacity(0.08), lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .glassPanel(fillStyle: .black, fillOpacity: 0.26, cornerRadius: 20, strokeOpacity: 0.08)
     }
 
     private var headerSummary: some View {
@@ -668,12 +663,7 @@ private struct NightWatchMutedSummaryCard: View {
             }
         }
         .padding(14)
-        .background(.black.opacity(0.22))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(.white.opacity(0.08), lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .glassPanel(fillStyle: .black, fillOpacity: 0.22, cornerRadius: 16, strokeOpacity: 0.08)
     }
 
     private var iconLabel: some View {
@@ -726,12 +716,7 @@ private struct NightWatchCalmCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
-        .background(.black.opacity(0.22))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .stroke(.white.opacity(0.08), lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .glassPanel(fillStyle: .black, fillOpacity: 0.22, cornerRadius: 18, strokeOpacity: 0.08)
     }
 }
 
@@ -762,12 +747,7 @@ private struct NightWatchSectionCard<Content: View>: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(.black.opacity(0.22))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .stroke(.white.opacity(0.08), lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .glassPanel(fillStyle: .black, fillOpacity: 0.22, cornerRadius: 18, strokeOpacity: 0.08)
     }
 }
 
@@ -822,8 +802,7 @@ private struct NightWatchPriorityCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(.white.opacity(emphasis == .primary ? 0.09 : 0.06))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .glassPanel(fillOpacity: emphasis == .primary ? 0.09 : 0.06, cornerRadius: 14)
     }
 
     private var titleLabel: some View {
@@ -888,8 +867,7 @@ private struct NightWatchWatchlistRow: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(.white.opacity(0.07))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .glassPanel(fillOpacity: 0.07, cornerRadius: 14)
     }
 
     private var agentName: some View {
@@ -989,8 +967,7 @@ private struct NightWatchActionRow: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(.white.opacity(0.07))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .glassPanel(fillOpacity: 0.07, cornerRadius: 14)
     }
 }
 
@@ -1009,7 +986,6 @@ private struct NightWatchCountPill: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white.opacity(0.10))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .glassPanel(fillOpacity: 0.10, cornerRadius: 12)
     }
 }

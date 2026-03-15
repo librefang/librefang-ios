@@ -304,3 +304,43 @@ struct GlassCapsuleButtonStyle: ButtonStyle {
             .clipShape(Capsule())
     }
 }
+
+private struct GlassPanelModifier: ViewModifier {
+    let fillStyle: Color
+    let fillOpacity: Double
+    let cornerRadius: CGFloat
+    let strokeOpacity: Double?
+
+    private var shape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .background(fillStyle.opacity(fillOpacity))
+            .clipShape(shape)
+            .overlay {
+                if let strokeOpacity {
+                    shape.strokeBorder(.white.opacity(strokeOpacity))
+                }
+            }
+    }
+}
+
+extension View {
+    func glassPanel(
+        fillStyle: Color = .white,
+        fillOpacity: Double,
+        cornerRadius: CGFloat,
+        strokeOpacity: Double? = nil
+    ) -> some View {
+        modifier(
+            GlassPanelModifier(
+                fillStyle: fillStyle,
+                fillOpacity: fillOpacity,
+                cornerRadius: cornerRadius,
+                strokeOpacity: strokeOpacity
+            )
+        )
+    }
+}

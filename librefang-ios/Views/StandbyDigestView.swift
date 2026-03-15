@@ -251,12 +251,7 @@ struct StandbyDigestView: View {
             }
         }
         .padding(18)
-        .background(.white.opacity(0.10))
-        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .strokeBorder(.white.opacity(0.08))
-        )
+        .glassPanel(fillOpacity: 0.10, cornerRadius: 26, strokeOpacity: 0.08)
     }
 
     private var heroClock: some View {
@@ -342,8 +337,7 @@ struct StandbyDigestView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(18)
-            .background(.white.opacity(0.08))
-            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .glassPanel(fillOpacity: 0.08, cornerRadius: 22)
         } else {
             VStack(alignment: .leading, spacing: 12) {
                 ViewThatFits(in: .horizontal) {
@@ -366,8 +360,7 @@ struct StandbyDigestView: View {
                 }
             }
             .padding(18)
-            .background(.white.opacity(0.09))
-            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .glassPanel(fillOpacity: 0.09, cornerRadius: 22)
         }
     }
 
@@ -423,15 +416,13 @@ struct StandbyDigestView: View {
                     }
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.white.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .glassPanel(fillOpacity: 0.08, cornerRadius: 16)
                 }
                 .buttonStyle(.plain)
             }
         }
         .padding(18)
-        .background(.white.opacity(0.09))
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .glassPanel(fillOpacity: 0.09, cornerRadius: 22)
     }
 
     private var watchlistTitle: some View {
@@ -532,8 +523,7 @@ struct StandbyDigestView: View {
             .buttonStyle(.plain)
         }
         .padding(18)
-        .background(.white.opacity(0.09))
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .glassPanel(fillOpacity: 0.09, cornerRadius: 22)
     }
 
     @ViewBuilder
@@ -618,8 +608,7 @@ private struct StandbyPriorityRow: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
-        .background(.white.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .glassPanel(fillOpacity: 0.08, cornerRadius: 16)
     }
 
     private var iconBadge: some View {
@@ -627,8 +616,7 @@ private struct StandbyPriorityRow: View {
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(.white)
             .frame(width: 30, height: 30)
-            .background(tint.opacity(0.34))
-            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .glassPanel(fillStyle: tint, fillOpacity: 0.34, cornerRadius: 10)
     }
 
     private var contentBlock: some View {
@@ -670,8 +658,7 @@ private struct StandbyActionRow: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .glassPanel(fillOpacity: 0.08, cornerRadius: 16)
     }
 
     private var iconBadge: some View {
@@ -679,8 +666,7 @@ private struct StandbyActionRow: View {
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(.white)
             .frame(width: 34, height: 34)
-            .background(.white.opacity(0.10))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .glassPanel(fillOpacity: 0.10, cornerRadius: 12)
     }
 
     private var contentBlock: some View {
@@ -712,7 +698,6 @@ private struct StandbyCountPill: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white.opacity(0.10))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .glassPanel(fillOpacity: 0.10, cornerRadius: 14)
     }
 }

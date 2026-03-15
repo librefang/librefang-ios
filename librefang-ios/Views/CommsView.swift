@@ -60,7 +60,7 @@ struct CommsView: View {
                 Text("Filter")
             }
 
-            Section("Topology") {
+            Section {
                 CommsSummaryRow(label: "Agents") {
                     Text("\(viewModel.nodeCount)")
                         .monospacedDigit()
@@ -83,6 +83,8 @@ struct CommsView: View {
                         description: Text("When agents start messaging, spawning, or coordinating tasks, their topology appears here.")
                     )
                 }
+            } header: {
+                Text("Topology")
             } footer: {
                 if let topology = viewModel.topology, topology.edges.count > visibleEdges.count {
                     Text("Showing \(visibleEdges.count) of \(topology.edges.count) active links")
