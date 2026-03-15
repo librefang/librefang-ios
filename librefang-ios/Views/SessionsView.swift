@@ -295,7 +295,10 @@ struct SessionsView: View {
                 title: String(localized: "Routes"),
                 detail: String(localized: "Jump straight to the next queue, fleet, or audit surface without another long route stack.")
             ) {
-                FlowLayout(spacing: 8) {
+                MonitoringShortcutRail(
+                    title: String(localized: "Primary"),
+                    detail: String(localized: "Keep the next queue and runtime exits closest to the session backlog.")
+                ) {
                     NavigationLink {
                         RuntimeView()
                     } label: {
@@ -337,7 +340,12 @@ struct SessionsView: View {
                         )
                     }
                     .buttonStyle(.plain)
+                }
 
+                MonitoringShortcutRail(
+                    title: String(localized: "Support"),
+                    detail: String(localized: "Keep broader fleet and audit context behind the primary session routes.")
+                ) {
                     NavigationLink {
                         AgentsView()
                     } label: {

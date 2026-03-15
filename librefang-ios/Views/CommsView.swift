@@ -227,7 +227,10 @@ struct CommsView: View {
                 title: String(localized: "Routes"),
                 detail: String(localized: "Jump straight to runtime, incidents, audit, or external-agent inventory without another long route stack.")
             ) {
-                FlowLayout(spacing: 8) {
+                MonitoringShortcutRail(
+                    title: String(localized: "Primary"),
+                    detail: String(localized: "Keep runtime, incidents, and event review closest to the live comms feed.")
+                ) {
                     NavigationLink {
                         RuntimeView()
                     } label: {
@@ -259,7 +262,12 @@ struct CommsView: View {
                         )
                     }
                     .buttonStyle(.plain)
+                }
 
+                MonitoringShortcutRail(
+                    title: String(localized: "Support"),
+                    detail: String(localized: "Keep external-agent inventory behind the primary comms routes.")
+                ) {
                     NavigationLink {
                         A2AAgentsView()
                     } label: {

@@ -200,7 +200,10 @@ struct EventsView: View {
                 title: String(localized: "Routes"),
                 detail: String(localized: "Jump straight to incidents, runtime, sessions, diagnostics, or comms without another long route stack.")
             ) {
-                FlowLayout(spacing: 8) {
+                MonitoringShortcutRail(
+                    title: String(localized: "Primary"),
+                    detail: String(localized: "Keep the next queue and runtime exits closest to the event feed.")
+                ) {
                     NavigationLink {
                         IncidentsView()
                     } label: {
@@ -239,7 +242,12 @@ struct EventsView: View {
                         )
                     }
                     .buttonStyle(.plain)
+                }
 
+                MonitoringShortcutRail(
+                    title: String(localized: "Support"),
+                    detail: String(localized: "Keep deeper diagnostics and comms context behind the primary event routes.")
+                ) {
                     NavigationLink {
                         DiagnosticsView()
                     } label: {
