@@ -63,11 +63,62 @@ struct ApprovalsView: View {
             }
     }
 
+    private var criticalApprovalCount: Int {
+        vm.approvals.filter(\.isCriticalRisk).count
+    }
+
+    private var highRiskApprovalCount: Int {
+        vm.approvals.filter(\.isHighRiskOrAbove).count
+    }
+
+    private var approvalAgentCount: Int {
+        Set(vm.approvals.map(\.agentId)).count
+    }
+
     var body: some View {
         List {
             Section {
                 ApprovalsScoreboard(vm: vm)
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+            }
+
+            Section {
+                MonitoringSnapshotCard(
+                    summary: vm.pendingApprovalCount == 1
+                        ? String(localized: "1 approval gate is waiting for operator review.")
+                        : String(localized: "\(vm.pendingApprovalCount) approval gates are waiting for operator review."),
+                    detail: String(localized: "Critical and high-risk approvals stay visible above the mobile action queue.")
+                ) {
+                    FlowLayout(spacing: 8) {
+                        PresentationToneBadge(text: filter.label, tone: filter == .critical ? .critical : filter == .high ? .warning : .neutral)
+                        if criticalApprovalCount > 0 {
+                            PresentationToneBadge(
+                                text: criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"),
+                                tone: .critical
+                            )
+                        }
+                        if highRiskApprovalCount > 0 {
+                            PresentationToneBadge(
+                                text: highRiskApprovalCount == 1 ? String(localized: "1 high+") : String(localized: "\(highRiskApprovalCount) high+"),
+                                tone: .warning
+                            )
+                        }
+                        if approvalAgentCount > 0 {
+                            PresentationToneBadge(
+                                text: approvalAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(approvalAgentCount) agents"),
+                                tone: .neutral
+                            )
+                        }
+                        if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            PresentationToneBadge(
+                                text: filteredApprovals.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredApprovals.count) visible results"),
+                                tone: .neutral
+                            )
+                        }
+                    }
+                }
+            } footer: {
+                Text("Use the snapshot to judge queue pressure before committing an approval or rejection from the phone.")
             }
 
             Section {

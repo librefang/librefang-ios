@@ -122,6 +122,13 @@ struct AutomationView: View {
             }
     }
 
+    private var automationSnapshotSummary: String {
+        if vm.failedWorkflowRunCount > 0 || vm.exhaustedTriggerCount > 0 || vm.stalledCronJobCount > 0 {
+            return String(localized: "Automation pressure is already visible from failed runs, exhausted triggers, or stalled cron jobs.")
+        }
+        return String(localized: "Automation monitor keeps workflows, runs, triggers, schedules, and cron jobs grouped on one mobile page.")
+    }
+
     var body: some View {
         List {
             if let error = vm.error, !hasAutomationData {
@@ -139,6 +146,52 @@ struct AutomationView: View {
             Section {
                 AutomationScoreboard(vm: vm)
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+            }
+
+            Section {
+                MonitoringSnapshotCard(
+                    summary: automationSnapshotSummary,
+                    detail: String(localized: "Use the snapshot to judge workflow and scheduler pressure before digging into the sectioned lists.")
+                ) {
+                    FlowLayout(spacing: 8) {
+                        PresentationToneBadge(
+                            text: scope.label,
+                            tone: scope == .attention ? .warning : scope == .active ? .positive : .neutral
+                        )
+                        if vm.failedWorkflowRunCount > 0 {
+                            PresentationToneBadge(
+                                text: vm.failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(vm.failedWorkflowRunCount) failed runs"),
+                                tone: .critical
+                            )
+                        }
+                        if vm.exhaustedTriggerCount > 0 {
+                            PresentationToneBadge(
+                                text: vm.exhaustedTriggerCount == 1 ? String(localized: "1 exhausted trigger") : String(localized: "\(vm.exhaustedTriggerCount) exhausted triggers"),
+                                tone: .warning
+                            )
+                        }
+                        if vm.pausedScheduleCount > 0 {
+                            PresentationToneBadge(
+                                text: vm.pausedScheduleCount == 1 ? String(localized: "1 paused schedule") : String(localized: "\(vm.pausedScheduleCount) paused schedules"),
+                                tone: .warning
+                            )
+                        }
+                        if vm.stalledCronJobCount > 0 {
+                            PresentationToneBadge(
+                                text: vm.stalledCronJobCount == 1 ? String(localized: "1 stalled cron") : String(localized: "\(vm.stalledCronJobCount) stalled cron jobs"),
+                                tone: .warning
+                            )
+                        }
+                        if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            PresentationToneBadge(
+                                text: visibleItemCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleItemCount) visible results"),
+                                tone: .neutral
+                            )
+                        }
+                    }
+                }
+            } footer: {
+                Text("This compact automation digest keeps failure pressure visible before the longer workflow and schedule sections.")
             }
 
             Section {

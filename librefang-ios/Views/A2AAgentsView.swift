@@ -217,18 +217,10 @@ private struct A2AValueRow<Content: View>: View {
     }
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Text(label)
-                Spacer(minLength: 8)
-                content
-                    .multilineTextAlignment(.trailing)
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(label)
-                content
-                    .multilineTextAlignment(.leading)
-            }
+        ResponsiveValueRow {
+            Text(label)
+        } value: {
+            content
         }
     }
 }

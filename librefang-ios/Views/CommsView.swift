@@ -208,17 +208,10 @@ private struct CommsTopologyEdgeRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 10) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    relationshipBadge
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    titleLabel
-                    relationshipBadge
-                }
+            ResponsiveAccessoryRow(horizontalSpacing: 10, verticalSpacing: 4) {
+                titleLabel
+            } accessory: {
+                relationshipBadge
             }
 
             Text(kind == .parentChild ? String(localized: "Parent-child relationship") : String(localized: "Peer communication path"))
@@ -253,18 +246,10 @@ private struct CommsSummaryRow<Content: View>: View {
     }
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Text(label)
-                Spacer(minLength: 8)
-                content
-                    .multilineTextAlignment(.trailing)
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(label)
-                content
-                    .multilineTextAlignment(.leading)
-            }
+        ResponsiveValueRow {
+            Text(label)
+        } value: {
+            content
         }
     }
 }

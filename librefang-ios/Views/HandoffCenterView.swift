@@ -528,16 +528,10 @@ private struct HandoffCadenceCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    PresentationToneBadge(text: cadenceState.label, tone: cadenceState.tone)
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    PresentationToneBadge(text: cadenceState.label, tone: cadenceState.tone)
-                }
+            ResponsiveAccessoryRow {
+                titleLabel
+            } accessory: {
+                PresentationToneBadge(text: cadenceState.label, tone: cadenceState.tone)
             }
 
             Text(cadenceSummary)
@@ -569,16 +563,10 @@ private struct HandoffDriftCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    PresentationToneBadge(text: drift.state.label, tone: drift.state.tone)
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    PresentationToneBadge(text: drift.state.label, tone: drift.state.tone)
-                }
+            ResponsiveAccessoryRow {
+                titleLabel
+            } accessory: {
+                PresentationToneBadge(text: drift.state.label, tone: drift.state.tone)
             }
 
             Text(drift.summary)
@@ -604,16 +592,10 @@ private struct HandoffCarryoverCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    PresentationToneBadge(text: status.state.label, tone: status.state.tone)
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    PresentationToneBadge(text: status.state.label, tone: status.state.tone)
-                }
+            ResponsiveAccessoryRow {
+                titleLabel
+            } accessory: {
+                PresentationToneBadge(text: status.state.label, tone: status.state.tone)
             }
 
             Text(status.summary)
@@ -652,16 +634,10 @@ private struct HandoffReadinessCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    PresentationToneBadge(text: status.state.label, tone: status.state.tone)
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    PresentationToneBadge(text: status.state.label, tone: status.state.tone)
-                }
+            ResponsiveAccessoryRow {
+                titleLabel
+            } accessory: {
+                PresentationToneBadge(text: status.state.label, tone: status.state.tone)
             }
 
             Text(status.summary)
@@ -689,16 +665,10 @@ private struct HandoffCheckInCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    PresentationToneBadge(text: status.state.label, tone: status.state.tone)
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    PresentationToneBadge(text: status.state.label, tone: status.state.tone)
-                }
+            ResponsiveAccessoryRow {
+                titleLabel
+            } accessory: {
+                PresentationToneBadge(text: status.state.label, tone: status.state.tone)
             }
 
             Text(status.dueLabel)
@@ -824,16 +794,10 @@ private struct HandoffFreshnessCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
-                }
+            ResponsiveAccessoryRow {
+                titleLabel
+            } accessory: {
+                PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
             }
 
             Text(freshnessSummary)
@@ -875,30 +839,18 @@ private struct HandoffCoverageCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    coverageCountLabel
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    coverageCountLabel
-                }
+            ResponsiveAccessoryRow {
+                titleLabel
+            } accessory: {
+                coverageCountLabel
             }
 
             ForEach(Array(HandoffChecklistKey.allCases.enumerated()), id: \.element.rawValue) { _, key in
                 let coverageTone = HandoffChecklistState.coverageTone(for: coverageCount(key))
-                ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .firstTextBaseline, spacing: 12) {
-                        coverageLabel(for: key)
-                        Spacer(minLength: 8)
-                        coverageValue(for: key, tone: coverageTone)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        coverageLabel(for: key)
-                        coverageValue(for: key, tone: coverageTone)
-                    }
+                ResponsiveValueRow {
+                    coverageLabel(for: key)
+                } value: {
+                    coverageValue(for: key, tone: coverageTone)
                 }
             }
         }
@@ -936,16 +888,10 @@ private struct HandoffChecklistComposer: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    progressLabel
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    titleLabel
-                    progressLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 4) {
+                titleLabel
+            } accessory: {
+                progressLabel
             }
 
             ForEach(HandoffChecklistKey.allCases) { key in
@@ -994,16 +940,10 @@ private struct HandoffFollowUpTrackerCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    PresentationToneBadge(text: followUpSummary.badgeLabel, tone: followUpSummary.tone)
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    PresentationToneBadge(text: followUpSummary.badgeLabel, tone: followUpSummary.tone)
-                }
+            ResponsiveAccessoryRow {
+                titleLabel
+            } accessory: {
+                PresentationToneBadge(text: followUpSummary.badgeLabel, tone: followUpSummary.tone)
             }
 
             Text(followUpSummary.detailLabel)
@@ -1061,16 +1001,10 @@ private struct HandoffFocusComposer: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    countLabel
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    titleLabel
-                    countLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 4) {
+                titleLabel
+            } accessory: {
+                countLabel
             }
 
             ForEach(HandoffFocusArea.allCases) { area in
@@ -1124,16 +1058,10 @@ private struct HandoffFollowUpComposer: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    itemCountLabel
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    titleLabel
-                    itemCountLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 4) {
+                titleLabel
+            } accessory: {
+                itemCountLabel
             }
 
             ViewThatFits(in: .horizontal) {
@@ -1210,16 +1138,10 @@ private struct HandoffCheckInComposer: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    windowLabel
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    titleLabel
-                    windowLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 4) {
+                titleLabel
+            } accessory: {
+                windowLabel
             }
 
             Picker("Check-in Window", selection: $window) {
@@ -1272,16 +1194,10 @@ struct HandoffFocusSummaryRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    summaryLabel
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    titleLabel
-                    summaryLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 4) {
+                titleLabel
+            } accessory: {
+                summaryLabel
             }
 
             if !focusAreas.items.isEmpty {
@@ -1315,16 +1231,10 @@ struct HandoffFollowUpSummaryRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    itemCountLabel
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    titleLabel
-                    itemCountLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 4) {
+                titleLabel
+            } accessory: {
+                itemCountLabel
             }
 
             ForEach(Array(items.prefix(2).enumerated()), id: \.offset) { index, item in
@@ -1354,16 +1264,10 @@ struct HandoffCheckInSummaryRow: View {
     let createdAt: Date
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                titleLabel
-                Spacer(minLength: 8)
-                dueLabel
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                titleLabel
-                dueLabel
-            }
+        ResponsiveAccessoryRow(verticalSpacing: 4) {
+            titleLabel
+        } accessory: {
+            dueLabel
         }
     }
 
@@ -1405,16 +1309,10 @@ private struct HandoffEntryCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 12) {
-                    entrySummary
-                    Spacer(minLength: 8)
-                    entryControls
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    entrySummary
-                    entryControls
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top) {
+                entrySummary
+            } accessory: {
+                entryControls
             }
 
             if !entry.note.isEmpty {
@@ -1479,16 +1377,10 @@ private struct HandoffChecklistStatusRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    progressLabel
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    titleLabel
-                    progressLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 4) {
+                titleLabel
+            } accessory: {
+                progressLabel
             }
 
             Text(checklist.summaryLabel)

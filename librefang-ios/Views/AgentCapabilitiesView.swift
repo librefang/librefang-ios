@@ -371,20 +371,13 @@ private struct CapabilityDetailRow: View {
     var valueColor: Color = .primary
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
+        ResponsiveValueRow(verticalSpacing: 6) {
+            HStack(spacing: 12) {
                 iconLabel
                 Text(label)
-                Spacer(minLength: 8)
-                valueLabel
             }
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 12) {
-                    iconLabel
-                    Text(label)
-                }
-                valueLabel
-            }
+        } value: {
+            valueLabel
         }
     }
 

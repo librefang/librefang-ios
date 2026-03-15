@@ -109,16 +109,10 @@ struct ToolProfilesView: View {
             tone: highlight ? .positive : .neutral
         )
 
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                profileNameLabel(profile)
-                Spacer(minLength: 8)
-                toolCountBadge(profileStatus)
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                profileNameLabel(profile)
-                toolCountBadge(profileStatus)
-            }
+        ResponsiveAccessoryRow(verticalSpacing: 4) {
+            profileNameLabel(profile)
+        } accessory: {
+            toolCountBadge(profileStatus)
         }
     }
 

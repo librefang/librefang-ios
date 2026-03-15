@@ -59,11 +59,60 @@ struct SessionsView: View {
             }
     }
 
+    private var normalizedSearchText: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     var body: some View {
         List {
             Section {
                 SessionScoreboard(vm: vm)
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+            }
+
+            Section {
+                MonitoringSnapshotCard(
+                    summary: vm.totalSessionCount == 1
+                        ? String(localized: "1 session is visible in the current workspace snapshot.")
+                        : String(localized: "\(vm.totalSessionCount) sessions are visible in the current workspace snapshot."),
+                    detail: String(localized: "High-volume, unlabeled, and duplicated sessions stay visible before the longer operator list.")
+                ) {
+                    FlowLayout(spacing: 8) {
+                        PresentationToneBadge(text: filter.label, tone: filter == .attention || filter == .highVolume ? .warning : filter == .unlabeled ? .caution : .neutral)
+                        if vm.sessionAttentionCount > 0 {
+                            PresentationToneBadge(
+                                text: vm.sessionAttentionCount == 1 ? String(localized: "1 attention item") : String(localized: "\(vm.sessionAttentionCount) attention items"),
+                                tone: .warning
+                            )
+                        }
+                        if vm.highVolumeSessionCount > 0 {
+                            PresentationToneBadge(
+                                text: vm.highVolumeSessionCount == 1 ? String(localized: "1 high-volume session") : String(localized: "\(vm.highVolumeSessionCount) high-volume sessions"),
+                                tone: .warning
+                            )
+                        }
+                        if vm.unlabeledSessionCount > 0 {
+                            PresentationToneBadge(
+                                text: vm.unlabeledSessionCount == 1 ? String(localized: "1 unlabeled session") : String(localized: "\(vm.unlabeledSessionCount) unlabeled sessions"),
+                                tone: .caution
+                            )
+                        }
+                        if vm.multiSessionAgentCount > 0 {
+                            PresentationToneBadge(
+                                text: vm.multiSessionAgentCount == 1 ? String(localized: "1 agent with multiple sessions") : String(localized: "\(vm.multiSessionAgentCount) agents with multiple sessions"),
+                                tone: .warning
+                            )
+                        }
+                        if !normalizedSearchText.isEmpty {
+                            PresentationToneBadge(
+                                text: filteredItems.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredItems.count) visible results"),
+                                tone: .neutral
+                            )
+                        }
+                    }
+                }
+            } footer: {
+                Text("The snapshot keeps current backlog pressure visible before you relabel, switch, or delete sessions.")
             }
 
             Section {
