@@ -325,37 +325,6 @@ struct OnCallView: View {
                     readiness: draftHandoffReadiness,
                     followUpStatuses: latestFollowUpStatuses
                 )
-
-                NavigationLink(value: OnCallRoute.incidents) {
-                    Label("Open Incidents Center", systemImage: "bell.badge")
-                }
-
-                NavigationLink {
-                    NightWatchView()
-                } label: {
-                    Label("Open Night Watch", systemImage: "moon.stars")
-                }
-
-                NavigationLink {
-                    StandbyDigestView()
-                } label: {
-                    Label("Open Standby Digest", systemImage: "rectangle.inset.filled")
-                }
-
-                NavigationLink {
-                    HandoffCenterView(
-                        summary: handoffText,
-                        queueCount: priorityItems.count,
-                        criticalCount: criticalCount,
-                        liveAlertCount: visibleAlerts.count
-                    )
-                } label: {
-                    Label("Open Handoff Center", systemImage: "text.badge.plus")
-                }
-
-                ShareLink(item: handoffText) {
-                    Label("Share Handoff Summary", systemImage: "square.and.arrow.up")
-                }
             }
 
             if !priorityItems.isEmpty {
@@ -406,8 +375,10 @@ struct OnCallView: View {
                     queueCount: priorityItems.count,
                     liveAlertCount: visibleAlerts.count
                 )
+            } header: {
+                Text("Operator Surfaces")
             } footer: {
-                Text("Keep the highest-value drilldowns visible without jumping through multiple menus.")
+                Text("Keep the highest-value drilldowns visible without mixing status rows and navigation controls.")
             }
 
             if priorityItems.isEmpty
@@ -659,7 +630,7 @@ private struct OnCallJumpCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Quick Links", systemImage: "arrowshape.turn.up.right")
+            Label("Operator Surfaces", systemImage: "arrowshape.turn.up.right")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
 
@@ -708,6 +679,30 @@ private struct OnCallJumpCard: View {
                 )
             }
 
+            NavigationLink {
+                RuntimeView()
+            } label: {
+                OnCallJumpRow(
+                    title: String(localized: "Open Runtime"),
+                    detail: String(localized: "Inspect providers, channels, approvals, and runtime pressure from the on-call path."),
+                    systemImage: "server.rack"
+                )
+            }
+
+            NavigationLink {
+                ApprovalsView()
+            } label: {
+                OnCallJumpRow(
+                    title: String(localized: "Open Approvals"),
+                    detail: approvalCount > 0
+                        ? (approvalCount == 1
+                            ? String(localized: "1 approval is still waiting for operator action.")
+                            : String(localized: "\(approvalCount) approvals are still waiting for operator action."))
+                        : String(localized: "Open the full approval queue when gated actions are driving the on-call path."),
+                    systemImage: "checkmark.shield"
+                )
+            }
+
             NavigationLink(value: OnCallRoute.sessionsAttention) {
                 OnCallJumpRow(
                     title: String(localized: "Session Pressure"),
@@ -733,6 +728,64 @@ private struct OnCallJumpCard: View {
             }
 
             NavigationLink {
+                DiagnosticsView()
+            } label: {
+                OnCallJumpRow(
+                    title: String(localized: "Open Diagnostics"),
+                    detail: String(localized: "Inspect health detail, config warnings, build metadata, and metrics when the queue looks systemic."),
+                    systemImage: "stethoscope"
+                )
+            }
+
+            NavigationLink {
+                IntegrationsView(initialScope: .attention)
+            } label: {
+                OnCallJumpRow(
+                    title: String(localized: "Open Integrations"),
+                    detail: integrationIssueCount > 0
+                        ? (integrationIssueCount == 1
+                            ? String(localized: "1 integration issue is already promoted into the on-call path.")
+                            : String(localized: "\(integrationIssueCount) integration issues are already promoted into the on-call path."))
+                        : String(localized: "Inspect provider, channel, model, and catalog drift from the on-call path."),
+                    systemImage: "square.3.layers.3d.down.forward"
+                )
+            }
+
+            NavigationLink {
+                AutomationView(initialScope: .attention)
+            } label: {
+                OnCallJumpRow(
+                    title: String(localized: "Open Automation"),
+                    detail: automationIssueCount > 0
+                        ? (automationIssueCount == 1
+                            ? String(localized: "1 automation issue is already promoted into the on-call path.")
+                            : String(localized: "\(automationIssueCount) automation issues are already promoted into the on-call path."))
+                        : String(localized: "Inspect workflows, runs, triggers, schedules, and cron pressure from the on-call path."),
+                    systemImage: "flowchart"
+                )
+            }
+
+            NavigationLink {
+                NightWatchView()
+            } label: {
+                OnCallJumpRow(
+                    title: String(localized: "Open Night Watch"),
+                    detail: String(localized: "Switch to the focused night-duty surface when you only want the highest-priority cards."),
+                    systemImage: "moon.stars"
+                )
+            }
+
+            NavigationLink {
+                StandbyDigestView()
+            } label: {
+                OnCallJumpRow(
+                    title: String(localized: "Open Standby Digest"),
+                    detail: String(localized: "Switch to the compressed standby digest for a lock-screen style summary."),
+                    systemImage: "rectangle.inset.filled"
+                )
+            }
+
+            NavigationLink {
                 HandoffCenterView(
                     summary: handoffText,
                     queueCount: queueCount,
@@ -744,6 +797,14 @@ private struct OnCallJumpCard: View {
                     title: String(localized: "Open Handoff Center"),
                     detail: String(localized: "Capture the current queue and keep the next operator aligned."),
                     systemImage: "text.badge.plus"
+                )
+            }
+
+            ShareLink(item: handoffText) {
+                OnCallJumpRow(
+                    title: String(localized: "Share Handoff Summary"),
+                    detail: String(localized: "Export the current on-call snapshot and handoff context as plain text."),
+                    systemImage: "square.and.arrow.up"
                 )
             }
         }
