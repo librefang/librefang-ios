@@ -29,6 +29,9 @@ struct ToolProfilesView: View {
         }
     }
 
+    private var toolProfilesPrimaryRouteCount: Int { 2 }
+    private var toolProfilesSupportRouteCount: Int { 2 }
+
     var body: some View {
         List {
             Section {
@@ -41,6 +44,15 @@ struct ToolProfilesView: View {
             }
 
             Section {
+                ToolProfilesRouteInventoryDeck(
+                    primaryRouteCount: toolProfilesPrimaryRouteCount,
+                    supportRouteCount: toolProfilesSupportRouteCount,
+                    visibleProfileCount: filteredProfiles.count,
+                    totalProfileCount: profiles.count,
+                    selectedProfileName: selectedProfile?.name,
+                    hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                )
+
                 MonitoringSurfaceGroupCard(
                     title: String(localized: "Routes"),
                     detail: String(localized: "Keep fleet, runtime, integration, and diagnostics exits closest to compact tool-profile review.")
@@ -302,6 +314,71 @@ private struct ToolProfilesSnapshotCard: View {
                 }
             }
         }
+    }
+}
+
+private struct ToolProfilesRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleProfileCount: Int
+    let totalProfileCount: Int
+    let selectedProfileName: String?
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: hasSearchScope
+                    ? String(localized: "Tool-profile routes stay compact while the catalog is search-scoped.")
+                    : String(localized: "Tool-profile routes stay compact before the surrounding fleet and runtime drilldowns."),
+                detail: String(localized: "Use the route inventory to gauge how many exits are active before leaving the tool-profile directory."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        tone: .neutral
+                    )
+                    if let selectedProfileName {
+                        PresentationToneBadge(text: selectedProfileName, tone: .positive)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the active catalog slice and selected bundle visible before pivoting into fleet, runtime, or integration context."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleProfileCount == totalProfileCount
+                        ? (visibleProfileCount == 1 ? String(localized: "1 visible profile") : String(localized: "\(visibleProfileCount) visible profiles"))
+                        : String(localized: "\(visibleProfileCount) of \(totalProfileCount) visible"),
+                    tone: .positive
+                )
+            } facts: {
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+                if let selectedProfileName {
+                    Label(selectedProfileName, systemImage: "checkmark.circle")
+                }
+                Label(
+                    totalProfileCount == 1 ? String(localized: "1 catalog profile") : String(localized: "\(totalProfileCount) catalog profiles"),
+                    systemImage: "person.crop.rectangle.stack"
+                )
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

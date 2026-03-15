@@ -44,6 +44,16 @@ struct AgentCapabilitiesView: View {
         toolFilters != nil || skills != nil || mcpServers != nil
     }
 
+    private var capabilitiesPrimaryRouteCount: Int {
+        2 + ((agent.profile?.isEmpty == false) ? 1 : 0)
+    }
+
+    private var capabilitiesSupportRouteCount: Int { 1 }
+
+    private var loadedCapabilityFeedCount: Int {
+        [toolFilters != nil, skills != nil, mcpServers != nil].filter { $0 }.count
+    }
+
     var body: some View {
         List {
             if isRefreshing && !hasLoadedAnything {
@@ -70,6 +80,16 @@ struct AgentCapabilitiesView: View {
                 }
 
                 Section {
+                    CapabilitiesRouteInventoryDeck(
+                        primaryRouteCount: capabilitiesPrimaryRouteCount,
+                        supportRouteCount: capabilitiesSupportRouteCount,
+                        loadedFeedCount: loadedCapabilityFeedCount,
+                        hasProfileRoute: agent.profile?.isEmpty == false,
+                        hasToolFilters: toolFilters != nil,
+                        hasSkills: skills != nil,
+                        hasMCPServers: mcpServers != nil
+                    )
+
                     MonitoringSurfaceGroupCard(
                         title: String(localized: "Routes"),
                         detail: String(localized: "Keep nearby agent, profile, runtime, and integration exits closest to compact capability inspection.")
@@ -415,6 +435,67 @@ private struct CapabilitiesSnapshotCard: View {
             text: isPresent ? label : String(localized: "\(label) missing"),
             tone: isPresent ? tone : .neutral
         )
+    }
+}
+
+private struct CapabilitiesRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let loadedFeedCount: Int
+    let hasProfileRoute: Bool
+    let hasToolFilters: Bool
+    let hasSkills: Bool
+    let hasMCPServers: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Capability routes stay compact before the adjacent agent, runtime, and integration drilldowns."),
+                detail: String(localized: "Use the route inventory to gauge loaded capability feeds before leaving the capability scope view."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        tone: .neutral
+                    )
+                    PresentationToneBadge(
+                        text: loadedFeedCount == 1 ? String(localized: "1 capability feed loaded") : String(localized: "\(loadedFeedCount) capability feeds loaded"),
+                        tone: loadedFeedCount > 0 ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep route availability and feed coverage visible before pivoting into tool profiles, runtime, or integration context."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if hasProfileRoute {
+                    PresentationToneBadge(text: String(localized: "Profile route ready"), tone: .positive)
+                }
+            } facts: {
+                if hasToolFilters {
+                    Label(String(localized: "Tool filters loaded"), systemImage: "slider.horizontal.3")
+                }
+                if hasSkills {
+                    Label(String(localized: "Skills loaded"), systemImage: "sparkles")
+                }
+                if hasMCPServers {
+                    Label(String(localized: "MCP loaded"), systemImage: "shippingbox")
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

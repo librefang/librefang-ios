@@ -15,6 +15,14 @@ struct A2AAgentsView: View {
                 || (agent.skills?.map(\.name).joined(separator: " ").lowercased().contains(query) ?? false)
         }
     }
+    private var a2aPrimaryRouteCount: Int { 2 }
+    private var a2aSupportRouteCount: Int { 1 }
+    private var visibleHostCount: Int {
+        Set(filteredAgents.compactMap { URL(string: $0.url)?.host?.lowercased() }).count
+    }
+    private var visibleStreamingCount: Int {
+        filteredAgents.filter { $0.capabilities?.streaming == true }.count
+    }
 
     var body: some View {
         Group {
@@ -36,6 +44,16 @@ struct A2AAgentsView: View {
                     }
 
                     Section {
+                        A2ARouteInventoryDeck(
+                            primaryRouteCount: a2aPrimaryRouteCount,
+                            supportRouteCount: a2aSupportRouteCount,
+                            visibleAgentCount: filteredAgents.count,
+                            totalAgentCount: agents.count,
+                            hostCount: visibleHostCount,
+                            streamingCount: visibleStreamingCount,
+                            hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        )
+
                         MonitoringSurfaceGroupCard(
                             title: String(localized: "Routes"),
                             detail: String(localized: "Keep comms, runtime, and diagnostics exits closest to the external-agent directory.")
@@ -147,6 +165,72 @@ private struct A2ASummaryCard: View {
                 )
             }
         }
+    }
+}
+
+private struct A2ARouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleAgentCount: Int
+    let totalAgentCount: Int
+    let hostCount: Int
+    let streamingCount: Int
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: hasSearchScope
+                    ? String(localized: "External-agent routes stay compact while the directory is search-scoped.")
+                    : String(localized: "External-agent routes stay compact before the comms and runtime drilldowns."),
+                detail: String(localized: "Use the route inventory to gauge the active agent slice before leaving the external-agent directory."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        tone: .neutral
+                    )
+                    if streamingCount > 0 {
+                        PresentationToneBadge(
+                            text: streamingCount == 1 ? String(localized: "1 stream-ready agent") : String(localized: "\(streamingCount) stream-ready agents"),
+                            tone: .positive
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the visible external-agent slice and host spread visible before pivoting into comms, runtime, or diagnostics context."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleAgentCount == totalAgentCount
+                        ? (visibleAgentCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(visibleAgentCount) visible agents"))
+                        : String(localized: "\(visibleAgentCount) of \(totalAgentCount) visible"),
+                    tone: .positive
+                )
+            } facts: {
+                Label(
+                    hostCount == 1 ? String(localized: "1 endpoint host") : String(localized: "\(hostCount) endpoint hosts"),
+                    systemImage: "network"
+                )
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
