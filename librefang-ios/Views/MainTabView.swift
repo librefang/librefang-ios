@@ -357,6 +357,9 @@ struct MainTabView: View {
                     isOffline: !deps.networkMonitor.isConnected
                 )
                 .padding(.horizontal, 12)
+
+                OperatorOverlayActionDeck(actions: overlayQuickActions)
+                    .padding(.horizontal, 12)
             }
             .padding(.top, 4)
             .padding(.bottom, 8)
@@ -571,6 +574,103 @@ struct MainTabView: View {
         guard let target = deps.appShortcutLaunchStore.consumePendingTarget() else { return }
         openRoute(target)
     }
+
+    private var overlayQuickActions: [OperatorOverlayQuickAction] {
+        var actions = [
+            OperatorOverlayQuickAction(
+                title: preferredOnCallSurface.label,
+                systemImage: preferredSurfaceSymbolName,
+                tone: visibleCriticalAlertCount > 0 ? .critical : .neutral,
+                badgeText: visibleCriticalAlertCount > 0
+                    ? (visibleCriticalAlertCount == 1 ? String(localized: "1 critical") : String(localized: "\(visibleCriticalAlertCount) critical"))
+                    : nil,
+                action: openPreferredSurface
+            )
+        ]
+
+        if visibleMonitoringAlerts.count > 0 {
+            actions.append(
+                OperatorOverlayQuickAction(
+                    title: String(localized: "Incidents"),
+                    systemImage: "bell.badge",
+                    tone: visibleCriticalAlertCount > 0 ? .critical : .warning,
+                    badgeText: visibleMonitoringAlerts.count == 1
+                        ? String(localized: "1 alert")
+                        : String(localized: "\(visibleMonitoringAlerts.count) alerts"),
+                    action: { openSurface(.incidents) }
+                )
+            )
+        }
+
+        if vm.pendingApprovalCount > 0 {
+            actions.append(
+                OperatorOverlayQuickAction(
+                    title: String(localized: "Approvals"),
+                    systemImage: "checkmark.shield",
+                    tone: .warning,
+                    badgeText: vm.pendingApprovalCount == 1
+                        ? String(localized: "1 pending")
+                        : String(localized: "\(vm.pendingApprovalCount) pending"),
+                    action: { openSurface(.approvals) }
+                )
+            )
+        }
+
+        if handoffBannerStatus != nil || pendingLatestFollowUpCount > 0 {
+            actions.append(
+                OperatorOverlayQuickAction(
+                    title: String(localized: "Handoff"),
+                    systemImage: "person.2.wave.2",
+                    tone: handoffBannerStatus?.state == .overdue ? .critical : .warning,
+                    badgeText: pendingLatestFollowUpCount > 0
+                        ? (pendingLatestFollowUpCount == 1 ? String(localized: "1 open") : String(localized: "\(pendingLatestFollowUpCount) open"))
+                        : nil,
+                    action: openHandoffCenter
+                )
+            )
+        }
+
+        if vm.sessionAttentionCount > 0 {
+            actions.append(
+                OperatorOverlayQuickAction(
+                    title: String(localized: "Sessions"),
+                    systemImage: "text.bubble",
+                    tone: .warning,
+                    badgeText: vm.sessionAttentionCount == 1
+                        ? String(localized: "1 hotspot")
+                        : String(localized: "\(vm.sessionAttentionCount) hotspots"),
+                    action: { openRoute(.sessionsAttention) }
+                )
+            )
+        }
+
+        if !deps.networkMonitor.isConnected || vm.runtimeAlertCount > 0 {
+            actions.append(
+                OperatorOverlayQuickAction(
+                    title: String(localized: "Diagnostics"),
+                    systemImage: "stethoscope",
+                    tone: !deps.networkMonitor.isConnected ? .critical : .warning,
+                    badgeText: vm.runtimeAlertCount > 0
+                        ? (vm.runtimeAlertCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.runtimeAlertCount) issues"))
+                        : nil,
+                    action: { openSurface(.diagnostics) }
+                )
+            )
+        }
+
+        return actions
+    }
+
+    private var preferredSurfaceSymbolName: String {
+        switch preferredOnCallSurface {
+        case .onCall:
+            return "waveform.path.ecg"
+        case .nightWatch:
+            return "moon.stars"
+        case .standbyDigest:
+            return "rectangle.compress.vertical"
+        }
+    }
 }
 
 private struct CriticalTrackingState: Equatable {
@@ -661,6 +761,60 @@ private struct OperatorOverlayStatusStrip: View {
                     foregroundStyle: .secondary,
                     backgroundOpacity: 0.08
                 )
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct OperatorOverlayQuickAction: Identifiable {
+    let id = UUID()
+    let title: String
+    let systemImage: String
+    let tone: PresentationTone
+    let badgeText: String?
+    let action: () -> Void
+}
+
+private struct OperatorOverlayActionDeck: View {
+    let actions: [OperatorOverlayQuickAction]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(String(localized: "Quick Actions"))
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            FlowLayout(spacing: 8) {
+                ForEach(actions) { action in
+                    Button(action: action.action) {
+                        HStack(spacing: 8) {
+                            Image(systemName: action.systemImage)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: 22, height: 22)
+                                .background(.white.opacity(0.16), in: RoundedRectangle(cornerRadius: 8))
+
+                            Text(action.title)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .lineLimit(1)
+
+                            if let badgeText = action.badgeText {
+                                Text(badgeText)
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundStyle(action.tone.color)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(.white.opacity(0.96), in: Capsule())
+                            }
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 8)
+                        .background(.white.opacity(0.10), in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
