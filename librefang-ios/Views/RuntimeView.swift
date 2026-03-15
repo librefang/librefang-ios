@@ -162,7 +162,7 @@ struct RuntimeView: View {
         } header: {
             Text("Operator Deck")
         } footer: {
-            Text("Keep the runtime digest, routes, and focus jumps together before drilling deeper.")
+            Text("Keep the runtime digest, routes, and jumps together before drilling deeper.")
         }
     }
 
@@ -304,7 +304,7 @@ struct RuntimeView: View {
                         jump(proxy, to: .system)
                     } label: {
                         MonitoringSurfaceShortcutChip(
-                            title: String(localized: "System Overview"),
+                            title: String(localized: "System"),
                             systemImage: "server.rack",
                             tone: vm.status?.statusTone ?? .neutral
                         )
@@ -317,7 +317,7 @@ struct RuntimeView: View {
                         jump(proxy, to: .diagnostics)
                     } label: {
                         MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Deep Diagnostics"),
+                            title: String(localized: "Diagnostics"),
                             systemImage: "stethoscope",
                             tone: vm.diagnosticsSummaryTone,
                             badgeText: vm.diagnosticsConfigWarningCount == 0 ? nil : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings")
@@ -373,7 +373,7 @@ struct RuntimeView: View {
                         jump(proxy, to: .approvals)
                     } label: {
                         MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Pending Approvals"),
+                            title: String(localized: "Approvals"),
                             systemImage: "checkmark.shield",
                             tone: .critical,
                             badgeText: vm.pendingApprovalCount == 1 ? String(localized: "1 waiting") : String(localized: "\(vm.pendingApprovalCount) waiting")
@@ -387,7 +387,7 @@ struct RuntimeView: View {
                         jump(proxy, to: .audit)
                     } label: {
                         MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Recent Audit"),
+                            title: String(localized: "Audit"),
                             systemImage: "list.bullet.rectangle.portrait",
                             tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
                             badgeText: vm.recentCriticalAuditCount == 0 ? nil : String(localized: "\(vm.recentCriticalAuditCount) critical")
@@ -452,15 +452,15 @@ struct RuntimeView: View {
         if vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || vm.metricsSnapshot != nil {
             Section {
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Diagnostics Routes"),
-                    detail: String(localized: "Open the deeper diagnostics surfaces without forcing another long text row above the section metrics.")
+                    title: String(localized: "Routes"),
+                    detail: String(localized: "Open deeper diagnostics without another long text row.")
                 ) {
                     MonitoringShortcutRail(title: String(localized: "Primary Routes")) {
                         NavigationLink {
                             DiagnosticsView()
                         } label: {
                             MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Deep Diagnostics"),
+                                title: String(localized: "Diagnostics"),
                                 systemImage: "stethoscope",
                                 tone: vm.diagnosticsSummaryTone,
                                 badgeText: vm.diagnosticsConfigWarningCount > 0 ? "\(vm.diagnosticsConfigWarningCount)" : nil
@@ -514,7 +514,7 @@ struct RuntimeView: View {
             } header: {
                 Text("Diagnostics")
             } footer: {
-                Text("This section surfaces daemon-level health and build drift that the higher-level monitoring cards can miss.")
+                Text("Daemon-level health and build drift that the higher-level cards can miss.")
             }
             .id(RuntimeSectionAnchor.diagnostics)
         }
@@ -525,15 +525,15 @@ struct RuntimeView: View {
         if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
             Section {
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Integration Routes"),
-                    detail: String(localized: "Open provider, channel, and catalog diagnostics without using another full-width text row.")
+                    title: String(localized: "Routes"),
+                    detail: String(localized: "Open provider, channel, and catalog diagnostics without another full-width text row.")
                 ) {
                     MonitoringShortcutRail(title: String(localized: "Primary Routes")) {
                         NavigationLink {
                             IntegrationsView(initialScope: .attention)
                         } label: {
                             MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Diagnostics"),
+                                title: String(localized: "Integrations"),
                                 systemImage: "square.3.layers.3d.down.forward",
                                 tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
                                 badgeText: vm.integrationPressureIssueCategoryCount > 0 ? "\(vm.integrationPressureIssueCategoryCount)" : nil
@@ -580,7 +580,7 @@ struct RuntimeView: View {
                                 IntegrationsView(initialScope: .attention)
                             } label: {
                                 MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "Catalog Availability"),
+                                    title: String(localized: "Catalog"),
                                     systemImage: "square.stack.3d.up.slash",
                                     tone: .critical
                                 )
@@ -735,15 +735,15 @@ struct RuntimeView: View {
         if !vm.sessions.isEmpty {
             Section {
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Session Routes"),
-                    detail: String(localized: "Jump into the dedicated session monitor when the compact runtime list is not enough.")
+                    title: String(localized: "Routes"),
+                    detail: String(localized: "Jump into the session monitor when the compact runtime list is not enough.")
                 ) {
                     MonitoringShortcutRail(title: String(localized: "Primary Routes")) {
                         NavigationLink {
                             SessionsView(initialFilter: .attention)
                         } label: {
                             MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Session Monitor"),
+                                title: String(localized: "Sessions"),
                                 systemImage: "rectangle.stack",
                                 tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
                                 badgeText: vm.sessionAttentionCount > 0 ? "\(vm.sessionAttentionCount)" : nil
@@ -1001,7 +1001,7 @@ struct RuntimeView: View {
     @ViewBuilder
     private var auditSection: some View {
         if !vm.recentAudit.isEmpty || vm.auditVerify != nil {
-            Section("Recent Audit") {
+            Section("Audit") {
                 if vm.recentAudit.isEmpty {
                     RuntimeEmptyRow(
                         title: String(localized: "No recent audit events"),

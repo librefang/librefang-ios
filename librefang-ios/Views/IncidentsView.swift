@@ -461,7 +461,7 @@ struct IncidentsView: View {
                             jump(proxy, to: .approvals)
                         } label: {
                             MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Pending Approvals"),
+                                title: String(localized: "Approvals"),
                                 systemImage: "checkmark.shield",
                                 tone: .critical,
                                 badgeText: "\(vm.pendingApprovalCount)"
@@ -633,10 +633,10 @@ struct IncidentsView: View {
 
             if vm.unreachableLocalProviderCount > 0 || vm.channelRequiredFieldGapCount > 0 || vm.hasEmptyModelCatalog {
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Integration Routes"),
+                    title: String(localized: "Routes"),
                     detail: String(localized: "Jump directly into the most likely provider, channel, or catalog failure path.")
                 ) {
-                    MonitoringShortcutRail(title: String(localized: "Review Paths")) {
+                    MonitoringShortcutRail(title: String(localized: "Targets")) {
                         if vm.unreachableLocalProviderCount > 0 {
                             NavigationLink {
                                 IntegrationsView(
@@ -743,15 +743,15 @@ struct IncidentsView: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Queue Routes"),
+                title: String(localized: "Routes"),
                 detail: String(localized: "Open the dedicated approval monitor when the compact incident list is not enough.")
             ) {
-                MonitoringShortcutRail(title: String(localized: "Approval Surfaces")) {
+                MonitoringShortcutRail(title: String(localized: "Approvals")) {
                     NavigationLink {
                         ApprovalsView()
                     } label: {
                         MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Full Queue"),
+                            title: String(localized: "Queue"),
                             systemImage: "checkmark.shield",
                             tone: .warning,
                             badgeText: "\(vm.pendingApprovalCount)"
@@ -790,15 +790,15 @@ struct IncidentsView: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Fleet Route"),
+                title: String(localized: "Routes"),
                 detail: String(localized: "Open the full fleet monitor when agent pressure spreads beyond the top incident rows.")
             ) {
-                MonitoringShortcutRail(title: String(localized: "Agent Surfaces")) {
+                MonitoringShortcutRail(title: String(localized: "Fleet")) {
                     NavigationLink {
                         AgentsView()
                     } label: {
                         MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Full Fleet"),
+                            title: String(localized: "Agents"),
                             systemImage: "person.3",
                             tone: .warning,
                             badgeText: "\(vm.issueAgentCount)"
@@ -847,15 +847,15 @@ struct IncidentsView: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Queue Routes"),
+                title: String(localized: "Routes"),
                 detail: String(localized: "Open the dedicated session monitor when hotspots spread beyond the compact incident list.")
             ) {
-                MonitoringShortcutRail(title: String(localized: "Session Surfaces")) {
+                MonitoringShortcutRail(title: String(localized: "Sessions")) {
                     NavigationLink {
                         SessionsView(initialFilter: .attention)
                     } label: {
                         MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Session Monitor"),
+                            title: String(localized: "Monitor"),
                             systemImage: "rectangle.stack",
                             tone: .warning,
                             badgeText: "\(vm.sessionAttentionCount)"
@@ -902,15 +902,15 @@ struct IncidentsView: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Queue Routes"),
+                title: String(localized: "Routes"),
                 detail: String(localized: "Open the full event feed when the compact critical trail needs deeper inspection.")
             ) {
-                MonitoringShortcutRail(title: String(localized: "Event Surfaces")) {
+                MonitoringShortcutRail(title: String(localized: "Events")) {
                     NavigationLink {
                         EventsView(api: deps.apiClient, initialScope: .critical)
                     } label: {
                         MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Critical Feed"),
+                            title: String(localized: "Feed"),
                             systemImage: "list.bullet.rectangle.portrait",
                             tone: .critical,
                             badgeText: "\(vm.recentCriticalAuditCount)"
@@ -1037,6 +1037,28 @@ private struct IncidentStatusDeckCard: View {
     let integrationCount: Int
     let handoffCount: Int
     let isAcknowledged: Bool
+
+    private var summaryLine: String {
+        if activeAlertCount > 0 {
+            if isAcknowledged {
+                return activeAlertCount == 1
+                    ? String(localized: "1 active alert is acknowledged in the incident queue.")
+                    : String(localized: "\(activeAlertCount) active alerts are acknowledged in the incident queue.")
+            }
+
+            return activeAlertCount == 1
+                ? String(localized: "1 active alert needs review in the incident queue.")
+                : String(localized: "\(activeAlertCount) active alerts need review in the incident queue.")
+        }
+
+        if mutedAlertCount > 0 {
+            return mutedAlertCount == 1
+                ? String(localized: "1 muted alert remains visible in the incident queue.")
+                : String(localized: "\(mutedAlertCount) muted alerts remain visible in the incident queue.")
+        }
+
+        return String(localized: "Incident queue is clear.")
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

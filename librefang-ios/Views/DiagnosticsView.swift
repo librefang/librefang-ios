@@ -46,7 +46,7 @@ struct DiagnosticsView: View {
                     } header: {
                         Text("Operator Deck")
                     } footer: {
-                        Text("Keep diagnostic state, deeper focus jumps, and neighboring operator surfaces together before the long sections.")
+                        Text("Keep diagnostic state, focus jumps, and nearby surfaces together before the long sections.")
                     }
                 }
 
@@ -185,7 +185,7 @@ struct DiagnosticsView: View {
                                 )
                             }
                         } header: {
-                            Text("Top Token Usage")
+                            Text("Token Leaders")
                         }
                         .id(DiagnosticsSectionAnchor.tokenLeaders)
                     }
@@ -201,7 +201,7 @@ struct DiagnosticsView: View {
                                 )
                             }
                         } header: {
-                            Text("Top Tool Calls")
+                            Text("Tool Leaders")
                         }
                         .id(DiagnosticsSectionAnchor.toolLeaders)
                     }
@@ -238,18 +238,18 @@ struct DiagnosticsView: View {
     private func diagnosticsRouteDeck(_ proxy: ScrollViewProxy) -> some View {
         MonitoringSurfaceGroupCard(
             title: String(localized: "Route Deck"),
-            detail: String(localized: "Keep the longest diagnostic sections and neighboring operator surfaces in one compact deck.")
+            detail: String(localized: "Keep the longest diagnostic sections and nearby surfaces in one compact deck.")
         ) {
             MonitoringShortcutRail(
                 title: String(localized: "Focus Areas"),
-                detail: String(localized: "Keep the longest diagnostic sections reachable as compact jump targets without scanning the full monitor.")
+                detail: String(localized: "Jump to the longest diagnostic sections without scanning the full monitor.")
             ) {
                 if let healthDetail = vm.healthDetail {
                     Button {
                         jump(proxy, to: .health)
                     } label: {
                         MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Health Detail"),
+                            title: String(localized: "Health"),
                             systemImage: "stethoscope",
                             tone: healthDetail.isHealthy ? .positive : .warning,
                             badgeText: healthDetail.localizedStatusLabel
@@ -262,7 +262,7 @@ struct DiagnosticsView: View {
                             jump(proxy, to: .warnings)
                         } label: {
                             MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Config Warnings"),
+                                title: String(localized: "Warnings"),
                                 systemImage: "exclamationmark.triangle",
                                 tone: .warning,
                                 badgeText: healthDetail.configWarnings.count == 1 ? String(localized: "1 warning") : String(localized: "\(healthDetail.configWarnings.count) warnings")
@@ -277,7 +277,7 @@ struct DiagnosticsView: View {
                         jump(proxy, to: .build)
                     } label: {
                         MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Build Metadata"),
+                            title: String(localized: "Build"),
                             systemImage: "shippingbox"
                         )
                     }
@@ -289,7 +289,7 @@ struct DiagnosticsView: View {
                         jump(proxy, to: .config)
                     } label: {
                         MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Runtime Config"),
+                            title: String(localized: "Config"),
                             systemImage: "gearshape.2"
                         )
                     }
@@ -301,7 +301,7 @@ struct DiagnosticsView: View {
                         jump(proxy, to: .metrics)
                     } label: {
                         MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Metrics Snapshot"),
+                            title: String(localized: "Metrics"),
                             systemImage: "chart.xyaxis.line",
                             badgeText: metrics.totalRollingTokens.formatted()
                         )
@@ -313,7 +313,7 @@ struct DiagnosticsView: View {
                             jump(proxy, to: .tokenLeaders)
                         } label: {
                             MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Top Token Usage"),
+                                title: String(localized: "Tokens"),
                                 systemImage: "number",
                                 tone: .warning,
                                 badgeText: metrics.tokenLeaders.count == 1 ? String(localized: "1 leader") : String(localized: "\(metrics.tokenLeaders.count) leaders")
@@ -327,7 +327,7 @@ struct DiagnosticsView: View {
                             jump(proxy, to: .toolLeaders)
                         } label: {
                             MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Top Tool Calls"),
+                                title: String(localized: "Tools"),
                                 systemImage: "wrench.and.screwdriver",
                                 tone: .warning,
                                 badgeText: metrics.toolCallLeaders.count == 1 ? String(localized: "1 leader") : String(localized: "\(metrics.toolCallLeaders.count) leaders")
@@ -340,7 +340,7 @@ struct DiagnosticsView: View {
 
             MonitoringShortcutRail(
                 title: String(localized: "Primary Routes"),
-                detail: String(localized: "Keep the next diagnostic exits visible as compact shortcuts beside the deep-diagnostic digest.")
+                detail: String(localized: "Keep the next diagnostic exits right below the deep-diagnostic digest.")
             ) {
                 NavigationLink {
                     RuntimeView()
