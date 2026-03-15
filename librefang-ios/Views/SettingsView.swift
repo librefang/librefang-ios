@@ -317,29 +317,43 @@ struct SettingsView: View {
                 }
                 .id(SettingsSectionAnchor.language)
 
-                Section("A2A Network") {
-                    NavigationLink {
-                        A2AAgentsView()
-                            .navigationTitle("A2A Agents")
-                    } label: {
-                        HStack {
-                            Label("External Agents", systemImage: "link.circle")
-                            Spacer()
-                            if let count = deps.dashboardViewModel.a2aAgents?.total {
-                                Text("\(count)")
-                                    .foregroundStyle(.secondary)
+                    Section {
+                        MonitoringSurfaceGroupCard(
+                            title: String(localized: "Utility Deck"),
+                            detail: String(localized: "Keep secondary runtime catalogs and external-agent routes close without letting them crowd the primary control deck.")
+                        ) {
+                            MonitoringShortcutRail(
+                                title: String(localized: "Secondary Catalogs"),
+                                detail: String(localized: "Open supporting runtime inventories when device settings need adjacent catalog context.")
+                            ) {
+                                NavigationLink {
+                                    A2AAgentsView()
+                                        .navigationTitle("A2A Agents")
+                                } label: {
+                                    MonitoringSurfaceShortcutChip(
+                                        title: String(localized: "External Agents"),
+                                        systemImage: "link.circle",
+                                        tone: .neutral,
+                                        badgeText: deps.dashboardViewModel.a2aAgents?.total.map(String.init)
+                                    )
+                                }
+                                .buttonStyle(.plain)
+
+                                NavigationLink {
+                                    ToolProfilesView()
+                                } label: {
+                                    MonitoringSurfaceShortcutChip(
+                                        title: String(localized: "Tool Profiles"),
+                                        systemImage: "person.crop.rectangle.stack",
+                                        tone: .neutral
+                                    )
+                                }
+                                .buttonStyle(.plain)
                             }
                         }
+                    } header: {
+                        Text("Utility Deck")
                     }
-                }
-
-                Section("Runtime Catalogs") {
-                    NavigationLink {
-                        ToolProfilesView()
-                    } label: {
-                        Label("Tool Profiles", systemImage: "person.crop.rectangle.stack")
-                    }
-                }
 
                     Section("On Call Focus") {
                     SettingsBadgeFlow(items: onCallFocusBadges)

@@ -631,33 +631,59 @@ struct IncidentsView: View {
                 IncidentIntegrationsCard(vm: vm)
             }
 
-            if vm.unreachableLocalProviderCount > 0 {
-                NavigationLink {
-                    IntegrationsView(
-                        initialSearchText: vm.unreachableLocalProviders.count == 1 ? vm.unreachableLocalProviders[0].displayName : "",
-                        initialScope: .attention
-                    )
-                } label: {
-                    Label("Review Provider Failures", systemImage: "network.slash")
-                }
-            }
+            if vm.unreachableLocalProviderCount > 0 || vm.channelRequiredFieldGapCount > 0 || vm.hasEmptyModelCatalog {
+                MonitoringSurfaceGroupCard(
+                    title: String(localized: "Integration Routes"),
+                    detail: String(localized: "Jump directly into the most likely provider, channel, or catalog failure path.")
+                ) {
+                    MonitoringShortcutRail(title: String(localized: "Review Paths")) {
+                        if vm.unreachableLocalProviderCount > 0 {
+                            NavigationLink {
+                                IntegrationsView(
+                                    initialSearchText: vm.unreachableLocalProviders.count == 1 ? vm.unreachableLocalProviders[0].displayName : "",
+                                    initialScope: .attention
+                                )
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Provider Failures"),
+                                    systemImage: "network.slash",
+                                    tone: .critical,
+                                    badgeText: "\(vm.unreachableLocalProviderCount)"
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
 
-            if vm.channelRequiredFieldGapCount > 0 {
-                NavigationLink {
-                    IntegrationsView(
-                        initialSearchText: vm.channelsMissingRequiredFields.count == 1 ? vm.channelsMissingRequiredFields[0].displayName : "",
-                        initialScope: .attention
-                    )
-                } label: {
-                    Label("Review Channel Field Gaps", systemImage: "bubble.left.and.exclamationmark.bubble.right")
-                }
-            }
+                        if vm.channelRequiredFieldGapCount > 0 {
+                            NavigationLink {
+                                IntegrationsView(
+                                    initialSearchText: vm.channelsMissingRequiredFields.count == 1 ? vm.channelsMissingRequiredFields[0].displayName : "",
+                                    initialScope: .attention
+                                )
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Channel Gaps"),
+                                    systemImage: "bubble.left.and.exclamationmark.bubble.right",
+                                    tone: .warning,
+                                    badgeText: "\(vm.channelRequiredFieldGapCount)"
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
 
-            if vm.hasEmptyModelCatalog {
-                NavigationLink {
-                    IntegrationsView(initialScope: .attention)
-                } label: {
-                    Label("Review Catalog Availability", systemImage: "square.stack.3d.up.slash")
+                        if vm.hasEmptyModelCatalog {
+                            NavigationLink {
+                                IntegrationsView(initialScope: .attention)
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Catalog Availability"),
+                                    systemImage: "square.stack.3d.up.slash",
+                                    tone: .critical
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
                 }
             }
 
@@ -716,10 +742,34 @@ struct IncidentsView: View {
                 )
             }
 
-            NavigationLink {
-                ApprovalsView()
-            } label: {
-                Label("Open Full Approval Queue", systemImage: "checkmark.shield")
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Queue Routes"),
+                detail: String(localized: "Open the dedicated approval monitor when the compact incident list is not enough.")
+            ) {
+                MonitoringShortcutRail(title: String(localized: "Approval Surfaces")) {
+                    NavigationLink {
+                        ApprovalsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Full Queue"),
+                            systemImage: "checkmark.shield",
+                            tone: .warning,
+                            badgeText: "\(vm.pendingApprovalCount)"
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        OnCallView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "On Call"),
+                            systemImage: "waveform.path.ecg",
+                            tone: .warning
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         } header: {
             Text("Pending Approvals")
@@ -736,6 +786,25 @@ struct IncidentsView: View {
                     AgentDetailView(agent: item.agent)
                 } label: {
                     IncidentAgentRow(item: item)
+                }
+            }
+
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Fleet Route"),
+                detail: String(localized: "Open the full fleet monitor when agent pressure spreads beyond the top incident rows.")
+            ) {
+                MonitoringShortcutRail(title: String(localized: "Agent Surfaces")) {
+                    NavigationLink {
+                        AgentsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Full Fleet"),
+                            systemImage: "person.3",
+                            tone: .warning,
+                            badgeText: "\(vm.issueAgentCount)"
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         } header: {
@@ -777,10 +846,34 @@ struct IncidentsView: View {
                 }
             }
 
-            NavigationLink {
-                SessionsView(initialFilter: .attention)
-            } label: {
-                Label("Open Session Monitor", systemImage: "rectangle.stack")
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Queue Routes"),
+                detail: String(localized: "Open the dedicated session monitor when hotspots spread beyond the compact incident list.")
+            ) {
+                MonitoringShortcutRail(title: String(localized: "Session Surfaces")) {
+                    NavigationLink {
+                        SessionsView(initialFilter: .attention)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Session Monitor"),
+                            systemImage: "rectangle.stack",
+                            tone: .warning,
+                            badgeText: "\(vm.sessionAttentionCount)"
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Runtime"),
+                            systemImage: "server.rack",
+                            tone: .neutral
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         } header: {
             Text("Sessions")
@@ -808,10 +901,34 @@ struct IncidentsView: View {
                 }
             }
 
-            NavigationLink {
-                EventsView(api: deps.apiClient, initialScope: .critical)
-            } label: {
-                Label("Open Critical Event Feed", systemImage: "list.bullet.rectangle.portrait")
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Queue Routes"),
+                detail: String(localized: "Open the full event feed when the compact critical trail needs deeper inspection.")
+            ) {
+                MonitoringShortcutRail(title: String(localized: "Event Surfaces")) {
+                    NavigationLink {
+                        EventsView(api: deps.apiClient, initialScope: .critical)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Critical Feed"),
+                            systemImage: "list.bullet.rectangle.portrait",
+                            tone: .critical,
+                            badgeText: "\(vm.recentCriticalAuditCount)"
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        DiagnosticsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Diagnostics"),
+                            systemImage: "stethoscope",
+                            tone: .neutral
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         } header: {
             Text("Critical Events")
