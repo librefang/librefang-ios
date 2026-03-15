@@ -30,7 +30,8 @@ struct OverviewView: View {
         vm.onCallPriorityItems(
             visibleAlerts: visibleMonitoringAlerts,
             watchedAttentionItems: watchedAttentionItems,
-            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
         )
     }
     private var onCallDigestLine: String {
@@ -39,7 +40,8 @@ struct OverviewView: View {
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: activeMutedAlertCount,
             isAcknowledged: isCurrentSnapshotAcknowledged,
-            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
         )
     }
     private var handoffText: String {
@@ -48,7 +50,8 @@ struct OverviewView: View {
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: activeMutedAlertCount,
             isAcknowledged: isCurrentSnapshotAcknowledged,
-            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
         )
     }
     private var preferredOnCallSurface: OnCallSurfacePreference {

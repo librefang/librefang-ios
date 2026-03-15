@@ -41,7 +41,8 @@ extension DashboardViewModel {
     func onCallPriorityItems(
         visibleAlerts: [MonitoringAlertItem],
         watchedAttentionItems: [AgentAttentionItem],
-        handoffCheckInStatus: HandoffCheckInStatus? = nil
+        handoffCheckInStatus: HandoffCheckInStatus? = nil,
+        handoffFollowUpStatuses: [HandoffFollowUpStatus] = []
     ) -> [OnCallPriorityItem] {
         var items: [OnCallPriorityItem] = []
 
@@ -144,6 +145,10 @@ extension DashboardViewModel {
             items.append(checkInItem)
         }
 
+        if let followUpItem = onCallFollowUpItem(for: handoffFollowUpStatuses) {
+            items.append(followUpItem)
+        }
+
         return items
             .sorted { lhs, rhs in
                 if lhs.rank != rhs.rank {
@@ -158,25 +163,28 @@ extension DashboardViewModel {
         watchedAttentionItems: [AgentAttentionItem],
         mutedAlertCount: Int,
         isAcknowledged: Bool,
-        handoffCheckInStatus: HandoffCheckInStatus? = nil
+        handoffCheckInStatus: HandoffCheckInStatus? = nil,
+        handoffFollowUpStatuses: [HandoffFollowUpStatus] = []
     ) -> String {
         let liveCritical = visibleAlerts.filter { $0.severity == .critical }.count
         let watchIssues = watchedAttentionItems.filter { $0.severity > 0 }.count
         let checkInSummary = checkInDigestSummary(for: handoffCheckInStatus)
+        let followUpSummary = followUpDigestSummary(for: handoffFollowUpStatuses)
 
         if !visibleAlerts.isEmpty {
             if isAcknowledged {
                 let base = liveCritical > 0
                     ? "\(liveCritical) critical items acknowledged on this iPhone"
                     : "\(visibleAlerts.count) live alerts acknowledged on this iPhone"
-                return [base, checkInSummary].compactMap { $0 }.joined(separator: " · ")
+                return [base, checkInSummary, followUpSummary].compactMap { $0 }.joined(separator: " · ")
             }
 
             return [
                 "\(visibleAlerts.count) live alerts",
                 "\(pendingApprovalCount) approvals",
                 "\(watchIssues) watched agents need review",
-                checkInSummary
+                checkInSummary,
+                followUpSummary
             ]
             .compactMap { $0 }
             .joined(separator: " · ")
@@ -186,20 +194,29 @@ extension DashboardViewModel {
             let base = mutedAlertCount == 1
                 ? "1 alert is muted locally; watchlist and sessions remain active"
                 : "\(mutedAlertCount) alerts are muted locally; watchlist and sessions remain active"
-            return [base, checkInSummary].compactMap { $0 }.joined(separator: " · ")
+            return [base, checkInSummary, followUpSummary].compactMap { $0 }.joined(separator: " · ")
         }
 
         if watchIssues > 0 {
             return [
                 "\(watchIssues) watched agents still need review even though no live alert card is visible",
-                checkInSummary
+                checkInSummary,
+                followUpSummary
             ]
             .compactMap { $0 }
             .joined(separator: " · ")
         }
 
+        if let checkInSummary, let followUpSummary {
+            return [checkInSummary, followUpSummary].joined(separator: " · ")
+        }
+
         if let checkInSummary {
             return checkInSummary
+        }
+
+        if let followUpSummary {
+            return followUpSummary
         }
 
         return "No live alerts. Monitoring is currently in a calm state on this iPhone."
@@ -269,6 +286,28 @@ extension DashboardViewModel {
         case .overdue:
             return "handoff check-in overdue"
         }
+    }
+
+    private func onCallFollowUpItem(for statuses: [HandoffFollowUpStatus]) -> OnCallPriorityItem? {
+        let pending = statuses.filter { !$0.isCompleted }
+        guard !pending.isEmpty else { return nil }
+
+        return OnCallPriorityItem(
+            id: "handoff-followups",
+            title: pending.count == 1 ? "1 handoff follow-up still open" : "\(pending.count) handoff follow-ups still open",
+            detail: pending.prefix(2).map(\.item).joined(separator: " • "),
+            footnote: "Latest local handoff follow-through",
+            symbolName: "checklist",
+            severity: pending.count >= 3 ? .warning : .advisory,
+            rank: pending.count >= 3 ? 74 : 64,
+            route: .handoffCenter
+        )
+    }
+
+    private func followUpDigestSummary(for statuses: [HandoffFollowUpStatus]) -> String? {
+        let pendingCount = statuses.filter { !$0.isCompleted }.count
+        guard pendingCount > 0 else { return nil }
+        return pendingCount == 1 ? "1 handoff follow-up still open" : "\(pendingCount) handoff follow-ups still open"
     }
 }
 

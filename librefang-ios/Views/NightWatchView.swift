@@ -88,7 +88,8 @@ struct NightWatchView: View {
         vm.onCallPriorityItems(
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
-            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
         )
     }
 
@@ -140,7 +141,8 @@ struct NightWatchView: View {
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
             isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
-            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
         )
     }
 
@@ -150,7 +152,8 @@ struct NightWatchView: View {
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
             isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
-            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
         )
     }
 

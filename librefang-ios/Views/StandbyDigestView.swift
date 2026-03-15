@@ -82,7 +82,8 @@ struct StandbyDigestView: View {
         vm.onCallPriorityItems(
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
-            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
         )
     }
 
@@ -121,7 +122,8 @@ struct StandbyDigestView: View {
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
             isAcknowledged: isAcknowledged,
-            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
         )
     }
     private var handoffText: String {
@@ -130,7 +132,8 @@ struct StandbyDigestView: View {
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
             isAcknowledged: isAcknowledged,
-            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
         )
     }
 

@@ -85,7 +85,8 @@ struct OnCallView: View {
         vm.onCallPriorityItems(
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
-            handoffCheckInStatus: handoffStore.latestCheckInStatus
+            handoffCheckInStatus: handoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: latestFollowUpStatuses
         )
     }
 
@@ -95,7 +96,8 @@ struct OnCallView: View {
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
             isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
-            handoffCheckInStatus: handoffStore.latestCheckInStatus
+            handoffCheckInStatus: handoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: latestFollowUpStatuses
         )
     }
     private var handoffText: String {
@@ -104,7 +106,8 @@ struct OnCallView: View {
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
             isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
-            handoffCheckInStatus: handoffStore.latestCheckInStatus
+            handoffCheckInStatus: handoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: latestFollowUpStatuses
         )
     }
     private var handoffStore: OnCallHandoffStore { deps.onCallHandoffStore }

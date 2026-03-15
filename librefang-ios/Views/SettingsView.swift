@@ -418,7 +418,8 @@ struct SettingsView: View {
         return deps.dashboardViewModel.onCallPriorityItems(
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
-            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
         ).count
     }
 
@@ -428,7 +429,8 @@ struct SettingsView: View {
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: activeMutedAlertCount,
             isAcknowledged: deps.incidentStateStore.isCurrentSnapshotAcknowledged(alerts: deps.dashboardViewModel.monitoringAlerts),
-            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+            handoffFollowUpStatuses: deps.onCallHandoffStore.latestFollowUpStatuses
         )
     }
 

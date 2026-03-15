@@ -6,12 +6,14 @@ extension DashboardViewModel {
         watchedAttentionItems: [AgentAttentionItem],
         mutedAlertCount: Int,
         isAcknowledged: Bool,
-        handoffCheckInStatus: HandoffCheckInStatus? = nil
+        handoffCheckInStatus: HandoffCheckInStatus? = nil,
+        handoffFollowUpStatuses: [HandoffFollowUpStatus] = []
     ) -> String {
         let queue = onCallPriorityItems(
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
-            handoffCheckInStatus: handoffCheckInStatus
+            handoffCheckInStatus: handoffCheckInStatus,
+            handoffFollowUpStatuses: handoffFollowUpStatuses
         )
 
         let watchIssueCount = watchedAttentionItems.filter { $0.severity > 0 }.count
@@ -25,7 +27,8 @@ extension DashboardViewModel {
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
             isAcknowledged: isAcknowledged,
-            handoffCheckInStatus: handoffCheckInStatus
+            handoffCheckInStatus: handoffCheckInStatus,
+            handoffFollowUpStatuses: handoffFollowUpStatuses
         ))
         lines.append("Live alerts: \(visibleAlerts.count) (\(criticalCount) critical)")
         lines.append("Approvals: \(pendingApprovalCount)")
@@ -35,6 +38,12 @@ extension DashboardViewModel {
 
         if let handoffCheckInStatus {
             lines.append("Handoff check-in: \(handoffCheckInStatus.state.label) · \(handoffCheckInStatus.dueLabel)")
+        }
+
+        if !handoffFollowUpStatuses.isEmpty {
+            let pendingCount = handoffFollowUpStatuses.filter { !$0.isCompleted }.count
+            let completedCount = handoffFollowUpStatuses.count - pendingCount
+            lines.append("Handoff follow-ups: \(pendingCount) pending · \(completedCount) done")
         }
 
         if mutedAlertCount > 0 {

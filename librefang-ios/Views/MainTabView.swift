@@ -31,6 +31,9 @@ struct MainTabView: View {
         guard let handoffCheckInStatus, handoffCheckInStatus.state != .scheduled else { return nil }
         return handoffCheckInStatus
     }
+    private var latestFollowUpStatuses: [HandoffFollowUpStatus] {
+        deps.onCallHandoffStore.latestFollowUpStatuses
+    }
     private var isCurrentSnapshotAcknowledged: Bool {
         deps.incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
     }
@@ -75,7 +78,8 @@ struct MainTabView: View {
         vm.onCallPriorityItems(
             visibleAlerts: visibleMonitoringAlerts,
             watchedAttentionItems: watchedAttentionItems,
-            handoffCheckInStatus: handoffCheckInStatus
+            handoffCheckInStatus: handoffCheckInStatus,
+            handoffFollowUpStatuses: latestFollowUpStatuses
         )
     }
     private var handoffText: String {
@@ -84,7 +88,8 @@ struct MainTabView: View {
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: activeMutedAlertCount,
             isAcknowledged: isCurrentSnapshotAcknowledged,
-            handoffCheckInStatus: handoffCheckInStatus
+            handoffCheckInStatus: handoffCheckInStatus,
+            handoffFollowUpStatuses: latestFollowUpStatuses
         )
     }
 
@@ -219,7 +224,8 @@ struct MainTabView: View {
             watchedAttentionItems: watchedAttentionItems,
             scope: deps.onCallNotificationManager.scope,
             isAcknowledged: isCurrentSnapshotAcknowledged,
-            handoffCheckInStatus: handoffCheckInStatus
+            handoffCheckInStatus: handoffCheckInStatus,
+            handoffFollowUpStatuses: latestFollowUpStatuses
         )
     }
 

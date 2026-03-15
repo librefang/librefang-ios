@@ -67,7 +67,8 @@ struct IncidentsView: View {
         vm.onCallPriorityItems(
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
-            handoffCheckInStatus: handoffCheckInStatus
+            handoffCheckInStatus: handoffCheckInStatus,
+            handoffFollowUpStatuses: handoffStore.latestFollowUpStatuses
         )
     }
     private var handoffText: String {
@@ -76,7 +77,8 @@ struct IncidentsView: View {
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlerts.count,
             isAcknowledged: isCurrentSnapshotAcknowledged,
-            handoffCheckInStatus: handoffCheckInStatus
+            handoffCheckInStatus: handoffCheckInStatus,
+            handoffFollowUpStatuses: handoffStore.latestFollowUpStatuses
         )
     }
     private var hasVisibleIncidents: Bool {

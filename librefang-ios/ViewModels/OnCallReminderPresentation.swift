@@ -46,14 +46,16 @@ extension DashboardViewModel {
         watchedAttentionItems: [AgentAttentionItem],
         scope: OnCallReminderScope,
         isAcknowledged: Bool,
-        handoffCheckInStatus: HandoffCheckInStatus? = nil
+        handoffCheckInStatus: HandoffCheckInStatus? = nil,
+        handoffFollowUpStatuses: [HandoffFollowUpStatus] = []
     ) -> OnCallReminderSnapshot? {
         let priorityItems = reminderPriorityItems(
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
             scope: scope,
             isAcknowledged: isAcknowledged,
-            handoffCheckInStatus: handoffCheckInStatus
+            handoffCheckInStatus: handoffCheckInStatus,
+            handoffFollowUpStatuses: handoffFollowUpStatuses
         )
 
         guard !priorityItems.isEmpty else { return nil }
@@ -71,6 +73,7 @@ extension DashboardViewModel {
         }
 
         let watchIssueCount = watchedAttentionItems.filter { $0.severity > 0 }.count
+        let pendingFollowUpCount = handoffFollowUpStatuses.filter { !$0.isCompleted }.count
         var detailParts: [String] = []
 
         switch scope {
@@ -93,6 +96,9 @@ extension DashboardViewModel {
                 case .overdue:
                     detailParts.append("Handoff check-in is overdue")
                 }
+            }
+            if pendingFollowUpCount > 0 {
+                detailParts.append(pendingFollowUpCount == 1 ? "1 handoff follow-up is still open" : "\(pendingFollowUpCount) handoff follow-ups are still open")
             }
             if watchIssueCount > 0 {
                 detailParts.append(watchIssueCount == 1 ? "1 watched agent needs review" : "\(watchIssueCount) watched agents need review")
@@ -157,17 +163,20 @@ extension DashboardViewModel {
         watchedAttentionItems: [AgentAttentionItem],
         scope: OnCallReminderScope,
         isAcknowledged: Bool,
-        handoffCheckInStatus: HandoffCheckInStatus?
+        handoffCheckInStatus: HandoffCheckInStatus?,
+        handoffFollowUpStatuses: [HandoffFollowUpStatus]
     ) -> [OnCallPriorityItem] {
         let allItems = onCallPriorityItems(
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
-            handoffCheckInStatus: handoffCheckInStatus
+            handoffCheckInStatus: handoffCheckInStatus,
+            handoffFollowUpStatuses: handoffFollowUpStatuses
         )
 
         let acknowledgedLiveSnapshot = !visibleAlerts.isEmpty && isAcknowledged
         let watchlistOnlyItems = allItems.filter { $0.id.hasPrefix("watched-agent:") }
         let handoffCheckInItems = allItems.filter { $0.id.hasPrefix("handoff-checkin:") }
+        let handoffFollowUpItems = allItems.filter { $0.id == "handoff-followups" }
 
         switch scope {
         case .criticalOnly:
@@ -182,7 +191,7 @@ extension DashboardViewModel {
                 item.id.hasPrefix("alert:") || item.id.hasPrefix("approval:")
             }
         case .fullQueue:
-            return acknowledgedLiveSnapshot ? watchlistOnlyItems + handoffCheckInItems : allItems
+            return acknowledgedLiveSnapshot ? watchlistOnlyItems + handoffCheckInItems + handoffFollowUpItems : allItems
         }
     }
 }
