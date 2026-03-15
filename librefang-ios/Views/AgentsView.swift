@@ -212,37 +212,31 @@ private struct AgentRow: View {
     private var watchAccentColor: Color { PresentationTone.caution.color }
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .top, spacing: 12) {
             Text(agent.identity?.emoji ?? "🤖")
                 .font(.title2)
                 .frame(width: 36)
 
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Text(agent.name)
-                        .font(.subheadline.weight(.medium))
-                    if isWatched {
-                        Image(systemName: "star.fill")
-                            .font(.caption2)
-                            .foregroundStyle(watchAccentColor)
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 6) {
+                        nameLabel
+                        watchedIcon
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        nameLabel
+                        if isWatched {
+                            watchedIcon
+                        }
                     }
                 }
 
-                HStack(spacing: 6) {
-                    StatePill(state: agent.state)
-
-                    ForEach(attention.statusPills) { pill in
-                        InlineStatusPill(
-                            label: pill.label,
-                            tone: pill.tone,
-                            systemImage: pill.systemImage
-                        )
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 6) {
+                        statusSummary
                     }
-
-                    if let provider = agent.modelProvider {
-                        Text(provider)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 6) {
+                        statusSummary
                     }
                 }
 
@@ -263,6 +257,43 @@ private struct AgentRow: View {
             Spacer()
         }
         .padding(.vertical, 2)
+    }
+
+    private var nameLabel: some View {
+        Text(agent.name)
+            .font(.subheadline.weight(.medium))
+            .lineLimit(2)
+    }
+
+    @ViewBuilder
+    private var watchedIcon: some View {
+        if isWatched {
+            Image(systemName: "star.fill")
+                .font(.caption2)
+                .foregroundStyle(watchAccentColor)
+        }
+    }
+
+    private var statusSummary: some View {
+        Group {
+            StatePill(state: agent.state)
+
+            ForEach(attention.statusPills) { pill in
+                InlineStatusPill(
+                    label: pill.label,
+                    tone: pill.tone,
+                    systemImage: pill.systemImage
+                )
+            }
+
+            if let provider = agent.modelProvider {
+                Text(provider)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+        }
     }
 }
 
@@ -330,26 +361,34 @@ private struct AgentFleetSummaryCard: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            HStack(spacing: 10) {
+            FlowLayout(spacing: 10) {
                 SummaryChip(value: "\(runningCount)", label: String(localized: "Running"), color: runningStatus.tone.color)
                 SummaryChip(value: "\(issueCount)", label: String(localized: "Attention"), color: attentionStatus.tone.color)
                 SummaryChip(value: "\(staleCount)", label: String(localized: "Stale"), color: staleStatus.tone.color)
                 SummaryChip(value: "\(approvalCount)", label: String(localized: "Approvals"), color: approvalStatus.tone.color)
             }
 
-            HStack {
-                Label(
-                    watchlistCount == 1
-                        ? String(localized: "1 watched agent pinned on this iPhone")
-                        : String(localized: "\(watchlistCount) watched agents pinned on this iPhone"),
-                    systemImage: "star.fill"
-                )
-                .font(.caption)
-                .foregroundStyle(watchlistStatus.color(positive: .secondary, neutral: tertiaryLabelColor))
-                Spacer()
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    watchlistLabel
+                    Spacer()
+                }
+                watchlistLabel
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .padding(.horizontal)
+    }
+
+    private var watchlistLabel: some View {
+        Label(
+            watchlistCount == 1
+                ? String(localized: "1 watched agent pinned on this iPhone")
+                : String(localized: "\(watchlistCount) watched agents pinned on this iPhone"),
+            systemImage: "star.fill"
+        )
+        .font(.caption)
+        .foregroundStyle(watchlistStatus.color(positive: .secondary, neutral: tertiaryLabelColor))
     }
 }
 

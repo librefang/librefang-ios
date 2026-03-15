@@ -661,22 +661,16 @@ private struct NightWatchMutedSummaryCard: View {
     let mutedAlertCount: Int
 
     var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "bell.slash.fill")
-                .foregroundStyle(.orange)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(
-                    mutedAlertCount == 1
-                        ? String(localized: "1 alert muted locally")
-                        : String(localized: "\(mutedAlertCount) alerts muted locally")
-                )
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white)
-                Text(String(localized: "Muted alerts stay out of the queue until you unmute them in Incidents."))
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.72))
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 10) {
+                iconLabel
+                summaryBlock
+                Spacer(minLength: 8)
             }
-            Spacer()
+            VStack(alignment: .leading, spacing: 10) {
+                iconLabel
+                summaryBlock
+            }
         }
         .padding(14)
         .background(.black.opacity(0.22))
@@ -686,6 +680,26 @@ private struct NightWatchMutedSummaryCard: View {
         )
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
+
+    private var iconLabel: some View {
+        Image(systemName: "bell.slash.fill")
+            .foregroundStyle(.orange)
+    }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(
+                mutedAlertCount == 1
+                    ? String(localized: "1 alert muted locally")
+                    : String(localized: "\(mutedAlertCount) alerts muted locally")
+            )
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.white)
+            Text(String(localized: "Muted alerts stay out of the queue until you unmute them in Incidents."))
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.72))
+        }
+    }
 }
 
 private struct NightWatchCalmCard: View {
@@ -694,12 +708,21 @@ private struct NightWatchCalmCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Image(systemName: "checkmark.shield.fill")
-                    .foregroundStyle(.green)
-                Text(title)
-                    .font(.headline)
-                    .foregroundStyle(.white)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: "checkmark.shield.fill")
+                        .foregroundStyle(.green)
+                    Text(title)
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                }
+                VStack(alignment: .leading, spacing: 8) {
+                    Image(systemName: "checkmark.shield.fill")
+                        .foregroundStyle(.green)
+                    Text(title)
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                }
             }
 
             Text(detail)
