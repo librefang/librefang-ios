@@ -530,7 +530,7 @@ struct StandbyDigestView: View {
 
     private var surfaceDeckCard: some View {
         StandbySurfaceSectionCard(
-            title: String(localized: "Surface Deck"),
+            title: String(localized: "Routes"),
             detail: String(localized: "Keep the next standby drills in one compact deck.")
         ) {
             StandbySurfaceGroupLabel(title: String(localized: "Primary"))

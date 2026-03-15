@@ -235,9 +235,9 @@ struct HandoffCenterView: View {
                     }
                 )
             } header: {
-                Text("Draft Deck")
+                Text("Draft")
             } footer: {
-                Text("Keep snapshot type, live queue counts, check-in timing, and the operator summary together before the checklist and follow-ups.")
+                Text("Keep snapshot type, live counts, check-in timing, and the summary together before the checklist and follow-ups.")
             }
 
             Section {
@@ -382,7 +382,7 @@ struct HandoffCenterView: View {
         } header: {
             Text("Controls")
         } footer: {
-            Text("Keep live pressure, draft readiness, and next shift routes together before editing.")
+            Text("Keep live pressure, draft readiness, and next routes together before editing.")
         }
     }
 

@@ -562,7 +562,7 @@ struct AgentDetailView: View {
         } header: {
             Text("Controls")
         } footer: {
-            Text("Keep the compact agent digest and the next operator exits together before the longer diagnostics sections.")
+            Text("Keep the digest and next exits together before the longer diagnostics sections.")
         }
     }
 
@@ -1039,7 +1039,7 @@ struct AgentDetailView: View {
             } header: {
                 Text("Assignments & Profile")
             } footer: {
-                Text("Keep tool scope, skills, MCP assignment, and the active tool profile together before leaving the single-agent surface.")
+                Text("Keep tool scope, skills, MCP assignment, and the active profile together before leaving the single-agent surface.")
             }
         }
     }
