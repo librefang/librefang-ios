@@ -198,6 +198,14 @@ struct HandoffCenterView: View {
 
             Section {
                 VStack(alignment: .leading, spacing: 10) {
+                    HandoffDraftSnapshotCard(
+                        kind: handoffStore.draftKind,
+                        readiness: draftReadiness,
+                        focusCount: handoffStore.draftFocusAreas.items.count,
+                        followUpCount: handoffStore.draftFollowUpItems.count,
+                        checkInWindowLabel: handoffStore.draftCheckInWindow.label
+                    )
+
                     Text("Operator note")
                         .font(.subheadline.weight(.semibold))
 
@@ -368,12 +376,12 @@ struct HandoffCenterView: View {
                 }
             } else {
                 Section {
-                    Picker("History Filter", selection: $historyFilter) {
-                        ForEach(HandoffHistoryFilter.allCases) { filter in
-                            Text(filter.label).tag(filter)
-                        }
-                    }
-                    .pickerStyle(.segmented)
+                    HandoffHistoryFilterCard(
+                        filter: $historyFilter,
+                        searchText: searchText,
+                        visibleCount: filteredEntries.count,
+                        totalCount: handoffStore.entries.count
+                    )
 
                     if filteredEntries.isEmpty {
                         ContentUnavailableView(
@@ -429,6 +437,113 @@ struct HandoffCenterView: View {
         return entry.note.localizedCaseInsensitiveContains(query)
             || entry.summary.localizedCaseInsensitiveContains(query)
             || entry.followUpItems.contains(where: { $0.localizedCaseInsensitiveContains(query) })
+    }
+}
+
+private struct HandoffDraftSnapshotCard: View {
+    let kind: HandoffSnapshotKind
+    let readiness: HandoffReadinessStatus
+    let focusCount: Int
+    let followUpCount: Int
+    let checkInWindowLabel: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(String(localized: "Draft snapshot is ready for handoff composition."))
+                .font(.subheadline.weight(.medium))
+
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(text: kind.label, tone: .neutral)
+                PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
+                PresentationToneBadge(
+                    text: focusCount == 1 ? String(localized: "1 focus area") : String(localized: "\(focusCount) focus areas"),
+                    tone: focusCount > 0 ? .positive : .neutral
+                )
+                PresentationToneBadge(
+                    text: followUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(followUpCount) follow-ups"),
+                    tone: followUpCount > 0 ? .warning : .neutral
+                )
+                PresentationToneBadge(text: checkInWindowLabel, tone: .neutral)
+            }
+        }
+        .padding(.bottom, 2)
+    }
+}
+
+private struct HandoffHistoryFilterCard: View {
+    @Binding var filter: HandoffHistoryFilter
+    let searchText: String
+    let visibleCount: Int
+    let totalCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    summaryBlock
+                    Spacer(minLength: 10)
+                    PresentationToneBadge(text: filter.label, tone: badgeTone)
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    summaryBlock
+                    PresentationToneBadge(text: filter.label, tone: badgeTone)
+                }
+            }
+
+            FlowLayout(spacing: 8) {
+                ForEach(HandoffHistoryFilter.allCases) { option in
+                    Button {
+                        filter = option
+                    } label: {
+                        SelectableCapsuleBadge(text: option.label, isSelected: filter == option)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(summaryLine)
+                .font(.subheadline.weight(.medium))
+            Text(searchSummary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "1 saved handoff in history")
+                : String(localized: "\(totalCount) saved handoffs in history")
+        }
+        return String(localized: "\(visibleCount) of \(totalCount) handoffs visible")
+    }
+
+    private var searchSummary: String {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty {
+            return String(localized: "Search notes or summaries to narrow the local handoff history.")
+        }
+        return String(localized: "Search active: \"\(query)\"")
+    }
+
+    private var badgeTone: PresentationTone {
+        switch filter {
+        case .all:
+            return .neutral
+        case .critical:
+            return .critical
+        case .queued:
+            return .warning
+        case .calm:
+            return .positive
+        }
     }
 }
 

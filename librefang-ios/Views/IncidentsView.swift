@@ -147,6 +147,25 @@ struct IncidentsView: View {
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
             }
 
+            Section {
+                IncidentSnapshotCard(
+                    activeAlertCount: visibleAlerts.count,
+                    mutedAlertCount: mutedAlerts.count,
+                    approvalCount: vm.pendingApprovalCount,
+                    agentCount: combinedAgentIssueCount,
+                    sessionCount: vm.sessionAttentionCount,
+                    eventCount: vm.recentCriticalAuditCount,
+                    automationCount: automationIssueCount,
+                    integrationCount: integrationIssueCount,
+                    handoffCount: handoffIssueCount,
+                    isAcknowledged: isCurrentSnapshotAcknowledged
+                )
+            } header: {
+                Text("Snapshot")
+            } footer: {
+                Text("This summary keeps the top incident buckets visible before the long sectioned queue.")
+            }
+
             if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
                 Section("Operator State") {
                     IncidentOperatorCard(
@@ -488,6 +507,90 @@ struct IncidentsView: View {
                 message: error.localizedDescription
             )
         }
+    }
+}
+
+private struct IncidentSnapshotCard: View {
+    let activeAlertCount: Int
+    let mutedAlertCount: Int
+    let approvalCount: Int
+    let agentCount: Int
+    let sessionCount: Int
+    let eventCount: Int
+    let automationCount: Int
+    let integrationCount: Int
+    let handoffCount: Int
+    let isAcknowledged: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(summaryLine)
+                .font(.subheadline.weight(.medium))
+
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: activeAlertCount == 1 ? String(localized: "1 active alert") : String(localized: "\(activeAlertCount) active alerts"),
+                    tone: activeAlertCount > 0 ? .critical : .neutral
+                )
+                if mutedAlertCount > 0 {
+                    PresentationToneBadge(
+                        text: mutedAlertCount == 1 ? String(localized: "1 muted") : String(localized: "\(mutedAlertCount) muted"),
+                        tone: .positive
+                    )
+                }
+                if approvalCount > 0 {
+                    PresentationToneBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        tone: .warning
+                    )
+                }
+                if agentCount > 0 {
+                    PresentationToneBadge(
+                        text: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                        tone: .warning
+                    )
+                }
+                if sessionCount > 0 {
+                    PresentationToneBadge(
+                        text: sessionCount == 1 ? String(localized: "1 session") : String(localized: "\(sessionCount) sessions"),
+                        tone: .warning
+                    )
+                }
+                if eventCount > 0 {
+                    PresentationToneBadge(
+                        text: eventCount == 1 ? String(localized: "1 event") : String(localized: "\(eventCount) events"),
+                        tone: .critical
+                    )
+                }
+                if automationCount > 0 {
+                    PresentationToneBadge(
+                        text: automationCount == 1 ? String(localized: "1 automation") : String(localized: "\(automationCount) automation"),
+                        tone: .warning
+                    )
+                }
+                if integrationCount > 0 {
+                    PresentationToneBadge(
+                        text: integrationCount == 1 ? String(localized: "1 integration") : String(localized: "\(integrationCount) integration"),
+                        tone: .warning
+                    )
+                }
+                if handoffCount > 0 {
+                    PresentationToneBadge(
+                        text: handoffCount == 1 ? String(localized: "1 handoff item") : String(localized: "\(handoffCount) handoff items"),
+                        tone: .warning
+                    )
+                }
+                PresentationToneBadge(
+                    text: isAcknowledged ? String(localized: "Acked") : String(localized: "Live"),
+                    tone: isAcknowledged ? .positive : .critical
+                )
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var summaryLine: String {
+        String(localized: "Incident triage is grouped for quick operator review.")
     }
 }
 

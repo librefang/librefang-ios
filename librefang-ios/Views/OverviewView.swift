@@ -96,6 +96,9 @@ struct OverviewView: View {
             criticalAuditCount: vm.recentCriticalAuditCount
         )
     }
+    private var overviewWatchIssueCount: Int {
+        watchedAttentionItems.filter { $0.severity > 0 }.count
+    }
     private var summaryColumns: [GridItem] {
         let count = horizontalSizeClass == .compact ? 2 : 3
         return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
@@ -161,6 +164,18 @@ struct OverviewView: View {
                         }
                         .buttonStyle(.plain)
                     }
+
+                    OverviewTriageCard(
+                        queueCount: onCallPriorityItems.count,
+                        criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                        approvalCount: vm.pendingApprovalCount,
+                        sessionCount: vm.sessionAttentionCount,
+                        watchIssueCount: overviewWatchIssueCount,
+                        automationIssueCount: vm.automationPressureIssueCategoryCount,
+                        integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                        handoffStateLabel: deps.onCallHandoffStore.freshnessLabel,
+                        handoffTone: deps.onCallHandoffStore.freshnessState.tone
+                    )
 
                     LazyVGrid(columns: summaryColumns, spacing: 10) {
                         StatBadge(
@@ -386,6 +401,62 @@ struct OverviewView: View {
         case .standbyDigest:
             StandbyDigestView()
         }
+    }
+}
+
+private struct OverviewTriageCard: View {
+    let queueCount: Int
+    let criticalCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let watchIssueCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let handoffStateLabel: String
+    let handoffTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(String(localized: "Mobile triage is ready from the current snapshot."))
+                .font(.subheadline.weight(.medium))
+
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                    tone: queueCount > 0 ? .warning : .neutral
+                )
+                PresentationToneBadge(
+                    text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                    tone: criticalCount > 0 ? .critical : .neutral
+                )
+                PresentationToneBadge(
+                    text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                    tone: approvalCount > 0 ? .warning : .neutral
+                )
+                PresentationToneBadge(
+                    text: sessionCount == 1 ? String(localized: "1 session") : String(localized: "\(sessionCount) sessions"),
+                    tone: sessionCount > 0 ? .warning : .neutral
+                )
+                PresentationToneBadge(
+                    text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                    tone: watchIssueCount > 0 ? .warning : .neutral
+                )
+                if automationIssueCount > 0 {
+                    PresentationToneBadge(
+                        text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        tone: .warning
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    PresentationToneBadge(
+                        text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        tone: .warning
+                    )
+                }
+                PresentationToneBadge(text: handoffStateLabel, tone: handoffTone)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
