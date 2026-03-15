@@ -328,7 +328,7 @@ struct IncidentsView: View {
                 Section {
                     ForEach(watchedDiagnosticRows.prefix(5), id: \.agent.id) { row in
                         NavigationLink {
-                            AgentDetailView(agent: row.agent)
+                            watchedDiagnosticsDestination(agent: row.agent, summary: row.summary)
                         } label: {
                             IncidentWatchedDiagnosticRow(agent: row.agent, summary: row.summary)
                         }
@@ -453,6 +453,17 @@ struct IncidentsView: View {
 
     private func eventQuery(for entry: AuditEntry) -> String? {
         entry.agentId.isEmpty ? nil : entry.agentId
+    }
+
+    @ViewBuilder
+    private func watchedDiagnosticsDestination(agent: Agent, summary: WatchedAgentDiagnosticsSummary) -> some View {
+        if summary.failedDeliveries > 0 {
+            AgentDeliveriesView(agent: agent, initialScope: .failed)
+        } else if !summary.missingIdentityFiles.isEmpty {
+            AgentFilesView(agent: agent, initialScope: .missing)
+        } else {
+            AgentDetailView(agent: agent)
+        }
     }
 
     private var approvalActionConfirmationPresented: Binding<Bool> {
@@ -1209,6 +1220,10 @@ private struct IncidentWatchedDiagnosticRow: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
 
+            Text(destinationHint)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+
             HStack(spacing: 8) {
                 if summary.unsettledDeliveries > 0 {
                     issuePill(
@@ -1257,6 +1272,19 @@ private struct IncidentWatchedDiagnosticRow: View {
             .background(color.opacity(0.1))
             .foregroundStyle(color)
             .clipShape(Capsule())
+    }
+
+    private var destinationHint: String {
+        if summary.failedDeliveries > 0 {
+            return String(localized: "Tap to inspect failed delivery receipts.")
+        }
+        if !summary.missingIdentityFiles.isEmpty {
+            return String(localized: "Tap to inspect missing workspace identity files.")
+        }
+        if !summary.unavailableFallbackModels.isEmpty {
+            return String(localized: "Tap to inspect fallback model drift in the agent config snapshot.")
+        }
+        return String(localized: "Tap to inspect operator diagnostics for this pinned agent.")
     }
 }
 
