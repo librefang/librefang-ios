@@ -13,6 +13,7 @@ final class OnCallNotificationManager {
     private static let reminderIdentifier = "oncall.standby.reminder"
     private static let defaultDelayMinutes = 10
     private static let delayValues = [5, 10, 15, 30, 60]
+    private static let minimumLeadTime: TimeInterval = 30
 
     private let defaults: UserDefaults
     private let center: UNUserNotificationCenter
@@ -44,6 +45,7 @@ final class OnCallNotificationManager {
     private(set) var authorizationStatus: UNAuthorizationStatus = .notDetermined
     private(set) var pendingReminderDate: Date?
     private(set) var pendingReminderSummary: String?
+    private(set) var pendingReminderSource: String?
 
     init(
         defaults: UserDefaults = .standard,
@@ -99,6 +101,10 @@ final class OnCallNotificationManager {
         Self.delayValues
     }
 
+    var pendingReminderSourceLabel: String {
+        pendingReminderDate == nil ? "Not armed" : (pendingReminderSource ?? "Standby delay")
+    }
+
     func refreshAuthorizationStatus() async {
         let settings = await notificationSettings()
         authorizationStatus = settings.authorizationStatus
@@ -146,7 +152,8 @@ final class OnCallNotificationManager {
         content.categoryIdentifier = "ONCALL_REMINDER"
         content.threadIdentifier = "oncall-standby"
 
-        let delay = TimeInterval(remindAfterMinutes * 60)
+        let scheduledDate = scheduledReminderDate(for: snapshot)
+        let delay = max(Self.minimumLeadTime, scheduledDate.timeIntervalSinceNow)
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
         let request = UNNotificationRequest(
             identifier: Self.reminderIdentifier,
@@ -158,9 +165,11 @@ final class OnCallNotificationManager {
             try await add(request)
             pendingReminderDate = Date().addingTimeInterval(delay)
             pendingReminderSummary = snapshot.title
+            pendingReminderSource = scheduledReminderSource(for: snapshot, scheduledDate: pendingReminderDate ?? scheduledDate)
         } catch {
             pendingReminderDate = nil
             pendingReminderSummary = nil
+            pendingReminderSource = nil
         }
     }
 
@@ -169,6 +178,34 @@ final class OnCallNotificationManager {
         center.removeDeliveredNotifications(withIdentifiers: [Self.reminderIdentifier])
         pendingReminderDate = nil
         pendingReminderSummary = nil
+        pendingReminderSource = nil
+    }
+
+    private func scheduledReminderDate(for snapshot: OnCallReminderSnapshot) -> Date {
+        let standbyDate = Date().addingTimeInterval(TimeInterval(remindAfterMinutes * 60))
+
+        guard let suggestedDate = snapshot.suggestedDeliveryDate else {
+            return standbyDate
+        }
+
+        let earliestPermitted = Date().addingTimeInterval(Self.minimumLeadTime)
+        let adjustedSuggestedDate = max(suggestedDate, earliestPermitted)
+        return min(standbyDate, adjustedSuggestedDate)
+    }
+
+    private func scheduledReminderSource(for snapshot: OnCallReminderSnapshot, scheduledDate: Date) -> String {
+        guard let suggestedDate = snapshot.suggestedDeliveryDate,
+              let schedulingHint = snapshot.schedulingHint else {
+            return "Standby delay"
+        }
+
+        let earliestPermitted = Date().addingTimeInterval(Self.minimumLeadTime)
+        let adjustedSuggestedDate = max(suggestedDate, earliestPermitted)
+        if abs(adjustedSuggestedDate.timeIntervalSince(scheduledDate)) < 1 {
+            return schedulingHint
+        }
+
+        return "Standby delay"
     }
 
     private func notificationSettings() async -> UNNotificationSettings {

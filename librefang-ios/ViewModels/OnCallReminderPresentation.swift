@@ -36,6 +36,8 @@ struct OnCallReminderSnapshot: Equatable {
     let body: String
     let itemCount: Int
     let criticalCount: Int
+    let suggestedDeliveryDate: Date?
+    let schedulingHint: String?
 }
 
 extension DashboardViewModel {
@@ -118,13 +120,35 @@ extension DashboardViewModel {
             .joined(separator: " · ")
 
         let signature = ([scope.rawValue] + priorityItems.map(\.id)).joined(separator: "|")
+        let includesCheckIn = priorityItems.contains { $0.id.hasPrefix("handoff-checkin:") }
+        let suggestedDeliveryDate: Date?
+        let schedulingHint: String?
+
+        if includesCheckIn, let handoffCheckInStatus {
+            switch handoffCheckInStatus.state {
+            case .scheduled:
+                suggestedDeliveryDate = nil
+                schedulingHint = nil
+            case .dueSoon:
+                suggestedDeliveryDate = handoffCheckInStatus.dueDate
+                schedulingHint = "Handoff check-in"
+            case .overdue:
+                suggestedDeliveryDate = Date().addingTimeInterval(30)
+                schedulingHint = "Handoff check-in overdue"
+            }
+        } else {
+            suggestedDeliveryDate = nil
+            schedulingHint = nil
+        }
 
         return OnCallReminderSnapshot(
             signature: signature,
             title: title,
             body: body.isEmpty ? "Open LibreFang to review the on-call queue." : body,
             itemCount: priorityItems.count,
-            criticalCount: criticalCount
+            criticalCount: criticalCount,
+            suggestedDeliveryDate: suggestedDeliveryDate,
+            schedulingHint: schedulingHint
         )
     }
 

@@ -163,11 +163,20 @@ struct SettingsView: View {
                                 .foregroundStyle(deps.onCallNotificationManager.pendingReminderDate == nil ? .tertiary : .secondary)
                         }
 
+                        LabeledContent("Schedule Driver") {
+                            Text(deps.onCallNotificationManager.pendingReminderSourceLabel)
+                                .foregroundStyle(deps.onCallNotificationManager.pendingReminderDate == nil ? .tertiary : .secondary)
+                        }
+
                         if let pendingReminderSummary = deps.onCallNotificationManager.pendingReminderSummary {
                             Text(pendingReminderSummary)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
+
+                        Text("If a handoff check-in is due before the standby delay, the reminder is pulled forward to that local checkpoint.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
 
