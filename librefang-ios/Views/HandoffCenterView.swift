@@ -36,12 +36,20 @@ struct HandoffCenterView: View {
     private var currentShareText: String {
         OnCallHandoffEntry.buildShareText(
             timestamp: Date(),
+            kind: handoffStore.draftKind,
             note: handoffStore.draftNote.trimmingCharacters(in: .whitespacesAndNewlines),
             summary: summary,
             queueCount: queueCount,
             criticalCount: criticalCount,
             liveAlertCount: liveAlertCount,
             checklist: handoffStore.draftChecklist
+        )
+    }
+    private var suggestedTemplateNote: String {
+        handoffStore.draftKind.suggestedNote(
+            queueCount: queueCount,
+            criticalCount: criticalCount,
+            liveAlertCount: liveAlertCount
         )
     }
     private var filteredEntries: [OnCallHandoffEntry] {
@@ -100,6 +108,39 @@ struct HandoffCenterView: View {
                         criticalCount: criticalCount,
                         liveAlertCount: liveAlertCount
                     )
+
+                    Picker("Snapshot Type", selection: Binding(
+                        get: { handoffStore.draftKind },
+                        set: { handoffStore.draftKind = $0 }
+                    )) {
+                        ForEach(HandoffSnapshotKind.allCases) { kind in
+                            Text(kind.label).tag(kind)
+                        }
+                    }
+
+                    Text(handoffStore.draftKind.summary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    HStack(alignment: .top, spacing: 10) {
+                        HandoffKindBadge(kind: handoffStore.draftKind)
+
+                        Text(suggestedTemplateNote)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Button {
+                        handoffStore.useSuggestedDraftNote(
+                            queueCount: queueCount,
+                            criticalCount: criticalCount,
+                            liveAlertCount: liveAlertCount
+                        )
+                    } label: {
+                        Label("Use Suggested Note", systemImage: "wand.and.stars")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
 
                     HandoffChecklistComposer(
                         checklist: handoffStore.draftChecklist,
@@ -275,6 +316,33 @@ private struct HandoffCadenceCard: View {
     }
 }
 
+struct HandoffKindBadge: View {
+    let kind: HandoffSnapshotKind
+
+    private var accentColor: Color {
+        switch kind {
+        case .routine:
+            .blue
+        case .watch:
+            .yellow
+        case .incident:
+            .red
+        case .recovery:
+            .green
+        }
+    }
+
+    var body: some View {
+        Label(kind.label, systemImage: kind.symbolName)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(accentColor.opacity(0.12))
+            .foregroundStyle(accentColor)
+            .clipShape(Capsule())
+    }
+}
+
 private struct HandoffStatsRow: View {
     let queueCount: Int
     let criticalCount: Int
@@ -306,13 +374,17 @@ private struct HandoffTimelineRow: View {
 
                 Spacer()
 
-                Text(item.gapToOlderEntry == nil ? "Latest" : item.gapLabel)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background((item.isGapWarning ? Color.orange : Color.secondary).opacity(0.12))
-                    .foregroundStyle(item.isGapWarning ? Color.orange : Color.secondary)
-                    .clipShape(Capsule())
+                VStack(alignment: .trailing, spacing: 6) {
+                    HandoffKindBadge(kind: item.entry.kind)
+
+                    Text(item.gapToOlderEntry == nil ? "Latest" : item.gapLabel)
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background((item.isGapWarning ? Color.orange : Color.secondary).opacity(0.12))
+                        .foregroundStyle(item.isGapWarning ? Color.orange : Color.secondary)
+                        .clipShape(Capsule())
+                }
             }
 
             if !item.entry.note.isEmpty {
@@ -500,10 +572,14 @@ private struct HandoffEntryCard: View {
 
                 Spacer()
 
-                ShareLink(item: entry.shareText) {
-                    Image(systemName: "square.and.arrow.up")
+                HStack(spacing: 10) {
+                    HandoffKindBadge(kind: entry.kind)
+
+                    ShareLink(item: entry.shareText) {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
 
             if !entry.note.isEmpty {

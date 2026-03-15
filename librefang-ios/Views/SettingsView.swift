@@ -203,6 +203,10 @@ struct SettingsView: View {
                             Text(latest.checklist.progressLabel)
                                 .foregroundStyle(latest.checklist.pendingLabels.isEmpty ? .green : .secondary)
                         }
+                        LabeledContent("Type") {
+                            Text(latest.kind.label)
+                                .foregroundStyle(handoffKindColor(for: latest.kind))
+                        }
                         LabeledContent("Freshness") {
                             Text(deps.onCallHandoffStore.freshnessLabel)
                                 .foregroundStyle(handoffFreshnessColor)
@@ -413,6 +417,19 @@ struct SettingsView: View {
             .orange
         default:
             .secondary
+        }
+    }
+
+    private func handoffKindColor(for kind: HandoffSnapshotKind) -> Color {
+        switch kind {
+        case .routine:
+            .blue
+        case .watch:
+            .yellow
+        case .incident:
+            .red
+        case .recovery:
+            .green
         }
     }
 }

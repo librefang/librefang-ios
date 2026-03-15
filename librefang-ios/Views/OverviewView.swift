@@ -408,6 +408,8 @@ private struct RecentHandoffCard: View {
                     .clipShape(Capsule())
             }
 
+            HandoffKindBadge(kind: entry.kind)
+
             Text(entry.note.isEmpty ? entry.summary : entry.note)
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(.primary)

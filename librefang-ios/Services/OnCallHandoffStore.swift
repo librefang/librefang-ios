@@ -1,5 +1,66 @@
 import Foundation
 
+enum HandoffSnapshotKind: String, CaseIterable, Codable, Identifiable {
+    case routine
+    case watch
+    case incident
+    case recovery
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .routine:
+            "Routine"
+        case .watch:
+            "Watch"
+        case .incident:
+            "Incident"
+        case .recovery:
+            "Recovery"
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .routine:
+            "clock.badge.checkmark"
+        case .watch:
+            "star.circle"
+        case .incident:
+            "exclamationmark.triangle"
+        case .recovery:
+            "checkmark.arrow.trianglehead.counterclockwise"
+        }
+    }
+
+    var summary: String {
+        switch self {
+        case .routine:
+            "Normal shift coverage with no unusual incident pressure."
+        case .watch:
+            "Use when the next operator should focus on pinned agents, approvals, or session hotspots."
+        case .incident:
+            "Use when active critical incidents or escalations are driving the queue."
+        case .recovery:
+            "Use when pressure is easing and the next operator mainly needs verification and follow-through."
+        }
+    }
+
+    func suggestedNote(queueCount: Int, criticalCount: Int, liveAlertCount: Int) -> String {
+        switch self {
+        case .routine:
+            return "Routine shift snapshot. Queue \(queueCount), live alerts \(liveAlertCount). Continue normal monitoring."
+        case .watch:
+            return "Watchlist-focused handoff. Prioritize pinned agents, pending approvals, and any stale sessions."
+        case .incident:
+            return "Incident handoff. \(criticalCount) critical and \(liveAlertCount) live alerts remain in play. Stay on the priority queue until conditions settle."
+        case .recovery:
+            return "Recovery handoff. Pressure is easing, but confirm approvals, session hotspots, and recent audit activity stay stable."
+        }
+    }
+}
+
 enum HandoffCadenceState {
     case missing
     case single
@@ -124,6 +185,7 @@ struct HandoffChecklistState: Codable, Equatable {
 struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
     let id: String
     let createdAt: Date
+    let kind: HandoffSnapshotKind
     let note: String
     let summary: String
     let queueCount: Int
@@ -134,6 +196,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
     private enum CodingKeys: String, CodingKey {
         case id
         case createdAt
+        case kind
         case note
         case summary
         case queueCount
@@ -145,6 +208,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
     init(
         id: String = UUID().uuidString,
         createdAt: Date = Date(),
+        kind: HandoffSnapshotKind = .routine,
         note: String,
         summary: String,
         queueCount: Int,
@@ -154,6 +218,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
     ) {
         self.id = id
         self.createdAt = createdAt
+        self.kind = kind
         self.note = note
         self.summary = summary
         self.queueCount = queueCount
@@ -166,6 +231,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(String.self, forKey: .id)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
+        kind = try container.decodeIfPresent(HandoffSnapshotKind.self, forKey: .kind) ?? .routine
         note = try container.decode(String.self, forKey: .note)
         summary = try container.decode(String.self, forKey: .summary)
         queueCount = try container.decode(Int.self, forKey: .queueCount)
@@ -178,6 +244,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
         try container.encode(createdAt, forKey: .createdAt)
+        try container.encode(kind, forKey: .kind)
         try container.encode(note, forKey: .note)
         try container.encode(summary, forKey: .summary)
         try container.encode(queueCount, forKey: .queueCount)
@@ -188,6 +255,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
 
     static func buildShareText(
         timestamp: Date,
+        kind: HandoffSnapshotKind,
         note: String,
         summary: String,
         queueCount: Int,
@@ -201,6 +269,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
             lines.append("Operator note: \(note)")
         }
 
+        lines.append("Type: \(kind.label)")
         lines.append("Queue: \(queueCount) · Critical: \(criticalCount) · Live alerts: \(liveAlertCount)")
         lines.append("Checklist: \(checklist.progressLabel)")
 
@@ -220,6 +289,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
     var shareText: String {
         Self.buildShareText(
             timestamp: createdAt,
+            kind: kind,
             note: note,
             summary: summary,
             queueCount: queueCount,
@@ -237,6 +307,7 @@ final class OnCallHandoffStore {
         static let entries = "oncall.handoff.entries"
         static let draftNote = "oncall.handoff.draftNote"
         static let draftChecklist = "oncall.handoff.draftChecklist"
+        static let draftKind = "oncall.handoff.draftKind"
     }
 
     private let defaults: UserDefaults
@@ -255,6 +326,12 @@ final class OnCallHandoffStore {
     var draftChecklist: HandoffChecklistState {
         didSet {
             persistDraftChecklist()
+        }
+    }
+
+    var draftKind: HandoffSnapshotKind {
+        didSet {
+            defaults.set(draftKind.rawValue, forKey: StorageKey.draftKind)
         }
     }
 
@@ -355,6 +432,7 @@ final class OnCallHandoffStore {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         self.draftNote = defaults.string(forKey: StorageKey.draftNote) ?? ""
+        self.draftKind = HandoffSnapshotKind(rawValue: defaults.string(forKey: StorageKey.draftKind) ?? "") ?? .routine
         if let data = defaults.data(forKey: StorageKey.draftChecklist),
            let decoded = try? decoder.decode(HandoffChecklistState.self, from: data) {
             self.draftChecklist = decoded
@@ -377,6 +455,7 @@ final class OnCallHandoffStore {
         liveAlertCount: Int
     ) {
         let entry = OnCallHandoffEntry(
+            kind: draftKind,
             note: draftNote.trimmingCharacters(in: .whitespacesAndNewlines),
             summary: summary,
             queueCount: queueCount,
@@ -413,9 +492,22 @@ final class OnCallHandoffStore {
         draftChecklist.toggle(key)
     }
 
+    func useSuggestedDraftNote(
+        queueCount: Int,
+        criticalCount: Int,
+        liveAlertCount: Int
+    ) {
+        draftNote = draftKind.suggestedNote(
+            queueCount: queueCount,
+            criticalCount: criticalCount,
+            liveAlertCount: liveAlertCount
+        )
+    }
+
     func resetDraft() {
         draftNote = ""
         draftChecklist = HandoffChecklistState()
+        draftKind = .routine
     }
 
     private func persistEntries() {

@@ -382,9 +382,13 @@ private struct OnCallHandoffStatusRow: View {
                 .foregroundStyle(.secondary)
 
             if let latestEntry {
-                Text("Checklist \(latestEntry.checklist.progressLabel) · \(latestEntry.createdAt.formatted(date: .omitted, time: .shortened))")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                HStack {
+                    HandoffKindBadge(kind: latestEntry.kind)
+                    Spacer()
+                    Text("Checklist \(latestEntry.checklist.progressLabel) · \(latestEntry.createdAt.formatted(date: .omitted, time: .shortened))")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
     }
