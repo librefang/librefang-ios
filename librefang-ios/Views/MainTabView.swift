@@ -832,15 +832,9 @@ private struct IncidentCueBanner: View {
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 10) {
-                    acknowledgeButton
-                    openButton
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    acknowledgeButton
-                    openButton
-                }
+            ResponsiveInlineGroup(horizontalSpacing: 10, verticalSpacing: 8) {
+                acknowledgeButton
+                openButton
             }
         }
         .padding(14)

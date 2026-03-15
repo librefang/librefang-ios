@@ -1921,24 +1921,14 @@ private struct SessionWatchlistCard: View {
                 .frame(width: 18)
 
             VStack(alignment: .leading, spacing: 4) {
-                ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .firstTextBaseline, spacing: 12) {
-                        Text(displayTitle(item))
-                            .font(.subheadline.weight(.medium))
-                            .lineLimit(2)
-                        Spacer(minLength: 8)
-                        Text(String(localized: "\(item.session.messageCount) msgs"))
-                            .font(.caption2.monospacedDigit())
-                            .foregroundStyle(.secondary)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(displayTitle(item))
-                            .font(.subheadline.weight(.medium))
-                            .lineLimit(2)
-                        Text(String(localized: "\(item.session.messageCount) msgs"))
-                            .font(.caption2.monospacedDigit())
-                            .foregroundStyle(.secondary)
-                    }
+                ResponsiveAccessoryRow(verticalSpacing: 4) {
+                    Text(displayTitle(item))
+                        .font(.subheadline.weight(.medium))
+                        .lineLimit(2)
+                } accessory: {
+                    Text(String(localized: "\(item.session.messageCount) msgs"))
+                        .font(.caption2.monospacedDigit())
+                        .foregroundStyle(.secondary)
                 }
 
                 Text(item.agent?.name ?? item.session.agentId)
@@ -2002,22 +1992,13 @@ private struct AuditFeedCard: View {
                 .padding(.top, 6)
 
             VStack(alignment: .leading, spacing: 3) {
-                ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .firstTextBaseline, spacing: 12) {
-                        Text(entry.friendlyAction)
-                            .font(.subheadline.weight(.medium))
-                        Spacer(minLength: 8)
-                        Text(relativeTime(entry.timestamp))
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(entry.friendlyAction)
-                            .font(.subheadline.weight(.medium))
-                        Text(relativeTime(entry.timestamp))
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                    }
+                ResponsiveAccessoryRow(verticalSpacing: 4) {
+                    Text(entry.friendlyAction)
+                        .font(.subheadline.weight(.medium))
+                } accessory: {
+                    Text(relativeTime(entry.timestamp))
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
                 }
 
                 Text(entry.detail)

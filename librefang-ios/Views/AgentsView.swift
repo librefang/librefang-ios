@@ -270,26 +270,13 @@ private struct AgentRow: View {
                 .frame(width: 36)
 
             VStack(alignment: .leading, spacing: 3) {
-                ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 6) {
-                        nameLabel
-                        watchedIcon
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        nameLabel
-                        if isWatched {
-                            watchedIcon
-                        }
-                    }
+                ResponsiveInlineGroup(horizontalSpacing: 6, verticalSpacing: 4) {
+                    nameLabel
+                    watchedIcon
                 }
 
-                ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 6) {
-                        statusSummary
-                    }
-                    VStack(alignment: .leading, spacing: 6) {
-                        statusSummary
-                    }
+                FlowLayout(spacing: 6) {
+                    statusSummary
                 }
 
                 if let model = agent.modelName {
@@ -420,14 +407,8 @@ private struct AgentFleetSummaryCard: View {
                 SummaryChip(value: "\(approvalCount)", label: String(localized: "Approvals"), color: approvalStatus.tone.color)
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    watchlistLabel
-                    Spacer()
-                }
-                watchlistLabel
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
+            watchlistLabel
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal)
     }

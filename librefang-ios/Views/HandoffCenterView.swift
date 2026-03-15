@@ -942,17 +942,12 @@ private struct HandoffFollowUpTrackerCard: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            ViewThatFits(in: .horizontal) {
-                Text(String(localized: "\(followUpSummary.completedCount) complete · \(followUpSummary.pendingCount) pending"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(String(localized: "\(followUpSummary.completedCount) complete"))
-                    Text(String(localized: "\(followUpSummary.pendingCount) pending"))
-                }
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+            ResponsiveInlineGroup(horizontalSpacing: 6, verticalSpacing: 2) {
+                Text(String(localized: "\(followUpSummary.completedCount) complete"))
+                Text(String(localized: "\(followUpSummary.pendingCount) pending"))
             }
+            .font(.caption2)
+            .foregroundStyle(.secondary)
 
             ForEach(statuses) { status in
                 Button {
