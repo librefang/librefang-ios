@@ -83,6 +83,7 @@ protocol APIClientProtocol: Sendable {
     func stopAgentRun(agentId: String) async throws -> OperatorActionResponse
     func agentSessions(agentId: String) async throws -> SessionListResponse
     func session(agentId: String) async throws -> AgentSessionSnapshot
+    func agentDetail(agentId: String) async throws -> AgentDetailSnapshot
     func sendMessage(agentId: String, message: String) async throws -> MessageResponse
     func a2aAgents() async throws -> A2AAgentList
     func uploadedFile(fileId: String) async throws -> UploadedFilePayload
@@ -327,6 +328,10 @@ actor APIClient: APIClientProtocol {
 
     func session(agentId: String) async throws -> AgentSessionSnapshot {
         try await get("/api/agents/\(agentId)/session")
+    }
+
+    func agentDetail(agentId: String) async throws -> AgentDetailSnapshot {
+        try await get("/api/agents/\(agentId)")
     }
 
     func sendMessage(agentId: String, message: String) async throws -> MessageResponse {

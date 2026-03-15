@@ -13,7 +13,7 @@ struct OnCallDigestCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(queueCount == 1 ? "1 queued" : "\(queueCount) queued")
+                Text(queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"))
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -188,9 +188,9 @@ struct OnCallView: View {
                 )
 
                 OnCallHandoffStatusRow(
-                    freshnessLabel: handoffStore.freshnessLabel,
+                    freshnessState: handoffStore.freshnessState,
                     freshnessSummary: handoffStore.freshnessSummary,
-                    cadenceLabel: handoffStore.cadenceState.label,
+                    cadenceState: handoffStore.cadenceState,
                     cadenceSummary: handoffStore.cadenceSummary,
                     latestEntry: handoffStore.latestEntry,
                     checkInStatus: handoffStore.latestCheckInStatus,
@@ -396,9 +396,9 @@ struct OnCallView: View {
 }
 
 private struct OnCallHandoffStatusRow: View {
-    let freshnessLabel: String
+    let freshnessState: HandoffFreshnessState
     let freshnessSummary: String
-    let cadenceLabel: String
+    let cadenceState: HandoffCadenceState
     let cadenceSummary: String
     let latestEntry: OnCallHandoffEntry?
     let checkInStatus: HandoffCheckInStatus?
@@ -408,23 +408,23 @@ private struct OnCallHandoffStatusRow: View {
     let followUpStatuses: [HandoffFollowUpStatus]
 
     private var freshnessColor: Color {
-        switch freshnessLabel {
-        case "Fresh":
+        switch freshnessState {
+        case .fresh:
             .green
-        case "Stale":
+        case .stale:
             .orange
-        default:
+        case .missing:
             .red
         }
     }
 
     private var cadenceColor: Color {
-        switch cadenceLabel {
-        case "Steady":
+        switch cadenceState {
+        case .steady:
             .green
-        case "Sparse":
+        case .sparse:
             .orange
-        default:
+        case .missing, .single:
             .secondary
         }
     }
@@ -490,7 +490,7 @@ private struct OnCallHandoffStatusRow: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(freshnessLabel)
+                Text(freshnessState.label)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -508,7 +508,7 @@ private struct OnCallHandoffStatusRow: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(cadenceLabel)
+                Text(cadenceState.label)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -609,7 +609,11 @@ private struct OnCallHandoffStatusRow: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(pendingFollowUpCount == 0 ? "Clear" : "\(pendingFollowUpCount) pending")
+                    Text(
+                        pendingFollowUpCount == 0
+                            ? String(localized: "Clear")
+                            : String(localized: "\(pendingFollowUpCount) pending")
+                    )
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
@@ -618,9 +622,11 @@ private struct OnCallHandoffStatusRow: View {
                         .clipShape(Capsule())
                 }
 
-                Text(pendingFollowUpCount == 0
-                    ? "Latest handoff follow-up items are complete on this iPhone."
-                    : "\(pendingFollowUpCount) of \(followUpStatuses.count) latest handoff follow-up items are still open.")
+                Text(
+                    pendingFollowUpCount == 0
+                        ? String(localized: "Latest handoff follow-up items are complete on this iPhone.")
+                        : String(localized: "\(pendingFollowUpCount) of \(followUpStatuses.count) latest handoff follow-up items are still open.")
+                )
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -629,7 +635,7 @@ private struct OnCallHandoffStatusRow: View {
                 HStack {
                     HandoffKindBadge(kind: latestEntry.kind)
                     Spacer()
-                    Text("Checklist \(latestEntry.checklist.progressLabel) · \(latestEntry.createdAt.formatted(date: .omitted, time: .shortened))")
+                    Text(String(localized: "Checklist \(latestEntry.checklist.progressLabel) · \(latestEntry.createdAt.formatted(date: .omitted, time: .shortened))"))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -647,7 +653,7 @@ private struct OnCallHandoffStatusRow: View {
                 }
 
                 if !followUpStatuses.isEmpty {
-                    Text("\(completedFollowUpCount) complete · \(pendingFollowUpCount) pending")
+                    Text(String(localized: "\(completedFollowUpCount) complete · \(pendingFollowUpCount) pending"))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -674,37 +680,37 @@ private struct OnCallScoreboard: View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatBadge(
                 value: "\(criticalCount)",
-                label: "Critical",
+                label: String(localized: "Critical"),
                 icon: "xmark.octagon",
                 color: criticalCount > 0 ? .red : .secondary
             )
             StatBadge(
                 value: "\(liveAlertCount)",
-                label: "Live Alerts",
+                label: String(localized: "Live Alerts"),
                 icon: "bell.badge",
                 color: liveAlertCount > 0 ? .orange : .secondary
             )
             StatBadge(
                 value: "\(approvalCount)",
-                label: "Approvals",
+                label: String(localized: "Approvals"),
                 icon: "exclamationmark.shield",
                 color: approvalCount > 0 ? .red : .secondary
             )
             StatBadge(
                 value: "\(watchIssueCount)",
-                label: "Watchlist",
+                label: String(localized: "Watchlist"),
                 icon: "star.fill",
                 color: watchIssueCount > 0 ? .yellow : .secondary
             )
             StatBadge(
                 value: "\(sessionCount)",
-                label: "Sessions",
+                label: String(localized: "Sessions"),
                 icon: "rectangle.stack",
                 color: sessionCount > 0 ? .orange : .secondary
             )
             StatBadge(
                 value: "\(eventCount)",
-                label: "Events",
+                label: String(localized: "Events"),
                 icon: "list.bullet.rectangle.portrait",
                 color: eventCount > 0 ? .red : .secondary
             )
@@ -742,8 +748,14 @@ private struct OnCallStatusCard: View {
                 .foregroundStyle(.secondary)
 
             HStack(spacing: 12) {
-                Label(watchCount == 1 ? "1 watched agent" : "\(watchCount) watched agents", systemImage: "star.fill")
-                Label(mutedAlertCount == 1 ? "1 muted alert" : "\(mutedAlertCount) muted alerts", systemImage: "bell.slash")
+                Label(
+                    watchCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchCount) watched agents"),
+                    systemImage: "star.fill"
+                )
+                Label(
+                    mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                    systemImage: "bell.slash"
+                )
             }
             .font(.caption2)
             .foregroundStyle(.secondary)
@@ -765,11 +777,11 @@ private struct OnCallStatusCard: View {
 
     private var statusLabel: String {
         if liveAlertCount > 0 {
-            return isAcknowledged ? "Acked" : "Live"
+            return isAcknowledged ? String(localized: "Acked") : String(localized: "Live")
         }
-        if isAcknowledged { return "Acked" }
-        if mutedAlertCount > 0 { return "Watching" }
-        return "Calm"
+        if isAcknowledged { return String(localized: "Acked") }
+        if mutedAlertCount > 0 { return String(localized: "Watching") }
+        return String(localized: "Calm")
     }
 
     private var statusColor: Color {
@@ -854,7 +866,11 @@ private struct WatchedAgentRow: View {
                     .font(.caption2)
                     .foregroundStyle(.yellow)
                 if let diagnostics, diagnostics.hasIssues {
-                    Text(diagnostics.issueCount == 1 ? "1 operator issue" : "\(diagnostics.issueCount) operator issues")
+                    Text(
+                        diagnostics.issueCount == 1
+                            ? String(localized: "1 operator issue")
+                            : String(localized: "\(diagnostics.issueCount) operator issues")
+                    )
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
@@ -865,7 +881,11 @@ private struct WatchedAgentRow: View {
             }
 
             if isHealthy, diagnostics == nil {
-                Text(agent.isRunning ? "Running normally" : "Pinned for watch, not currently running")
+                Text(
+                    agent.isRunning
+                        ? String(localized: "Running normally")
+                        : String(localized: "Pinned for watch, not currently running")
+                )
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else if let diagnostics, diagnostics.hasIssues {

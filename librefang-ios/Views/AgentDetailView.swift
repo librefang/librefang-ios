@@ -4,6 +4,7 @@ struct AgentDetailView: View {
     let agent: Agent
     @Environment(\.dependencies) private var deps
     @State private var budgetDetail: AgentBudgetDetail?
+    @State private var agentDetailSnapshot: AgentDetailSnapshot?
     @State private var sessionSnapshot: AgentSessionSnapshot?
     @State private var agentSessions: [SessionInfo] = []
     @State private var agentMemory: [AgentMemoryEntry] = []
@@ -32,6 +33,7 @@ struct AgentDetailView: View {
     @State private var isLookingUpSession = false
     @State private var showChat = false
     @State private var isLoadingBudget = true
+    @State private var isLoadingAgentSnapshot = true
     @State private var isLoadingSession = true
     @State private var isLoadingSessions = true
     @State private var isLoadingMemory = true
@@ -123,6 +125,7 @@ struct AgentDetailView: View {
             identitySection
             statusSection
             modelResolutionSection
+            configSnapshotSection
             approvalsSection
             budgetSections
             sessionSections
@@ -146,6 +149,7 @@ struct AgentDetailView: View {
         }
         .task {
             await loadBudget()
+            await loadAgentSnapshot()
             await loadSession()
             await loadSessions()
             await loadMemory()
@@ -578,6 +582,91 @@ struct AgentDetailView: View {
                 Text("Model Resolution")
             } footer: {
                 Text(modelDiagnostic?.detail ?? "This section resolves the agent's requested model through LibreFang's alias map and active model catalog.")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var configSnapshotSection: some View {
+        if let agentDetailSnapshot, hasConfigSnapshotContent(agentDetailSnapshot) {
+            Section {
+                if !agentDetailSnapshot.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Description")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(agentDetailSnapshot.description)
+                    }
+                    .padding(.vertical, 2)
+                }
+
+                if !agentDetailSnapshot.tags.isEmpty {
+                    LabeledContent("Tags") {
+                        Text(agentDetailSnapshot.tags.joined(separator: ", "))
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.trailing)
+                    }
+                }
+
+                if !agentDetailSnapshot.fallbackModels.isEmpty {
+                    LabeledContent("Fallbacks") {
+                        Text("\(agentDetailSnapshot.fallbackModels.count)")
+                            .monospacedDigit()
+                    }
+
+                    ForEach(agentDetailSnapshot.fallbackModels.prefix(3), id: \.id) { fallback in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("\(fallback.provider)/\(fallback.model)")
+                                .font(.subheadline.weight(.medium))
+
+                            if let match = fallbackCatalogModel(for: fallback) {
+                                Text(match.available ? "Catalog available" : "Catalog unavailable")
+                                    .font(.caption)
+                                    .foregroundStyle(match.available ? .green : .orange)
+                            } else {
+                                Text("No catalog match")
+                                    .font(.caption)
+                                    .foregroundStyle(.orange)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+
+                    if agentDetailSnapshot.fallbackModels.count > 3 {
+                        Text("Showing 3 of \(agentDetailSnapshot.fallbackModels.count) fallback models")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                if !agentDetailSnapshot.capabilities.tools.isEmpty {
+                    DetailRow(
+                        icon: "wrench.and.screwdriver",
+                        label: "Manifest Tools",
+                        value: "\(agentDetailSnapshot.capabilities.tools.count) grants"
+                    )
+                }
+
+                if !agentDetailSnapshot.capabilities.network.isEmpty {
+                    DetailRow(
+                        icon: "network",
+                        label: "Network Grants",
+                        value: "\(agentDetailSnapshot.capabilities.network.count) hosts"
+                    )
+                }
+            } header: {
+                Text("Config Snapshot")
+            } footer: {
+                Text("This is the read-only manifest snapshot from LibreFang. Use it to compare runtime behavior against fallback routing and capability grants.")
+            }
+        } else if isLoadingAgentSnapshot {
+            Section("Config Snapshot") {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                        .controlSize(.small)
+                    Spacer()
+                }
             }
         }
     }
@@ -1062,6 +1151,21 @@ struct AgentDetailView: View {
         return trimmed.isEmpty ? nil : trimmed
     }
 
+    private func hasConfigSnapshotContent(_ snapshot: AgentDetailSnapshot) -> Bool {
+        !snapshot.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || !snapshot.tags.isEmpty
+            || !snapshot.fallbackModels.isEmpty
+            || !snapshot.capabilities.tools.isEmpty
+            || !snapshot.capabilities.network.isEmpty
+    }
+
+    private func fallbackCatalogModel(for fallback: AgentFallbackModel) -> CatalogModel? {
+        deps.dashboardViewModel.catalogModels.first { model in
+            model.provider.compare(fallback.provider, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame &&
+            model.id.compare(fallback.model, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+        }
+    }
+
     private var deliveryStatusSummary: String {
         if failedDeliveryCount > 0 {
             return "\(failedDeliveryCount) failed"
@@ -1120,6 +1224,16 @@ struct AgentDetailView: View {
             budgetDetail = try await deps.apiClient.budgetAgent(id: agent.id)
         } catch {
             // Budget is optional
+        }
+    }
+
+    @MainActor
+    private func loadAgentSnapshot() async {
+        defer { isLoadingAgentSnapshot = false }
+        do {
+            agentDetailSnapshot = try await deps.apiClient.agentDetail(agentId: agent.id)
+        } catch {
+            agentDetailSnapshot = nil
         }
     }
 
