@@ -188,6 +188,18 @@ struct OverviewView: View {
                             handoffTone: deps.onCallHandoffStore.freshnessState.tone
                         )
 
+                        OverviewSignalFactsCard(
+                            isDataStale: vm.isDataStale,
+                            isLoopbackServer: isLoopbackServer,
+                            providerCount: vm.configuredProviderCount,
+                            channelCount: vm.readyChannelCount,
+                            approvalCount: vm.pendingApprovalCount,
+                            sessionCount: vm.sessionAttentionCount,
+                            watchIssueCount: overviewWatchIssueCount,
+                            automationIssueCount: vm.automationPressureIssueCategoryCount,
+                            integrationIssueCount: vm.integrationPressureIssueCategoryCount
+                        )
+
                         OverviewQuickLinksCard(
                             criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
                             approvalCount: vm.pendingApprovalCount,
@@ -513,6 +525,79 @@ private struct OverviewTriageCard: View {
                     )
                 }
                 PresentationToneBadge(text: handoffStateLabel, tone: handoffTone)
+            }
+        }
+    }
+}
+
+private struct OverviewSignalFactsCard: View {
+    let isDataStale: Bool
+    let isLoopbackServer: Bool
+    let providerCount: Int
+    let channelCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let watchIssueCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+
+    var body: some View {
+        MonitoringFactsRow {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(String(localized: "Overview signal facts"))
+                    .font(.subheadline.weight(.medium))
+                Text(String(localized: "Keep connection, queue, and operator pressure visible before opening the longer overview cards."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        } accessory: {
+            PresentationToneBadge(
+                text: isDataStale ? String(localized: "Stale") : String(localized: "Live"),
+                tone: isDataStale ? .warning : .positive
+            )
+        } facts: {
+            Label(
+                isLoopbackServer ? String(localized: "Loopback server") : String(localized: "Remote server"),
+                systemImage: "network"
+            )
+            Label(
+                providerCount == 1 ? String(localized: "1 provider") : String(localized: "\(providerCount) providers"),
+                systemImage: "key.horizontal"
+            )
+            Label(
+                channelCount == 1 ? String(localized: "1 ready channel") : String(localized: "\(channelCount) ready channels"),
+                systemImage: "bubble.left.and.bubble.right"
+            )
+            if approvalCount > 0 {
+                Label(
+                    approvalCount == 1 ? String(localized: "1 pending approval") : String(localized: "\(approvalCount) pending approvals"),
+                    systemImage: "checkmark.shield"
+                )
+            }
+            if sessionCount > 0 {
+                Label(
+                    sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                    systemImage: "rectangle.stack"
+                )
+            }
+            if watchIssueCount > 0 {
+                Label(
+                    watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                    systemImage: "star.fill"
+                )
+            }
+            if automationIssueCount > 0 {
+                Label(
+                    automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                    systemImage: "flowchart"
+                )
+            }
+            if integrationIssueCount > 0 {
+                Label(
+                    integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                    systemImage: "square.3.layers.3d.down.forward"
+                )
             }
         }
     }

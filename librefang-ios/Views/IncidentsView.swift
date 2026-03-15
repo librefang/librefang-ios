@@ -195,6 +195,7 @@ struct IncidentsView: View {
     private func incidentSections(_ proxy: ScrollViewProxy) -> some View {
         scoreboardSection
         snapshotSection
+        incidentFactsSection
         quickLinksSection
         queueFocusSection(proxy)
 
@@ -282,6 +283,28 @@ struct IncidentsView: View {
             Text("Snapshot")
         } footer: {
             Text("This summary keeps the top incident buckets visible before the long sectioned queue.")
+        }
+    }
+
+    private var incidentFactsSection: some View {
+        Section {
+            IncidentSignalFactsCard(
+                criticalCount: criticalAlertCount,
+                warningCount: warningAlertCount,
+                mutedCount: mutedAlerts.count,
+                approvalCount: vm.pendingApprovalCount,
+                agentCount: combinedAgentIssueCount,
+                sessionCount: vm.sessionAttentionCount,
+                eventCount: vm.recentCriticalAuditCount,
+                automationCount: automationIssueCount,
+                integrationCount: integrationIssueCount,
+                handoffCount: handoffIssueCount,
+                isAcknowledged: isCurrentSnapshotAcknowledged
+            )
+        } header: {
+            Text("Signal Facts")
+        } footer: {
+            Text("This compact digest keeps the current queue shape visible before operator controls and long grouped sections.")
         }
     }
 
@@ -875,6 +898,97 @@ private struct IncidentSnapshotCard: View {
     }
 }
 
+private struct IncidentSignalFactsCard: View {
+    let criticalCount: Int
+    let warningCount: Int
+    let mutedCount: Int
+    let approvalCount: Int
+    let agentCount: Int
+    let sessionCount: Int
+    let eventCount: Int
+    let automationCount: Int
+    let integrationCount: Int
+    let handoffCount: Int
+    let isAcknowledged: Bool
+
+    var body: some View {
+        MonitoringFactsRow {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(String(localized: "Incident queue facts"))
+                    .font(.subheadline.weight(.medium))
+                Text(String(localized: "Use this digest to judge whether alerts, approvals, handoff coverage, or deeper monitors deserve the next tap."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        } accessory: {
+            PresentationToneBadge(
+                text: isAcknowledged ? String(localized: "Acked") : String(localized: "Live"),
+                tone: isAcknowledged ? .positive : .critical
+            )
+        } facts: {
+            Label(
+                criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                systemImage: "xmark.octagon"
+            )
+            if warningCount > 0 {
+                Label(
+                    warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                    systemImage: "exclamationmark.triangle"
+                )
+            }
+            if mutedCount > 0 {
+                Label(
+                    mutedCount == 1 ? String(localized: "1 muted") : String(localized: "\(mutedCount) muted"),
+                    systemImage: "bell.slash"
+                )
+            }
+            if approvalCount > 0 {
+                Label(
+                    approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                    systemImage: "checkmark.shield"
+                )
+            }
+            if agentCount > 0 {
+                Label(
+                    agentCount == 1 ? String(localized: "1 agent issue") : String(localized: "\(agentCount) agent issues"),
+                    systemImage: "cpu"
+                )
+            }
+            if sessionCount > 0 {
+                Label(
+                    sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                    systemImage: "rectangle.stack"
+                )
+            }
+            if eventCount > 0 {
+                Label(
+                    eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
+                    systemImage: "list.bullet.rectangle.portrait"
+                )
+            }
+            if automationCount > 0 {
+                Label(
+                    automationCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationCount) automation issues"),
+                    systemImage: "flowchart"
+                )
+            }
+            if integrationCount > 0 {
+                Label(
+                    integrationCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationCount) integration issues"),
+                    systemImage: "square.3.layers.3d.down.forward"
+                )
+            }
+            if handoffCount > 0 {
+                Label(
+                    handoffCount == 1 ? String(localized: "1 handoff issue") : String(localized: "\(handoffCount) handoff issues"),
+                    systemImage: "text.badge.plus"
+                )
+            }
+        }
+    }
+}
+
 private struct IncidentScoreboard: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let criticalCount: Int
@@ -1102,6 +1216,28 @@ private struct IncidentQuickLinksCard: View {
                         title: String(localized: "Open Handoff Center"),
                         detail: String(localized: "Capture incident context and keep follow-ups visible for the next operator."),
                         systemImage: "text.badge.plus"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    IncidentQuickLinkRow(
+                        title: String(localized: "Open Runtime"),
+                        detail: String(localized: "Jump to providers, channels, sessions, approvals, and runtime buckets from incidents."),
+                        systemImage: "server.rack"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    DiagnosticsView()
+                } label: {
+                    IncidentQuickLinkRow(
+                        title: String(localized: "Open Diagnostics"),
+                        detail: String(localized: "Jump to health detail, config warnings, build metadata, and metrics from the same incident path."),
+                        systemImage: "stethoscope"
                     )
                 }
                 .buttonStyle(.plain)

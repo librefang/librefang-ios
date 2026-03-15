@@ -44,6 +44,16 @@ struct BudgetView: View {
         return String(localized: "Use the focus areas to jump between limits, trends, models, and per-agent spend.")
     }
 
+    private var budgetPressureTone: PresentationTone {
+        guard let budget = vm.budget else { return .neutral }
+        let utilization = max(budget.dailyPct, budget.monthlyPct)
+        return StatusPresentation.budgetUtilizationStatus(for: utilization)?.tone ?? .neutral
+    }
+
+    private var topModelName: String? {
+        sortedModels.first?.displayName
+    }
+
     var body: some View {
         NavigationStack {
             ScrollViewReader { proxy in
@@ -110,6 +120,22 @@ struct BudgetView: View {
                             Text("Breakdown")
                         } footer: {
                             Text("This snapshot keeps the highest-signal budget breakdowns visible before the charts and long lists.")
+                        }
+
+                        Section {
+                            BudgetFactsCard(
+                                trendDays: vm.usageDaily.count,
+                                modelCount: sortedModels.count,
+                                agentCount: sortedAgents.count,
+                                sortOrderLabel: sortOrder.label,
+                                topAgentName: visibleAgents.first?.name,
+                                topModelName: topModelName,
+                                budgetPressureTone: budgetPressureTone
+                            )
+                        } header: {
+                            Text("Signal Facts")
+                        } footer: {
+                            Text("These facts keep cost shape, ranking mode, and the current leading spenders visible before the detailed charts.")
                         }
 
                         Section {
@@ -188,6 +214,58 @@ struct BudgetView: View {
                             Text("Focus Areas")
                         } footer: {
                             Text("These jump targets keep the longest budget charts and rankings reachable on a compact mobile layout.")
+                        }
+
+                        Section {
+                            NavigationLink {
+                                OverviewView()
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Open Overview"),
+                                    detail: String(localized: "Return to the mobile triage snapshot when spend pressure needs broader on-call context."),
+                                    systemImage: "square.grid.2x2",
+                                    tone: .neutral
+                                )
+                            }
+
+                            NavigationLink {
+                                RuntimeView()
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Open Runtime"),
+                                    detail: String(localized: "Switch to runtime when cost spikes line up with sessions, approvals, or hand activity."),
+                                    systemImage: "waveform.path.ecg",
+                                    tone: budgetPressureTone
+                                )
+                            }
+
+                            NavigationLink {
+                                DiagnosticsView()
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Open Diagnostics"),
+                                    detail: String(localized: "Switch to health, metrics, and build detail when spend drift needs deeper runtime evidence."),
+                                    systemImage: "stethoscope",
+                                    tone: .neutral
+                                )
+                            }
+
+                            NavigationLink {
+                                IntegrationsView(initialScope: .attention)
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Open Integrations"),
+                                    detail: String(localized: "Switch to providers, channels, and model catalog when spend concentration hints at routing drift."),
+                                    systemImage: "square.3.layers.3d.down.forward",
+                                    tone: .neutral,
+                                    badgeText: topModelName,
+                                    badgeTone: .neutral
+                                )
+                            }
+                        } header: {
+                            Text("Operator Surfaces")
+                        } footer: {
+                            Text("These one-tap surfaces keep budget triage connected to the broader mobile monitoring path.")
                         }
                     }
 
@@ -1010,6 +1088,53 @@ private struct BudgetSignalsCard: View {
                         tone: StatusPresentation.budgetUtilizationStatus(for: budget.monthlyPct)?.tone ?? .neutral
                     )
                 }
+            }
+        }
+    }
+}
+
+private struct BudgetFactsCard: View {
+    let trendDays: Int
+    let modelCount: Int
+    let agentCount: Int
+    let sortOrderLabel: String
+    let topAgentName: String?
+    let topModelName: String?
+    let budgetPressureTone: PresentationTone
+
+    var body: some View {
+        MonitoringFactsRow {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(String(localized: "Budget signal facts"))
+                    .font(.subheadline.weight(.medium))
+                Text(String(localized: "Keep trend depth, ranking mode, and the current heavy spenders visible before the longer charts and lists."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        } accessory: {
+            PresentationToneBadge(
+                text: sortOrderLabel,
+                tone: budgetPressureTone
+            )
+        } facts: {
+            Label(
+                trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
+                systemImage: "chart.line.uptrend.xyaxis"
+            )
+            Label(
+                modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
+                systemImage: "square.stack.3d.up"
+            )
+            Label(
+                agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                systemImage: "person.3"
+            )
+            if let topModelName {
+                Label(topModelName, systemImage: "bolt.horizontal.circle")
+            }
+            if let topAgentName {
+                Label(topAgentName, systemImage: "person.crop.circle")
             }
         }
     }
