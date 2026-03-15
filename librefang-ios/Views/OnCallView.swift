@@ -14,6 +14,10 @@ struct OnCallDigestCard: View {
         .countStatus(watchCount, activeTone: .caution)
     }
 
+    private var watchAccentColor: Color {
+        PresentationTone.caution.color
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -21,13 +25,10 @@ struct OnCallDigestCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"))
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(criticalStatus.tone.color.opacity(0.12))
-                    .foregroundStyle(criticalStatus.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(
+                    text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
+                    tone: criticalStatus.tone
+                )
             }
 
             Text(summary)
@@ -39,7 +40,7 @@ struct OnCallDigestCard: View {
                 Label("\(criticalCount)", systemImage: "xmark.octagon")
                     .foregroundStyle(criticalStatus.tone.color)
                 Label("\(watchCount)", systemImage: "star.fill")
-                    .foregroundStyle(watchStatus.tone.color)
+                    .foregroundStyle(watchAccentColor)
                 Spacer()
                 Text("Open")
                     .font(.caption2.weight(.medium))
@@ -442,13 +443,7 @@ private struct OnCallHandoffStatusRow: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(freshnessState.label)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(freshnessState.tone.color.opacity(0.12))
-                    .foregroundStyle(freshnessState.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
             }
 
             Text(freshnessSummary)
@@ -460,13 +455,7 @@ private struct OnCallHandoffStatusRow: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(cadenceState.label)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(cadenceState.tone.color.opacity(0.12))
-                    .foregroundStyle(cadenceState.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(text: cadenceState.label, tone: cadenceState.tone)
             }
 
             Text(cadenceSummary)
@@ -479,13 +468,7 @@ private struct OnCallHandoffStatusRow: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(drift.state.label)
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(drift.state.tone.color.opacity(0.12))
-                        .foregroundStyle(drift.state.tone.color)
-                        .clipShape(Capsule())
+                    PresentationToneBadge(text: drift.state.label, tone: drift.state.tone)
                 }
 
                 Text(drift.compactSummary)
@@ -499,13 +482,7 @@ private struct OnCallHandoffStatusRow: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(carryover.state.label)
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(carryover.state.tone.color.opacity(0.12))
-                        .foregroundStyle(carryover.state.tone.color)
-                        .clipShape(Capsule())
+                    PresentationToneBadge(text: carryover.state.label, tone: carryover.state.tone)
                 }
 
                 Text(carryover.summary)
@@ -518,13 +495,7 @@ private struct OnCallHandoffStatusRow: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(readiness.state.label)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(readiness.state.tone.color.opacity(0.12))
-                    .foregroundStyle(readiness.state.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
             }
 
             Text(readiness.summary)
@@ -537,13 +508,7 @@ private struct OnCallHandoffStatusRow: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(checkInStatus.state.label)
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(checkInStatus.state.tone.color.opacity(0.12))
-                        .foregroundStyle(checkInStatus.state.tone.color)
-                        .clipShape(Capsule())
+                    PresentationToneBadge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
                 }
 
                 Text(checkInStatus.dueLabel)
@@ -563,13 +528,7 @@ private struct OnCallHandoffStatusRow: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(followUpSummary.badgeLabel)
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(followUpSummary.tone.color.opacity(0.12))
-                        .foregroundStyle(followUpSummary.tone.color)
-                        .clipShape(Capsule())
+                    PresentationToneBadge(text: followUpSummary.badgeLabel, tone: followUpSummary.tone)
                 }
 
                 Text(followUpSummary.detailLabel)
@@ -713,13 +672,7 @@ private struct OnCallStatusCard: View {
                 Label("Operator Snapshot", systemImage: "person.crop.rectangle.badge.exclamationmark")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
-                Text(snapshotState.onCallLabel)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(snapshotState.tone.color.opacity(0.12))
-                    .foregroundStyle(snapshotState.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(text: snapshotState.onCallLabel, tone: snapshotState.tone)
             }
 
             Text(digestLine)
@@ -791,13 +744,12 @@ private struct OnCallPriorityRow: View {
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.primary)
                         Spacer()
-                        Text(item.severity.label)
-                            .font(.caption2.weight(.semibold))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(item.severity.tone.color.opacity(0.12))
-                            .foregroundStyle(item.severity.tone.color)
-                            .clipShape(Capsule())
+                        PresentationToneBadge(
+                            text: item.severity.label,
+                            tone: item.severity.tone,
+                            horizontalPadding: 6,
+                            verticalPadding: 2
+                        )
                     }
 
                     Text(item.detail)
@@ -823,6 +775,10 @@ private struct WatchedAgentRow: View {
     let isHealthy: Bool
     let diagnostics: WatchedAgentDiagnosticsSummary?
 
+    private var watchAccentColor: Color {
+        PresentationTone.caution.color
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
@@ -834,24 +790,22 @@ private struct WatchedAgentRow: View {
                 Spacer()
                 Image(systemName: "star.fill")
                     .font(.caption2)
-                    .foregroundStyle(.yellow)
+                    .foregroundStyle(watchAccentColor)
                 if let diagnostics, diagnostics.hasIssues {
                     let issueBadge = watchedAgentDiagnosticIssueCountBadge(summary: diagnostics)
-                    Text(issueBadge.text)
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(issueBadge.tone.color.opacity(0.12))
-                        .foregroundStyle(issueBadge.tone.color)
-                        .clipShape(Capsule())
+                    PresentationToneBadge(
+                        text: issueBadge.text,
+                        tone: issueBadge.tone,
+                        horizontalPadding: 6,
+                        verticalPadding: 2
+                    )
                     let headlineBadge = watchedAgentDiagnosticHeadlineBadge(summary: diagnostics)
-                    Text(headlineBadge.text)
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(headlineBadge.tone.color.opacity(0.12))
-                        .foregroundStyle(headlineBadge.tone.color)
-                        .clipShape(Capsule())
+                    PresentationToneBadge(
+                        text: headlineBadge.text,
+                        tone: headlineBadge.tone,
+                        horizontalPadding: 6,
+                        verticalPadding: 2
+                    )
                 }
             }
 

@@ -409,13 +409,7 @@ private struct AlertsCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(snapshotState.overviewLabel)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(snapshotState.tone.color.opacity(0.12))
-                    .foregroundStyle(snapshotState.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(text: snapshotState.overviewLabel, tone: snapshotState.tone)
             }
 
             if alerts.isEmpty {
@@ -482,13 +476,7 @@ private struct RecentHandoffCard: View {
                     .foregroundStyle(.secondary)
                 Spacer()
                 let freshnessState = freshnessState(for: entry)
-                Text(freshnessState.label)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(freshnessState.tone.color.opacity(0.12))
-                    .foregroundStyle(freshnessState.tone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
             }
 
             HandoffKindBadge(kind: entry.kind)
@@ -1436,6 +1424,10 @@ private struct WatchlistCard: View {
     let items: [AgentAttentionItem]
     let diagnostics: [String: WatchedAgentDiagnosticsSummary]
 
+    private var watchAccentColor: Color {
+        PresentationTone.caution.color
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -1464,33 +1456,30 @@ private struct WatchlistCard: View {
                                     .foregroundStyle(.primary)
                                 Image(systemName: "star.fill")
                                     .font(.caption2)
-                                    .foregroundStyle(.yellow)
+                                    .foregroundStyle(watchAccentColor)
                                 if item.severity > 0 {
-                                    Text(item.reasons.prefix(1).first ?? String(localized: "Needs attention"))
-                                        .font(.caption2.weight(.semibold))
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(item.tone.color.opacity(0.12))
-                                        .foregroundStyle(item.tone.color)
-                                        .clipShape(Capsule())
+                                    PresentationToneBadge(
+                                        text: item.reasons.prefix(1).first ?? String(localized: "Needs attention"),
+                                        tone: item.tone,
+                                        horizontalPadding: 6,
+                                        verticalPadding: 2
+                                    )
                                 }
                                 if let summary = diagnostics[item.agent.id], summary.hasIssues {
                                     let issueBadge = watchedAgentDiagnosticIssueCountBadge(summary: summary)
-                                    Text(issueBadge.text)
-                                        .font(.caption2.weight(.semibold))
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(issueBadge.tone.color.opacity(0.12))
-                                        .foregroundStyle(issueBadge.tone.color)
-                                        .clipShape(Capsule())
+                                    PresentationToneBadge(
+                                        text: issueBadge.text,
+                                        tone: issueBadge.tone,
+                                        horizontalPadding: 6,
+                                        verticalPadding: 2
+                                    )
                                     let headlineBadge = watchedAgentDiagnosticHeadlineBadge(summary: summary)
-                                    Text(headlineBadge.text)
-                                        .font(.caption2.weight(.semibold))
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(headlineBadge.tone.color.opacity(0.12))
-                                        .foregroundStyle(headlineBadge.tone.color)
-                                        .clipShape(Capsule())
+                                    PresentationToneBadge(
+                                        text: headlineBadge.text,
+                                        tone: headlineBadge.tone,
+                                        horizontalPadding: 6,
+                                        verticalPadding: 2
+                                    )
                                 }
                             }
 
