@@ -57,7 +57,7 @@ struct EventsView: View {
             } header: {
                 Text("Operator Deck")
             } footer: {
-                Text("Keep event pressure, transport state, drilldowns, and filter scope grouped together before the long feed.")
+                Text("Keep event pressure, transport state, routes, and filters together before the long feed.")
             }
 
             if filteredEntries.isEmpty && !viewModel.isLoading {
@@ -126,7 +126,7 @@ struct EventsView: View {
                     : (filteredEntries.count == 1
                         ? String(localized: "1 event is visible in the current event feed.")
                         : String(localized: "\(filteredEntries.count) events are visible in the current event feed.")),
-                detail: String(localized: "Critical audit pressure and transport state stay visible before the longer event list.")
+                detail: String(localized: "Critical audit pressure and transport state stay visible before the longer feed.")
             ) {
                 FlowLayout(spacing: 8) {
                     PresentationToneBadge(text: scope.label, tone: scopeTone)
@@ -159,7 +159,7 @@ struct EventsView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(String(localized: "Event feed facts"))
                         .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep severity scope, transport mode, and visible audit pressure readable before opening the full event list."))
+                    Text(String(localized: "Keep severity scope, transport mode, and visible audit pressure readable before opening the full feed."))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
@@ -197,8 +197,8 @@ struct EventsView: View {
     private var eventsControlDeckCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Quick Routes"),
-                detail: String(localized: "Jump straight to incidents, runtime, sessions, diagnostics, or comms without expanding another long stack of route cards.")
+                title: String(localized: "Routes"),
+                detail: String(localized: "Jump straight to incidents, runtime, sessions, diagnostics, or comms without another long route stack.")
             ) {
                 FlowLayout(spacing: 8) {
                     NavigationLink {

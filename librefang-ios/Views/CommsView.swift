@@ -54,7 +54,7 @@ struct CommsView: View {
             } header: {
                 Text("Operator Deck")
             } footer: {
-                Text("Keep comms pressure, transport mode, drilldowns, and filter state grouped together before topology and recent events.")
+                Text("Keep comms pressure, transport mode, routes, and filters together before topology and recent events.")
             }
 
             Section {
@@ -156,7 +156,7 @@ struct CommsView: View {
                     : (filteredEvents.count == 1
                         ? String(localized: "1 comms event is visible in the current mobile feed.")
                         : String(localized: "\(filteredEvents.count) comms events are visible in the current mobile feed.")),
-                detail: String(localized: "Use the snapshot to judge whether comms traffic, links, or event flow deserves the next drill-down.")
+                detail: String(localized: "Use the snapshot to judge whether comms traffic, links, or event flow deserves the next drilldown.")
             ) {
                 FlowLayout(spacing: 8) {
                     PresentationToneBadge(
@@ -184,7 +184,7 @@ struct CommsView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(String(localized: "Comms signal facts"))
                         .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep transport mode, topology depth, and event flow visible before opening longer comms sections or other monitors."))
+                    Text(String(localized: "Keep transport mode, topology depth, and event flow visible before opening longer comms sections."))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
@@ -224,8 +224,8 @@ struct CommsView: View {
     private var commsControlDeckCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Quick Routes"),
-                detail: String(localized: "Jump straight to runtime, incidents, audit, or external-agent inventory without another stack of long route cards.")
+                title: String(localized: "Routes"),
+                detail: String(localized: "Jump straight to runtime, incidents, audit, or external-agent inventory without another long route stack.")
             ) {
                 FlowLayout(spacing: 8) {
                     NavigationLink {

@@ -87,7 +87,7 @@ struct SessionsView: View {
             } header: {
                 Text("Operator Deck")
             } footer: {
-                Text("Keep session backlog pressure, drilldowns, and filter scope grouped together before the long queue.")
+                Text("Keep session backlog pressure, routes, and filters together before the long queue.")
             }
 
             if filteredItems.isEmpty && !vm.isLoading {
@@ -204,7 +204,7 @@ struct SessionsView: View {
                 summary: vm.totalSessionCount == 1
                     ? String(localized: "1 session is visible in the current workspace snapshot.")
                     : String(localized: "\(vm.totalSessionCount) sessions are visible in the current workspace snapshot."),
-                detail: String(localized: "High-volume, unlabeled, and duplicated sessions stay visible before the longer operator list.")
+                detail: String(localized: "High-volume, unlabeled, and duplicated sessions stay visible before the longer list.")
             ) {
                 FlowLayout(spacing: 8) {
                     PresentationToneBadge(text: filter.label, tone: snapshotFilterTone)
@@ -245,7 +245,7 @@ struct SessionsView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(String(localized: "Session queue facts"))
                         .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep backlog scope, hotspot counts, and current result volume visible before working through the session list."))
+                    Text(String(localized: "Keep backlog scope, hotspot counts, and result volume visible before working the session list."))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
@@ -292,8 +292,8 @@ struct SessionsView: View {
     private var sessionsControlDeckCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Quick Routes"),
-                detail: String(localized: "Jump straight to the next queue, fleet, or audit surface without another stack of long route cards.")
+                title: String(localized: "Routes"),
+                detail: String(localized: "Jump straight to the next queue, fleet, or audit surface without another long route stack.")
             ) {
                 FlowLayout(spacing: 8) {
                     NavigationLink {
