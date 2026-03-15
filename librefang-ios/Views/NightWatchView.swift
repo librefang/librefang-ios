@@ -438,6 +438,18 @@ struct NightWatchView: View {
             title: String(localized: "Controls"),
             detail: String(localized: "Keep display controls and the next night-duty drills in one deck.")
         ) {
+            NightWatchRouteInventoryCard(
+                primaryRouteCount: 5,
+                supportRouteCount: 8,
+                queueCount: priorityItems.count,
+                criticalCount: criticalCount,
+                approvalCount: vm.pendingApprovalCount,
+                sessionCount: vm.sessionAttentionCount,
+                eventCount: vm.recentCriticalAuditCount,
+                automationIssueCount: automationIssueCount,
+                integrationIssueCount: integrationIssueCount
+            )
+
             NightWatchSurfaceGroupLabel(title: String(localized: "Display Controls"))
 
             NightWatchControlMenuRow(
@@ -1256,6 +1268,98 @@ private struct NightWatchWatchlistInventoryCard: View {
         quietWatchedCount == 0
             ? String(localized: "Every pinned agent is currently active, so the watchlist row is carrying the full local watch surface.")
             : String(localized: "\(quietWatchedCount) pinned agents are quiet right now, so this row stays focused on the agents with live pressure.")
+    }
+}
+
+private struct NightWatchRouteInventoryCard: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let queueCount: Int
+    let criticalCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let eventCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Night Watch is grouping \(primaryRouteCount) primary routes and \(supportRouteCount) support drills in one control rail."),
+                detail: String(localized: "Display settings stay first, then the route rail splits immediate night-duty exits from slower support surfaces."),
+                verticalPadding: 2
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: queueCount == 1 ? String(localized: "1 queued route context") : String(localized: "\(queueCount) queued route context"),
+                        tone: queueCount > 0 ? .warning : .neutral
+                    )
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical route") : String(localized: "\(criticalCount) critical routes"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow(factsColor: .white.opacity(0.72)) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route inventory"))
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white)
+                    Text(String(localized: "Primary routes keep the next live moves above the slower runtime, diagnostics, and settings drills."))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.66))
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
+                    tone: .neutral
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                Label(
+                    supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                    systemImage: "square.grid.2x2"
+                )
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if sessionCount > 0 {
+                    Label(
+                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        systemImage: "rectangle.stack"
+                    )
+                }
+                if eventCount > 0 {
+                    Label(
+                        eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
+                        systemImage: "list.bullet.rectangle.portrait"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

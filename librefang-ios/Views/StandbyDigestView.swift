@@ -561,6 +561,19 @@ struct StandbyDigestView: View {
             title: String(localized: "Routes"),
             detail: String(localized: "Keep the next standby drills in one deck.")
         ) {
+            StandbyRouteInventoryDeck(
+                primaryRouteCount: 6,
+                supportRouteCount: 6,
+                queueCount: priorityItems.count,
+                criticalCount: criticalCount,
+                watchIssueCount: watchIssueCount,
+                mutedAlertCount: mutedAlertCount,
+                pendingFollowUpCount: pendingFollowUpCount,
+                approvalCount: vm.pendingApprovalCount,
+                automationIssueCount: automationIssueCount,
+                integrationIssueCount: integrationIssueCount
+            )
+
             StandbySurfaceGroupLabel(title: String(localized: "Primary"))
 
             FlowLayout(spacing: 8) {
@@ -1117,6 +1130,105 @@ private struct StandbyWatchlistInventoryCard: View {
         quietPinnedCount == 0
             ? String(localized: "Every pinned agent currently has some live pressure, so this watchlist row carries the full local watch surface.")
             : String(localized: "\(quietPinnedCount) pinned agents are quiet right now, so the watchlist row stays focused on the agents with live standby pressure.")
+    }
+}
+
+private struct StandbyRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let queueCount: Int
+    let criticalCount: Int
+    let watchIssueCount: Int
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let approvalCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Standby is grouping \(primaryRouteCount) primary routes and \(supportRouteCount) support routes in one calm control deck."),
+                detail: String(localized: "The first rail keeps the next live drills close, while the support rail holds slower background and sharing surfaces."),
+                verticalPadding: 2
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: queueCount == 1 ? String(localized: "1 queued route context") : String(localized: "\(queueCount) queued route context"),
+                        tone: queueCount > 0 ? .warning : .neutral
+                    )
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical route") : String(localized: "\(criticalCount) critical routes"),
+                            tone: .critical
+                        )
+                    }
+                    if mutedAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: mutedAlertCount == 1 ? String(localized: "1 muted route context") : String(localized: "\(mutedAlertCount) muted route context"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow(factsColor: .white.opacity(0.72)) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route inventory"))
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white)
+                    Text(String(localized: "Use the compact route inventory to decide whether standby should escalate into night watch, on-call, or a slower support drill."))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.66))
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
+                    tone: .neutral
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                Label(
+                    supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                    systemImage: "square.grid.2x2"
+                )
+                if watchIssueCount > 0 {
+                    Label(
+                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    Label(
+                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
+                        systemImage: "checklist.unchecked"
+                    )
+                }
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

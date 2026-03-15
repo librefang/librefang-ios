@@ -440,6 +440,15 @@ struct HandoffCenterView: View {
         Section {
             VStack(alignment: .leading, spacing: 12) {
                 handoffSignalFactsCard
+                HandoffRouteInventoryDeck(
+                    queueCount: queueCount,
+                    criticalCount: criticalCount,
+                    liveAlertCount: liveAlertCount,
+                    pendingApprovalCount: vm.pendingApprovalCount,
+                    diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                    primaryRouteCount: 4,
+                    supportRouteCount: 3
+                )
                 handoffSurfaceDeckCard
             }
         } header: {
@@ -1141,6 +1150,83 @@ private struct HandoffTimelineInventoryDeck: View {
     private var oldestLabel: String? {
         guard let oldest = items.map(\.entry.createdAt).min() else { return nil }
         return String(localized: "Oldest \(RelativeDateTimeFormatter().localizedString(for: oldest, relativeTo: Date()))")
+    }
+}
+
+private struct HandoffRouteInventoryDeck: View {
+    let queueCount: Int
+    let criticalCount: Int
+    let liveAlertCount: Int
+    let pendingApprovalCount: Int
+    let diagnosticsWarningCount: Int
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "The handoff deck keeps \(primaryRouteCount) primary routes and \(supportRouteCount) support routes close to the draft."),
+                detail: String(localized: "Live queue exits stay on the primary rail; runtime and settings stay behind them on the support rail."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: queueCount == 1 ? String(localized: "1 queued route context") : String(localized: "\(queueCount) queued route context"),
+                        tone: queueCount > 0 ? .warning : .neutral
+                    )
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical route") : String(localized: "\(criticalCount) critical routes"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the compact route inventory before leaving the draft, so queue-first exits stay distinct from slower support drills."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
+                    tone: .neutral
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                Label(
+                    supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                    systemImage: "square.grid.2x2"
+                )
+                if liveAlertCount > 0 {
+                    Label(
+                        liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
+                        systemImage: "bell.badge"
+                    )
+                }
+                if pendingApprovalCount > 0 {
+                    Label(
+                        pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(pendingApprovalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if diagnosticsWarningCount > 0 {
+                    Label(
+                        diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
+                        systemImage: "stethoscope"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
