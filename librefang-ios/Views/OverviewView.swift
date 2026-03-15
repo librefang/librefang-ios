@@ -474,7 +474,7 @@ private struct OverviewStatusDeckCard: View {
     let handoffTone: PresentationTone
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             MonitoringSnapshotCard(summary: String(localized: "Mobile triage is ready from the current snapshot.")) {
                 FlowLayout(spacing: 8) {
                     PresentationToneBadge(
@@ -599,7 +599,7 @@ private struct OverviewEntryDeckCard: View {
     let onJump: (OverviewSectionAnchor) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             MonitoringSnapshotCard(
                 summary: String(localized: "Overview control deck keeps the next operator surfaces visible without stacking multiple similar cards."),
                 detail: String(localized: "Use these exits when the top snapshot already tells you where to go next.")
@@ -890,7 +890,7 @@ private struct AlertsCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             ResponsiveAccessoryRow {
                 Label("Attention", systemImage: "bell.badge")
                     .font(.subheadline.weight(.semibold))
@@ -905,7 +905,7 @@ private struct AlertsCard: View {
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(alerts.prefix(4)) { alert in
-                    HStack(alignment: .top, spacing: 10) {
+                    HStack(alignment: .top, spacing: 8) {
                         Image(systemName: alert.symbolName)
                             .foregroundStyle(alert.severity.tone.color)
                             .frame(width: 18)
@@ -933,7 +933,7 @@ private struct AlertsCard: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding()
+        .padding(14)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
@@ -952,11 +952,11 @@ private struct RecentHandoffCard: View {
 
     private var badgeColumns: [GridItem] {
         let count = horizontalSizeClass == .compact ? 2 : 4
-        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
+        return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             ResponsiveAccessoryRow(horizontalAlignment: .firstTextBaseline, verticalSpacing: 8) {
                 Label("Last Handoff", systemImage: "text.badge.plus")
                     .font(.subheadline.weight(.semibold))
@@ -982,7 +982,7 @@ private struct RecentHandoffCard: View {
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
-            LazyVGrid(columns: badgeColumns, spacing: 10) {
+            LazyVGrid(columns: badgeColumns, spacing: 8) {
                 HandoffBadge(value: entry.queueCount, label: String(localized: "Queued"))
                 HandoffBadge(value: entry.criticalCount, label: String(localized: "Critical"))
                 HandoffBadge(value: entry.liveAlertCount, label: String(localized: "Live"))
@@ -1055,7 +1055,7 @@ private struct RecentHandoffCard: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding()
+        .padding(14)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
@@ -1080,8 +1080,8 @@ private struct HandoffBadge: View {
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
+        .padding(.horizontal, 7)
+        .padding(.vertical, 5)
         .background(.secondary.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
