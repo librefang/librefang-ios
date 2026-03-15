@@ -177,75 +177,85 @@ struct SessionsView: View {
             }
 
             Section {
-                NavigationLink {
-                    RuntimeView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Runtime"),
-                        detail: String(localized: "Switch back to runtime with session hotspots folded into the main operator snapshot."),
-                        systemImage: "server.rack",
-                        tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
-                        badgeText: vm.sessionAttentionCount > 0
-                            ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
-                            : nil,
-                        badgeTone: .warning
-                    )
+                SessionSurfaceGroup(
+                    title: String(localized: "Primary Surfaces"),
+                    detail: String(localized: "Keep the next queue and fleet exits closest to the session backlog list.")
+                ) {
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Runtime"),
+                            detail: String(localized: "Switch back to runtime with session hotspots folded into the main operator snapshot."),
+                            systemImage: "server.rack",
+                            tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                            badgeText: vm.sessionAttentionCount > 0
+                                ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
+                                : nil,
+                            badgeTone: .warning
+                        )
+                    }
+
+                    NavigationLink {
+                        IncidentsView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Incidents"),
+                            detail: String(localized: "Switch to incidents where session backlog sits beside alerts and approvals."),
+                            systemImage: "bell.badge",
+                            tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                            badgeText: vm.sessionAttentionCount > 0
+                                ? (vm.sessionAttentionCount == 1 ? String(localized: "1 queue item") : String(localized: "\(vm.sessionAttentionCount) queue items"))
+                                : nil,
+                            badgeTone: .warning
+                        )
+                    }
+
+                    NavigationLink {
+                        OnCallView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open On Call"),
+                            detail: String(localized: "Switch to the prioritized queue when session hotspots need incident-level triage."),
+                            systemImage: "waveform.path.ecg",
+                            tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                            badgeText: vm.sessionAttentionCount > 0
+                                ? (vm.sessionAttentionCount == 1 ? String(localized: "1 session issue") : String(localized: "\(vm.sessionAttentionCount) session issues"))
+                                : nil,
+                            badgeTone: .warning
+                        )
+                    }
+
+                    NavigationLink {
+                        AgentsView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Agents"),
+                            detail: String(localized: "Switch to fleet view when session pressure clusters around specific agents."),
+                            systemImage: "person.3",
+                            tone: vm.multiSessionAgentCount > 0 ? .warning : .neutral,
+                            badgeText: vm.multiSessionAgentCount > 0
+                                ? (vm.multiSessionAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(vm.multiSessionAgentCount) agents"))
+                                : nil,
+                            badgeTone: .warning
+                        )
+                    }
                 }
 
-                NavigationLink {
-                    IncidentsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Incidents"),
-                        detail: String(localized: "Switch to incidents where session backlog sits beside alerts and approvals."),
-                        systemImage: "bell.badge",
-                        tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
-                        badgeText: vm.sessionAttentionCount > 0
-                            ? (vm.sessionAttentionCount == 1 ? String(localized: "1 queue item") : String(localized: "\(vm.sessionAttentionCount) queue items"))
-                            : nil,
-                        badgeTone: .warning
-                    )
-                }
-
-                NavigationLink {
-                    OnCallView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open On Call"),
-                        detail: String(localized: "Switch to the prioritized queue when session hotspots need incident-level triage."),
-                        systemImage: "waveform.path.ecg",
-                        tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
-                        badgeText: vm.sessionAttentionCount > 0
-                            ? (vm.sessionAttentionCount == 1 ? String(localized: "1 session issue") : String(localized: "\(vm.sessionAttentionCount) session issues"))
-                            : nil,
-                        badgeTone: .warning
-                    )
-                }
-
-                NavigationLink {
-                    AgentsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Agents"),
-                        detail: String(localized: "Switch to fleet view when session pressure clusters around specific agents."),
-                        systemImage: "person.3",
-                        tone: vm.multiSessionAgentCount > 0 ? .warning : .neutral,
-                        badgeText: vm.multiSessionAgentCount > 0
-                            ? (vm.multiSessionAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(vm.multiSessionAgentCount) agents"))
-                            : nil,
-                        badgeTone: .warning
-                    )
-                }
-
-                NavigationLink {
-                    EventsView(api: deps.apiClient, initialScope: .warning)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Events"),
-                        detail: String(localized: "Switch to the audit feed when session backlog may be tied to recent warnings or critical events."),
-                        systemImage: "list.bullet.rectangle.portrait",
-                        tone: .warning
-                    )
+                SessionSurfaceGroup(
+                    title: String(localized: "Supporting Surfaces"),
+                    detail: String(localized: "Keep audit context separate from the primary session exits.")
+                ) {
+                    NavigationLink {
+                        EventsView(api: deps.apiClient, initialScope: .warning)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Events"),
+                            detail: String(localized: "Switch to the audit feed when session backlog may be tied to recent warnings or critical events."),
+                            systemImage: "list.bullet.rectangle.portrait",
+                            tone: .warning
+                        )
+                    }
                 }
             } header: {
                 Text("Operator Surfaces")
@@ -618,6 +628,27 @@ enum SessionFilter: CaseIterable {
         case .unlabeled:
             "tag.slash"
         }
+    }
+}
+
+private struct SessionSurfaceGroup<Content: View>: View {
+    let title: String
+    let detail: String
+    let content: Content
+
+    init(title: String, detail: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.detail = detail
+        self.content = content()
+    }
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: title, detail: detail) {
+            VStack(spacing: 10) {
+                content
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 

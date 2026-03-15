@@ -348,101 +348,111 @@ struct IntegrationsView: View {
                     }
 
                     Section {
-                        NavigationLink {
-                            RuntimeView()
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Open Runtime"),
-                                detail: String(localized: "Switch back to runtime with integration pressure folded into the main operator monitor."),
-                                systemImage: "server.rack",
-                                tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
-                                badgeText: vm.integrationPressureIssueCategoryCount > 0
-                                    ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
-                                    : nil,
-                                badgeTone: .critical
-                            )
+                        IntegrationSurfaceGroup(
+                            title: String(localized: "Primary Surfaces"),
+                            detail: String(localized: "Keep the next operator exits closest to provider, channel, and drift inventory.")
+                        ) {
+                            NavigationLink {
+                                RuntimeView()
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Open Runtime"),
+                                    detail: String(localized: "Switch back to runtime with integration pressure folded into the main operator monitor."),
+                                    systemImage: "server.rack",
+                                    tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                                    badgeText: vm.integrationPressureIssueCategoryCount > 0
+                                        ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
+                                        : nil,
+                                    badgeTone: .critical
+                                )
+                            }
+
+                            NavigationLink {
+                                DiagnosticsView()
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Open Diagnostics"),
+                                    detail: String(localized: "Switch to diagnostics when model or provider drift may reflect health or config trouble."),
+                                    systemImage: "stethoscope",
+                                    tone: vm.diagnosticsSummaryTone,
+                                    badgeText: vm.diagnosticsConfigWarningCount > 0
+                                        ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
+                                        : nil,
+                                    badgeTone: .warning
+                                )
+                            }
+
+                            NavigationLink {
+                                IncidentsView()
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Open Incidents"),
+                                    detail: String(localized: "Switch to incidents when integration drift has already surfaced in the mobile queue."),
+                                    systemImage: "bell.badge",
+                                    tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                                    badgeText: driftAttentionCount > 0
+                                        ? (driftAttentionCount == 1 ? String(localized: "1 drift item") : String(localized: "\(driftAttentionCount) drift items"))
+                                        : nil,
+                                    badgeTone: .warning
+                                )
+                            }
+
+                            NavigationLink {
+                                AgentsView()
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Open Agents"),
+                                    detail: String(localized: "Switch to fleet view when model drift or provider mismatch clusters around specific agents."),
+                                    systemImage: "person.3",
+                                    tone: driftAttentionCount > 0 ? .warning : .neutral,
+                                    badgeText: driftAttentionCount > 0
+                                        ? (driftAttentionCount == 1 ? String(localized: "1 drifted agent") : String(localized: "\(driftAttentionCount) drifted agents"))
+                                        : nil,
+                                    badgeTone: .warning
+                                )
+                            }
                         }
 
-                        NavigationLink {
-                            DiagnosticsView()
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Open Diagnostics"),
-                                detail: String(localized: "Switch to diagnostics when model or provider drift may reflect health or config trouble."),
-                                systemImage: "stethoscope",
-                                tone: vm.diagnosticsSummaryTone,
-                                badgeText: vm.diagnosticsConfigWarningCount > 0
-                                    ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
-                                    : nil,
-                                badgeTone: .warning
-                            )
-                        }
+                        IntegrationSurfaceGroup(
+                            title: String(localized: "Supporting Surfaces"),
+                            detail: String(localized: "Keep slower spend, automation, and routing drilldowns behind the primary exits.")
+                        ) {
+                            NavigationLink {
+                                AutomationView(initialScope: .attention)
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Open Automation"),
+                                    detail: String(localized: "Switch to workflow pressure when provider or model drift may be breaking scheduled work."),
+                                    systemImage: "flowchart",
+                                    tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                                    badgeText: vm.automationPressureIssueCategoryCount > 0
+                                        ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) automation issues"))
+                                        : nil,
+                                    badgeTone: .warning
+                                )
+                            }
 
-                        NavigationLink {
-                            IncidentsView()
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Open Incidents"),
-                                detail: String(localized: "Switch to incidents when integration drift has already surfaced in the mobile queue."),
-                                systemImage: "bell.badge",
-                                tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
-                                badgeText: driftAttentionCount > 0
-                                    ? (driftAttentionCount == 1 ? String(localized: "1 drift item") : String(localized: "\(driftAttentionCount) drift items"))
-                                    : nil,
-                                badgeTone: .warning
-                            )
-                        }
+                            NavigationLink {
+                                BudgetView()
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Open Budget"),
+                                    detail: String(localized: "Switch to spend limits and model cost concentration when integration drift may already be showing up in usage."),
+                                    systemImage: "chart.bar",
+                                    tone: .neutral
+                                )
+                            }
 
-                        NavigationLink {
-                            AutomationView(initialScope: .attention)
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Open Automation"),
-                                detail: String(localized: "Switch to workflow pressure when provider or model drift may be breaking scheduled work."),
-                                systemImage: "flowchart",
-                                tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
-                                badgeText: vm.automationPressureIssueCategoryCount > 0
-                                    ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) automation issues"))
-                                    : nil,
-                                badgeTone: .warning
-                            )
-                        }
-
-                        NavigationLink {
-                            BudgetView()
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Open Budget"),
-                                detail: String(localized: "Switch to spend limits and model cost concentration when integration drift may already be showing up in usage."),
-                                systemImage: "chart.bar",
-                                tone: .neutral
-                            )
-                        }
-
-                        NavigationLink {
-                            CommsView(api: deps.apiClient)
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Open Comms"),
-                                detail: String(localized: "Switch to live inter-agent traffic when provider or channel drift may reflect routing behavior."),
-                                systemImage: "point.3.connected.trianglepath.dotted",
-                                tone: .neutral
-                            )
-                        }
-
-                        NavigationLink {
-                            AgentsView()
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Open Agents"),
-                                detail: String(localized: "Switch to fleet view when model drift or provider mismatch clusters around specific agents."),
-                                systemImage: "person.3",
-                                tone: driftAttentionCount > 0 ? .warning : .neutral,
-                                badgeText: driftAttentionCount > 0
-                                    ? (driftAttentionCount == 1 ? String(localized: "1 drifted agent") : String(localized: "\(driftAttentionCount) drifted agents"))
-                                    : nil,
-                                badgeTone: .warning
-                            )
+                            NavigationLink {
+                                CommsView(api: deps.apiClient)
+                            } label: {
+                                MonitoringJumpRow(
+                                    title: String(localized: "Open Comms"),
+                                    detail: String(localized: "Switch to live inter-agent traffic when provider or channel drift may reflect routing behavior."),
+                                    systemImage: "point.3.connected.trianglepath.dotted",
+                                    tone: .neutral
+                                )
+                            }
                         }
                     } header: {
                         Text("Operator Surfaces")
@@ -681,6 +691,27 @@ struct IntegrationsView: View {
     private func jump(_ proxy: ScrollViewProxy, to anchor: IntegrationsSectionAnchor) {
         withAnimation(.easeInOut(duration: 0.2)) {
             proxy.scrollTo(anchor, anchor: .top)
+        }
+    }
+
+    private struct IntegrationSurfaceGroup<Content: View>: View {
+        let title: String
+        let detail: String
+        let content: Content
+
+        init(title: String, detail: String, @ViewBuilder content: () -> Content) {
+            self.title = title
+            self.detail = detail
+            self.content = content()
+        }
+
+        var body: some View {
+            MonitoringSnapshotCard(summary: title, detail: detail) {
+                VStack(spacing: 10) {
+                    content
+                }
+            }
+            .padding(.vertical, 4)
         }
     }
 

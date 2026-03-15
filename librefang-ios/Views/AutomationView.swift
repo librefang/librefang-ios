@@ -269,79 +269,89 @@ struct AutomationView: View {
                 }
 
                 Section {
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Runtime"),
-                            detail: String(localized: "Switch back to the runtime digest with automation pressure folded into the main monitor."),
-                            systemImage: "server.rack",
-                            tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
-                            badgeText: vm.automationPressureIssueCategoryCount > 0
-                                ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
-                                : nil,
-                            badgeTone: .warning
-                        )
+                    AutomationSurfaceGroup(
+                        title: String(localized: "Primary Surfaces"),
+                        detail: String(localized: "Keep the next operator exits closest to workflow and scheduler pressure.")
+                    ) {
+                        NavigationLink {
+                            RuntimeView()
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Runtime"),
+                                detail: String(localized: "Switch back to the runtime digest with automation pressure folded into the main monitor."),
+                                systemImage: "server.rack",
+                                tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                                badgeText: vm.automationPressureIssueCategoryCount > 0
+                                    ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
+                                    : nil,
+                                badgeTone: .warning
+                            )
+                        }
+
+                        NavigationLink {
+                            IncidentsView()
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Incidents"),
+                                detail: String(localized: "Switch to the incident queue where automation pressure is ranked with alerts and approvals."),
+                                systemImage: "bell.badge",
+                                tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                                badgeText: vm.failedWorkflowRunCount > 0
+                                    ? (vm.failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(vm.failedWorkflowRunCount) failed runs"))
+                                    : nil,
+                                badgeTone: .critical
+                            )
+                        }
+
+                        NavigationLink {
+                            DiagnosticsView()
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Diagnostics"),
+                                detail: String(localized: "Switch to runtime health, build, config, and metrics when automation failures may be systemic."),
+                                systemImage: "stethoscope",
+                                tone: vm.diagnosticsSummaryTone,
+                                badgeText: vm.diagnosticsConfigWarningCount > 0
+                                    ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
+                                    : nil,
+                                badgeTone: .warning
+                            )
+                        }
+
+                        NavigationLink {
+                            EventsView(api: deps.apiClient, initialScope: .critical)
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Critical Events"),
+                                detail: String(localized: "Switch to the critical event feed if workflow failures correlate with audit activity."),
+                                systemImage: "text.justify.leading",
+                                tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
+                                badgeText: vm.recentCriticalAuditCount > 0
+                                    ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
+                                    : nil,
+                                badgeTone: .critical
+                            )
+                        }
                     }
 
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Incidents"),
-                            detail: String(localized: "Switch to the incident queue where automation pressure is ranked with alerts and approvals."),
-                            systemImage: "bell.badge",
-                            tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
-                            badgeText: vm.failedWorkflowRunCount > 0
-                                ? (vm.failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(vm.failedWorkflowRunCount) failed runs"))
-                                : nil,
-                            badgeTone: .critical
-                        )
-                    }
-
-                    NavigationLink {
-                        DiagnosticsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Diagnostics"),
-                            detail: String(localized: "Switch to runtime health, build, config, and metrics when automation failures may be systemic."),
-                            systemImage: "stethoscope",
-                            tone: vm.diagnosticsSummaryTone,
-                            badgeText: vm.diagnosticsConfigWarningCount > 0
-                                ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
-                                : nil,
-                            badgeTone: .warning
-                        )
-                    }
-
-                    NavigationLink {
-                        EventsView(api: deps.apiClient, initialScope: .critical)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Critical Events"),
-                            detail: String(localized: "Switch to the critical event feed if workflow failures correlate with audit activity."),
-                            systemImage: "text.justify.leading",
-                            tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
-                            badgeText: vm.recentCriticalAuditCount > 0
-                                ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
-                                : nil,
-                            badgeTone: .critical
-                        )
-                    }
-
-                    NavigationLink {
-                        IntegrationsView(initialScope: .attention)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Integrations"),
-                            detail: String(localized: "Switch to providers, channels, and model drift when automation failures may be rooted in integration trouble."),
-                            systemImage: "square.3.layers.3d.down.forward",
-                            tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
-                            badgeText: vm.integrationPressureIssueCategoryCount > 0
-                                ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) integration issues"))
-                                : nil,
-                            badgeTone: .critical
-                        )
+                    AutomationSurfaceGroup(
+                        title: String(localized: "Supporting Surfaces"),
+                        detail: String(localized: "Keep integration context behind the primary automation exits.")
+                    ) {
+                        NavigationLink {
+                            IntegrationsView(initialScope: .attention)
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Integrations"),
+                                detail: String(localized: "Switch to providers, channels, and model drift when automation failures may be rooted in integration trouble."),
+                                systemImage: "square.3.layers.3d.down.forward",
+                                tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                                badgeText: vm.integrationPressureIssueCategoryCount > 0
+                                    ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) integration issues"))
+                                    : nil,
+                                badgeTone: .critical
+                            )
+                        }
                     }
                 } header: {
                     Text("Operator Surfaces")
@@ -505,6 +515,27 @@ struct AutomationView: View {
     private func jump(_ proxy: ScrollViewProxy, to anchor: AutomationSectionAnchor) {
         withAnimation(.easeInOut(duration: 0.2)) {
             proxy.scrollTo(anchor, anchor: .top)
+        }
+    }
+
+    private struct AutomationSurfaceGroup<Content: View>: View {
+        let title: String
+        let detail: String
+        let content: Content
+
+        init(title: String, detail: String, @ViewBuilder content: () -> Content) {
+            self.title = title
+            self.detail = detail
+            self.content = content()
+        }
+
+        var body: some View {
+            MonitoringSnapshotCard(summary: title, detail: detail) {
+                VStack(spacing: 10) {
+                    content
+                }
+            }
+            .padding(.vertical, 4)
         }
     }
 
