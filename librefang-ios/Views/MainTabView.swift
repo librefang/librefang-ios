@@ -717,7 +717,7 @@ private struct OperatorOverlayDeck: View {
     let actions: [OperatorOverlayQuickAction]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(String(localized: "Quick Actions"))
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
@@ -784,29 +784,30 @@ private struct OperatorOverlayDeck: View {
                 FlowLayout(spacing: 8) {
                     ForEach(actions) { action in
                         Button(action: action.action) {
-                            HStack(spacing: 8) {
+                            HStack(spacing: 6) {
                                 Image(systemName: action.systemImage)
                                     .font(.caption.weight(.semibold))
                                     .foregroundStyle(.white)
-                                    .frame(width: 22, height: 22)
+                                    .frame(width: 20, height: 20)
                                     .background(.white.opacity(0.16), in: RoundedRectangle(cornerRadius: 8))
 
                                 Text(action.title)
                                     .font(.caption.weight(.semibold))
                                     .foregroundStyle(.white)
                                     .lineLimit(1)
+                                    .minimumScaleFactor(0.85)
 
                                 if let badgeText = action.badgeText {
                                     Text(badgeText)
                                         .font(.caption2.weight(.semibold))
                                         .foregroundStyle(action.tone.color)
-                                        .padding(.horizontal, 6)
+                                        .padding(.horizontal, 5)
                                         .padding(.vertical, 2)
                                         .background(.white.opacity(0.96), in: Capsule())
                                 }
                             }
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, 9)
+                            .padding(.vertical, 7)
                             .background(.white.opacity(0.10), in: Capsule())
                         }
                         .buttonStyle(.plain)

@@ -19,7 +19,7 @@ struct MonitoringSnapshotCard<Badges: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             MonitoringSummaryTextBlock(summary: summary, detail: detail)
             badges
         }
@@ -66,7 +66,7 @@ struct MonitoringFilterCard<Accessory: View, Controls: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             ResponsiveAccessoryRow(horizontalAlignment: .top, horizontalSpacing: 12, verticalSpacing: 8, spacerMinLength: 10) {
                 MonitoringSummaryTextBlock(summary: summary, detail: detail)
             } accessory: {
@@ -160,9 +160,9 @@ struct MonitoringFactsRow<Summary: View, Accessory: View, Facts: View>: View {
         horizontalAlignment: VerticalAlignment = .top,
         verticalSpacing: CGFloat = 8,
         headerHorizontalSpacing: CGFloat = 12,
-        headerVerticalSpacing: CGFloat = 8,
+        headerVerticalSpacing: CGFloat = 6,
         spacerMinLength: CGFloat = 8,
-        factsSpacing: CGFloat = 12,
+        factsSpacing: CGFloat = 10,
         factsFont: Font = .caption,
         factsColor: Color = .secondary,
         @ViewBuilder summary: () -> Summary,
@@ -213,7 +213,7 @@ struct MonitoringSurfaceGroupCard<Content: View>: View {
     init(
         title: String,
         detail: String,
-        verticalPadding: CGFloat = 4,
+        verticalPadding: CGFloat = 2,
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
@@ -244,7 +244,7 @@ struct MonitoringShortcutRail<Content: View>: View {
     init(
         title: String,
         detail: String? = nil,
-        verticalSpacing: CGFloat = 8,
+        verticalSpacing: CGFloat = 6,
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
@@ -255,7 +255,7 @@ struct MonitoringShortcutRail<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: verticalSpacing) {
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.primary)
@@ -293,29 +293,30 @@ struct MonitoringSurfaceShortcutChip: View {
     }
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             Image(systemName: systemImage)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(tone.color)
-                .frame(width: 22, height: 22)
+                .frame(width: 20, height: 20)
                 .background(tone.color.opacity(0.14), in: RoundedRectangle(cornerRadius: 8))
 
             Text(title)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
+                .minimumScaleFactor(0.85)
 
             if let badgeText {
                 Text(badgeText)
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(tone.color)
-                    .padding(.horizontal, 6)
+                    .padding(.horizontal, 5)
                     .padding(.vertical, 2)
                     .background(tone.color.opacity(0.12), in: Capsule())
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 9)
+        .padding(.vertical, 7)
         .background(.secondary.opacity(0.08), in: Capsule())
     }
 }
@@ -325,7 +326,7 @@ private struct MonitoringSummaryTextBlock: View {
     let detail: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
+        VStack(alignment: .leading, spacing: 2) {
             Text(summary)
                 .font(.subheadline.weight(.medium))
             if let detail {
