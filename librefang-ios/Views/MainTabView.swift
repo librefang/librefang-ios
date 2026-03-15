@@ -816,15 +816,7 @@ private struct IncidentCueBanner: View {
     }
 
     private var dismissButton: some View {
-        Button(action: onDismiss) {
-            Image(systemName: "xmark")
-                .font(.caption.weight(.bold))
-                .foregroundStyle(.white.opacity(0.9))
-                .padding(8)
-                .background(.white.opacity(0.12))
-                .clipShape(Circle())
-        }
-        .buttonStyle(.plain)
+        GlassCircleIconButton(systemImage: "xmark", action: onDismiss)
     }
 
     private var acknowledgeButton: some View {
@@ -905,14 +897,6 @@ private struct HandoffCueBanner: View {
     }
 
     private var dismissButton: some View {
-        Button(action: onDismiss) {
-            Image(systemName: "xmark")
-                .font(.caption.weight(.bold))
-                .foregroundStyle(.white.opacity(0.9))
-                .padding(8)
-                .background(.white.opacity(0.12))
-                .clipShape(Circle())
-        }
-        .buttonStyle(.plain)
+        GlassCircleIconButton(systemImage: "xmark", action: onDismiss)
     }
 }

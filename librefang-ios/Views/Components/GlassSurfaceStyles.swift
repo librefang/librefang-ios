@@ -32,6 +32,73 @@ struct GlassCapsuleBadge: View {
     }
 }
 
+struct TintedCapsuleBadge: View {
+    let text: String
+    let foregroundStyle: Color
+    let backgroundStyle: Color
+    let horizontalPadding: CGFloat
+    let verticalPadding: CGFloat
+
+    init(
+        text: String,
+        foregroundStyle: Color,
+        backgroundStyle: Color,
+        horizontalPadding: CGFloat = 8,
+        verticalPadding: CGFloat = 4
+    ) {
+        self.text = text
+        self.foregroundStyle = foregroundStyle
+        self.backgroundStyle = backgroundStyle
+        self.horizontalPadding = horizontalPadding
+        self.verticalPadding = verticalPadding
+    }
+
+    var body: some View {
+        Text(text)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, horizontalPadding)
+            .padding(.vertical, verticalPadding)
+            .background(backgroundStyle)
+            .foregroundStyle(foregroundStyle)
+            .clipShape(Capsule())
+    }
+}
+
+struct TintedLabelCapsuleBadge: View {
+    let text: String
+    let systemImage: String
+    let foregroundStyle: Color
+    let backgroundStyle: Color
+    let horizontalPadding: CGFloat
+    let verticalPadding: CGFloat
+
+    init(
+        text: String,
+        systemImage: String,
+        foregroundStyle: Color,
+        backgroundStyle: Color,
+        horizontalPadding: CGFloat = 8,
+        verticalPadding: CGFloat = 4
+    ) {
+        self.text = text
+        self.systemImage = systemImage
+        self.foregroundStyle = foregroundStyle
+        self.backgroundStyle = backgroundStyle
+        self.horizontalPadding = horizontalPadding
+        self.verticalPadding = verticalPadding
+    }
+
+    var body: some View {
+        Label(text, systemImage: systemImage)
+            .font(.caption2.weight(.medium))
+            .padding(.horizontal, horizontalPadding)
+            .padding(.vertical, verticalPadding)
+            .background(backgroundStyle)
+            .foregroundStyle(foregroundStyle)
+            .clipShape(Capsule())
+    }
+}
+
 struct GlassLabelBadge: View {
     let text: String
     let systemImage: String
@@ -64,6 +131,68 @@ struct GlassLabelBadge: View {
             .background(.white.opacity(backgroundOpacity))
             .foregroundStyle(foregroundStyle)
             .clipShape(Capsule())
+    }
+}
+
+struct GlassCircleIconButton: View {
+    let systemImage: String
+    let foregroundStyle: Color
+    let backgroundOpacity: Double
+    let action: () -> Void
+
+    init(
+        systemImage: String,
+        foregroundStyle: Color = .white.opacity(0.9),
+        backgroundOpacity: Double = 0.12,
+        action: @escaping () -> Void
+    ) {
+        self.systemImage = systemImage
+        self.foregroundStyle = foregroundStyle
+        self.backgroundOpacity = backgroundOpacity
+        self.action = action
+    }
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(foregroundStyle)
+                .padding(8)
+                .background(.white.opacity(backgroundOpacity))
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct TintedCircleIconButton: View {
+    let systemImage: String
+    let foregroundStyle: Color
+    let backgroundStyle: Color
+    let action: () -> Void
+
+    init(
+        systemImage: String,
+        foregroundStyle: Color,
+        backgroundStyle: Color,
+        action: @escaping () -> Void
+    ) {
+        self.systemImage = systemImage
+        self.foregroundStyle = foregroundStyle
+        self.backgroundStyle = backgroundStyle
+        self.action = action
+    }
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(foregroundStyle)
+                .padding(6)
+                .background(backgroundStyle)
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
     }
 }
 

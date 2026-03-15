@@ -654,15 +654,12 @@ private struct IncidentAlertRow: View {
     }
 
     private var muteButton: some View {
-        Button(action: onToggleMute) {
-            Image(systemName: isMuted ? "bell" : "bell.slash")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .padding(6)
-                .background(.secondary.opacity(0.12))
-                .clipShape(Circle())
-        }
-        .buttonStyle(.plain)
+        TintedCircleIconButton(
+            systemImage: isMuted ? "bell" : "bell.slash",
+            foregroundStyle: .secondary,
+            backgroundStyle: .secondary.opacity(0.12),
+            action: onToggleMute
+        )
     }
 
     private var severityBadge: some View {
@@ -1409,13 +1406,13 @@ private struct IncidentWatchedDiagnosticRow: View {
     }
 
     private func issuePill(text: String, color: Color) -> some View {
-        Text(text)
-            .font(.caption2.weight(.medium))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(color.opacity(0.1))
-            .foregroundStyle(color)
-            .clipShape(Capsule())
+        TintedCapsuleBadge(
+            text: text,
+            foregroundStyle: color,
+            backgroundStyle: color.opacity(0.1),
+            horizontalPadding: 6,
+            verticalPadding: 2
+        )
     }
 
     private var destinationHint: String {

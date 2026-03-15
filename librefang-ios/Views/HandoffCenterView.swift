@@ -634,13 +634,14 @@ struct HandoffKindBadge: View {
     let kind: HandoffSnapshotKind
 
     var body: some View {
-        Label(kind.label, systemImage: kind.symbolName)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 5)
-            .background(kind.badgeBackgroundColor)
-            .foregroundStyle(kind.tintColor)
-            .clipShape(Capsule())
+        TintedLabelCapsuleBadge(
+            text: kind.label,
+            systemImage: kind.symbolName,
+            foregroundStyle: kind.tintColor,
+            backgroundStyle: kind.badgeBackgroundColor,
+            horizontalPadding: 8,
+            verticalPadding: 5
+        )
     }
 }
 
@@ -1166,13 +1167,14 @@ struct HandoffFocusAreaBadge: View {
     let area: HandoffFocusArea
 
     var body: some View {
-        Label(area.label, systemImage: area.symbolName)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 5)
-            .background(area.badgeBackgroundColor)
-            .foregroundStyle(area.tintColor)
-            .clipShape(Capsule())
+        TintedLabelCapsuleBadge(
+            text: area.label,
+            systemImage: area.symbolName,
+            foregroundStyle: area.tintColor,
+            backgroundStyle: area.badgeBackgroundColor,
+            horizontalPadding: 8,
+            verticalPadding: 5
+        )
     }
 }
 

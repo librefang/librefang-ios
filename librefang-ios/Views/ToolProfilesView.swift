@@ -144,13 +144,13 @@ struct ToolProfilesView: View {
                 }
 
                 if remaining > 0 {
-                    Text(String(localized: "+\(remaining) more"))
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 5)
-                        .background(Color(.systemGray5))
-                        .foregroundStyle(.secondary)
-                        .clipShape(Capsule())
+                    TintedCapsuleBadge(
+                        text: String(localized: "+\(remaining) more"),
+                        foregroundStyle: .secondary,
+                        backgroundStyle: Color(.systemGray5),
+                        horizontalPadding: 8,
+                        verticalPadding: 5
+                    )
                 }
             }
         }
@@ -174,13 +174,15 @@ private struct ToolProfileToolChip: View {
     let label: String
 
     var body: some View {
-        Label(label, systemImage: "wrench.and.screwdriver")
-            .font(.caption2)
-            .lineLimit(1)
-            .truncationMode(.middle)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 5)
-            .background(Color(.systemGray5))
-            .clipShape(Capsule())
+        TintedLabelCapsuleBadge(
+            text: label,
+            systemImage: "wrench.and.screwdriver",
+            foregroundStyle: .secondary,
+            backgroundStyle: Color(.systemGray5),
+            horizontalPadding: 8,
+            verticalPadding: 5
+        )
+        .lineLimit(1)
+        .truncationMode(.middle)
     }
 }

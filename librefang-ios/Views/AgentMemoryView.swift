@@ -534,13 +534,12 @@ private struct AgentMemoryRow: View {
         HStack(spacing: 8) {
             if let structureBadgeLabel = entry.structureBadgeLabel,
                let structureTone = entry.structureTone {
-                Text(structureBadgeLabel)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(structureTone.badgeBackgroundColor)
-                    .foregroundStyle(structureTone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(
+                    text: structureBadgeLabel,
+                    tone: structureTone,
+                    horizontalPadding: 6,
+                    verticalPadding: 2
+                )
             }
 
             if isBusy {

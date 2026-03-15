@@ -504,12 +504,11 @@ private struct RecentHandoffCard: View {
 
             HStack {
                 Spacer()
-                Text(String(localized: "Open"))
-                    .font(.caption2.weight(.medium))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.secondary.opacity(0.12))
-                    .clipShape(Capsule())
+                TintedCapsuleBadge(
+                    text: String(localized: "Open"),
+                    foregroundStyle: .secondary,
+                    backgroundStyle: .secondary.opacity(0.12)
+                )
             }
 
             Text(

@@ -1516,13 +1516,11 @@ private struct StatusPill: View {
     let color: Color
 
     var body: some View {
-        Text(text)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(color.opacity(0.14))
-            .foregroundStyle(color)
-            .clipShape(Capsule())
+        TintedCapsuleBadge(
+            text: text,
+            foregroundStyle: color,
+            backgroundStyle: color.opacity(0.14)
+        )
     }
 }
 
