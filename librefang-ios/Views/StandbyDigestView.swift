@@ -535,141 +535,146 @@ struct StandbyDigestView: View {
         ) {
             StandbySurfaceGroupLabel(title: String(localized: "Primary Surfaces"))
 
-            NavigationLink {
-                NightWatchView()
-            } label: {
-                StandbyActionRow(
-                    title: String(localized: "Night Watch"),
-                    detail: String(localized: "Open the stronger triage surface with deeper priority ordering."),
-                    systemImage: "moon.stars"
-                )
-            }
-            .buttonStyle(.plain)
+            FlowLayout(spacing: 8) {
+                NavigationLink {
+                    NightWatchView()
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Night Watch"),
+                        systemImage: "moon.stars",
+                        accent: criticalCount > 0 ? .red : .white,
+                        badgeText: criticalCount > 0 ? String(localized: "\(criticalCount) critical") : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                OnCallView()
-            } label: {
-                StandbyActionRow(
-                    title: String(localized: "Full On Call Queue"),
-                    detail: String(localized: "Open the complete queue with sections, watchlist, and quick links."),
-                    systemImage: "waveform.path.ecg"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink {
+                    OnCallView()
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "On Call"),
+                        systemImage: "waveform.path.ecg",
+                        badgeText: priorityItems.isEmpty ? nil : (priorityItems.count == 1 ? String(localized: "1 queued") : String(localized: "\(priorityItems.count) queued"))
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink(value: OnCallRoute.incidents) {
-                StandbyActionRow(
-                    title: String(localized: "Incidents Center"),
-                    detail: String(localized: "Inspect all live alerts, muted alerts, and pending approvals."),
-                    systemImage: "bell.badge"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink(value: OnCallRoute.incidents) {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Incidents"),
+                        systemImage: "bell.badge",
+                        accent: criticalCount > 0 ? .red : .white,
+                        badgeText: visibleAlerts.isEmpty ? nil : (visibleAlerts.count == 1 ? String(localized: "1 alert") : String(localized: "\(visibleAlerts.count) alerts"))
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                RuntimeView()
-            } label: {
-                StandbyActionRow(
-                    title: String(localized: "Runtime"),
-                    detail: String(localized: "Open providers, channels, approvals, and runtime pressure from the standby path."),
-                    systemImage: "server.rack"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Runtime"),
+                        systemImage: "server.rack"
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                ApprovalsView()
-            } label: {
-                StandbyActionRow(
-                    title: String(localized: "Approvals"),
-                    detail: String(localized: "Open the full approval queue when standby pressure points at gated actions."),
-                    systemImage: "checkmark.shield"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink {
+                    ApprovalsView()
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Approvals"),
+                        systemImage: "checkmark.shield",
+                        accent: vm.pendingApprovalCount > 0 ? .red : .white,
+                        badgeText: vm.pendingApprovalCount > 0 ? String(localized: "\(vm.pendingApprovalCount) waiting") : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                HandoffCenterView(
-                    summary: handoffText,
-                    queueCount: priorityItems.count,
-                    criticalCount: criticalCount,
-                    liveAlertCount: visibleAlerts.count
-                )
-            } label: {
-                StandbyActionRow(
-                    title: String(localized: "Handoff Center"),
-                    detail: String(localized: "Save a local note and keep recent handoff snapshots on this iPhone."),
-                    systemImage: "text.badge.plus"
-                )
+                NavigationLink {
+                    HandoffCenterView(
+                        summary: handoffText,
+                        queueCount: priorityItems.count,
+                        criticalCount: criticalCount,
+                        liveAlertCount: visibleAlerts.count
+                    )
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Handoff"),
+                        systemImage: "text.badge.plus",
+                        accent: pendingFollowUpCount > 0 ? .orange : .white,
+                        badgeText: pendingFollowUpCount > 0 ? String(localized: "\(pendingFollowUpCount) open") : nil
+                    )
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
 
             Divider()
                 .overlay(.white.opacity(0.08))
 
             StandbySurfaceGroupLabel(title: String(localized: "Supporting Surfaces"))
 
-            NavigationLink {
-                DiagnosticsView()
-            } label: {
-                StandbyActionRow(
-                    title: String(localized: "Diagnostics"),
-                    detail: String(localized: "Open runtime health, config, and metrics when the standby tone feels systemic."),
-                    systemImage: "stethoscope"
-                )
-            }
-            .buttonStyle(.plain)
+            FlowLayout(spacing: 8) {
+                NavigationLink {
+                    DiagnosticsView()
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Diagnostics"),
+                        systemImage: "stethoscope"
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                IntegrationsView(initialScope: .attention)
-            } label: {
-                StandbyActionRow(
-                    title: String(localized: "Integrations"),
-                    detail: String(localized: "Inspect provider, channel, model, and catalog drift from the standby path."),
-                    systemImage: "square.3.layers.3d.down.forward"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink {
+                    IntegrationsView(initialScope: .attention)
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Integrations"),
+                        systemImage: "square.3.layers.3d.down.forward",
+                        accent: integrationIssueCount > 0 ? .red : .white,
+                        badgeText: integrationIssueCount > 0 ? String(localized: "\(integrationIssueCount) issues") : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink(value: OnCallRoute.sessionsAttention) {
-                StandbyActionRow(
-                    title: String(localized: "Session Pressure"),
-                    detail: String(localized: "Open session hotspots when standby pressure looks like backlog or duplicated contexts."),
-                    systemImage: "rectangle.stack"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink(value: OnCallRoute.sessionsAttention) {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Sessions"),
+                        systemImage: "rectangle.stack",
+                        accent: vm.sessionAttentionCount > 0 ? .orange : .white,
+                        badgeText: vm.sessionAttentionCount > 0 ? String(localized: "\(vm.sessionAttentionCount) hotspots") : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                CommsView(api: deps.apiClient)
-            } label: {
-                StandbyActionRow(
-                    title: String(localized: "Comms"),
-                    detail: String(localized: "Open live inter-agent traffic when standby pressure looks coordination-related."),
-                    systemImage: "point.3.connected.trianglepath.dotted"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink {
+                    CommsView(api: deps.apiClient)
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Comms"),
+                        systemImage: "point.3.connected.trianglepath.dotted"
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                SettingsView()
-            } label: {
-                StandbyActionRow(
-                    title: String(localized: "Settings"),
-                    detail: String(localized: "Tune reminder, language, and on-call display preferences without leaving mobile triage."),
-                    systemImage: "gearshape"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink {
+                    SettingsView()
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Settings"),
+                        systemImage: "gearshape"
+                    )
+                }
+                .buttonStyle(.plain)
 
-            ShareLink(item: handoffText) {
-                StandbyActionRow(
-                    title: String(localized: "Share Handoff Summary"),
-                    detail: String(localized: "Export the current standby snapshot as plain text."),
-                    systemImage: "square.and.arrow.up"
-                )
+                ShareLink(item: handoffText) {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Share Handoff"),
+                        systemImage: "square.and.arrow.up"
+                    )
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
     }
 

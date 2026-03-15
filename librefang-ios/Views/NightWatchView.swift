@@ -414,148 +414,154 @@ struct NightWatchView: View {
         ) {
             NightWatchSurfaceGroupLabel(title: String(localized: "Primary Surfaces"))
 
-            NavigationLink {
-                OnCallView()
-            } label: {
-                NightWatchActionRow(
-                    title: String(localized: "Open Full On Call Queue"),
-                    detail: String(localized: "Switch back to the complete triage surface."),
-                    systemImage: "waveform.path.ecg"
-                )
-            }
-            .buttonStyle(.plain)
+            FlowLayout(spacing: 8) {
+                NavigationLink {
+                    OnCallView()
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "On Call"),
+                        systemImage: "waveform.path.ecg",
+                        badgeText: priorityItems.isEmpty ? nil : (priorityItems.count == 1 ? String(localized: "1 queued") : String(localized: "\(priorityItems.count) queued"))
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink(value: OnCallRoute.incidents) {
-                NightWatchActionRow(
-                    title: String(localized: "Open Incidents Center"),
-                    detail: String(localized: "Review muted alerts, approvals, and current incident state."),
-                    systemImage: "bell.badge"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink(value: OnCallRoute.incidents) {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Incidents"),
+                        systemImage: "bell.badge",
+                        accent: criticalCount > 0 ? .red : .white,
+                        badgeText: visibleAlerts.isEmpty ? nil : (visibleAlerts.count == 1 ? String(localized: "1 alert") : String(localized: "\(visibleAlerts.count) alerts"))
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink(value: OnCallRoute.sessionsAttention) {
-                NightWatchActionRow(
-                    title: String(localized: "Session Pressure"),
-                    detail: String(localized: "Inspect duplicated, unlabeled, or high-volume sessions."),
-                    systemImage: "rectangle.stack"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink(value: OnCallRoute.sessionsAttention) {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Sessions"),
+                        systemImage: "rectangle.stack",
+                        accent: vm.sessionAttentionCount > 0 ? .orange : .white,
+                        badgeText: vm.sessionAttentionCount > 0 ? String(localized: "\(vm.sessionAttentionCount) hotspots") : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink(value: OnCallRoute.eventsCritical) {
-                NightWatchActionRow(
-                    title: String(localized: "Critical Event Feed"),
-                    detail: String(localized: "Jump straight into recent critical audit entries."),
-                    systemImage: "list.bullet.rectangle.portrait"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink(value: OnCallRoute.eventsCritical) {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Critical Events"),
+                        systemImage: "list.bullet.rectangle.portrait",
+                        accent: vm.recentCriticalAuditCount > 0 ? .red : .white,
+                        badgeText: vm.recentCriticalAuditCount > 0 ? String(localized: "\(vm.recentCriticalAuditCount) critical") : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                HandoffCenterView(
-                    summary: handoffText,
-                    queueCount: priorityItems.count,
-                    criticalCount: criticalCount,
-                    liveAlertCount: visibleAlerts.count
-                )
-            } label: {
-                NightWatchActionRow(
-                    title: String(localized: "Handoff Center"),
-                    detail: String(localized: "Capture notes and keep local shift context close to the night queue."),
-                    systemImage: "text.badge.plus"
-                )
+                NavigationLink {
+                    HandoffCenterView(
+                        summary: handoffText,
+                        queueCount: priorityItems.count,
+                        criticalCount: criticalCount,
+                        liveAlertCount: visibleAlerts.count
+                    )
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Handoff"),
+                        systemImage: "text.badge.plus",
+                        accent: pendingFollowUpCount > 0 ? .orange : .white,
+                        badgeText: pendingFollowUpCount > 0 ? String(localized: "\(pendingFollowUpCount) open") : nil
+                    )
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
 
             Divider()
                 .overlay(.white.opacity(0.08))
 
             NightWatchSurfaceGroupLabel(title: String(localized: "Supporting Surfaces"))
 
-            NavigationLink {
-                StandbyDigestView()
-            } label: {
-                NightWatchActionRow(
-                    title: String(localized: "Standby Digest"),
-                    detail: String(localized: "Switch to the compressed lock-screen style digest when the full night queue is more than you need."),
-                    systemImage: "rectangle.inset.filled"
-                )
-            }
-            .buttonStyle(.plain)
+            FlowLayout(spacing: 8) {
+                NavigationLink {
+                    StandbyDigestView()
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Standby"),
+                        systemImage: "rectangle.inset.filled"
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                RuntimeView()
-            } label: {
-                NightWatchActionRow(
-                    title: String(localized: "Runtime"),
-                    detail: String(localized: "Open providers, channels, approvals, and runtime pressure from the night-duty path."),
-                    systemImage: "server.rack"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Runtime"),
+                        systemImage: "server.rack"
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                ApprovalsView()
-            } label: {
-                NightWatchActionRow(
-                    title: String(localized: "Approvals"),
-                    detail: String(localized: "Open the full approval queue when the night queue points at gated actions."),
-                    systemImage: "checkmark.shield"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink {
+                    ApprovalsView()
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Approvals"),
+                        systemImage: "checkmark.shield",
+                        accent: vm.pendingApprovalCount > 0 ? .red : .white,
+                        badgeText: vm.pendingApprovalCount > 0 ? String(localized: "\(vm.pendingApprovalCount) waiting") : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                CommsView(api: deps.apiClient)
-            } label: {
-                NightWatchActionRow(
-                    title: String(localized: "Comms"),
-                    detail: String(localized: "Open live inter-agent traffic when alerts or events look coordination-related."),
-                    systemImage: "point.3.connected.trianglepath.dotted"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink {
+                    CommsView(api: deps.apiClient)
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Comms"),
+                        systemImage: "point.3.connected.trianglepath.dotted"
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                DiagnosticsView()
-            } label: {
-                NightWatchActionRow(
-                    title: String(localized: "Diagnostics"),
-                    detail: String(localized: "Open health, config, build, and metrics when night pressure looks systemic."),
-                    systemImage: "stethoscope"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink {
+                    DiagnosticsView()
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Diagnostics"),
+                        systemImage: "stethoscope"
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink(value: OnCallRoute.integrationsAttention) {
-                NightWatchActionRow(
-                    title: String(localized: "Integrations"),
-                    detail: String(localized: "Inspect provider, channel, and catalog drift from the night-duty path."),
-                    systemImage: "square.3.layers.3d.down.forward"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink(value: OnCallRoute.integrationsAttention) {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Integrations"),
+                        systemImage: "square.3.layers.3d.down.forward",
+                        accent: integrationIssueCount > 0 ? .red : .white,
+                        badgeText: integrationIssueCount > 0 ? String(localized: "\(integrationIssueCount) issues") : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink(value: OnCallRoute.automation) {
-                NightWatchActionRow(
-                    title: String(localized: "Automation"),
-                    detail: String(localized: "Open workflow and scheduler pressure when the queue hints at background automation trouble."),
-                    systemImage: "flowchart"
-                )
-            }
-            .buttonStyle(.plain)
+                NavigationLink(value: OnCallRoute.automation) {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Automation"),
+                        systemImage: "flowchart",
+                        accent: automationIssueCount > 0 ? .orange : .white,
+                        badgeText: automationIssueCount > 0 ? String(localized: "\(automationIssueCount) issues") : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                SettingsView()
-            } label: {
-                NightWatchActionRow(
-                    title: String(localized: "Settings"),
-                    detail: String(localized: "Tune reminder, language, and local display preferences without leaving night watch."),
-                    systemImage: "gearshape"
-                )
+                NavigationLink {
+                    SettingsView()
+                } label: {
+                    GlassSurfaceShortcutChip(
+                        title: String(localized: "Settings"),
+                        systemImage: "gearshape"
+                    )
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
     }
 
