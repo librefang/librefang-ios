@@ -64,7 +64,13 @@ struct BudgetView: View {
                                 .frame(height: 180)
                                 .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
                         }
+                    }
 
+                    if vm.budget != nil || !vm.usageDaily.isEmpty || !sortedModels.isEmpty || !sortedAgents.isEmpty {
+                        budgetOperatorDeckSection(proxy)
+                    }
+
+                    if let budget = vm.budget {
                         Section("Limits") {
                             BudgetLimitRow(label: "Hourly", spend: budget.hourlySpend, limit: budget.hourlyLimit, pct: budget.hourlyPct)
                             BudgetLimitRow(label: "Daily", spend: budget.dailySpend, limit: budget.dailyLimit, pct: budget.dailyPct)
@@ -104,181 +110,6 @@ struct BudgetView: View {
                             }
                         }
                         .id(BudgetSectionAnchor.signals)
-                    }
-
-                    if vm.budget != nil || !vm.usageDaily.isEmpty || !sortedModels.isEmpty || !sortedAgents.isEmpty {
-                        Section {
-                            BudgetStatusDeckCard(
-                                trendDays: vm.usageDaily.count,
-                                modelCount: sortedModels.count,
-                                agentCount: sortedAgents.count,
-                                sortOrderLabel: sortOrder.label,
-                                topAgentName: visibleAgents.first?.name,
-                                topAgentCost: visibleAgents.first?.dailyCostUsd,
-                                topModelName: topModelName,
-                                budgetPressureTone: budgetPressureTone
-                            )
-                        } header: {
-                            Text("Status Deck")
-                        } footer: {
-                            Text("Keep breakdown badges, ranking mode, and current heavy spenders in one compact budget digest before the charts.")
-                        }
-
-                        Section {
-                            Button {
-                                jump(proxy, to: .limits)
-                            } label: {
-                                MonitoringJumpRow(
-                                    title: String(localized: "Limits"),
-                                    detail: String(localized: "Jump to hourly, daily, and monthly spend versus limit."),
-                                    systemImage: "gauge.medium",
-                                    tone: .neutral
-                                )
-                            }
-                            .buttonStyle(.plain)
-
-                            Button {
-                                jump(proxy, to: .signals)
-                            } label: {
-                                MonitoringJumpRow(
-                                    title: String(localized: "Cost Signals"),
-                                    detail: budgetFocusSummary,
-                                    systemImage: "chart.line.uptrend.xyaxis",
-                                    tone: .warning
-                                )
-                            }
-                            .buttonStyle(.plain)
-
-                            if !vm.usageDaily.isEmpty {
-                                Button {
-                                    jump(proxy, to: .trend)
-                                } label: {
-                                    MonitoringJumpRow(
-                                        title: String(localized: "Trend"),
-                                        detail: String(localized: "Jump to the 7-day trend and daily spend breakdown."),
-                                        systemImage: "chart.xyaxis.line",
-                                        tone: .neutral,
-                                        badgeText: String(localized: "\(vm.usageDaily.count) days"),
-                                        badgeTone: .neutral
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-
-                            if !sortedModels.isEmpty {
-                                Button {
-                                    jump(proxy, to: .models)
-                                } label: {
-                                    MonitoringJumpRow(
-                                        title: String(localized: "By Model"),
-                                        detail: String(localized: "Jump to model distribution and top model spenders."),
-                                        systemImage: "square.stack.3d.up",
-                                        tone: .neutral,
-                                        badgeText: String(localized: "\(sortedModels.count) models"),
-                                        badgeTone: .neutral
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-
-                            if !sortedAgents.isEmpty {
-                                Button {
-                                    jump(proxy, to: .agents)
-                                } label: {
-                                    MonitoringJumpRow(
-                                        title: String(localized: "Per-Agent Cost"),
-                                        detail: String(localized: "Jump to the per-agent ranking sorted by the current order."),
-                                        systemImage: "person.3",
-                                        tone: .neutral,
-                                        badgeText: String(localized: "\(sortedAgents.count) agents"),
-                                        badgeTone: .neutral
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        } header: {
-                            Text("Focus Areas")
-                        } footer: {
-                            Text("These jump targets keep the longest budget charts and rankings reachable on a compact mobile layout.")
-                        }
-
-                        Section {
-                            MonitoringSurfaceGroupCard(
-                                title: String(localized: "Primary Surfaces"),
-                                detail: String(localized: "Keep the overview and runtime exits closest to cost pressure and per-agent spend ranking.")
-                            ) {
-                                NavigationLink {
-                                    OverviewView()
-                                } label: {
-                                    MonitoringJumpRow(
-                                        title: String(localized: "Open Overview"),
-                                        detail: String(localized: "Return to the mobile triage snapshot when spend pressure needs broader on-call context."),
-                                        systemImage: "square.grid.2x2",
-                                        tone: .neutral
-                                    )
-                                }
-
-                                NavigationLink {
-                                    RuntimeView()
-                                } label: {
-                                    MonitoringJumpRow(
-                                        title: String(localized: "Open Runtime"),
-                                        detail: String(localized: "Switch to runtime when cost spikes line up with sessions, approvals, or hand activity."),
-                                        systemImage: "waveform.path.ecg",
-                                        tone: budgetPressureTone
-                                    )
-                                }
-                            }
-
-                            MonitoringSurfaceGroupCard(
-                                title: String(localized: "Supporting Surfaces"),
-                                detail: String(localized: "Keep deeper diagnostics and routing checks behind the primary budget exits.")
-                            ) {
-                                NavigationLink {
-                                    DiagnosticsView()
-                                } label: {
-                                    MonitoringJumpRow(
-                                        title: String(localized: "Open Diagnostics"),
-                                        detail: String(localized: "Switch to health, metrics, and build detail when spend drift needs deeper runtime evidence."),
-                                        systemImage: "stethoscope",
-                                        tone: .neutral
-                                    )
-                                }
-
-                                NavigationLink {
-                                    IntegrationsView(initialScope: .attention)
-                                } label: {
-                                    MonitoringJumpRow(
-                                        title: String(localized: "Open Integrations"),
-                                        detail: String(localized: "Switch to providers, channels, and model catalog when spend concentration hints at routing drift."),
-                                        systemImage: "square.3.layers.3d.down.forward",
-                                        tone: .neutral,
-                                        badgeText: topModelName,
-                                        badgeTone: .neutral
-                                    )
-                                }
-                            }
-                        } header: {
-                            Text("Operator Surfaces")
-                        } footer: {
-                            Text("These one-tap surfaces keep budget triage connected to the broader mobile monitoring path.")
-                        }
-                    }
-
-                    if let usageSummary = vm.usageSummary {
-                        Section {
-                            BudgetSignalsCard(
-                                budget: vm.budget,
-                                usageSummary: usageSummary,
-                                visibleAgentCount: visibleAgents.count,
-                                sortOrderLabel: sortOrder.label,
-                                projectedMonthlyCost: projectedMonthlyCost(usageSummary)
-                            )
-                        } header: {
-                            Text("Signals")
-                        } footer: {
-                            Text("These badges keep current cost pressure visible before the trend chart and the longer per-model and per-agent lists.")
-                        }
                     }
 
                     if !vm.usageDaily.isEmpty {
@@ -407,6 +238,175 @@ struct BudgetView: View {
     private func jump(_ proxy: ScrollViewProxy, to anchor: BudgetSectionAnchor) {
         withAnimation(.easeInOut(duration: 0.2)) {
             proxy.scrollTo(anchor, anchor: .top)
+        }
+    }
+
+    @ViewBuilder
+    private func budgetOperatorDeckSection(_ proxy: ScrollViewProxy) -> some View {
+        Section {
+            BudgetStatusDeckCard(
+                trendDays: vm.usageDaily.count,
+                modelCount: sortedModels.count,
+                agentCount: sortedAgents.count,
+                sortOrderLabel: sortOrder.label,
+                topAgentName: visibleAgents.first?.name,
+                topAgentCost: visibleAgents.first?.dailyCostUsd,
+                topModelName: topModelName,
+                budgetPressureTone: budgetPressureTone
+            )
+
+            if let usageSummary = vm.usageSummary {
+                BudgetSignalsCard(
+                    budget: vm.budget,
+                    usageSummary: usageSummary,
+                    visibleAgentCount: visibleAgents.count,
+                    sortOrderLabel: sortOrder.label,
+                    projectedMonthlyCost: projectedMonthlyCost(usageSummary)
+                )
+            }
+
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Focus Rail"),
+                detail: String(localized: "Keep the longest budget charts and rankings reachable from the compact mobile view.")
+            ) {
+                MonitoringShortcutRail(
+                    title: String(localized: "Primary Areas"),
+                    detail: budgetFocusSummary
+                ) {
+                    Button {
+                        jump(proxy, to: .limits)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Limits"),
+                            systemImage: "gauge.medium",
+                            tone: .neutral
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    Button {
+                        jump(proxy, to: .signals)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Cost Signals"),
+                            systemImage: "chart.line.uptrend.xyaxis",
+                            tone: .warning
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    if !vm.usageDaily.isEmpty {
+                        Button {
+                            jump(proxy, to: .trend)
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Trend"),
+                                systemImage: "chart.xyaxis.line",
+                                tone: .neutral,
+                                badgeText: "\(vm.usageDaily.count)"
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+                MonitoringShortcutRail(
+                    title: String(localized: "Supporting Areas"),
+                    detail: String(localized: "Keep the model and per-agent rankings behind the primary spend summary.")
+                ) {
+                    if !sortedModels.isEmpty {
+                        Button {
+                            jump(proxy, to: .models)
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "By Model"),
+                                systemImage: "square.stack.3d.up",
+                                tone: .neutral,
+                                badgeText: "\(sortedModels.count)"
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    if !sortedAgents.isEmpty {
+                        Button {
+                            jump(proxy, to: .agents)
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Per-Agent Cost"),
+                                systemImage: "person.3",
+                                tone: .neutral,
+                                badgeText: "\(sortedAgents.count)"
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Surface Rail"),
+                detail: String(localized: "Keep budget triage connected to the broader mobile monitoring path.")
+            ) {
+                MonitoringShortcutRail(
+                    title: String(localized: "Primary Surfaces"),
+                    detail: String(localized: "Use the overview and runtime exits first when cost pressure needs broader context.")
+                ) {
+                    NavigationLink {
+                        OverviewView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Overview"),
+                            systemImage: "square.grid.2x2",
+                            tone: .neutral
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Runtime"),
+                            systemImage: "waveform.path.ecg",
+                            tone: budgetPressureTone
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                MonitoringShortcutRail(
+                    title: String(localized: "Supporting Surfaces"),
+                    detail: String(localized: "Use deeper diagnostics and routing checks when spend concentration hints at runtime drift.")
+                ) {
+                    NavigationLink {
+                        DiagnosticsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Diagnostics"),
+                            systemImage: "stethoscope",
+                            tone: .neutral
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        IntegrationsView(initialScope: .attention)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Integrations"),
+                            systemImage: "square.3.layers.3d.down.forward",
+                            tone: .neutral,
+                            badgeText: topModelName
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        } header: {
+            Text("Operator Deck")
+        } footer: {
+            Text("Breakdown summary, focus jumps, and broader monitoring exits now stay together before the longer cost lists.")
         }
     }
 }
