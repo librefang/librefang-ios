@@ -41,6 +41,17 @@ struct MonitoringAlertItem: Identifiable {
 struct MonitoringSummaryStatus {
     let summary: String
     let tone: PresentationTone
+
+    static func countStatus(
+        _ count: Int,
+        activeTone: PresentationTone,
+        inactiveTone: PresentationTone = .neutral
+    ) -> MonitoringSummaryStatus {
+        MonitoringSummaryStatus(
+            summary: "\(count)",
+            tone: count > 0 ? activeTone : inactiveTone
+        )
+    }
 }
 
 struct AgentAttentionItem: Identifiable {

@@ -346,13 +346,29 @@ private struct AgentFleetSummaryCard: View {
     let staleCount: Int
     let watchlistCount: Int
 
+    private var runningStatus: MonitoringSummaryStatus {
+        .countStatus(runningCount, activeTone: .positive)
+    }
+
+    private var attentionStatus: MonitoringSummaryStatus {
+        .countStatus(issueCount, activeTone: .warning)
+    }
+
+    private var staleStatus: MonitoringSummaryStatus {
+        .countStatus(staleCount, activeTone: .warning)
+    }
+
+    private var approvalStatus: MonitoringSummaryStatus {
+        .countStatus(approvalCount, activeTone: .critical)
+    }
+
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 10) {
-                SummaryChip(value: "\(runningCount)", label: String(localized: "Running"), color: .green)
-                SummaryChip(value: "\(issueCount)", label: String(localized: "Attention"), color: issueCount > 0 ? .orange : .secondary)
-                SummaryChip(value: "\(staleCount)", label: String(localized: "Stale"), color: staleCount > 0 ? .orange : .secondary)
-                SummaryChip(value: "\(approvalCount)", label: String(localized: "Approvals"), color: approvalCount > 0 ? .red : .secondary)
+                SummaryChip(value: "\(runningCount)", label: String(localized: "Running"), color: runningStatus.tone.color)
+                SummaryChip(value: "\(issueCount)", label: String(localized: "Attention"), color: attentionStatus.tone.color)
+                SummaryChip(value: "\(staleCount)", label: String(localized: "Stale"), color: staleStatus.tone.color)
+                SummaryChip(value: "\(approvalCount)", label: String(localized: "Approvals"), color: approvalStatus.tone.color)
             }
 
             HStack {

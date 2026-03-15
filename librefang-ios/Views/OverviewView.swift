@@ -1023,7 +1023,7 @@ private struct TopSpendersCard: View {
 
                     Text(localizedUSDCurrency(agent.dailyCostUsd, standardPrecision: 2, smallValuePrecision: 4))
                         .font(.subheadline.monospacedDigit())
-                        .foregroundStyle(agent.dailyCostUsd > 1.0 ? .red : .primary)
+                        .foregroundStyle(agent.dailySpendStatus.color(normalColor: .primary))
                 }
 
                 if index < min(agents.count, 5) - 1 {

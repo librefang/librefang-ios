@@ -508,61 +508,93 @@ private struct IncidentScoreboard: View {
         GridItem(.flexible(), spacing: 10)
     ]
 
+    private var criticalStatus: MonitoringSummaryStatus {
+        .countStatus(criticalCount, activeTone: .critical)
+    }
+
+    private var warningStatus: MonitoringSummaryStatus {
+        .countStatus(warningCount, activeTone: .warning)
+    }
+
+    private var approvalStatus: MonitoringSummaryStatus {
+        .countStatus(approvalCount, activeTone: .critical)
+    }
+
+    private var agentStatus: MonitoringSummaryStatus {
+        .countStatus(agentCount, activeTone: .warning)
+    }
+
+    private var sessionStatus: MonitoringSummaryStatus {
+        .countStatus(sessionCount, activeTone: .warning)
+    }
+
+    private var automationStatus: MonitoringSummaryStatus {
+        .countStatus(automationCount, activeTone: .warning)
+    }
+
+    private var integrationStatus: MonitoringSummaryStatus {
+        .countStatus(integrationCount, activeTone: .warning)
+    }
+
+    private var handoffStatus: MonitoringSummaryStatus {
+        .countStatus(handoffCount, activeTone: .warning)
+    }
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatBadge(
                 value: "\(criticalCount)",
                 label: "Critical",
                 icon: "xmark.octagon",
-                color: criticalCount > 0 ? .red : .secondary
+                color: criticalStatus.tone.color
             )
             StatBadge(
                 value: "\(warningCount)",
                 label: "Warnings",
                 icon: "exclamationmark.triangle",
-                color: warningCount > 0 ? .orange : .secondary
+                color: warningStatus.tone.color
             )
             StatBadge(
                 value: "\(mutedCount)",
                 label: "Muted",
                 icon: "bell.slash",
-                color: mutedCount > 0 ? .secondary : .secondary
+                color: PresentationTone.neutral.color
             )
             StatBadge(
                 value: "\(approvalCount)",
                 label: "Approvals",
                 icon: "exclamationmark.shield",
-                color: approvalCount > 0 ? .red : .secondary
+                color: approvalStatus.tone.color
             )
             StatBadge(
                 value: "\(agentCount)",
                 label: "Agents",
                 icon: "cpu",
-                color: agentCount > 0 ? .orange : .secondary
+                color: agentStatus.tone.color
             )
             StatBadge(
                 value: "\(sessionCount)",
                 label: "Sessions",
                 icon: "rectangle.stack",
-                color: sessionCount > 0 ? .orange : .secondary
+                color: sessionStatus.tone.color
             )
             StatBadge(
                 value: "\(automationCount)",
                 label: "Automation",
                 icon: "flowchart",
-                color: automationCount > 0 ? .orange : .secondary
+                color: automationStatus.tone.color
             )
             StatBadge(
                 value: "\(integrationCount)",
                 label: "Integrations",
                 icon: "square.3.layers.3d.down.forward",
-                color: integrationCount > 0 ? .orange : .secondary
+                color: integrationStatus.tone.color
             )
             StatBadge(
                 value: "\(handoffCount)",
                 label: "Handoff",
                 icon: "timer",
-                color: handoffCount > 0 ? .orange : .secondary
+                color: handoffStatus.tone.color
             )
         }
         .padding(.horizontal)

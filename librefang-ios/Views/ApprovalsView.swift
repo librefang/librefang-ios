@@ -184,31 +184,43 @@ private struct ApprovalsScoreboard: View {
         GridItem(.flexible(), spacing: 10)
     ]
 
+    private var criticalStatus: MonitoringSummaryStatus {
+        .countStatus(criticalCount, activeTone: .critical)
+    }
+
+    private var highRiskStatus: MonitoringSummaryStatus {
+        .countStatus(highCount, activeTone: .warning)
+    }
+
+    private var agentStatus: MonitoringSummaryStatus {
+        .countStatus(agentCount, activeTone: .warning)
+    }
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatBadge(
                 value: "\(vm.pendingApprovalCount)",
                 label: "Pending",
                 icon: "checkmark.shield",
-                color: vm.pendingApprovalCount > 0 ? .red : .green
+                color: vm.approvalBacklogStatus.tone.color
             )
             StatBadge(
                 value: "\(criticalCount)",
                 label: "Critical",
                 icon: "xmark.shield",
-                color: criticalCount > 0 ? .red : .secondary
+                color: criticalStatus.tone.color
             )
             StatBadge(
                 value: "\(highCount)",
                 label: "High+",
                 icon: "exclamationmark.shield",
-                color: highCount > 0 ? .orange : .secondary
+                color: highRiskStatus.tone.color
             )
             StatBadge(
                 value: "\(agentCount)",
                 label: "Agents",
                 icon: "cpu",
-                color: agentCount > 0 ? .orange : .secondary
+                color: agentStatus.tone.color
             )
         }
         .padding(.horizontal)

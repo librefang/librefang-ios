@@ -610,7 +610,7 @@ private struct AgentCostRow: View {
             VStack(alignment: .trailing, spacing: 3) {
                 Text(localizedUSDCurrency(item.dailyCostUsd, standardPrecision: 2, smallValuePrecision: 4))
                     .font(.subheadline.monospacedDigit().weight(.medium))
-                    .foregroundStyle(item.dailyCostUsd > 1.0 ? .red : .primary)
+                    .foregroundStyle(item.dailySpendStatus.color(normalColor: .primary))
                 if let limit = item.dailyLimit, limit > 0 {
                     Text(localizedUSDCurrency(limit))
                         .font(.caption2)

@@ -608,43 +608,67 @@ private struct OnCallScoreboard: View {
         GridItem(.flexible(), spacing: 10)
     ]
 
+    private var criticalStatus: MonitoringSummaryStatus {
+        .countStatus(criticalCount, activeTone: .critical)
+    }
+
+    private var liveAlertStatus: MonitoringSummaryStatus {
+        .countStatus(liveAlertCount, activeTone: .warning)
+    }
+
+    private var approvalStatus: MonitoringSummaryStatus {
+        .countStatus(approvalCount, activeTone: .critical)
+    }
+
+    private var watchIssueStatus: MonitoringSummaryStatus {
+        .countStatus(watchIssueCount, activeTone: .caution)
+    }
+
+    private var sessionStatus: MonitoringSummaryStatus {
+        .countStatus(sessionCount, activeTone: .warning)
+    }
+
+    private var eventStatus: MonitoringSummaryStatus {
+        .countStatus(eventCount, activeTone: .critical)
+    }
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatBadge(
                 value: "\(criticalCount)",
                 label: "Critical",
                 icon: "xmark.octagon",
-                color: criticalCount > 0 ? .red : .secondary
+                color: criticalStatus.tone.color
             )
             StatBadge(
                 value: "\(liveAlertCount)",
                 label: "Live Alerts",
                 icon: "bell.badge",
-                color: liveAlertCount > 0 ? .orange : .secondary
+                color: liveAlertStatus.tone.color
             )
             StatBadge(
                 value: "\(approvalCount)",
                 label: "Approvals",
                 icon: "exclamationmark.shield",
-                color: approvalCount > 0 ? .red : .secondary
+                color: approvalStatus.tone.color
             )
             StatBadge(
                 value: "\(watchIssueCount)",
                 label: "Watchlist",
                 icon: "star.fill",
-                color: watchIssueCount > 0 ? .yellow : .secondary
+                color: watchIssueStatus.tone.color
             )
             StatBadge(
                 value: "\(sessionCount)",
                 label: "Sessions",
                 icon: "rectangle.stack",
-                color: sessionCount > 0 ? .orange : .secondary
+                color: sessionStatus.tone.color
             )
             StatBadge(
                 value: "\(eventCount)",
                 label: "Events",
                 icon: "list.bullet.rectangle.portrait",
-                color: eventCount > 0 ? .red : .secondary
+                color: eventStatus.tone.color
             )
         }
         .padding(.horizontal)

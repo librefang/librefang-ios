@@ -115,19 +115,27 @@ private struct EventScoreboard: View {
         GridItem(.flexible(), spacing: 10)
     ]
 
+    private var criticalStatus: MonitoringSummaryStatus {
+        .countStatus(viewModel.criticalCount, activeTone: .critical)
+    }
+
+    private var warningStatus: MonitoringSummaryStatus {
+        .countStatus(viewModel.warningCount, activeTone: .warning)
+    }
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatBadge(
                 value: "\(viewModel.criticalCount)",
                 label: "Critical",
                 icon: "xmark.octagon",
-                color: viewModel.criticalCount > 0 ? .red : .secondary
+                color: criticalStatus.tone.color
             )
             StatBadge(
                 value: "\(viewModel.warningCount)",
                 label: "Warnings",
                 icon: "exclamationmark.triangle",
-                color: viewModel.warningCount > 0 ? .orange : .secondary
+                color: warningStatus.tone.color
             )
             StatBadge(
                 value: "\(viewModel.infoCount)",

@@ -44,6 +44,13 @@ nonisolated struct AgentBudgetItem: Codable, Identifiable, Sendable {
 
     var id: String { agentId }
 
+    var dailySpendStatus: BudgetUtilizationStatus {
+        if let dailyLimit, dailyLimit > 0 {
+            return StatusPresentation.budgetUtilizationStatus(for: dailyCostUsd / dailyLimit) ?? .normal
+        }
+        return dailyCostUsd > 1.0 ? .critical : .normal
+    }
+
     enum CodingKeys: String, CodingKey {
         case name
         case agentId = "agent_id"
