@@ -165,7 +165,7 @@ struct ApprovalsView: View {
             } header: {
                 Text("Controls")
             } footer: {
-                Text("Queue severity, routes, and filters stay together before the approval list.")
+                Text("Keep severity, routes, and filters together before the approval list.")
             }
 
             if filteredApprovals.isEmpty && !vm.isLoading {

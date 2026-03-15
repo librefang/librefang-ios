@@ -295,9 +295,9 @@ struct IntegrationsView: View {
                     Section {
                         integrationsFocusSection(proxy)
                     } header: {
-                        Text("Focus Areas")
+                        Text("Jumps")
                     } footer: {
-                        Text("Use these jump targets to move through the compact integrations monitor instead of scrolling the full inventory.")
+                        Text("Use these jumps to move through integrations without scrolling the full inventory.")
                     }
 
                     Section {

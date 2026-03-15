@@ -55,7 +55,7 @@ struct SettingsView: View {
 
                         MonitoringSurfaceGroupCard(
                             title: String(localized: "Routes"),
-                            detail: String(localized: "Keep the highest-value monitoring exits grouped together before the longer device-control form.")
+                            detail: String(localized: "Keep the highest-value monitoring exits together before the longer device-control form.")
                         ) {
                             MonitoringShortcutRail(
                                 title: String(localized: "Primary"),
@@ -237,7 +237,7 @@ struct SettingsView: View {
                     } header: {
                         Text("Controls")
                     } footer: {
-                        Text("Snapshot, surface exits, and device-control jumps stay together before the longer settings form.")
+                        Text("Keep snapshot, routes, and device controls together before the longer settings form.")
                     }
 
                     Section("Server") {

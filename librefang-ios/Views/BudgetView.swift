@@ -484,7 +484,7 @@ struct BudgetView: View {
         } header: {
             Text("Controls")
         } footer: {
-            Text("Breakdown summary, focus jumps, and broader exits stay together before the longer cost lists.")
+            Text("Keep summary, jumps, and exits together before the longer cost lists.")
         }
     }
 }

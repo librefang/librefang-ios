@@ -265,16 +265,16 @@ struct AutomationView: View {
                 } header: {
                     Text("Controls")
                 } footer: {
-                    Text("Keep automation status, routes, and filters together before the grouped workflow sections.")
+                    Text("Keep status, routes, and filters together before the grouped workflow sections.")
                 }
 
                 if hasAutomationData {
                     Section {
                         automationFocusSection(proxy)
                     } header: {
-                        Text("Focus Areas")
+                        Text("Jumps")
                     } footer: {
-                        Text("These jump targets move through the long automation monitor without forcing a full scroll on iPhone.")
+                        Text("Use these jumps to move through the automation monitor without a long iPhone scroll.")
                     }
                 }
 

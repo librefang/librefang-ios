@@ -162,7 +162,7 @@ struct RuntimeView: View {
         } header: {
             Text("Controls")
         } footer: {
-            Text("Keep the runtime digest, routes, and jumps together before drilling deeper.")
+            Text("Keep the digest, routes, and jumps together before drilling deeper.")
         }
     }
 
@@ -296,8 +296,8 @@ struct RuntimeView: View {
             }
 
             MonitoringShortcutRail(
-                title: String(localized: "Focus Areas"),
-                detail: String(localized: "Keep the longest runtime sections reachable as compact jump targets on a single-handed layout.")
+                title: String(localized: "Jumps"),
+                detail: String(localized: "Keep the longest runtime sections reachable as compact jumps.")
             ) {
                 if vm.status != nil {
                     Button {

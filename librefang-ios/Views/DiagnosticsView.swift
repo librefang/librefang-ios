@@ -46,7 +46,7 @@ struct DiagnosticsView: View {
                     } header: {
                         Text("Controls")
                     } footer: {
-                        Text("Keep diagnostic state, focus jumps, and nearby surfaces together before the long sections.")
+                        Text("Keep state, jumps, and nearby surfaces together before the long sections.")
                     }
                 }
 
@@ -238,11 +238,11 @@ struct DiagnosticsView: View {
     private func diagnosticsRouteDeck(_ proxy: ScrollViewProxy) -> some View {
         MonitoringSurfaceGroupCard(
             title: String(localized: "Routes"),
-            detail: String(localized: "Keep the longest diagnostic sections and nearby surfaces in one compact deck.")
+            detail: String(localized: "Keep long diagnostic sections and nearby surfaces in one compact deck.")
         ) {
             MonitoringShortcutRail(
-                title: String(localized: "Focus Areas"),
-                detail: String(localized: "Jump to the longest diagnostic sections without scanning the full monitor.")
+                title: String(localized: "Jumps"),
+                detail: String(localized: "Jump through the longest diagnostic sections without scanning the full monitor.")
             ) {
                 if let healthDetail = vm.healthDetail {
                     Button {
