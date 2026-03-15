@@ -461,49 +461,77 @@ private struct IntegrationsScoreboard: View {
         GridItem(.flexible(), spacing: 10)
     ]
 
+    private var providerStatus: MonitoringSummaryStatus {
+        vm.providerReadinessStatus
+    }
+
+    private var localProviderStatus: MonitoringSummaryStatus {
+        .countStatus(vm.unreachableLocalProviderCount, activeTone: .warning)
+    }
+
+    private var channelStatus: MonitoringSummaryStatus {
+        vm.channelReadinessStatus
+    }
+
+    private var credentialGapStatus: MonitoringSummaryStatus {
+        .countStatus(vm.channelCredentialGapCount, activeTone: .warning)
+    }
+
+    private var modelStatus: MonitoringSummaryStatus {
+        .countStatus(vm.availableCatalogModelCount, activeTone: .positive, inactiveTone: .warning)
+    }
+
+    private var aliasStatus: MonitoringSummaryStatus {
+        .countStatus(vm.modelAliasCount, activeTone: .positive)
+    }
+
+    private var modelDriftStatus: MonitoringSummaryStatus {
+        .countStatus(vm.agentsWithModelDiagnostics.count, activeTone: .warning)
+    }
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatBadge(
                 value: "\(vm.configuredProviderCount)/\(max(vm.providers.count, 1))",
                 label: "Providers",
                 icon: "key.horizontal",
-                color: vm.configuredProviderCount > 0 ? .blue : .orange
+                color: providerStatus.color(positive: .blue)
             )
             StatBadge(
                 value: "\(vm.unreachableLocalProviderCount)",
                 label: "Local Down",
                 icon: "network.slash",
-                color: vm.unreachableLocalProviderCount > 0 ? .orange : .secondary
+                color: localProviderStatus.tone.color
             )
             StatBadge(
                 value: "\(vm.readyChannelCount)/\(max(vm.configuredChannelCount, 1))",
                 label: "Channels",
                 icon: "bubble.left.and.bubble.right",
-                color: vm.readyChannelCount > 0 ? .teal : .secondary
+                color: channelStatus.color(positive: .teal)
             )
             StatBadge(
                 value: "\(vm.channelCredentialGapCount)",
                 label: "Credential Gaps",
                 icon: "bubble.left.and.exclamationmark.bubble.right",
-                color: vm.channelCredentialGapCount > 0 ? .orange : .secondary
+                color: credentialGapStatus.tone.color
             )
             StatBadge(
                 value: "\(vm.availableCatalogModelCount)/\(max(vm.catalogModels.count, 1))",
                 label: "Models",
                 icon: "square.stack.3d.up",
-                color: vm.availableCatalogModelCount > 0 ? .green : .orange
+                color: modelStatus.color(positive: .green)
             )
             StatBadge(
                 value: "\(vm.modelAliasCount)",
                 label: "Aliases",
                 icon: "arrow.left.arrow.right",
-                color: vm.modelAliasCount > 0 ? .indigo : .secondary
+                color: aliasStatus.color(positive: .indigo)
             )
             StatBadge(
                 value: "\(vm.agentsWithModelDiagnostics.count)",
                 label: "Agent Drift",
                 icon: "cpu",
-                color: vm.agentsWithModelDiagnostics.isEmpty ? .secondary : .orange
+                color: modelDriftStatus.tone.color
             )
         }
     }

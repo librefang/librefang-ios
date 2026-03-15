@@ -421,43 +421,76 @@ private struct AutomationScoreboard: View {
             + vm.stalledCronJobCount
     }
 
+    private var workflowStatus: MonitoringSummaryStatus {
+        .countStatus(vm.workflowCount, activeTone: .positive)
+    }
+
+    private var failedRunStatus: MonitoringSummaryStatus {
+        .countStatus(vm.failedWorkflowRunCount, activeTone: .critical)
+    }
+
+    private var triggerStatus: MonitoringSummaryStatus {
+        MonitoringSummaryStatus(
+            summary: "\(vm.enabledTriggerCount)/\(vm.triggers.count)",
+            tone: vm.exhaustedTriggerCount > 0 ? .warning : .positive
+        )
+    }
+
+    private var scheduleStatus: MonitoringSummaryStatus {
+        MonitoringSummaryStatus(
+            summary: "\(vm.enabledScheduleCount)/\(vm.schedules.count)",
+            tone: vm.pausedScheduleCount > 0 ? .warning : .positive
+        )
+    }
+
+    private var cronStatus: MonitoringSummaryStatus {
+        MonitoringSummaryStatus(
+            summary: "\(vm.enabledCronJobCount)/\(vm.cronJobs.count)",
+            tone: vm.stalledCronJobCount > 0 ? .warning : .positive
+        )
+    }
+
+    private var issueStatus: MonitoringSummaryStatus {
+        MonitoringSummaryStatus(summary: "\(issueCount)", tone: vm.automationPressureTone)
+    }
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatBadge(
                 value: "\(vm.workflowCount)",
                 label: "Workflows",
                 icon: "flowchart",
-                color: vm.workflowCount > 0 ? .blue : .secondary
+                color: workflowStatus.color(positive: .blue)
             )
             StatBadge(
                 value: "\(vm.failedWorkflowRunCount)",
                 label: "Failed Runs",
                 icon: "exclamationmark.triangle",
-                color: vm.failedWorkflowRunCount > 0 ? .red : .secondary
+                color: failedRunStatus.tone.color
             )
             StatBadge(
-                value: "\(vm.enabledTriggerCount)/\(vm.triggers.count)",
+                value: triggerStatus.summary,
                 label: "Triggers",
                 icon: "bolt.horizontal.circle",
-                color: vm.exhaustedTriggerCount > 0 ? .orange : .green
+                color: triggerStatus.color(positive: .green)
             )
             StatBadge(
-                value: "\(vm.enabledScheduleCount)/\(vm.schedules.count)",
+                value: scheduleStatus.summary,
                 label: "Schedules",
                 icon: "calendar",
-                color: vm.pausedScheduleCount > 0 ? .orange : .teal
+                color: scheduleStatus.color(positive: .teal)
             )
             StatBadge(
-                value: "\(vm.enabledCronJobCount)/\(vm.cronJobs.count)",
+                value: cronStatus.summary,
                 label: "Cron",
                 icon: "clock.arrow.trianglehead.counterclockwise.rotate.90",
-                color: vm.stalledCronJobCount > 0 ? .orange : .indigo
+                color: cronStatus.color(positive: .indigo)
             )
             StatBadge(
-                value: "\(issueCount)",
+                value: issueStatus.summary,
                 label: "Issues",
                 icon: "bell.badge",
-                color: issueCount > 0 ? .red : .green
+                color: issueStatus.color(positive: .green)
             )
         }
         .padding(.horizontal)

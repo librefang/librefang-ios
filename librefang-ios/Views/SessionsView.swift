@@ -445,6 +445,18 @@ private struct SessionScoreboard: View {
         GridItem(.flexible(), spacing: 10)
     ]
 
+    private var attentionStatus: MonitoringSummaryStatus {
+        .countStatus(vm.sessionAttentionCount, activeTone: .warning)
+    }
+
+    private var highVolumeStatus: MonitoringSummaryStatus {
+        .countStatus(vm.highVolumeSessionCount, activeTone: .warning)
+    }
+
+    private var unlabeledStatus: MonitoringSummaryStatus {
+        .countStatus(vm.unlabeledSessionCount, activeTone: .caution)
+    }
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatBadge(
@@ -457,19 +469,19 @@ private struct SessionScoreboard: View {
                 value: "\(vm.sessionAttentionCount)",
                 label: "Attention",
                 icon: "exclamationmark.triangle",
-                color: vm.sessionAttentionCount > 0 ? .orange : .secondary
+                color: attentionStatus.tone.color
             )
             StatBadge(
                 value: "\(vm.highVolumeSessionCount)",
                 label: "High Volume",
                 icon: "bubble.left.and.bubble.right",
-                color: vm.highVolumeSessionCount > 0 ? .orange : .secondary
+                color: highVolumeStatus.tone.color
             )
             StatBadge(
                 value: "\(vm.unlabeledSessionCount)",
                 label: "Unlabeled",
                 icon: "tag.slash",
-                color: vm.unlabeledSessionCount > 0 ? .yellow : .secondary
+                color: unlabeledStatus.tone.color
             )
         }
         .padding(.horizontal)

@@ -140,31 +140,53 @@ private struct CommsScoreboard: View {
         GridItem(.flexible(), spacing: 10)
     ]
 
+    private var agentStatus: MonitoringSummaryStatus {
+        MonitoringSummaryStatus(
+            summary: "\(viewModel.nodeCount)",
+            tone: viewModel.nodeCount > 1 ? .positive : .neutral
+        )
+    }
+
+    private var linkStatus: MonitoringSummaryStatus {
+        .countStatus(viewModel.edgeCount, activeTone: .positive)
+    }
+
+    private var taskFlowStatus: MonitoringSummaryStatus {
+        .countStatus(viewModel.taskEventCount, activeTone: .warning)
+    }
+
+    private var transportStatus: MonitoringSummaryStatus {
+        MonitoringSummaryStatus(
+            summary: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+            tone: viewModel.isStreaming ? .positive : .warning
+        )
+    }
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatBadge(
                 value: "\(viewModel.nodeCount)",
                 label: "Agents",
                 icon: "cpu",
-                color: viewModel.nodeCount > 1 ? .green : .secondary
+                color: agentStatus.color(positive: .green)
             )
             StatBadge(
                 value: "\(viewModel.edgeCount)",
                 label: "Links",
                 icon: "point.3.connected.trianglepath.dotted",
-                color: viewModel.edgeCount > 0 ? .blue : .secondary
+                color: linkStatus.color(positive: .blue)
             )
             StatBadge(
                 value: "\(viewModel.taskEventCount)",
                 label: "Task Flow",
                 icon: "checklist",
-                color: viewModel.taskEventCount > 0 ? .orange : .secondary
+                color: taskFlowStatus.tone.color
             )
             StatBadge(
-                value: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                value: transportStatus.summary,
                 label: "Transport",
                 icon: viewModel.isStreaming ? "dot.radiowaves.left.and.right" : "arrow.clockwise",
-                color: viewModel.isStreaming ? .green : .orange
+                color: transportStatus.tone.color
             )
         }
         .padding(.horizontal)

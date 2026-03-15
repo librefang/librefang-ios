@@ -240,31 +240,43 @@ private struct DiagnosticsScoreboard: View {
         GridItem(.flexible(), spacing: 10)
     ]
 
+    private var warningStatus: MonitoringSummaryStatus {
+        .countStatus(vm.diagnosticsConfigWarningCount, activeTone: .warning)
+    }
+
+    private var panicStatus: MonitoringSummaryStatus {
+        .countStatus(vm.supervisorPanicCount, activeTone: .critical)
+    }
+
+    private var restartStatus: MonitoringSummaryStatus {
+        .countStatus(vm.supervisorRestartCount, activeTone: .warning)
+    }
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatBadge(
                 value: vm.healthDetail?.localizedStatusLabel ?? "--",
                 label: "Status",
                 icon: "stethoscope",
-                color: vm.hasDiagnosticsIssue ? .orange : .green
+                color: vm.diagnosticsSummaryTone.color
             )
             StatBadge(
                 value: "\(vm.diagnosticsConfigWarningCount)",
                 label: "Warnings",
                 icon: "exclamationmark.triangle",
-                color: vm.diagnosticsConfigWarningCount > 0 ? .orange : .secondary
+                color: warningStatus.tone.color
             )
             StatBadge(
                 value: "\(vm.supervisorPanicCount)",
                 label: "Panics",
                 icon: "bolt.trianglebadge.exclamationmark",
-                color: vm.supervisorPanicCount > 0 ? .red : .secondary
+                color: panicStatus.tone.color
             )
             StatBadge(
                 value: "\(vm.supervisorRestartCount)",
                 label: "Restarts",
                 icon: "arrow.clockwise.circle",
-                color: vm.supervisorRestartCount > 0 ? .orange : .secondary
+                color: restartStatus.tone.color
             )
             StatBadge(
                 value: "\(metrics?.totalRollingTokens ?? 0)",
