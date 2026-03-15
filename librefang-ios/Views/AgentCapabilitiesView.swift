@@ -71,64 +71,64 @@ struct AgentCapabilitiesView: View {
 
                 Section {
                     MonitoringSurfaceGroupCard(
-                        title: String(localized: "Primary Routes"),
-                        detail: String(localized: "Keep the agent, profile, and runtime exits closest to compact capability inspection.")
+                        title: String(localized: "Routes"),
+                        detail: String(localized: "Keep nearby agent, profile, runtime, and integration exits closest to compact capability inspection.")
                     ) {
-                        NavigationLink {
-                            AgentDetailView(agent: agent)
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Back To Agent"),
-                                detail: String(localized: "Return to the full agent detail page with sessions, memory, files, and deliveries."),
-                                systemImage: "cpu",
-                                tone: .neutral
-                            )
-                        }
-
-                        if let profile = agent.profile, !profile.isEmpty {
+                        MonitoringShortcutRail(
+                            title: String(localized: "Primary"),
+                            detail: String(localized: "Use nearby agent, profile, and runtime surfaces first.")
+                        ) {
                             NavigationLink {
-                                ToolProfilesView(selectedProfileName: profile)
+                                AgentDetailView(agent: agent)
                             } label: {
-                                MonitoringJumpRow(
-                                    title: String(localized: "Tool Profile"),
-                                    detail: String(localized: "Switch to the profile definition that sits underneath these capability filters."),
-                                    systemImage: "person.crop.rectangle.stack",
-                                    tone: .neutral,
-                                    badgeText: profile,
-                                    badgeTone: .neutral
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Agent"),
+                                    systemImage: "cpu"
                                 )
                             }
+                            .buttonStyle(.plain)
+
+                            if let profile = agent.profile, !profile.isEmpty {
+                                NavigationLink {
+                                    ToolProfilesView(selectedProfileName: profile)
+                                } label: {
+                                    MonitoringSurfaceShortcutChip(
+                                        title: String(localized: "Tool Profile"),
+                                        systemImage: "person.crop.rectangle.stack",
+                                        badgeText: profile
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+
+                            NavigationLink {
+                                RuntimeView()
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Runtime"),
+                                    systemImage: "server.rack"
+                                )
+                            }
+                            .buttonStyle(.plain)
                         }
 
-                        NavigationLink {
-                            RuntimeView()
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Runtime"),
-                                detail: String(localized: "Switch to runtime when capability scope needs broader MCP, provider, or approval context."),
-                                systemImage: "server.rack",
-                                tone: .neutral
-                            )
-                        }
-                    }
-
-                    MonitoringSurfaceGroupCard(
-                        title: String(localized: "Support Routes"),
-                        detail: String(localized: "Keep integration drift checks behind the primary capability exits.")
-                    ) {
-                        NavigationLink {
-                            IntegrationsView(initialSearchText: agent.id, initialScope: .attention)
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Integrations"),
-                                detail: String(localized: "Switch to integrations when capability scope looks healthy but model or channel drift remains."),
-                                systemImage: "square.3.layers.3d.down.forward",
-                                tone: .neutral
-                            )
+                        MonitoringShortcutRail(
+                            title: String(localized: "Support"),
+                            detail: String(localized: "Keep integration drift checks behind the primary capability exits.")
+                        ) {
+                            NavigationLink {
+                                IntegrationsView(initialSearchText: agent.id, initialScope: .attention)
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Integrations"),
+                                    systemImage: "square.3.layers.3d.down.forward"
+                                )
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                 } header: {
-                    Text("Route Deck")
+                    Text("Routes")
                 } footer: {
                     Text("Use these routes when capability scope needs profile, runtime, or integration context.")
                 }

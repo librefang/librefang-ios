@@ -237,66 +237,67 @@ struct AgentMemoryView: View {
     private var operatorSurfacesSection: some View {
         Section {
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Primary Routes"),
-                detail: String(localized: "Keep the agent, session, and incident exits closest to durable memory inspection.")
+                title: String(localized: "Routes"),
+                detail: String(localized: "Keep nearby agent, session, and runtime exits closest to durable memory inspection.")
             ) {
-                NavigationLink {
-                    AgentDetailView(agent: agent)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Back To Agent"),
-                        detail: String(localized: "Return to the full agent detail page with sessions, approvals, and diagnostics."),
-                        systemImage: "cpu",
-                        tone: .neutral
-                    )
+                MonitoringShortcutRail(
+                    title: String(localized: "Primary"),
+                    detail: String(localized: "Use nearby agent and incident surfaces first.")
+                ) {
+                    NavigationLink {
+                        AgentDetailView(agent: agent)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Agent"),
+                            systemImage: "cpu"
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        SessionsView(initialSearchText: agent.id, initialFilter: .all)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Sessions"),
+                            systemImage: "rectangle.stack",
+                            tone: entries.isEmpty ? .neutral : .warning,
+                            badgeText: entries.isEmpty ? nil : String(localized: "\(entries.count) keys")
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        IncidentsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Incidents"),
+                            systemImage: "bell.badge",
+                            tone: structuredEntryCount > 0 ? .warning : .neutral,
+                            badgeText: structuredEntryCount > 0
+                                ? (structuredEntryCount == 1 ? String(localized: "1 structured") : String(localized: "\(structuredEntryCount) structured"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
 
-                NavigationLink {
-                    SessionsView(initialSearchText: agent.id, initialFilter: .all)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Sessions"),
-                        detail: String(localized: "Switch to this agent's session inventory when memory state needs active conversation context."),
-                        systemImage: "rectangle.stack",
-                        tone: entries.isEmpty ? .neutral : .warning,
-                        badgeText: entries.isEmpty ? nil : String(localized: "\(entries.count) keys"),
-                        badgeTone: .neutral
-                    )
-                }
-
-                NavigationLink {
-                    IncidentsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Incidents"),
-                        detail: String(localized: "Switch to incidents when memory anomalies are part of a wider operator investigation."),
-                        systemImage: "bell.badge",
-                        tone: structuredEntryCount > 0 ? .warning : .neutral,
-                        badgeText: structuredEntryCount > 0
-                            ? (structuredEntryCount == 1 ? String(localized: "1 structured") : String(localized: "\(structuredEntryCount) structured"))
-                            : nil,
-                        badgeTone: .warning
-                    )
-                }
-            }
-
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Support Routes"),
-                detail: String(localized: "Keep broader runtime context separate from the primary memory exits.")
-            ) {
-                NavigationLink {
-                    RuntimeView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Runtime"),
-                        detail: String(localized: "Switch to runtime when memory state may reflect broader provider or approval pressure."),
-                        systemImage: "server.rack",
-                        tone: .neutral
-                    )
+                MonitoringShortcutRail(
+                    title: String(localized: "Support"),
+                    detail: String(localized: "Use broader runtime context when memory alone is not enough.")
+                ) {
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Runtime"),
+                            systemImage: "server.rack"
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         } header: {
-            Text("Route Deck")
+            Text("Routes")
         } footer: {
             Text("Use these routes when agent memory needs session, runtime, or incident context instead of isolated key inspection.")
         }

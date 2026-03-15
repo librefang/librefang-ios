@@ -187,68 +187,69 @@ struct AgentDeliveriesView: View {
 
             Section {
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Primary Routes"),
-                    detail: String(localized: "Keep the agent, incident, and audit exits closest to delivery failures and unsettled receipts.")
+                    title: String(localized: "Routes"),
+                    detail: String(localized: "Keep nearby agent, incident, audit, and runtime exits closest to delivery failures and unsettled receipts.")
                 ) {
-                    NavigationLink {
-                        AgentDetailView(agent: agent)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Back To Agent"),
-                            detail: String(localized: "Return to the agent detail page with sessions, files, memory, and approvals."),
-                            systemImage: "cpu",
-                            tone: .neutral
-                        )
+                    MonitoringShortcutRail(
+                        title: String(localized: "Primary"),
+                        detail: String(localized: "Use nearby incident and audit surfaces first.")
+                    ) {
+                        NavigationLink {
+                            AgentDetailView(agent: agent)
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Agent"),
+                                systemImage: "cpu"
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        NavigationLink {
+                            IncidentsView()
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Incidents"),
+                                systemImage: "bell.badge",
+                                tone: failedCount > 0 ? .critical : .neutral,
+                                badgeText: failedCount > 0
+                                    ? (failedCount == 1 ? String(localized: "1 failure") : String(localized: "\(failedCount) failures"))
+                                    : nil
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        NavigationLink {
+                            EventsView(api: deps.apiClient, initialSearchText: agent.id, initialScope: .critical)
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Events"),
+                                systemImage: "list.bullet.rectangle.portrait",
+                                tone: unsettledCount > 0 ? .warning : .neutral,
+                                badgeText: unsettledCount > 0
+                                    ? (unsettledCount == 1 ? String(localized: "1 unsettled") : String(localized: "\(unsettledCount) unsettled"))
+                                    : nil
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
 
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Incidents"),
-                            detail: String(localized: "Switch to the incident queue when delivery failures need broader triage."),
-                            systemImage: "bell.badge",
-                            tone: failedCount > 0 ? .critical : .neutral,
-                            badgeText: failedCount > 0
-                                ? (failedCount == 1 ? String(localized: "1 failure") : String(localized: "\(failedCount) failures"))
-                                : nil,
-                            badgeTone: .critical
-                        )
-                    }
-
-                    NavigationLink {
-                        EventsView(api: deps.apiClient, initialSearchText: agent.id, initialScope: .critical)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Events"),
-                            detail: String(localized: "Switch to audit events when delivery failures might be tied to runtime or channel activity."),
-                            systemImage: "list.bullet.rectangle.portrait",
-                            tone: unsettledCount > 0 ? .warning : .neutral,
-                            badgeText: unsettledCount > 0
-                                ? (unsettledCount == 1 ? String(localized: "1 unsettled") : String(localized: "\(unsettledCount) unsettled"))
-                                : nil,
-                            badgeTone: .warning
-                        )
-                    }
-                }
-
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Support Routes"),
-                    detail: String(localized: "Keep broader runtime context behind the primary delivery investigation path.")
-                ) {
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Runtime"),
-                            detail: String(localized: "Switch to runtime when outbound failures may reflect broader channel or provider trouble."),
-                            systemImage: "server.rack",
-                            tone: .neutral
-                        )
+                    MonitoringShortcutRail(
+                        title: String(localized: "Support"),
+                        detail: String(localized: "Keep broader runtime context behind the primary delivery path.")
+                    ) {
+                        NavigationLink {
+                            RuntimeView()
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Runtime"),
+                                systemImage: "server.rack"
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             } header: {
-                Text("Route Deck")
+                Text("Routes")
             } footer: {
                 Text("Use these routes when delivery receipts need incident, event, or runtime context.")
             }

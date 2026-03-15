@@ -151,64 +151,65 @@ struct AgentFilesView: View {
 
             Section {
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Primary Routes"),
-                    detail: String(localized: "Keep the agent, memory, and session exits closest to workspace identity inspection.")
+                    title: String(localized: "Routes"),
+                    detail: String(localized: "Keep nearby agent, memory, session, and delivery exits closest to workspace identity inspection.")
                 ) {
-                    NavigationLink {
-                        AgentDetailView(agent: agent)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Back To Agent"),
-                            detail: String(localized: "Return to the full agent detail page with deliveries, memory, sessions, and approvals."),
-                            systemImage: "cpu",
-                            tone: .neutral
-                        )
+                    MonitoringShortcutRail(
+                        title: String(localized: "Primary"),
+                        detail: String(localized: "Use nearby agent, memory, and session surfaces first.")
+                    ) {
+                        NavigationLink {
+                            AgentDetailView(agent: agent)
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Agent"),
+                                systemImage: "cpu"
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        NavigationLink {
+                            AgentMemoryView(agent: agent)
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Memory"),
+                                systemImage: "internaldrive",
+                                tone: missingCount > 0 ? .warning : .neutral,
+                                badgeText: missingCount > 0
+                                    ? (missingCount == 1 ? String(localized: "1 missing") : String(localized: "\(missingCount) missing"))
+                                    : nil
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        NavigationLink {
+                            SessionsView(initialSearchText: agent.id, initialFilter: .all)
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Sessions"),
+                                systemImage: "rectangle.stack"
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
 
-                    NavigationLink {
-                        AgentMemoryView(agent: agent)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Memory"),
-                            detail: String(localized: "Switch to durable memory when workspace identity files alone do not explain agent behavior."),
-                            systemImage: "internaldrive",
-                            tone: missingCount > 0 ? .warning : .neutral,
-                            badgeText: missingCount > 0
-                                ? (missingCount == 1 ? String(localized: "1 missing") : String(localized: "\(missingCount) missing"))
-                                : nil,
-                            badgeTone: .warning
-                        )
-                    }
-
-                    NavigationLink {
-                        SessionsView(initialSearchText: agent.id, initialFilter: .all)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Sessions"),
-                            detail: String(localized: "Switch to the agent's sessions when identity files and live context need to be compared together."),
-                            systemImage: "rectangle.stack",
-                            tone: .neutral
-                        )
-                    }
-                }
-
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Support Routes"),
-                    detail: String(localized: "Keep outbound delivery context behind the primary workspace identity exits.")
-                ) {
-                    NavigationLink {
-                        AgentDeliveriesView(agent: agent)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Deliveries"),
-                            detail: String(localized: "Switch to channel delivery receipts when workspace identity drift may be affecting output."),
-                            systemImage: "paperplane",
-                            tone: .neutral
-                        )
+                    MonitoringShortcutRail(
+                        title: String(localized: "Support"),
+                        detail: String(localized: "Keep outbound delivery context behind the primary workspace routes.")
+                    ) {
+                        NavigationLink {
+                            AgentDeliveriesView(agent: agent)
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Deliveries"),
+                                systemImage: "paperplane"
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             } header: {
-                Text("Route Deck")
+                Text("Routes")
             } footer: {
                 Text("Use these routes when identity files need memory, delivery, or session context rather than isolated file checks.")
             }

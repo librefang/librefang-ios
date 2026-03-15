@@ -42,62 +42,63 @@ struct ToolProfilesView: View {
 
             Section {
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Primary Routes"),
-                    detail: String(localized: "Keep the fleet and runtime exits closest to compact tool-profile review.")
+                    title: String(localized: "Routes"),
+                    detail: String(localized: "Keep fleet, runtime, integration, and diagnostics exits closest to compact tool-profile review.")
                 ) {
-                    NavigationLink {
-                        AgentsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Agents"),
-                            detail: String(localized: "Switch to fleet view when the same profile shape needs to be checked across multiple agents."),
-                            systemImage: "person.3",
-                            tone: selectedProfile != nil ? .positive : .neutral,
-                            badgeText: selectedProfileName,
-                            badgeTone: .neutral
-                        )
+                    MonitoringShortcutRail(
+                        title: String(localized: "Primary"),
+                        detail: String(localized: "Use fleet and runtime surfaces first.")
+                    ) {
+                        NavigationLink {
+                            AgentsView()
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Agents"),
+                                systemImage: "person.3",
+                                tone: selectedProfile != nil ? .positive : .neutral,
+                                badgeText: selectedProfileName
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        NavigationLink {
+                            RuntimeView()
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Runtime"),
+                                systemImage: "server.rack"
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
 
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Runtime"),
-                            detail: String(localized: "Switch to runtime when profile scope needs provider, approval, or session context."),
-                            systemImage: "server.rack",
-                            tone: .neutral
-                        )
-                    }
-                }
+                    MonitoringShortcutRail(
+                        title: String(localized: "Support"),
+                        detail: String(localized: "Keep integration and diagnostics context behind the primary fleet exits.")
+                    ) {
+                        NavigationLink {
+                            IntegrationsView(initialScope: .attention)
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Integrations"),
+                                systemImage: "square.3.layers.3d.down.forward"
+                            )
+                        }
+                        .buttonStyle(.plain)
 
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Support Routes"),
-                    detail: String(localized: "Keep integration and diagnostics context behind the primary fleet exits.")
-                ) {
-                    NavigationLink {
-                        IntegrationsView(initialScope: .attention)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Integrations"),
-                            detail: String(localized: "Switch to integrations if the profile looks healthy but tool execution still depends on providers or channels."),
-                            systemImage: "square.3.layers.3d.down.forward",
-                            tone: .neutral
-                        )
-                    }
-
-                    NavigationLink {
-                        DiagnosticsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Diagnostics"),
-                            detail: String(localized: "Switch to diagnostics when profile mismatch may actually reflect runtime health or config drift."),
-                            systemImage: "stethoscope",
-                            tone: .neutral
-                        )
+                        NavigationLink {
+                            DiagnosticsView()
+                        } label: {
+                            MonitoringSurfaceShortcutChip(
+                                title: String(localized: "Diagnostics"),
+                                systemImage: "stethoscope"
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             } header: {
-                Text("Route Deck")
+                Text("Routes")
             } footer: {
                 Text("Use these routes when profile inspection needs fleet, runtime, or integration context.")
             }

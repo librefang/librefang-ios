@@ -37,49 +37,51 @@ struct A2AAgentsView: View {
 
                     Section {
                         MonitoringSurfaceGroupCard(
-                            title: String(localized: "Primary Routes"),
-                            detail: String(localized: "Keep comms and runtime exits closest to the external-agent directory.")
+                            title: String(localized: "Routes"),
+                            detail: String(localized: "Keep comms, runtime, and diagnostics exits closest to the external-agent directory.")
                         ) {
-                            NavigationLink {
-                                CommsView(api: deps.apiClient)
-                            } label: {
-                                MonitoringJumpRow(
-                                    title: String(localized: "Comms"),
-                                    detail: String(localized: "Switch to comms topology when external agents matter more than local inventory."),
-                                    systemImage: "point.3.connected.trianglepath.dotted",
-                                    tone: .neutral
-                                )
+                            MonitoringShortcutRail(
+                                title: String(localized: "Primary"),
+                                detail: String(localized: "Use comms and runtime surfaces first.")
+                            ) {
+                                NavigationLink {
+                                    CommsView(api: deps.apiClient)
+                                } label: {
+                                    MonitoringSurfaceShortcutChip(
+                                        title: String(localized: "Comms"),
+                                        systemImage: "point.3.connected.trianglepath.dotted"
+                                    )
+                                }
+                                .buttonStyle(.plain)
+
+                                NavigationLink {
+                                    RuntimeView()
+                                } label: {
+                                    MonitoringSurfaceShortcutChip(
+                                        title: String(localized: "Runtime"),
+                                        systemImage: "server.rack"
+                                    )
+                                }
+                                .buttonStyle(.plain)
                             }
 
-                            NavigationLink {
-                                RuntimeView()
-                            } label: {
-                                MonitoringJumpRow(
-                                    title: String(localized: "Runtime"),
-                                    detail: String(localized: "Switch to runtime when external-agent inventory needs broader network or hand context."),
-                                    systemImage: "server.rack",
-                                    tone: .neutral
-                                )
-                            }
-                        }
-
-                        MonitoringSurfaceGroupCard(
-                            title: String(localized: "Support Routes"),
-                            detail: String(localized: "Keep broader health and config checks behind the primary A2A exits.")
-                        ) {
-                            NavigationLink {
-                                DiagnosticsView()
-                            } label: {
-                                MonitoringJumpRow(
-                                    title: String(localized: "Diagnostics"),
-                                    detail: String(localized: "Switch to diagnostics when A2A visibility issues may reflect runtime health or config drift."),
-                                    systemImage: "stethoscope",
-                                    tone: .neutral
-                                )
+                            MonitoringShortcutRail(
+                                title: String(localized: "Support"),
+                                detail: String(localized: "Keep broader health and config checks behind the primary A2A exits.")
+                            ) {
+                                NavigationLink {
+                                    DiagnosticsView()
+                                } label: {
+                                    MonitoringSurfaceShortcutChip(
+                                        title: String(localized: "Diagnostics"),
+                                        systemImage: "stethoscope"
+                                    )
+                                }
+                                .buttonStyle(.plain)
                             }
                         }
                     } header: {
-                        Text("Route Deck")
+                        Text("Routes")
                     } footer: {
                         Text("Use these routes when the external-agent directory needs runtime, comms, or diagnostics context.")
                     }
