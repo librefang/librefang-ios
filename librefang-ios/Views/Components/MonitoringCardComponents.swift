@@ -235,6 +235,45 @@ struct MonitoringSurfaceGroupCard<Content: View>: View {
     }
 }
 
+struct MonitoringShortcutRail<Content: View>: View {
+    let title: String
+    let detail: String?
+    let verticalSpacing: CGFloat
+    let content: Content
+
+    init(
+        title: String,
+        detail: String? = nil,
+        verticalSpacing: CGFloat = 8,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.title = title
+        self.detail = detail
+        self.verticalSpacing = verticalSpacing
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: verticalSpacing) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.primary)
+                if let detail {
+                    Text(detail)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            FlowLayout(spacing: 8) {
+                content
+            }
+        }
+    }
+}
+
 struct MonitoringSurfaceShortcutChip: View {
     let title: String
     let systemImage: String
