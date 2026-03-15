@@ -651,10 +651,22 @@ private struct OverviewEntryDeckCard: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Primary"),
-                detail: String(localized: "Keep the first operator exits right below the overview snapshot.")
+                title: String(localized: "Routes"),
+                detail: String(localized: "Keep the first overview exits and lower-section jumps in one compact deck.")
             ) {
-                FlowLayout(spacing: 8) {
+                OverviewRouteInventoryDeck(
+                    primaryCount: 4,
+                    supportCount: 4,
+                    jumpCount: visibleJumpCount,
+                    queueCount: queueCount,
+                    criticalCount: criticalCount,
+                    watchIssueCount: watchIssueCount
+                )
+
+                MonitoringShortcutRail(
+                    title: String(localized: "Primary"),
+                    detail: String(localized: "Keep the first operator exits right below the overview snapshot.")
+                ) {
                     NavigationLink {
                         IncidentsView()
                     } label: {
@@ -713,13 +725,11 @@ private struct OverviewEntryDeckCard: View {
                     }
                     .buttonStyle(.plain)
                 }
-            }
 
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Support"),
-                detail: String(localized: "Keep slower spend and config routes in a secondary rail.")
-            ) {
-                FlowLayout(spacing: 8) {
+                MonitoringShortcutRail(
+                    title: String(localized: "Support"),
+                    detail: String(localized: "Keep slower spend and config routes in a secondary rail.")
+                ) {
                     NavigationLink {
                         IntegrationsView(initialScope: .attention)
                     } label: {
@@ -770,89 +780,95 @@ private struct OverviewEntryDeckCard: View {
                     }
                     .buttonStyle(.plain)
                 }
-            }
 
-            MonitoringShortcutRail(
-                title: String(localized: "Jump Rail"),
-                detail: String(localized: "Jump to lower overview sections without long thumb-scrolling.")
-            ) {
-                if showsDiagnostics {
-                    jumpChip(
-                        title: String(localized: "Diagnostics"),
-                        systemImage: "stethoscope",
-                        tone: diagnosticsWarningCount > 0 ? .warning : .neutral,
-                        badgeText: diagnosticsWarningCount > 0
-                            ? (diagnosticsWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(diagnosticsWarningCount) warnings"))
-                            : nil,
-                        anchor: .diagnostics
-                    )
-                }
+                MonitoringShortcutRail(
+                    title: String(localized: "Jumps"),
+                    detail: String(localized: "Jump to lower overview sections without long thumb-scrolling.")
+                ) {
+                    if showsDiagnostics {
+                        jumpChip(
+                            title: String(localized: "Diagnostics"),
+                            systemImage: "stethoscope",
+                            tone: diagnosticsWarningCount > 0 ? .warning : .neutral,
+                            badgeText: diagnosticsWarningCount > 0
+                                ? (diagnosticsWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(diagnosticsWarningCount) warnings"))
+                                : nil,
+                            anchor: .diagnostics
+                        )
+                    }
 
-                if showsIntegrations {
-                    jumpChip(
-                        title: String(localized: "Integrations"),
-                        systemImage: "square.3.layers.3d.down.forward",
-                        tone: integrationIssueCount > 0 ? .warning : .neutral,
-                        badgeText: integrationIssueCount > 0
-                            ? (integrationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(integrationIssueCount) issues"))
-                            : nil,
-                        anchor: .integrations
-                    )
-                }
+                    if showsIntegrations {
+                        jumpChip(
+                            title: String(localized: "Integrations"),
+                            systemImage: "square.3.layers.3d.down.forward",
+                            tone: integrationIssueCount > 0 ? .warning : .neutral,
+                            badgeText: integrationIssueCount > 0
+                                ? (integrationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(integrationIssueCount) issues"))
+                                : nil,
+                            anchor: .integrations
+                        )
+                    }
 
-                if showsAutomation {
-                    jumpChip(
-                        title: String(localized: "Automation"),
-                        systemImage: "flowchart",
-                        tone: automationIssueCount > 0 ? .warning : .neutral,
-                        badgeText: automationIssueCount > 0
-                            ? (automationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(automationIssueCount) issues"))
-                            : nil,
-                        anchor: .automation
-                    )
-                }
+                    if showsAutomation {
+                        jumpChip(
+                            title: String(localized: "Automation"),
+                            systemImage: "flowchart",
+                            tone: automationIssueCount > 0 ? .warning : .neutral,
+                            badgeText: automationIssueCount > 0
+                                ? (automationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(automationIssueCount) issues"))
+                                : nil,
+                            anchor: .automation
+                        )
+                    }
 
-                if showsWatchlist {
-                    jumpChip(
-                        title: String(localized: "Watchlist"),
-                        systemImage: "star.fill",
-                        tone: watchIssueCount > 0 ? .warning : .neutral,
-                        badgeText: watchIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(watchIssueCount) issues"),
-                        anchor: .watchlist
-                    )
-                }
+                    if showsWatchlist {
+                        jumpChip(
+                            title: String(localized: "Watchlist"),
+                            systemImage: "star.fill",
+                            tone: watchIssueCount > 0 ? .warning : .neutral,
+                            badgeText: watchIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(watchIssueCount) issues"),
+                            anchor: .watchlist
+                        )
+                    }
 
-                if showsSessions {
-                    jumpChip(
-                        title: String(localized: "Sessions"),
-                        systemImage: "text.bubble",
-                        tone: sessionCount > 0 ? .warning : .neutral,
-                        badgeText: sessionCount == 1 ? String(localized: "1 hot session") : String(localized: "\(sessionCount) hot sessions"),
-                        anchor: .sessions
-                    )
-                }
+                    if showsSessions {
+                        jumpChip(
+                            title: String(localized: "Sessions"),
+                            systemImage: "text.bubble",
+                            tone: sessionCount > 0 ? .warning : .neutral,
+                            badgeText: sessionCount == 1 ? String(localized: "1 hot session") : String(localized: "\(sessionCount) hot sessions"),
+                            anchor: .sessions
+                        )
+                    }
 
-                if showsAudit {
-                    jumpChip(
-                        title: String(localized: "Audit"),
-                        systemImage: "text.justify.leading",
-                        tone: .neutral,
-                        badgeText: auditCount == 1 ? String(localized: "1 recent event") : String(localized: "\(auditCount) recent events"),
-                        anchor: .audit
-                    )
-                }
+                    if showsAudit {
+                        jumpChip(
+                            title: String(localized: "Audit"),
+                            systemImage: "text.justify.leading",
+                            tone: .neutral,
+                            badgeText: auditCount == 1 ? String(localized: "1 recent event") : String(localized: "\(auditCount) recent events"),
+                            anchor: .audit
+                        )
+                    }
 
-                if showsAgents {
-                    jumpChip(
-                        title: String(localized: "Agents"),
-                        systemImage: "person.3",
-                        tone: .neutral,
-                        badgeText: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
-                        anchor: .agents
-                    )
+                    if showsAgents {
+                        jumpChip(
+                            title: String(localized: "Agents"),
+                            systemImage: "person.3",
+                            tone: .neutral,
+                            badgeText: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                            anchor: .agents
+                        )
+                    }
                 }
             }
         }
+    }
+
+    private var visibleJumpCount: Int {
+        [showsDiagnostics, showsIntegrations, showsAutomation, showsWatchlist, showsSessions, showsAudit, showsAgents]
+            .filter { $0 }
+            .count
     }
 
     private func jumpChip(
@@ -873,6 +889,66 @@ private struct OverviewEntryDeckCard: View {
             )
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct OverviewRouteInventoryDeck: View {
+    let primaryCount: Int
+    let supportCount: Int
+    let jumpCount: Int
+    let queueCount: Int
+    let criticalCount: Int
+    let watchIssueCount: Int
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: primaryCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryCount) primary routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: supportCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportCount) support routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: jumpCount == 1 ? String(localized: "1 jump") : String(localized: "\(jumpCount) jumps"),
+                    tone: jumpCount > 0 ? .positive : .neutral
+                )
+                if criticalCount > 0 {
+                    PresentationToneBadge(
+                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        tone: .critical
+                    )
+                }
+                if queueCount > 0 {
+                    PresentationToneBadge(
+                        text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
+                        tone: .warning
+                    )
+                }
+                if watchIssueCount > 0 {
+                    PresentationToneBadge(
+                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        tone: .warning
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        let totalRoutes = primaryCount + supportCount + jumpCount
+        return totalRoutes == 1
+            ? String(localized: "1 overview route is grouped in this deck.")
+            : String(localized: "\(totalRoutes) overview routes are grouped in this deck.")
+    }
+
+    private var detailLine: String {
+        if jumpCount == 0 {
+            return String(localized: "Primary and support exits stay together before the lower overview sections load.")
+        }
+        return String(localized: "Primary exits, slower support routes, and lower-section jumps stay together in one compact deck.")
     }
 }
 

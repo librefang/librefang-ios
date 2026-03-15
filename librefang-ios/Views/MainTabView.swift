@@ -716,16 +716,34 @@ private struct OperatorOverlayDeck: View {
     let isOffline: Bool
     let actions: [OperatorOverlayQuickAction]
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(String(localized: "Quick Actions"))
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
+    private var primaryActions: [OperatorOverlayQuickAction] {
+        Array(actions.prefix(4))
+    }
 
-            Text(summary)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+    private var supportActions: [OperatorOverlayQuickAction] {
+        Array(actions.dropFirst(4))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ResponsiveAccessoryRow(horizontalSpacing: 10, verticalSpacing: 6) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Quick Actions"))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+
+                    Text(summary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } accessory: {
+                GlassCapsuleBadge(
+                    text: preferredSurfaceLabel,
+                    foregroundStyle: .secondary,
+                    backgroundOpacity: 0.08
+                )
+            }
 
             FlowLayout(spacing: 8) {
                 if isOffline {
@@ -770,52 +788,69 @@ private struct OperatorOverlayDeck: View {
                         backgroundOpacity: 0.10
                     )
                 }
-                GlassCapsuleBadge(
-                    text: preferredSurfaceLabel,
-                    foregroundStyle: .secondary,
-                    backgroundOpacity: 0.08
-                )
             }
 
-            if !actions.isEmpty {
+            if !primaryActions.isEmpty || !supportActions.isEmpty {
                 Divider()
                     .overlay(.white.opacity(0.08))
 
-                FlowLayout(spacing: 8) {
-                    ForEach(actions) { action in
-                        Button(action: action.action) {
-                            HStack(spacing: 6) {
-                                Image(systemName: action.systemImage)
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundStyle(.white)
-                                    .frame(width: 20, height: 20)
-                                    .background(.white.opacity(0.16), in: RoundedRectangle(cornerRadius: 8))
-
-                                Text(action.title)
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundStyle(.white)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.85)
-
-                                if let badgeText = action.badgeText {
-                                    Text(badgeText)
-                                        .font(.caption2.weight(.semibold))
-                                        .foregroundStyle(action.tone.color)
-                                        .padding(.horizontal, 5)
-                                        .padding(.vertical, 2)
-                                        .background(.white.opacity(0.96), in: Capsule())
-                                }
-                            }
-                            .padding(.horizontal, 9)
-                            .padding(.vertical, 7)
-                            .background(.white.opacity(0.10), in: Capsule())
-                        }
-                        .buttonStyle(.plain)
+                VStack(alignment: .leading, spacing: 8) {
+                    overlayActionRail(title: String(localized: "Primary"), actions: primaryActions)
+                    if !supportActions.isEmpty {
+                        overlayActionRail(title: String(localized: "Support"), actions: supportActions)
                     }
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private func overlayActionRail(title: String, actions: [OperatorOverlayQuickAction]) -> some View {
+        if !actions.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+
+                FlowLayout(spacing: 8) {
+                    ForEach(actions) { action in
+                        overlayActionButton(action)
+                    }
+                }
+            }
+        }
+    }
+
+    private func overlayActionButton(_ action: OperatorOverlayQuickAction) -> some View {
+        Button(action: action.action) {
+            HStack(spacing: 6) {
+                Image(systemName: action.systemImage)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 20, height: 20)
+                    .background(.white.opacity(0.16), in: RoundedRectangle(cornerRadius: 8))
+
+                Text(action.title)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+
+                if let badgeText = action.badgeText {
+                    Text(badgeText)
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(action.tone.color)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(.white.opacity(0.96), in: Capsule())
+                }
+            }
+            .padding(.horizontal, 9)
+            .padding(.vertical, 7)
+            .background(.white.opacity(0.10), in: Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }
 
