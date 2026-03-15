@@ -59,6 +59,33 @@ struct AgentDeliveriesView: View {
         receipts.filter { $0.status == .sent || $0.status == .bestEffort }.count
     }
 
+    private var exportText: String {
+        let header = [
+            String(localized: "LibreFang Delivery Snapshot"),
+            String(localized: "Agent: \(agent.name)"),
+            String(localized: "Scope: \(scope.label)"),
+            String(localized: "Visible receipts: \(filteredReceipts.count)"),
+            String(localized: "Delivered: \(deliveredCount)"),
+            String(localized: "Failed: \(failedCount)"),
+            String(localized: "Unsettled: \(unsettledCount)")
+        ]
+
+        let rows = filteredReceipts.map { receipt in
+            var parts = [
+                receipt.status.label,
+                receipt.channel,
+                receipt.recipient,
+                receipt.timestamp
+            ]
+            if let error = receipt.error, !error.isEmpty {
+                parts.append(error)
+            }
+            return parts.joined(separator: " · ")
+        }
+
+        return (header + [""] + rows).joined(separator: "\n")
+    }
+
     var body: some View {
         List {
             Section {
@@ -119,7 +146,19 @@ struct AgentDeliveriesView: View {
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, prompt: "Search recipient, channel, or status")
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                if !filteredReceipts.isEmpty {
+                    ShareLink(
+                        item: exportText,
+                        preview: SharePreview(
+                            String(localized: "\(agent.name) Deliveries"),
+                            image: Image(systemName: "paperplane")
+                        )
+                    ) {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                }
+
                 Menu {
                     Picker("Scope", selection: $scope) {
                         ForEach(DeliveryScope.allCases, id: \.self) { option in

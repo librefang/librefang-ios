@@ -49,6 +49,7 @@ protocol APIClientProtocol: Sendable {
     func approvals() async throws -> ApprovalQueue
     func sessions() async throws -> SessionListResponse
     func agentMemory(agentId: String) async throws -> AgentMemoryListResponse
+    func exportAgentMemory(agentId: String) async throws -> AgentMemoryExportSnapshot
     func recentAudit(limit: Int) async throws -> AuditRecentResponse
     func auditVerify() async throws -> AuditVerifyStatus
     func security() async throws -> SecurityStatus
@@ -192,6 +193,10 @@ actor APIClient: APIClientProtocol {
 
     func agentMemory(agentId: String) async throws -> AgentMemoryListResponse {
         try await get("/api/memory/agents/\(agentId)/kv")
+    }
+
+    func exportAgentMemory(agentId: String) async throws -> AgentMemoryExportSnapshot {
+        try await get("/api/agents/\(agentId)/memory/export")
     }
 
     func recentAudit(limit: Int) async throws -> AuditRecentResponse {

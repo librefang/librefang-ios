@@ -5,9 +5,11 @@ struct AgentMemoryView: View {
     let onUpdate: (([AgentMemoryEntry]) -> Void)?
 
     @Environment(\.dependencies) private var deps
+    @State private var exportSnapshot: AgentMemoryExportSnapshot?
     @State private var entries: [AgentMemoryEntry]
     @State private var searchText = ""
     @State private var isLoading: Bool
+    @State private var isExporting = false
     @State private var loadError: String?
     @State private var editorState: MemoryEditorState?
     @State private var pendingDelete: AgentMemoryEntry?
@@ -85,8 +87,8 @@ struct AgentMemoryView: View {
                                 Button {
                                     UIPasteboard.general.string = entry.editorText
                                     notice = OperatorActionNotice(
-                                        title: "Memory Value",
-                                        message: "\"\(entry.key)\" copied to the clipboard."
+                                        title: String(localized: "Memory Value"),
+                                        message: String(localized: "\"\(entry.key)\" copied to the clipboard.")
                                     )
                                 } label: {
                                     Label("Copy Value", systemImage: "doc.on.doc")
@@ -107,12 +109,54 @@ struct AgentMemoryView: View {
         .searchable(text: $searchText, prompt: "Search memory key or value")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    editorState = .create(agentName: agent.name)
-                } label: {
-                    Image(systemName: "plus")
+                HStack(spacing: 12) {
+                    Menu {
+                        Button {
+                            Task { await copyExportJSON() }
+                        } label: {
+                            Label("Copy Export JSON", systemImage: "doc.on.doc")
+                        }
+                        .disabled(isActionBusy || isExporting)
+
+                        if let exportSnapshot {
+                            ShareLink(
+                                item: exportSnapshot.prettyPrintedJSONString,
+                                preview: SharePreview(
+                                    String(localized: "\(agent.name) Memory Export"),
+                                    image: Image(systemName: "externaldrive.badge.checkmark")
+                                )
+                            ) {
+                                Label("Share Export Snapshot", systemImage: "square.and.arrow.up")
+                            }
+                        } else {
+                            Button {
+                                Task { await prepareExportSnapshot() }
+                            } label: {
+                                if isExporting {
+                                    Label("Preparing Export…", systemImage: "square.and.arrow.up")
+                                } else {
+                                    Label("Prepare Export Snapshot", systemImage: "square.and.arrow.up")
+                                }
+                            }
+                            .disabled(isActionBusy || isExporting)
+                        }
+                    } label: {
+                        if isExporting {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                    }
+                    .disabled(isActionBusy)
+
+                    Button {
+                        editorState = .create(agentName: agent.name)
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .disabled(isActionBusy)
                 }
-                .disabled(isActionBusy)
             }
         }
         .refreshable {
@@ -228,8 +272,8 @@ struct AgentMemoryView: View {
         let trimmedKey = key.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedKey.isEmpty else {
             notice = OperatorActionNotice(
-                title: "Memory Key",
-                message: "A memory key is required."
+                title: String(localized: "Memory Key"),
+                message: String(localized: "A memory key is required.")
             )
             return false
         }
@@ -246,13 +290,13 @@ struct AgentMemoryView: View {
             editorState = nil
             await loadMemory()
             notice = OperatorActionNotice(
-                title: "Memory Key",
-                message: response.message ?? "Saved \"\(trimmedKey)\"."
+                title: String(localized: "Memory Key"),
+                message: response.message ?? String(localized: "Saved \"\(trimmedKey)\".")
             )
             return true
         } catch {
             notice = OperatorActionNotice(
-                title: "Memory Key",
+                title: String(localized: "Memory Key"),
                 message: error.localizedDescription
             )
             return false
@@ -269,12 +313,52 @@ struct AgentMemoryView: View {
             let response = try await deps.apiClient.deleteAgentMemory(agentId: agent.id, key: entry.key)
             await loadMemory()
             notice = OperatorActionNotice(
-                title: "Delete Memory Key",
-                message: response.message ?? "Deleted \"\(entry.key)\"."
+                title: String(localized: "Delete Memory Key"),
+                message: response.message ?? String(localized: "Deleted \"\(entry.key)\".")
             )
         } catch {
             notice = OperatorActionNotice(
-                title: "Delete Memory Key",
+                title: String(localized: "Delete Memory Key"),
+                message: error.localizedDescription
+            )
+        }
+    }
+
+    @MainActor
+    private func prepareExportSnapshot() async {
+        isExporting = true
+        defer { isExporting = false }
+
+        do {
+            exportSnapshot = try await deps.apiClient.exportAgentMemory(agentId: agent.id)
+            notice = OperatorActionNotice(
+                title: String(localized: "Memory Export"),
+                message: String(localized: "Export snapshot is ready to share.")
+            )
+        } catch {
+            notice = OperatorActionNotice(
+                title: String(localized: "Memory Export"),
+                message: error.localizedDescription
+            )
+        }
+    }
+
+    @MainActor
+    private func copyExportJSON() async {
+        isExporting = true
+        defer { isExporting = false }
+
+        do {
+            let snapshot = try await deps.apiClient.exportAgentMemory(agentId: agent.id)
+            exportSnapshot = snapshot
+            UIPasteboard.general.string = snapshot.prettyPrintedJSONString
+            notice = OperatorActionNotice(
+                title: String(localized: "Memory Export"),
+                message: String(localized: "\"\(agent.name)\" memory JSON copied to the clipboard.")
+            )
+        } catch {
+            notice = OperatorActionNotice(
+                title: String(localized: "Memory Export"),
                 message: error.localizedDescription
             )
         }
@@ -297,9 +381,9 @@ private enum MemoryEditorState: Identifiable {
     var title: String {
         switch self {
         case .create:
-            return "New Memory Key"
+            return String(localized: "New Memory Key")
         case .edit:
-            return "Edit Memory"
+            return String(localized: "Edit Memory")
         }
     }
 

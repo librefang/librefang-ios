@@ -8,6 +8,34 @@ nonisolated struct AgentMemoryListResponse: Codable, Sendable {
     }
 }
 
+nonisolated struct AgentMemoryExportSnapshot: Codable, Sendable {
+    let agentId: String
+    let version: Int
+    let kv: [String: JSONValue]
+
+    enum CodingKeys: String, CodingKey {
+        case version, kv
+        case agentId = "agent_id"
+    }
+
+    var prettyPrintedJSONString: String {
+        let payload: [String: Any] = [
+            "agent_id": agentId,
+            "version": version,
+            "kv": kv.mapValues(\.exportFoundationObject)
+        ]
+
+        guard JSONSerialization.isValidJSONObject(payload),
+              let data = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys]),
+              let text = String(data: data, encoding: .utf8)
+        else {
+            return "{\n  \"agent_id\": \"\(agentId)\",\n  \"version\": \(version)\n}"
+        }
+
+        return text
+    }
+}
+
 nonisolated struct AgentMemoryEntry: Codable, Identifiable, Sendable, Hashable {
     let key: String
     let value: JSONValue
@@ -39,7 +67,7 @@ extension JSONValue {
             }
             return value.formatted()
         case .bool(let value):
-            return value ? "true" : "false"
+            return value ? String(localized: "true") : String(localized: "false")
         case .object(let value):
             return value.count == 1
                 ? String(localized: "1 field")
@@ -49,7 +77,7 @@ extension JSONValue {
                 ? String(localized: "1 item")
                 : String(localized: "\(value.count) items")
         case .null:
-            return "null"
+            return String(localized: "null")
         }
     }
 
@@ -63,9 +91,9 @@ extension JSONValue {
             }
             return value.formatted()
         case .bool(let value):
-            return value ? "true" : "false"
+            return value ? String(localized: "true") : String(localized: "false")
         case .null:
-            return "null"
+            return String(localized: "null")
         case .object, .array:
             return prettyPrintedJSONString ?? memorySummary
         }
@@ -108,6 +136,10 @@ extension JSONValue {
         case .null:
             return NSNull()
         }
+    }
+
+    fileprivate nonisolated var exportFoundationObject: Any {
+        foundationObject ?? NSNull()
     }
 
     private nonisolated static func fromFoundationObject(_ object: Any) -> JSONValue {
