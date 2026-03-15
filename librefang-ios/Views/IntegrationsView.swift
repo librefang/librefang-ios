@@ -235,66 +235,19 @@ struct IntegrationsView: View {
                 }
 
                 Section {
-                    MonitoringFilterCard(summary: scopeSummaryLine, detail: searchSummaryLine) {
-                        PresentationToneBadge(
-                            text: scope.label,
-                            tone: scope == .attention ? .warning : .neutral
-                        )
-                    } controls: {
-                        FlowLayout(spacing: 8) {
-                            ForEach(IntegrationsScope.allCases) { candidate in
-                                Button {
-                                    scope = candidate
-                                } label: {
-                                    SelectableCapsuleBadge(text: candidate.label, isSelected: scope == candidate)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
-                } footer: {
-                    Text(
-                        scope == .attention
-                            ? String(localized: "Attention mode shows only provider outages, channel field gaps, unavailable models, and agent drift.")
-                            : String(localized: "All mode shows the full provider, channel, model, and alias inventory.")
+                    IntegrationsStatusDeckCard(
+                        scope: $scope,
+                        scopeSummaryLine: scopeSummaryLine,
+                        searchSummaryLine: searchSummaryLine,
+                        providerAttentionCount: providerAttentionCount,
+                        channelAttentionCount: channelAttentionCount,
+                        modelAttentionCount: modelAttentionCount,
+                        driftAttentionCount: driftAttentionCount
                     )
-                }
-
-                Section {
-                    MonitoringFactsRow {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(String(localized: "Operator snapshot"))
-                                .font(.subheadline.weight(.medium))
-                            Text(String(localized: "Keep provider, channel, catalog, and agent-drift counts visible before diving into the inventory."))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
-                        }
-                    } accessory: {
-                        PresentationToneBadge(
-                            text: scope.label,
-                            tone: scope == .attention ? .warning : .neutral
-                        )
-                    } facts: {
-                        Label(
-                            providerAttentionCount == 1 ? String(localized: "1 provider issue") : String(localized: "\(providerAttentionCount) provider issues"),
-                            systemImage: "key.horizontal"
-                        )
-                        Label(
-                            channelAttentionCount == 1 ? String(localized: "1 channel gap") : String(localized: "\(channelAttentionCount) channel gaps"),
-                            systemImage: "bubble.left.and.bubble.right"
-                        )
-                        Label(
-                            modelAttentionCount == 1 ? String(localized: "1 unavailable model") : String(localized: "\(modelAttentionCount) unavailable models"),
-                            systemImage: "square.stack.3d.up"
-                        )
-                        Label(
-                            driftAttentionCount == 1 ? String(localized: "1 drifted agent") : String(localized: "\(driftAttentionCount) drifted agents"),
-                            systemImage: "cpu"
-                        )
-                    }
+                } header: {
+                    Text("Status Deck")
                 } footer: {
-                    Text("This compact snapshot keeps the highest-signal integration counts visible on mobile.")
+                    Text("Keep scope, attention filters, and highest-signal integration counts in one compact digest.")
                 }
 
                 if vm.catalogStatus != nil || !vm.catalogModels.isEmpty {
@@ -775,6 +728,75 @@ struct IntegrationsView: View {
         return result.isHealthy
             ? String(localized: "Probe passed.")
             : String(localized: "Probe failed.")
+    }
+}
+
+private struct IntegrationsStatusDeckCard: View {
+    @Binding var scope: IntegrationsScope
+    let scopeSummaryLine: String
+    let searchSummaryLine: String
+    let providerAttentionCount: Int
+    let channelAttentionCount: Int
+    let modelAttentionCount: Int
+    let driftAttentionCount: Int
+
+    private var scopeTone: PresentationTone {
+        scope == .attention ? .warning : .neutral
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringFilterCard(summary: scopeSummaryLine, detail: searchSummaryLine) {
+                PresentationToneBadge(
+                    text: scope.label,
+                    tone: scopeTone
+                )
+            } controls: {
+                FlowLayout(spacing: 8) {
+                    ForEach(IntegrationsScope.allCases) { candidate in
+                        Button {
+                            scope = candidate
+                        } label: {
+                            SelectableCapsuleBadge(text: candidate.label, isSelected: scope == candidate)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Operator snapshot"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep provider, channel, catalog, and agent-drift counts visible before diving into the inventory."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: scope.label,
+                    tone: scopeTone
+                )
+            } facts: {
+                Label(
+                    providerAttentionCount == 1 ? String(localized: "1 provider issue") : String(localized: "\(providerAttentionCount) provider issues"),
+                    systemImage: "key.horizontal"
+                )
+                Label(
+                    channelAttentionCount == 1 ? String(localized: "1 channel gap") : String(localized: "\(channelAttentionCount) channel gaps"),
+                    systemImage: "bubble.left.and.bubble.right"
+                )
+                Label(
+                    modelAttentionCount == 1 ? String(localized: "1 unavailable model") : String(localized: "\(modelAttentionCount) unavailable models"),
+                    systemImage: "square.stack.3d.up"
+                )
+                Label(
+                    driftAttentionCount == 1 ? String(localized: "1 drifted agent") : String(localized: "\(driftAttentionCount) drifted agents"),
+                    systemImage: "cpu"
+                )
+            }
+        }
     }
 }
 

@@ -163,98 +163,17 @@ struct AutomationView: View {
                 }
 
                 Section {
-                    MonitoringSnapshotCard(
-                        summary: automationSnapshotSummary,
-                        detail: String(localized: "Use the snapshot to judge workflow and scheduler pressure before digging into the sectioned lists.")
-                    ) {
-                        FlowLayout(spacing: 8) {
-                            PresentationToneBadge(
-                                text: scope.label,
-                                tone: scope == .attention ? .warning : scope == .active ? .positive : .neutral
-                            )
-                            if vm.failedWorkflowRunCount > 0 {
-                                PresentationToneBadge(
-                                    text: vm.failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(vm.failedWorkflowRunCount) failed runs"),
-                                    tone: .critical
-                                )
-                            }
-                            if vm.exhaustedTriggerCount > 0 {
-                                PresentationToneBadge(
-                                    text: vm.exhaustedTriggerCount == 1 ? String(localized: "1 exhausted trigger") : String(localized: "\(vm.exhaustedTriggerCount) exhausted triggers"),
-                                    tone: .warning
-                                )
-                            }
-                            if vm.pausedScheduleCount > 0 {
-                                PresentationToneBadge(
-                                    text: vm.pausedScheduleCount == 1 ? String(localized: "1 paused schedule") : String(localized: "\(vm.pausedScheduleCount) paused schedules"),
-                                    tone: .warning
-                                )
-                            }
-                            if vm.stalledCronJobCount > 0 {
-                                PresentationToneBadge(
-                                    text: vm.stalledCronJobCount == 1 ? String(localized: "1 stalled cron") : String(localized: "\(vm.stalledCronJobCount) stalled cron jobs"),
-                                    tone: .warning
-                                )
-                            }
-                            if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                PresentationToneBadge(
-                                    text: visibleItemCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleItemCount) visible results"),
-                                    tone: .neutral
-                                )
-                            }
-                        }
-                    }
+                    AutomationStatusDeckCard(
+                        vm: vm,
+                        scope: scope,
+                        searchText: searchText,
+                        visibleItemCount: visibleItemCount,
+                        automationSnapshotSummary: automationSnapshotSummary
+                    )
+                } header: {
+                    Text("Status Deck")
                 } footer: {
-                    Text("This compact automation digest keeps failure pressure visible before the longer workflow and schedule sections.")
-                }
-
-                Section {
-                    MonitoringFactsRow {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(String(localized: "Automation signal facts"))
-                                .font(.subheadline.weight(.medium))
-                            Text(String(localized: "Keep scope, inventory size, and failure categories visible before drilling into workflows, runs, triggers, schedules, and cron jobs."))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
-                        }
-                    } accessory: {
-                        PresentationToneBadge(
-                            text: scope.label,
-                            tone: scope == .attention ? .warning : scope == .active ? .positive : .neutral
-                        )
-                    } facts: {
-                        Label(
-                            vm.workflows.count == 1 ? String(localized: "1 workflow") : String(localized: "\(vm.workflows.count) workflows"),
-                            systemImage: "flowchart"
-                        )
-                        Label(
-                            vm.workflowRuns.count == 1 ? String(localized: "1 run") : String(localized: "\(vm.workflowRuns.count) runs"),
-                            systemImage: "play.circle"
-                        )
-                        Label(
-                            vm.triggers.count == 1 ? String(localized: "1 trigger") : String(localized: "\(vm.triggers.count) triggers"),
-                            systemImage: "bolt.badge.clock"
-                        )
-                        Label(
-                            visibleItemCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleItemCount) visible results"),
-                            systemImage: "line.3.horizontal.decrease.circle"
-                        )
-                        if vm.failedWorkflowRunCount > 0 {
-                            Label(
-                                vm.failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(vm.failedWorkflowRunCount) failed runs"),
-                                systemImage: "xmark.octagon"
-                            )
-                        }
-                        if vm.stalledCronJobCount > 0 {
-                            Label(
-                                vm.stalledCronJobCount == 1 ? String(localized: "1 stalled cron") : String(localized: "\(vm.stalledCronJobCount) stalled cron jobs"),
-                                systemImage: "clock.badge.exclamationmark"
-                            )
-                        }
-                    }
-                } footer: {
-                    Text("This facts row keeps scope and failure pressure readable before you scroll through the grouped automation sections.")
+                    Text("Keep scope, inventory size, and failure pressure in one compact automation digest before the grouped workflow sections.")
                 }
 
                 Section {
@@ -753,6 +672,117 @@ struct AutomationView: View {
             return String(localized: "\(channel) → \(to)")
         case .webhook:
             return delivery.url ?? String(localized: "Webhook")
+        }
+    }
+}
+
+private struct AutomationStatusDeckCard: View {
+    let vm: DashboardViewModel
+    let scope: AutomationMonitorScope
+    let searchText: String
+    let visibleItemCount: Int
+    let automationSnapshotSummary: String
+
+    private var scopeTone: PresentationTone {
+        switch scope {
+        case .all:
+            .neutral
+        case .attention:
+            .warning
+        case .active:
+            .positive
+        }
+    }
+
+    private var hasSearchScope: Bool {
+        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: automationSnapshotSummary,
+                detail: String(localized: "Use the snapshot to judge workflow and scheduler pressure before digging into the sectioned lists.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scope.label, tone: scopeTone)
+                    if vm.failedWorkflowRunCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(vm.failedWorkflowRunCount) failed runs"),
+                            tone: .critical
+                        )
+                    }
+                    if vm.exhaustedTriggerCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.exhaustedTriggerCount == 1 ? String(localized: "1 exhausted trigger") : String(localized: "\(vm.exhaustedTriggerCount) exhausted triggers"),
+                            tone: .warning
+                        )
+                    }
+                    if vm.pausedScheduleCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.pausedScheduleCount == 1 ? String(localized: "1 paused schedule") : String(localized: "\(vm.pausedScheduleCount) paused schedules"),
+                            tone: .warning
+                        )
+                    }
+                    if vm.stalledCronJobCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.stalledCronJobCount == 1 ? String(localized: "1 stalled cron") : String(localized: "\(vm.stalledCronJobCount) stalled cron jobs"),
+                            tone: .warning
+                        )
+                    }
+                    if hasSearchScope {
+                        PresentationToneBadge(
+                            text: visibleItemCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleItemCount) visible results"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Automation signal facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep scope, inventory size, and failure categories visible before drilling into workflows, runs, triggers, schedules, and cron jobs."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: scope.label,
+                    tone: scopeTone
+                )
+            } facts: {
+                Label(
+                    vm.workflows.count == 1 ? String(localized: "1 workflow") : String(localized: "\(vm.workflows.count) workflows"),
+                    systemImage: "flowchart"
+                )
+                Label(
+                    vm.workflowRuns.count == 1 ? String(localized: "1 run") : String(localized: "\(vm.workflowRuns.count) runs"),
+                    systemImage: "play.circle"
+                )
+                Label(
+                    vm.triggers.count == 1 ? String(localized: "1 trigger") : String(localized: "\(vm.triggers.count) triggers"),
+                    systemImage: "bolt.badge.clock"
+                )
+                Label(
+                    visibleItemCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleItemCount) visible results"),
+                    systemImage: "line.3.horizontal.decrease.circle"
+                )
+                if vm.failedWorkflowRunCount > 0 {
+                    Label(
+                        vm.failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(vm.failedWorkflowRunCount) failed runs"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if vm.stalledCronJobCount > 0 {
+                    Label(
+                        vm.stalledCronJobCount == 1 ? String(localized: "1 stalled cron") : String(localized: "\(vm.stalledCronJobCount) stalled cron jobs"),
+                        systemImage: "clock.badge.exclamationmark"
+                    )
+                }
+            }
         }
     }
 }
