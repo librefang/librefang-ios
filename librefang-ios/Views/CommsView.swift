@@ -49,155 +49,19 @@ struct CommsView: View {
             }
 
             Section {
-                MonitoringSnapshotCard(
-                    summary: filteredEvents.isEmpty
-                        ? String(localized: "Comms monitor is ready for live operator traffic.")
-                        : (filteredEvents.count == 1
-                            ? String(localized: "1 comms event is visible in the current mobile feed.")
-                            : String(localized: "\(filteredEvents.count) comms events are visible in the current mobile feed.")),
-                    detail: String(localized: "Use the snapshot to judge whether comms traffic, links, or event flow deserves the next drill-down.")
-                ) {
-                    FlowLayout(spacing: 8) {
-                        PresentationToneBadge(
-                            text: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
-                            tone: viewModel.isStreaming ? .positive : .warning
-                        )
-                        PresentationToneBadge(
-                            text: viewModel.nodeCount == 1 ? String(localized: "1 agent") : String(localized: "\(viewModel.nodeCount) agents"),
-                            tone: viewModel.nodeCount > 1 ? .positive : .neutral
-                        )
-                        PresentationToneBadge(
-                            text: viewModel.edgeCount == 1 ? String(localized: "1 link") : String(localized: "\(viewModel.edgeCount) links"),
-                            tone: viewModel.edgeCount > 0 ? .positive : .neutral
-                        )
-                        if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            PresentationToneBadge(
-                                text: filteredEvents.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredEvents.count) visible results"),
-                                tone: .neutral
-                            )
-                        }
-                    }
-                }
-            } footer: {
-                Text("This compact digest keeps comms pressure visible before topology and event details.")
-            }
-
-            Section {
-                MonitoringFactsRow {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(String(localized: "Comms signal facts"))
-                            .font(.subheadline.weight(.medium))
-                        Text(String(localized: "Keep transport mode, topology depth, and event flow visible before opening longer comms sections or other monitors."))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                    }
-                } accessory: {
-                    PresentationToneBadge(
-                        text: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
-                        tone: viewModel.isStreaming ? .positive : .warning
-                    )
-                } facts: {
-                    Label(
-                        viewModel.nodeCount == 1 ? String(localized: "1 agent") : String(localized: "\(viewModel.nodeCount) agents"),
-                        systemImage: "cpu"
-                    )
-                    Label(
-                        viewModel.edgeCount == 1 ? String(localized: "1 link") : String(localized: "\(viewModel.edgeCount) links"),
-                        systemImage: "point.3.connected.trianglepath.dotted"
-                    )
-                    Label(
-                        viewModel.taskEventCount == 1 ? String(localized: "1 task-flow event") : String(localized: "\(viewModel.taskEventCount) task-flow events"),
-                        systemImage: "checklist"
-                    )
-                    Label(
-                        filteredEvents.count == 1 ? String(localized: "1 visible event") : String(localized: "\(filteredEvents.count) visible events"),
-                        systemImage: "arrow.left.arrow.right.circle"
-                    )
-                    if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Label(String(localized: "Scoped search"), systemImage: "magnifyingglass")
-                    }
-                    if viewModel.topology != nil {
-                        Label(String(localized: "Topology loaded"), systemImage: "wave.3.right")
-                    }
-                }
-            } footer: {
-                Text("This compact facts row keeps the current communication shape visible before you scroll into topology and recent events.")
-            }
-
-            Section {
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Primary Surfaces"),
-                    detail: String(localized: "Keep runtime, incidents, and critical audit exits closest to the live comms feed.")
-                ) {
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Runtime"),
-                            detail: String(localized: "Switch to runtime when comms traffic needs provider, hand, or approval context."),
-                            systemImage: "server.rack",
-                            tone: .neutral
-                        )
-                    }
-
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Incidents"),
-                            detail: String(localized: "Switch to incidents when communication failures line up with live alerts or approvals."),
-                            systemImage: "bell.badge",
-                            tone: filteredEvents.isEmpty ? .neutral : .warning,
-                            badgeText: filteredEvents.isEmpty ? nil : String(localized: "\(filteredEvents.count) events"),
-                            badgeTone: .warning
-                        )
-                    }
-
-                    NavigationLink {
-                        EventsView(api: deps.apiClient, initialScope: .critical)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Critical Events"),
-                            detail: String(localized: "Switch to audit events when comms traffic needs recent critical context."),
-                            systemImage: "text.justify.leading",
-                            tone: .neutral
-                        )
-                    }
-                }
-
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Supporting Surfaces"),
-                    detail: String(localized: "Keep external-agent inventory behind the primary comms investigation path.")
-                ) {
-                    NavigationLink {
-                        A2AAgentsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open A2A Agents"),
-                            detail: String(localized: "Switch to the external-agent directory when the topology hints at cross-agent routing issues."),
-                            systemImage: "link.circle",
-                            tone: .neutral
-                        )
-                    }
-                }
+                commsStatusDeckCard
             } header: {
-                Text("Operator Surfaces")
+                Text("Status Deck")
             } footer: {
-                Text("Use these routes when comms traffic is only one part of the operator path.")
+                Text("Keep comms pressure, transport mode, and visible event flow in one compact digest before topology and recent events.")
             }
 
             Section {
-                CommsFilterCard(
-                    searchText: searchText,
-                    visibleCount: filteredEvents.count,
-                    totalCount: viewModel.events.count,
-                    isStreaming: viewModel.isStreaming,
-                    nodeCount: viewModel.nodeCount,
-                    edgeCount: viewModel.edgeCount
-                )
+                commsControlDeckCard
             } header: {
-                Text("Filter")
+                Text("Control Deck")
+            } footer: {
+                Text("Keep comms drilldowns and filter state grouped together before topology and recent events.")
             }
 
             Section {
@@ -289,6 +153,141 @@ struct CommsView: View {
     private func shortID(_ id: String) -> String {
         guard id.count > 8 else { return id }
         return String(id.prefix(8))
+    }
+
+    private var commsStatusDeckCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: filteredEvents.isEmpty
+                    ? String(localized: "Comms monitor is ready for live operator traffic.")
+                    : (filteredEvents.count == 1
+                        ? String(localized: "1 comms event is visible in the current mobile feed.")
+                        : String(localized: "\(filteredEvents.count) comms events are visible in the current mobile feed.")),
+                detail: String(localized: "Use the snapshot to judge whether comms traffic, links, or event flow deserves the next drill-down.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                        tone: viewModel.isStreaming ? .positive : .warning
+                    )
+                    PresentationToneBadge(
+                        text: viewModel.nodeCount == 1 ? String(localized: "1 agent") : String(localized: "\(viewModel.nodeCount) agents"),
+                        tone: viewModel.nodeCount > 1 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: viewModel.edgeCount == 1 ? String(localized: "1 link") : String(localized: "\(viewModel.edgeCount) links"),
+                        tone: viewModel.edgeCount > 0 ? .positive : .neutral
+                    )
+                    if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        PresentationToneBadge(
+                            text: filteredEvents.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredEvents.count) visible results"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Comms signal facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep transport mode, topology depth, and event flow visible before opening longer comms sections or other monitors."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                    tone: viewModel.isStreaming ? .positive : .warning
+                )
+            } facts: {
+                Label(
+                    viewModel.nodeCount == 1 ? String(localized: "1 agent") : String(localized: "\(viewModel.nodeCount) agents"),
+                    systemImage: "cpu"
+                )
+                Label(
+                    viewModel.edgeCount == 1 ? String(localized: "1 link") : String(localized: "\(viewModel.edgeCount) links"),
+                    systemImage: "point.3.connected.trianglepath.dotted"
+                )
+                Label(
+                    viewModel.taskEventCount == 1 ? String(localized: "1 task-flow event") : String(localized: "\(viewModel.taskEventCount) task-flow events"),
+                    systemImage: "checklist"
+                )
+                Label(
+                    filteredEvents.count == 1 ? String(localized: "1 visible event") : String(localized: "\(filteredEvents.count) visible events"),
+                    systemImage: "arrow.left.arrow.right.circle"
+                )
+                if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Label(String(localized: "Scoped search"), systemImage: "magnifyingglass")
+                }
+                if viewModel.topology != nil {
+                    Label(String(localized: "Topology loaded"), systemImage: "wave.3.right")
+                }
+            }
+        }
+    }
+
+    private var commsControlDeckCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Quick Routes"),
+                detail: String(localized: "Jump straight to runtime, incidents, audit, or external-agent inventory without another stack of long route cards.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Runtime"),
+                            systemImage: "server.rack"
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        IncidentsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Incidents"),
+                            systemImage: "bell.badge",
+                            tone: filteredEvents.isEmpty ? .neutral : .warning,
+                            badgeText: filteredEvents.isEmpty ? nil : String(localized: "\(filteredEvents.count) events")
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        EventsView(api: deps.apiClient, initialScope: .critical)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Critical Events"),
+                            systemImage: "text.justify.leading"
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        A2AAgentsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "A2A Agents"),
+                            systemImage: "link.circle"
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            CommsFilterCard(
+                searchText: searchText,
+                visibleCount: filteredEvents.count,
+                totalCount: viewModel.events.count,
+                isStreaming: viewModel.isStreaming,
+                nodeCount: viewModel.nodeCount,
+                edgeCount: viewModel.edgeCount
+            )
+        }
     }
 }
 

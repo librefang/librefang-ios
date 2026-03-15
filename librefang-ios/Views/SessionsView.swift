@@ -82,196 +82,19 @@ struct SessionsView: View {
             }
 
             Section {
-                MonitoringSnapshotCard(
-                    summary: vm.totalSessionCount == 1
-                        ? String(localized: "1 session is visible in the current workspace snapshot.")
-                        : String(localized: "\(vm.totalSessionCount) sessions are visible in the current workspace snapshot."),
-                    detail: String(localized: "High-volume, unlabeled, and duplicated sessions stay visible before the longer operator list.")
-                ) {
-                    FlowLayout(spacing: 8) {
-                        PresentationToneBadge(text: filter.label, tone: snapshotFilterTone)
-                        if vm.sessionAttentionCount > 0 {
-                            PresentationToneBadge(
-                                text: vm.sessionAttentionCount == 1 ? String(localized: "1 attention item") : String(localized: "\(vm.sessionAttentionCount) attention items"),
-                                tone: .warning
-                            )
-                        }
-                        if vm.highVolumeSessionCount > 0 {
-                            PresentationToneBadge(
-                                text: vm.highVolumeSessionCount == 1 ? String(localized: "1 high-volume session") : String(localized: "\(vm.highVolumeSessionCount) high-volume sessions"),
-                                tone: .warning
-                            )
-                        }
-                        if vm.unlabeledSessionCount > 0 {
-                            PresentationToneBadge(
-                                text: vm.unlabeledSessionCount == 1 ? String(localized: "1 unlabeled session") : String(localized: "\(vm.unlabeledSessionCount) unlabeled sessions"),
-                                tone: .caution
-                            )
-                        }
-                        if vm.multiSessionAgentCount > 0 {
-                            PresentationToneBadge(
-                                text: vm.multiSessionAgentCount == 1 ? String(localized: "1 agent with multiple sessions") : String(localized: "\(vm.multiSessionAgentCount) agents with multiple sessions"),
-                                tone: .warning
-                            )
-                        }
-                        if !normalizedSearchText.isEmpty {
-                            PresentationToneBadge(
-                                text: filteredItems.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredItems.count) visible results"),
-                                tone: .neutral
-                            )
-                        }
-                    }
-                }
-            } footer: {
-                Text("The snapshot keeps current backlog pressure visible before you relabel, switch, or delete sessions.")
-            }
-
-            Section {
-                MonitoringFactsRow {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(String(localized: "Session queue facts"))
-                            .font(.subheadline.weight(.medium))
-                        Text(String(localized: "Keep backlog scope, hotspot counts, and current result volume visible before working through the session list."))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                    }
-                } accessory: {
-                    PresentationToneBadge(text: filter.label, tone: snapshotFilterTone)
-                } facts: {
-                    Label(
-                        vm.totalSessionCount == 1 ? String(localized: "1 total session") : String(localized: "\(vm.totalSessionCount) total sessions"),
-                        systemImage: "text.bubble"
-                    )
-                    if vm.sessionAttentionCount > 0 {
-                        Label(
-                            vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"),
-                            systemImage: "exclamationmark.triangle"
-                        )
-                    }
-                    if vm.highVolumeSessionCount > 0 {
-                        Label(
-                            vm.highVolumeSessionCount == 1 ? String(localized: "1 high-volume session") : String(localized: "\(vm.highVolumeSessionCount) high-volume sessions"),
-                            systemImage: "chart.bar.xaxis"
-                        )
-                    }
-                    if vm.unlabeledSessionCount > 0 {
-                        Label(
-                            vm.unlabeledSessionCount == 1 ? String(localized: "1 unlabeled session") : String(localized: "\(vm.unlabeledSessionCount) unlabeled sessions"),
-                            systemImage: "tag.slash"
-                        )
-                    }
-                    if vm.multiSessionAgentCount > 0 {
-                        Label(
-                            vm.multiSessionAgentCount == 1 ? String(localized: "1 multi-session agent") : String(localized: "\(vm.multiSessionAgentCount) multi-session agents"),
-                            systemImage: "person.3"
-                        )
-                    }
-                    Label(
-                        filteredItems.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredItems.count) visible results"),
-                        systemImage: "line.3.horizontal.decrease.circle"
-                    )
-                }
-            } footer: {
-                Text("This compact facts row keeps session backlog and filter scope readable before deeper queue work.")
-            }
-
-            Section {
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Primary Surfaces"),
-                    detail: String(localized: "Keep the next queue and fleet exits closest to the session backlog list.")
-                ) {
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Runtime"),
-                            detail: String(localized: "Switch back to runtime with session hotspots folded into the main operator snapshot."),
-                            systemImage: "server.rack",
-                            tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
-                            badgeText: vm.sessionAttentionCount > 0
-                                ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
-                                : nil,
-                            badgeTone: .warning
-                        )
-                    }
-
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Incidents"),
-                            detail: String(localized: "Switch to incidents where session backlog sits beside alerts and approvals."),
-                            systemImage: "bell.badge",
-                            tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
-                            badgeText: vm.sessionAttentionCount > 0
-                                ? (vm.sessionAttentionCount == 1 ? String(localized: "1 queue item") : String(localized: "\(vm.sessionAttentionCount) queue items"))
-                                : nil,
-                            badgeTone: .warning
-                        )
-                    }
-
-                    NavigationLink {
-                        OnCallView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open On Call"),
-                            detail: String(localized: "Switch to the prioritized queue when session hotspots need incident-level triage."),
-                            systemImage: "waveform.path.ecg",
-                            tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
-                            badgeText: vm.sessionAttentionCount > 0
-                                ? (vm.sessionAttentionCount == 1 ? String(localized: "1 session issue") : String(localized: "\(vm.sessionAttentionCount) session issues"))
-                                : nil,
-                            badgeTone: .warning
-                        )
-                    }
-
-                    NavigationLink {
-                        AgentsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Agents"),
-                            detail: String(localized: "Switch to fleet view when session pressure clusters around specific agents."),
-                            systemImage: "person.3",
-                            tone: vm.multiSessionAgentCount > 0 ? .warning : .neutral,
-                            badgeText: vm.multiSessionAgentCount > 0
-                                ? (vm.multiSessionAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(vm.multiSessionAgentCount) agents"))
-                                : nil,
-                            badgeTone: .warning
-                        )
-                    }
-                }
-
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Supporting Surfaces"),
-                    detail: String(localized: "Keep audit context separate from the primary session exits.")
-                ) {
-                    NavigationLink {
-                        EventsView(api: deps.apiClient, initialScope: .warning)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Events"),
-                            detail: String(localized: "Switch to the audit feed when session backlog may be tied to recent warnings or critical events."),
-                            systemImage: "list.bullet.rectangle.portrait",
-                            tone: .warning
-                        )
-                    }
-                }
+                sessionsStatusDeckCard
             } header: {
-                Text("Operator Surfaces")
+                Text("Status Deck")
             } footer: {
-                Text("Use these routes when session backlog or relabeling work needs runtime, incident, or fleet context.")
+                Text("Keep session backlog pressure, filter scope, and visible result volume in one compact digest before deeper queue work.")
             }
 
             Section {
-                SessionFilterCard(
-                    filter: $filter,
-                    searchText: searchText,
-                    visibleCount: filteredItems.count,
-                    totalCount: vm.sessions.count
-                )
+                sessionsControlDeckCard
             } header: {
-                Text("Filter")
+                Text("Control Deck")
+            } footer: {
+                Text("Keep session drilldowns and filter controls grouped together before the long queue.")
             }
 
             if filteredItems.isEmpty && !vm.isLoading {
@@ -378,6 +201,182 @@ struct SessionsView: View {
                 title: Text(notice.title),
                 message: Text(notice.message),
                 dismissButton: .default(Text("OK"))
+            )
+        }
+    }
+
+    private var sessionsStatusDeckCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: vm.totalSessionCount == 1
+                    ? String(localized: "1 session is visible in the current workspace snapshot.")
+                    : String(localized: "\(vm.totalSessionCount) sessions are visible in the current workspace snapshot."),
+                detail: String(localized: "High-volume, unlabeled, and duplicated sessions stay visible before the longer operator list.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filter.label, tone: snapshotFilterTone)
+                    if vm.sessionAttentionCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.sessionAttentionCount == 1 ? String(localized: "1 attention item") : String(localized: "\(vm.sessionAttentionCount) attention items"),
+                            tone: .warning
+                        )
+                    }
+                    if vm.highVolumeSessionCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.highVolumeSessionCount == 1 ? String(localized: "1 high-volume session") : String(localized: "\(vm.highVolumeSessionCount) high-volume sessions"),
+                            tone: .warning
+                        )
+                    }
+                    if vm.unlabeledSessionCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.unlabeledSessionCount == 1 ? String(localized: "1 unlabeled session") : String(localized: "\(vm.unlabeledSessionCount) unlabeled sessions"),
+                            tone: .caution
+                        )
+                    }
+                    if vm.multiSessionAgentCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.multiSessionAgentCount == 1 ? String(localized: "1 agent with multiple sessions") : String(localized: "\(vm.multiSessionAgentCount) agents with multiple sessions"),
+                            tone: .warning
+                        )
+                    }
+                    if !normalizedSearchText.isEmpty {
+                        PresentationToneBadge(
+                            text: filteredItems.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredItems.count) visible results"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Session queue facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep backlog scope, hotspot counts, and current result volume visible before working through the session list."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: filter.label, tone: snapshotFilterTone)
+            } facts: {
+                Label(
+                    vm.totalSessionCount == 1 ? String(localized: "1 total session") : String(localized: "\(vm.totalSessionCount) total sessions"),
+                    systemImage: "text.bubble"
+                )
+                if vm.sessionAttentionCount > 0 {
+                    Label(
+                        vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if vm.highVolumeSessionCount > 0 {
+                    Label(
+                        vm.highVolumeSessionCount == 1 ? String(localized: "1 high-volume session") : String(localized: "\(vm.highVolumeSessionCount) high-volume sessions"),
+                        systemImage: "chart.bar.xaxis"
+                    )
+                }
+                if vm.unlabeledSessionCount > 0 {
+                    Label(
+                        vm.unlabeledSessionCount == 1 ? String(localized: "1 unlabeled session") : String(localized: "\(vm.unlabeledSessionCount) unlabeled sessions"),
+                        systemImage: "tag.slash"
+                    )
+                }
+                if vm.multiSessionAgentCount > 0 {
+                    Label(
+                        vm.multiSessionAgentCount == 1 ? String(localized: "1 multi-session agent") : String(localized: "\(vm.multiSessionAgentCount) multi-session agents"),
+                        systemImage: "person.3"
+                    )
+                }
+                Label(
+                    filteredItems.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredItems.count) visible results"),
+                    systemImage: "line.3.horizontal.decrease.circle"
+                )
+            }
+        }
+    }
+
+    private var sessionsControlDeckCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Quick Routes"),
+                detail: String(localized: "Jump straight to the next queue, fleet, or audit surface without another stack of long route cards.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Runtime"),
+                            systemImage: "server.rack",
+                            tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                            badgeText: vm.sessionAttentionCount > 0
+                                ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        IncidentsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Incidents"),
+                            systemImage: "bell.badge",
+                            tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                            badgeText: vm.sessionAttentionCount > 0
+                                ? (vm.sessionAttentionCount == 1 ? String(localized: "1 queue item") : String(localized: "\(vm.sessionAttentionCount) queue items"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        OnCallView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "On Call"),
+                            systemImage: "waveform.path.ecg",
+                            tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                            badgeText: vm.sessionAttentionCount > 0
+                                ? (vm.sessionAttentionCount == 1 ? String(localized: "1 session issue") : String(localized: "\(vm.sessionAttentionCount) session issues"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        AgentsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Agents"),
+                            systemImage: "person.3",
+                            tone: vm.multiSessionAgentCount > 0 ? .warning : .neutral,
+                            badgeText: vm.multiSessionAgentCount > 0
+                                ? (vm.multiSessionAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(vm.multiSessionAgentCount) agents"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        EventsView(api: deps.apiClient, initialScope: .warning)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Events"),
+                            systemImage: "list.bullet.rectangle.portrait",
+                            tone: .warning
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            SessionFilterCard(
+                filter: $filter,
+                searchText: searchText,
+                visibleCount: filteredItems.count,
+                totalCount: vm.sessions.count
             )
         }
     }

@@ -235,6 +235,52 @@ struct MonitoringSurfaceGroupCard<Content: View>: View {
     }
 }
 
+struct MonitoringSurfaceShortcutChip: View {
+    let title: String
+    let systemImage: String
+    let tone: PresentationTone
+    let badgeText: String?
+
+    init(
+        title: String,
+        systemImage: String,
+        tone: PresentationTone = .neutral,
+        badgeText: String? = nil
+    ) {
+        self.title = title
+        self.systemImage = systemImage
+        self.tone = tone
+        self.badgeText = badgeText
+    }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(tone.color)
+                .frame(width: 22, height: 22)
+                .background(tone.color.opacity(0.14), in: RoundedRectangle(cornerRadius: 8))
+
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+
+            if let badgeText {
+                Text(badgeText)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(tone.color)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(tone.color.opacity(0.12), in: Capsule())
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(.secondary.opacity(0.08), in: Capsule())
+    }
+}
+
 private struct MonitoringSummaryTextBlock: View {
     let summary: String
     let detail: String?

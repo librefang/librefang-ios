@@ -52,176 +52,19 @@ struct EventsView: View {
             }
 
             Section {
-                MonitoringSnapshotCard(
-                    summary: filteredEntries.isEmpty
-                        ? String(localized: "Event feed is ready for a fresh mobile review.")
-                        : (filteredEntries.count == 1
-                            ? String(localized: "1 event is visible in the current event feed.")
-                            : String(localized: "\(filteredEntries.count) events are visible in the current event feed.")),
-                    detail: String(localized: "Critical audit pressure and transport state stay visible before the longer event list.")
-                ) {
-                    FlowLayout(spacing: 8) {
-                        PresentationToneBadge(text: scope.label, tone: scopeTone)
-                        PresentationToneBadge(
-                            text: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
-                            tone: viewModel.isStreaming ? .positive : .warning
-                        )
-                        if viewModel.criticalCount > 0 {
-                            PresentationToneBadge(
-                                text: viewModel.criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(viewModel.criticalCount) critical"),
-                                tone: .critical
-                            )
-                        }
-                        if viewModel.warningCount > 0 {
-                            PresentationToneBadge(
-                                text: viewModel.warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(viewModel.warningCount) warnings"),
-                                tone: .warning
-                            )
-                        }
-                        if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            PresentationToneBadge(
-                                text: filteredEntries.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredEntries.count) visible results"),
-                                tone: .neutral
-                            )
-                        }
-                    }
-                }
-            } footer: {
-                Text("Use the snapshot to judge event pressure and transport state before scanning the full feed.")
-            }
-
-            Section {
-                MonitoringFactsRow {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(String(localized: "Event feed facts"))
-                            .font(.subheadline.weight(.medium))
-                        Text(String(localized: "Keep severity scope, transport mode, and visible audit pressure readable before opening the full event list."))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                    }
-                } accessory: {
-                    PresentationToneBadge(text: scope.label, tone: scopeTone)
-                } facts: {
-                    Label(
-                        filteredEntries.count == 1 ? String(localized: "1 visible event") : String(localized: "\(filteredEntries.count) visible events"),
-                        systemImage: "list.bullet.rectangle"
-                    )
-                    Label(
-                        viewModel.isStreaming ? String(localized: "Live transport") : String(localized: "Polling transport"),
-                        systemImage: "dot.radiowaves.left.and.right"
-                    )
-                    if viewModel.criticalCount > 0 {
-                        Label(
-                            viewModel.criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(viewModel.criticalCount) critical"),
-                            systemImage: "xmark.octagon"
-                        )
-                    }
-                    if viewModel.warningCount > 0 {
-                        Label(
-                            viewModel.warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(viewModel.warningCount) warnings"),
-                            systemImage: "exclamationmark.triangle"
-                        )
-                    }
-                    if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Label(String(localized: "Scoped search"), systemImage: "magnifyingglass")
-                    }
-                }
-            } footer: {
-                Text("This compact facts row keeps severity and transport state visible before you scan the event feed.")
-            }
-
-            Section {
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Primary Surfaces"),
-                    detail: String(localized: "Keep the incident, runtime, and session exits closest to the live event feed.")
-                ) {
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Incidents"),
-                            detail: String(localized: "Switch to incident queue when critical events should be triaged beside alerts and approvals."),
-                            systemImage: "bell.badge",
-                            tone: viewModel.criticalCount > 0 ? .critical : .neutral,
-                            badgeText: viewModel.criticalCount > 0
-                                ? (viewModel.criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(viewModel.criticalCount) critical"))
-                                : nil,
-                            badgeTone: .critical
-                        )
-                    }
-
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Runtime"),
-                            detail: String(localized: "Switch to runtime when event pressure needs system, provider, or approval context."),
-                            systemImage: "server.rack",
-                            tone: viewModel.warningCount > 0 ? .warning : .neutral,
-                            badgeText: viewModel.warningCount > 0
-                                ? (viewModel.warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(viewModel.warningCount) warnings"))
-                                : nil,
-                            badgeTone: .warning
-                        )
-                    }
-
-                    NavigationLink {
-                        SessionsView(initialFilter: .attention)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Sessions"),
-                            detail: String(localized: "Switch to session hotspots when audit events suggest backlog or session drift."),
-                            systemImage: "text.bubble",
-                            tone: .warning,
-                            badgeText: nil,
-                            badgeTone: .warning
-                        )
-                    }
-                }
-
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Supporting Surfaces"),
-                    detail: String(localized: "Keep deeper health and comms context behind the primary event exits.")
-                ) {
-                    NavigationLink {
-                        DiagnosticsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Diagnostics"),
-                            detail: String(localized: "Switch to diagnostics when audit activity may reflect deeper runtime problems."),
-                            systemImage: "stethoscope",
-                            tone: .neutral
-                        )
-                    }
-
-                    NavigationLink {
-                        CommsView(api: deps.apiClient)
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Comms"),
-                            detail: String(localized: "Switch to live inter-agent traffic when audit events need communication context."),
-                            systemImage: "point.3.connected.trianglepath.dotted",
-                            tone: .neutral
-                        )
-                    }
-                }
+                eventsStatusDeckCard
             } header: {
-                Text("Operator Surfaces")
+                Text("Status Deck")
             } footer: {
-                Text("Use these routes when the event feed is only one part of the operator path.")
+                Text("Keep event pressure, transport state, and visible result volume in one compact digest before scanning the feed.")
             }
 
             Section {
-                EventFilterCard(
-                    scope: $scope,
-                    searchText: searchText,
-                    visibleCount: filteredEntries.count,
-                    totalCount: viewModel.entries.count,
-                    isStreaming: viewModel.isStreaming
-                )
+                eventsControlDeckCard
             } header: {
-                Text("Filter")
+                Text("Control Deck")
+            } footer: {
+                Text("Keep event drilldowns and filter controls grouped together before the long feed.")
             }
 
             if filteredEntries.isEmpty && !viewModel.isLoading {
@@ -280,6 +123,160 @@ struct EventsView: View {
 
     private func agentName(for id: String) -> String? {
         deps.dashboardViewModel.agents.first(where: { $0.id == id })?.name
+    }
+
+    private var eventsStatusDeckCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: filteredEntries.isEmpty
+                    ? String(localized: "Event feed is ready for a fresh mobile review.")
+                    : (filteredEntries.count == 1
+                        ? String(localized: "1 event is visible in the current event feed.")
+                        : String(localized: "\(filteredEntries.count) events are visible in the current event feed.")),
+                detail: String(localized: "Critical audit pressure and transport state stay visible before the longer event list.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scope.label, tone: scopeTone)
+                    PresentationToneBadge(
+                        text: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                        tone: viewModel.isStreaming ? .positive : .warning
+                    )
+                    if viewModel.criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: viewModel.criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(viewModel.criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if viewModel.warningCount > 0 {
+                        PresentationToneBadge(
+                            text: viewModel.warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(viewModel.warningCount) warnings"),
+                            tone: .warning
+                        )
+                    }
+                    if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        PresentationToneBadge(
+                            text: filteredEntries.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredEntries.count) visible results"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Event feed facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep severity scope, transport mode, and visible audit pressure readable before opening the full event list."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: scope.label, tone: scopeTone)
+            } facts: {
+                Label(
+                    filteredEntries.count == 1 ? String(localized: "1 visible event") : String(localized: "\(filteredEntries.count) visible events"),
+                    systemImage: "list.bullet.rectangle"
+                )
+                Label(
+                    viewModel.isStreaming ? String(localized: "Live transport") : String(localized: "Polling transport"),
+                    systemImage: "dot.radiowaves.left.and.right"
+                )
+                if viewModel.criticalCount > 0 {
+                    Label(
+                        viewModel.criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(viewModel.criticalCount) critical"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if viewModel.warningCount > 0 {
+                    Label(
+                        viewModel.warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(viewModel.warningCount) warnings"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Label(String(localized: "Scoped search"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var eventsControlDeckCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Quick Routes"),
+                detail: String(localized: "Jump straight to incidents, runtime, sessions, diagnostics, or comms without expanding another long stack of route cards.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    NavigationLink {
+                        IncidentsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Incidents"),
+                            systemImage: "bell.badge",
+                            tone: viewModel.criticalCount > 0 ? .critical : .neutral,
+                            badgeText: viewModel.criticalCount > 0
+                                ? (viewModel.criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(viewModel.criticalCount) critical"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Runtime"),
+                            systemImage: "server.rack",
+                            tone: viewModel.warningCount > 0 ? .warning : .neutral,
+                            badgeText: viewModel.warningCount > 0
+                                ? (viewModel.warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(viewModel.warningCount) warnings"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        SessionsView(initialFilter: .attention)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Sessions"),
+                            systemImage: "text.bubble",
+                            tone: .warning
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        DiagnosticsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Diagnostics"),
+                            systemImage: "stethoscope"
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        CommsView(api: deps.apiClient)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Comms"),
+                            systemImage: "point.3.connected.trianglepath.dotted"
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            EventFilterCard(
+                scope: $scope,
+                searchText: searchText,
+                visibleCount: filteredEntries.count,
+                totalCount: viewModel.entries.count,
+                isStreaming: viewModel.isStreaming
+            )
+        }
     }
 }
 
