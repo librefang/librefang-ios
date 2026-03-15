@@ -16,6 +16,12 @@ struct IncidentsView: View {
     private var mutedAlerts: [MonitoringAlertItem] {
         incidentStateStore.activeMutedAlerts(from: vm.monitoringAlerts)
     }
+    private var criticalAlertCount: Int {
+        visibleAlerts.filter { $0.severity == .critical }.count
+    }
+    private var warningAlertCount: Int {
+        visibleAlerts.filter { $0.severity == .warning }.count
+    }
     private var isCurrentSnapshotAcknowledged: Bool {
         incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
     }
@@ -132,311 +138,7 @@ struct IncidentsView: View {
 
     var body: some View {
         List {
-            Section {
-                IncidentScoreboard(
-                    criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
-                    warningCount: visibleAlerts.filter { $0.severity == .warning }.count,
-                    mutedCount: mutedAlerts.count,
-                    approvalCount: vm.pendingApprovalCount,
-                    agentCount: combinedAgentIssueCount,
-                    sessionCount: vm.sessionAttentionCount,
-                    automationCount: automationIssueCount,
-                    integrationCount: integrationIssueCount,
-                    handoffCount: handoffIssueCount
-                )
-                    .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-            }
-
-            Section {
-                IncidentSnapshotCard(
-                    activeAlertCount: visibleAlerts.count,
-                    mutedAlertCount: mutedAlerts.count,
-                    approvalCount: vm.pendingApprovalCount,
-                    agentCount: combinedAgentIssueCount,
-                    sessionCount: vm.sessionAttentionCount,
-                    eventCount: vm.recentCriticalAuditCount,
-                    automationCount: automationIssueCount,
-                    integrationCount: integrationIssueCount,
-                    handoffCount: handoffIssueCount,
-                    isAcknowledged: isCurrentSnapshotAcknowledged
-                )
-            } header: {
-                Text("Snapshot")
-            } footer: {
-                Text("This summary keeps the top incident buckets visible before the long sectioned queue.")
-            }
-
-            Section {
-                IncidentQuickLinksCard(
-                    approvalCount: vm.pendingApprovalCount,
-                    sessionCount: vm.sessionAttentionCount,
-                    eventCount: vm.recentCriticalAuditCount,
-                    automationIssueCount: automationIssueCount,
-                    integrationIssueCount: integrationIssueCount,
-                    handoffIssueCount: handoffIssueCount,
-                    handoffText: handoffText,
-                    queueCount: onCallPriorityItems.count,
-                    criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
-                    liveAlertCount: visibleAlerts.count,
-                    api: deps.apiClient
-                )
-            } footer: {
-                Text("These links keep the highest-value incident drilldowns visible before the long grouped queue.")
-            }
-
-            if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
-                Section("Operator State") {
-                    IncidentOperatorCard(
-                        activeAlertCount: visibleAlerts.count,
-                        mutedAlertCount: mutedAlerts.count,
-                        isAcknowledged: isCurrentSnapshotAcknowledged,
-                        acknowledgedAt: currentAcknowledgedAt,
-                        onAcknowledge: { incidentStateStore.acknowledgeCurrentSnapshot(alerts: vm.monitoringAlerts) },
-                        onClearAcknowledgement: { incidentStateStore.clearAcknowledgement() },
-                        onUnmuteAll: { incidentStateStore.unmuteAll() }
-                    )
-                }
-            }
-
-            if handoffIssueCount > 0 {
-                Section {
-                    NavigationLink {
-                        HandoffCenterView(
-                            summary: handoffText,
-                            queueCount: onCallPriorityItems.count,
-                            criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
-                            liveAlertCount: visibleAlerts.count
-                        )
-                    } label: {
-                        IncidentShiftCoverageCard(
-                            checkInStatus: handoffCheckInStatus,
-                            readiness: handoffReadiness,
-                            latestEntry: handoffStore.latestEntry,
-                            pendingFollowUpCount: handoffStore.pendingLatestFollowUpCount,
-                            completedFollowUpCount: handoffStore.completedLatestFollowUpCount
-                        )
-                    }
-                } header: {
-                    Text("Shift Coverage")
-                } footer: {
-                    Text("These handoff signals are local to this iPhone and help keep operator follow-through visible inside the incident flow.")
-                }
-            }
-
-            if automationIssueCount > 0 {
-                Section {
-                    NavigationLink {
-                        AutomationView()
-                    } label: {
-                        IncidentAutomationCard(vm: vm)
-                    }
-                } header: {
-                    Text("Automation")
-                } footer: {
-                    Text("Workflow failures, exhausted triggers, and stalled cron jobs now flow into the mobile incident queue.")
-                }
-            }
-
-            if integrationIssueCount > 0 {
-                Section {
-                    NavigationLink {
-                        IntegrationsView(initialScope: .attention)
-                    } label: {
-                        IncidentIntegrationsCard(vm: vm)
-                    }
-
-                    if vm.unreachableLocalProviderCount > 0 {
-                        NavigationLink {
-                            IntegrationsView(
-                                initialSearchText: vm.unreachableLocalProviders.count == 1 ? vm.unreachableLocalProviders[0].displayName : "",
-                                initialScope: .attention
-                            )
-                        } label: {
-                            Label("Review Provider Failures", systemImage: "network.slash")
-                        }
-                    }
-
-                    if vm.channelRequiredFieldGapCount > 0 {
-                        NavigationLink {
-                            IntegrationsView(
-                                initialSearchText: vm.channelsMissingRequiredFields.count == 1 ? vm.channelsMissingRequiredFields[0].displayName : "",
-                                initialScope: .attention
-                            )
-                        } label: {
-                            Label("Review Channel Field Gaps", systemImage: "bubble.left.and.exclamationmark.bubble.right")
-                        }
-                    }
-
-                    if vm.hasEmptyModelCatalog {
-                        NavigationLink {
-                            IntegrationsView(initialScope: .attention)
-                        } label: {
-                            Label("Review Catalog Availability", systemImage: "square.stack.3d.up.slash")
-                        }
-                    }
-
-                    ForEach(vm.agentsWithModelDiagnostics.prefix(3)) { diagnostic in
-                        NavigationLink {
-                            AgentDetailView(agent: diagnostic.agent)
-                        } label: {
-                            IncidentIntegrationAgentRow(diagnostic: diagnostic)
-                        }
-                    }
-                } header: {
-                    Text("Integrations")
-                } footer: {
-                    Text("Local provider reachability, delivery channel secrets, and model catalog drift now surface as first-class mobile incidents.")
-                }
-            }
-
-            if !visibleAlerts.isEmpty {
-                Section {
-                    ForEach(visibleAlerts) { alert in
-                        IncidentAlertRow(alert: alert, isMuted: false) {
-                            incidentStateStore.toggleMute(for: alert)
-                        }
-                    }
-                } header: {
-                    Text("Active Alerts")
-                } footer: {
-                    Text("Muted alerts stay out of the overview attention card and the global critical banner on this iPhone.")
-                }
-            }
-
-            if !mutedAlerts.isEmpty {
-                Section("Muted Alerts") {
-                    ForEach(mutedAlerts) { alert in
-                        IncidentAlertRow(alert: alert, isMuted: true) {
-                            incidentStateStore.toggleMute(for: alert)
-                        }
-                    }
-                }
-            }
-
-            if !vm.approvals.isEmpty {
-                Section {
-                    ForEach(vm.approvals.prefix(4)) { approval in
-                        IncidentApprovalRow(
-                            approval: approval,
-                            isBusy: approvalActionInFlightID == approval.id,
-                            onApprove: {
-                                pendingApprovalAction = .approve(approval)
-                            },
-                            onReject: {
-                                pendingApprovalAction = .reject(approval)
-                            }
-                        )
-                    }
-
-                    NavigationLink {
-                        ApprovalsView()
-                    } label: {
-                        Label("Open Full Approval Queue", systemImage: "checkmark.shield")
-                    }
-                } header: {
-                    Text("Pending Approvals")
-                } footer: {
-                    Text("Approvals block sensitive actions until an operator responds. Mobile can now resolve them directly after confirmation.")
-                }
-            }
-
-            if !vm.attentionAgents.isEmpty {
-                Section {
-                    ForEach(vm.attentionAgents.prefix(5)) { item in
-                        NavigationLink {
-                            AgentDetailView(agent: item.agent)
-                        } label: {
-                            IncidentAgentRow(item: item)
-                        }
-                    }
-                } header: {
-                    Text("Agents")
-                } footer: {
-                    Text("\(vm.issueAgentCount) agents currently need attention")
-                }
-            }
-
-            if !watchedDiagnosticRows.isEmpty {
-                Section {
-                    ForEach(watchedDiagnosticRows.prefix(5), id: \.agent.id) { row in
-                        NavigationLink {
-                            watchedDiagnosticsDestination(agent: row.agent, summary: row.summary)
-                        } label: {
-                            IncidentWatchedDiagnosticRow(agent: row.agent, summary: row.summary)
-                        }
-                    }
-                } header: {
-                    Text("Watched Diagnostics")
-                } footer: {
-                    Text("Pinned agents can surface operator issues here even when they are otherwise healthy enough to stay out of the general attention list.")
-                }
-            }
-
-            if !vm.sessionAttentionItems.isEmpty {
-                Section {
-                    ForEach(vm.sessionAttentionItems.prefix(5)) { item in
-                        if let sessionQuery = sessionQuery(for: item) {
-                            NavigationLink {
-                                SessionsView(initialSearchText: sessionQuery, initialFilter: .attention)
-                            } label: {
-                                IncidentSessionRow(item: item)
-                            }
-                        } else {
-                            IncidentSessionRow(item: item)
-                        }
-                    }
-
-                    NavigationLink {
-                        SessionsView(initialFilter: .attention)
-                    } label: {
-                        Label("Open Session Monitor", systemImage: "rectangle.stack")
-                    }
-                } header: {
-                    Text("Sessions")
-                } footer: {
-                    Text("\(vm.sessionAttentionCount) sessions need review")
-                }
-            }
-
-            if !vm.criticalAuditEntries.isEmpty {
-                Section {
-                    ForEach(vm.criticalAuditEntries.prefix(5)) { entry in
-                        if let eventQuery = eventQuery(for: entry) {
-                            NavigationLink {
-                                EventsView(api: deps.apiClient, initialSearchText: eventQuery, initialScope: .critical)
-                            } label: {
-                                IncidentEventRow(entry: entry, agentName: agentName(for: entry.agentId))
-                            }
-                        } else {
-                            NavigationLink {
-                                EventsView(api: deps.apiClient, initialScope: .critical)
-                            } label: {
-                                IncidentEventRow(entry: entry, agentName: agentName(for: entry.agentId))
-                            }
-                        }
-                    }
-
-                    NavigationLink {
-                        EventsView(api: deps.apiClient, initialScope: .critical)
-                    } label: {
-                        Label("Open Critical Event Feed", systemImage: "list.bullet.rectangle.portrait")
-                    }
-                } header: {
-                    Text("Critical Events")
-                } footer: {
-                    Text("\(vm.recentCriticalAuditCount) recent critical audit events already surfaced on mobile")
-                }
-            }
-
-            if !hasVisibleIncidents {
-                Section("Incidents") {
-                    ContentUnavailableView(
-                        "No Active Incidents",
-                        systemImage: "checkmark.shield",
-                        description: Text("The current mobile monitoring snapshot does not show blocked actions, critical events, unhealthy agents, or overdue local handoff checkpoints.")
-                    )
-                }
-            }
+            incidentSections
         }
         .navigationTitle("Incidents")
         .refreshable {
@@ -470,6 +172,373 @@ struct IncidentsView: View {
                 title: Text(notice.title),
                 message: Text(notice.message),
                 dismissButton: .default(Text("OK"))
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var incidentSections: some View {
+        scoreboardSection
+        snapshotSection
+        quickLinksSection
+
+        if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
+            operatorStateSection
+        }
+
+        if handoffIssueCount > 0 {
+            shiftCoverageSection
+        }
+
+        if automationIssueCount > 0 {
+            automationSection
+        }
+
+        if integrationIssueCount > 0 {
+            integrationsSection
+        }
+
+        if !visibleAlerts.isEmpty {
+            activeAlertsSection
+        }
+
+        if !mutedAlerts.isEmpty {
+            mutedAlertsSection
+        }
+
+        if !vm.approvals.isEmpty {
+            approvalsSection
+        }
+
+        if !vm.attentionAgents.isEmpty {
+            agentsSection
+        }
+
+        if !watchedDiagnosticRows.isEmpty {
+            watchedDiagnosticsSection
+        }
+
+        if !vm.sessionAttentionItems.isEmpty {
+            sessionsSection
+        }
+
+        if !vm.criticalAuditEntries.isEmpty {
+            criticalEventsSection
+        }
+
+        if !hasVisibleIncidents {
+            emptyStateSection
+        }
+    }
+
+    private var scoreboardSection: some View {
+        Section {
+            IncidentScoreboard(
+                criticalCount: criticalAlertCount,
+                warningCount: warningAlertCount,
+                mutedCount: mutedAlerts.count,
+                approvalCount: vm.pendingApprovalCount,
+                agentCount: combinedAgentIssueCount,
+                sessionCount: vm.sessionAttentionCount,
+                automationCount: automationIssueCount,
+                integrationCount: integrationIssueCount,
+                handoffCount: handoffIssueCount
+            )
+            .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+        }
+    }
+
+    private var snapshotSection: some View {
+        Section {
+            IncidentSnapshotCard(
+                activeAlertCount: visibleAlerts.count,
+                mutedAlertCount: mutedAlerts.count,
+                approvalCount: vm.pendingApprovalCount,
+                agentCount: combinedAgentIssueCount,
+                sessionCount: vm.sessionAttentionCount,
+                eventCount: vm.recentCriticalAuditCount,
+                automationCount: automationIssueCount,
+                integrationCount: integrationIssueCount,
+                handoffCount: handoffIssueCount,
+                isAcknowledged: isCurrentSnapshotAcknowledged
+            )
+        } header: {
+            Text("Snapshot")
+        } footer: {
+            Text("This summary keeps the top incident buckets visible before the long sectioned queue.")
+        }
+    }
+
+    private var quickLinksSection: some View {
+        Section {
+            IncidentQuickLinksCard(
+                approvalCount: vm.pendingApprovalCount,
+                sessionCount: vm.sessionAttentionCount,
+                eventCount: vm.recentCriticalAuditCount,
+                automationIssueCount: automationIssueCount,
+                integrationIssueCount: integrationIssueCount,
+                handoffIssueCount: handoffIssueCount,
+                handoffText: handoffText,
+                queueCount: onCallPriorityItems.count,
+                criticalCount: criticalAlertCount,
+                liveAlertCount: visibleAlerts.count,
+                api: deps.apiClient
+            )
+        } footer: {
+            Text("These links keep the highest-value incident drilldowns visible before the long grouped queue.")
+        }
+    }
+
+    private var operatorStateSection: some View {
+        Section("Operator State") {
+            IncidentOperatorCard(
+                activeAlertCount: visibleAlerts.count,
+                mutedAlertCount: mutedAlerts.count,
+                isAcknowledged: isCurrentSnapshotAcknowledged,
+                acknowledgedAt: currentAcknowledgedAt,
+                onAcknowledge: { incidentStateStore.acknowledgeCurrentSnapshot(alerts: vm.monitoringAlerts) },
+                onClearAcknowledgement: { incidentStateStore.clearAcknowledgement() },
+                onUnmuteAll: { incidentStateStore.unmuteAll() }
+            )
+        }
+    }
+
+    private var shiftCoverageSection: some View {
+        Section {
+            NavigationLink {
+                HandoffCenterView(
+                    summary: handoffText,
+                    queueCount: onCallPriorityItems.count,
+                    criticalCount: criticalAlertCount,
+                    liveAlertCount: visibleAlerts.count
+                )
+            } label: {
+                IncidentShiftCoverageCard(
+                    checkInStatus: handoffCheckInStatus,
+                    readiness: handoffReadiness,
+                    latestEntry: handoffStore.latestEntry,
+                    pendingFollowUpCount: handoffStore.pendingLatestFollowUpCount,
+                    completedFollowUpCount: handoffStore.completedLatestFollowUpCount
+                )
+            }
+        } header: {
+            Text("Shift Coverage")
+        } footer: {
+            Text("These handoff signals are local to this iPhone and help keep operator follow-through visible inside the incident flow.")
+        }
+    }
+
+    private var automationSection: some View {
+        Section {
+            NavigationLink {
+                AutomationView()
+            } label: {
+                IncidentAutomationCard(vm: vm)
+            }
+        } header: {
+            Text("Automation")
+        } footer: {
+            Text("Workflow failures, exhausted triggers, and stalled cron jobs now flow into the mobile incident queue.")
+        }
+    }
+
+    private var integrationsSection: some View {
+        Section {
+            NavigationLink {
+                IntegrationsView(initialScope: .attention)
+            } label: {
+                IncidentIntegrationsCard(vm: vm)
+            }
+
+            if vm.unreachableLocalProviderCount > 0 {
+                NavigationLink {
+                    IntegrationsView(
+                        initialSearchText: vm.unreachableLocalProviders.count == 1 ? vm.unreachableLocalProviders[0].displayName : "",
+                        initialScope: .attention
+                    )
+                } label: {
+                    Label("Review Provider Failures", systemImage: "network.slash")
+                }
+            }
+
+            if vm.channelRequiredFieldGapCount > 0 {
+                NavigationLink {
+                    IntegrationsView(
+                        initialSearchText: vm.channelsMissingRequiredFields.count == 1 ? vm.channelsMissingRequiredFields[0].displayName : "",
+                        initialScope: .attention
+                    )
+                } label: {
+                    Label("Review Channel Field Gaps", systemImage: "bubble.left.and.exclamationmark.bubble.right")
+                }
+            }
+
+            if vm.hasEmptyModelCatalog {
+                NavigationLink {
+                    IntegrationsView(initialScope: .attention)
+                } label: {
+                    Label("Review Catalog Availability", systemImage: "square.stack.3d.up.slash")
+                }
+            }
+
+            ForEach(vm.agentsWithModelDiagnostics.prefix(3)) { diagnostic in
+                NavigationLink {
+                    AgentDetailView(agent: diagnostic.agent)
+                } label: {
+                    IncidentIntegrationAgentRow(diagnostic: diagnostic)
+                }
+            }
+        } header: {
+            Text("Integrations")
+        } footer: {
+            Text("Local provider reachability, delivery channel secrets, and model catalog drift now surface as first-class mobile incidents.")
+        }
+    }
+
+    private var activeAlertsSection: some View {
+        Section {
+            ForEach(visibleAlerts) { alert in
+                IncidentAlertRow(alert: alert, isMuted: false) {
+                    incidentStateStore.toggleMute(for: alert)
+                }
+            }
+        } header: {
+            Text("Active Alerts")
+        } footer: {
+            Text("Muted alerts stay out of the overview attention card and the global critical banner on this iPhone.")
+        }
+    }
+
+    private var mutedAlertsSection: some View {
+        Section("Muted Alerts") {
+            ForEach(mutedAlerts) { alert in
+                IncidentAlertRow(alert: alert, isMuted: true) {
+                    incidentStateStore.toggleMute(for: alert)
+                }
+            }
+        }
+    }
+
+    private var approvalsSection: some View {
+        Section {
+            ForEach(vm.approvals.prefix(4)) { approval in
+                IncidentApprovalRow(
+                    approval: approval,
+                    isBusy: approvalActionInFlightID == approval.id,
+                    onApprove: {
+                        pendingApprovalAction = .approve(approval)
+                    },
+                    onReject: {
+                        pendingApprovalAction = .reject(approval)
+                    }
+                )
+            }
+
+            NavigationLink {
+                ApprovalsView()
+            } label: {
+                Label("Open Full Approval Queue", systemImage: "checkmark.shield")
+            }
+        } header: {
+            Text("Pending Approvals")
+        } footer: {
+            Text("Approvals block sensitive actions until an operator responds. Mobile can now resolve them directly after confirmation.")
+        }
+    }
+
+    private var agentsSection: some View {
+        Section {
+            ForEach(vm.attentionAgents.prefix(5)) { item in
+                NavigationLink {
+                    AgentDetailView(agent: item.agent)
+                } label: {
+                    IncidentAgentRow(item: item)
+                }
+            }
+        } header: {
+            Text("Agents")
+        } footer: {
+            Text("\(vm.issueAgentCount) agents currently need attention")
+        }
+    }
+
+    private var watchedDiagnosticsSection: some View {
+        Section {
+            ForEach(watchedDiagnosticRows.prefix(5), id: \.agent.id) { row in
+                NavigationLink {
+                    watchedDiagnosticsDestination(agent: row.agent, summary: row.summary)
+                } label: {
+                    IncidentWatchedDiagnosticRow(agent: row.agent, summary: row.summary)
+                }
+            }
+        } header: {
+            Text("Watched Diagnostics")
+        } footer: {
+            Text("Pinned agents can surface operator issues here even when they are otherwise healthy enough to stay out of the general attention list.")
+        }
+    }
+
+    private var sessionsSection: some View {
+        Section {
+            ForEach(vm.sessionAttentionItems.prefix(5)) { item in
+                if let sessionQuery = sessionQuery(for: item) {
+                    NavigationLink {
+                        SessionsView(initialSearchText: sessionQuery, initialFilter: .attention)
+                    } label: {
+                        IncidentSessionRow(item: item)
+                    }
+                } else {
+                    IncidentSessionRow(item: item)
+                }
+            }
+
+            NavigationLink {
+                SessionsView(initialFilter: .attention)
+            } label: {
+                Label("Open Session Monitor", systemImage: "rectangle.stack")
+            }
+        } header: {
+            Text("Sessions")
+        } footer: {
+            Text("\(vm.sessionAttentionCount) sessions need review")
+        }
+    }
+
+    private var criticalEventsSection: some View {
+        Section {
+            ForEach(vm.criticalAuditEntries.prefix(5)) { entry in
+                if let eventQuery = eventQuery(for: entry) {
+                    NavigationLink {
+                        EventsView(api: deps.apiClient, initialSearchText: eventQuery, initialScope: .critical)
+                    } label: {
+                        IncidentEventRow(entry: entry, agentName: agentName(for: entry.agentId))
+                    }
+                } else {
+                    NavigationLink {
+                        EventsView(api: deps.apiClient, initialScope: .critical)
+                    } label: {
+                        IncidentEventRow(entry: entry, agentName: agentName(for: entry.agentId))
+                    }
+                }
+            }
+
+            NavigationLink {
+                EventsView(api: deps.apiClient, initialScope: .critical)
+            } label: {
+                Label("Open Critical Event Feed", systemImage: "list.bullet.rectangle.portrait")
+            }
+        } header: {
+            Text("Critical Events")
+        } footer: {
+            Text("\(vm.recentCriticalAuditCount) recent critical audit events already surfaced on mobile")
+        }
+    }
+
+    private var emptyStateSection: some View {
+        Section("Incidents") {
+            ContentUnavailableView(
+                "No Active Incidents",
+                systemImage: "checkmark.shield",
+                description: Text("The current mobile monitoring snapshot does not show blocked actions, critical events, unhealthy agents, or overdue local handoff checkpoints.")
             )
         }
     }
@@ -729,7 +798,7 @@ private struct IncidentQuickLinksCard: View {
     let queueCount: Int
     let criticalCount: Int
     let liveAlertCount: Int
-    let api: APIClient
+    let api: any APIClientProtocol
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -849,17 +918,10 @@ private struct IncidentQuickLinkRow: View {
     let systemImage: String
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: 12) {
-                iconBadge
-                contentBlock
-                Spacer(minLength: 8)
-            }
-
-            VStack(alignment: .leading, spacing: 10) {
-                iconBadge
-                contentBlock
-            }
+        ResponsiveIconDetailRow {
+            iconBadge
+        } detail: {
+            contentBlock
         }
         .padding(12)
         .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
@@ -893,21 +955,10 @@ private struct IncidentAlertRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    titleLabel
-                    Spacer()
-                    controlsRow
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    titleLabel
-                    HStack {
-                        severityBadge
-                        Spacer()
-                        muteButton
-                    }
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top) {
+                titleLabel
+            } accessory: {
+                controlsRow
             }
 
             Text(alert.detail)
@@ -976,17 +1027,10 @@ private struct IncidentOperatorCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    operatorTitle
-                    Spacer()
-                    operatorBadge
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    operatorTitle
-                    operatorBadge
-                }
+            ResponsiveAccessoryRow {
+                operatorTitle
+            } accessory: {
+                operatorBadge
             }
 
             Text(statusDetail)
@@ -1110,17 +1154,10 @@ private struct IncidentShiftCoverageCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    headerTitle
-                    Spacer()
-                    headerBadges
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    headerTitle
-                    headerBadges
-                }
+            ResponsiveAccessoryRow {
+                headerTitle
+            } accessory: {
+                headerBadges
             }
 
             if let checkInStatus {
@@ -1161,16 +1198,10 @@ private struct IncidentShiftCoverageCard: View {
                 )
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    openLabel
-                    Spacer(minLength: 8)
-                    chevronLabel
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    openLabel
-                    chevronLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                openLabel
+            } accessory: {
+                chevronLabel
             }
             .foregroundStyle(.secondary)
         }
@@ -1209,18 +1240,11 @@ private struct IncidentShiftCoverageCard: View {
     }
 
     private func issueRow(icon: String, color: Color, title: String, detail: String) -> some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: icon)
-                    .foregroundStyle(color)
-                issueTextBlock(title: title, detail: detail)
-                Spacer(minLength: 8)
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                Image(systemName: icon)
-                    .foregroundStyle(color)
-                issueTextBlock(title: title, detail: detail)
-            }
+        ResponsiveIconDetailRow(horizontalSpacing: 10, verticalSpacing: 6) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+        } detail: {
+            issueTextBlock(title: title, detail: detail)
         }
     }
 
@@ -1241,17 +1265,10 @@ private struct IncidentAutomationCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    headerTitle
-                    Spacer()
-                    headerBadge
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    headerTitle
-                    headerBadge
-                }
+            ResponsiveAccessoryRow {
+                headerTitle
+            } accessory: {
+                headerBadge
             }
 
             if vm.failedWorkflowRunCount > 0 {
@@ -1291,16 +1308,10 @@ private struct IncidentAutomationCard: View {
                 )
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    openLabel
-                    Spacer(minLength: 8)
-                    chevronLabel
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    openLabel
-                    chevronLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                openLabel
+            } accessory: {
+                chevronLabel
             }
             .foregroundStyle(.secondary)
         }
@@ -1321,18 +1332,11 @@ private struct IncidentAutomationCard: View {
 
     @ViewBuilder
     private func automationIssueRow(icon: String, color: Color, title: String, detail: String) -> some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: icon)
-                    .foregroundStyle(color)
-                issueText(title: title, detail: detail)
-                Spacer(minLength: 8)
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                Image(systemName: icon)
-                    .foregroundStyle(color)
-                issueText(title: title, detail: detail)
-            }
+        ResponsiveIconDetailRow(horizontalSpacing: 10, verticalSpacing: 6) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+        } detail: {
+            issueText(title: title, detail: detail)
         }
     }
 
@@ -1370,17 +1374,10 @@ private struct IncidentIntegrationsCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    headerTitle
-                    Spacer()
-                    headerBadge
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    headerTitle
-                    headerBadge
-                }
+            ResponsiveAccessoryRow {
+                headerTitle
+            } accessory: {
+                headerBadge
             }
 
             if vm.unreachableLocalProviderCount > 0 {
@@ -1446,16 +1443,10 @@ private struct IncidentIntegrationsCard: View {
                 )
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    openLabel
-                    Spacer(minLength: 8)
-                    chevronLabel
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    openLabel
-                    chevronLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                openLabel
+            } accessory: {
+                chevronLabel
             }
             .foregroundStyle(.secondary)
         }
@@ -1485,18 +1476,11 @@ private struct IncidentIntegrationsCard: View {
 
     @ViewBuilder
     private func integrationIssueRow(icon: String, color: Color, title: String, detail: String) -> some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: icon)
-                    .foregroundStyle(color)
-                issueText(title: title, detail: detail)
-                Spacer(minLength: 8)
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                Image(systemName: icon)
-                    .foregroundStyle(color)
-                issueText(title: title, detail: detail)
-            }
+        ResponsiveIconDetailRow(horizontalSpacing: 10, verticalSpacing: 6) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+        } detail: {
+            issueText(title: title, detail: detail)
         }
     }
 
@@ -1546,17 +1530,10 @@ private struct IncidentAgentRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    titleLabel
-                    Spacer()
-                    stateLabel
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    stateLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                titleLabel
+            } accessory: {
+                stateLabel
             }
 
             Text(item.reasons.prefix(3).joined(separator: " • "))
@@ -1584,17 +1561,10 @@ private struct IncidentIntegrationAgentRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    titleLabel
-                    Spacer()
-                    statusLabel
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    statusLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                titleLabel
+            } accessory: {
+                statusLabel
             }
 
             Text(diagnostic.detail)
@@ -1646,17 +1616,10 @@ private struct IncidentWatchedDiagnosticRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .center, spacing: 8) {
-                    agentHeader
-                    Spacer()
-                    statusBadge
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    agentHeader
-                    statusBadge
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .center, verticalSpacing: 6) {
+                agentHeader
+            } accessory: {
+                statusBadge
             }
 
             Text(summary.summaryLine)
@@ -1714,13 +1677,8 @@ private struct IncidentWatchedDiagnosticRow: View {
     }
 
     private var agentHeader: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) {
-                headerContent
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                headerContent
-            }
+        HStack(spacing: 8) {
+            headerContent
         }
     }
 
@@ -1777,17 +1735,10 @@ private struct IncidentSessionRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    titleLabel
-                    Spacer()
-                    messageCountLabel
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    messageCountLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                titleLabel
+            } accessory: {
+                messageCountLabel
             }
 
             Text(item.agent?.name ?? item.session.agentId)
@@ -1826,17 +1777,10 @@ private struct IncidentEventRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    titleLabel
-                    Spacer()
-                    agentLabel
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    agentLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                titleLabel
+            } accessory: {
+                agentLabel
             }
 
             Text(entry.detail)

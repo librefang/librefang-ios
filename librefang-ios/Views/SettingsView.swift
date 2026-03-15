@@ -12,7 +12,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Snapshot") {
+                Section {
                     MonitoringSnapshotCard(
                         summary: String(localized: "Settings keeps server, language, refresh, and on-call state visible before the longer forms."),
                         detail: String(localized: "Use this summary when you need to confirm device-level monitoring behavior without digging through each section.")
@@ -40,6 +40,8 @@ struct SettingsView: View {
                             }
                         }
                     }
+                } header: {
+                    Text("Snapshot")
                 } footer: {
                     Text("This snapshot is device-local and complements the runtime and on-call pages rather than replacing them.")
                 }
@@ -707,21 +709,14 @@ private struct SettingsValueRow<Value: View>: View {
     }
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Text(title)
-                Spacer(minLength: 12)
-                value
-                    .multilineTextAlignment(.trailing)
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text(title)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                value
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
+        ResponsiveValueRow(
+            horizontalSpacing: 12,
+            verticalSpacing: 6,
+            spacerMinLength: 12
+        ) {
+            Text(title)
+        } value: {
+            value
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, horizontalSizeClass == .compact ? 2 : 0)
@@ -784,17 +779,10 @@ private struct SettingsQuickLinkRow: View {
     let systemImage: String
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: 12) {
-                iconBadge
-                contentBlock
-                Spacer(minLength: 8)
-            }
-
-            VStack(alignment: .leading, spacing: 10) {
-                iconBadge
-                contentBlock
-            }
+        ResponsiveIconDetailRow {
+            iconBadge
+        } detail: {
+            contentBlock
         }
         .padding(.vertical, 2)
     }

@@ -89,3 +89,43 @@ struct ResponsiveValueRow<Leading: View, Value: View>: View {
         }
     }
 }
+
+struct ResponsiveIconDetailRow<Icon: View, Detail: View>: View {
+    let horizontalAlignment: VerticalAlignment
+    let horizontalSpacing: CGFloat
+    let verticalSpacing: CGFloat
+    let spacerMinLength: CGFloat
+    let icon: Icon
+    let detail: Detail
+
+    init(
+        horizontalAlignment: VerticalAlignment = .top,
+        horizontalSpacing: CGFloat = 12,
+        verticalSpacing: CGFloat = 10,
+        spacerMinLength: CGFloat = 8,
+        @ViewBuilder icon: () -> Icon,
+        @ViewBuilder detail: () -> Detail
+    ) {
+        self.horizontalAlignment = horizontalAlignment
+        self.horizontalSpacing = horizontalSpacing
+        self.verticalSpacing = verticalSpacing
+        self.spacerMinLength = spacerMinLength
+        self.icon = icon()
+        self.detail = detail()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: horizontalAlignment, spacing: horizontalSpacing) {
+                icon
+                detail
+                Spacer(minLength: spacerMinLength)
+            }
+
+            VStack(alignment: .leading, spacing: verticalSpacing) {
+                icon
+                detail
+            }
+        }
+    }
+}

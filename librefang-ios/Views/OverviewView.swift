@@ -581,17 +581,10 @@ private struct OverviewQuickLinkRow: View {
     let systemImage: String
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: 12) {
-                iconBadge
-                contentBlock
-                Spacer(minLength: 8)
-            }
-
-            VStack(alignment: .leading, spacing: 10) {
-                iconBadge
-                contentBlock
-            }
+        ResponsiveIconDetailRow {
+            iconBadge
+        } detail: {
+            contentBlock
         }
         .padding(12)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
@@ -633,11 +626,11 @@ private struct AlertsCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
+            ResponsiveAccessoryRow {
                 Label("Attention", systemImage: "bell.badge")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
-                Spacer()
+            } accessory: {
                 PresentationToneBadge(text: snapshotState.overviewLabel, tone: snapshotState.tone)
             }
 
@@ -879,7 +872,7 @@ private struct ConnectionCard: View {
     var body: some View {
         MonitoringSnapshotCard(
             summary: connectionText,
-            detail: health?.version.map { String(localized: "Server v\($0)") }
+            detail: (health?.version).map { String(localized: "Server v\($0)") }
         ) {
             FlowLayout(spacing: 8) {
                 PresentationToneBadge(text: connectionText, tone: connectionTone)
@@ -1257,20 +1250,13 @@ private struct TopSpendersCard: View {
                 .foregroundStyle(.secondary)
 
             ForEach(Array(agents.prefix(5).enumerated()), id: \.element.id) { index, agent in
-                ViewThatFits(in: .horizontal) {
+                ResponsiveValueRow(horizontalSpacing: 8) {
                     HStack(spacing: 8) {
                         rankLabel(index)
                         nameLabel(agent)
-                        Spacer(minLength: 8)
-                        costLabel(agent)
                     }
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 8) {
-                            rankLabel(index)
-                            nameLabel(agent)
-                        }
-                        costLabel(agent)
-                    }
+                } value: {
+                    costLabel(agent)
                 }
 
                 if index < min(agents.count, 5) - 1 {
@@ -1321,23 +1307,13 @@ private struct LiveSignalsCard: View {
                         .foregroundStyle(.secondary)
 
                     ForEach(approvals.prefix(2)) { approval in
-                        ViewThatFits(in: .horizontal) {
-                            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                                Label(approval.actionSummary, systemImage: "exclamationmark.triangle.fill")
-                                    .foregroundStyle(.red)
-                                    .lineLimit(1)
-                                Spacer(minLength: 8)
-                                Text(approval.agentName)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            VStack(alignment: .leading, spacing: 4) {
-                                Label(approval.actionSummary, systemImage: "exclamationmark.triangle.fill")
-                                    .foregroundStyle(.red)
-                                Text(approval.agentName)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
+                        ResponsiveValueRow {
+                            Label(approval.actionSummary, systemImage: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.red)
+                        } value: {
+                            Text(approval.agentName)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
                     }
                 }
@@ -1350,22 +1326,13 @@ private struct LiveSignalsCard: View {
                         .foregroundStyle(.secondary)
 
                     ForEach(activeHands.prefix(3)) { instance in
-                        ViewThatFits(in: .horizontal) {
-                            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                                Label(instance.displayName(using: hands), systemImage: "hand.raised.fill")
-                                    .foregroundStyle(.indigo)
-                                Spacer(minLength: 8)
-                                Text(instance.localizedStatusLabel)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            VStack(alignment: .leading, spacing: 4) {
-                                Label(instance.displayName(using: hands), systemImage: "hand.raised.fill")
-                                    .foregroundStyle(.indigo)
-                                Text(instance.localizedStatusLabel)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
+                        ResponsiveValueRow {
+                            Label(instance.displayName(using: hands), systemImage: "hand.raised.fill")
+                                .foregroundStyle(.indigo)
+                        } value: {
+                            Text(instance.localizedStatusLabel)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
                     }
                 }
@@ -1383,16 +1350,10 @@ private struct AutomationOverviewCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    summaryBadge
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    summaryBadge
-                }
+            ResponsiveAccessoryRow {
+                titleLabel
+            } accessory: {
+                summaryBadge
             }
 
             LazyVGrid(columns: metricColumns, spacing: 12) {
@@ -1480,23 +1441,14 @@ private struct AutomationOverviewCard: View {
 
     @ViewBuilder
     private func issueRow(icon: String, color: Color, text: String) -> some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: icon)
-                    .foregroundStyle(color)
-                    .frame(width: 16)
-                Text(text)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Spacer(minLength: 8)
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                Image(systemName: icon)
-                    .foregroundStyle(color)
-                Text(text)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+        ResponsiveIconDetailRow(horizontalSpacing: 10, verticalSpacing: 6) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+                .frame(width: 16)
+        } detail: {
+            Text(text)
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 }
@@ -1511,16 +1463,10 @@ private struct DiagnosticsOverviewCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    summaryBadge
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    summaryBadge
-                }
+            ResponsiveAccessoryRow {
+                titleLabel
+            } accessory: {
+                summaryBadge
             }
 
             LazyVGrid(columns: metricColumns, spacing: 12) {
@@ -1600,16 +1546,10 @@ private struct IntegrationsOverviewCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    summaryBadge
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    summaryBadge
-                }
+            ResponsiveAccessoryRow {
+                titleLabel
+            } accessory: {
+                summaryBadge
             }
 
             LazyVGrid(columns: metricColumns, spacing: 12) {
@@ -1741,19 +1681,12 @@ private struct IntegrationsOverviewCard: View {
 
     @ViewBuilder
     private func issueRow(icon: String, color: Color, text: String, detail: String = "") -> some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: icon)
-                    .foregroundStyle(color)
-                    .frame(width: 16)
-                issueTextBlock(text: text, detail: detail)
-                Spacer(minLength: 8)
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                Image(systemName: icon)
-                    .foregroundStyle(color)
-                issueTextBlock(text: text, detail: detail)
-            }
+        ResponsiveIconDetailRow(horizontalSpacing: 10, verticalSpacing: 6) {
+            Image(systemName: icon)
+                .foregroundStyle(color)
+                .frame(width: 16)
+        } detail: {
+            issueTextBlock(text: text, detail: detail)
         }
     }
 
