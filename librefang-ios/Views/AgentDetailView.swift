@@ -8,6 +8,7 @@ struct AgentDetailView: View {
     @State private var agentSessions: [SessionInfo] = []
     @State private var agentMemory: [AgentMemoryEntry] = []
     @State private var agentFiles: [AgentWorkspaceFileSummary] = []
+    @State private var agentDeliveries: [DeliveryReceipt] = []
     @State private var pendingApprovalAction: ApprovalDecisionAction?
     @State private var approvalActionInFlightID: String?
     @State private var pendingSessionAction: AgentSessionControlAction?
@@ -31,6 +32,7 @@ struct AgentDetailView: View {
     @State private var isLoadingSessions = true
     @State private var isLoadingMemory = true
     @State private var isLoadingFiles = true
+    @State private var isLoadingDeliveries = true
 
     private var agentApprovals: [ApprovalItem] {
         deps.dashboardViewModel.approvals.filter { $0.agentId == agent.id || $0.agentName == agent.name }
@@ -107,6 +109,7 @@ struct AgentDetailView: View {
             budgetSections
             sessionSections
             memorySection
+            deliveriesSection
             filesSection
             recentAuditSection
             actionsSection
@@ -128,6 +131,7 @@ struct AgentDetailView: View {
             await loadSession()
             await loadSessions()
             await loadMemory()
+            await loadDeliveries()
             await loadFiles()
         }
         .sheet(isPresented: $showChat) {
@@ -779,6 +783,56 @@ struct AgentDetailView: View {
         }
     }
 
+    private var deliveriesSection: some View {
+        Section {
+            if isLoadingDeliveries {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                        .controlSize(.small)
+                    Spacer()
+                }
+            } else {
+                let failed = agentDeliveries.filter { $0.status == .failed }.count
+                let delivered = agentDeliveries.filter { $0.status == .delivered }.count
+
+                LabeledContent("Receipts") {
+                    Text(agentDeliveries.count.formatted())
+                        .monospacedDigit()
+                }
+                LabeledContent("Delivered") {
+                    Text(delivered.formatted())
+                        .foregroundStyle(delivered > 0 ? .green : .secondary)
+                        .monospacedDigit()
+                }
+                LabeledContent("Failed") {
+                    Text(failed.formatted())
+                        .foregroundStyle(failed > 0 ? .red : .secondary)
+                        .monospacedDigit()
+                }
+
+                if agentDeliveries.isEmpty {
+                    Text("No recent delivery receipts.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(agentDeliveries.prefix(3)) { receipt in
+                        AgentDeliverySummaryRow(receipt: receipt)
+                    }
+                }
+
+                NavigationLink {
+                    AgentDeliveriesView(agent: agent, initialReceipts: agentDeliveries)
+                } label: {
+                    Label("Inspect Delivery Receipts", systemImage: "paperplane")
+                }
+            }
+        } header: {
+            Text("Deliveries")
+        } footer: {
+            Text("Use delivery receipts to confirm whether outbound channel sends actually reached a recipient or failed downstream.")
+        }
+    }
+
     @ViewBuilder
     private var recentAuditSection: some View {
         if !agentRecentEvents.isEmpty {
@@ -818,6 +872,12 @@ struct AgentDetailView: View {
                 SessionsView(initialSearchText: agent.id, initialFilter: .all)
             } label: {
                 Label("Inspect Agent Sessions", systemImage: "rectangle.stack")
+            }
+
+            NavigationLink {
+                AgentDeliveriesView(agent: agent, initialReceipts: agentDeliveries)
+            } label: {
+                Label("Inspect Delivery Receipts", systemImage: "paperplane")
             }
 
             if agent.isRunning {
@@ -934,6 +994,17 @@ struct AgentDetailView: View {
                 }
         } catch {
             agentFiles = []
+        }
+    }
+
+    @MainActor
+    private func loadDeliveries() async {
+        defer { isLoadingDeliveries = false }
+        do {
+            agentDeliveries = (try await deps.apiClient.agentDeliveries(agentId: agent.id, limit: 20)).receipts
+                .sorted { $0.timestamp > $1.timestamp }
+        } catch {
+            agentDeliveries = []
         }
     }
 
@@ -1475,6 +1546,46 @@ private struct AgentFileSummaryRow: View {
                 .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct AgentDeliverySummaryRow: View {
+    let receipt: DeliveryReceipt
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(receipt.channel.capitalized)
+                    .font(.subheadline.weight(.medium))
+                Spacer()
+                Text(receipt.status.label)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(statusColor.opacity(0.12))
+                    .foregroundStyle(statusColor)
+                    .clipShape(Capsule())
+            }
+
+            Text(receipt.recipient)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var statusColor: Color {
+        switch receipt.status {
+        case .delivered:
+            .green
+        case .failed:
+            .red
+        case .bestEffort:
+            .orange
+        case .sent:
+            .blue
+        }
     }
 }
 

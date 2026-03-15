@@ -86,6 +86,7 @@ protocol APIClientProtocol: Sendable {
     func sendMessage(agentId: String, message: String) async throws -> MessageResponse
     func a2aAgents() async throws -> A2AAgentList
     func uploadedFile(fileId: String) async throws -> UploadedFilePayload
+    func agentDeliveries(agentId: String, limit: Int) async throws -> AgentDeliveryReceiptResponse
     func agentFiles(agentId: String) async throws -> AgentWorkspaceFileListResponse
     func agentFile(agentId: String, name: String) async throws -> AgentWorkspaceFileDetail
     func connectionInfo() async throws -> APIConnectionInfo
@@ -349,6 +350,10 @@ actor APIClient: APIClientProtocol {
 
         let contentType = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Content-Type")
         return UploadedFilePayload(data: data, contentType: contentType)
+    }
+
+    func agentDeliveries(agentId: String, limit: Int) async throws -> AgentDeliveryReceiptResponse {
+        try await get("/api/agents/\(agentId)/deliveries?limit=\(max(1, limit))")
     }
 
     func agentFiles(agentId: String) async throws -> AgentWorkspaceFileListResponse {
