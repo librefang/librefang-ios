@@ -7,6 +7,7 @@ struct AgentDetailView: View {
     @State private var sessionSnapshot: AgentSessionSnapshot?
     @State private var agentSessions: [SessionInfo] = []
     @State private var agentMemory: [AgentMemoryEntry] = []
+    @State private var agentFiles: [AgentWorkspaceFileSummary] = []
     @State private var pendingApprovalAction: ApprovalDecisionAction?
     @State private var approvalActionInFlightID: String?
     @State private var pendingSessionAction: AgentSessionControlAction?
@@ -29,6 +30,7 @@ struct AgentDetailView: View {
     @State private var isLoadingSession = true
     @State private var isLoadingSessions = true
     @State private var isLoadingMemory = true
+    @State private var isLoadingFiles = true
 
     private var agentApprovals: [ApprovalItem] {
         deps.dashboardViewModel.approvals.filter { $0.agentId == agent.id || $0.agentName == agent.name }
@@ -105,6 +107,7 @@ struct AgentDetailView: View {
             budgetSections
             sessionSections
             memorySection
+            filesSection
             recentAuditSection
             actionsSection
         }
@@ -125,6 +128,7 @@ struct AgentDetailView: View {
             await loadSession()
             await loadSessions()
             await loadMemory()
+            await loadFiles()
         }
         .sheet(isPresented: $showChat) {
             NavigationStack {
@@ -740,6 +744,41 @@ struct AgentDetailView: View {
         }
     }
 
+    private var filesSection: some View {
+        Section {
+            if isLoadingFiles {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                        .controlSize(.small)
+                    Spacer()
+                }
+            } else {
+                let existingFiles = agentFiles.filter(\.exists)
+
+                LabeledContent("Identity Files") {
+                    Text("\(existingFiles.count)/\(agentFiles.count)")
+                        .foregroundStyle(existingFiles.count < agentFiles.count ? .orange : .green)
+                        .monospacedDigit()
+                }
+
+                ForEach(agentFiles.filter(\.exists).prefix(3)) { file in
+                    AgentFileSummaryRow(file: file)
+                }
+
+                NavigationLink {
+                    AgentFilesView(agent: agent, initialFiles: agentFiles)
+                } label: {
+                    Label("Inspect Workspace Identity", systemImage: "doc.text.magnifyingglass")
+                }
+            }
+        } header: {
+            Text("Workspace")
+        } footer: {
+            Text("SOUL.md, IDENTITY.md, AGENTS.md, MEMORY.md, and related files often explain why an agent is behaving differently from its live session.")
+        }
+    }
+
     @ViewBuilder
     private var recentAuditSection: some View {
         if !agentRecentEvents.isEmpty {
@@ -879,6 +918,22 @@ struct AgentDetailView: View {
                 .sorted { $0.key.localizedCaseInsensitiveCompare($1.key) == .orderedAscending }
         } catch {
             agentMemory = []
+        }
+    }
+
+    @MainActor
+    private func loadFiles() async {
+        defer { isLoadingFiles = false }
+        do {
+            agentFiles = (try await deps.apiClient.agentFiles(agentId: agent.id)).files
+                .sorted { lhs, rhs in
+                    if lhs.exists != rhs.exists {
+                        return lhs.exists && !rhs.exists
+                    }
+                    return lhs.name < rhs.name
+                }
+        } catch {
+            agentFiles = []
         }
     }
 
@@ -1402,6 +1457,22 @@ private struct AgentMemorySummaryRow: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+private struct AgentFileSummaryRow: View {
+    let file: AgentWorkspaceFileSummary
+
+    var body: some View {
+        HStack {
+            Text(file.name)
+                .font(.subheadline.weight(.medium))
+            Spacer()
+            Text(ByteCountFormatter.string(fromByteCount: Int64(file.sizeBytes), countStyle: .file))
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
     }

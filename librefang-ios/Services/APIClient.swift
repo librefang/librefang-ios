@@ -86,6 +86,8 @@ protocol APIClientProtocol: Sendable {
     func sendMessage(agentId: String, message: String) async throws -> MessageResponse
     func a2aAgents() async throws -> A2AAgentList
     func uploadedFile(fileId: String) async throws -> UploadedFilePayload
+    func agentFiles(agentId: String) async throws -> AgentWorkspaceFileListResponse
+    func agentFile(agentId: String, name: String) async throws -> AgentWorkspaceFileDetail
     func connectionInfo() async throws -> APIConnectionInfo
     func updateConfig(_ config: ServerConfig) async
 }
@@ -347,6 +349,14 @@ actor APIClient: APIClientProtocol {
 
         let contentType = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Content-Type")
         return UploadedFilePayload(data: data, contentType: contentType)
+    }
+
+    func agentFiles(agentId: String) async throws -> AgentWorkspaceFileListResponse {
+        try await get("/api/agents/\(agentId)/files")
+    }
+
+    func agentFile(agentId: String, name: String) async throws -> AgentWorkspaceFileDetail {
+        try await get("/api/agents/\(agentId)/files/\(encodedPathComponent(name))")
     }
 
     func connectionInfo() throws -> APIConnectionInfo {
