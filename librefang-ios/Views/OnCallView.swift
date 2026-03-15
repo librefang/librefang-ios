@@ -105,6 +105,13 @@ struct OnCallView: View {
         )
     }
     private var handoffStore: OnCallHandoffStore { deps.onCallHandoffStore }
+    private var currentHandoffDrift: HandoffSnapshotDrift? {
+        handoffStore.driftFromLatest(
+            queueCount: priorityItems.count,
+            criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
+            liveAlertCount: visibleAlerts.count
+        )
+    }
 
     var body: some View {
         List {
@@ -136,7 +143,8 @@ struct OnCallView: View {
                     freshnessSummary: handoffStore.freshnessSummary,
                     cadenceLabel: handoffStore.cadenceState.label,
                     cadenceSummary: handoffStore.cadenceSummary,
-                    latestEntry: handoffStore.latestEntry
+                    latestEntry: handoffStore.latestEntry,
+                    drift: currentHandoffDrift
                 )
 
                 NavigationLink(value: OnCallRoute.incidents) {
@@ -320,6 +328,7 @@ private struct OnCallHandoffStatusRow: View {
     let cadenceLabel: String
     let cadenceSummary: String
     let latestEntry: OnCallHandoffEntry?
+    let drift: HandoffSnapshotDrift?
 
     private var freshnessColor: Color {
         switch freshnessLabel {
@@ -340,6 +349,19 @@ private struct OnCallHandoffStatusRow: View {
             .orange
         default:
             .secondary
+        }
+    }
+
+    private func driftColor(for drift: HandoffSnapshotDrift) -> Color {
+        switch drift.state {
+        case .steady:
+            .secondary
+        case .improving:
+            .green
+        case .worsening:
+            .red
+        case .mixed:
+            .orange
         }
     }
 
@@ -380,6 +402,26 @@ private struct OnCallHandoffStatusRow: View {
             Text(cadenceSummary)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
+
+            if let drift {
+                HStack {
+                    Text("Drift")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(drift.state.label)
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(driftColor(for: drift).opacity(0.12))
+                        .foregroundStyle(driftColor(for: drift))
+                        .clipShape(Capsule())
+                }
+
+                Text(drift.compactSummary)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
 
             if let latestEntry {
                 HStack {

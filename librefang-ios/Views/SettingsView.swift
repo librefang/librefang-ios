@@ -211,6 +211,19 @@ struct SettingsView: View {
                             Text(latest.focusAreas.summaryLabel)
                                 .foregroundStyle(latest.focusAreas.items.isEmpty ? Color.secondary : Color.primary)
                         }
+                        if let drift = deps.onCallHandoffStore.driftFromLatest(
+                            queueCount: onCallQueueCount,
+                            criticalCount: currentCriticalCount,
+                            liveAlertCount: visibleAlertCount
+                        ) {
+                            LabeledContent("Drift") {
+                                Text(drift.state.label)
+                                    .foregroundStyle(handoffDriftColor(for: drift))
+                            }
+                            Text(drift.summary)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                         LabeledContent("Freshness") {
                             Text(deps.onCallHandoffStore.freshnessLabel)
                                 .foregroundStyle(handoffFreshnessColor)
@@ -434,6 +447,19 @@ struct SettingsView: View {
             .red
         case .recovery:
             .green
+        }
+    }
+
+    private func handoffDriftColor(for drift: HandoffSnapshotDrift) -> Color {
+        switch drift.state {
+        case .steady:
+            .secondary
+        case .improving:
+            .green
+        case .worsening:
+            .red
+        case .mixed:
+            .orange
         }
     }
 }

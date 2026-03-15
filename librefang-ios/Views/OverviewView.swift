@@ -54,6 +54,13 @@ struct OverviewView: View {
     private var latestHandoffGapLabel: String? {
         deps.onCallHandoffStore.timelineItems.first?.gapToOlderEntry.map(OnCallHandoffStore.formatInterval)
     }
+    private var latestHandoffDrift: HandoffSnapshotDrift? {
+        deps.onCallHandoffStore.driftFromLatest(
+            queueCount: onCallPriorityItems.count,
+            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+            liveAlertCount: visibleMonitoringAlerts.count
+        )
+    }
     private let summaryColumns = [
         GridItem(.flexible(), spacing: 10),
         GridItem(.flexible(), spacing: 10),
@@ -108,7 +115,11 @@ struct OverviewView: View {
                                 liveAlertCount: visibleMonitoringAlerts.count
                             )
                         } label: {
-                            RecentHandoffCard(entry: latestHandoff, gapLabel: latestHandoffGapLabel)
+                            RecentHandoffCard(
+                                entry: latestHandoff,
+                                gapLabel: latestHandoffGapLabel,
+                                drift: latestHandoffDrift
+                            )
                         }
                         .buttonStyle(.plain)
                     }
@@ -391,6 +402,7 @@ private struct AlertsCard: View {
 private struct RecentHandoffCard: View {
     let entry: OnCallHandoffEntry
     let gapLabel: String?
+    let drift: HandoffSnapshotDrift?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -445,6 +457,13 @@ private struct RecentHandoffCard: View {
 
             if !entry.focusAreas.items.isEmpty {
                 Text("Focus: \(entry.focusAreas.summaryLabel)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+
+            if let drift {
+                Text("Drift: \(drift.state.label) · \(drift.compactSummary)")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)

@@ -121,6 +121,26 @@ enum HandoffCadenceState {
     }
 }
 
+enum HandoffDriftState {
+    case steady
+    case improving
+    case worsening
+    case mixed
+
+    var label: String {
+        switch self {
+        case .steady:
+            "Steady"
+        case .improving:
+            "Improving"
+        case .worsening:
+            "Worsening"
+        case .mixed:
+            "Mixed"
+        }
+    }
+}
+
 struct HandoffTimelineItem: Identifiable {
     let entry: OnCallHandoffEntry
     let gapToOlderEntry: TimeInterval?
@@ -136,6 +156,30 @@ struct HandoffTimelineItem: Identifiable {
     var isGapWarning: Bool {
         guard let gapToOlderEntry else { return false }
         return gapToOlderEntry >= gapWarningThreshold
+    }
+}
+
+struct HandoffSnapshotDrift {
+    let baseline: OnCallHandoffEntry
+    let queueChange: Int
+    let criticalChange: Int
+    let liveAlertChange: Int
+    let state: HandoffDriftState
+
+    var compactSummary: String {
+        [
+            "Queue \(Self.formatChange(queueChange))",
+            "Critical \(Self.formatChange(criticalChange))",
+            "Live \(Self.formatChange(liveAlertChange))"
+        ].joined(separator: " · ")
+    }
+
+    var summary: String {
+        "Since the last handoff: \(compactSummary)."
+    }
+
+    private static func formatChange(_ value: Int) -> String {
+        value == 0 ? "0" : value > 0 ? "+\(value)" : "\(value)"
     }
 }
 
@@ -517,6 +561,40 @@ final class OnCallHandoffStore {
 
     var cadenceWarningCount: Int {
         timelineItems.filter(\.isGapWarning).count
+    }
+
+    func driftFromLatest(
+        queueCount: Int,
+        criticalCount: Int,
+        liveAlertCount: Int
+    ) -> HandoffSnapshotDrift? {
+        guard let latestEntry else { return nil }
+
+        let queueChange = queueCount - latestEntry.queueCount
+        let criticalChange = criticalCount - latestEntry.criticalCount
+        let liveAlertChange = liveAlertCount - latestEntry.liveAlertCount
+
+        let hasPositive = [queueChange, criticalChange, liveAlertChange].contains { $0 > 0 }
+        let hasNegative = [queueChange, criticalChange, liveAlertChange].contains { $0 < 0 }
+
+        let state: HandoffDriftState
+        if !hasPositive && !hasNegative {
+            state = .steady
+        } else if hasPositive && hasNegative {
+            state = .mixed
+        } else if criticalChange > 0 || liveAlertChange > 0 || queueChange > 0 {
+            state = .worsening
+        } else {
+            state = .improving
+        }
+
+        return HandoffSnapshotDrift(
+            baseline: latestEntry,
+            queueChange: queueChange,
+            criticalChange: criticalChange,
+            liveAlertChange: liveAlertChange,
+            state: state
+        )
     }
 
     func recentCoverageCount(for key: HandoffChecklistKey) -> Int {

@@ -66,6 +66,13 @@ struct HandoffCenterView: View {
     private var timelineItems: [HandoffTimelineItem] {
         handoffStore.timelineItems
     }
+    private var currentDrift: HandoffSnapshotDrift? {
+        handoffStore.driftFromLatest(
+            queueCount: queueCount,
+            criticalCount: criticalCount,
+            liveAlertCount: liveAlertCount
+        )
+    }
     private var suggestedFocusAreas: Set<HandoffFocusArea> {
         var areas = Set<HandoffFocusArea>()
 
@@ -108,6 +115,10 @@ struct HandoffCenterView: View {
                     cadenceSummary: handoffStore.cadenceSummary,
                     warningCount: handoffStore.cadenceWarningCount
                 )
+
+                if let currentDrift {
+                    HandoffDriftCard(drift: currentDrift)
+                }
             } header: {
                 Text("Shift Context")
             }
@@ -359,6 +370,50 @@ private struct HandoffCadenceCard: View {
                     .font(.caption2)
                     .foregroundStyle(.orange)
             }
+        }
+        .padding(.vertical, 6)
+    }
+}
+
+private struct HandoffDriftCard: View {
+    let drift: HandoffSnapshotDrift
+
+    private var driftColor: Color {
+        switch drift.state {
+        case .steady:
+            .secondary
+        case .improving:
+            .green
+        case .worsening:
+            .red
+        case .mixed:
+            .orange
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label("Current Drift", systemImage: "arrow.left.arrow.right")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(drift.state.label)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(driftColor.opacity(0.12))
+                    .foregroundStyle(driftColor)
+                    .clipShape(Capsule())
+            }
+
+            Text(drift.summary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Text("Baseline: \(drift.baseline.createdAt.formatted(date: .omitted, time: .shortened))")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
         }
         .padding(.vertical, 6)
     }
