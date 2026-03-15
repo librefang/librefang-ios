@@ -90,6 +90,31 @@ struct RuntimeView: View {
         .filter { $0 }
         .count
     }
+    private var runtimeSectionCount: Int {
+        [
+            vm.status != nil,
+            vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || vm.metricsSnapshot != nil,
+            !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty,
+            vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty,
+            !vm.sessions.isEmpty,
+            !vm.approvals.isEmpty,
+            !vm.recentAudit.isEmpty,
+            vm.security != nil
+        ]
+        .filter { $0 }
+        .count
+    }
+    private var runtimeSupportFeedCount: Int {
+        [
+            !vm.providers.isEmpty,
+            !vm.channels.isEmpty,
+            !vm.hands.isEmpty,
+            (vm.a2aAgents?.total ?? 0) > 0,
+            vm.networkStatus != nil
+        ]
+        .filter { $0 }
+        .count
+    }
 
     var body: some View {
         NavigationStack {
@@ -181,6 +206,17 @@ struct RuntimeView: View {
     private func runtimeOperatorDeckSection(_ proxy: ScrollViewProxy) -> some View {
         Section {
             RuntimeStatusDeckCard(vm: vm, runtimeSnapshotSummary: runtimeSnapshotSummary)
+            RuntimeSectionInventoryDeck(
+                sectionCount: runtimeSectionCount,
+                supportFeedCount: runtimeSupportFeedCount,
+                providerCount: vm.providers.count,
+                readyChannelCount: vm.readyChannelCount,
+                approvalCount: vm.pendingApprovalCount,
+                hotspotCount: vm.sessionAttentionCount,
+                auditCount: vm.recentAudit.count,
+                hasSecurity: vm.security != nil,
+                hasNetwork: vm.networkStatus != nil
+            )
             runtimeRouteDeckCard(proxy)
         } header: {
             Text("Controls")
@@ -1482,6 +1518,86 @@ private struct RuntimeRouteInventoryDeck: View {
     }
 }
 
+private struct RuntimeSectionInventoryDeck: View {
+    let sectionCount: Int
+    let supportFeedCount: Int
+    let providerCount: Int
+    let readyChannelCount: Int
+    let approvalCount: Int
+    let hotspotCount: Int
+    let auditCount: Int
+    let hasSecurity: Bool
+    let hasNetwork: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 core section") : String(localized: "\(sectionCount) core sections"),
+                        tone: sectionCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: supportFeedCount == 1 ? String(localized: "1 support feed") : String(localized: "\(supportFeedCount) support feeds"),
+                        tone: supportFeedCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: hasNetwork ? String(localized: "Network visible") : String(localized: "Network pending"),
+                        tone: hasNetwork ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: hasSecurity ? String(localized: "Security visible") : String(localized: "Security pending"),
+                        tone: hasSecurity ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Runtime inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep section coverage, approvals, hotspots, and support feeds visible before the runtime routes fan out."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: providerCount == 1 ? String(localized: "1 provider") : String(localized: "\(providerCount) providers"),
+                    tone: providerCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    readyChannelCount == 1 ? String(localized: "1 ready channel") : String(localized: "\(readyChannelCount) ready channels"),
+                    systemImage: "bubble.left.and.bubble.right"
+                )
+                Label(
+                    approvalCount == 1 ? String(localized: "1 pending approval") : String(localized: "\(approvalCount) pending approvals"),
+                    systemImage: "checkmark.shield"
+                )
+                Label(
+                    hotspotCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(hotspotCount) session hotspots"),
+                    systemImage: "text.bubble"
+                )
+                Label(
+                    auditCount == 1 ? String(localized: "1 audit feed") : String(localized: "\(auditCount) audit feed items"),
+                    systemImage: "text.justify.leading"
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 runtime section is currently loaded into the operator deck.")
+            : String(localized: "\(sectionCount) runtime sections are currently loaded into the operator deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Support feeds like channels, hands, peers, and A2A stay visible before the deeper runtime sections begin.")
+    }
+}
+
 private struct RuntimeSystemInventoryDeck: View {
     let statusLabel: String
     let version: String
@@ -2750,6 +2866,23 @@ private struct StatusPill: View {
             backgroundStyle: color.opacity(0.14)
         )
     }
+}
+
+private func localizedUSDCurrency(
+    _ value: Double,
+    standardPrecision: Int = 2,
+    smallValuePrecision: Int? = nil,
+    minimumDisplayValue: Double = 0.01
+) -> String {
+    let style = FloatingPointFormatStyle<Double>.Currency(code: "USD")
+    if value == 0 {
+        return value.formatted(style.precision(.fractionLength(standardPrecision)))
+    }
+    if value < minimumDisplayValue {
+        return "<\(minimumDisplayValue.formatted(style.precision(.fractionLength(standardPrecision))))"
+    }
+    let precision = value < 1 ? (smallValuePrecision ?? standardPrecision) : standardPrecision
+    return value.formatted(style.precision(.fractionLength(precision)))
 }
 
 private extension String {
