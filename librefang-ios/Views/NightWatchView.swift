@@ -194,11 +194,9 @@ struct NightWatchView: View {
                 VStack(spacing: 16) {
                     heroCard
                     controlDeckCard
-                    mutedSummaryCard
                     primaryQueueCard
                     secondaryQueueCard
                     watchlistCard
-                    focusControlsCard
                     surfaceDeckCard
                 }
                 .padding()
@@ -318,13 +316,32 @@ struct NightWatchView: View {
                     GlassCapsuleBadge(text: checkInStatus.state.label, backgroundOpacity: 0.14)
                 }
             }
-        }
-    }
 
-    @ViewBuilder
-    private var mutedSummaryCard: some View {
-        if focusStore.showsMutedSummary, mutedAlertCount > 0 {
-            NightWatchMutedSummaryCard(mutedAlertCount: mutedAlertCount)
+            if focusStore.showsMutedSummary, mutedAlertCount > 0 {
+                Divider()
+                    .overlay(.white.opacity(0.08))
+
+                ResponsiveIconDetailRow(horizontalAlignment: .top, horizontalSpacing: 10, verticalSpacing: 8) {
+                    Image(systemName: "bell.slash.fill")
+                        .foregroundStyle(.orange)
+                } detail: {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(
+                            mutedAlertCount == 1
+                                ? String(localized: "1 alert muted locally")
+                                : String(localized: "\(mutedAlertCount) alerts muted locally")
+                        )
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white)
+                        Text(String(localized: "Muted alerts stay out of the queue until you unmute them in incidents."))
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.72))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .padding(12)
+                .glassPanel(fillOpacity: 0.07, cornerRadius: 14)
+            }
         }
     }
 
@@ -390,28 +407,71 @@ struct NightWatchView: View {
         }
     }
 
-    private var focusControlsCard: some View {
-        NightWatchControlsCard(
-            mode: Binding(
-                get: { focusStore.mode },
-                set: { focusStore.mode = $0 }
-            ),
-            preferredSurface: Binding(
-                get: { focusStore.preferredSurface },
-                set: { focusStore.preferredSurface = $0 }
-            ),
-            showsMutedSummary: Binding(
-                get: { focusStore.showsMutedSummary },
-                set: { focusStore.showsMutedSummary = $0 }
-            )
-        )
-    }
-
     private var surfaceDeckCard: some View {
         NightWatchSectionCard(
-            title: String(localized: "Surface Deck"),
-            detail: String(localized: "Keep the next night-duty drills in one compact deck.")
+            title: String(localized: "Operator Deck"),
+            detail: String(localized: "Keep local display controls and the next night-duty drills in one compact deck.")
         ) {
+            NightWatchSurfaceGroupLabel(title: String(localized: "Display Controls"))
+
+            NightWatchControlMenuRow(
+                title: String(localized: "Queue Mode"),
+                detail: focusStore.mode.summary
+            ) {
+                Menu {
+                    ForEach(OnCallFocusMode.allCases) { option in
+                        Button(option.label) {
+                            focusStore.mode = option
+                        }
+                    }
+                } label: {
+                    GlassCapsuleBadge(text: focusStore.mode.label, backgroundOpacity: 0.12)
+                }
+            }
+
+            NightWatchControlMenuRow(
+                title: String(localized: "Critical Banner"),
+                detail: focusStore.preferredSurface.summary
+            ) {
+                Menu {
+                    ForEach(OnCallSurfacePreference.allCases) { option in
+                        Button(option.label) {
+                            focusStore.preferredSurface = option
+                        }
+                    }
+                } label: {
+                    GlassCapsuleBadge(text: focusStore.preferredSurface.label, backgroundOpacity: 0.12)
+                }
+            }
+
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8, spacerMinLength: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(String(localized: "Muted Summary"))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Text(
+                        focusStore.showsMutedSummary
+                            ? String(localized: "Muted alerts stay visible in the signal deck.")
+                            : String(localized: "Muted alerts stay hidden until you open incidents or re-enable the summary.")
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.66))
+                    .fixedSize(horizontal: false, vertical: true)
+                }
+            } accessory: {
+                Toggle(isOn: Binding(
+                    get: { focusStore.showsMutedSummary },
+                    set: { focusStore.showsMutedSummary = $0 }
+                )) {
+                    EmptyView()
+                }
+                .labelsHidden()
+                .tint(.orange)
+            }
+
+            Divider()
+                .overlay(.white.opacity(0.08))
+
             NightWatchSurfaceGroupLabel(title: String(localized: "Primary Routes"))
 
             FlowLayout(spacing: 8) {

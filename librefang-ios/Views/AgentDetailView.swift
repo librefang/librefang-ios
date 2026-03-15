@@ -290,6 +290,7 @@ struct AgentDetailView: View {
             identitySection
             controlDeckSection
             statusSection
+            capabilitiesSection
             modelResolutionSection
             configSnapshotSection
             approvalsSection
@@ -899,7 +900,7 @@ struct AgentDetailView: View {
     }
 
     private var statusSection: some View {
-        Section("Status") {
+        Section("Runtime Status") {
             DetailRow(icon: "power", label: "State", value: agent.stateLabel, valueColor: agent.stateTone.color)
             DetailRow(icon: "gearshape.2", label: "Mode", value: agent.modeLabel)
             DetailRow(icon: "checkmark.circle", label: "Ready", value: agent.readyLabel,
@@ -952,73 +953,91 @@ struct AgentDetailView: View {
                     valueColor: workspaceIdentitySummary.tone.color
                 )
             }
-            if !isLoadingCapabilities {
-                if let agentToolFilters {
-                    DetailRow(
-                        icon: "slider.horizontal.3",
-                        label: "Tool Scope",
-                        value: toolScopeSummary(agentToolFilters),
-                        valueColor: agentToolFilters.scopeTone.color
-                    )
-                }
-                if let agentSkills {
-                    DetailRow(
-                        icon: "sparkles",
-                        label: "Skills",
-                        value: assignmentSummary(agentSkills, emptyLabel: String(localized: "All skills")),
-                        valueColor: agentSkills.scopeTone.color
-                    )
-                }
-                if let agentMCPServers {
-                    DetailRow(
-                        icon: "shippingbox",
-                        label: "MCP Scope",
-                        value: assignmentSummary(agentMCPServers, emptyLabel: String(localized: "All servers")),
-                        valueColor: agentMCPServers.scopeTone.color
-                    )
-                }
-                NavigationLink {
-                    AgentCapabilitiesView(
-                        agent: agent,
-                        initialToolFilters: agentToolFilters,
-                        initialSkills: agentSkills,
-                        initialMCPServers: agentMCPServers
-                    )
-                } label: {
-                    Label("Inspect Capabilities", systemImage: "slider.horizontal.3")
-                }
-            }
-            if let profile = agent.profile {
-                NavigationLink {
-                    ToolProfilesView(selectedProfileName: profile)
-                } label: {
-                    DetailRow(icon: "person", label: "Profile", value: profile)
-                }
-                if isLoadingProfile {
-                    AgentDetailValueRow("Tools") {
+        }
+    }
+
+    @ViewBuilder
+    private var capabilitiesSection: some View {
+        if !isLoadingCapabilities || agent.profile != nil || isLoadingProfile {
+            Section("Assignments & Profile") {
+                if isLoadingCapabilities {
+                    HStack {
+                        Spacer()
                         ProgressView()
                             .controlSize(.small)
-                    }
-                } else if let agentProfileSummary {
-                    AgentDetailValueRow("Tools") {
-                        Text(agentProfileSummary.tools.count.formatted())
-                            .foregroundStyle(profileToolCountTone.color)
-                            .monospacedDigit()
-                    }
-                    if !agentProfileSummary.tools.isEmpty {
-                        AgentDetailValueRow("Profile Tools") {
-                            Text(profileToolPreview(agentProfileSummary))
-                                .foregroundStyle(.secondary)
-                        }
+                        Spacer()
                     }
                 } else {
-                    DetailRow(
-                        icon: "person.crop.circle.badge.exclamationmark",
-                        label: "Profile Check",
-                        value: String(localized: "Unknown profile"),
-                        valueColor: .orange
-                    )
+                    if let agentToolFilters {
+                        DetailRow(
+                            icon: "slider.horizontal.3",
+                            label: "Tool Scope",
+                            value: toolScopeSummary(agentToolFilters),
+                            valueColor: agentToolFilters.scopeTone.color
+                        )
+                    }
+                    if let agentSkills {
+                        DetailRow(
+                            icon: "sparkles",
+                            label: "Skills",
+                            value: assignmentSummary(agentSkills, emptyLabel: String(localized: "All skills")),
+                            valueColor: agentSkills.scopeTone.color
+                        )
+                    }
+                    if let agentMCPServers {
+                        DetailRow(
+                            icon: "shippingbox",
+                            label: "MCP Scope",
+                            value: assignmentSummary(agentMCPServers, emptyLabel: String(localized: "All servers")),
+                            valueColor: agentMCPServers.scopeTone.color
+                        )
+                    }
+                    NavigationLink {
+                        AgentCapabilitiesView(
+                            agent: agent,
+                            initialToolFilters: agentToolFilters,
+                            initialSkills: agentSkills,
+                            initialMCPServers: agentMCPServers
+                        )
+                    } label: {
+                        Label("Inspect Capabilities", systemImage: "slider.horizontal.3")
+                    }
                 }
+
+                if let profile = agent.profile {
+                    NavigationLink {
+                        ToolProfilesView(selectedProfileName: profile)
+                    } label: {
+                        DetailRow(icon: "person", label: "Profile", value: profile)
+                    }
+                    if isLoadingProfile {
+                        AgentDetailValueRow("Tools") {
+                            ProgressView()
+                                .controlSize(.small)
+                        }
+                    } else if let agentProfileSummary {
+                        AgentDetailValueRow("Tools") {
+                            Text(agentProfileSummary.tools.count.formatted())
+                                .foregroundStyle(profileToolCountTone.color)
+                                .monospacedDigit()
+                        }
+                        if !agentProfileSummary.tools.isEmpty {
+                            AgentDetailValueRow("Profile Tools") {
+                                Text(profileToolPreview(agentProfileSummary))
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    } else {
+                        DetailRow(
+                            icon: "person.crop.circle.badge.exclamationmark",
+                            label: "Profile Check",
+                            value: String(localized: "Unknown profile"),
+                            valueColor: .orange
+                        )
+                    }
+                }
+            } footer: {
+                Text("Keep tool scope, skills, MCP assignment, and the active tool profile together before leaving the single-agent surface.")
             }
         }
     }

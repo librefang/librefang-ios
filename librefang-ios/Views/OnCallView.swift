@@ -251,22 +251,10 @@ struct OnCallView: View {
                     readiness: draftHandoffReadiness,
                     followUpStatuses: latestFollowUpStatuses
                 )
-
-                OnCallSurfaceDeckCard(
-                    approvalCount: vm.pendingApprovalCount,
-                    sessionCount: vm.sessionAttentionCount,
-                    eventCount: vm.recentCriticalAuditCount,
-                    criticalCount: criticalCount,
-                    queueCount: priorityItems.count,
-                    liveAlertCount: visibleAlerts.count,
-                    automationIssueCount: automationIssueCount,
-                    integrationIssueCount: integrationIssueCount,
-                    handoffText: handoffText
-                )
         } header: {
             Text("Operator Deck")
         } footer: {
-            Text("Queue shape, ack state, handoff readiness, and next routes stay together before queue work.")
+            Text("Queue shape, ack state, and handoff readiness stay together before queue work.")
         }
 
             if !priorityItems.isEmpty {
@@ -281,6 +269,24 @@ struct OnCallView: View {
                 } footer: {
                     Text("Sorted for quick triage using live alerts, approvals, watched agents, critical events, and session hotspots.")
                 }
+            }
+
+            Section {
+                OnCallSurfaceDeckCard(
+                    approvalCount: vm.pendingApprovalCount,
+                    sessionCount: vm.sessionAttentionCount,
+                    eventCount: vm.recentCriticalAuditCount,
+                    criticalCount: criticalCount,
+                    queueCount: priorityItems.count,
+                    liveAlertCount: visibleAlerts.count,
+                    automationIssueCount: automationIssueCount,
+                    integrationIssueCount: integrationIssueCount,
+                    handoffText: handoffText
+                )
+            } header: {
+                Text("Routes")
+            } footer: {
+                Text("Primary exits and slower systemic drilldowns stay below the live queue.")
             }
 
             if !watchedAttentionItems.isEmpty {

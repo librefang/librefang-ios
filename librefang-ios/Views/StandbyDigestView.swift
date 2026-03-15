@@ -162,11 +162,6 @@ struct StandbyDigestView: View {
                     heroCard
                     controlDeckCard
                     glanceCard
-
-                    if !watchItems.isEmpty {
-                        watchlistCard
-                    }
-
                     surfaceDeckCard
                 }
                 .padding()
@@ -406,7 +401,7 @@ struct StandbyDigestView: View {
 
     @ViewBuilder
     private var glanceCard: some View {
-        if primaryItems.isEmpty {
+        if primaryItems.isEmpty && watchItems.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 Label {
                     Text(String(localized: "Standby is quiet"))
@@ -436,11 +431,49 @@ struct StandbyDigestView: View {
                     glanceCount
                 }
 
-                ForEach(primaryItems) { item in
-                    NavigationLink(value: item.route) {
-                        StandbyPriorityRow(item: item)
+                if primaryItems.isEmpty {
+                    Text(String(localized: "No live priority cards are currently leading standby."))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.76))
+                } else {
+                    ForEach(primaryItems) { item in
+                        NavigationLink(value: item.route) {
+                            StandbyPriorityRow(item: item)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
+                }
+
+                if !watchItems.isEmpty {
+                    Divider()
+                        .overlay(.white.opacity(0.08))
+
+                    ResponsiveAccessoryRow {
+                        watchlistTitle
+                    } accessory: {
+                        watchlistCount
+                    }
+
+                    ForEach(watchItems) { item in
+                        NavigationLink(value: OnCallRoute.agent(item.agent.id)) {
+                            VStack(alignment: .leading, spacing: 5) {
+                                ResponsiveAccessoryRow(verticalSpacing: 4) {
+                                    watchItemName(item)
+                                } accessory: {
+                                    watchItemState(item)
+                                }
+
+                                Text(item.reasons.prefix(2).joined(separator: " · "))
+                                    .font(.caption)
+                                    .foregroundStyle(.white.opacity(0.76))
+                                    .lineLimit(2)
+                            }
+                            .padding(12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .glassPanel(fillOpacity: 0.08, cornerRadius: 16)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
             }
             .padding(18)
@@ -462,39 +495,6 @@ struct StandbyDigestView: View {
         Text(primaryItems.count == 1 ? String(localized: "1 card") : String(localized: "\(primaryItems.count) cards"))
             .font(.caption.weight(.medium))
             .foregroundStyle(.white.opacity(0.74))
-    }
-
-    private var watchlistCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ResponsiveAccessoryRow {
-                watchlistTitle
-            } accessory: {
-                watchlistCount
-            }
-
-            ForEach(watchItems) { item in
-                NavigationLink(value: OnCallRoute.agent(item.agent.id)) {
-                    VStack(alignment: .leading, spacing: 5) {
-                        ResponsiveAccessoryRow(verticalSpacing: 4) {
-                            watchItemName(item)
-                        } accessory: {
-                            watchItemState(item)
-                        }
-
-                        Text(item.reasons.prefix(2).joined(separator: " · "))
-                            .font(.caption)
-                            .foregroundStyle(.white.opacity(0.76))
-                            .lineLimit(2)
-                    }
-                    .padding(12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .glassPanel(fillOpacity: 0.08, cornerRadius: 16)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(18)
-        .glassPanel(fillOpacity: 0.09, cornerRadius: 22)
     }
 
     private var watchlistTitle: some View {
