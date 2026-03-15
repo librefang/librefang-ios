@@ -158,6 +158,23 @@ enum HandoffCarryoverState {
     }
 }
 
+enum HandoffReadinessState {
+    case ready
+    case caution
+    case blocked
+
+    var label: String {
+        switch self {
+        case .ready:
+            "Ready"
+        case .caution:
+            "Caution"
+        case .blocked:
+            "Blocked"
+        }
+    }
+}
+
 struct HandoffTimelineItem: Identifiable {
     let entry: OnCallHandoffEntry
     let gapToOlderEntry: TimeInterval?
@@ -173,6 +190,36 @@ struct HandoffTimelineItem: Identifiable {
     var isGapWarning: Bool {
         guard let gapToOlderEntry else { return false }
         return gapToOlderEntry >= gapWarningThreshold
+    }
+}
+
+struct HandoffReadinessIssue: Identifiable {
+    let id: String
+    let message: String
+    let isBlocking: Bool
+}
+
+struct HandoffReadinessStatus {
+    let state: HandoffReadinessState
+    let issues: [HandoffReadinessIssue]
+
+    var blockingIssues: [HandoffReadinessIssue] {
+        issues.filter(\.isBlocking)
+    }
+
+    var advisoryIssues: [HandoffReadinessIssue] {
+        issues.filter { !$0.isBlocking }
+    }
+
+    var summary: String {
+        switch state {
+        case .ready:
+            return "Checklist is complete and active monitoring pressure is reflected in the handoff draft."
+        case .caution:
+            return "The handoff draft is usable, but some operator context is still thin."
+        case .blocked:
+            return "The handoff draft is missing required context for current runtime pressure."
+        }
     }
 }
 
@@ -706,6 +753,121 @@ final class OnCallHandoffStore {
             baseline: latestEntry,
             items: items,
             state: state
+        )
+    }
+
+    func evaluateDraftReadiness(
+        note: String,
+        checklist: HandoffChecklistState,
+        focusAreas: HandoffFocusState,
+        liveAlertCount: Int,
+        pendingApprovalCount: Int,
+        watchlistIssueCount: Int,
+        sessionAttentionCount: Int,
+        criticalAuditCount: Int,
+        carryover: HandoffCarryoverStatus?
+    ) -> HandoffReadinessStatus {
+        let trimmedNote = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        var issues: [HandoffReadinessIssue] = []
+
+        if !checklist.pendingLabels.isEmpty {
+            issues.append(
+                HandoffReadinessIssue(
+                    id: "checklist",
+                    message: "Checklist incomplete: \(checklist.pendingLabels.joined(separator: ", ")).",
+                    isBlocking: true
+                )
+            )
+        }
+
+        if trimmedNote.isEmpty {
+            issues.append(
+                HandoffReadinessIssue(
+                    id: "note",
+                    message: "Add a short operator note so the next shift has direct context.",
+                    isBlocking: false
+                )
+            )
+        }
+
+        if liveAlertCount > 0 && !focusAreas.contains(.alerts) {
+            issues.append(
+                HandoffReadinessIssue(
+                    id: "alerts",
+                    message: "\(liveAlertCount) live alerts are active, but Alerts is not included in handoff focus.",
+                    isBlocking: true
+                )
+            )
+        }
+
+        if pendingApprovalCount > 0 && !focusAreas.contains(.approvals) {
+            issues.append(
+                HandoffReadinessIssue(
+                    id: "approvals",
+                    message: "\(pendingApprovalCount) pending approvals are not captured in handoff focus.",
+                    isBlocking: true
+                )
+            )
+        }
+
+        if watchlistIssueCount > 0 && !focusAreas.contains(.watchlist) {
+            issues.append(
+                HandoffReadinessIssue(
+                    id: "watchlist",
+                    message: "\(watchlistIssueCount) watched agents still need attention, but Watchlist is not included.",
+                    isBlocking: true
+                )
+            )
+        }
+
+        if sessionAttentionCount > 0 && !focusAreas.contains(.sessions) {
+            issues.append(
+                HandoffReadinessIssue(
+                    id: "sessions",
+                    message: "\(sessionAttentionCount) session hotspots are active, but Sessions is not included.",
+                    isBlocking: true
+                )
+            )
+        }
+
+        if criticalAuditCount > 0 && !focusAreas.contains(.audit) {
+            issues.append(
+                HandoffReadinessIssue(
+                    id: "audit",
+                    message: "\(criticalAuditCount) critical audit events are still recent, but Audit is not included.",
+                    isBlocking: true
+                )
+            )
+        }
+
+        if let carryover {
+            let missingCarryover = carryover.items
+                .filter { $0.isActive && !focusAreas.contains($0.area) }
+                .map(\.area.label)
+
+            if !missingCarryover.isEmpty {
+                issues.append(
+                    HandoffReadinessIssue(
+                        id: "carryover",
+                        message: "Unresolved carryover is missing from focus: \(missingCarryover.joined(separator: ", ")).",
+                        isBlocking: true
+                    )
+                )
+            }
+        }
+
+        let state: HandoffReadinessState
+        if issues.contains(where: \.isBlocking) {
+            state = .blocked
+        } else if issues.isEmpty {
+            state = .ready
+        } else {
+            state = .caution
+        }
+
+        return HandoffReadinessStatus(
+            state: state,
+            issues: issues
         )
     }
 

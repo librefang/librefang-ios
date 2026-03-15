@@ -211,6 +211,13 @@ struct SettingsView: View {
                             Text(latest.focusAreas.summaryLabel)
                                 .foregroundStyle(latest.focusAreas.items.isEmpty ? Color.secondary : Color.primary)
                         }
+                        LabeledContent("Draft Readiness") {
+                            Text(draftHandoffReadiness.state.label)
+                                .foregroundStyle(handoffReadinessColor)
+                        }
+                        Text(draftHandoffReadiness.summary)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                         if let drift = deps.onCallHandoffStore.driftFromLatest(
                             queueCount: onCallQueueCount,
                             criticalCount: currentCriticalCount,
@@ -224,13 +231,7 @@ struct SettingsView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
-                        if let carryover = deps.onCallHandoffStore.carryoverFromLatest(
-                            liveAlertCount: visibleAlertCount,
-                            pendingApprovalCount: deps.dashboardViewModel.pendingApprovalCount,
-                            watchlistIssueCount: watchedAttentionItems.filter { $0.severity > 0 }.count,
-                            sessionAttentionCount: deps.dashboardViewModel.sessionAttentionCount,
-                            criticalAuditCount: deps.dashboardViewModel.recentCriticalAuditCount
-                        ) {
+                        if let carryover = handoffCarryoverStatus {
                             LabeledContent("Carryover") {
                                 Text(carryover.state.label)
                                     .foregroundStyle(handoffCarryoverColor(for: carryover))
@@ -396,6 +397,30 @@ struct SettingsView: View {
         )
     }
 
+    private var handoffCarryoverStatus: HandoffCarryoverStatus? {
+        deps.onCallHandoffStore.carryoverFromLatest(
+            liveAlertCount: visibleAlertCount,
+            pendingApprovalCount: deps.dashboardViewModel.pendingApprovalCount,
+            watchlistIssueCount: watchedAttentionItems.filter { $0.severity > 0 }.count,
+            sessionAttentionCount: deps.dashboardViewModel.sessionAttentionCount,
+            criticalAuditCount: deps.dashboardViewModel.recentCriticalAuditCount
+        )
+    }
+
+    private var draftHandoffReadiness: HandoffReadinessStatus {
+        deps.onCallHandoffStore.evaluateDraftReadiness(
+            note: deps.onCallHandoffStore.draftNote,
+            checklist: deps.onCallHandoffStore.draftChecklist,
+            focusAreas: deps.onCallHandoffStore.draftFocusAreas,
+            liveAlertCount: visibleAlertCount,
+            pendingApprovalCount: deps.dashboardViewModel.pendingApprovalCount,
+            watchlistIssueCount: watchedAttentionItems.filter { $0.severity > 0 }.count,
+            sessionAttentionCount: deps.dashboardViewModel.sessionAttentionCount,
+            criticalAuditCount: deps.dashboardViewModel.recentCriticalAuditCount,
+            carryover: handoffCarryoverStatus
+        )
+    }
+
     private var snapshotStatus: String {
         if visibleAlerts.isEmpty {
             return activeMutedAlertCount > 0 ? "Muted" : "Clear"
@@ -485,6 +510,17 @@ struct SettingsView: View {
         case .partial:
             .orange
         case .active:
+            .red
+        }
+    }
+
+    private var handoffReadinessColor: Color {
+        switch draftHandoffReadiness.state {
+        case .ready:
+            .green
+        case .caution:
+            .orange
+        case .blocked:
             .red
         }
     }

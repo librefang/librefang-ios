@@ -82,6 +82,19 @@ struct HandoffCenterView: View {
             criticalAuditCount: vm.recentCriticalAuditCount
         )
     }
+    private var draftReadiness: HandoffReadinessStatus {
+        handoffStore.evaluateDraftReadiness(
+            note: handoffStore.draftNote,
+            checklist: handoffStore.draftChecklist,
+            focusAreas: handoffStore.draftFocusAreas,
+            liveAlertCount: liveAlertCount,
+            pendingApprovalCount: vm.pendingApprovalCount,
+            watchlistIssueCount: watchlistStore.watchedAgents(from: vm.agents).filter { vm.attentionItem(for: $0).severity > 0 }.count,
+            sessionAttentionCount: vm.sessionAttentionCount,
+            criticalAuditCount: vm.recentCriticalAuditCount,
+            carryover: carryoverStatus
+        )
+    }
     private var suggestedFocusAreas: Set<HandoffFocusArea> {
         var areas = Set<HandoffFocusArea>()
 
@@ -124,6 +137,8 @@ struct HandoffCenterView: View {
                     cadenceSummary: handoffStore.cadenceSummary,
                     warningCount: handoffStore.cadenceWarningCount
                 )
+
+                HandoffReadinessCard(status: draftReadiness)
 
                 if let carryoverStatus {
                     HandoffCarryoverCard(status: carryoverStatus)
@@ -227,7 +242,10 @@ struct HandoffCenterView: View {
                             liveAlertCount: liveAlertCount
                         )
                     } label: {
-                        Label("Save Snapshot", systemImage: "square.and.arrow.down")
+                        Label(
+                            draftReadiness.state == .blocked ? "Save Snapshot Anyway" : "Save Snapshot",
+                            systemImage: "square.and.arrow.down"
+                        )
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
@@ -473,6 +491,50 @@ private struct HandoffCarryoverCard: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
+            }
+        }
+        .padding(.vertical, 6)
+    }
+}
+
+private struct HandoffReadinessCard: View {
+    let status: HandoffReadinessStatus
+
+    private var accentColor: Color {
+        switch status.state {
+        case .ready:
+            .green
+        case .caution:
+            .orange
+        case .blocked:
+            .red
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label("Readiness", systemImage: "checkmark.seal")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(status.state.label)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(accentColor.opacity(0.12))
+                    .foregroundStyle(accentColor)
+                    .clipShape(Capsule())
+            }
+
+            Text(status.summary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            ForEach(status.issues) { issue in
+                Label(issue.message, systemImage: issue.isBlocking ? "exclamationmark.triangle.fill" : "info.circle")
+                    .font(.caption2)
+                    .foregroundStyle(issue.isBlocking ? Color.red : Color.secondary)
             }
         }
         .padding(.vertical, 6)

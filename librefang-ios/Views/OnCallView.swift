@@ -121,6 +121,19 @@ struct OnCallView: View {
             criticalAuditCount: vm.recentCriticalAuditCount
         )
     }
+    private var draftHandoffReadiness: HandoffReadinessStatus {
+        handoffStore.evaluateDraftReadiness(
+            note: handoffStore.draftNote,
+            checklist: handoffStore.draftChecklist,
+            focusAreas: handoffStore.draftFocusAreas,
+            liveAlertCount: visibleAlerts.count,
+            pendingApprovalCount: vm.pendingApprovalCount,
+            watchlistIssueCount: watchedAttentionItems.filter { $0.severity > 0 }.count,
+            sessionAttentionCount: vm.sessionAttentionCount,
+            criticalAuditCount: vm.recentCriticalAuditCount,
+            carryover: currentHandoffCarryover
+        )
+    }
 
     var body: some View {
         List {
@@ -154,7 +167,8 @@ struct OnCallView: View {
                     cadenceSummary: handoffStore.cadenceSummary,
                     latestEntry: handoffStore.latestEntry,
                     drift: currentHandoffDrift,
-                    carryover: currentHandoffCarryover
+                    carryover: currentHandoffCarryover,
+                    readiness: draftHandoffReadiness
                 )
 
                 NavigationLink(value: OnCallRoute.incidents) {
@@ -340,6 +354,7 @@ private struct OnCallHandoffStatusRow: View {
     let latestEntry: OnCallHandoffEntry?
     let drift: HandoffSnapshotDrift?
     let carryover: HandoffCarryoverStatus?
+    let readiness: HandoffReadinessStatus
 
     private var freshnessColor: Color {
         switch freshnessLabel {
@@ -383,6 +398,17 @@ private struct OnCallHandoffStatusRow: View {
         case .partial:
             .orange
         case .active:
+            .red
+        }
+    }
+
+    private var readinessColor: Color {
+        switch readiness.state {
+        case .ready:
+            .green
+        case .caution:
+            .orange
+        case .blocked:
             .red
         }
     }
@@ -464,6 +490,24 @@ private struct OnCallHandoffStatusRow: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
+
+            HStack {
+                Text("Next Handoff")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(readiness.state.label)
+                    .font(.caption2.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(readinessColor.opacity(0.12))
+                    .foregroundStyle(readinessColor)
+                    .clipShape(Capsule())
+            }
+
+            Text(readiness.summary)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
 
             if let latestEntry {
                 HStack {
