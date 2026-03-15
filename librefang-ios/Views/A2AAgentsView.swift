@@ -35,6 +35,45 @@ struct A2AAgentsView: View {
                         )
                     }
 
+                    Section {
+                        NavigationLink {
+                            RuntimeView()
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Runtime"),
+                                detail: String(localized: "Switch to runtime when external-agent inventory needs broader network or hand context."),
+                                systemImage: "server.rack",
+                                tone: .neutral
+                            )
+                        }
+
+                        NavigationLink {
+                            CommsView()
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Comms"),
+                                detail: String(localized: "Switch to comms topology when external agents matter more than local inventory."),
+                                systemImage: "point.3.connected.trianglepath.dotted",
+                                tone: .neutral
+                            )
+                        }
+
+                        NavigationLink {
+                            DiagnosticsView()
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Diagnostics"),
+                                detail: String(localized: "Switch to diagnostics when A2A visibility issues may reflect runtime health or config drift."),
+                                systemImage: "stethoscope",
+                                tone: .neutral
+                            )
+                        }
+                    } header: {
+                        Text("Operator Surfaces")
+                    } footer: {
+                        Text("Use these routes when the external-agent directory needs runtime, comms, or diagnostics context.")
+                    }
+
                     if filteredAgents.isEmpty {
                         Section("Agents") {
                             ContentUnavailableView(

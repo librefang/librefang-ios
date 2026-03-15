@@ -49,6 +49,7 @@ struct AgentMemoryView: View {
     var body: some View {
         List {
             summarySection
+            operatorSurfacesSection
 
             if let loadError {
                 Section("Memory Status") {
@@ -207,6 +208,64 @@ struct AgentMemoryView: View {
                 message: Text(notice.message),
                 dismissButton: .default(Text("OK"))
             )
+        }
+    }
+
+    private var operatorSurfacesSection: some View {
+        Section {
+            NavigationLink {
+                AgentDetailView(agent: agent)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Back To Agent"),
+                    detail: String(localized: "Return to the full agent detail page with sessions, approvals, and diagnostics."),
+                    systemImage: "cpu",
+                    tone: .neutral
+                )
+            }
+
+            NavigationLink {
+                SessionsView(initialSearchText: agent.id, initialFilter: .all)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Sessions"),
+                    detail: String(localized: "Switch to this agent's session inventory when memory state needs active conversation context."),
+                    systemImage: "rectangle.stack",
+                    tone: entries.isEmpty ? .neutral : .warning,
+                    badgeText: entries.isEmpty ? nil : String(localized: "\(entries.count) keys"),
+                    badgeTone: .neutral
+                )
+            }
+
+            NavigationLink {
+                RuntimeView()
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Runtime"),
+                    detail: String(localized: "Switch to runtime when memory state may reflect broader provider or approval pressure."),
+                    systemImage: "server.rack",
+                    tone: .neutral
+                )
+            }
+
+            NavigationLink {
+                IncidentsView()
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Incidents"),
+                    detail: String(localized: "Switch to incidents when memory anomalies are part of a wider operator investigation."),
+                    systemImage: "bell.badge",
+                    tone: structuredEntryCount > 0 ? .warning : .neutral,
+                    badgeText: structuredEntryCount > 0
+                        ? (structuredEntryCount == 1 ? String(localized: "1 structured") : String(localized: "\(structuredEntryCount) structured"))
+                        : nil,
+                    badgeTone: .warning
+                )
+            }
+        } header: {
+            Text("Operator Surfaces")
+        } footer: {
+            Text("Use these routes when agent memory needs session, runtime, or incident context instead of isolated key inspection.")
         }
     }
 

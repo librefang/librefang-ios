@@ -68,6 +68,60 @@ struct AgentCapabilitiesView: View {
                 } footer: {
                     Text("This snapshot shows which capability feeds have loaded and how much access the agent currently has.")
                 }
+
+                Section {
+                    NavigationLink {
+                        AgentDetailView(agent: agent)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Back To Agent"),
+                            detail: String(localized: "Return to the full agent detail page with sessions, memory, files, and deliveries."),
+                            systemImage: "cpu",
+                            tone: .neutral
+                        )
+                    }
+
+                    if let profile = agent.profile, !profile.isEmpty {
+                        NavigationLink {
+                            ToolProfilesView(selectedProfileName: profile)
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Tool Profile"),
+                                detail: String(localized: "Switch to the profile definition that sits underneath these capability filters."),
+                                systemImage: "person.crop.rectangle.stack",
+                                tone: .neutral,
+                                badgeText: profile,
+                                badgeTone: .neutral
+                            )
+                        }
+                    }
+
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Runtime"),
+                            detail: String(localized: "Switch to runtime when capability scope needs broader MCP, provider, or approval context."),
+                            systemImage: "server.rack",
+                            tone: .neutral
+                        )
+                    }
+
+                    NavigationLink {
+                        IntegrationsView(initialSearchText: agent.id, initialScope: .attention)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Integrations"),
+                            detail: String(localized: "Switch to integrations when capability scope looks healthy but model or channel drift remains."),
+                            systemImage: "square.3.layers.3d.down.forward",
+                            tone: .neutral
+                        )
+                    }
+                } header: {
+                    Text("Operator Surfaces")
+                } footer: {
+                    Text("Use these routes when capability scope needs profile, runtime, or integration context.")
+                }
             }
 
             if let toolFilters {

@@ -130,6 +130,64 @@ struct AgentDeliveriesView: View {
                 Text("Receipts come from LibreFang's outbound channel delivery tracker and help confirm whether an agent actually reached the outside world.")
             }
 
+            Section {
+                NavigationLink {
+                    AgentDetailView(agent: agent)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Back To Agent"),
+                        detail: String(localized: "Return to the agent detail page with sessions, files, memory, and approvals."),
+                        systemImage: "cpu",
+                        tone: .neutral
+                    )
+                }
+
+                NavigationLink {
+                    IncidentsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Incidents"),
+                        detail: String(localized: "Switch to the incident queue when delivery failures need broader triage."),
+                        systemImage: "bell.badge",
+                        tone: failedCount > 0 ? .critical : .neutral,
+                        badgeText: failedCount > 0
+                            ? (failedCount == 1 ? String(localized: "1 failure") : String(localized: "\(failedCount) failures"))
+                            : nil,
+                        badgeTone: .critical
+                    )
+                }
+
+                NavigationLink {
+                    EventsView(api: deps.apiClient, initialSearchText: agent.id, initialScope: .critical)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Event Feed"),
+                        detail: String(localized: "Switch to audit events when delivery failures might be tied to runtime or channel activity."),
+                        systemImage: "list.bullet.rectangle.portrait",
+                        tone: unsettledCount > 0 ? .warning : .neutral,
+                        badgeText: unsettledCount > 0
+                            ? (unsettledCount == 1 ? String(localized: "1 unsettled") : String(localized: "\(unsettledCount) unsettled"))
+                            : nil,
+                        badgeTone: .warning
+                    )
+                }
+
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Runtime"),
+                        detail: String(localized: "Switch to runtime when outbound failures may reflect broader channel or provider trouble."),
+                        systemImage: "server.rack",
+                        tone: .neutral
+                    )
+                }
+            } header: {
+                Text("Operator Surfaces")
+            } footer: {
+                Text("Use these routes when delivery receipts need incident, event, or runtime context.")
+            }
+
             if let loadError {
                 Section("Status") {
                     ContentUnavailableView(

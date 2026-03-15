@@ -96,6 +96,60 @@ struct AgentFilesView: View {
                 Text("LibreFang only exposes the whitelisted identity files that shape how an agent behaves and self-describes.")
             }
 
+            Section {
+                NavigationLink {
+                    AgentDetailView(agent: agent)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Back To Agent"),
+                        detail: String(localized: "Return to the full agent detail page with deliveries, memory, sessions, and approvals."),
+                        systemImage: "cpu",
+                        tone: .neutral
+                    )
+                }
+
+                NavigationLink {
+                    AgentMemoryView(agent: agent)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Memory"),
+                        detail: String(localized: "Switch to durable memory when workspace identity files alone do not explain agent behavior."),
+                        systemImage: "internaldrive",
+                        tone: missingCount > 0 ? .warning : .neutral,
+                        badgeText: missingCount > 0
+                            ? (missingCount == 1 ? String(localized: "1 missing") : String(localized: "\(missingCount) missing"))
+                            : nil,
+                        badgeTone: .warning
+                    )
+                }
+
+                NavigationLink {
+                    AgentDeliveriesView(agent: agent)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Deliveries"),
+                        detail: String(localized: "Switch to channel delivery receipts when workspace identity drift may be affecting output."),
+                        systemImage: "paperplane",
+                        tone: .neutral
+                    )
+                }
+
+                NavigationLink {
+                    SessionsView(initialSearchText: agent.id, initialFilter: .all)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Sessions"),
+                        detail: String(localized: "Switch to the agent's sessions when identity files and live context need to be compared together."),
+                        systemImage: "rectangle.stack",
+                        tone: .neutral
+                    )
+                }
+            } header: {
+                Text("Operator Surfaces")
+            } footer: {
+                Text("Use these routes when identity files need memory, delivery, or session context rather than isolated file checks.")
+            }
+
             if let loadError {
                 Section("Status") {
                     ContentUnavailableView(
