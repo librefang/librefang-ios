@@ -185,20 +185,9 @@ private struct ApprovalsFilterCard: View {
     let totalCount: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 12) {
-                    summaryText
-                    Spacer(minLength: 10)
-                    activeBadge
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    summaryText
-                    activeBadge
-                }
-            }
-
+        MonitoringFilterCard(summary: summaryLine, detail: searchSummary) {
+            activeBadge
+        } controls: {
             FlowLayout(spacing: 8) {
                 ForEach(ApprovalRiskFilter.allCases) { option in
                     Button {
@@ -212,18 +201,6 @@ private struct ApprovalsFilterCard: View {
                     .buttonStyle(.plain)
                 }
             }
-        }
-        .padding(.vertical, 4)
-    }
-
-    private var summaryText: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(summaryLine)
-                .font(.subheadline.weight(.medium))
-            Text(searchSummary)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
         }
     }
 

@@ -65,10 +65,10 @@ private struct A2ASummaryCard: View {
     let pushCount: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(String(localized: "External agent inventory is available for quick inspection."))
-                .font(.subheadline.weight(.medium))
-
+        MonitoringSnapshotCard(
+            summary: String(localized: "External agent inventory is available for quick inspection."),
+            verticalPadding: 4
+        ) {
             FlowLayout(spacing: 8) {
                 PresentationToneBadge(
                     text: totalAgents == 1 ? String(localized: "1 agent") : String(localized: "\(totalAgents) agents"),
@@ -90,7 +90,6 @@ private struct A2ASummaryCard: View {
                 )
             }
         }
-        .padding(.vertical, 4)
     }
 }
 

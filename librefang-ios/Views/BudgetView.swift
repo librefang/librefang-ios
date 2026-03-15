@@ -845,49 +845,50 @@ private struct BudgetSnapshotCard: View {
     let topAgentCost: Double?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(String(localized: "Budget breakdown is ready for quick triage."))
-                .font(.subheadline.weight(.medium))
+        MonitoringSnapshotCard(
+            summary: String(localized: "Budget breakdown is ready for quick triage."),
+            verticalPadding: 4
+        ) {
+            VStack(alignment: .leading, spacing: 10) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
+                        tone: trendDays > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
+                        tone: modelCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                        tone: agentCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(text: sortOrderLabel, tone: .neutral)
+                }
 
-            FlowLayout(spacing: 8) {
-                PresentationToneBadge(
-                    text: trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
-                    tone: trendDays > 0 ? .positive : .neutral
-                )
-                PresentationToneBadge(
-                    text: modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
-                    tone: modelCount > 0 ? .positive : .neutral
-                )
-                PresentationToneBadge(
-                    text: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
-                    tone: agentCount > 0 ? .positive : .neutral
-                )
-                PresentationToneBadge(text: sortOrderLabel, tone: .neutral)
-            }
+                if let topAgentName, let topAgentCost {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .firstTextBaseline, spacing: 12) {
+                            Text(String(localized: "Top agent today"))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Spacer(minLength: 8)
+                            Text("\(topAgentName) · \(localizedUSDCurrency(topAgentCost))")
+                                .font(.caption.weight(.semibold))
+                        }
 
-            if let topAgentName, let topAgentCost {
-                ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .firstTextBaseline, spacing: 12) {
-                        Text(String(localized: "Top agent today"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Spacer(minLength: 8)
-                        Text("\(topAgentName) · \(localizedUSDCurrency(topAgentCost))")
-                            .font(.caption.weight(.semibold))
-                    }
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(String(localized: "Top agent today"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text("\(topAgentName) · \(localizedUSDCurrency(topAgentCost))")
-                            .font(.caption.weight(.semibold))
-                            .lineLimit(2)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(String(localized: "Top agent today"))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Text("\(topAgentName) · \(localizedUSDCurrency(topAgentCost))")
+                                .font(.caption.weight(.semibold))
+                                .lineLimit(2)
+                        }
                     }
                 }
             }
         }
-        .padding(.vertical, 4)
     }
 }
 

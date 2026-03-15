@@ -285,10 +285,10 @@ private struct CapabilitiesSnapshotCard: View {
     let mcpServers: AgentAssignmentScope?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(String(localized: "Agent capability scope is loaded for quick review."))
-                .font(.subheadline.weight(.medium))
-
+        MonitoringSnapshotCard(
+            summary: String(localized: "Agent capability scope is loaded for quick review."),
+            verticalPadding: 4
+        ) {
             FlowLayout(spacing: 8) {
                 snapshotBadge(
                     label: String(localized: "Tool Filters"),
@@ -334,7 +334,6 @@ private struct CapabilitiesSnapshotCard: View {
                 }
             }
         }
-        .padding(.vertical, 4)
     }
 
     private func snapshotBadge(label: String, isPresent: Bool, tone: PresentationTone) -> some View {

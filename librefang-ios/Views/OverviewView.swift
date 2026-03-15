@@ -416,10 +416,7 @@ private struct OverviewTriageCard: View {
     let handoffTone: PresentationTone
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(String(localized: "Mobile triage is ready from the current snapshot."))
-                .font(.subheadline.weight(.medium))
-
+        MonitoringSnapshotCard(summary: String(localized: "Mobile triage is ready from the current snapshot.")) {
             FlowLayout(spacing: 8) {
                 PresentationToneBadge(
                     text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
@@ -456,7 +453,6 @@ private struct OverviewTriageCard: View {
                 PresentationToneBadge(text: handoffStateLabel, tone: handoffTone)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

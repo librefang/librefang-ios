@@ -448,10 +448,7 @@ private struct HandoffDraftSnapshotCard: View {
     let checkInWindowLabel: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(String(localized: "Draft snapshot is ready for handoff composition."))
-                .font(.subheadline.weight(.medium))
-
+        MonitoringSnapshotCard(summary: String(localized: "Draft snapshot is ready for handoff composition.")) {
             FlowLayout(spacing: 8) {
                 PresentationToneBadge(text: kind.label, tone: .neutral)
                 PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
@@ -477,20 +474,9 @@ private struct HandoffHistoryFilterCard: View {
     let totalCount: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 12) {
-                    summaryBlock
-                    Spacer(minLength: 10)
-                    PresentationToneBadge(text: filter.label, tone: badgeTone)
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    summaryBlock
-                    PresentationToneBadge(text: filter.label, tone: badgeTone)
-                }
-            }
-
+        MonitoringFilterCard(summary: summaryLine, detail: searchSummary) {
+            PresentationToneBadge(text: filter.label, tone: badgeTone)
+        } controls: {
             FlowLayout(spacing: 8) {
                 ForEach(HandoffHistoryFilter.allCases) { option in
                     Button {
@@ -501,18 +487,6 @@ private struct HandoffHistoryFilterCard: View {
                     .buttonStyle(.plain)
                 }
             }
-        }
-        .padding(.vertical, 4)
-    }
-
-    private var summaryBlock: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(summaryLine)
-                .font(.subheadline.weight(.medium))
-            Text(searchSummary)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
         }
     }
 

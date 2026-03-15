@@ -523,10 +523,7 @@ private struct IncidentSnapshotCard: View {
     let isAcknowledged: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(summaryLine)
-                .font(.subheadline.weight(.medium))
-
+        MonitoringSnapshotCard(summary: summaryLine, verticalPadding: 4) {
             FlowLayout(spacing: 8) {
                 PresentationToneBadge(
                     text: activeAlertCount == 1 ? String(localized: "1 active alert") : String(localized: "\(activeAlertCount) active alerts"),
@@ -586,7 +583,6 @@ private struct IncidentSnapshotCard: View {
                 )
             }
         }
-        .padding(.vertical, 4)
     }
 
     private var summaryLine: String {

@@ -192,10 +192,10 @@ private struct ToolProfilesSnapshotCard: View {
     let selectedToolCount: Int?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(String(localized: "Tool profiles explain what the runtime is allowed to call."))
-                .font(.subheadline.weight(.medium))
-
+        MonitoringSnapshotCard(
+            summary: String(localized: "Tool profiles explain what the runtime is allowed to call."),
+            verticalPadding: 4
+        ) {
             FlowLayout(spacing: 8) {
                 PresentationToneBadge(
                     text: totalProfiles == 1 ? String(localized: "1 profile") : String(localized: "\(totalProfiles) profiles"),
@@ -221,7 +221,6 @@ private struct ToolProfilesSnapshotCard: View {
                 }
             }
         }
-        .padding(.vertical, 4)
     }
 }
 

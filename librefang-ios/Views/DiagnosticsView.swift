@@ -304,10 +304,7 @@ private struct DiagnosticsSnapshotCard: View {
     let metrics: PrometheusMetricsSnapshot?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(summaryLine)
-                .font(.subheadline.weight(.medium))
-
+        MonitoringSnapshotCard(summary: summaryLine, verticalPadding: 4) {
             FlowLayout(spacing: 8) {
                 snapshotBadge(
                     label: String(localized: "Health"),
@@ -347,7 +344,6 @@ private struct DiagnosticsSnapshotCard: View {
                 }
             }
         }
-        .padding(.vertical, 4)
     }
 
     private var summaryLine: String {

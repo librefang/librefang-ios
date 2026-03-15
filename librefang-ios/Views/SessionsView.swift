@@ -493,20 +493,9 @@ private struct SessionFilterCard: View {
     let totalCount: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 12) {
-                    summaryBlock
-                    Spacer(minLength: 10)
-                    activeBadge
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    summaryBlock
-                    activeBadge
-                }
-            }
-
+        MonitoringFilterCard(summary: summaryLine, detail: searchSummary) {
+            activeBadge
+        } controls: {
             FlowLayout(spacing: 8) {
                 ForEach(SessionFilter.allCases, id: \.self) { option in
                     Button {
@@ -521,18 +510,6 @@ private struct SessionFilterCard: View {
                     .buttonStyle(.plain)
                 }
             }
-        }
-        .padding(.vertical, 4)
-    }
-
-    private var summaryBlock: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(summaryLine)
-                .font(.subheadline.weight(.medium))
-            Text(searchSummary)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
         }
     }
 

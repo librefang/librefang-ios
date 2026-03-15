@@ -161,31 +161,8 @@ private struct CommsFilterCard: View {
     let edgeCount: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 12) {
-                    summaryBlock
-                    Spacer(minLength: 10)
-                    statusBadges
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    summaryBlock
-                    statusBadges
-                }
-            }
-        }
-        .padding(.vertical, 4)
-    }
-
-    private var summaryBlock: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(summaryLine)
-                .font(.subheadline.weight(.medium))
-            Text(searchSummary)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
+        MonitoringFilterCard(summary: summaryLine, detail: searchSummary) {
+            statusBadges
         }
     }
 
