@@ -108,34 +108,20 @@ struct BudgetView: View {
 
                     if vm.budget != nil || !vm.usageDaily.isEmpty || !sortedModels.isEmpty || !sortedAgents.isEmpty {
                         Section {
-                            BudgetSnapshotCard(
+                            BudgetStatusDeckCard(
                                 trendDays: vm.usageDaily.count,
                                 modelCount: sortedModels.count,
                                 agentCount: sortedAgents.count,
                                 sortOrderLabel: sortOrder.label,
                                 topAgentName: visibleAgents.first?.name,
-                                topAgentCost: visibleAgents.first?.dailyCostUsd
-                            )
-                        } header: {
-                            Text("Breakdown")
-                        } footer: {
-                            Text("This snapshot keeps the highest-signal budget breakdowns visible before the charts and long lists.")
-                        }
-
-                        Section {
-                            BudgetFactsCard(
-                                trendDays: vm.usageDaily.count,
-                                modelCount: sortedModels.count,
-                                agentCount: sortedAgents.count,
-                                sortOrderLabel: sortOrder.label,
-                                topAgentName: visibleAgents.first?.name,
+                                topAgentCost: visibleAgents.first?.dailyCostUsd,
                                 topModelName: topModelName,
                                 budgetPressureTone: budgetPressureTone
                             )
                         } header: {
-                            Text("Signal Facts")
+                            Text("Status Deck")
                         } footer: {
-                            Text("These facts keep cost shape, ranking mode, and the current leading spenders visible before the detailed charts.")
+                            Text("Keep breakdown badges, ranking mode, and current heavy spenders in one compact budget digest before the charts.")
                         }
 
                         Section {
@@ -998,153 +984,90 @@ private struct AgentCostRow: View {
     }
 }
 
-private struct BudgetSnapshotCard: View {
+private struct BudgetStatusDeckCard: View {
     let trendDays: Int
     let modelCount: Int
     let agentCount: Int
     let sortOrderLabel: String
     let topAgentName: String?
     let topAgentCost: Double?
-
-    var body: some View {
-        MonitoringSnapshotCard(
-            summary: String(localized: "Budget breakdown is ready for quick triage."),
-            verticalPadding: 4
-        ) {
-            VStack(alignment: .leading, spacing: 10) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
-                        tone: trendDays > 0 ? .positive : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
-                        tone: modelCount > 0 ? .positive : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
-                        tone: agentCount > 0 ? .positive : .neutral
-                    )
-                    PresentationToneBadge(text: sortOrderLabel, tone: .neutral)
-                }
-
-                if let topAgentName, let topAgentCost {
-                    ResponsiveAccessoryRow(
-                        horizontalAlignment: .firstTextBaseline,
-                        horizontalSpacing: 12,
-                        verticalSpacing: 4
-                    ) {
-                        Text(String(localized: "Top agent today"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    } accessory: {
-                        Text("\(topAgentName) · \(localizedUSDCurrency(topAgentCost))")
-                            .font(.caption.weight(.semibold))
-                            .lineLimit(2)
-                    }
-                }
-            }
-        }
-    }
-}
-
-private struct BudgetSignalsCard: View {
-    let budget: BudgetOverview?
-    let usageSummary: UsageSummary
-    let visibleAgentCount: Int
-    let sortOrderLabel: String
-    let projectedMonthlyCost: Double?
-
-    private var avgCostPerCall: Double {
-        guard usageSummary.callCount > 0 else { return 0 }
-        return usageSummary.totalCostUsd / Double(usageSummary.callCount)
-    }
-
-    var body: some View {
-        MonitoringSnapshotCard(
-            summary: String(localized: "Budget pressure is summarized for quick mobile review."),
-            detail: String(localized: "Use the current badges to decide whether to inspect limits, trends, models, or top-spending agents next."),
-            verticalPadding: 4
-        ) {
-            FlowLayout(spacing: 8) {
-                PresentationToneBadge(text: sortOrderLabel, tone: .neutral)
-                PresentationToneBadge(
-                    text: usageSummary.callCount == 1 ? String(localized: "1 call recorded") : String(localized: "\(usageSummary.callCount) calls recorded"),
-                    tone: usageSummary.callCount > 0 ? .positive : .neutral
-                )
-                PresentationToneBadge(
-                    text: String(localized: "Avg \(localizedUSDCurrency(avgCostPerCall)) / call"),
-                    tone: avgCostPerCall > 0 ? .neutral : .neutral
-                )
-                if let projectedMonthlyCost {
-                    PresentationToneBadge(
-                        text: String(localized: "30-day \(localizedUSDCurrency(projectedMonthlyCost))"),
-                        tone: .warning
-                    )
-                }
-                if visibleAgentCount > 0 {
-                    PresentationToneBadge(
-                        text: visibleAgentCount == 1 ? String(localized: "1 agent shown") : String(localized: "\(visibleAgentCount) agents shown"),
-                        tone: .neutral
-                    )
-                }
-                if let budget {
-                    PresentationToneBadge(
-                        text: String(localized: "Daily \(Int(budget.dailyPct * 100))%"),
-                        tone: StatusPresentation.budgetUtilizationStatus(for: budget.dailyPct)?.tone ?? .neutral
-                    )
-                    PresentationToneBadge(
-                        text: String(localized: "Monthly \(Int(budget.monthlyPct * 100))%"),
-                        tone: StatusPresentation.budgetUtilizationStatus(for: budget.monthlyPct)?.tone ?? .neutral
-                    )
-                }
-            }
-        }
-    }
-}
-
-private struct BudgetFactsCard: View {
-    let trendDays: Int
-    let modelCount: Int
-    let agentCount: Int
-    let sortOrderLabel: String
-    let topAgentName: String?
     let topModelName: String?
     let budgetPressureTone: PresentationTone
 
     var body: some View {
-        MonitoringFactsRow {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(String(localized: "Budget signal facts"))
-                    .font(.subheadline.weight(.medium))
-                Text(String(localized: "Keep trend depth, ranking mode, and the current heavy spenders visible before the longer charts and lists."))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Budget breakdown is ready for quick triage."),
+                verticalPadding: 4
+            ) {
+                VStack(alignment: .leading, spacing: 10) {
+                    FlowLayout(spacing: 8) {
+                        PresentationToneBadge(
+                            text: trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
+                            tone: trendDays > 0 ? .positive : .neutral
+                        )
+                        PresentationToneBadge(
+                            text: modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
+                            tone: modelCount > 0 ? .positive : .neutral
+                        )
+                        PresentationToneBadge(
+                            text: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                            tone: agentCount > 0 ? .positive : .neutral
+                        )
+                        PresentationToneBadge(text: sortOrderLabel, tone: .neutral)
+                    }
+
+                    if let topAgentName, let topAgentCost {
+                        ResponsiveAccessoryRow(
+                            horizontalAlignment: .firstTextBaseline,
+                            horizontalSpacing: 12,
+                            verticalSpacing: 4
+                        ) {
+                            Text(String(localized: "Top agent today"))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        } accessory: {
+                            Text("\(topAgentName) · \(localizedUSDCurrency(topAgentCost))")
+                                .font(.caption.weight(.semibold))
+                                .lineLimit(2)
+                        }
+                    }
+                }
             }
-        } accessory: {
-            PresentationToneBadge(
-                text: sortOrderLabel,
-                tone: budgetPressureTone
-            )
-        } facts: {
-            Label(
-                trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
-                systemImage: "chart.line.uptrend.xyaxis"
-            )
-            Label(
-                modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
-                systemImage: "square.stack.3d.up"
-            )
-            Label(
-                agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
-                systemImage: "person.3"
-            )
-            if let topModelName {
-                Label(topModelName, systemImage: "bolt.horizontal.circle")
-            }
-            if let topAgentName {
-                Label(topAgentName, systemImage: "person.crop.circle")
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Budget signal facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep trend depth, ranking mode, and the current heavy spenders visible before the longer charts and lists."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: sortOrderLabel,
+                    tone: budgetPressureTone
+                )
+            } facts: {
+                Label(
+                    trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
+                    systemImage: "chart.line.uptrend.xyaxis"
+                )
+                Label(
+                    modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
+                    systemImage: "square.stack.3d.up"
+                )
+                Label(
+                    agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                    systemImage: "person.3"
+                )
+                if let topModelName {
+                    Label(topModelName, systemImage: "bolt.horizontal.circle")
+                }
+                if let topAgentName {
+                    Label(topAgentName, systemImage: "person.crop.circle")
+                }
             }
         }
     }

@@ -58,69 +58,81 @@ struct SettingsView: View {
                         Text("This snapshot is device-local and complements the runtime and on-call pages rather than replacing them.")
                     }
 
-                    Section("Primary Surfaces") {
-                        NavigationLink {
-                            OnCallView()
-                        } label: {
-                            SettingsQuickLinkRow(
-                                title: String(localized: "Open On Call"),
-                                detail: onCallQueueCount == 1
-                                    ? String(localized: "1 queued item is currently visible on this iPhone.")
-                                    : String(localized: "\(onCallQueueCount) queued items are currently visible on this iPhone."),
-                                systemImage: "waveform.path.ecg"
-                            )
+                    Section {
+                        MonitoringSurfaceGroupCard(
+                            title: String(localized: "Primary Surfaces"),
+                            detail: String(localized: "Keep the on-call, incidents, and handoff exits closest to device-level settings.")
+                        ) {
+                            NavigationLink {
+                                OnCallView()
+                            } label: {
+                                SettingsQuickLinkRow(
+                                    title: String(localized: "Open On Call"),
+                                    detail: onCallQueueCount == 1
+                                        ? String(localized: "1 queued item is currently visible on this iPhone.")
+                                        : String(localized: "\(onCallQueueCount) queued items are currently visible on this iPhone."),
+                                    systemImage: "waveform.path.ecg"
+                                )
+                            }
+
+                            NavigationLink {
+                                IncidentsView()
+                            } label: {
+                                SettingsQuickLinkRow(
+                                    title: String(localized: "Open Incidents Center"),
+                                    detail: currentCriticalCount > 0
+                                        ? (currentCriticalCount == 1
+                                            ? String(localized: "1 critical incident is already surfaced in incidents.")
+                                            : String(localized: "\(currentCriticalCount) critical incidents are already surfaced in incidents."))
+                                        : String(localized: "Review alerts, approvals, and shift coverage from one mobile queue."),
+                                    systemImage: "bell.badge"
+                                )
+                            }
+
+                            NavigationLink {
+                                HandoffCenterView(
+                                    summary: handoffText,
+                                    queueCount: onCallQueueCount,
+                                    criticalCount: currentCriticalCount,
+                                    liveAlertCount: visibleAlertCount
+                                )
+                            } label: {
+                                SettingsQuickLinkRow(
+                                    title: String(localized: "Open Handoff Center"),
+                                    detail: String(localized: "Review local handoff freshness, readiness, and follow-up state."),
+                                    systemImage: "text.badge.plus"
+                                )
+                            }
                         }
 
-                        NavigationLink {
-                            IncidentsView()
-                        } label: {
-                            SettingsQuickLinkRow(
-                                title: String(localized: "Open Incidents Center"),
-                                detail: currentCriticalCount > 0
-                                    ? (currentCriticalCount == 1
-                                        ? String(localized: "1 critical incident is already surfaced in incidents.")
-                                        : String(localized: "\(currentCriticalCount) critical incidents are already surfaced in incidents."))
-                                    : String(localized: "Review alerts, approvals, and shift coverage from one mobile queue."),
-                                systemImage: "bell.badge"
-                            )
-                        }
+                        MonitoringSurfaceGroupCard(
+                            title: String(localized: "Supporting Surfaces"),
+                            detail: String(localized: "Keep runtime and diagnostics routes behind the primary shift-management exits.")
+                        ) {
+                            NavigationLink {
+                                RuntimeView()
+                            } label: {
+                                SettingsQuickLinkRow(
+                                    title: String(localized: "Open Runtime"),
+                                    detail: String(localized: "Inspect providers, channels, approvals, sessions, and runtime pressure from settings."),
+                                    systemImage: "server.rack"
+                                )
+                            }
 
-                        NavigationLink {
-                            HandoffCenterView(
-                                summary: handoffText,
-                                queueCount: onCallQueueCount,
-                                criticalCount: currentCriticalCount,
-                                liveAlertCount: visibleAlertCount
-                            )
-                        } label: {
-                            SettingsQuickLinkRow(
-                                title: String(localized: "Open Handoff Center"),
-                                detail: String(localized: "Review local handoff freshness, readiness, and follow-up state."),
-                                systemImage: "text.badge.plus"
-                            )
+                            NavigationLink {
+                                DiagnosticsView()
+                            } label: {
+                                SettingsQuickLinkRow(
+                                    title: String(localized: "Open Diagnostics"),
+                                    detail: String(localized: "Inspect deep health, build info, config warnings, and metrics."),
+                                    systemImage: "stethoscope"
+                                )
+                            }
                         }
-                    }
-
-                    Section("Supporting Surfaces") {
-                        NavigationLink {
-                            RuntimeView()
-                        } label: {
-                            SettingsQuickLinkRow(
-                                title: String(localized: "Open Runtime"),
-                                detail: String(localized: "Inspect providers, channels, approvals, sessions, and runtime pressure from settings."),
-                                systemImage: "server.rack"
-                            )
-                        }
-
-                        NavigationLink {
-                            DiagnosticsView()
-                        } label: {
-                            SettingsQuickLinkRow(
-                                title: String(localized: "Open Diagnostics"),
-                                detail: String(localized: "Inspect deep health, build info, config warnings, and metrics."),
-                                systemImage: "stethoscope"
-                            )
-                        }
+                    } header: {
+                        Text("Surface Deck")
+                    } footer: {
+                        Text("Keep the highest-value monitoring exits grouped together before the longer device-control form.")
                     }
 
                     Section {

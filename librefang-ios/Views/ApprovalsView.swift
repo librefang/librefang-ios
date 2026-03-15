@@ -83,90 +83,20 @@ struct ApprovalsView: View {
             }
 
             Section {
-                MonitoringSnapshotCard(
-                    summary: vm.pendingApprovalCount == 1
-                        ? String(localized: "1 approval gate is waiting for operator review.")
-                        : String(localized: "\(vm.pendingApprovalCount) approval gates are waiting for operator review."),
-                    detail: String(localized: "Critical and high-risk approvals stay visible above the mobile action queue.")
-                ) {
-                    FlowLayout(spacing: 8) {
-                        PresentationToneBadge(text: filter.label, tone: filter == .critical ? .critical : filter == .high ? .warning : .neutral)
-                        if criticalApprovalCount > 0 {
-                            PresentationToneBadge(
-                                text: criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"),
-                                tone: .critical
-                            )
-                        }
-                        if highRiskApprovalCount > 0 {
-                            PresentationToneBadge(
-                                text: highRiskApprovalCount == 1 ? String(localized: "1 high+") : String(localized: "\(highRiskApprovalCount) high+"),
-                                tone: .warning
-                            )
-                        }
-                        if approvalAgentCount > 0 {
-                            PresentationToneBadge(
-                                text: approvalAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(approvalAgentCount) agents"),
-                                tone: .neutral
-                            )
-                        }
-                        if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            PresentationToneBadge(
-                                text: filteredApprovals.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredApprovals.count) visible results"),
-                                tone: .neutral
-                            )
-                        }
-                    }
-                }
+                ApprovalsStatusDeckCard(
+                    pendingApprovalCount: vm.pendingApprovalCount,
+                    criticalApprovalCount: criticalApprovalCount,
+                    highRiskApprovalCount: highRiskApprovalCount,
+                    approvalAgentCount: approvalAgentCount,
+                    visibleApprovalCount: filteredApprovals.count,
+                    filterLabel: filter.label,
+                    filterTone: filter == .critical ? .critical : filter == .high ? .warning : .neutral,
+                    hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                )
+            } header: {
+                Text("Status Deck")
             } footer: {
-                Text("Use the snapshot to judge queue pressure before committing an approval or rejection from the phone.")
-            }
-
-            Section {
-                MonitoringFactsRow {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(String(localized: "Approval queue facts"))
-                            .font(.subheadline.weight(.medium))
-                        Text(String(localized: "Keep queue severity, agent spread, and visible results clear before acting on requests from the phone."))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                    }
-                } accessory: {
-                    PresentationToneBadge(
-                        text: filter.label,
-                        tone: filter == .critical ? .critical : filter == .high ? .warning : .neutral
-                    )
-                } facts: {
-                    Label(
-                        vm.pendingApprovalCount == 1 ? String(localized: "1 pending approval") : String(localized: "\(vm.pendingApprovalCount) pending approvals"),
-                        systemImage: "checkmark.shield"
-                    )
-                    if criticalApprovalCount > 0 {
-                        Label(
-                            criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"),
-                            systemImage: "xmark.octagon"
-                        )
-                    }
-                    if highRiskApprovalCount > 0 {
-                        Label(
-                            highRiskApprovalCount == 1 ? String(localized: "1 high-risk request") : String(localized: "\(highRiskApprovalCount) high-risk requests"),
-                            systemImage: "exclamationmark.triangle"
-                        )
-                    }
-                    Label(
-                        approvalAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(approvalAgentCount) agents"),
-                        systemImage: "person.3"
-                    )
-                    Label(
-                        filteredApprovals.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredApprovals.count) visible results"),
-                        systemImage: "line.3.horizontal.decrease.circle"
-                    )
-                    if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Label(String(localized: "Scoped search"), systemImage: "magnifyingglass")
-                    }
-                }
-            } footer: {
-                Text("This facts row keeps approval severity and scope visible above the action queue.")
+                Text("Keep queue severity, scope, and visible results in one compact approval digest before acting from the phone.")
             }
 
             Section {
@@ -410,6 +340,100 @@ private struct ApprovalsFilterCard: View {
             return .critical
         case .high:
             return .warning
+        }
+    }
+}
+
+private struct ApprovalsStatusDeckCard: View {
+    let pendingApprovalCount: Int
+    let criticalApprovalCount: Int
+    let highRiskApprovalCount: Int
+    let approvalAgentCount: Int
+    let visibleApprovalCount: Int
+    let filterLabel: String
+    let filterTone: PresentationTone
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: pendingApprovalCount == 1
+                    ? String(localized: "1 approval gate is waiting for operator review.")
+                    : String(localized: "\(pendingApprovalCount) approval gates are waiting for operator review."),
+                detail: String(localized: "Critical and high-risk approvals stay visible above the mobile action queue.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    if criticalApprovalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if highRiskApprovalCount > 0 {
+                        PresentationToneBadge(
+                            text: highRiskApprovalCount == 1 ? String(localized: "1 high+") : String(localized: "\(highRiskApprovalCount) high+"),
+                            tone: .warning
+                        )
+                    }
+                    if approvalAgentCount > 0 {
+                        PresentationToneBadge(
+                            text: approvalAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(approvalAgentCount) agents"),
+                            tone: .neutral
+                        )
+                    }
+                    if hasSearchScope {
+                        PresentationToneBadge(
+                            text: visibleApprovalCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleApprovalCount) visible results"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Approval queue facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep queue severity, agent spread, and visible results clear before acting on requests from the phone."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: filterLabel,
+                    tone: filterTone
+                )
+            } facts: {
+                Label(
+                    pendingApprovalCount == 1 ? String(localized: "1 pending approval") : String(localized: "\(pendingApprovalCount) pending approvals"),
+                    systemImage: "checkmark.shield"
+                )
+                if criticalApprovalCount > 0 {
+                    Label(
+                        criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if highRiskApprovalCount > 0 {
+                    Label(
+                        highRiskApprovalCount == 1 ? String(localized: "1 high-risk request") : String(localized: "\(highRiskApprovalCount) high-risk requests"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                Label(
+                    approvalAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(approvalAgentCount) agents"),
+                    systemImage: "person.3"
+                )
+                Label(
+                    visibleApprovalCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleApprovalCount) visible results"),
+                    systemImage: "line.3.horizontal.decrease.circle"
+                )
+                if hasSearchScope {
+                    Label(String(localized: "Scoped search"), systemImage: "magnifyingglass")
+                }
+            }
         }
     }
 }
