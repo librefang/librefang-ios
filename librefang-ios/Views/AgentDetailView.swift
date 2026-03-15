@@ -402,7 +402,11 @@ struct AgentDetailView: View {
                           valueColor: auth == "configured" ? .green : .red)
             }
             if let profile = agent.profile {
-                DetailRow(icon: "person", label: "Profile", value: profile)
+                NavigationLink {
+                    ToolProfilesView(selectedProfileName: profile)
+                } label: {
+                    DetailRow(icon: "person", label: "Profile", value: profile)
+                }
             }
         }
     }
@@ -878,6 +882,14 @@ struct AgentDetailView: View {
                 AgentDeliveriesView(agent: agent, initialReceipts: agentDeliveries)
             } label: {
                 Label("Inspect Delivery Receipts", systemImage: "paperplane")
+            }
+
+            if let profile = agent.profile {
+                NavigationLink {
+                    ToolProfilesView(selectedProfileName: profile)
+                } label: {
+                    Label("Inspect Tool Profile", systemImage: "person.crop.rectangle.stack")
+                }
             }
 
             if agent.isRunning {
