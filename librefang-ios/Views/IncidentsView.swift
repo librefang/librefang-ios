@@ -180,9 +180,39 @@ struct IncidentsView: View {
             if integrationIssueCount > 0 {
                 Section {
                     NavigationLink {
-                        IntegrationsView()
+                        IntegrationsView(initialScope: .attention)
                     } label: {
                         IncidentIntegrationsCard(vm: vm)
+                    }
+
+                    if vm.unreachableLocalProviderCount > 0 {
+                        NavigationLink {
+                            IntegrationsView(
+                                initialSearchText: vm.unreachableLocalProviders.count == 1 ? vm.unreachableLocalProviders[0].displayName : "",
+                                initialScope: .attention
+                            )
+                        } label: {
+                            Label("Review Provider Failures", systemImage: "network.slash")
+                        }
+                    }
+
+                    if vm.channelRequiredFieldGapCount > 0 {
+                        NavigationLink {
+                            IntegrationsView(
+                                initialSearchText: vm.channelsMissingRequiredFields.count == 1 ? vm.channelsMissingRequiredFields[0].displayName : "",
+                                initialScope: .attention
+                            )
+                        } label: {
+                            Label("Review Channel Field Gaps", systemImage: "bubble.left.and.exclamationmark.bubble.right")
+                        }
+                    }
+
+                    if vm.hasEmptyModelCatalog {
+                        NavigationLink {
+                            IntegrationsView(initialScope: .attention)
+                        } label: {
+                            Label("Review Catalog Availability", systemImage: "square.stack.3d.up.slash")
+                        }
                     }
 
                     ForEach(vm.agentsWithModelDiagnostics.prefix(3)) { diagnostic in

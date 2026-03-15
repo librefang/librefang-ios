@@ -211,7 +211,7 @@ struct RuntimeView: View {
         if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
             Section {
                 NavigationLink {
-                    IntegrationsView()
+                    IntegrationsView(initialScope: .attention)
                 } label: {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Open Integrations Diagnostics")
@@ -246,6 +246,33 @@ struct RuntimeView: View {
                     value: catalogSyncValue,
                     detail: catalogSyncDetail
                 )
+                if vm.unreachableLocalProviderCount > 0 {
+                    NavigationLink {
+                        IntegrationsView(
+                            initialSearchText: vm.unreachableLocalProviders.count == 1 ? vm.unreachableLocalProviders[0].displayName : "",
+                            initialScope: .attention
+                        )
+                    } label: {
+                        Label("Review Provider Failures", systemImage: "network.slash")
+                    }
+                }
+                if vm.channelRequiredFieldGapCount > 0 {
+                    NavigationLink {
+                        IntegrationsView(
+                            initialSearchText: vm.channelsMissingRequiredFields.count == 1 ? vm.channelsMissingRequiredFields[0].displayName : "",
+                            initialScope: .attention
+                        )
+                    } label: {
+                        Label("Review Channel Field Gaps", systemImage: "bubble.left.and.exclamationmark.bubble.right")
+                    }
+                }
+                if vm.hasEmptyModelCatalog {
+                    NavigationLink {
+                        IntegrationsView(initialScope: .attention)
+                    } label: {
+                        Label("Review Catalog Availability", systemImage: "square.stack.3d.up.slash")
+                    }
+                }
                 if !vm.agentsWithModelDiagnostics.isEmpty {
                     RuntimeMetricRow(
                         label: "Agent Drift",
