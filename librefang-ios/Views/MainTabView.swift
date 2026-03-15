@@ -684,21 +684,45 @@ private struct OfflineBanner: View {
     }
 }
 
-private struct CriticalIncidentBanner: View {
-    let count: Int
-    let mutedCount: Int
+private struct MainTabStatusBanner<Summary: View, Accessory: View>: View {
+    let tint: Color
+    let summary: Summary
+    let accessory: Accessory
+
+    init(
+        tint: Color,
+        @ViewBuilder summary: () -> Summary,
+        @ViewBuilder accessory: () -> Accessory
+    ) {
+        self.tint = tint
+        self.summary = summary()
+        self.accessory = accessory()
+    }
 
     var body: some View {
         ResponsiveAccessoryRow(verticalSpacing: 8) {
-            summaryLabel
+            summary
         } accessory: {
-            bannerBadges
+            accessory
         }
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(.red.opacity(0.92))
+        .background(tint.opacity(0.92))
+    }
+}
+
+private struct CriticalIncidentBanner: View {
+    let count: Int
+    let mutedCount: Int
+
+    var body: some View {
+        MainTabStatusBanner(tint: .red) {
+            summaryLabel
+        } accessory: {
+            bannerBadges
+        }
     }
 
     private var summaryLabel: some View {
@@ -735,16 +759,11 @@ private struct HandoffCheckInBanner: View {
     }
 
     var body: some View {
-        ResponsiveAccessoryRow(verticalSpacing: 8) {
+        MainTabStatusBanner(tint: tint) {
             summaryLabel
         } accessory: {
             bannerBadges
         }
-        .foregroundStyle(.white)
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(tint.opacity(0.92))
     }
 
     private var summaryLabel: some View {
@@ -780,16 +799,11 @@ private struct AcknowledgedIncidentBanner: View {
     let mutedCount: Int
 
     var body: some View {
-        ResponsiveAccessoryRow(verticalSpacing: 8) {
+        MainTabStatusBanner(tint: .orange) {
             summaryLabel
         } accessory: {
             bannerBadges
         }
-        .foregroundStyle(.white)
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(.orange.opacity(0.92))
     }
 
     private var summaryLabel: some View {

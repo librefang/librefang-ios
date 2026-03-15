@@ -697,16 +697,17 @@ private struct SessionMonitorRow: View {
     var isBusy = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 6) {
-                summaryBlock
-            } accessory: {
-                trailingBlock
-            }
-
-            FlowLayout(spacing: 8) {
-                sessionFacts
-            }
+        MonitoringFactsRow(
+            horizontalAlignment: .top,
+            verticalSpacing: 8,
+            headerVerticalSpacing: 6,
+            factsSpacing: 8
+        ) {
+            summaryBlock
+        } accessory: {
+            trailingBlock
+        } facts: {
+            sessionFacts
         }
         .padding(.vertical, 2)
     }
