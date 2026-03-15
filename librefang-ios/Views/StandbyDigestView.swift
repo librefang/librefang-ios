@@ -99,8 +99,17 @@ struct StandbyDigestView: View {
     private var watchItems: [AgentAttentionItem] {
         Array(watchedAttentionItems.filter { $0.severity > 0 }.prefix(3))
     }
+    private var activeWatchItems: [AgentAttentionItem] {
+        watchedAttentionItems.filter { $0.severity > 0 }
+    }
     private var watchIssueCount: Int {
-        watchedAttentionItems.filter { $0.severity > 0 }.count
+        activeWatchItems.count
+    }
+    private var warningQueueCount: Int {
+        priorityItems.filter { $0.severity == .warning }.count
+    }
+    private var advisoryQueueCount: Int {
+        priorityItems.filter { $0.severity == .advisory }.count
     }
     private var pendingFollowUpCount: Int {
         deps.onCallHandoffStore.latestFollowUpStatuses.filter { !$0.isCompleted }.count
@@ -431,6 +440,19 @@ struct StandbyDigestView: View {
                     glanceCount
                 }
 
+                StandbyGlanceInventoryCard(
+                    visibleCount: primaryItems.count,
+                    totalCount: priorityItems.count,
+                    criticalCount: criticalCount,
+                    warningCount: warningQueueCount,
+                    advisoryCount: advisoryQueueCount,
+                    mutedAlertCount: mutedAlertCount,
+                    followUpCount: pendingFollowUpCount,
+                    approvalCount: vm.pendingApprovalCount,
+                    isAcknowledged: isAcknowledged,
+                    checkInStatus: checkInStatus
+                )
+
                 if primaryItems.isEmpty {
                     Text(String(localized: "No live priority cards are currently leading standby."))
                         .font(.caption)
@@ -453,6 +475,12 @@ struct StandbyDigestView: View {
                     } accessory: {
                         watchlistCount
                     }
+
+                    StandbyWatchlistInventoryCard(
+                        items: activeWatchItems,
+                        visibleCount: watchItems.count,
+                        totalPinnedCount: watchedAttentionItems.count
+                    )
 
                     ForEach(watchItems) { item in
                         NavigationLink(value: OnCallRoute.agent(item.agent.id)) {
@@ -868,6 +896,227 @@ private struct StandbySnapshotCard: View {
         }
         .padding(18)
         .glassPanel(fillOpacity: 0.09, cornerRadius: 22)
+    }
+}
+
+private struct StandbyGlanceInventoryCard: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let criticalCount: Int
+    let warningCount: Int
+    let advisoryCount: Int
+    let mutedAlertCount: Int
+    let followUpCount: Int
+    let approvalCount: Int
+    let isAcknowledged: Bool
+    let checkInStatus: HandoffCheckInStatus?
+
+    private var remainingCount: Int {
+        max(totalCount - visibleCount, 0)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 2
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 card in view") : String(localized: "\(visibleCount) cards in view"),
+                        tone: .neutral
+                    )
+                    if isAcknowledged {
+                        PresentationToneBadge(text: String(localized: "Acknowledged"), tone: .positive)
+                    }
+                    if let checkInStatus {
+                        PresentationToneBadge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
+                    }
+                }
+            }
+
+            MonitoringFactsRow(
+                factsColor: .white.opacity(0.72)
+            ) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Glance inventory"))
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white)
+                    Text(String(localized: "The top standby slice stays compact so queue pressure, muted alerts, and follow-ups remain readable on a locked-down phone."))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.66))
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: remainingCount == 0
+                        ? String(localized: "Top slice is full")
+                        : String(localized: "\(remainingCount) lower cards"),
+                    tone: remainingCount == 0 ? .positive : .warning
+                )
+            } facts: {
+                Label(
+                    totalCount == 1 ? String(localized: "1 queued card") : String(localized: "\(totalCount) queued cards"),
+                    systemImage: "rectangle.stack"
+                )
+                if criticalCount > 0 {
+                    Label(
+                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        systemImage: "exclamationmark.octagon"
+                    )
+                }
+                if warningCount > 0 {
+                    Label(
+                        warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if advisoryCount > 0 {
+                    Label(
+                        advisoryCount == 1 ? String(localized: "1 advisory") : String(localized: "\(advisoryCount) advisories"),
+                        systemImage: "bell"
+                    )
+                }
+                if mutedAlertCount > 0 {
+                    Label(
+                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        systemImage: "bell.slash"
+                    )
+                }
+                if followUpCount > 0 {
+                    Label(
+                        followUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(followUpCount) follow-ups open"),
+                        systemImage: "checklist.unchecked"
+                    )
+                }
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 pending approval") : String(localized: "\(approvalCount) pending approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return visibleCount == 1
+                ? String(localized: "At a Glance is showing the only live standby card.")
+                : String(localized: "At a Glance is showing all \(visibleCount) live standby cards.")
+        }
+        return String(localized: "At a Glance is showing \(visibleCount) of \(totalCount) live standby cards.")
+    }
+
+    private var detailLine: String {
+        remainingCount == 0
+            ? String(localized: "Nothing is hidden below the fold, so the standby queue is fully represented in the glance deck.")
+            : String(localized: "The glance deck is holding the sharpest standby slice while \(remainingCount) lower-priority cards stay below.")
+    }
+}
+
+private struct StandbyWatchlistInventoryCard: View {
+    let items: [AgentAttentionItem]
+    let visibleCount: Int
+    let totalPinnedCount: Int
+
+    private var quietPinnedCount: Int {
+        max(totalPinnedCount - items.count, 0)
+    }
+
+    private var runningCount: Int {
+        items.filter { $0.agent.isRunning }.count
+    }
+
+    private var authIssueCount: Int {
+        items.filter(\.hasAuthIssue).count
+    }
+
+    private var staleCount: Int {
+        items.filter(\.isStale).count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 2
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 pinned agent in view") : String(localized: "\(visibleCount) pinned agents in view"),
+                        tone: .neutral
+                    )
+                    if quietPinnedCount > 0 {
+                        PresentationToneBadge(
+                            text: quietPinnedCount == 1 ? String(localized: "1 quiet pin") : String(localized: "\(quietPinnedCount) quiet pins"),
+                            tone: .positive
+                        )
+                    }
+                    if authIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: authIssueCount == 1 ? String(localized: "1 auth issue") : String(localized: "\(authIssueCount) auth issues"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow(
+                factsColor: .white.opacity(0.72)
+            ) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pinned watch inventory"))
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white)
+                    Text(String(localized: "Pinned agents remain visible here even when standby is otherwise calm and most drilldowns stay collapsed."))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.66))
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: items.count == 1 ? String(localized: "1 active watch") : String(localized: "\(items.count) active watches"),
+                    tone: .warning
+                )
+            } facts: {
+                Label(
+                    totalPinnedCount == 1 ? String(localized: "1 pinned agent") : String(localized: "\(totalPinnedCount) pinned agents"),
+                    systemImage: "star"
+                )
+                if runningCount > 0 {
+                    Label(
+                        runningCount == 1 ? String(localized: "1 running") : String(localized: "\(runningCount) running"),
+                        systemImage: "play.circle"
+                    )
+                }
+                if staleCount > 0 {
+                    Label(
+                        staleCount == 1 ? String(localized: "1 stale") : String(localized: "\(staleCount) stale"),
+                        systemImage: "clock.badge.exclamationmark"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == items.count {
+            return items.count == 1
+                ? String(localized: "Pinned watchlist is showing the only active standby watch.")
+                : String(localized: "Pinned watchlist is showing all \(items.count) active standby watches.")
+        }
+        return String(localized: "Pinned watchlist is showing \(visibleCount) of \(items.count) active standby watches.")
+    }
+
+    private var detailLine: String {
+        quietPinnedCount == 0
+            ? String(localized: "Every pinned agent currently has some live pressure, so this watchlist row carries the full local watch surface.")
+            : String(localized: "\(quietPinnedCount) pinned agents are quiet right now, so the watchlist row stays focused on the agents with live standby pressure.")
     }
 }
 

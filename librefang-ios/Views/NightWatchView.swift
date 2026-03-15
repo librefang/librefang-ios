@@ -121,11 +121,23 @@ struct NightWatchView: View {
     private var secondaryItems: [OnCallPriorityItem] {
         Array(priorityItems.dropFirst(3).prefix(3))
     }
+    private var activeWatchedItems: [AgentAttentionItem] {
+        watchedAttentionItems.filter { $0.severity > 0 }
+    }
+    private var advisoryCount: Int {
+        priorityItems.filter { $0.severity == .advisory }.count
+    }
+    private var warningCount: Int {
+        priorityItems.filter { $0.severity == .warning }.count
+    }
+    private var watchedQueueCount: Int {
+        priorityItems.filter { isWatchedRoute($0.route) }.count
+    }
     private var criticalCount: Int {
         priorityItems.filter { $0.severity == .critical }.count
     }
     private var watchIssueCount: Int {
-        watchedAttentionItems.filter { $0.severity > 0 }.count
+        activeWatchedItems.count
     }
     private var pendingFollowUpCount: Int {
         deps.onCallHandoffStore.latestFollowUpStatuses.filter { !$0.isCompleted }.count
@@ -354,6 +366,16 @@ struct NightWatchView: View {
             )
         } else {
             NightWatchSectionCard(title: String(localized: "Immediate Queue"), detail: focusSummary) {
+                NightWatchQueueInventoryCard(
+                    visibleCount: primaryItems.count,
+                    totalCount: priorityItems.count,
+                    criticalCount: criticalCount,
+                    warningCount: warningCount,
+                    advisoryCount: advisoryCount,
+                    watchedQueueCount: watchedQueueCount,
+                    pendingApprovalCount: vm.pendingApprovalCount
+                )
+
                 ForEach(primaryItems) { item in
                     NavigationLink(value: item.route) {
                         NightWatchPriorityCard(
@@ -391,13 +413,17 @@ struct NightWatchView: View {
 
     @ViewBuilder
     private var watchlistCard: some View {
-        let activeWatched = watchedAttentionItems.filter { $0.severity > 0 }
-        if !activeWatched.isEmpty && focusStore.mode != .criticalOnly {
+        if !activeWatchedItems.isEmpty && focusStore.mode != .criticalOnly {
             NightWatchSectionCard(
                 title: String(localized: "Pinned Agents"),
                 detail: String(localized: "Locally watched on this iPhone so they stay visible during on-call.")
             ) {
-                ForEach(activeWatched.prefix(3)) { item in
+                NightWatchWatchlistInventoryCard(
+                    items: activeWatchedItems,
+                    totalWatchedCount: watchedAgents.count
+                )
+
+                ForEach(activeWatchedItems.prefix(3)) { item in
                     NavigationLink(value: OnCallRoute.agent(item.agent.id)) {
                         NightWatchWatchlistRow(item: item)
                     }
@@ -1011,6 +1037,225 @@ private struct NightWatchSnapshotCard: View {
         }
         .padding(16)
         .glassPanel(fillStyle: .black, fillOpacity: 0.22, cornerRadius: 18, strokeOpacity: 0.08)
+    }
+}
+
+private struct NightWatchQueueInventoryCard: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let criticalCount: Int
+    let warningCount: Int
+    let advisoryCount: Int
+    let watchedQueueCount: Int
+    let pendingApprovalCount: Int
+
+    private var remainingCount: Int {
+        max(totalCount - visibleCount, 0)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 2
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 item in view") : String(localized: "\(visibleCount) items in view"),
+                        tone: .neutral
+                    )
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if watchedQueueCount > 0 {
+                        PresentationToneBadge(
+                            text: watchedQueueCount == 1 ? String(localized: "1 watch-promoted") : String(localized: "\(watchedQueueCount) watch-promoted"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow(
+                factsColor: .white.opacity(0.72)
+            ) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Queue inventory"))
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white)
+                    Text(String(localized: "This compact slice keeps the top queue visible before you scroll into the deeper follow-up queue."))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.66))
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: remainingCount == 0
+                        ? String(localized: "Top slice is full")
+                        : String(localized: "\(remainingCount) more below"),
+                    tone: remainingCount == 0 ? .positive : .warning
+                )
+            } facts: {
+                Label(
+                    totalCount == 1 ? String(localized: "1 queued item") : String(localized: "\(totalCount) queued items"),
+                    systemImage: "tray.full"
+                )
+                if warningCount > 0 {
+                    Label(
+                        warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if advisoryCount > 0 {
+                    Label(
+                        advisoryCount == 1 ? String(localized: "1 advisory") : String(localized: "\(advisoryCount) advisories"),
+                        systemImage: "bell"
+                    )
+                }
+                if pendingApprovalCount > 0 {
+                    Label(
+                        pendingApprovalCount == 1 ? String(localized: "1 pending approval") : String(localized: "\(pendingApprovalCount) pending approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return visibleCount == 1
+                ? String(localized: "Immediate Queue is showing the only live priority item.")
+                : String(localized: "Immediate Queue is showing all \(visibleCount) live priority items.")
+        }
+        return String(localized: "Immediate Queue is showing \(visibleCount) of \(totalCount) live priority items.")
+    }
+
+    private var detailLine: String {
+        remainingCount == 0
+            ? String(localized: "Nothing is hiding below the fold, so the current queue is fully represented in the top card stack.")
+            : String(localized: "The top card stack is holding the sharpest slice while \(remainingCount) lower-priority items stay in the follow-up queue.")
+    }
+}
+
+private struct NightWatchWatchlistInventoryCard: View {
+    let items: [AgentAttentionItem]
+    let totalWatchedCount: Int
+
+    private var visibleCount: Int {
+        min(items.count, 3)
+    }
+
+    private var runningCount: Int {
+        items.filter { $0.agent.isRunning }.count
+    }
+
+    private var quietWatchedCount: Int {
+        max(totalWatchedCount - items.count, 0)
+    }
+
+    private var authIssueCount: Int {
+        items.filter(\.hasAuthIssue).count
+    }
+
+    private var staleCount: Int {
+        items.filter(\.isStale).count
+    }
+
+    private var sessionPressureCount: Int {
+        items.filter(\.sessionPressure).count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 2
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 pinned agent in view") : String(localized: "\(visibleCount) pinned agents in view"),
+                        tone: .neutral
+                    )
+                    if quietWatchedCount > 0 {
+                        PresentationToneBadge(
+                            text: quietWatchedCount == 1 ? String(localized: "1 quiet pin") : String(localized: "\(quietWatchedCount) quiet pins"),
+                            tone: .positive
+                        )
+                    }
+                    if authIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: authIssueCount == 1 ? String(localized: "1 auth issue") : String(localized: "\(authIssueCount) auth issues"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow(
+                factsColor: .white.opacity(0.72)
+            ) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pinned watch inventory"))
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white)
+                    Text(String(localized: "Pinned agents stay visible here even when the rest of the queue is re-ranked for one-hand triage."))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.66))
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: items.count == 1 ? String(localized: "1 agent needs attention") : String(localized: "\(items.count) agents need attention"),
+                    tone: .warning
+                )
+            } facts: {
+                Label(
+                    totalWatchedCount == 1 ? String(localized: "1 pinned agent") : String(localized: "\(totalWatchedCount) pinned agents"),
+                    systemImage: "star"
+                )
+                if runningCount > 0 {
+                    Label(
+                        runningCount == 1 ? String(localized: "1 running") : String(localized: "\(runningCount) running"),
+                        systemImage: "play.circle"
+                    )
+                }
+                if staleCount > 0 {
+                    Label(
+                        staleCount == 1 ? String(localized: "1 stale") : String(localized: "\(staleCount) stale"),
+                        systemImage: "clock.badge.exclamationmark"
+                    )
+                }
+                if sessionPressureCount > 0 {
+                    Label(
+                        sessionPressureCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionPressureCount) session hotspots"),
+                        systemImage: "rectangle.stack.badge.person.crop"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == items.count {
+            return items.count == 1
+                ? String(localized: "Pinned watchlist is showing the only active watched agent.")
+                : String(localized: "Pinned watchlist is showing all \(items.count) active watched agents.")
+        }
+        return String(localized: "Pinned watchlist is showing \(visibleCount) of \(items.count) active watched agents.")
+    }
+
+    private var detailLine: String {
+        quietWatchedCount == 0
+            ? String(localized: "Every pinned agent is currently active, so the watchlist row is carrying the full local watch surface.")
+            : String(localized: "\(quietWatchedCount) pinned agents are quiet right now, so this row stays focused on the agents with live pressure.")
     }
 }
 
