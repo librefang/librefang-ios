@@ -41,50 +41,60 @@ struct ToolProfilesView: View {
             }
 
             Section {
-                NavigationLink {
-                    RuntimeView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Runtime"),
-                        detail: String(localized: "Switch to runtime when profile scope needs provider, approval, or session context."),
-                        systemImage: "server.rack",
-                        tone: .neutral
-                    )
+                MonitoringSurfaceGroupCard(
+                    title: String(localized: "Primary Surfaces"),
+                    detail: String(localized: "Keep the fleet and runtime exits closest to compact tool-profile review.")
+                ) {
+                    NavigationLink {
+                        AgentsView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Agents"),
+                            detail: String(localized: "Switch to fleet view when the same profile shape needs to be checked across multiple agents."),
+                            systemImage: "person.3",
+                            tone: selectedProfile != nil ? .positive : .neutral,
+                            badgeText: selectedProfileName,
+                            badgeTone: .neutral
+                        )
+                    }
+
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Runtime"),
+                            detail: String(localized: "Switch to runtime when profile scope needs provider, approval, or session context."),
+                            systemImage: "server.rack",
+                            tone: .neutral
+                        )
+                    }
                 }
 
-                NavigationLink {
-                    AgentsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Agents"),
-                        detail: String(localized: "Switch to fleet view when the same profile shape needs to be checked across multiple agents."),
-                        systemImage: "person.3",
-                        tone: selectedProfile != nil ? .positive : .neutral,
-                        badgeText: selectedProfileName,
-                        badgeTone: .neutral
-                    )
-                }
+                MonitoringSurfaceGroupCard(
+                    title: String(localized: "Supporting Surfaces"),
+                    detail: String(localized: "Keep integration and diagnostics context behind the primary fleet exits.")
+                ) {
+                    NavigationLink {
+                        IntegrationsView(initialScope: .attention)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Integrations"),
+                            detail: String(localized: "Switch to integrations if the profile looks healthy but tool execution still depends on providers or channels."),
+                            systemImage: "square.3.layers.3d.down.forward",
+                            tone: .neutral
+                        )
+                    }
 
-                NavigationLink {
-                    IntegrationsView(initialScope: .attention)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Integrations"),
-                        detail: String(localized: "Switch to integrations if the profile looks healthy but tool execution still depends on providers or channels."),
-                        systemImage: "square.3.layers.3d.down.forward",
-                        tone: .neutral
-                    )
-                }
-
-                NavigationLink {
-                    DiagnosticsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Diagnostics"),
-                        detail: String(localized: "Switch to diagnostics when profile mismatch may actually reflect runtime health or config drift."),
-                        systemImage: "stethoscope",
-                        tone: .neutral
-                    )
+                    NavigationLink {
+                        DiagnosticsView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Diagnostics"),
+                            detail: String(localized: "Switch to diagnostics when profile mismatch may actually reflect runtime health or config drift."),
+                            systemImage: "stethoscope",
+                            tone: .neutral
+                        )
+                    }
                 }
             } header: {
                 Text("Operator Surfaces")

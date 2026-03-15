@@ -204,6 +204,37 @@ struct MonitoringFactsRow<Summary: View, Accessory: View, Facts: View>: View {
     }
 }
 
+struct MonitoringSurfaceGroupCard<Content: View>: View {
+    let title: String
+    let detail: String
+    let verticalPadding: CGFloat
+    let content: Content
+
+    init(
+        title: String,
+        detail: String,
+        verticalPadding: CGFloat = 4,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.title = title
+        self.detail = detail
+        self.verticalPadding = verticalPadding
+        self.content = content()
+    }
+
+    var body: some View {
+        MonitoringSnapshotCard(
+            summary: title,
+            detail: detail,
+            verticalPadding: verticalPadding
+        ) {
+            VStack(spacing: 10) {
+                content
+            }
+        }
+    }
+}
+
 private struct MonitoringSummaryTextBlock: View {
     let summary: String
     let detail: String?

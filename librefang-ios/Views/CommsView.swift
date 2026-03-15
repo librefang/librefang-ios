@@ -126,50 +126,60 @@ struct CommsView: View {
             }
 
             Section {
-                NavigationLink {
-                    RuntimeView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Runtime"),
-                        detail: String(localized: "Switch to runtime when comms traffic needs provider, hand, or approval context."),
-                        systemImage: "server.rack",
-                        tone: .neutral
-                    )
+                MonitoringSurfaceGroupCard(
+                    title: String(localized: "Primary Surfaces"),
+                    detail: String(localized: "Keep runtime, incidents, and critical audit exits closest to the live comms feed.")
+                ) {
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Runtime"),
+                            detail: String(localized: "Switch to runtime when comms traffic needs provider, hand, or approval context."),
+                            systemImage: "server.rack",
+                            tone: .neutral
+                        )
+                    }
+
+                    NavigationLink {
+                        IncidentsView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Incidents"),
+                            detail: String(localized: "Switch to incidents when communication failures line up with live alerts or approvals."),
+                            systemImage: "bell.badge",
+                            tone: filteredEvents.isEmpty ? .neutral : .warning,
+                            badgeText: filteredEvents.isEmpty ? nil : String(localized: "\(filteredEvents.count) events"),
+                            badgeTone: .warning
+                        )
+                    }
+
+                    NavigationLink {
+                        EventsView(api: deps.apiClient, initialScope: .critical)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Critical Events"),
+                            detail: String(localized: "Switch to audit events when comms traffic needs recent critical context."),
+                            systemImage: "text.justify.leading",
+                            tone: .neutral
+                        )
+                    }
                 }
 
-                NavigationLink {
-                    IncidentsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Incidents"),
-                        detail: String(localized: "Switch to incidents when communication failures line up with live alerts or approvals."),
-                        systemImage: "bell.badge",
-                        tone: filteredEvents.isEmpty ? .neutral : .warning,
-                        badgeText: filteredEvents.isEmpty ? nil : String(localized: "\(filteredEvents.count) events"),
-                        badgeTone: .warning
-                    )
-                }
-
-                NavigationLink {
-                    EventsView(api: deps.apiClient, initialScope: .critical)
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Critical Events"),
-                        detail: String(localized: "Switch to audit events when comms traffic needs recent critical context."),
-                        systemImage: "text.justify.leading",
-                        tone: .neutral
-                    )
-                }
-
-                NavigationLink {
-                    A2AAgentsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open A2A Agents"),
-                        detail: String(localized: "Switch to the external-agent directory when the topology hints at cross-agent routing issues."),
-                        systemImage: "link.circle",
-                        tone: .neutral
-                    )
+                MonitoringSurfaceGroupCard(
+                    title: String(localized: "Supporting Surfaces"),
+                    detail: String(localized: "Keep external-agent inventory behind the primary comms investigation path.")
+                ) {
+                    NavigationLink {
+                        A2AAgentsView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open A2A Agents"),
+                            detail: String(localized: "Switch to the external-agent directory when the topology hints at cross-agent routing issues."),
+                            systemImage: "link.circle",
+                            tone: .neutral
+                        )
+                    }
                 }
             } header: {
                 Text("Operator Surfaces")
