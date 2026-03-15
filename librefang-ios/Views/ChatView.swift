@@ -190,6 +190,28 @@ private struct MessageBubble: View {
                     .foregroundStyle(foregroundColor)
                     .clipShape(RoundedRectangle(cornerRadius: 18))
 
+                if !message.images.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(message.images) { image in
+                                NavigationLink {
+                                    UploadAssetView(image: image)
+                                } label: {
+                                    Label(image.filename, systemImage: "photo")
+                                        .font(.caption2.weight(.medium))
+                                        .lineLimit(1)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 6)
+                                        .background(Color.blue.opacity(0.12))
+                                        .foregroundStyle(.blue)
+                                        .clipShape(Capsule())
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+
                 // Metadata
                 HStack(spacing: 6) {
                     if message.role == .agent {

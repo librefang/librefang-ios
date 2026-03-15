@@ -4,6 +4,7 @@ struct ChatMessage: Identifiable {
     let id: UUID
     let role: Role
     let content: String
+    let images: [AgentSessionImage]
     let tokens: Int?
     let cost: Double?
     let timestamp: Date
@@ -13,6 +14,7 @@ struct ChatMessage: Identifiable {
         id: UUID = UUID(),
         role: Role,
         content: String,
+        images: [AgentSessionImage] = [],
         tokens: Int? = nil,
         cost: Double? = nil,
         timestamp: Date = Date(),
@@ -21,6 +23,7 @@ struct ChatMessage: Identifiable {
         self.id = id
         self.role = role
         self.content = content
+        self.images = images
         self.tokens = tokens
         self.cost = cost
         self.timestamp = timestamp
@@ -123,6 +126,7 @@ final class ChatViewModel {
         ChatMessage(
             role: mapRole(message.role),
             content: displayText(for: message),
+            images: message.images ?? [],
             tokens: nil,
             cost: nil
         )
