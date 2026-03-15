@@ -11,10 +11,10 @@ struct AgentDeliveriesView: View {
     @State private var isLoading: Bool
     @State private var loadError: String?
 
-    init(agent: Agent, initialReceipts: [DeliveryReceipt] = []) {
+    init(agent: Agent, initialReceipts: [DeliveryReceipt] = [], initialScope: DeliveryScope? = nil) {
         self.agent = agent
         self.initialReceipts = initialReceipts
-        _scope = State(initialValue: initialReceipts.contains(where: { $0.status == .failed }) ? .failed : .all)
+        _scope = State(initialValue: initialScope ?? (initialReceipts.contains(where: { $0.status == .failed }) ? .failed : .all))
         _receipts = State(initialValue: initialReceipts.sorted { $0.timestamp > $1.timestamp })
         _isLoading = State(initialValue: initialReceipts.isEmpty)
     }
@@ -162,7 +162,7 @@ struct AgentDeliveriesView: View {
     }
 }
 
-private enum DeliveryScope: CaseIterable {
+enum DeliveryScope: CaseIterable {
     case all
     case failed
     case unsettled

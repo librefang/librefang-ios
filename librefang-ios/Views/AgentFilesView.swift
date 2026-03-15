@@ -11,10 +11,10 @@ struct AgentFilesView: View {
     @State private var isLoading: Bool
     @State private var loadError: String?
 
-    init(agent: Agent, initialFiles: [AgentWorkspaceFileSummary] = []) {
+    init(agent: Agent, initialFiles: [AgentWorkspaceFileSummary] = [], initialScope: AgentFileScope? = nil) {
         self.agent = agent
         self.initialFiles = initialFiles
-        _scope = State(initialValue: initialFiles.contains(where: { !$0.exists }) ? .missing : .all)
+        _scope = State(initialValue: initialScope ?? (initialFiles.contains(where: { !$0.exists }) ? .missing : .all))
         _files = State(initialValue: initialFiles.sorted { $0.name < $1.name })
         _isLoading = State(initialValue: initialFiles.isEmpty)
     }
@@ -137,7 +137,7 @@ struct AgentFilesView: View {
     }
 }
 
-private enum AgentFileScope: CaseIterable {
+enum AgentFileScope: CaseIterable {
     case all
     case missing
     case present

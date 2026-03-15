@@ -824,6 +824,14 @@ struct AgentDetailView: View {
                     AgentFileSummaryRow(file: file)
                 }
 
+                if missingWorkspaceFileCount > 0 {
+                    NavigationLink {
+                        AgentFilesView(agent: agent, initialFiles: agentFiles, initialScope: .missing)
+                    } label: {
+                        Label("Review Missing Identity Files", systemImage: "doc.badge.gearshape")
+                    }
+                }
+
                 NavigationLink {
                     AgentFilesView(agent: agent, initialFiles: agentFiles)
                 } label: {
@@ -871,6 +879,22 @@ struct AgentDetailView: View {
                 } else {
                     ForEach(agentDeliveries.prefix(3)) { receipt in
                         AgentDeliverySummaryRow(receipt: receipt)
+                    }
+                }
+
+                if failedDeliveryCount > 0 {
+                    NavigationLink {
+                        AgentDeliveriesView(agent: agent, initialReceipts: agentDeliveries, initialScope: .failed)
+                    } label: {
+                        Label("Review Failed Deliveries", systemImage: "exclamationmark.triangle")
+                    }
+                }
+
+                if unsettledDeliveryCount > 0 {
+                    NavigationLink {
+                        AgentDeliveriesView(agent: agent, initialReceipts: agentDeliveries, initialScope: .unsettled)
+                    } label: {
+                        Label("Review Unsettled Deliveries", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
                     }
                 }
 
