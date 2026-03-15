@@ -28,6 +28,19 @@ struct ApprovalsView: View {
     @State private var operatorNotice: OperatorActionNotice?
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
+    private var trimmedSearchText: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    private var filterTone: PresentationTone {
+        switch filter {
+        case .all:
+            .neutral
+        case .critical:
+            .critical
+        case .high:
+            .warning
+        }
+    }
 
     private var filteredApprovals: [ApprovalItem] {
         vm.approvals
@@ -42,7 +55,7 @@ struct ApprovalsView: View {
                 }
             }
             .filter { approval in
-                let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                let query = trimmedSearchText.lowercased()
                 guard !query.isEmpty else { return true }
                 return [
                     approval.agentName,
@@ -90,8 +103,8 @@ struct ApprovalsView: View {
                     approvalAgentCount: approvalAgentCount,
                     visibleApprovalCount: filteredApprovals.count,
                     filterLabel: filter.label,
-                    filterTone: filter == .critical ? .critical : filter == .high ? .warning : .neutral,
-                    hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    filterTone: filterTone,
+                    hasSearchScope: !trimmedSearchText.isEmpty
                 )
                 MonitoringSurfaceGroupCard(
                     title: String(localized: "Routes"),
@@ -178,6 +191,14 @@ struct ApprovalsView: View {
                 }
             } else {
                 Section {
+                    ApprovalsQueueInventoryDeck(
+                        approvals: filteredApprovals,
+                        totalCount: vm.approvals.count,
+                        filterLabel: filter.label,
+                        filterTone: filterTone,
+                        searchText: trimmedSearchText
+                    )
+
                     ForEach(filteredApprovals) { approval in
                         ApprovalOperatorRow(
                             approval: approval,
@@ -422,12 +443,149 @@ private struct ApprovalsStatusDeckCard: View {
     }
 }
 
+private struct ApprovalsQueueInventoryDeck: View {
+    let approvals: [ApprovalItem]
+    let totalCount: Int
+    let filterLabel: String
+    let filterTone: PresentationTone
+    let searchText: String
+
+    private var visibleCount: Int {
+        approvals.count
+    }
+
+    private var criticalCount: Int {
+        approvals.filter(\.isCriticalRisk).count
+    }
+
+    private var highRiskCount: Int {
+        approvals.filter(\.isHighRiskOrAbove).count
+    }
+
+    private var agentCount: Int {
+        Set(approvals.map(\.agentId)).count
+    }
+
+    private var toolCount: Int {
+        Set(approvals.map(\.toolName)).count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    if !searchText.isEmpty {
+                        PresentationToneBadge(
+                            text: String(localized: "Search scoped"),
+                            tone: .neutral
+                        )
+                    }
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical visible") : String(localized: "\(criticalCount) critical visible"),
+                            tone: .critical
+                        )
+                    }
+                    if highRiskCount > criticalCount {
+                        PresentationToneBadge(
+                            text: String(localized: "\(highRiskCount) high+ visible"),
+                            tone: .warning
+                        )
+                    }
+                    if let latestRequestLabel {
+                        PresentationToneBadge(text: latestRequestLabel, tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Queue inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the compact queue slice to judge how much of the approval backlog is already visible on the phone."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? String(localized: "Full queue")
+                        : String(localized: "\(visibleCount)/\(totalCount) visible"),
+                    tone: visibleCount == totalCount ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    visibleCount == 1 ? String(localized: "1 visible request") : String(localized: "\(visibleCount) visible requests"),
+                    systemImage: "line.3.horizontal.decrease.circle"
+                )
+                Label(
+                    agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                    systemImage: "person.3"
+                )
+                Label(
+                    toolCount == 1 ? String(localized: "1 tool") : String(localized: "\(toolCount) tools"),
+                    systemImage: "wrench.and.screwdriver"
+                )
+                if highRiskCount > 0 {
+                    Label(
+                        highRiskCount == 1 ? String(localized: "1 high-risk request") : String(localized: "\(highRiskCount) high-risk requests"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if let latestRequestLabel {
+                    Label(latestRequestLabel, systemImage: "clock")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return visibleCount == 1
+                ? String(localized: "The mobile queue is showing the only pending approval.")
+                : String(localized: "The mobile queue is showing all \(visibleCount) pending approvals.")
+        }
+        return String(localized: "The mobile queue is showing \(visibleCount) of \(totalCount) pending approvals.")
+    }
+
+    private var detailLine: String {
+        if searchText.isEmpty {
+            return String(localized: "Filter by risk first, then use agent, tool, or action search only when the queue is still too broad.")
+        }
+        return String(localized: "Search is narrowed to “\(searchText)”, so only the matching approval slice stays in the mobile queue.")
+    }
+
+    private var latestRequestLabel: String? {
+        guard let date = approvals.compactMap(\.requestedAt.approvalRequestedDate).max() else { return nil }
+        return String(localized: "Latest \(RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date()))")
+    }
+}
+
 private struct ApprovalFilterChip: View {
     let label: String
     let isSelected: Bool
 
     var body: some View {
         SelectableCapsuleBadge(text: label, isSelected: isSelected)
+    }
+}
+
+private extension String {
+    var approvalRequestedDate: Date? {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = formatter.date(from: self) {
+            return date
+        }
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter.date(from: self)
     }
 }
 

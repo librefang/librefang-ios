@@ -63,6 +63,18 @@ struct HandoffCenterView: View {
             matches(filter: historyFilter, for: entry) && matchesSearch(entry)
         }
     }
+    private var historyFilterTone: PresentationTone {
+        switch historyFilter {
+        case .all:
+            .neutral
+        case .critical:
+            .critical
+        case .queued:
+            .warning
+        case .calm:
+            .positive
+        }
+    }
     private var coverageEntries: [OnCallHandoffEntry] {
         handoffStore.recentEntries
     }
@@ -337,6 +349,14 @@ struct HandoffCenterView: View {
                 }
             } else {
                 Section {
+                    HandoffHistoryInventoryDeck(
+                        entries: filteredEntries,
+                        totalCount: handoffStore.entries.count,
+                        filterLabel: historyFilter.label,
+                        filterTone: historyFilterTone,
+                        searchText: searchText
+                    )
+
                     HandoffHistoryFilterCard(
                         filter: $historyFilter,
                         searchText: searchText,
@@ -811,6 +831,145 @@ private struct HandoffHistoryFilterCard: View {
         case .calm:
             return .positive
         }
+    }
+}
+
+private struct HandoffHistoryInventoryDeck: View {
+    let entries: [OnCallHandoffEntry]
+    let totalCount: Int
+    let filterLabel: String
+    let filterTone: PresentationTone
+    let searchText: String
+
+    private var visibleCount: Int {
+        entries.count
+    }
+
+    private var criticalEntryCount: Int {
+        entries.filter { $0.criticalCount > 0 }.count
+    }
+
+    private var queuedEntryCount: Int {
+        entries.filter { $0.queueCount > 0 || $0.liveAlertCount > 0 }.count
+    }
+
+    private var calmEntryCount: Int {
+        entries.filter { $0.queueCount == 0 && $0.criticalCount == 0 && $0.liveAlertCount == 0 }.count
+    }
+
+    private var followUpItemCount: Int {
+        entries.reduce(0) { $0 + $1.followUpItems.count }
+    }
+
+    private var focusAreaCount: Int {
+        Set(entries.flatMap { $0.focusAreas.items.map(\.id) }).count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    if !trimmedSearchText.isEmpty {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                    if criticalEntryCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalEntryCount == 1 ? String(localized: "1 critical handoff") : String(localized: "\(criticalEntryCount) critical handoffs"),
+                            tone: .critical
+                        )
+                    }
+                    if queuedEntryCount > 0 {
+                        PresentationToneBadge(
+                            text: queuedEntryCount == 1 ? String(localized: "1 queued handoff") : String(localized: "\(queuedEntryCount) queued handoffs"),
+                            tone: .warning
+                        )
+                    }
+                    if let latestSavedLabel {
+                        PresentationToneBadge(text: latestSavedLabel, tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "History inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the compact history slice to gauge how much shift context is already visible before opening full handoff cards."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? String(localized: "Full history")
+                        : String(localized: "\(visibleCount)/\(totalCount) visible"),
+                    tone: visibleCount == totalCount ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    visibleCount == 1 ? String(localized: "1 saved handoff") : String(localized: "\(visibleCount) saved handoffs"),
+                    systemImage: "tray.full"
+                )
+                if calmEntryCount > 0 {
+                    Label(
+                        calmEntryCount == 1 ? String(localized: "1 calm handoff") : String(localized: "\(calmEntryCount) calm handoffs"),
+                        systemImage: "checkmark.circle"
+                    )
+                }
+                if followUpItemCount > 0 {
+                    Label(
+                        followUpItemCount == 1 ? String(localized: "1 follow-up item") : String(localized: "\(followUpItemCount) follow-up items"),
+                        systemImage: "checklist.unchecked"
+                    )
+                }
+                if focusAreaCount > 0 {
+                    Label(
+                        focusAreaCount == 1 ? String(localized: "1 focus area") : String(localized: "\(focusAreaCount) focus areas"),
+                        systemImage: "scope"
+                    )
+                }
+                if let oldestVisibleLabel {
+                    Label(oldestVisibleLabel, systemImage: "clock.arrow.circlepath")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var trimmedSearchText: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return visibleCount == 1
+                ? String(localized: "The saved history deck is showing the only local handoff entry.")
+                : String(localized: "The saved history deck is showing all \(visibleCount) local handoff entries.")
+        }
+        return String(localized: "The saved history deck is showing \(visibleCount) of \(totalCount) local handoff entries.")
+    }
+
+    private var detailLine: String {
+        if trimmedSearchText.isEmpty {
+            return String(localized: "Filter by critical, queued, or calm handoffs first, then search notes or summaries only when the local history is still too broad.")
+        }
+        return String(localized: "Search is narrowed to \"\(trimmedSearchText)\", so the recent handoff history stays focused on the matching shift context.")
+    }
+
+    private var latestSavedLabel: String? {
+        guard let latest = entries.map(\.createdAt).max() else { return nil }
+        return String(localized: "Latest \(RelativeDateTimeFormatter().localizedString(for: latest, relativeTo: Date()))")
+    }
+
+    private var oldestVisibleLabel: String? {
+        guard let oldest = entries.map(\.createdAt).min() else { return nil }
+        return String(localized: "Oldest \(RelativeDateTimeFormatter().localizedString(for: oldest, relativeTo: Date()))")
     }
 }
 
