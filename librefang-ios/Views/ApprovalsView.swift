@@ -559,7 +559,7 @@ private struct ApprovalsQueueInventoryDeck: View {
         if searchText.isEmpty {
             return String(localized: "Filter by risk first, then use agent, tool, or action search only when the queue is still too broad.")
         }
-        return String(localized: "Search is narrowed to “\(searchText)”, so only the matching approval slice stays in the mobile queue.")
+        return String(localized: "Search is narrowed to \"\(searchText)\", so only the matching approval slice stays in the mobile queue.")
     }
 
     private var latestRequestLabel: String? {

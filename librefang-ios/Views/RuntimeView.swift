@@ -39,12 +39,20 @@ struct RuntimeView: View {
         Array(sortedProviders.prefix(6))
     }
 
+    private var visibleConfiguredChannels: [ChannelStatus] {
+        Array(configuredChannels.prefix(8))
+    }
+
     private var visibleActiveHands: [HandInstance] {
         Array(vm.activeHands.prefix(4))
     }
 
     private var visibleApprovals: [ApprovalItem] {
         Array(vm.approvals.prefix(4))
+    }
+
+    private var visibleAuditEntries: [AuditEntry] {
+        Array(vm.recentAudit.prefix(6))
     }
 
     private var degradedHands: [HandDefinition] {
@@ -789,6 +797,11 @@ struct RuntimeView: View {
     private var providersSection: some View {
         if !sortedProviders.isEmpty {
             Section {
+                RuntimeProvidersInventoryDeck(
+                    providers: sortedProviders,
+                    visibleCount: visibleProviders.count
+                )
+
                 ForEach(visibleProviders) { provider in
                     ProviderStatusRow(provider: provider)
                 }
@@ -837,13 +850,20 @@ struct RuntimeView: View {
     private var channelsSection: some View {
         if !configuredChannels.isEmpty || !vm.channels.isEmpty {
             Section {
+                RuntimeChannelsInventoryDeck(
+                    channels: vm.channels,
+                    configuredChannels: configuredChannels,
+                    visibleCount: visibleConfiguredChannels.count,
+                    readyCount: vm.readyChannelCount
+                )
+
                 if configuredChannels.isEmpty {
                     RuntimeEmptyRow(
                         title: String(localized: "No channels configured"),
                         subtitle: String(localized: "Desktop or web can finish setup. Mobile focuses on status tracking.")
                     )
                 } else {
-                    ForEach(configuredChannels.prefix(8)) { channel in
+                    ForEach(visibleConfiguredChannels) { channel in
                         ChannelStatusRow(channel: channel)
                     }
                 }
@@ -935,6 +955,13 @@ struct RuntimeView: View {
     private var handsSection: some View {
         if !vm.activeHands.isEmpty || !degradedHands.isEmpty || !vm.hands.isEmpty {
             Section {
+                RuntimeHandsInventoryDeck(
+                    activeHands: vm.activeHands,
+                    visibleActiveCount: visibleActiveHands.count,
+                    degradedHands: degradedHands,
+                    totalHands: vm.hands.count
+                )
+
                 if vm.activeHands.isEmpty {
                     RuntimeEmptyRow(
                         title: String(localized: "No active hands"),
@@ -967,6 +994,11 @@ struct RuntimeView: View {
     private var approvalsSection: some View {
         if !vm.approvals.isEmpty {
             Section {
+                RuntimeApprovalsInventoryDeck(
+                    approvals: vm.approvals,
+                    visibleCount: visibleApprovals.count
+                )
+
                 ForEach(visibleApprovals) { approval in
                     ApprovalOperatorRow(
                         approval: approval,
@@ -1002,13 +1034,18 @@ struct RuntimeView: View {
     private var auditSection: some View {
         if !vm.recentAudit.isEmpty || vm.auditVerify != nil {
             Section("Audit") {
+                RuntimeAuditInventoryDeck(
+                    entries: vm.recentAudit,
+                    visibleCount: visibleAuditEntries.count
+                )
+
                 if vm.recentAudit.isEmpty {
                     RuntimeEmptyRow(
                         title: String(localized: "No recent audit events"),
                         subtitle: String(localized: "Open the full event feed to refresh or inspect a larger time window.")
                     )
                 } else {
-                    ForEach(vm.recentAudit.prefix(6)) { entry in
+                    ForEach(visibleAuditEntries) { entry in
                         NavigationLink {
                             if entry.agentId.isEmpty {
                                 EventsView(api: deps.apiClient, initialScope: .critical)
@@ -1434,6 +1471,500 @@ private struct RuntimeMetricRow: View {
                 .foregroundStyle(.tertiary)
         }
         .padding(.vertical, 1)
+    }
+}
+
+private struct RuntimeProvidersInventoryDeck: View {
+    let providers: [ProviderStatus]
+    let visibleCount: Int
+
+    private var configuredCount: Int {
+        providers.filter(\.isConfigured).count
+    }
+
+    private var localCount: Int {
+        providers.filter { $0.isLocal == true }.count
+    }
+
+    private var reachableLocalCount: Int {
+        providers.filter { $0.isLocal == true && $0.reachable == true }.count
+    }
+
+    private var unreachableLocalCount: Int {
+        providers.filter { $0.isLocal == true && $0.reachable == false }.count
+    }
+
+    private var discoveredModelCount: Int {
+        providers.reduce(0) { $0 + ($1.discoveredModels?.count ?? 0) }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: configuredCount == 1 ? String(localized: "1 configured") : String(localized: "\(configuredCount) configured"),
+                        tone: configuredCount > 0 ? .positive : .warning
+                    )
+                    if localCount > 0 {
+                        PresentationToneBadge(
+                            text: localCount == 1 ? String(localized: "1 local") : String(localized: "\(localCount) local"),
+                            tone: unreachableLocalCount > 0 ? .warning : .neutral
+                        )
+                    }
+                    if unreachableLocalCount > 0 {
+                        PresentationToneBadge(
+                            text: unreachableLocalCount == 1 ? String(localized: "1 unreachable") : String(localized: "\(unreachableLocalCount) unreachable"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Provider inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the compact provider slice to decide whether missing auth, local reachability, or model discovery needs the next tap."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == providers.count
+                        ? String(localized: "Full list")
+                        : String(localized: "\(visibleCount)/\(providers.count) visible"),
+                    tone: visibleCount == providers.count ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    providers.count == 1 ? String(localized: "1 provider") : String(localized: "\(providers.count) providers"),
+                    systemImage: "key.horizontal"
+                )
+                if localCount > 0 {
+                    Label(
+                        reachableLocalCount == 1 ? String(localized: "1 reachable local") : String(localized: "\(reachableLocalCount) reachable local"),
+                        systemImage: "network"
+                    )
+                }
+                if discoveredModelCount > 0 {
+                    Label(
+                        discoveredModelCount == 1 ? String(localized: "1 discovered model") : String(localized: "\(discoveredModelCount) discovered models"),
+                        systemImage: "sparkles"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == providers.count {
+            return providers.count == 1
+                ? String(localized: "The runtime list is showing the only provider surface.")
+                : String(localized: "The runtime list is showing all \(providers.count) provider surfaces.")
+        }
+        return String(localized: "The runtime list is showing \(visibleCount) of \(providers.count) provider surfaces.")
+    }
+
+    private var detailLine: String {
+        if unreachableLocalCount > 0 {
+            return String(localized: "\(unreachableLocalCount) local providers are unreachable, so auth state alone is not enough for provider health.")
+        }
+        return String(localized: "Configured providers, local reachability, and discovered models are compacted here before the longer provider rows.")
+    }
+}
+
+private struct RuntimeChannelsInventoryDeck: View {
+    let channels: [ChannelStatus]
+    let configuredChannels: [ChannelStatus]
+    let visibleCount: Int
+    let readyCount: Int
+
+    private var needsTokenCount: Int {
+        configuredChannels.filter { $0.configured && !$0.hasToken }.count
+    }
+
+    private var quickSetupCount: Int {
+        channels.filter(\.quickSetup).count
+    }
+
+    private var categoryCount: Int {
+        Set(channels.map(\.category)).count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: configuredChannels.count == 1 ? String(localized: "1 configured") : String(localized: "\(configuredChannels.count) configured"),
+                        tone: configuredChannels.isEmpty ? .warning : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: readyCount == 1 ? String(localized: "1 ready") : String(localized: "\(readyCount) ready"),
+                        tone: readyCount > 0 ? .positive : .warning
+                    )
+                    if needsTokenCount > 0 {
+                        PresentationToneBadge(
+                            text: needsTokenCount == 1 ? String(localized: "1 needs token") : String(localized: "\(needsTokenCount) need token"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Channel inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the compact channel slice to judge setup readiness before opening the configured channel rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: configuredChannels.isEmpty
+                        ? String(localized: "No configured channels")
+                        : (visibleCount == configuredChannels.count
+                            ? String(localized: "Full list")
+                            : String(localized: "\(visibleCount)/\(configuredChannels.count) visible")),
+                    tone: configuredChannels.isEmpty ? .neutral : (visibleCount == configuredChannels.count ? .positive : .neutral)
+                )
+            } facts: {
+                Label(
+                    channels.count == 1 ? String(localized: "1 known channel") : String(localized: "\(channels.count) known channels"),
+                    systemImage: "bubble.left.and.bubble.right"
+                )
+                if quickSetupCount > 0 {
+                    Label(
+                        quickSetupCount == 1 ? String(localized: "1 quick setup") : String(localized: "\(quickSetupCount) quick setups"),
+                        systemImage: "bolt"
+                    )
+                }
+                if categoryCount > 0 {
+                    Label(
+                        categoryCount == 1 ? String(localized: "1 category") : String(localized: "\(categoryCount) categories"),
+                        systemImage: "square.grid.2x2"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if configuredChannels.isEmpty {
+            return String(localized: "No delivery channels are configured in the current runtime snapshot.")
+        }
+        if visibleCount == configuredChannels.count {
+            return configuredChannels.count == 1
+                ? String(localized: "The runtime list is showing the only configured channel.")
+                : String(localized: "The runtime list is showing all \(configuredChannels.count) configured channels.")
+        }
+        return String(localized: "The runtime list is showing \(visibleCount) of \(configuredChannels.count) configured channels.")
+    }
+
+    private var detailLine: String {
+        if needsTokenCount > 0 {
+            return String(localized: "\(needsTokenCount) configured channels still need tokens before they become fully ready.")
+        }
+        return String(localized: "Configured, ready, and quick-setup channel slices stay visible here before the longer channel list.")
+    }
+}
+
+private struct RuntimeHandsInventoryDeck: View {
+    let activeHands: [HandInstance]
+    let visibleActiveCount: Int
+    let degradedHands: [HandDefinition]
+    let totalHands: Int
+
+    private var runningCount: Int {
+        activeHands.filter {
+            let status = $0.status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            return status == "active" || status == "running"
+        }.count
+    }
+
+    private var assignedAgentCount: Int {
+        Set(activeHands.compactMap(\.agentId)).count
+    }
+
+    private var blockedCount: Int {
+        max(totalHands - activeHands.count - degradedHands.count, 0)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: activeHands.count == 1 ? String(localized: "1 active") : String(localized: "\(activeHands.count) active"),
+                        tone: activeHands.isEmpty ? .neutral : .positive
+                    )
+                    if degradedHands.count > 0 {
+                        PresentationToneBadge(
+                            text: degradedHands.count == 1 ? String(localized: "1 degraded") : String(localized: "\(degradedHands.count) degraded"),
+                            tone: .warning
+                        )
+                    }
+                    if blockedCount > 0 {
+                        PresentationToneBadge(
+                            text: blockedCount == 1 ? String(localized: "1 blocked") : String(localized: "\(blockedCount) blocked"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Hand inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the compact hand slice to gauge live automation coverage before opening each active or degraded hand row."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: activeHands.isEmpty
+                        ? String(localized: "No live hands")
+                        : (visibleActiveCount == activeHands.count ? String(localized: "Full live list") : String(localized: "\(visibleActiveCount)/\(activeHands.count) visible")),
+                    tone: activeHands.isEmpty ? .neutral : (visibleActiveCount == activeHands.count ? .positive : .neutral)
+                )
+            } facts: {
+                if runningCount > 0 {
+                    Label(
+                        runningCount == 1 ? String(localized: "1 running") : String(localized: "\(runningCount) running"),
+                        systemImage: "play.circle"
+                    )
+                }
+                if assignedAgentCount > 0 {
+                    Label(
+                        assignedAgentCount == 1 ? String(localized: "1 assigned agent") : String(localized: "\(assignedAgentCount) assigned agents"),
+                        systemImage: "person.2"
+                    )
+                }
+                Label(
+                    totalHands == 1 ? String(localized: "1 known hand") : String(localized: "\(totalHands) known hands"),
+                    systemImage: "hand.raised"
+                )
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if activeHands.isEmpty {
+            return totalHands == 0
+                ? String(localized: "No hands are registered in the current runtime snapshot.")
+                : String(localized: "No hands are active in the current runtime snapshot.")
+        }
+        return String(localized: "\(activeHands.count) hands are active in the current runtime snapshot.")
+    }
+
+    private var detailLine: String {
+        if degradedHands.isEmpty {
+            return String(localized: "Active coverage and blocked definitions stay compact here before the longer hand rows.")
+        }
+        return String(localized: "\(degradedHands.count) hand definitions are degraded and should be reviewed alongside the active instances.")
+    }
+}
+
+private struct RuntimeApprovalsInventoryDeck: View {
+    let approvals: [ApprovalItem]
+    let visibleCount: Int
+
+    private var criticalCount: Int {
+        approvals.filter(\.isCriticalRisk).count
+    }
+
+    private var highRiskCount: Int {
+        approvals.filter(\.isHighRiskOrAbove).count
+    }
+
+    private var agentCount: Int {
+        Set(approvals.map(\.agentId)).count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if highRiskCount > 0 {
+                        PresentationToneBadge(
+                            text: highRiskCount == 1 ? String(localized: "1 high+") : String(localized: "\(highRiskCount) high+"),
+                            tone: .warning
+                        )
+                    }
+                    if let latestRequestLabel {
+                        PresentationToneBadge(text: latestRequestLabel, tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Approval inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the compact approval slice to judge queue pressure before acting on the visible approval cards."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == approvals.count
+                        ? String(localized: "Full queue")
+                        : String(localized: "\(visibleCount)/\(approvals.count) visible"),
+                    tone: visibleCount == approvals.count ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    approvals.count == 1 ? String(localized: "1 pending approval") : String(localized: "\(approvals.count) pending approvals"),
+                    systemImage: "checkmark.shield"
+                )
+                Label(
+                    agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                    systemImage: "person.3"
+                )
+                if let latestRequestLabel {
+                    Label(latestRequestLabel, systemImage: "clock")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == approvals.count {
+            return approvals.count == 1
+                ? String(localized: "The runtime view is showing the only pending approval.")
+                : String(localized: "The runtime view is showing all \(approvals.count) pending approvals.")
+        }
+        return String(localized: "The runtime view is showing \(visibleCount) of \(approvals.count) pending approvals.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Critical and high-risk approvals stay compact here before the mobile action rows.")
+    }
+
+    private var latestRequestLabel: String? {
+        guard let date = approvals.compactMap(\.requestedAt.iso8601Date).max() else { return nil }
+        return String(localized: "Latest \(RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date()))")
+    }
+}
+
+private struct RuntimeAuditInventoryDeck: View {
+    let entries: [AuditEntry]
+    let visibleCount: Int
+
+    private var criticalCount: Int {
+        entries.filter { $0.severity == .critical }.count
+    }
+
+    private var warningCount: Int {
+        entries.filter { $0.severity == .warning }.count
+    }
+
+    private var infoCount: Int {
+        entries.filter { $0.severity == .info }.count
+    }
+
+    private var agentCount: Int {
+        Set(entries.map(\.agentId).filter { !$0.isEmpty }).count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if warningCount > 0 {
+                        PresentationToneBadge(
+                            text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                            tone: .warning
+                        )
+                    }
+                    if let latestEventLabel {
+                        PresentationToneBadge(text: latestEventLabel, tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Audit inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the compact audit slice to gauge recent security and runtime event pressure before opening the event feed."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == entries.count
+                        ? String(localized: "Full feed")
+                        : String(localized: "\(visibleCount)/\(entries.count) visible"),
+                    tone: visibleCount == entries.count ? .positive : .neutral
+                )
+            } facts: {
+                if infoCount > 0 {
+                    Label(
+                        infoCount == 1 ? String(localized: "1 info event") : String(localized: "\(infoCount) info events"),
+                        systemImage: "info.circle"
+                    )
+                }
+                if agentCount > 0 {
+                    Label(
+                        agentCount == 1 ? String(localized: "1 agent involved") : String(localized: "\(agentCount) agents involved"),
+                        systemImage: "cpu"
+                    )
+                }
+                if let latestEventLabel {
+                    Label(latestEventLabel, systemImage: "clock")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if entries.isEmpty {
+            return String(localized: "No recent audit events are cached in the runtime view.")
+        }
+        if visibleCount == entries.count {
+            return entries.count == 1
+                ? String(localized: "The runtime view is showing the latest audit event.")
+                : String(localized: "The runtime view is showing all \(entries.count) recent audit events.")
+        }
+        return String(localized: "The runtime view is showing \(visibleCount) of \(entries.count) recent audit events.")
+    }
+
+    private var detailLine: String {
+        if criticalCount > 0 {
+            return String(localized: "Critical audit activity is present, so the compact feed keeps the latest security pressure visible before the full event monitor.")
+        }
+        return String(localized: "Recent audit severity and agent spread stay visible here before the full event feed opens.")
+    }
+
+    private var latestEventLabel: String? {
+        guard let date = entries.compactMap(\.timestamp.iso8601Date).max() else { return nil }
+        return String(localized: "Latest \(RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date()))")
     }
 }
 
