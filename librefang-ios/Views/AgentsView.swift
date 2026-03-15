@@ -72,6 +72,46 @@ struct AgentsView: View {
         return String(localized: "\(filteredAgents.count) agents visible for \"\(searchText)\".")
     }
 
+    private var filteredRunningCount: Int {
+        filteredAgents.filter { $0.agent.isRunning }.count
+    }
+
+    private var filteredIssueCount: Int {
+        filteredAgents.filter { $0.severity > 0 }.count
+    }
+
+    private var filteredApprovalCount: Int {
+        filteredAgents.reduce(0) { $0 + $1.pendingApprovals }
+    }
+
+    private var filteredStaleCount: Int {
+        filteredAgents.filter(\.isStale).count
+    }
+
+    private var filteredWatchedCount: Int {
+        filteredAgents.filter { watchlistStore.isWatched($0.agent) }.count
+    }
+
+    private var filteredAuthIssueCount: Int {
+        filteredAgents.filter(\.hasAuthIssue).count
+    }
+
+    private var filteredModelIssueCount: Int {
+        filteredAgents.filter { $0.modelDiagnostic != nil }.count
+    }
+
+    private var filteredSessionPressureCount: Int {
+        filteredAgents.filter(\.sessionPressure).count
+    }
+
+    private var agentRoutePrimaryCount: Int {
+        3 + (vm.sessionAttentionCount > 0 ? 1 : 0)
+    }
+
+    private var agentRouteSupportCount: Int {
+        3 + (vm.pendingApprovalCount > 0 ? 1 : 0)
+    }
+
     var body: some View {
         NavigationStack {
             Group {
@@ -131,6 +171,15 @@ struct AgentsView: View {
                                     title: String(localized: "Routes"),
                                     detail: String(localized: "Keep the broader operator queues one tap away from the compact fleet filter.")
                                 ) {
+                                    AgentsRouteInventoryDeck(
+                                        primaryRouteCount: agentRoutePrimaryCount,
+                                        supportRouteCount: agentRouteSupportCount,
+                                        issueCount: filteredIssueCount,
+                                        watchlistCount: filteredWatchedCount,
+                                        runtimeAlertCount: vm.runtimeAlertCount,
+                                        hasSearchScope: !normalizedSearchText.isEmpty
+                                    )
+
                                     MonitoringShortcutRail(
                                         title: String(localized: "Primary"),
                                         detail: String(localized: "Use these routes when fleet review needs broader incident or runtime context.")
@@ -246,11 +295,27 @@ struct AgentsView: View {
                             }
 
                             Section {
+                                AgentsFleetInventoryDeck(
+                                    visibleCount: filteredAgents.count,
+                                    totalCount: vm.agents.count,
+                                    runningCount: filteredRunningCount,
+                                    issueCount: filteredIssueCount,
+                                    approvalCount: filteredApprovalCount,
+                                    staleCount: filteredStaleCount,
+                                    watchlistCount: watchedAgents.count,
+                                    visibleWatchlistCount: filteredWatchedCount,
+                                    authIssueCount: filteredAuthIssueCount,
+                                    modelIssueCount: filteredModelIssueCount,
+                                    sessionPressureCount: filteredSessionPressureCount,
+                                    hasSearchScope: !normalizedSearchText.isEmpty,
+                                    filterLabel: filterState.label
+                                )
+
                                 AgentFleetSummaryCard(
-                                    runningCount: filteredAgents.filter { $0.agent.isRunning }.count,
-                                    issueCount: filteredAgents.filter { $0.severity > 0 }.count,
-                                    approvalCount: filteredAgents.reduce(0) { $0 + $1.pendingApprovals },
-                                    staleCount: filteredAgents.filter(\.isStale).count,
+                                    runningCount: filteredRunningCount,
+                                    issueCount: filteredIssueCount,
+                                    approvalCount: filteredApprovalCount,
+                                    staleCount: filteredStaleCount,
                                     watchlistCount: watchedAgents.count
                                 )
                                 .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
@@ -479,6 +544,177 @@ private struct InlineStatusPill: View {
             horizontalPadding: 6,
             verticalPadding: 2
         )
+    }
+}
+
+private struct AgentsRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let issueCount: Int
+    let watchlistCount: Int
+    let runtimeAlertCount: Int
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: hasSearchScope
+                    ? String(localized: "The route rail stays compact while the fleet list is search-scoped.")
+                    : String(localized: "The route rail stays compact before the broader fleet drilldowns."),
+                detail: String(localized: "Use the route inventory to gauge how many primary and support exits are active before leaving the fleet list."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        tone: .neutral
+                    )
+                    if issueCount > 0 {
+                        PresentationToneBadge(
+                            text: issueCount == 1 ? String(localized: "1 agent needs attention") : String(localized: "\(issueCount) agents need attention"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep fleet pressure and available exits visible before pivoting into incidents, runtime, or adjacent monitoring surfaces."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: watchlistCount == 1 ? String(localized: "1 watched agent visible") : String(localized: "\(watchlistCount) watched agents visible"),
+                    tone: watchlistCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if runtimeAlertCount > 0 {
+                    Label(
+                        runtimeAlertCount == 1 ? String(localized: "1 runtime alert") : String(localized: "\(runtimeAlertCount) runtime alerts"),
+                        systemImage: "server.rack"
+                    )
+                }
+                if issueCount > 0 {
+                    Label(
+                        issueCount == 1 ? String(localized: "1 fleet issue") : String(localized: "\(issueCount) fleet issues"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+private struct AgentsFleetInventoryDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let runningCount: Int
+    let issueCount: Int
+    let approvalCount: Int
+    let staleCount: Int
+    let watchlistCount: Int
+    let visibleWatchlistCount: Int
+    let authIssueCount: Int
+    let modelIssueCount: Int
+    let sessionPressureCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: visibleCount == totalCount
+                    ? String(localized: "The compact fleet slice is showing the full visible agent registry.")
+                    : String(localized: "The compact fleet slice is showing \(visibleCount) of \(totalCount) agents."),
+                detail: hasSearchScope
+                    ? String(localized: "Search is narrowing the fleet, so this deck keeps the visible slice readable before the full list.")
+                    : String(localized: "Use the fleet inventory deck to gauge running load, watch pressure, and auth drift before scanning every agent row."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: .neutral)
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(visibleCount) visible agents"),
+                        tone: .positive
+                    )
+                    if issueCount > 0 {
+                        PresentationToneBadge(
+                            text: issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
+                            tone: .warning
+                        )
+                    }
+                    if approvalCount > 0 {
+                        PresentationToneBadge(
+                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Fleet Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep running coverage, watchlist visibility, and the sharpest issue categories visible before opening individual agent cards."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: runningCount == 1 ? String(localized: "1 running agent") : String(localized: "\(runningCount) running agents"),
+                    tone: runningCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if visibleWatchlistCount > 0 || watchlistCount > 0 {
+                    Label(
+                        visibleWatchlistCount == watchlistCount
+                            ? (watchlistCount == 1 ? String(localized: "1 watched agent visible") : String(localized: "\(watchlistCount) watched agents visible"))
+                            : String(localized: "\(visibleWatchlistCount) of \(watchlistCount) watched visible"),
+                        systemImage: "star"
+                    )
+                }
+                if staleCount > 0 {
+                    Label(
+                        staleCount == 1 ? String(localized: "1 stale agent") : String(localized: "\(staleCount) stale agents"),
+                        systemImage: "clock.badge.exclamationmark"
+                    )
+                }
+                if authIssueCount > 0 {
+                    Label(
+                        authIssueCount == 1 ? String(localized: "1 auth issue") : String(localized: "\(authIssueCount) auth issues"),
+                        systemImage: "lock.slash"
+                    )
+                }
+                if modelIssueCount > 0 {
+                    Label(
+                        modelIssueCount == 1 ? String(localized: "1 model issue") : String(localized: "\(modelIssueCount) model issues"),
+                        systemImage: "square.stack.3d.up.slash"
+                    )
+                }
+                if sessionPressureCount > 0 {
+                    Label(
+                        sessionPressureCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionPressureCount) session hotspots"),
+                        systemImage: "rectangle.stack.badge.person.crop"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
