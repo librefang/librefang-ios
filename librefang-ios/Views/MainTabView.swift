@@ -305,15 +305,31 @@ struct MainTabView: View {
             || (handoffCue != nil && showsForegroundCues) {
             VStack(spacing: 8) {
                 if !deps.networkMonitor.isConnected {
-                    OfflineBanner()
+                    OfflineBanner(
+                        runtimeIssueCount: vm.runtimeAlertCount,
+                        approvalCount: vm.pendingApprovalCount,
+                        followUpCount: pendingLatestFollowUpCount
+                    )
                 } else if visibleCriticalAlertCount > 0 {
                     Button {
                         openPreferredSurface()
                     } label: {
                         if isCurrentSnapshotAcknowledged {
-                            AcknowledgedIncidentBanner(count: visibleCriticalAlertCount, mutedCount: activeMutedAlertCount)
+                            AcknowledgedIncidentBanner(
+                                count: visibleCriticalAlertCount,
+                                mutedCount: activeMutedAlertCount,
+                                approvalCount: vm.pendingApprovalCount,
+                                watchIssueCount: watchedIssueCount,
+                                sessionCount: vm.sessionAttentionCount
+                            )
                         } else {
-                            CriticalIncidentBanner(count: visibleCriticalAlertCount, mutedCount: activeMutedAlertCount)
+                            CriticalIncidentBanner(
+                                count: visibleCriticalAlertCount,
+                                mutedCount: activeMutedAlertCount,
+                                approvalCount: vm.pendingApprovalCount,
+                                watchIssueCount: watchedIssueCount,
+                                sessionCount: vm.sessionAttentionCount
+                            )
                         }
                     }
                     .buttonStyle(.plain)
@@ -323,7 +339,9 @@ struct MainTabView: View {
                     } label: {
                         HandoffCheckInBanner(
                             status: handoffBannerStatus,
-                            pendingFollowUpCount: pendingLatestFollowUpCount
+                            pendingFollowUpCount: pendingLatestFollowUpCount,
+                            watchIssueCount: watchedIssueCount,
+                            sessionCount: vm.sessionAttentionCount
                         )
                     }
                     .buttonStyle(.plain)
@@ -332,6 +350,11 @@ struct MainTabView: View {
                 if let activeIncidentCue = incidentCue, showsForegroundCues {
                     IncidentCueBanner(
                         cue: activeIncidentCue,
+                        criticalCount: visibleCriticalAlertCount,
+                        mutedCount: activeMutedAlertCount,
+                        approvalCount: vm.pendingApprovalCount,
+                        sessionCount: vm.sessionAttentionCount,
+                        watchIssueCount: watchedIssueCount,
                         onOpen: { openPreferredSurface() },
                         onAcknowledge: {
                             deps.incidentStateStore.acknowledgeCurrentSnapshot(alerts: vm.monitoringAlerts)
@@ -346,6 +369,10 @@ struct MainTabView: View {
                 } else if let handoffCue, showsForegroundCues {
                     HandoffCueBanner(
                         cue: handoffCue,
+                        dueLabel: handoffBannerStatus?.dueLabel,
+                        pendingFollowUpCount: pendingLatestFollowUpCount,
+                        watchIssueCount: watchedIssueCount,
+                        sessionCount: vm.sessionAttentionCount,
                         onOpen: { openHandoffCenter() },
                         onDismiss: {
                             self.handoffCue = nil
@@ -999,17 +1026,45 @@ private struct OperatorOverlayQuickAction: Identifiable {
 // MARK: - Offline Banner
 
 private struct OfflineBanner: View {
+    let runtimeIssueCount: Int
+    let approvalCount: Int
+    let followUpCount: Int
+
     var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "wifi.slash")
-                .font(.caption2)
-            Text("No Internet Connection")
-                .font(.caption.weight(.medium))
+        MainTabStatusBanner(tint: .red) {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 6) {
+                    Image(systemName: "wifi.slash")
+                        .font(.caption2)
+                    Text("No Internet Connection")
+                        .font(.caption.weight(.semibold))
+                }
+
+                Text(String(localized: "The iPhone is offline, so the monitoring snapshot may be stale until connectivity returns."))
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.88))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        } accessory: {
+            FlowLayout(spacing: 8) {
+                GlassCapsuleBadge(text: String(localized: "Stale snapshot"), backgroundOpacity: 0.18)
+                if runtimeIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: runtimeIssueCount == 1 ? String(localized: "1 runtime issue") : String(localized: "\(runtimeIssueCount) runtime issues")
+                    )
+                }
+                if approvalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals")
+                    )
+                }
+                if followUpCount > 0 {
+                    GlassCapsuleBadge(
+                        text: followUpCount == 1 ? String(localized: "1 handoff open") : String(localized: "\(followUpCount) handoff open")
+                    )
+                }
+            }
         }
-        .foregroundStyle(.white)
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 6)
-        .background(.red.opacity(0.9))
     }
 }
 
@@ -1045,6 +1100,9 @@ private struct MainTabStatusBanner<Summary: View, Accessory: View>: View {
 private struct CriticalIncidentBanner: View {
     let count: Int
     let mutedCount: Int
+    let approvalCount: Int
+    let watchIssueCount: Int
+    let sessionCount: Int
 
     var body: some View {
         MainTabStatusBanner(tint: .red) {
@@ -1067,6 +1125,9 @@ private struct CriticalIncidentBanner: View {
     private var bannerBadges: some View {
         FlowLayout(spacing: 8) {
             mutedBadge
+            contextBadge(count: approvalCount, singular: String(localized: "1 approval"), plural: String(localized: "\(approvalCount) approvals"))
+            contextBadge(count: watchIssueCount, singular: String(localized: "1 watch issue"), plural: String(localized: "\(watchIssueCount) watch issues"))
+            contextBadge(count: sessionCount, singular: String(localized: "1 hotspot"), plural: String(localized: "\(sessionCount) hotspots"))
             GlassCapsuleBadge(text: String(localized: "On Call"), backgroundOpacity: 0.18)
         }
     }
@@ -1077,11 +1138,20 @@ private struct CriticalIncidentBanner: View {
             GlassCapsuleBadge(text: String(localized: "\(mutedCount) muted"))
         }
     }
+
+    @ViewBuilder
+    private func contextBadge(count: Int, singular: String, plural: String) -> some View {
+        if count > 0 {
+            GlassCapsuleBadge(text: count == 1 ? singular : plural)
+        }
+    }
 }
 
 private struct HandoffCheckInBanner: View {
     let status: HandoffCheckInStatus
     let pendingFollowUpCount: Int
+    let watchIssueCount: Int
+    let sessionCount: Int
 
     private var tint: Color {
         status.state == .overdue ? .red : .orange
@@ -1109,6 +1179,8 @@ private struct HandoffCheckInBanner: View {
         FlowLayout(spacing: 8) {
             GlassCapsuleBadge(text: status.window.label)
             pendingFollowUpBadge
+            contextBadge(count: watchIssueCount, singular: String(localized: "1 watch issue"), plural: String(localized: "\(watchIssueCount) watch issues"))
+            contextBadge(count: sessionCount, singular: String(localized: "1 hotspot"), plural: String(localized: "\(sessionCount) hotspots"))
             GlassCapsuleBadge(text: String(localized: "Handoff"), backgroundOpacity: 0.18)
         }
     }
@@ -1121,11 +1193,21 @@ private struct HandoffCheckInBanner: View {
             )
         }
     }
+
+    @ViewBuilder
+    private func contextBadge(count: Int, singular: String, plural: String) -> some View {
+        if count > 0 {
+            GlassCapsuleBadge(text: count == 1 ? singular : plural)
+        }
+    }
 }
 
 private struct AcknowledgedIncidentBanner: View {
     let count: Int
     let mutedCount: Int
+    let approvalCount: Int
+    let watchIssueCount: Int
+    let sessionCount: Int
 
     var body: some View {
         MainTabStatusBanner(tint: .orange) {
@@ -1148,6 +1230,9 @@ private struct AcknowledgedIncidentBanner: View {
     private var bannerBadges: some View {
         FlowLayout(spacing: 8) {
             mutedBadge
+            contextBadge(count: approvalCount, singular: String(localized: "1 approval"), plural: String(localized: "\(approvalCount) approvals"))
+            contextBadge(count: watchIssueCount, singular: String(localized: "1 watch issue"), plural: String(localized: "\(watchIssueCount) watch issues"))
+            contextBadge(count: sessionCount, singular: String(localized: "1 hotspot"), plural: String(localized: "\(sessionCount) hotspots"))
             GlassCapsuleBadge(text: String(localized: "On Call"), backgroundOpacity: 0.18)
         }
     }
@@ -1158,10 +1243,22 @@ private struct AcknowledgedIncidentBanner: View {
             GlassCapsuleBadge(text: String(localized: "\(mutedCount) muted"))
         }
     }
+
+    @ViewBuilder
+    private func contextBadge(count: Int, singular: String, plural: String) -> some View {
+        if count > 0 {
+            GlassCapsuleBadge(text: count == 1 ? singular : plural)
+        }
+    }
 }
 
 private struct IncidentCueBanner: View {
     let cue: ActiveIncidentCue
+    let criticalCount: Int
+    let mutedCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let watchIssueCount: Int
     let onOpen: () -> Void
     let onAcknowledge: () -> Void
     let onDismiss: () -> Void
@@ -1173,6 +1270,32 @@ private struct IncidentCueBanner: View {
             } accessory: {
                 dismissButton
                     .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+
+            FlowLayout(spacing: 8) {
+                GlassCapsuleBadge(
+                    text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical")
+                )
+                if mutedCount > 0 {
+                    GlassCapsuleBadge(
+                        text: mutedCount == 1 ? String(localized: "1 muted") : String(localized: "\(mutedCount) muted")
+                    )
+                }
+                if approvalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals")
+                    )
+                }
+                if sessionCount > 0 {
+                    GlassCapsuleBadge(
+                        text: sessionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(sessionCount) hotspots")
+                    )
+                }
+                if watchIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues")
+                    )
+                }
             }
 
             ResponsiveInlineGroup(horizontalSpacing: 10, verticalSpacing: 8) {
@@ -1237,6 +1360,10 @@ private struct IncidentCueBanner: View {
 
 private struct HandoffCueBanner: View {
     let cue: ActiveHandoffCue
+    let dueLabel: String?
+    let pendingFollowUpCount: Int
+    let watchIssueCount: Int
+    let sessionCount: Int
     let onOpen: () -> Void
     let onDismiss: () -> Void
 
@@ -1247,6 +1374,27 @@ private struct HandoffCueBanner: View {
             } accessory: {
                 dismissButton
                     .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+
+            FlowLayout(spacing: 8) {
+                if let dueLabel {
+                    GlassCapsuleBadge(text: dueLabel)
+                }
+                if pendingFollowUpCount > 0 {
+                    GlassCapsuleBadge(
+                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open")
+                    )
+                }
+                if watchIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues")
+                    )
+                }
+                if sessionCount > 0 {
+                    GlassCapsuleBadge(
+                        text: sessionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(sessionCount) hotspots")
+                    )
+                }
             }
 
             Button(action: onOpen) {
