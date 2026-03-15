@@ -199,8 +199,9 @@ struct NightWatchView: View {
                     primaryQueueCard
                     secondaryQueueCard
                     watchlistCard
-                    controlsCard
-                    quickLinksCard
+                    focusControlsCard
+                    primarySurfacesCard
+                    supportingSurfacesCard
                 }
                 .padding()
             }
@@ -384,7 +385,7 @@ struct NightWatchView: View {
         }
     }
 
-    private var controlsCard: some View {
+    private var focusControlsCard: some View {
         NightWatchControlsCard(
             mode: Binding(
                 get: { focusStore.mode },
@@ -401,10 +402,10 @@ struct NightWatchView: View {
         )
     }
 
-    private var quickLinksCard: some View {
+    private var primarySurfacesCard: some View {
         NightWatchSectionCard(
-            title: String(localized: "Operator Surfaces"),
-            detail: String(localized: "Use a deeper operator surface when the top-of-night queue is no longer enough.")
+            title: String(localized: "Primary Surfaces"),
+            detail: String(localized: "Keep the most likely next drills directly under the queue and controls.")
         ) {
             NavigationLink {
                 OnCallView()
@@ -440,6 +441,40 @@ struct NightWatchView: View {
                     title: String(localized: "Critical Event Feed"),
                     detail: String(localized: "Jump straight into recent critical audit entries."),
                     systemImage: "list.bullet.rectangle.portrait"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                HandoffCenterView(
+                    summary: handoffText,
+                    queueCount: priorityItems.count,
+                    criticalCount: criticalCount,
+                    liveAlertCount: visibleAlerts.count
+                )
+            } label: {
+                NightWatchActionRow(
+                    title: String(localized: "Handoff Center"),
+                    detail: String(localized: "Capture notes and keep local shift context close to the night queue."),
+                    systemImage: "text.badge.plus"
+                )
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private var supportingSurfacesCard: some View {
+        NightWatchSectionCard(
+            title: String(localized: "Supporting Surfaces"),
+            detail: String(localized: "Use deeper runtime and configuration monitors when the queue points at a systemic issue.")
+        ) {
+            NavigationLink {
+                StandbyDigestView()
+            } label: {
+                NightWatchActionRow(
+                    title: String(localized: "Standby Digest"),
+                    detail: String(localized: "Switch to the compressed lock-screen style digest when the full night queue is more than you need."),
+                    systemImage: "rectangle.inset.filled"
                 )
             }
             .buttonStyle(.plain)
@@ -502,22 +537,6 @@ struct NightWatchView: View {
                     title: String(localized: "Automation"),
                     detail: String(localized: "Open workflow and scheduler pressure when the queue hints at background automation trouble."),
                     systemImage: "flowchart"
-                )
-            }
-            .buttonStyle(.plain)
-
-            NavigationLink {
-                HandoffCenterView(
-                    summary: handoffText,
-                    queueCount: priorityItems.count,
-                    criticalCount: criticalCount,
-                    liveAlertCount: visibleAlerts.count
-                )
-            } label: {
-                NightWatchActionRow(
-                    title: String(localized: "Handoff Center"),
-                    detail: String(localized: "Capture notes and keep local shift context close to the night queue."),
-                    systemImage: "text.badge.plus"
                 )
             }
             .buttonStyle(.plain)
@@ -1104,7 +1123,10 @@ private struct NightWatchControlsCard: View {
             title: String(localized: "Display Controls"),
             detail: String(localized: "All settings are local to this iPhone.")
         ) {
-            LabeledContent {
+            NightWatchControlMenuRow(
+                title: String(localized: "Queue Mode"),
+                detail: mode.summary
+            ) {
                 Menu {
                     ForEach(OnCallFocusMode.allCases) { option in
                         Button(option.label) {
@@ -1112,19 +1134,14 @@ private struct NightWatchControlsCard: View {
                         }
                     }
                 } label: {
-                    Text(mode.label)
-                        .foregroundStyle(.white)
+                    GlassCapsuleBadge(text: mode.label, backgroundOpacity: 0.12)
                 }
-            } label: {
-                Text(String(localized: "Queue Mode"))
             }
-            .foregroundStyle(.white.opacity(0.74))
 
-            Text(mode.summary)
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.66))
-
-            LabeledContent {
+            NightWatchControlMenuRow(
+                title: String(localized: "Critical Banner"),
+                detail: preferredSurface.summary
+            ) {
                 Menu {
                     ForEach(OnCallSurfacePreference.allCases) { option in
                         Button(option.label) {
@@ -1132,23 +1149,65 @@ private struct NightWatchControlsCard: View {
                         }
                     }
                 } label: {
-                    Text(preferredSurface.label)
-                        .foregroundStyle(.white)
+                    GlassCapsuleBadge(text: preferredSurface.label, backgroundOpacity: 0.12)
                 }
-            } label: {
-                Text(String(localized: "Critical Banner"))
             }
-            .foregroundStyle(.white.opacity(0.74))
 
-            Text(preferredSurface.summary)
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.66))
-
-            Toggle(isOn: $showsMutedSummary) {
-                Text(String(localized: "Show muted summary"))
-                    .foregroundStyle(.white)
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8, spacerMinLength: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(String(localized: "Muted Summary"))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Text(
+                        showsMutedSummary
+                            ? String(localized: "Muted alerts stay visible in a separate summary card.")
+                            : String(localized: "Muted alerts stay hidden until you open incidents or re-enable the summary.")
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.66))
+                    .fixedSize(horizontal: false, vertical: true)
+                }
+            } accessory: {
+                Toggle(isOn: $showsMutedSummary) {
+                    EmptyView()
+                }
+                .labelsHidden()
+                .tint(.orange)
             }
-            .tint(.orange)
+        }
+    }
+}
+
+private struct NightWatchControlMenuRow<Accessory: View>: View {
+    let title: String
+    let detail: String
+    let accessory: Accessory
+
+    init(
+        title: String,
+        detail: String,
+        @ViewBuilder accessory: () -> Accessory
+    ) {
+        self.title = title
+        self.detail = detail
+        self.accessory = accessory()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8, spacerMinLength: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Text(detail)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.66))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } accessory: {
+                accessory
+            }
         }
     }
 }

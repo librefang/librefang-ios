@@ -352,72 +352,52 @@ struct HandoffCenterView: View {
             }
 
             Section {
-                VStack(alignment: .leading, spacing: 10) {
-                    HandoffDraftSnapshotCard(
-                        kind: handoffStore.draftKind,
-                        readiness: draftReadiness,
-                        focusCount: handoffStore.draftFocusAreas.items.count,
-                        followUpCount: handoffStore.draftFollowUpItems.count,
-                        checkInWindowLabel: handoffStore.draftCheckInWindow.label
-                    )
-
-                    Text("Operator note")
-                        .font(.subheadline.weight(.semibold))
-
-                    TextEditor(text: Binding(
-                        get: { handoffStore.draftNote },
-                        set: { handoffStore.draftNote = $0 }
-                    ))
-                    .frame(minHeight: 110)
-                    .scrollContentBackground(.hidden)
-                    .padding(10)
-                    .background(.secondary.opacity(0.08))
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
-                    HandoffStatsRow(
-                        queueCount: queueCount,
-                        criticalCount: criticalCount,
-                        liveAlertCount: liveAlertCount
-                    )
-
-                    Picker("Snapshot Type", selection: Binding(
+                HandoffDraftContextCard(
+                    kind: Binding(
                         get: { handoffStore.draftKind },
                         set: { handoffStore.draftKind = $0 }
-                    )) {
-                        ForEach(HandoffSnapshotKind.allCases) { kind in
-                            Text(kind.label).tag(kind)
-                        }
-                    }
-
-                    Text(handoffStore.draftKind.summary)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
-                    HandoffCheckInComposer(window: Binding(
+                    ),
+                    readiness: draftReadiness,
+                    focusCount: handoffStore.draftFocusAreas.items.count,
+                    followUpCount: handoffStore.draftFollowUpItems.count,
+                    checkInWindow: Binding(
                         get: { handoffStore.draftCheckInWindow },
                         set: { handoffStore.draftCheckInWindow = $0 }
-                    ))
+                    ),
+                    queueCount: queueCount,
+                    criticalCount: criticalCount,
+                    liveAlertCount: liveAlertCount
+                )
+            } header: {
+                Text("Draft Snapshot")
+            } footer: {
+                Text("Keep snapshot type, live queue counts, and the next check-in visible before editing the note body.")
+            }
 
-                    HStack(alignment: .top, spacing: 10) {
-                        HandoffKindBadge(kind: handoffStore.draftKind)
-
-                        Text(suggestedTemplateNote)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Button {
+            Section {
+                HandoffNoteComposerCard(
+                    note: Binding(
+                        get: { handoffStore.draftNote },
+                        set: { handoffStore.draftNote = $0 }
+                    ),
+                    kind: handoffStore.draftKind,
+                    suggestedTemplateNote: suggestedTemplateNote,
+                    onUseSuggestedNote: {
                         handoffStore.useSuggestedDraftNote(
                             queueCount: queueCount,
                             criticalCount: criticalCount,
                             liveAlertCount: liveAlertCount
                         )
-                    } label: {
-                        Label("Use Suggested Note", systemImage: "wand.and.stars")
-                            .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.bordered)
+                )
+            } header: {
+                Text("Operator Note")
+            } footer: {
+                Text("Capture the shift summary here first so the next operator sees the note before scanning the checklist and follow-ups.")
+            }
 
+            Section {
+                VStack(alignment: .leading, spacing: 14) {
                     HandoffChecklistComposer(
                         checklist: handoffStore.draftChecklist,
                         toggle: { handoffStore.toggleDraftChecklist($0) }
@@ -446,7 +426,16 @@ struct HandoffCenterView: View {
                             }
                         }
                     }
+                }
+                .padding(.vertical, 4)
+            } header: {
+                Text("Checklist & Focus")
+            } footer: {
+                Text("Checklist completion and focus areas stay separate from the note so the draft reads more clearly on smaller screens.")
+            }
 
+            Section {
+                VStack(alignment: .leading, spacing: 14) {
                     HandoffFollowUpComposer(
                         items: handoffStore.draftFollowUpItems,
                         draftText: $draftFollowUpText,
@@ -468,43 +457,25 @@ struct HandoffCenterView: View {
                     .buttonStyle(.bordered)
                     .disabled(suggestedFollowUps.isEmpty)
 
-                    Button {
-                        handoffStore.saveSnapshot(
-                            summary: summary,
-                            queueCount: queueCount,
-                            criticalCount: criticalCount,
-                            liveAlertCount: liveAlertCount
-                        )
-                    } label: {
-                        Label(
-                            draftReadiness.state == .blocked ? String(localized: "Save Snapshot Anyway") : String(localized: "Save Snapshot"),
-                            systemImage: "square.and.arrow.down"
-                        )
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-
-                    HStack(spacing: 10) {
-                        Button(role: .destructive) {
-                            handoffStore.resetDraft()
-                        } label: {
-                            Label("Reset Draft", systemImage: "arrow.counterclockwise")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.bordered)
-
-                        ShareLink(item: currentShareText) {
-                            Label("Share Current Summary", systemImage: "square.and.arrow.up")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.bordered)
-                    }
+                    HandoffDraftActionsCard(
+                        readiness: draftReadiness,
+                        shareText: currentShareText,
+                        onSave: {
+                            handoffStore.saveSnapshot(
+                                summary: summary,
+                                queueCount: queueCount,
+                                criticalCount: criticalCount,
+                                liveAlertCount: liveAlertCount
+                            )
+                        },
+                        onReset: { handoffStore.resetDraft() }
+                    )
                 }
                 .padding(.vertical, 4)
             } header: {
-                Text("Compose")
+                Text("Follow-ups & Actions")
             } footer: {
-                Text("Saved locally on this iPhone. Use this before handing the shift to another operator.")
+                Text("Saved locally on this iPhone. Use this section to close the draft and export the current handoff when the note is ready.")
             }
 
             if !timelineItems.isEmpty {
@@ -619,6 +590,168 @@ private struct HandoffDraftSnapshotCard: View {
             }
         }
         .padding(.bottom, 2)
+    }
+}
+
+private struct HandoffDraftContextCard: View {
+    @Binding var kind: HandoffSnapshotKind
+    let readiness: HandoffReadinessStatus
+    let focusCount: Int
+    let followUpCount: Int
+    @Binding var checkInWindow: HandoffCheckInWindow
+    let queueCount: Int
+    let criticalCount: Int
+    let liveAlertCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HandoffDraftSnapshotCard(
+                kind: kind,
+                readiness: readiness,
+                focusCount: focusCount,
+                followUpCount: followUpCount,
+                checkInWindowLabel: checkInWindow.label
+            )
+
+            HandoffStatsRow(
+                queueCount: queueCount,
+                criticalCount: criticalCount,
+                liveAlertCount: liveAlertCount
+            )
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Snapshot Type")
+                    .font(.subheadline.weight(.semibold))
+
+                Picker("Snapshot Type", selection: $kind) {
+                    ForEach(HandoffSnapshotKind.allCases) { kind in
+                        Text(kind.label).tag(kind)
+                    }
+                }
+
+                Text(kind.summary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            HandoffCheckInComposer(window: $checkInWindow)
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+private struct HandoffNoteComposerCard: View {
+    @Binding var note: String
+    let kind: HandoffSnapshotKind
+    let suggestedTemplateNote: String
+    let onUseSuggestedNote: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Operator note")
+                        .font(.subheadline.weight(.semibold))
+                    Text(String(localized: "Lead with a concise shift summary, then let the checklist and follow-ups carry the operational detail."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            } accessory: {
+                HandoffKindBadge(kind: kind)
+            }
+
+            TextEditor(text: $note)
+                .frame(minHeight: 110)
+                .scrollContentBackground(.hidden)
+                .padding(10)
+                .background(.secondary.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(suggestedTemplateNote)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Button(action: onUseSuggestedNote) {
+                    Label("Use Suggested Note", systemImage: "wand.and.stars")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(12)
+            .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+private struct HandoffDraftActionsCard: View {
+    let readiness: HandoffReadinessStatus
+    let shareText: String
+    let onSave: () -> Void
+    let onReset: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringFactsRow(
+                verticalSpacing: 10,
+                headerVerticalSpacing: 6,
+                factsFont: .caption2
+            ) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(String(localized: "Draft Actions"))
+                        .font(.subheadline.weight(.semibold))
+                    Text(readiness.summary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } accessory: {
+                PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
+            } facts: {
+                ForEach(readiness.issues) { issue in
+                    Label(issue.message, systemImage: issue.isBlocking ? "exclamationmark.triangle.fill" : "info.circle")
+                        .foregroundStyle(issue.tone.color)
+                }
+            }
+
+            Button(action: onSave) {
+                Label(
+                    readiness.state == .blocked ? String(localized: "Save Snapshot Anyway") : String(localized: "Save Snapshot"),
+                    systemImage: "square.and.arrow.down"
+                )
+                .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) {
+                    resetButton
+                    shareButton
+                }
+
+                VStack(spacing: 10) {
+                    resetButton
+                    shareButton
+                }
+            }
+        }
+    }
+
+    private var resetButton: some View {
+        Button(role: .destructive, action: onReset) {
+            Label("Reset Draft", systemImage: "arrow.counterclockwise")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
+    }
+
+    private var shareButton: some View {
+        ShareLink(item: shareText) {
+            Label("Share Current Summary", systemImage: "square.and.arrow.up")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.bordered)
     }
 }
 

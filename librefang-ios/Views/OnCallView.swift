@@ -302,7 +302,7 @@ struct OnCallView: View {
                 Text("This facts row keeps the current on-call shape readable before you dive into queue, watchlist, and handoff sections.")
             }
 
-            Section("Shift Status") {
+            Section {
                 OnCallStatusCard(
                     digestLine: digestLine,
                     liveAlertCount: visibleAlerts.count,
@@ -312,7 +312,13 @@ struct OnCallView: View {
                     watchCount: watchedAgents.count,
                     lastRefresh: vm.lastRefresh
                 )
+            } header: {
+                Text("Operator Snapshot")
+            } footer: {
+                Text("Keep acknowledgement state, muted pressure, and refresh freshness visible before opening deeper queue sections.")
+            }
 
+            Section {
                 OnCallHandoffStatusRow(
                     freshnessState: handoffStore.freshnessState,
                     freshnessSummary: handoffStore.freshnessSummary,
@@ -325,6 +331,10 @@ struct OnCallView: View {
                     readiness: draftHandoffReadiness,
                     followUpStatuses: latestFollowUpStatuses
                 )
+            } header: {
+                Text("Handoff State")
+            } footer: {
+                Text("Keep latest handoff freshness, readiness, and carryover visible without mixing them into the queue or jump rails.")
             }
 
             if !priorityItems.isEmpty {
@@ -368,17 +378,21 @@ struct OnCallView: View {
                     approvalCount: vm.pendingApprovalCount,
                     sessionCount: vm.sessionAttentionCount,
                     eventCount: vm.recentCriticalAuditCount,
+                    criticalCount: criticalCount,
+                    queueCount: priorityItems.count,
+                    liveAlertCount: visibleAlerts.count
+                )
+
+                OnCallSupportingSurfacesCard(
                     automationIssueCount: automationIssueCount,
                     integrationIssueCount: integrationIssueCount,
-                    criticalCount: criticalCount,
                     handoffText: handoffText,
-                    queueCount: priorityItems.count,
                     liveAlertCount: visibleAlerts.count
                 )
             } header: {
                 Text("Operator Surfaces")
             } footer: {
-                Text("Keep the highest-value drilldowns visible without mixing status rows and navigation controls.")
+                Text("Primary surfaces stay first; supporting drilldowns and sharing sit in their own card so the on-call page reads more clearly on a phone.")
             }
 
             if priorityItems.isEmpty
@@ -621,48 +635,60 @@ private struct OnCallJumpCard: View {
     let approvalCount: Int
     let sessionCount: Int
     let eventCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
     let criticalCount: Int
-    let handoffText: String
     let queueCount: Int
     let liveAlertCount: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Operator Surfaces", systemImage: "arrowshape.turn.up.right")
+            Label("Primary Surfaces", systemImage: "arrowshape.turn.up.right")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
 
-            FlowLayout(spacing: 8) {
+            MonitoringFactsRow(
+                verticalSpacing: 10,
+                headerVerticalSpacing: 6,
+                factsFont: .caption2
+            ) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Keep the highest-value queue drilldowns first so operator actions stay above the fold."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
+                    tone: queueCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if criticalCount > 0 {
+                    Label(
+                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if liveAlertCount > 0 {
+                    Label(
+                        liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
+                        systemImage: "bell.badge"
+                    )
+                }
                 if approvalCount > 0 {
-                    PresentationToneBadge(
-                        text: approvalCount == 1 ? String(localized: "1 approval waiting") : String(localized: "\(approvalCount) approvals waiting"),
-                        tone: .critical
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval waiting") : String(localized: "\(approvalCount) approvals waiting"),
+                        systemImage: "checkmark.shield"
                     )
                 }
                 if sessionCount > 0 {
-                    PresentationToneBadge(
-                        text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
-                        tone: .warning
+                    Label(
+                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        systemImage: "rectangle.stack"
                     )
                 }
                 if eventCount > 0 {
-                    PresentationToneBadge(
-                        text: eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
-                        tone: .critical
-                    )
-                }
-                if automationIssueCount > 0 {
-                    PresentationToneBadge(
-                        text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        tone: .warning
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    PresentationToneBadge(
-                        text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        tone: .critical
+                    Label(
+                        eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
+                        systemImage: "list.bullet.rectangle.portrait"
                     )
                 }
             }
@@ -728,6 +754,67 @@ private struct OnCallJumpCard: View {
             }
 
             NavigationLink {
+                HandoffCenterView(
+                    summary: handoffText,
+                    queueCount: queueCount,
+                    criticalCount: criticalCount,
+                    liveAlertCount: liveAlertCount
+                )
+            } label: {
+                OnCallJumpRow(
+                    title: String(localized: "Open Handoff Center"),
+                    detail: String(localized: "Capture the current queue and keep the next operator aligned."),
+                    systemImage: "text.badge.plus"
+                )
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+private struct OnCallSupportingSurfacesCard: View {
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let handoffText: String
+    let liveAlertCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label("Supporting Surfaces", systemImage: "square.grid.2x2")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            MonitoringFactsRow(
+                verticalSpacing: 10,
+                headerVerticalSpacing: 6,
+                factsFont: .caption2
+            ) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Keep slower systemic drilldowns and export actions separate from the queue-first routes."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: liveAlertCount == 0 ? String(localized: "Calm") : String(localized: "Live"),
+                    tone: liveAlertCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+
+            NavigationLink {
                 DiagnosticsView()
             } label: {
                 OnCallJumpRow(
@@ -782,21 +869,6 @@ private struct OnCallJumpCard: View {
                     title: String(localized: "Open Standby Digest"),
                     detail: String(localized: "Switch to the compressed standby digest for a lock-screen style summary."),
                     systemImage: "rectangle.inset.filled"
-                )
-            }
-
-            NavigationLink {
-                HandoffCenterView(
-                    summary: handoffText,
-                    queueCount: queueCount,
-                    criticalCount: criticalCount,
-                    liveAlertCount: liveAlertCount
-                )
-            } label: {
-                OnCallJumpRow(
-                    title: String(localized: "Open Handoff Center"),
-                    detail: String(localized: "Capture the current queue and keep the next operator aligned."),
-                    systemImage: "text.badge.plus"
                 )
             }
 
@@ -869,132 +941,102 @@ private struct OnCallHandoffStatusRow: View {
         followUpStatuses.filter(\.isCompleted).count
     }
 
+    private var followUpSummary: HandoffFollowUpSummary? {
+        guard !followUpStatuses.isEmpty else { return nil }
+        return HandoffFollowUpSummary.summarize(statuses: followUpStatuses)
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Label("Latest Handoff", systemImage: "text.badge.plus")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringFactsRow(
+                verticalSpacing: 10,
+                headerVerticalSpacing: 6,
+                factsFont: .caption2
+            ) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(String(localized: "Latest Handoff"))
+                        .font(.subheadline.weight(.semibold))
+                    Text(freshnessSummary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } accessory: {
                 PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
-            }
-
-            Text(freshnessSummary)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            HStack {
-                Text("Cadence")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                PresentationToneBadge(text: cadenceState.label, tone: cadenceState.tone)
-            }
-
-            Text(cadenceSummary)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-
-            if let drift {
-                HStack {
-                    Text("Drift")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    PresentationToneBadge(text: drift.state.label, tone: drift.state.tone)
+            } facts: {
+                Label(cadenceState.label, systemImage: "point.topleft.down.curvedto.point.bottomright.up")
+                Label(readiness.state.label, systemImage: "checkmark.seal")
+                if let drift {
+                    Label(drift.state.label, systemImage: "arrow.left.arrow.right")
                 }
-
-                Text(drift.compactSummary)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-
-            if let carryover {
-                HStack {
-                    Text("Carryover")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    PresentationToneBadge(text: carryover.state.label, tone: carryover.state.tone)
+                if let carryover {
+                    Label(carryover.state.label, systemImage: "arrow.triangle.branch")
                 }
-
-                Text(carryover.summary)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-
-            HStack {
-                Text("Next Handoff")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
+                if let checkInStatus {
+                    Label(checkInStatus.state.label, systemImage: "timer")
+                }
+                if let followUpSummary {
+                    Label(followUpSummary.badgeLabel, systemImage: "checklist")
+                }
             }
 
             Text(readiness.summary)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
-            if let checkInStatus {
-                HStack {
-                    Text("Check-in")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    PresentationToneBadge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
-                }
-
-                Text(checkInStatus.dueLabel)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-
-                Text(checkInStatus.summary)
+            if let drift {
+                Text(drift.compactSummary)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
 
-            if !followUpStatuses.isEmpty {
-                let followUpSummary = HandoffFollowUpSummary.summarize(statuses: followUpStatuses)
+            if let carryover {
+                Text(carryover.summary)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
 
-                HStack {
-                    Text("Follow-ups")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    PresentationToneBadge(text: followUpSummary.badgeLabel, tone: followUpSummary.tone)
-                }
-
-                Text(followUpSummary.detailLabel)
+            if let checkInStatus {
+                Text([checkInStatus.dueLabel, checkInStatus.summary].joined(separator: " · "))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
 
             if let latestEntry {
-                HStack {
-                    HandoffKindBadge(kind: latestEntry.kind)
-                    Spacer()
-                    Text(String(localized: "Checklist \(latestEntry.checklist.progressLabel) · \(latestEntry.createdAt.formatted(date: .omitted, time: .shortened))"))
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
+                VStack(alignment: .leading, spacing: 8) {
+                    ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 6) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(String(localized: "Latest Snapshot"))
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                            Text(String(localized: "Checklist \(latestEntry.checklist.progressLabel) · \(latestEntry.createdAt.formatted(date: .omitted, time: .shortened))"))
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    } accessory: {
+                        HandoffKindBadge(kind: latestEntry.kind)
+                    }
 
-                if !latestEntry.focusAreas.items.isEmpty {
-                    HandoffFocusSummaryRow(focusAreas: latestEntry.focusAreas)
-                }
+                    if !latestEntry.focusAreas.items.isEmpty {
+                        HandoffFocusSummaryRow(focusAreas: latestEntry.focusAreas)
+                    }
 
-                if latestEntry.checkInWindow != .none {
-                    HandoffCheckInSummaryRow(window: latestEntry.checkInWindow, createdAt: latestEntry.createdAt)
-                }
+                    if latestEntry.checkInWindow != .none {
+                        HandoffCheckInSummaryRow(window: latestEntry.checkInWindow, createdAt: latestEntry.createdAt)
+                    }
 
-                if !latestEntry.followUpItems.isEmpty {
-                    HandoffFollowUpSummaryRow(items: latestEntry.followUpItems)
-                }
+                    if !latestEntry.followUpItems.isEmpty {
+                        HandoffFollowUpSummaryRow(items: latestEntry.followUpItems)
+                    }
 
-                if !followUpStatuses.isEmpty {
-                    Text(String(localized: "\(completedFollowUpCount) complete · \(pendingFollowUpCount) pending"))
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                    if followUpSummary != nil {
+                        Text(String(localized: "\(completedFollowUpCount) complete · \(pendingFollowUpCount) pending"))
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
+                .padding(12)
+                .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
             }
         }
     }
@@ -1101,50 +1143,49 @@ private struct OnCallStatusCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Label("Operator Snapshot", systemImage: "person.crop.rectangle.badge.exclamationmark")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
+            MonitoringFactsRow(
+                verticalSpacing: 10,
+                headerVerticalSpacing: 6,
+                factsFont: .caption2
+            ) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(String(localized: "Operator Snapshot"))
+                        .font(.subheadline.weight(.semibold))
+                    Text(digestLine)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } accessory: {
                 PresentationToneBadge(text: snapshotState.onCallLabel, tone: snapshotState.tone)
-            }
-
-            Text(digestLine)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            ResponsiveInlineGroup(horizontalSpacing: 12, verticalSpacing: 6) {
-                statusChip(
-                    text: watchCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchCount) watched agents"),
+            } facts: {
+                Label(
+                    liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
+                    systemImage: "bell.badge"
+                )
+                Label(
+                    watchCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchCount) watched agents"),
                     systemImage: "star.fill"
                 )
-                statusChip(
-                    text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                Label(
+                    mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
                     systemImage: "bell.slash"
                 )
             }
+
+            ResponsiveInlineGroup(horizontalSpacing: 12, verticalSpacing: 6) {
+                if let acknowledgedAt, isAcknowledged {
+                    Text("Acknowledged \(acknowledgedAt, style: .relative) ago")
+                }
+
+                if let lastRefresh {
+                    Text("Last refreshed \(lastRefresh, style: .relative)")
+                }
+            }
             .font(.caption2)
-            .foregroundStyle(.secondary)
-
-            if let acknowledgedAt, isAcknowledged {
-                Text("Acknowledged \(acknowledgedAt, style: .relative) ago")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-
-            if let lastRefresh {
-                Text("Last refreshed \(lastRefresh, style: .relative)")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
+            .foregroundStyle(.tertiary)
         }
         .padding(.vertical, 4)
-    }
-
-    @ViewBuilder
-    private func statusChip(text: String, systemImage: String) -> some View {
-        Label(text, systemImage: systemImage)
-            .lineLimit(1)
-            .minimumScaleFactor(0.85)
     }
 }
 

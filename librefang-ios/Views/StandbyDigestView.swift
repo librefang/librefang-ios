@@ -164,11 +164,12 @@ struct StandbyDigestView: View {
                     signalFactsCard
                     glanceCard
 
-                    if !watchItems.isEmpty {
-                        watchlistCard
-                    }
+                if !watchItems.isEmpty {
+                    watchlistCard
+                }
 
-                    actionCard
+                    primarySurfacesCard
+                    supportingSurfacesCard
                 }
                 .padding()
             }
@@ -522,20 +523,11 @@ struct StandbyDigestView: View {
         )
     }
 
-    private var actionCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label {
-                Text(String(localized: "Operator Surfaces"))
-            } icon: {
-                Image(systemName: "arrowshape.turn.up.right")
-            }
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(.white)
-
-            Text(String(localized: "Use a deeper surface when the standby digest is no longer enough to explain current pressure."))
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.72))
-
+    private var primarySurfacesCard: some View {
+        StandbySurfaceSectionCard(
+            title: String(localized: "Primary Surfaces"),
+            detail: String(localized: "Keep the most common next steps immediately below the digest and watchlist.")
+        ) {
             NavigationLink {
                 NightWatchView()
             } label: {
@@ -604,7 +596,14 @@ struct StandbyDigestView: View {
                 )
             }
             .buttonStyle(.plain)
+        }
+    }
 
+    private var supportingSurfacesCard: some View {
+        StandbySurfaceSectionCard(
+            title: String(localized: "Supporting Surfaces"),
+            detail: String(localized: "Keep slower runtime, integration, and sharing routes separate from the primary standby exits.")
+        ) {
             NavigationLink {
                 DiagnosticsView()
             } label: {
@@ -667,8 +666,6 @@ struct StandbyDigestView: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(18)
-        .glassPanel(fillOpacity: 0.09, cornerRadius: 22)
     }
 
     @ViewBuilder
@@ -898,6 +895,42 @@ private struct StandbyActionRow: View {
                 .foregroundStyle(.white.opacity(0.74))
                 .lineLimit(2)
         }
+    }
+}
+
+private struct StandbySurfaceSectionCard<Content: View>: View {
+    let title: String
+    let detail: String
+    let content: Content
+
+    init(
+        title: String,
+        detail: String,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.title = title
+        self.detail = detail
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label {
+                Text(title)
+            } icon: {
+                Image(systemName: "arrowshape.turn.up.right")
+            }
+            .font(.headline.weight(.semibold))
+            .foregroundStyle(.white)
+
+            Text(detail)
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.72))
+
+            content
+        }
+        .padding(18)
+        .glassPanel(fillOpacity: 0.09, cornerRadius: 22)
     }
 }
 
