@@ -66,6 +66,10 @@ struct AgentDetailView: View {
         deps.agentWatchlistStore.isWatched(agent)
     }
 
+    private var watchAccentColor: Color {
+        PresentationTone.caution.color
+    }
+
     private var currentSessionID: String? {
         sessionSnapshot?.sessionId
     }
@@ -213,7 +217,7 @@ struct AgentDetailView: View {
                     deps.agentWatchlistStore.toggle(agent)
                 } label: {
                     Image(systemName: isWatched ? "star.fill" : "star")
-                        .foregroundStyle(isWatched ? .yellow : .primary)
+                        .foregroundStyle(isWatched ? watchAccentColor : .primary)
                 }
             }
         }
@@ -449,7 +453,7 @@ struct AgentDetailView: View {
                     if isWatched {
                         Label("Pinned on this iPhone", systemImage: "star.fill")
                             .font(.caption.weight(.medium))
-                            .foregroundStyle(.yellow)
+                            .foregroundStyle(watchAccentColor)
                     }
                     Text(agent.id)
                         .font(.caption2)
@@ -1775,6 +1779,8 @@ private struct AgentSessionInventoryRow: View {
     let onEditLabel: (() -> Void)?
     let onDelete: (() -> Void)?
 
+    private let currentSessionTone: PresentationTone = .positive
+
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
@@ -1786,8 +1792,8 @@ private struct AgentSessionInventoryRow: View {
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.green.opacity(0.12))
-                        .foregroundStyle(.green)
+                        .background(currentSessionTone.badgeBackgroundColor)
+                        .foregroundStyle(currentSessionTone.color)
                         .clipShape(Capsule())
                 } else if let onSwitch {
                     Button {
@@ -1913,13 +1919,14 @@ private struct AgentMemorySummaryRow: View {
                 Text(entry.key)
                     .font(.subheadline.weight(.medium))
                 Spacer()
-                if entry.isStructured {
-                    Text("Structured")
+                if let structureBadgeLabel = entry.structureBadgeLabel,
+                   let structureTone = entry.structureTone {
+                    Text(structureBadgeLabel)
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.orange.opacity(0.12))
-                        .foregroundStyle(.orange)
+                        .background(structureTone.badgeBackgroundColor)
+                        .foregroundStyle(structureTone.color)
                         .clipShape(Capsule())
                 }
             }

@@ -44,6 +44,15 @@ nonisolated struct AgentMemoryEntry: Codable, Identifiable, Sendable, Hashable {
     var isStructured: Bool { value.isStructured }
     var summary: String { value.memorySummary }
     var editorText: String { value.memoryEditorText }
+
+    var structureBadgeLabel: String? {
+        guard isStructured else { return nil }
+        return String(localized: "Structured")
+    }
+
+    var structureTone: PresentationTone? {
+        isStructured ? .warning : nil
+    }
 }
 
 extension JSONValue {

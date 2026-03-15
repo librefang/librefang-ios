@@ -15,4 +15,8 @@ extension PresentationTone {
             return .secondary
         }
     }
+
+    var badgeBackgroundColor: Color {
+        color.opacity(0.12)
+    }
 }

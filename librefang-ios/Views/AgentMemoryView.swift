@@ -504,13 +504,14 @@ private struct AgentMemoryRow: View {
 
                 Spacer()
 
-                if entry.isStructured {
-                    Text("Structured")
+                if let structureBadgeLabel = entry.structureBadgeLabel,
+                   let structureTone = entry.structureTone {
+                    Text(structureBadgeLabel)
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.orange.opacity(0.12))
-                        .foregroundStyle(.orange)
+                        .background(structureTone.badgeBackgroundColor)
+                        .foregroundStyle(structureTone.color)
                         .clipShape(Capsule())
                 }
 
