@@ -71,14 +71,40 @@ struct BudgetView: View {
                     }
 
                     if let budget = vm.budget {
-                        Section("Limits") {
+                        Section {
+                            MonitoringSnapshotCard(
+                                summary: String(localized: "Budget guardrails stay visible before the detailed limit rows."),
+                                detail: budgetFocusSummary
+                            ) {
+                                FlowLayout(spacing: 8) {
+                                    PresentationToneBadge(
+                                        text: String(localized: "Hourly"),
+                                        tone: StatusPresentation.budgetUtilizationStatus(for: budget.hourlyPct)?.tone ?? .neutral
+                                    )
+                                    PresentationToneBadge(
+                                        text: String(localized: "Daily"),
+                                        tone: StatusPresentation.budgetUtilizationStatus(for: budget.dailyPct)?.tone ?? .neutral
+                                    )
+                                    PresentationToneBadge(
+                                        text: String(localized: "Monthly"),
+                                        tone: StatusPresentation.budgetUtilizationStatus(for: budget.monthlyPct)?.tone ?? .neutral
+                                    )
+                                    PresentationToneBadge(
+                                        text: String(localized: "\(Int(budget.alertThreshold * 100))% alert"),
+                                        tone: .warning
+                                    )
+                                    if let maxTokens = budget.defaultMaxLlmTokensPerHour, maxTokens > 0 {
+                                        PresentationToneBadge(
+                                            text: String(localized: "\(maxTokens.formatted()) tokens/hr"),
+                                            tone: .neutral
+                                        )
+                                    }
+                                }
+                            }
+
                             BudgetLimitRow(label: "Hourly", spend: budget.hourlySpend, limit: budget.hourlyLimit, pct: budget.hourlyPct)
                             BudgetLimitRow(label: "Daily", spend: budget.dailySpend, limit: budget.dailyLimit, pct: budget.dailyPct)
                             BudgetLimitRow(label: "Monthly", spend: budget.monthlySpend, limit: budget.monthlyLimit, pct: budget.monthlyPct)
-                        }
-                        .id(BudgetSectionAnchor.limits)
-
-                        Section("Alert") {
                             BudgetValueRow(label: "Threshold") {
                                 Text("\(Int(budget.alertThreshold * 100))%")
                                     .foregroundStyle(.orange)
@@ -89,7 +115,12 @@ struct BudgetView: View {
                                         .monospacedDigit()
                                 }
                             }
+                        } header: {
+                            Text("Limits & Alerts")
+                        } footer: {
+                            Text("Thresholds and token guardrails now stay with the spend limits instead of splitting into separate compact sections.")
                         }
+                        .id(BudgetSectionAnchor.limits)
                     }
 
                     if let usageSummary = vm.usageSummary {

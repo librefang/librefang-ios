@@ -472,6 +472,13 @@ struct SettingsView: View {
                 .id(SettingsSectionAnchor.reminder)
 
                     Section("Handoff") {
+                    MonitoringSnapshotCard(
+                        summary: deps.onCallHandoffStore.freshnessSummary,
+                        detail: draftHandoffReadiness.summary
+                    ) {
+                        SettingsBadgeFlow(items: handoffSummaryBadges)
+                    }
+
                     NavigationLink {
                         HandoffCenterView(
                             summary: handoffText,
@@ -588,6 +595,13 @@ struct SettingsView: View {
                 .id(SettingsSectionAnchor.handoff)
 
                     Section("Monitoring") {
+                    MonitoringSnapshotCard(
+                        summary: String(localized: "Device-local monitoring state stays visible here before the longer per-signal rows."),
+                        detail: String(localized: "Use this digest to confirm queue pressure, watchlist pressure, and readiness signals without scanning every value.")
+                    ) {
+                        SettingsBadgeFlow(items: monitoringSummaryBadges)
+                    }
+
                     SettingsValueRow("Agents") {
                         Text(deps.dashboardViewModel.agentAttentionStatus.summary)
                             .foregroundStyle(deps.dashboardViewModel.agentAttentionStatus.tone.color)
@@ -751,6 +765,40 @@ struct SettingsView: View {
         }
 
         return items
+    }
+
+    private var handoffSummaryBadges: [SettingsBadgeItem] {
+        var items: [SettingsBadgeItem] = [
+            SettingsBadgeItem(text: deps.onCallHandoffStore.freshnessLabel, tone: deps.onCallHandoffStore.freshnessState.tone),
+            SettingsBadgeItem(text: draftHandoffReadiness.state.label, tone: draftHandoffReadiness.state.tone),
+        ]
+
+        if let latest = deps.onCallHandoffStore.latestEntry {
+            items.append(SettingsBadgeItem(text: latest.kind.label, tone: .neutral))
+            items.append(SettingsBadgeItem(text: latest.focusAreas.summaryLabel, tone: handoffFocusStatus(for: latest).tone))
+        }
+
+        if let checkInStatus = deps.onCallHandoffStore.latestCheckInStatus {
+            items.append(SettingsBadgeItem(text: checkInStatus.state.label, tone: checkInStatus.state.tone))
+        }
+
+        let followUpSummary = deps.onCallHandoffStore.latestFollowUpSummary
+        items.append(SettingsBadgeItem(text: followUpSummary.settingsLabel, tone: followUpSummary.tone))
+
+        return items
+    }
+
+    private var monitoringSummaryBadges: [SettingsBadgeItem] {
+        [
+            SettingsBadgeItem(text: deps.dashboardViewModel.agentAttentionStatus.summary, tone: deps.dashboardViewModel.agentAttentionStatus.tone),
+            SettingsBadgeItem(text: deps.dashboardViewModel.providerReadinessStatus.summary, tone: deps.dashboardViewModel.providerReadinessStatus.tone),
+            SettingsBadgeItem(text: deps.dashboardViewModel.channelReadinessStatus.summary, tone: deps.dashboardViewModel.channelReadinessStatus.tone),
+            SettingsBadgeItem(text: deps.dashboardViewModel.approvalBacklogStatus.summary, tone: deps.dashboardViewModel.approvalBacklogStatus.tone),
+            SettingsBadgeItem(text: onCallQueueCount == 1 ? String(localized: "1 on-call item") : String(localized: "\(onCallQueueCount) on-call items"), tone: onCallQueueStatus.tone),
+            SettingsBadgeItem(text: activeMutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(activeMutedAlertCount) muted alerts"), tone: mutedAlertStatus.tone),
+            SettingsBadgeItem(text: deps.agentWatchlistStore.watchedAgentIDs.count == 1 ? String(localized: "1 watched agent") : String(localized: "\(deps.agentWatchlistStore.watchedAgentIDs.count) watched agents"), tone: watchlistStatus.tone),
+            SettingsBadgeItem(text: snapshotStatus.settingsLabel, tone: snapshotStatus.tone),
+        ]
     }
 
     private func localizedLanguageName(for identifier: String) -> String {
