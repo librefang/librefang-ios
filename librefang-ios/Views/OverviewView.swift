@@ -192,7 +192,7 @@ struct OverviewView: View {
                             handoffTone: deps.onCallHandoffStore.freshnessState.tone
                         )
 
-                        OverviewControlDeckCard(
+                        OverviewEntryDeckCard(
                             criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
                             approvalCount: vm.pendingApprovalCount,
                             sessionCount: vm.sessionAttentionCount,
@@ -202,15 +202,8 @@ struct OverviewView: View {
                             budgetDailyCost: vm.budget?.dailySpend,
                             handoffText: handoffText,
                             queueCount: onCallPriorityItems.count,
-                            liveAlertCount: visibleMonitoringAlerts.count
-                        )
-
-                        OverviewFocusRailCard(
-                            diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                            automationIssueCount: vm.automationPressureIssueCategoryCount,
-                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                            liveAlertCount: visibleMonitoringAlerts.count,
                             watchIssueCount: overviewWatchIssueCount,
-                            sessionCount: vm.sessionAttentionCount,
                             auditCount: vm.recentAudit.count,
                             agentCount: vm.attentionAgents.isEmpty ? vm.agents.count : vm.attentionAgents.count,
                             showsDiagnostics: vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil,
@@ -368,13 +361,13 @@ struct OverviewView: View {
                             NavigationLink {
                                 NightWatchView()
                             } label: {
-                                Label("Open Night Watch", systemImage: "moon.stars")
+                                Label("Night Watch", systemImage: "moon.stars")
                             }
 
                             NavigationLink {
                                 StandbyDigestView()
                             } label: {
-                                Label("Open Standby Digest", systemImage: "rectangle.inset.filled")
+                                Label("Standby", systemImage: "rectangle.inset.filled")
                             }
 
                             NavigationLink {
@@ -385,7 +378,7 @@ struct OverviewView: View {
                                     liveAlertCount: visibleMonitoringAlerts.count
                                 )
                             } label: {
-                                Label("Open Handoff Center", systemImage: "text.badge.plus")
+                                Label("Handoff", systemImage: "text.badge.plus")
                             }
                         }
 
@@ -393,25 +386,25 @@ struct OverviewView: View {
                             NavigationLink {
                                 ApprovalsView()
                             } label: {
-                                Label("Open Approvals", systemImage: "checkmark.shield")
+                                Label("Approvals", systemImage: "checkmark.shield")
                             }
 
                             NavigationLink {
                                 AutomationView()
                             } label: {
-                                Label("Open Automation", systemImage: "flowchart")
+                                Label("Automation", systemImage: "flowchart")
                             }
 
                             NavigationLink {
                                 DiagnosticsView()
                             } label: {
-                                Label("Open Diagnostics", systemImage: "stethoscope")
+                                Label("Diagnostics", systemImage: "stethoscope")
                             }
 
                             NavigationLink {
                                 IntegrationsView()
                             } label: {
-                                Label("Open Integrations", systemImage: "square.3.layers.3d.down.forward")
+                                Label("Integrations", systemImage: "square.3.layers.3d.down.forward")
                             }
                         }
                     } label: {
@@ -582,7 +575,7 @@ private struct OverviewStatusDeckCard: View {
     }
 }
 
-private struct OverviewControlDeckCard: View {
+private struct OverviewEntryDeckCard: View {
     let criticalCount: Int
     let approvalCount: Int
     let sessionCount: Int
@@ -593,6 +586,17 @@ private struct OverviewControlDeckCard: View {
     let handoffText: String
     let queueCount: Int
     let liveAlertCount: Int
+    let watchIssueCount: Int
+    let auditCount: Int
+    let agentCount: Int
+    let showsDiagnostics: Bool
+    let showsIntegrations: Bool
+    let showsAutomation: Bool
+    let showsWatchlist: Bool
+    let showsSessions: Bool
+    let showsAudit: Bool
+    let showsAgents: Bool
+    let onJump: (OverviewSectionAnchor) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -767,36 +771,14 @@ private struct OverviewControlDeckCard: View {
                     .buttonStyle(.plain)
                 }
             }
-        }
-    }
-}
 
-private struct OverviewFocusRailCard: View {
-    let diagnosticsWarningCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-    let watchIssueCount: Int
-    let sessionCount: Int
-    let auditCount: Int
-    let agentCount: Int
-    let showsDiagnostics: Bool
-    let showsIntegrations: Bool
-    let showsAutomation: Bool
-    let showsWatchlist: Bool
-    let showsSessions: Bool
-    let showsAudit: Bool
-    let showsAgents: Bool
-    let onJump: (OverviewSectionAnchor) -> Void
-
-    var body: some View {
-        MonitoringSnapshotCard(
-            summary: String(localized: "Keep compact overview sections reachable without long thumb-scrolling."),
-            detail: String(localized: "These jump targets stay inside overview and land on the deepest mobile monitoring cards.")
-        ) {
-            FlowLayout(spacing: 8) {
+            MonitoringShortcutRail(
+                title: String(localized: "Jump Rail"),
+                detail: String(localized: "Keep compact overview sections reachable without long thumb-scrolling.")
+            ) {
                 if showsDiagnostics {
                     jumpChip(
-                        title: String(localized: "Diagnostics Summary"),
+                        title: String(localized: "Diagnostics"),
                         systemImage: "stethoscope",
                         tone: diagnosticsWarningCount > 0 ? .warning : .neutral,
                         badgeText: diagnosticsWarningCount > 0
@@ -808,7 +790,7 @@ private struct OverviewFocusRailCard: View {
 
                 if showsIntegrations {
                     jumpChip(
-                        title: String(localized: "Integrations Summary"),
+                        title: String(localized: "Integrations"),
                         systemImage: "square.3.layers.3d.down.forward",
                         tone: integrationIssueCount > 0 ? .warning : .neutral,
                         badgeText: integrationIssueCount > 0
@@ -820,7 +802,7 @@ private struct OverviewFocusRailCard: View {
 
                 if showsAutomation {
                     jumpChip(
-                        title: String(localized: "Automation Summary"),
+                        title: String(localized: "Automation"),
                         systemImage: "flowchart",
                         tone: automationIssueCount > 0 ? .warning : .neutral,
                         badgeText: automationIssueCount > 0
@@ -852,7 +834,7 @@ private struct OverviewFocusRailCard: View {
 
                 if showsAudit {
                     jumpChip(
-                        title: String(localized: "Audit Feed"),
+                        title: String(localized: "Audit"),
                         systemImage: "text.justify.leading",
                         tone: .neutral,
                         badgeText: auditCount == 1 ? String(localized: "1 recent event") : String(localized: "\(auditCount) recent events"),
@@ -862,7 +844,7 @@ private struct OverviewFocusRailCard: View {
 
                 if showsAgents {
                     jumpChip(
-                        title: String(localized: "Fleet Preview"),
+                        title: String(localized: "Agents"),
                         systemImage: "person.3",
                         tone: .neutral,
                         badgeText: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
@@ -871,9 +853,6 @@ private struct OverviewFocusRailCard: View {
                 }
             }
         }
-        .padding()
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     private func jumpChip(
@@ -2185,7 +2164,7 @@ private struct SessionWatchlistCard: View {
             NavigationLink {
                 SessionsView(initialFilter: .attention)
             } label: {
-                Label("Open Session Monitor", systemImage: "rectangle.stack")
+                Label("Sessions", systemImage: "rectangle.stack")
                     .font(.caption.weight(.medium))
             }
         }

@@ -126,6 +126,121 @@ struct AgentsView: View {
                                         }
                                     }
                                 }
+
+                                MonitoringSurfaceGroupCard(
+                                    title: String(localized: "Fleet Surfaces"),
+                                    detail: String(localized: "Keep the broader operator queues one tap away from the compact fleet filter.")
+                                ) {
+                                    MonitoringShortcutRail(
+                                        title: String(localized: "Primary Surfaces"),
+                                        detail: String(localized: "Use these routes when fleet review needs broader incident or runtime context.")
+                                    ) {
+                                        NavigationLink {
+                                            OnCallView()
+                                        } label: {
+                                            MonitoringSurfaceShortcutChip(
+                                                title: String(localized: "On Call"),
+                                                systemImage: "waveform.path.ecg",
+                                                tone: vm.issueAgentCount > 0 ? .warning : .neutral,
+                                                badgeText: vm.issueAgentCount > 0 ? "\(vm.issueAgentCount)" : nil
+                                            )
+                                        }
+                                        .buttonStyle(.plain)
+
+                                        NavigationLink {
+                                            IncidentsView()
+                                        } label: {
+                                            MonitoringSurfaceShortcutChip(
+                                                title: String(localized: "Incidents"),
+                                                systemImage: "bell.badge",
+                                                tone: vm.monitoringAlerts.contains { $0.severity == .critical } ? .critical : .neutral,
+                                                badgeText: vm.monitoringAlerts.isEmpty ? nil : "\(vm.monitoringAlerts.count)"
+                                            )
+                                        }
+                                        .buttonStyle(.plain)
+
+                                        NavigationLink {
+                                            RuntimeView()
+                                        } label: {
+                                            MonitoringSurfaceShortcutChip(
+                                                title: String(localized: "Runtime"),
+                                                systemImage: "server.rack",
+                                                tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
+                                                badgeText: vm.runtimeAlertCount > 0 ? "\(vm.runtimeAlertCount)" : nil
+                                            )
+                                        }
+                                        .buttonStyle(.plain)
+
+                                        if vm.sessionAttentionCount > 0 {
+                                            NavigationLink {
+                                                SessionsView(initialFilter: .attention)
+                                            } label: {
+                                                MonitoringSurfaceShortcutChip(
+                                                    title: String(localized: "Sessions"),
+                                                    systemImage: "rectangle.stack",
+                                                    tone: .warning,
+                                                    badgeText: "\(vm.sessionAttentionCount)"
+                                                )
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+                                    }
+
+                                    MonitoringShortcutRail(
+                                        title: String(localized: "Support Routes"),
+                                        detail: String(localized: "Keep approvals, diagnostics, and slower fleet drilldowns reachable without leaving the compact list flow.")
+                                    ) {
+                                        if vm.pendingApprovalCount > 0 {
+                                            NavigationLink {
+                                                ApprovalsView()
+                                            } label: {
+                                                MonitoringSurfaceShortcutChip(
+                                                    title: String(localized: "Approvals"),
+                                                    systemImage: "checkmark.shield",
+                                                    tone: .warning,
+                                                    badgeText: "\(vm.pendingApprovalCount)"
+                                                )
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+
+                                        NavigationLink {
+                                            DiagnosticsView()
+                                        } label: {
+                                            MonitoringSurfaceShortcutChip(
+                                                title: String(localized: "Diagnostics"),
+                                                systemImage: "stethoscope",
+                                                tone: vm.diagnosticsConfigWarningCount > 0 ? .warning : .neutral,
+                                                badgeText: vm.diagnosticsConfigWarningCount > 0 ? "\(vm.diagnosticsConfigWarningCount)" : nil
+                                            )
+                                        }
+                                        .buttonStyle(.plain)
+
+                                        NavigationLink {
+                                            IntegrationsView(initialScope: .attention)
+                                        } label: {
+                                            MonitoringSurfaceShortcutChip(
+                                                title: String(localized: "Integrations"),
+                                                systemImage: "square.3.layers.3d.down.forward",
+                                                tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                                                badgeText: vm.integrationPressureIssueCategoryCount > 0 ? "\(vm.integrationPressureIssueCategoryCount)" : nil
+                                            )
+                                        }
+                                        .buttonStyle(.plain)
+
+                                        NavigationLink {
+                                            AutomationView(initialScope: .attention)
+                                        } label: {
+                                            MonitoringSurfaceShortcutChip(
+                                                title: String(localized: "Automation"),
+                                                systemImage: "flowchart",
+                                                tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                                                badgeText: vm.automationPressureIssueCategoryCount > 0 ? "\(vm.automationPressureIssueCategoryCount)" : nil
+                                            )
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
                             } footer: {
                                 Text("Keep the fleet filter visible on mobile instead of relying on the top-bar menu alone.")
                             }
