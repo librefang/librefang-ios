@@ -16,9 +16,20 @@ enum AppShortcutLaunchBridge {
         static let pendingToken = "appshortcuts.pendingToken"
     }
 
+    static let notificationSurfaceKey = "monitoringSurface"
+
     static func queue(_ surface: AppShortcutSurface, defaults: UserDefaults = .standard) {
         defaults.set(surface.rawValue, forKey: StorageKey.pendingSurface)
         defaults.set(UUID().uuidString, forKey: StorageKey.pendingToken)
+    }
+
+    static func userInfo(for surface: AppShortcutSurface) -> [AnyHashable: Any] {
+        [notificationSurfaceKey: surface.rawValue]
+    }
+
+    static func surface(from userInfo: [AnyHashable: Any]) -> AppShortcutSurface? {
+        guard let rawValue = userInfo[notificationSurfaceKey] as? String else { return nil }
+        return AppShortcutSurface(rawValue: rawValue)
     }
 
     static func pendingSurface(defaults: UserDefaults = .standard) -> AppShortcutSurface? {

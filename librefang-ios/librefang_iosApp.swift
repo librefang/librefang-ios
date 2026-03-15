@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct LibreFangApp: App {
+    @UIApplicationDelegateAdaptor(NotificationRoutingDelegate.self) private var notificationDelegate
     @State private var dependencies = AppDependencies()
 
     var body: some Scene {

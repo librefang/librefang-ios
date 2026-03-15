@@ -151,6 +151,7 @@ final class OnCallNotificationManager {
         content.badge = NSNumber(value: max(snapshot.criticalCount, snapshot.itemCount))
         content.categoryIdentifier = "ONCALL_REMINDER"
         content.threadIdentifier = "oncall-standby"
+        content.userInfo = AppShortcutLaunchBridge.userInfo(for: destinationSurface(for: snapshot))
 
         let scheduledDate = scheduledReminderDate(for: snapshot)
         let delay = max(Self.minimumLeadTime, scheduledDate.timeIntervalSinceNow)
@@ -206,6 +207,15 @@ final class OnCallNotificationManager {
         }
 
         return "Standby delay"
+    }
+
+    private func destinationSurface(for snapshot: OnCallReminderSnapshot) -> AppShortcutSurface {
+        if let schedulingHint = snapshot.schedulingHint,
+           schedulingHint.localizedCaseInsensitiveContains("handoff") {
+            return .handoffCenter
+        }
+
+        return .onCall
     }
 
     private func notificationSettings() async -> UNNotificationSettings {
