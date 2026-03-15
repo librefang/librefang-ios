@@ -55,13 +55,13 @@ struct EventsView: View {
                 eventsStatusDeckCard
                 eventsControlDeckCard
             } header: {
-                Text("Operator Deck")
+                Text("Controls")
             } footer: {
-                Text("Keep event pressure, transport state, routes, and filters together before the long feed.")
+                Text("Event pressure, routes, and filters stay together before the feed.")
             }
 
             if filteredEntries.isEmpty && !viewModel.isLoading {
-                Section("Event Feed") {
+                Section("Feed") {
                     ContentUnavailableView(
                         searchText.isEmpty ? String(localized: "No Matching Events") : String(localized: "No Search Results"),
                         systemImage: scope == .all ? "list.bullet.rectangle" : "line.3.horizontal.decrease.circle",
@@ -74,7 +74,7 @@ struct EventsView: View {
                         EventRow(entry: entry, agentName: agentName(for: entry.agentId))
                     }
                 } header: {
-                    Text("Event Feed")
+                    Text("Feed")
                 } footer: {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("\(filteredEntries.count) of \(viewModel.entries.count) events visible")

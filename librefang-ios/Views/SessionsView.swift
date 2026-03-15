@@ -85,9 +85,9 @@ struct SessionsView: View {
                 sessionsStatusDeckCard
                 sessionsControlDeckCard
             } header: {
-                Text("Operator Deck")
+                Text("Controls")
             } footer: {
-                Text("Keep session backlog pressure, routes, and filters together before the long queue.")
+                Text("Backlog pressure, routes, and filters stay together before the list.")
             }
 
             if filteredItems.isEmpty && !vm.isLoading {

@@ -52,9 +52,9 @@ struct CommsView: View {
                 commsStatusDeckCard
                 commsControlDeckCard
             } header: {
-                Text("Operator Deck")
+                Text("Controls")
             } footer: {
-                Text("Keep comms pressure, transport mode, routes, and filters together before topology and recent events.")
+                Text("Comms pressure, routes, and filters stay together before topology and traffic.")
             }
 
             Section {
@@ -89,7 +89,7 @@ struct CommsView: View {
             }
 
             if filteredEvents.isEmpty && !viewModel.isLoading {
-                Section("Recent Comms") {
+                Section("Traffic") {
                     ContentUnavailableView(
                         searchText.isEmpty ? String(localized: "No Communication Events") : String(localized: "No Search Results"),
                         systemImage: "arrow.left.arrow.right.circle",
@@ -102,7 +102,7 @@ struct CommsView: View {
                         CommsEventRow(event: event)
                     }
                 } header: {
-                    Text("Recent Comms")
+                    Text("Traffic")
                 } footer: {
                     Text("\(filteredEvents.count) of \(viewModel.events.count) events visible")
                 }
