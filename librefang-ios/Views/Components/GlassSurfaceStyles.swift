@@ -329,8 +329,8 @@ struct GlassPanelButtonStyle: ButtonStyle {
         configuration.label
             .font(.caption.weight(.semibold))
             .foregroundStyle(foregroundStyle)
-            .padding(.vertical, 10)
-            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
+            .padding(.horizontal, 11)
             .background(.white.opacity(fillOpacity * (configuration.isPressed ? 0.8 : 1)))
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
@@ -350,8 +350,8 @@ struct GlassCapsuleButtonStyle: ButtonStyle {
         configuration.label
             .font(.caption.weight(.semibold))
             .foregroundStyle(foregroundStyle)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 11)
+            .padding(.vertical, 9)
             .background(.white.opacity(fillOpacity * (configuration.isPressed ? 0.65 : 1)))
             .clipShape(Capsule())
     }

@@ -10,9 +10,9 @@ struct ResponsiveAccessoryRow<Leading: View, Accessory: View>: View {
 
     init(
         horizontalAlignment: VerticalAlignment = .firstTextBaseline,
-        horizontalSpacing: CGFloat = 12,
-        verticalSpacing: CGFloat = 6,
-        spacerMinLength: CGFloat = 8,
+        horizontalSpacing: CGFloat = 10,
+        verticalSpacing: CGFloat = 5,
+        spacerMinLength: CGFloat = 6,
         @ViewBuilder leading: () -> Leading,
         @ViewBuilder accessory: () -> Accessory
     ) {
@@ -52,9 +52,9 @@ struct ResponsiveValueRow<Leading: View, Value: View>: View {
 
     init(
         horizontalAlignment: VerticalAlignment = .firstTextBaseline,
-        horizontalSpacing: CGFloat = 12,
-        verticalSpacing: CGFloat = 4,
-        spacerMinLength: CGFloat = 8,
+        horizontalSpacing: CGFloat = 10,
+        verticalSpacing: CGFloat = 3,
+        spacerMinLength: CGFloat = 6,
         horizontalTextAlignment: TextAlignment = .trailing,
         verticalTextAlignment: TextAlignment = .leading,
         @ViewBuilder leading: () -> Leading,
@@ -98,7 +98,7 @@ struct ResponsiveLabeledContentRow<Label: View, Value: View>: View {
     let value: Value
 
     init(
-        verticalSpacing: CGFloat = 6,
+        verticalSpacing: CGFloat = 5,
         horizontalTextAlignment: TextAlignment = .trailing,
         verticalTextAlignment: TextAlignment = .leading,
         @ViewBuilder label: () -> Label,
@@ -141,9 +141,9 @@ struct ResponsiveIconDetailRow<Icon: View, Detail: View>: View {
 
     init(
         horizontalAlignment: VerticalAlignment = .top,
-        horizontalSpacing: CGFloat = 12,
-        verticalSpacing: CGFloat = 10,
-        spacerMinLength: CGFloat = 8,
+        horizontalSpacing: CGFloat = 10,
+        verticalSpacing: CGFloat = 8,
+        spacerMinLength: CGFloat = 6,
         @ViewBuilder icon: () -> Icon,
         @ViewBuilder detail: () -> Detail
     ) {
@@ -178,8 +178,8 @@ struct ResponsiveInlineGroup<Content: View>: View {
     let content: Content
 
     init(
-        horizontalSpacing: CGFloat = 12,
-        verticalSpacing: CGFloat = 8,
+        horizontalSpacing: CGFloat = 10,
+        verticalSpacing: CGFloat = 6,
         verticalAlignment: HorizontalAlignment = .leading,
         @ViewBuilder content: () -> Content
     ) {
