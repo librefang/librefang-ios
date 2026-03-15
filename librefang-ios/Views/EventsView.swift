@@ -39,13 +39,16 @@ struct EventsView: View {
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
             }
 
-            Section("Filter") {
-                Picker("Severity", selection: $scope) {
-                    ForEach(AuditSeverityScope.allCases) { option in
-                        Text(option.label).tag(option)
-                    }
-                }
-                .pickerStyle(.segmented)
+            Section {
+                EventFilterCard(
+                    scope: $scope,
+                    searchText: searchText,
+                    visibleCount: filteredEntries.count,
+                    totalCount: viewModel.entries.count,
+                    isStreaming: viewModel.isStreaming
+                )
+            } header: {
+                Text("Filter")
             }
 
             if filteredEntries.isEmpty && !viewModel.isLoading {
@@ -104,6 +107,121 @@ struct EventsView: View {
 
     private func agentName(for id: String) -> String? {
         deps.dashboardViewModel.agents.first(where: { $0.id == id })?.name
+    }
+}
+
+private struct EventFilterCard: View {
+    @Binding var scope: AuditSeverityScope
+    let searchText: String
+    let visibleCount: Int
+    let totalCount: Int
+    let isStreaming: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    summaryBlock
+                    Spacer(minLength: 10)
+                    statusBadges
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    summaryBlock
+                    statusBadges
+                }
+            }
+
+            FlowLayout(spacing: 8) {
+                ForEach(AuditSeverityScope.allCases) { option in
+                    Button {
+                        scope = option
+                    } label: {
+                        EventFilterChip(
+                            label: option.label,
+                            isSelected: scope == option
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(summaryLine)
+                .font(.subheadline.weight(.medium))
+            Text(searchSummary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+    }
+
+    private var statusBadges: some View {
+        FlowLayout(spacing: 6) {
+            PresentationToneBadge(text: scope.label, tone: scopeTone)
+            PresentationToneBadge(
+                text: isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                tone: isStreaming ? .positive : .warning
+            )
+        }
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "1 event in feed")
+                : String(localized: "\(totalCount) events in feed")
+        }
+
+        return String(localized: "\(visibleCount) of \(totalCount) events visible")
+    }
+
+    private var searchSummary: String {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty {
+            return String(localized: "Search by action, detail, or agent to narrow the event stream.")
+        }
+        return String(localized: "Search active: \"\(query)\"")
+    }
+
+    private var scopeTone: PresentationTone {
+        switch scope {
+        case .all:
+            return .neutral
+        case .critical:
+            return .critical
+        case .warning:
+            return .warning
+        case .info:
+            return .positive
+        }
+    }
+}
+
+private struct EventFilterChip: View {
+    let label: String
+    let isSelected: Bool
+
+    var body: some View {
+        Text(label)
+            .font(.caption.weight(.semibold))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(backgroundColor)
+            .foregroundStyle(foregroundColor)
+            .clipShape(Capsule())
+    }
+
+    private var backgroundColor: Color {
+        isSelected ? Color.accentColor.opacity(0.16) : Color.secondary.opacity(0.12)
+    }
+
+    private var foregroundColor: Color {
+        isSelected ? .accentColor : .secondary
     }
 }
 

@@ -66,6 +66,17 @@ struct SessionsView: View {
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
             }
 
+            Section {
+                SessionFilterCard(
+                    filter: $filter,
+                    searchText: searchText,
+                    visibleCount: filteredItems.count,
+                    totalCount: vm.sessions.count
+                )
+            } header: {
+                Text("Filter")
+            }
+
             if filteredItems.isEmpty && !vm.isLoading {
                 Section("Sessions") {
                     ContentUnavailableView(
@@ -84,20 +95,6 @@ struct SessionsView: View {
         }
         .navigationTitle("Sessions")
         .searchable(text: $searchText, prompt: "Search session, label, or agent")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Picker("Filter", selection: $filter) {
-                        ForEach(SessionFilter.allCases, id: \.self) { option in
-                            Label(option.label, systemImage: option.icon)
-                                .tag(option)
-                        }
-                    }
-                } label: {
-                    Image(systemName: filter == .all ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
-                }
-            }
-        }
         .refreshable {
             await vm.refresh()
         }
@@ -489,6 +486,119 @@ private struct SessionScoreboard: View {
     }
 }
 
+private struct SessionFilterCard: View {
+    @Binding var filter: SessionFilter
+    let searchText: String
+    let visibleCount: Int
+    let totalCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    summaryBlock
+                    Spacer(minLength: 10)
+                    activeBadge
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    summaryBlock
+                    activeBadge
+                }
+            }
+
+            FlowLayout(spacing: 8) {
+                ForEach(SessionFilter.allCases, id: \.self) { option in
+                    Button {
+                        filter = option
+                    } label: {
+                        SessionFilterChip(
+                            label: option.label,
+                            systemImage: option.icon,
+                            isSelected: filter == option
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(summaryLine)
+                .font(.subheadline.weight(.medium))
+            Text(searchSummary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+    }
+
+    private var activeBadge: some View {
+        PresentationToneBadge(
+            text: filter.label,
+            tone: badgeTone
+        )
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "1 session in monitor")
+                : String(localized: "\(totalCount) sessions in monitor")
+        }
+
+        return String(localized: "\(visibleCount) of \(totalCount) sessions visible")
+    }
+
+    private var searchSummary: String {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty {
+            return String(localized: "Search by session label, agent, or attention reason.")
+        }
+        return String(localized: "Search active: \"\(query)\"")
+    }
+
+    private var badgeTone: PresentationTone {
+        switch filter {
+        case .all:
+            return .neutral
+        case .attention:
+            return .warning
+        case .highVolume:
+            return .caution
+        case .unlabeled:
+            return .critical
+        }
+    }
+}
+
+private struct SessionFilterChip: View {
+    let label: String
+    let systemImage: String
+    let isSelected: Bool
+
+    var body: some View {
+        Label(label, systemImage: systemImage)
+            .font(.caption.weight(.semibold))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(backgroundColor)
+            .foregroundStyle(foregroundColor)
+            .clipShape(Capsule())
+    }
+
+    private var backgroundColor: Color {
+        isSelected ? Color.accentColor.opacity(0.16) : Color.secondary.opacity(0.12)
+    }
+
+    private var foregroundColor: Color {
+        isSelected ? .accentColor : .secondary
+    }
+}
+
 private struct SessionMonitorRow: View {
     let item: SessionAttentionItem
     var isBusy = false
@@ -508,14 +618,8 @@ private struct SessionMonitorRow: View {
                 }
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) {
-                    sessionFacts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    sessionFacts
-                }
+            FlowLayout(spacing: 8) {
+                sessionFacts
             }
         }
         .padding(.vertical, 2)

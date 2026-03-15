@@ -44,9 +44,7 @@ struct SettingsView: View {
                 }
 
                 Section("Auto Refresh") {
-                    HStack {
-                        Text("Interval")
-                        Spacer()
+                    SettingsValueRow("Interval") {
                         Text("\(Int(refreshInterval))s")
                             .foregroundStyle(.secondary)
                     }
@@ -66,8 +64,7 @@ struct SettingsView: View {
                     }
 
                     SettingsValueRow("Supported") {
-                        Text(supportedLanguageLabels.joined(separator: " · "))
-                            .foregroundStyle(.secondary)
+                        SettingsTagFlow(labels: supportedLanguageLabels)
                     }
 
                     Button {
@@ -108,6 +105,8 @@ struct SettingsView: View {
                 }
 
                 Section("On Call Focus") {
+                    SettingsBadgeFlow(items: onCallFocusBadges)
+
                     Picker("Queue Mode", selection: Binding(
                         get: { deps.onCallFocusStore.mode },
                         set: { deps.onCallFocusStore.mode = $0 }
@@ -150,6 +149,8 @@ struct SettingsView: View {
                 }
 
                 Section("Standby Reminder") {
+                    SettingsBadgeFlow(items: standbyReminderBadges)
+
                     Toggle("Enable Reminder", isOn: Binding(
                         get: { deps.onCallNotificationManager.isEnabled },
                         set: { deps.onCallNotificationManager.isEnabled = $0 }
@@ -451,6 +452,44 @@ struct SettingsView: View {
         return deduplicated.map(localizedLanguageName(for:))
     }
 
+    private var onCallFocusBadges: [SettingsBadgeItem] {
+        [
+            SettingsBadgeItem(text: deps.onCallFocusStore.mode.label, tone: .warning),
+            SettingsBadgeItem(text: deps.onCallFocusStore.preferredSurface.label, tone: .neutral),
+            SettingsBadgeItem(
+                text: deps.onCallFocusStore.showsMutedSummary ? String(localized: "Muted Summary On") : String(localized: "Muted Summary Off"),
+                tone: deps.onCallFocusStore.showsMutedSummary ? .positive : .neutral
+            ),
+            SettingsBadgeItem(
+                text: deps.onCallFocusStore.showsForegroundCues ? String(localized: "Cue On") : String(localized: "Cue Off"),
+                tone: deps.onCallFocusStore.showsForegroundCues ? .positive : .neutral
+            ),
+        ]
+    }
+
+    private var standbyReminderBadges: [SettingsBadgeItem] {
+        var items: [SettingsBadgeItem] = [
+            SettingsBadgeItem(
+                text: deps.onCallNotificationManager.isEnabled ? String(localized: "Reminder On") : String(localized: "Reminder Off"),
+                tone: deps.onCallNotificationManager.isEnabled ? .positive : .neutral
+            ),
+            SettingsBadgeItem(
+                text: deps.onCallNotificationManager.authorizationLabel,
+                tone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning
+            ),
+        ]
+
+        if deps.onCallNotificationManager.isEnabled {
+            items.append(SettingsBadgeItem(text: deps.onCallNotificationManager.scope.label, tone: .warning))
+        }
+
+        if deps.onCallNotificationManager.pendingReminderDate != nil {
+            items.append(SettingsBadgeItem(text: deps.onCallNotificationManager.pendingReminderSourceLabel, tone: .caution))
+        }
+
+        return items
+    }
+
     private func localizedLanguageName(for identifier: String) -> String {
         Locale.current.localizedString(forIdentifier: identifier)
             ?? Locale(identifier: identifier).localizedString(forIdentifier: identifier)
@@ -601,6 +640,57 @@ private struct SettingsValueRow<Value: View>: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, horizontalSizeClass == .compact ? 2 : 0)
+    }
+}
+
+private struct SettingsTagFlow: View {
+    let labels: [String]
+
+    var body: some View {
+        FlowLayout(spacing: 8) {
+            ForEach(labels, id: \.self) { label in
+                SettingsBadge(
+                    text: label,
+                    tone: .neutral
+                )
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct SettingsBadgeFlow: View {
+    let items: [SettingsBadgeItem]
+
+    var body: some View {
+        FlowLayout(spacing: 8) {
+            ForEach(items) { item in
+                SettingsBadge(text: item.text, tone: item.tone)
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+private struct SettingsBadgeItem: Identifiable {
+    let text: String
+    let tone: PresentationTone
+
+    var id: String { text }
+}
+
+private struct SettingsBadge: View {
+    let text: String
+    let tone: PresentationTone
+
+    var body: some View {
+        Text(text)
+            .font(.caption.weight(.semibold))
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(tone.badgeBackgroundColor)
+            .foregroundStyle(tone.color)
+            .clipShape(Capsule())
     }
 }
 
