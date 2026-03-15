@@ -208,6 +208,10 @@ struct IntegrationsView: View {
             + filteredAliases.count
             + filteredAgentDiagnostics.count
     }
+    private var providerAttentionCount: Int { vm.unreachableLocalProviderCount }
+    private var channelAttentionCount: Int { vm.channelRequiredFieldGapCount }
+    private var modelAttentionCount: Int { vm.unavailableCatalogModelCount }
+    private var driftAttentionCount: Int { vm.agentsWithModelDiagnostics.count }
 
     private var scopeSummaryLine: String {
         scope == .attention
@@ -254,6 +258,43 @@ struct IntegrationsView: View {
                             ? String(localized: "Attention mode shows only provider outages, channel field gaps, unavailable models, and agent drift.")
                             : String(localized: "All mode shows the full provider, channel, model, and alias inventory.")
                     )
+                }
+
+                Section {
+                    MonitoringFactsRow {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(String(localized: "Operator snapshot"))
+                                .font(.subheadline.weight(.medium))
+                            Text(String(localized: "Keep provider, channel, catalog, and agent-drift counts visible before diving into the inventory."))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                        }
+                    } accessory: {
+                        PresentationToneBadge(
+                            text: scope.label,
+                            tone: scope == .attention ? .warning : .neutral
+                        )
+                    } facts: {
+                        Label(
+                            providerAttentionCount == 1 ? String(localized: "1 provider issue") : String(localized: "\(providerAttentionCount) provider issues"),
+                            systemImage: "key.horizontal"
+                        )
+                        Label(
+                            channelAttentionCount == 1 ? String(localized: "1 channel gap") : String(localized: "\(channelAttentionCount) channel gaps"),
+                            systemImage: "bubble.left.and.bubble.right"
+                        )
+                        Label(
+                            modelAttentionCount == 1 ? String(localized: "1 unavailable model") : String(localized: "\(modelAttentionCount) unavailable models"),
+                            systemImage: "square.stack.3d.up"
+                        )
+                        Label(
+                            driftAttentionCount == 1 ? String(localized: "1 drifted agent") : String(localized: "\(driftAttentionCount) drifted agents"),
+                            systemImage: "cpu"
+                        )
+                    }
+                } footer: {
+                    Text("This compact snapshot keeps the highest-signal integration counts visible on mobile.")
                 }
 
                 if vm.catalogStatus != nil || !vm.catalogModels.isEmpty {
@@ -304,6 +345,87 @@ struct IntegrationsView: View {
                         Text("Focus Areas")
                     } footer: {
                         Text("Use these jump targets to move through the compact integrations monitor instead of scrolling the full inventory.")
+                    }
+
+                    Section {
+                        NavigationLink {
+                            RuntimeView()
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Runtime"),
+                                detail: String(localized: "Switch back to runtime with integration pressure folded into the main operator monitor."),
+                                systemImage: "server.rack",
+                                tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                                badgeText: vm.integrationPressureIssueCategoryCount > 0
+                                    ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
+                                    : nil,
+                                badgeTone: .critical
+                            )
+                        }
+
+                        NavigationLink {
+                            DiagnosticsView()
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Diagnostics"),
+                                detail: String(localized: "Switch to diagnostics when model or provider drift may reflect health or config trouble."),
+                                systemImage: "stethoscope",
+                                tone: vm.diagnosticsSummaryTone,
+                                badgeText: vm.diagnosticsConfigWarningCount > 0
+                                    ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
+                                    : nil,
+                                badgeTone: .warning
+                            )
+                        }
+
+                        NavigationLink {
+                            IncidentsView()
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Incidents"),
+                                detail: String(localized: "Switch to incidents when integration drift has already surfaced in the mobile queue."),
+                                systemImage: "bell.badge",
+                                tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                                badgeText: driftAttentionCount > 0
+                                    ? (driftAttentionCount == 1 ? String(localized: "1 drift item") : String(localized: "\(driftAttentionCount) drift items"))
+                                    : nil,
+                                badgeTone: .warning
+                            )
+                        }
+
+                        NavigationLink {
+                            AutomationView(initialScope: .attention)
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Automation"),
+                                detail: String(localized: "Switch to workflow pressure when provider or model drift may be breaking scheduled work."),
+                                systemImage: "flowchart",
+                                tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                                badgeText: vm.automationPressureIssueCategoryCount > 0
+                                    ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) automation issues"))
+                                    : nil,
+                                badgeTone: .warning
+                            )
+                        }
+
+                        NavigationLink {
+                            AgentsView()
+                        } label: {
+                            MonitoringJumpRow(
+                                title: String(localized: "Open Agents"),
+                                detail: String(localized: "Switch to fleet view when model drift or provider mismatch clusters around specific agents."),
+                                systemImage: "person.3",
+                                tone: driftAttentionCount > 0 ? .warning : .neutral,
+                                badgeText: driftAttentionCount > 0
+                                    ? (driftAttentionCount == 1 ? String(localized: "1 drifted agent") : String(localized: "\(driftAttentionCount) drifted agents"))
+                                    : nil,
+                                badgeTone: .warning
+                            )
+                        }
+                    } header: {
+                        Text("Operator Surfaces")
+                    } footer: {
+                        Text("Use these routes when provider, channel, model, or drift diagnostics need runtime, incident, or fleet context.")
                     }
                 }
 
@@ -774,17 +896,13 @@ private struct IntegrationProviderRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+            MonitoringFactsRow(horizontalAlignment: .top, verticalSpacing: 8, headerVerticalSpacing: 8) {
                 providerSummary
             } accessory: {
                 providerControls
-            }
-
-            FlowLayout(spacing: 12) {
+            } facts: {
                 providerFacts
             }
-            .font(.caption)
-            .foregroundStyle(.secondary)
 
             if let error = provider.error, !error.isEmpty {
                 Text(error)
@@ -890,16 +1008,13 @@ private struct IntegrationChannelRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+            MonitoringFactsRow(horizontalAlignment: .top, verticalSpacing: 8, headerVerticalSpacing: 8) {
                 channelSummary
             } accessory: {
                 channelControls
-            }
-
-            FlowLayout(spacing: 12) {
+            } facts: {
                 channelFacts
             }
-            .font(.caption)
 
             if !missingRequiredFields.isEmpty {
                 Text(missingFieldSummary)
@@ -939,11 +1054,11 @@ private struct IntegrationChannelRow: View {
     }
 
     private var channelSummary: some View {
-        HStack(alignment: .top, spacing: 12) {
+        ResponsiveIconDetailRow(horizontalSpacing: 12, verticalSpacing: 6, spacerMinLength: 0) {
             Text(channel.icon)
                 .font(.title3)
                 .frame(width: 28)
-
+        } detail: {
             VStack(alignment: .leading, spacing: 3) {
                 Text(channel.displayName)
                     .font(.subheadline.weight(.medium))
@@ -1005,17 +1120,13 @@ private struct IntegrationModelRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+            MonitoringFactsRow(horizontalAlignment: .top, verticalSpacing: 8, headerVerticalSpacing: 8) {
                 modelSummary
             } accessory: {
                 availabilityChip
-            }
-
-            FlowLayout(spacing: 12) {
+            } facts: {
                 modelFacts
             }
-            .font(.caption)
-            .foregroundStyle(.secondary)
 
             FlowLayout(spacing: 8) {
                 capabilityChips
@@ -1112,18 +1223,12 @@ private struct IntegrationAgentModelRow: View {
     let diagnostic: AgentModelDiagnostic
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
-                diagnosticSummary
-            } accessory: {
-                IntegrationStatusChip(text: diagnostic.localizedStatusLabel, tone: diagnostic.statusTone)
-            }
-
-            FlowLayout(spacing: 12) {
-                diagnosticFacts
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
+        MonitoringFactsRow(horizontalAlignment: .top, verticalSpacing: 8, headerVerticalSpacing: 8) {
+            diagnosticSummary
+        } accessory: {
+            IntegrationStatusChip(text: diagnostic.localizedStatusLabel, tone: diagnostic.statusTone)
+        } facts: {
+            diagnosticFacts
         }
         .padding(.vertical, 2)
     }

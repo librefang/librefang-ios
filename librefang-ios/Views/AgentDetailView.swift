@@ -208,6 +208,10 @@ struct AgentDetailView: View {
         return profile
     }
 
+    private var monitoringSurfaceIssueCount: Int {
+        agentApprovals.count + sessionIssueCount + failedDeliveryCount + missingWorkspaceFileCount
+    }
+
     var body: some View {
         List {
             identitySection
@@ -479,6 +483,45 @@ struct AgentDetailView: View {
     private var operatorHubSection: some View {
         Section {
             NavigationLink {
+                IncidentsView()
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Incidents Center"),
+                    detail: monitoringSurfaceIssueCount > 0
+                        ? String(localized: "Use the incident queue when this agent's approvals, sessions, or delivery issues need broader triage.")
+                        : String(localized: "Open incidents to compare this agent against the rest of the mobile queue."),
+                    systemImage: "bell.badge",
+                    tone: monitoringSurfaceIssueCount > 0 ? .warning : .neutral,
+                    badgeText: monitoringSurfaceIssueCount == 0 ? nil : String(localized: "\(monitoringSurfaceIssueCount) issues"),
+                    badgeTone: monitoringSurfaceIssueCount > 0 ? .warning : .neutral
+                )
+            }
+
+            NavigationLink {
+                RuntimeView()
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Runtime Monitor"),
+                    detail: String(localized: "Jump to runtime when this agent needs provider, approval, or automation context."),
+                    systemImage: "server.rack",
+                    tone: .neutral
+                )
+            }
+
+            NavigationLink {
+                IntegrationsView(initialSearchText: integrationSearchText, initialScope: .attention)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Integrations"),
+                    detail: String(localized: "Jump to provider, model, and catalog diagnostics pre-filtered for this agent's model path."),
+                    systemImage: "square.3.layers.3d.down.forward",
+                    tone: modelDiagnostic?.statusTone ?? .neutral,
+                    badgeText: requestedModelReference,
+                    badgeTone: .neutral
+                )
+            }
+
+            NavigationLink {
                 SessionsView(initialSearchText: agent.id, initialFilter: .all)
             } label: {
                 MonitoringJumpRow(
@@ -619,69 +662,100 @@ struct AgentDetailView: View {
 
     private var diagnosticsSnapshotSection: some View {
         Section {
-            MonitoringSnapshotCard(
-                summary: diagnosticsSnapshotSummary,
-                detail: String(localized: "Use this compact digest before jumping into sessions, memory, deliveries, workspace files, or approvals.")
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(text: agent.stateLabel, tone: agent.stateTone)
-                    if !agentApprovals.isEmpty {
-                        PresentationToneBadge(
-                            text: agentApprovals.count == 1 ? String(localized: "1 approval") : String(localized: "\(agentApprovals.count) approvals"),
-                            tone: .critical
-                        )
+            VStack(alignment: .leading, spacing: 12) {
+                MonitoringSnapshotCard(
+                    summary: diagnosticsSnapshotSummary,
+                    detail: String(localized: "Use this compact digest before jumping into sessions, memory, deliveries, workspace files, or approvals.")
+                ) {
+                    FlowLayout(spacing: 8) {
+                        PresentationToneBadge(text: agent.stateLabel, tone: agent.stateTone)
+                        if !agentApprovals.isEmpty {
+                            PresentationToneBadge(
+                                text: agentApprovals.count == 1 ? String(localized: "1 approval") : String(localized: "\(agentApprovals.count) approvals"),
+                                tone: .critical
+                            )
+                        }
+                        if !agentSessions.isEmpty {
+                            PresentationToneBadge(
+                                text: agentSessions.count == 1 ? String(localized: "1 session") : String(localized: "\(agentSessions.count) sessions"),
+                                tone: sessionIssueCount > 0 ? .warning : .neutral
+                            )
+                        }
+                        if sessionIssueCount > 0 {
+                            PresentationToneBadge(
+                                text: sessionIssueCount == 1 ? String(localized: "1 session issue") : String(localized: "\(sessionIssueCount) session issues"),
+                                tone: .warning
+                            )
+                        }
+                        if !agentMemory.isEmpty {
+                            PresentationToneBadge(
+                                text: agentMemory.count == 1 ? String(localized: "1 memory key") : String(localized: "\(agentMemory.count) memory keys"),
+                                tone: structuredMemoryTone
+                            )
+                        }
+                        if missingWorkspaceFileCount > 0 {
+                            PresentationToneBadge(
+                                text: missingWorkspaceFileCount == 1 ? String(localized: "1 missing identity file") : String(localized: "\(missingWorkspaceFileCount) missing identity files"),
+                                tone: .warning
+                            )
+                        }
+                        if failedDeliveryCount > 0 {
+                            PresentationToneBadge(
+                                text: failedDeliveryCount == 1 ? String(localized: "1 failed delivery") : String(localized: "\(failedDeliveryCount) failed deliveries"),
+                                tone: .critical
+                            )
+                        }
+                        if unsettledDeliveryCount > 0 {
+                            PresentationToneBadge(
+                                text: unsettledDeliveryCount == 1 ? String(localized: "1 unsettled delivery") : String(localized: "\(unsettledDeliveryCount) unsettled deliveries"),
+                                tone: .warning
+                            )
+                        }
+                        if !agentRecentEvents.isEmpty {
+                            PresentationToneBadge(
+                                text: agentRecentEvents.count == 1 ? String(localized: "1 recent event") : String(localized: "\(agentRecentEvents.count) recent events"),
+                                tone: .neutral
+                            )
+                        }
+                        if let agentProfileSummary, !agentProfileSummary.tools.isEmpty {
+                            PresentationToneBadge(
+                                text: agentProfileSummary.tools.count == 1 ? String(localized: "1 profile tool") : String(localized: "\(agentProfileSummary.tools.count) profile tools"),
+                                tone: profileToolCountTone
+                            )
+                        }
+                        if isWatched {
+                            PresentationToneBadge(text: String(localized: "Watched"), tone: .caution)
+                        }
                     }
-                    if !agentSessions.isEmpty {
-                        PresentationToneBadge(
-                            text: agentSessions.count == 1 ? String(localized: "1 session") : String(localized: "\(agentSessions.count) sessions"),
-                            tone: sessionIssueCount > 0 ? .warning : .neutral
-                        )
+                }
+
+                MonitoringFactsRow {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(String(localized: "Operator facts"))
+                            .font(.subheadline.weight(.medium))
+                        Text(String(localized: "Keep the current model path, session, and failure counts visible while scrolling deeper sections."))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
                     }
-                    if sessionIssueCount > 0 {
-                        PresentationToneBadge(
-                            text: sessionIssueCount == 1 ? String(localized: "1 session issue") : String(localized: "\(sessionIssueCount) session issues"),
-                            tone: .warning
-                        )
+                } accessory: {
+                    if let requestedModelReference {
+                        PresentationToneBadge(text: requestedModelReference, tone: modelDiagnostic?.statusTone ?? .neutral)
                     }
-                    if !agentMemory.isEmpty {
-                        PresentationToneBadge(
-                            text: agentMemory.count == 1 ? String(localized: "1 memory key") : String(localized: "\(agentMemory.count) memory keys"),
-                            tone: structuredMemoryTone
-                        )
-                    }
-                    if missingWorkspaceFileCount > 0 {
-                        PresentationToneBadge(
-                            text: missingWorkspaceFileCount == 1 ? String(localized: "1 missing identity file") : String(localized: "\(missingWorkspaceFileCount) missing identity files"),
-                            tone: .warning
-                        )
-                    }
-                    if failedDeliveryCount > 0 {
-                        PresentationToneBadge(
-                            text: failedDeliveryCount == 1 ? String(localized: "1 failed delivery") : String(localized: "\(failedDeliveryCount) failed deliveries"),
-                            tone: .critical
-                        )
-                    }
-                    if unsettledDeliveryCount > 0 {
-                        PresentationToneBadge(
-                            text: unsettledDeliveryCount == 1 ? String(localized: "1 unsettled delivery") : String(localized: "\(unsettledDeliveryCount) unsettled deliveries"),
-                            tone: .warning
-                        )
-                    }
-                    if !agentRecentEvents.isEmpty {
-                        PresentationToneBadge(
-                            text: agentRecentEvents.count == 1 ? String(localized: "1 recent event") : String(localized: "\(agentRecentEvents.count) recent events"),
-                            tone: .neutral
-                        )
-                    }
-                    if let agentProfileSummary, !agentProfileSummary.tools.isEmpty {
-                        PresentationToneBadge(
-                            text: agentProfileSummary.tools.count == 1 ? String(localized: "1 profile tool") : String(localized: "\(agentProfileSummary.tools.count) profile tools"),
-                            tone: profileToolCountTone
-                        )
-                    }
-                    if isWatched {
-                        PresentationToneBadge(text: String(localized: "Watched"), tone: .caution)
-                    }
+                } facts: {
+                    Label(currentSessionBadgeText ?? String(localized: "No current session"), systemImage: "text.bubble")
+                    Label(
+                        failedDeliveryCount == 1 ? String(localized: "1 failed receipt") : String(localized: "\(failedDeliveryCount) failed receipts"),
+                        systemImage: "paperplane"
+                    )
+                    Label(
+                        missingWorkspaceFileCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingWorkspaceFileCount) missing files"),
+                        systemImage: "doc.text"
+                    )
+                    Label(
+                        agentMemory.count == 1 ? String(localized: "1 memory key") : String(localized: "\(agentMemory.count) memory keys"),
+                        systemImage: "internaldrive"
+                    )
                 }
             }
         } footer: {

@@ -143,6 +143,67 @@ struct MonitoringJumpRow: View {
     }
 }
 
+struct MonitoringFactsRow<Summary: View, Accessory: View, Facts: View>: View {
+    let horizontalAlignment: VerticalAlignment
+    let verticalSpacing: CGFloat
+    let headerHorizontalSpacing: CGFloat
+    let headerVerticalSpacing: CGFloat
+    let spacerMinLength: CGFloat
+    let factsSpacing: CGFloat
+    let factsFont: Font
+    let factsColor: Color
+    let summary: Summary
+    let accessory: Accessory
+    let facts: Facts
+
+    init(
+        horizontalAlignment: VerticalAlignment = .top,
+        verticalSpacing: CGFloat = 8,
+        headerHorizontalSpacing: CGFloat = 12,
+        headerVerticalSpacing: CGFloat = 8,
+        spacerMinLength: CGFloat = 8,
+        factsSpacing: CGFloat = 12,
+        factsFont: Font = .caption,
+        factsColor: Color = .secondary,
+        @ViewBuilder summary: () -> Summary,
+        @ViewBuilder accessory: () -> Accessory,
+        @ViewBuilder facts: () -> Facts
+    ) {
+        self.horizontalAlignment = horizontalAlignment
+        self.verticalSpacing = verticalSpacing
+        self.headerHorizontalSpacing = headerHorizontalSpacing
+        self.headerVerticalSpacing = headerVerticalSpacing
+        self.spacerMinLength = spacerMinLength
+        self.factsSpacing = factsSpacing
+        self.factsFont = factsFont
+        self.factsColor = factsColor
+        self.summary = summary()
+        self.accessory = accessory()
+        self.facts = facts()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: verticalSpacing) {
+            ResponsiveAccessoryRow(
+                horizontalAlignment: horizontalAlignment,
+                horizontalSpacing: headerHorizontalSpacing,
+                verticalSpacing: headerVerticalSpacing,
+                spacerMinLength: spacerMinLength
+            ) {
+                summary
+            } accessory: {
+                accessory
+            }
+
+            FlowLayout(spacing: factsSpacing) {
+                facts
+            }
+            .font(factsFont)
+            .foregroundStyle(factsColor)
+        }
+    }
+}
+
 private struct MonitoringSummaryTextBlock: View {
     let summary: String
     let detail: String?

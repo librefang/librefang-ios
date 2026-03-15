@@ -350,8 +350,8 @@ struct NightWatchView: View {
 
     private var quickLinksCard: some View {
         NightWatchSectionCard(
-            title: String(localized: "Jump To"),
-            detail: String(localized: "Use the full queue when you need broader runtime context.")
+            title: String(localized: "Operator Surfaces"),
+            detail: String(localized: "Use a deeper operator surface when the top-of-night queue is no longer enough.")
         ) {
             NavigationLink {
                 OnCallView()
@@ -387,6 +387,51 @@ struct NightWatchView: View {
                     title: String(localized: "Critical Event Feed"),
                     detail: String(localized: "Jump straight into recent critical audit entries."),
                     systemImage: "list.bullet.rectangle.portrait"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                DiagnosticsView()
+            } label: {
+                NightWatchActionRow(
+                    title: String(localized: "Diagnostics"),
+                    detail: String(localized: "Open health, config, build, and metrics when night pressure looks systemic."),
+                    systemImage: "stethoscope"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink(value: OnCallRoute.integrationsAttention) {
+                NightWatchActionRow(
+                    title: String(localized: "Integrations"),
+                    detail: String(localized: "Inspect provider, channel, and catalog drift from the night-duty path."),
+                    systemImage: "square.3.layers.3d.down.forward"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink(value: OnCallRoute.automation) {
+                NightWatchActionRow(
+                    title: String(localized: "Automation"),
+                    detail: String(localized: "Open workflow and scheduler pressure when the queue hints at background automation trouble."),
+                    systemImage: "flowchart"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                HandoffCenterView(
+                    summary: handoffText,
+                    queueCount: priorityItems.count,
+                    criticalCount: criticalCount,
+                    liveAlertCount: visibleAlerts.count
+                )
+            } label: {
+                NightWatchActionRow(
+                    title: String(localized: "Handoff Center"),
+                    detail: String(localized: "Capture notes and keep local shift context close to the night queue."),
+                    systemImage: "text.badge.plus"
                 )
             }
             .buttonStyle(.plain)

@@ -457,12 +457,16 @@ struct StandbyDigestView: View {
     private var actionCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label {
-                Text(String(localized: "Jump"))
+                Text(String(localized: "Operator Surfaces"))
             } icon: {
                 Image(systemName: "arrowshape.turn.up.right")
             }
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(.white)
+
+            Text(String(localized: "Use a deeper surface when the standby digest is no longer enough to explain current pressure."))
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.72))
 
             NavigationLink {
                 NightWatchView()
@@ -507,6 +511,48 @@ struct StandbyDigestView: View {
                     title: String(localized: "Handoff Center"),
                     detail: String(localized: "Save a local note and keep recent handoff snapshots on this iPhone."),
                     systemImage: "text.badge.plus"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                DiagnosticsView()
+            } label: {
+                StandbyActionRow(
+                    title: String(localized: "Diagnostics"),
+                    detail: String(localized: "Open runtime health, config, and metrics when the standby tone feels systemic."),
+                    systemImage: "stethoscope"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                IntegrationsView(initialScope: .attention)
+            } label: {
+                StandbyActionRow(
+                    title: String(localized: "Integrations"),
+                    detail: String(localized: "Inspect provider, channel, model, and catalog drift from the standby path."),
+                    systemImage: "square.3.layers.3d.down.forward"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink(value: OnCallRoute.sessionsAttention) {
+                StandbyActionRow(
+                    title: String(localized: "Session Pressure"),
+                    detail: String(localized: "Open session hotspots when standby pressure looks like backlog or duplicated contexts."),
+                    systemImage: "rectangle.stack"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                SettingsView()
+            } label: {
+                StandbyActionRow(
+                    title: String(localized: "Settings"),
+                    detail: String(localized: "Tune reminder, language, and on-call display preferences without leaving mobile triage."),
+                    systemImage: "gearshape"
                 )
             }
             .buttonStyle(.plain)
