@@ -545,17 +545,10 @@ private struct NightWatchHeroCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top) {
-                    headerSummary
-                    Spacer(minLength: 12)
-                    headerStatus
-                }
-
-                VStack(alignment: .leading, spacing: 10) {
-                    headerSummary
-                    headerStatus
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 10, spacerMinLength: 12) {
+                headerSummary
+            } accessory: {
+                headerStatus
             }
 
             LazyVGrid(columns: countColumns, alignment: .leading, spacing: 10) {
@@ -686,16 +679,15 @@ private struct NightWatchMutedSummaryCard: View {
     let mutedAlertCount: Int
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: 10) {
-                iconLabel
-                summaryBlock
-                Spacer(minLength: 8)
-            }
-            VStack(alignment: .leading, spacing: 10) {
-                iconLabel
-                summaryBlock
-            }
+        ResponsiveValueRow(
+            horizontalAlignment: .top,
+            horizontalSpacing: 10,
+            verticalSpacing: 10,
+            horizontalTextAlignment: .leading
+        ) {
+            iconLabel
+        } value: {
+            summaryBlock
         }
         .padding(14)
         .glassPanel(fillStyle: .black, fillOpacity: 0.22, cornerRadius: 16, strokeOpacity: 0.08)
@@ -737,21 +729,12 @@ private struct NightWatchSnapshotCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    Label("Snapshot", systemImage: "waveform.path.ecg.rectangle")
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(.white)
-                    Spacer(minLength: 8)
-                    GlassCapsuleBadge(text: focusModeLabel, backgroundOpacity: 0.16)
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Label("Snapshot", systemImage: "waveform.path.ecg.rectangle")
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(.white)
-                    GlassCapsuleBadge(text: focusModeLabel, backgroundOpacity: 0.16)
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 8) {
+                Label("Snapshot", systemImage: "waveform.path.ecg.rectangle")
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(.white)
+            } accessory: {
+                GlassCapsuleBadge(text: focusModeLabel, backgroundOpacity: 0.16)
             }
 
             Text(String(localized: "Night Watch keeps the current queue, follow-up pressure, and preferred surface visible before the deeper drilldowns."))
@@ -897,17 +880,10 @@ private struct NightWatchPriorityCard: View {
                 .frame(width: 20)
 
             VStack(alignment: .leading, spacing: 6) {
-                ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .center) {
-                        titleLabel
-                        Spacer(minLength: 8)
-                        severityBadge
-                    }
-
-                    VStack(alignment: .leading, spacing: 6) {
-                        titleLabel
-                        severityBadge
-                    }
+                ResponsiveAccessoryRow(horizontalAlignment: .center) {
+                    titleLabel
+                } accessory: {
+                    severityBadge
                 }
 
                 Text(item.detail)
@@ -915,16 +891,10 @@ private struct NightWatchPriorityCard: View {
                     .foregroundStyle(.white.opacity(0.78))
                     .fixedSize(horizontal: false, vertical: true)
 
-                ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 8) {
-                        footnoteLabel
-                        watchedBadge
-                    }
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        footnoteLabel
-                        watchedBadge
-                    }
+                ResponsiveAccessoryRow(horizontalSpacing: 8, verticalSpacing: 4) {
+                    footnoteLabel
+                } accessory: {
+                    watchedBadge
                 }
             }
         }
@@ -974,17 +944,10 @@ private struct NightWatchWatchlistRow: View {
                 .frame(width: 18)
 
             VStack(alignment: .leading, spacing: 5) {
-                ViewThatFits(in: .horizontal) {
-                    HStack {
-                        agentName
-                        Spacer(minLength: 8)
-                        statusBadge
-                    }
-
-                    VStack(alignment: .leading, spacing: 6) {
-                        agentName
-                        statusBadge
-                    }
+                ResponsiveAccessoryRow(verticalSpacing: 6) {
+                    agentName
+                } accessory: {
+                    statusBadge
                 }
 
                 Text(item.reasons.prefix(2).joined(separator: " • "))
