@@ -6,6 +6,7 @@ struct AgentFilesView: View {
 
     @Environment(\.dependencies) private var deps
     @State private var searchText = ""
+    @State private var scope: AgentFileScope
     @State private var files: [AgentWorkspaceFileSummary]
     @State private var isLoading: Bool
     @State private var loadError: String?
@@ -13,18 +14,33 @@ struct AgentFilesView: View {
     init(agent: Agent, initialFiles: [AgentWorkspaceFileSummary] = []) {
         self.agent = agent
         self.initialFiles = initialFiles
+        _scope = State(initialValue: initialFiles.contains(where: { !$0.exists }) ? .missing : .all)
         _files = State(initialValue: initialFiles.sorted { $0.name < $1.name })
         _isLoading = State(initialValue: initialFiles.isEmpty)
     }
 
     private var filteredFiles: [AgentWorkspaceFileSummary] {
+        let scoped = files.filter { file in
+            switch scope {
+            case .all:
+                return true
+            case .missing:
+                return !file.exists
+            case .present:
+                return file.exists
+            }
+        }
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard !query.isEmpty else { return files }
-        return files.filter { $0.name.lowercased().contains(query) }
+        guard !query.isEmpty else { return scoped }
+        return scoped.filter { $0.name.lowercased().contains(query) }
     }
 
     private var existingCount: Int {
         files.filter(\.exists).count
+    }
+
+    private var missingCount: Int {
+        files.count - existingCount
     }
 
     var body: some View {
@@ -37,6 +53,11 @@ struct AgentFilesView: View {
                 LabeledContent("Present") {
                     Text("\(existingCount)/\(files.count)")
                         .foregroundStyle(existingCount < files.count ? .orange : .green)
+                        .monospacedDigit()
+                }
+                LabeledContent("Missing") {
+                    Text(missingCount.formatted())
+                        .foregroundStyle(missingCount > 0 ? .orange : .secondary)
                         .monospacedDigit()
                 }
             } header: {
@@ -72,6 +93,20 @@ struct AgentFilesView: View {
         .navigationTitle("Agent Files")
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, prompt: "Search workspace files")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Picker("Scope", selection: $scope) {
+                        ForEach(AgentFileScope.allCases, id: \.self) { option in
+                            Label(option.label, systemImage: option.icon)
+                                .tag(option)
+                        }
+                    }
+                } label: {
+                    Image(systemName: scope == .all ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+                }
+            }
+        }
         .refreshable {
             await loadFiles()
         }
@@ -98,6 +133,34 @@ struct AgentFilesView: View {
             loadError = nil
         } catch {
             loadError = error.localizedDescription
+        }
+    }
+}
+
+private enum AgentFileScope: CaseIterable {
+    case all
+    case missing
+    case present
+
+    var label: String {
+        switch self {
+        case .all:
+            return "All"
+        case .missing:
+            return "Missing"
+        case .present:
+            return "Present"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .all:
+            return "doc.text"
+        case .missing:
+            return "exclamationmark.bubble"
+        case .present:
+            return "checkmark.circle"
         }
     }
 }

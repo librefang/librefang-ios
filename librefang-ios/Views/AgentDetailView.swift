@@ -102,6 +102,18 @@ struct AgentDetailView: View {
         requestedModelReference ?? resolvedCatalogModel?.id ?? agent.id
     }
 
+    private var failedDeliveryCount: Int {
+        agentDeliveries.filter { $0.status == .failed }.count
+    }
+
+    private var unsettledDeliveryCount: Int {
+        agentDeliveries.filter { $0.status == .sent || $0.status == .bestEffort }.count
+    }
+
+    private var missingWorkspaceFileCount: Int {
+        agentFiles.filter { !$0.exists }.count
+    }
+
     var body: some View {
         List {
             identitySection
@@ -403,6 +415,22 @@ struct AgentDetailView: View {
             if let auth = agent.authStatus {
                 DetailRow(icon: "lock", label: "Auth", value: auth,
                           valueColor: auth == "configured" ? .green : .red)
+            }
+            if !isLoadingDeliveries {
+                DetailRow(
+                    icon: "paperplane",
+                    label: "Delivery Check",
+                    value: deliveryStatusSummary,
+                    valueColor: deliveryStatusColor
+                )
+            }
+            if !isLoadingFiles && !agentFiles.isEmpty {
+                DetailRow(
+                    icon: "doc.badge.gearshape",
+                    label: "Workspace Check",
+                    value: missingWorkspaceFileCount == 0 ? "Identity files present" : "\(missingWorkspaceFileCount) missing",
+                    valueColor: missingWorkspaceFileCount == 0 ? .green : .orange
+                )
             }
             if let profile = agent.profile {
                 NavigationLink {
@@ -949,6 +977,26 @@ struct AgentDetailView: View {
         guard let value else { return nil }
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
+    }
+
+    private var deliveryStatusSummary: String {
+        if failedDeliveryCount > 0 {
+            return "\(failedDeliveryCount) failed"
+        }
+        if unsettledDeliveryCount > 0 {
+            return "\(unsettledDeliveryCount) unsettled"
+        }
+        if !agentDeliveries.isEmpty {
+            return "No recent failures"
+        }
+        return "No recent sends"
+    }
+
+    private var deliveryStatusColor: Color {
+        if failedDeliveryCount > 0 { return .red }
+        if unsettledDeliveryCount > 0 { return .orange }
+        if !agentDeliveries.isEmpty { return .green }
+        return .secondary
     }
 
     private func profileToolPreview(_ profile: ToolProfileSummary) -> String {

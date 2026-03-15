@@ -6,6 +6,7 @@ struct AgentDeliveriesView: View {
 
     @Environment(\.dependencies) private var deps
     @State private var searchText = ""
+    @State private var scope: DeliveryScope
     @State private var receipts: [DeliveryReceipt]
     @State private var isLoading: Bool
     @State private var loadError: String?
@@ -13,14 +14,26 @@ struct AgentDeliveriesView: View {
     init(agent: Agent, initialReceipts: [DeliveryReceipt] = []) {
         self.agent = agent
         self.initialReceipts = initialReceipts
+        _scope = State(initialValue: initialReceipts.contains(where: { $0.status == .failed }) ? .failed : .all)
         _receipts = State(initialValue: initialReceipts.sorted { $0.timestamp > $1.timestamp })
         _isLoading = State(initialValue: initialReceipts.isEmpty)
     }
 
     private var filteredReceipts: [DeliveryReceipt] {
+        let scoped = receipts.filter { receipt in
+            switch scope {
+            case .all:
+                return true
+            case .failed:
+                return receipt.status == .failed
+            case .unsettled:
+                return receipt.status == .sent || receipt.status == .bestEffort
+            }
+        }
+
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard !query.isEmpty else { return receipts }
-        return receipts.filter { receipt in
+        guard !query.isEmpty else { return scoped }
+        return scoped.filter { receipt in
             [
                 receipt.channel,
                 receipt.recipient,
@@ -42,6 +55,10 @@ struct AgentDeliveriesView: View {
         receipts.filter { $0.status == .delivered }.count
     }
 
+    private var unsettledCount: Int {
+        receipts.filter { $0.status == .sent || $0.status == .bestEffort }.count
+    }
+
     var body: some View {
         List {
             Section {
@@ -61,6 +78,11 @@ struct AgentDeliveriesView: View {
                 LabeledContent("Failed") {
                     Text(failedCount.formatted())
                         .foregroundStyle(failedCount > 0 ? .red : .secondary)
+                        .monospacedDigit()
+                }
+                LabeledContent("Unsettled") {
+                    Text(unsettledCount.formatted())
+                        .foregroundStyle(unsettledCount > 0 ? .orange : .secondary)
                         .monospacedDigit()
                 }
             } header: {
@@ -96,6 +118,20 @@ struct AgentDeliveriesView: View {
         .navigationTitle("Deliveries")
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, prompt: "Search recipient, channel, or status")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Picker("Scope", selection: $scope) {
+                        ForEach(DeliveryScope.allCases, id: \.self) { option in
+                            Label(option.label, systemImage: option.icon)
+                                .tag(option)
+                        }
+                    }
+                } label: {
+                    Image(systemName: scope == .all ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+                }
+            }
+        }
         .refreshable {
             await loadReceipts()
         }
@@ -122,6 +158,34 @@ struct AgentDeliveriesView: View {
             loadError = nil
         } catch {
             loadError = error.localizedDescription
+        }
+    }
+}
+
+private enum DeliveryScope: CaseIterable {
+    case all
+    case failed
+    case unsettled
+
+    var label: String {
+        switch self {
+        case .all:
+            return "All"
+        case .failed:
+            return "Failed"
+        case .unsettled:
+            return "Unsettled"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .all:
+            return "tray.full"
+        case .failed:
+            return "exclamationmark.triangle"
+        case .unsettled:
+            return "clock.arrow.trianglehead.counterclockwise.rotate.90"
         }
     }
 }
