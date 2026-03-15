@@ -105,6 +105,8 @@ struct ToolProfilesView: View {
 
             if let selectedProfile {
                 Section {
+                    SelectedToolProfileDeck(profile: selectedProfile)
+
                     profileHeader(selectedProfile, highlight: true)
 
                     toolSummary(profile: selectedProfile, maxVisibleTools: selectedProfile.tools.count)
@@ -133,8 +135,30 @@ struct ToolProfilesView: View {
                         description: Text(loadError)
                     )
                 }
+            } else if profiles.isEmpty {
+                Section("All Profiles") {
+                    ContentUnavailableView(
+                        String(localized: "No Tool Profiles"),
+                        systemImage: "person.crop.circle.badge.questionmark",
+                        description: Text(String(localized: "LibreFang did not return any tool profile summaries."))
+                    )
+                }
+            } else if filteredProfiles.isEmpty {
+                Section("All Profiles") {
+                    ContentUnavailableView(
+                        String(localized: "No Matching Profiles"),
+                        systemImage: "person.crop.circle.badge.questionmark",
+                        description: Text(String(localized: "Try a different profile or tool search."))
+                    )
+                }
             } else {
                 Section("All Profiles") {
+                    ToolProfilesCatalogDeck(
+                        profiles: filteredProfiles,
+                        totalProfiles: profiles.count,
+                        selectedProfileName: selectedProfile?.name
+                    )
+
                     ForEach(filteredProfiles) { profile in
                         VStack(alignment: .leading, spacing: 6) {
                             profileHeader(profile, highlight: profile.name.lowercased() == selectedProfileName?.lowercased())
@@ -275,6 +299,142 @@ private struct ToolProfilesSnapshotCard: View {
                         text: selectedToolCount == 1 ? String(localized: "1 tool") : String(localized: "\(selectedToolCount) tools"),
                         tone: .neutral
                     )
+                }
+            }
+        }
+    }
+}
+
+private struct SelectedToolProfileDeck: View {
+    let profile: ToolProfileSummary
+
+    private var longestToolName: String? {
+        profile.tools.max { $0.count < $1.count }
+    }
+
+    private var toolNameCharacterCount: Int {
+        profile.tools.reduce(0) { $0 + $1.count }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "The selected tool profile stays compact before the full profile tool list."),
+                detail: String(localized: "Use the current-profile deck to confirm the loaded bundle and its tool weight before opening the full tool grid."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: profile.tools.count == 1 ? String(localized: "1 tool in profile") : String(localized: "\(profile.tools.count) tools in profile"),
+                        tone: profile.tools.isEmpty ? .neutral : .positive
+                    )
+                    PresentationToneBadge(
+                        text: toolNameCharacterCount == 1 ? String(localized: "1 tool character") : String(localized: "\(toolNameCharacterCount) tool characters"),
+                        tone: .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Profile Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the selected bundle name, tool count, and the most verbose tool label visible while comparing profile contents."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: profile.name, tone: .positive)
+            } facts: {
+                Label(
+                    profile.tools.count == 1 ? String(localized: "1 bundled tool") : String(localized: "\(profile.tools.count) bundled tools"),
+                    systemImage: "wrench.and.screwdriver"
+                )
+                if let longestToolName {
+                    Label(longestToolName, systemImage: "textformat.size")
+                }
+            }
+        }
+    }
+}
+
+private struct ToolProfilesCatalogDeck: View {
+    let profiles: [ToolProfileSummary]
+    let totalProfiles: Int
+    let selectedProfileName: String?
+
+    private var visibleToolCount: Int {
+        profiles.reduce(0) { $0 + $1.tools.count }
+    }
+
+    private var emptyProfileCount: Int {
+        profiles.filter(\.tools.isEmpty).count
+    }
+
+    private var largestProfile: ToolProfileSummary? {
+        profiles.max { $0.tools.count < $1.tools.count }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "The filtered profile catalog stays compact before the full profile directory."),
+                detail: selectedProfileName == nil
+                    ? String(localized: "Use this deck to gauge profile breadth and the heaviest bundle before opening each catalog entry.")
+                    : String(localized: "Use this deck to compare the selected profile against the rest of the visible catalog."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: profiles.count == totalProfiles
+                            ? (profiles.count == 1 ? String(localized: "1 visible profile") : String(localized: "\(profiles.count) visible profiles"))
+                            : String(localized: "\(profiles.count) of \(totalProfiles) visible"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: visibleToolCount == 1 ? String(localized: "1 visible tool") : String(localized: "\(visibleToolCount) visible tools"),
+                        tone: .neutral
+                    )
+                    if emptyProfileCount > 0 {
+                        PresentationToneBadge(
+                            text: emptyProfileCount == 1 ? String(localized: "1 empty profile") : String(localized: "\(emptyProfileCount) empty profiles"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Catalog Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the visible profile count, catalog tool footprint, and largest bundle visible while scanning profile inventory."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if let largestProfile {
+                    PresentationToneBadge(
+                        text: largestProfile.tools.count == 1 ? String(localized: "Largest: 1 tool") : String(localized: "Largest: \(largestProfile.tools.count) tools"),
+                        tone: .neutral
+                    )
+                }
+            } facts: {
+                Label(
+                    profiles.count == 1 ? String(localized: "1 catalog profile") : String(localized: "\(profiles.count) catalog profiles"),
+                    systemImage: "person.crop.rectangle.stack"
+                )
+                Label(
+                    visibleToolCount == 1 ? String(localized: "1 visible tool") : String(localized: "\(visibleToolCount) visible tools"),
+                    systemImage: "wrench.and.screwdriver"
+                )
+                if let largestProfile {
+                    Label(largestProfile.name, systemImage: "chart.bar")
+                }
+                if let selectedProfileName {
+                    Label(selectedProfileName, systemImage: "checkmark.circle")
                 }
             }
         }

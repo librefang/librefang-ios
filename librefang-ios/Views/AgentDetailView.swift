@@ -560,7 +560,7 @@ struct AgentDetailView: View {
                 agentOperatorSurfaceDeckCard
             }
         } header: {
-            Text("Operator Deck")
+            Text("Controls")
         } footer: {
             Text("Keep the compact agent digest and the next operator exits together before the longer diagnostics sections.")
         }
@@ -569,7 +569,7 @@ struct AgentDetailView: View {
     private var agentOperatorSurfaceDeckCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Primary Routes"),
+                title: String(localized: "Primary"),
                 detail: String(localized: "Keep the most likely next operator exits visible as compact shortcuts right below the agent digest.")
             ) {
                 FlowLayout(spacing: 8) {
@@ -641,7 +641,7 @@ struct AgentDetailView: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Support Routes"),
+                title: String(localized: "Support"),
                 detail: String(localized: "Keep broader runtime, budget, and capability routes visible as a secondary shortcut rail.")
             ) {
                 FlowLayout(spacing: 8) {

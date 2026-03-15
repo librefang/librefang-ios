@@ -44,7 +44,7 @@ struct DiagnosticsView: View {
                         DiagnosticsStatusDeckCard(vm: vm, metrics: metrics)
                         diagnosticsRouteDeck(proxy)
                     } header: {
-                        Text("Operator Deck")
+                        Text("Controls")
                     } footer: {
                         Text("Keep diagnostic state, focus jumps, and nearby surfaces together before the long sections.")
                     }

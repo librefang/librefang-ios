@@ -472,7 +472,7 @@ struct NightWatchView: View {
             Divider()
                 .overlay(.white.opacity(0.08))
 
-            NightWatchSurfaceGroupLabel(title: String(localized: "Primary Routes"))
+            NightWatchSurfaceGroupLabel(title: String(localized: "Primary"))
 
             FlowLayout(spacing: 8) {
                 NavigationLink {
@@ -537,7 +537,7 @@ struct NightWatchView: View {
             Divider()
                 .overlay(.white.opacity(0.08))
 
-            NightWatchSurfaceGroupLabel(title: String(localized: "Support Routes"))
+            NightWatchSurfaceGroupLabel(title: String(localized: "Support"))
 
             FlowLayout(spacing: 8) {
                 NavigationLink {

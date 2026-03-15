@@ -533,7 +533,7 @@ struct StandbyDigestView: View {
             title: String(localized: "Surface Deck"),
             detail: String(localized: "Keep the next standby drills in one compact deck.")
         ) {
-            StandbySurfaceGroupLabel(title: String(localized: "Primary Routes"))
+            StandbySurfaceGroupLabel(title: String(localized: "Primary"))
 
             FlowLayout(spacing: 8) {
                 NavigationLink {
@@ -612,7 +612,7 @@ struct StandbyDigestView: View {
             Divider()
                 .overlay(.white.opacity(0.08))
 
-            StandbySurfaceGroupLabel(title: String(localized: "Support Routes"))
+            StandbySurfaceGroupLabel(title: String(localized: "Support"))
 
             FlowLayout(spacing: 8) {
                 NavigationLink {

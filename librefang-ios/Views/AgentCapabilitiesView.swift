@@ -168,6 +168,8 @@ struct AgentCapabilitiesView: View {
 
     private func toolFiltersSection(_ filters: AgentToolFilters) -> some View {
         Section {
+            ToolFiltersDeckCard(filters: filters)
+
             CapabilityDetailRow(
                 icon: "slider.horizontal.3",
                 label: String(localized: "Scope"),
@@ -210,6 +212,8 @@ struct AgentCapabilitiesView: View {
 
     private func skillsSection(_ assignment: AgentAssignmentScope) -> some View {
         Section {
+            SkillsDeckCard(assignment: assignment)
+
             CapabilityDetailRow(
                 icon: "sparkles",
                 label: String(localized: "Mode"),
@@ -245,6 +249,12 @@ struct AgentCapabilitiesView: View {
 
     private func mcpServersSection(_ assignment: AgentAssignmentScope) -> some View {
         Section {
+            MCPServersDeckCard(
+                assignment: assignment,
+                connectedServerNames: connectedMCPServerNames,
+                configuredServerNames: configuredMCPServerNames
+            )
+
             CapabilityDetailRow(
                 icon: "shippingbox",
                 label: String(localized: "Mode"),
@@ -405,6 +415,199 @@ private struct CapabilitiesSnapshotCard: View {
             text: isPresent ? label : String(localized: "\(label) missing"),
             tone: isPresent ? tone : .neutral
         )
+    }
+}
+
+private struct ToolFiltersDeckCard: View {
+    let filters: AgentToolFilters
+
+    private var visibleRuleCount: Int {
+        filters.toolAllowlist.count + filters.toolBlocklist.count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Tool filter scope stays compact before the detailed allowlist and blocklist rows."),
+                detail: String(localized: "Use the compact deck to confirm open access versus restricted mode before inspecting specific tool rules."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filters.scopeLabel, tone: filters.scopeTone)
+                    PresentationToneBadge(
+                        text: filters.toolAllowlist.isEmpty ? String(localized: "No allowlist") : String(localized: "\(filters.toolAllowlist.count) allowed"),
+                        tone: filters.toolAllowlist.isEmpty ? .neutral : .positive
+                    )
+                    PresentationToneBadge(
+                        text: filters.toolBlocklist.isEmpty ? String(localized: "No blocklist") : String(localized: "\(filters.toolBlocklist.count) blocked"),
+                        tone: filters.toolBlocklist.isEmpty ? .neutral : .warning
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Tool Filter Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep rule depth and access mode visible before opening individual allowed or blocked tool names."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleRuleCount == 1 ? String(localized: "1 explicit rule") : String(localized: "\(visibleRuleCount) explicit rules"),
+                    tone: visibleRuleCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    filters.toolAllowlist.count == 1 ? String(localized: "1 allowed tool") : String(localized: "\(filters.toolAllowlist.count) allowed tools"),
+                    systemImage: "checkmark.circle"
+                )
+                Label(
+                    filters.toolBlocklist.count == 1 ? String(localized: "1 blocked tool") : String(localized: "\(filters.toolBlocklist.count) blocked tools"),
+                    systemImage: "nosign"
+                )
+            }
+        }
+    }
+}
+
+private struct SkillsDeckCard: View {
+    let assignment: AgentAssignmentScope
+
+    private var inheritedCount: Int {
+        max(assignment.available.count - assignment.assigned.count, 0)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Skill scope stays compact before the assigned skill list."),
+                detail: String(localized: "Use the compact deck to confirm allowlist mode and inherited coverage before opening the full skill assignment list."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: assignment.scopeLabel(openAccessLabel: String(localized: "All skills")),
+                        tone: assignment.scopeTone
+                    )
+                    PresentationToneBadge(
+                        text: assignment.assigned.count == 1 ? String(localized: "1 assigned skill") : String(localized: "\(assignment.assigned.count) assigned skills"),
+                        tone: assignment.assigned.isEmpty ? .neutral : .positive
+                    )
+                    PresentationToneBadge(
+                        text: assignment.available.count == 1 ? String(localized: "1 available skill") : String(localized: "\(assignment.available.count) available skills"),
+                        tone: .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Skill Scope Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep assigned, available, and inherited skill coverage visible before opening individual skill names."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if !assignment.usesAllowlist {
+                    PresentationToneBadge(
+                        text: inheritedCount == 1 ? String(localized: "1 inherited skill") : String(localized: "\(inheritedCount) inherited skills"),
+                        tone: .positive
+                    )
+                }
+            } facts: {
+                Label(
+                    assignment.assigned.count == 1 ? String(localized: "1 assigned skill") : String(localized: "\(assignment.assigned.count) assigned skills"),
+                    systemImage: "sparkles"
+                )
+                Label(
+                    assignment.available.count == 1 ? String(localized: "1 visible skill") : String(localized: "\(assignment.available.count) visible skills"),
+                    systemImage: "square.stack.3d.up"
+                )
+            }
+        }
+    }
+}
+
+private struct MCPServersDeckCard: View {
+    let assignment: AgentAssignmentScope
+    let connectedServerNames: Set<String>
+    let configuredServerNames: Set<String>
+
+    private var connectedAssignedCount: Int {
+        assignment.assigned.filter { connectedServerNames.contains($0) }.count
+    }
+
+    private var configuredAvailableCount: Int {
+        assignment.available.filter { configuredServerNames.contains($0) }.count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "MCP scope stays compact before the assigned and available server lists."),
+                detail: String(localized: "Use the compact deck to confirm connected coverage and allowlist mode before opening the detailed MCP server inventory."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: assignment.scopeLabel(openAccessLabel: String(localized: "All connected servers")),
+                        tone: assignment.scopeTone
+                    )
+                    PresentationToneBadge(
+                        text: assignment.assigned.count == 1 ? String(localized: "1 assigned server") : String(localized: "\(assignment.assigned.count) assigned servers"),
+                        tone: assignment.assigned.isEmpty ? .neutral : .positive
+                    )
+                    PresentationToneBadge(
+                        text: assignment.available.count == 1 ? String(localized: "1 available server") : String(localized: "\(assignment.available.count) available servers"),
+                        tone: .neutral
+                    )
+                    if connectedAssignedCount > 0 {
+                        PresentationToneBadge(
+                            text: connectedAssignedCount == 1 ? String(localized: "1 connected assignment") : String(localized: "\(connectedAssignedCount) connected assignments"),
+                            tone: .positive
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "MCP Scope Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep assigned server count, connected coverage, and configured availability visible before opening individual MCP rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if configuredAvailableCount > 0 {
+                    PresentationToneBadge(
+                        text: configuredAvailableCount == 1 ? String(localized: "1 configured server") : String(localized: "\(configuredAvailableCount) configured servers"),
+                        tone: .neutral
+                    )
+                }
+            } facts: {
+                Label(
+                    assignment.assigned.count == 1 ? String(localized: "1 assigned server") : String(localized: "\(assignment.assigned.count) assigned servers"),
+                    systemImage: "shippingbox"
+                )
+                Label(
+                    assignment.available.count == 1 ? String(localized: "1 discoverable server") : String(localized: "\(assignment.available.count) discoverable servers"),
+                    systemImage: "point.3.connected.trianglepath.dotted"
+                )
+                if connectedAssignedCount > 0 {
+                    Label(
+                        connectedAssignedCount == 1 ? String(localized: "1 connected assignment") : String(localized: "\(connectedAssignedCount) connected assignments"),
+                        systemImage: "checkmark.rectangle.stack"
+                    )
+                }
+            }
+        }
     }
 }
 

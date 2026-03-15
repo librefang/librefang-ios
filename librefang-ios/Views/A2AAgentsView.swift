@@ -96,6 +96,12 @@ struct A2AAgentsView: View {
                         }
                     } else {
                         Section("Agents") {
+                            A2AInventoryDeckCard(
+                                agents: filteredAgents,
+                                totalAgents: agents.count,
+                                searchText: searchText
+                            )
+
                             ForEach(filteredAgents) { agent in
                                 A2AAgentRow(agent: agent)
                             }
@@ -139,6 +145,125 @@ private struct A2ASummaryCard: View {
                     text: pushCount == 1 ? String(localized: "1 push") : String(localized: "\(pushCount) push"),
                     tone: pushCount > 0 ? .positive : .neutral
                 )
+            }
+        }
+    }
+}
+
+private struct A2AInventoryDeckCard: View {
+    let agents: [A2AAgent]
+    let totalAgents: Int
+    let searchText: String
+
+    private var hasActiveSearch: Bool {
+        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var streamingCount: Int {
+        agents.filter { $0.capabilities?.streaming == true }.count
+    }
+
+    private var pushCount: Int {
+        agents.filter { $0.capabilities?.pushNotifications == true }.count
+    }
+
+    private var historyCount: Int {
+        agents.filter { $0.capabilities?.stateTransitionHistory == true }.count
+    }
+
+    private var hostCount: Int {
+        Set(agents.compactMap { URL(string: $0.url)?.host?.lowercased() }).count
+    }
+
+    private var skillCount: Int {
+        Set(agents.flatMap { $0.skills?.map(\.name) ?? [] }).count
+    }
+
+    private var tagCount: Int {
+        Set(agents.flatMap { ($0.skills ?? []).flatMap { $0.tags ?? [] } }).count
+    }
+
+    private var mostSkilledAgent: A2AAgent? {
+        agents.max { ($0.skills?.count ?? 0) < ($1.skills?.count ?? 0) }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: hasActiveSearch
+                    ? String(localized: "The current external-agent slice stays summarized before the filtered directory.")
+                    : String(localized: "The active external-agent slice stays summarized before the full directory."),
+                detail: hasActiveSearch
+                    ? (agents.count == 1
+                        ? String(localized: "1 external agent matches the current query.")
+                        : String(localized: "\(agents.count) external agents match the current query."))
+                    : String(localized: "Use the compact deck to gauge streaming, push, and skill coverage before opening each external agent."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: agents.count == totalAgents
+                            ? (agents.count == 1 ? String(localized: "1 visible agent") : String(localized: "\(agents.count) visible agents"))
+                            : String(localized: "\(agents.count) of \(totalAgents) visible"),
+                        tone: .positive
+                    )
+                    if streamingCount > 0 {
+                        PresentationToneBadge(
+                            text: streamingCount == 1 ? String(localized: "1 stream-ready") : String(localized: "\(streamingCount) stream-ready"),
+                            tone: .positive
+                        )
+                    }
+                    if pushCount > 0 {
+                        PresentationToneBadge(
+                            text: pushCount == 1 ? String(localized: "1 push-ready") : String(localized: "\(pushCount) push-ready"),
+                            tone: .positive
+                        )
+                    }
+                    if historyCount > 0 {
+                        PresentationToneBadge(
+                            text: historyCount == 1 ? String(localized: "1 history feed") : String(localized: "\(historyCount) history feeds"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Directory Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep endpoint host spread, skill coverage, and the richest agent summary visible while triaging the external-agent directory."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if let mostSkilledAgent {
+                    PresentationToneBadge(
+                        text: (mostSkilledAgent.skills?.count ?? 0) == 1
+                            ? String(localized: "Top agent: 1 skill")
+                            : String(localized: "Top agent: \((mostSkilledAgent.skills?.count ?? 0)) skills"),
+                        tone: .neutral
+                    )
+                }
+            } facts: {
+                Label(
+                    hostCount == 1 ? String(localized: "1 endpoint host") : String(localized: "\(hostCount) endpoint hosts"),
+                    systemImage: "network"
+                )
+                Label(
+                    skillCount == 1 ? String(localized: "1 visible skill") : String(localized: "\(skillCount) visible skills"),
+                    systemImage: "sparkles"
+                )
+                if tagCount > 0 {
+                    Label(
+                        tagCount == 1 ? String(localized: "1 skill tag") : String(localized: "\(tagCount) skill tags"),
+                        systemImage: "tag"
+                    )
+                }
+                if let mostSkilledAgent {
+                    Label(mostSkilledAgent.name, systemImage: "person.crop.circle.badge.checkmark")
+                }
             }
         }
     }

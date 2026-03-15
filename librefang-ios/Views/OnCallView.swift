@@ -252,7 +252,7 @@ struct OnCallView: View {
                     followUpStatuses: latestFollowUpStatuses
                 )
         } header: {
-            Text("Operator Deck")
+            Text("Controls")
         } footer: {
             Text("Queue shape, ack state, and handoff readiness stay together before queue work.")
         }
@@ -722,7 +722,7 @@ private struct OnCallSurfaceDeckCard: View {
                 }
             }
 
-            Label("Primary Routes", systemImage: "arrowshape.turn.up.right")
+            Label("Primary", systemImage: "arrowshape.turn.up.right")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
 
@@ -808,7 +808,7 @@ private struct OnCallSurfaceDeckCard: View {
                 .buttonStyle(.plain)
             }
 
-            Label("Support Routes", systemImage: "square.grid.2x2")
+            Label("Support", systemImage: "square.grid.2x2")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
 

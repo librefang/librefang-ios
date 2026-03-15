@@ -160,7 +160,7 @@ struct RuntimeView: View {
             RuntimeStatusDeckCard(vm: vm, runtimeSnapshotSummary: runtimeSnapshotSummary)
             runtimeRouteDeckCard(proxy)
         } header: {
-            Text("Operator Deck")
+            Text("Controls")
         } footer: {
             Text("Keep the runtime digest, routes, and jumps together before drilling deeper.")
         }
@@ -172,7 +172,7 @@ struct RuntimeView: View {
             detail: String(localized: "Keep runtime surfaces and long-section jumps in one compact deck.")
         ) {
             MonitoringShortcutRail(
-                title: String(localized: "Primary Routes"),
+                title: String(localized: "Primary"),
                 detail: String(localized: "Keep the next runtime drills right below the digest.")
             ) {
                 NavigationLink {
@@ -247,7 +247,7 @@ struct RuntimeView: View {
             }
 
             MonitoringShortcutRail(
-                title: String(localized: "Support Routes"),
+                title: String(localized: "Support"),
                 detail: String(localized: "Keep slower infra and config routes in a secondary rail.")
             ) {
                 NavigationLink {

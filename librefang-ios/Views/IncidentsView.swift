@@ -284,7 +284,7 @@ struct IncidentsView: View {
                 detail: String(localized: "Keep the most likely next drilldowns visible before the long incident queue.")
             ) {
                 MonitoringShortcutRail(
-                    title: String(localized: "Primary Routes"),
+                    title: String(localized: "Primary"),
                     detail: String(localized: "Use the direct monitors first when approvals, sessions, events, or handoff need a dedicated screen.")
                 ) {
                     NavigationLink {
@@ -342,7 +342,7 @@ struct IncidentsView: View {
                 }
 
                 MonitoringShortcutRail(
-                    title: String(localized: "Support Routes"),
+                    title: String(localized: "Support"),
                     detail: String(localized: "Use the broader runtime path when the incident needs deeper infrastructure context.")
                 ) {
                     NavigationLink {
@@ -399,7 +399,7 @@ struct IncidentsView: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Queue Rail"),
+                title: String(localized: "Queue"),
                 detail: String(localized: "Jump around the incident buckets themselves without dragging through the entire list.")
             ) {
                 MonitoringShortcutRail(
@@ -552,7 +552,7 @@ struct IncidentsView: View {
                 }
             }
         } header: {
-            Text("Operator Deck")
+            Text("Controls")
         } footer: {
             Text("Incident buckets, primary drilldowns, and queue jumps stay together before the longer grouped incident list.")
         }
