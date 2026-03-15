@@ -34,6 +34,16 @@ struct MainTabView: View {
     private var latestFollowUpStatuses: [HandoffFollowUpStatus] {
         deps.onCallHandoffStore.latestFollowUpStatuses
     }
+    private var pendingLatestFollowUpStatuses: [HandoffFollowUpStatus] {
+        latestFollowUpStatuses.filter { !$0.isCompleted }
+    }
+    private var pendingLatestFollowUpCount: Int {
+        pendingLatestFollowUpStatuses.count
+    }
+    private var pendingLatestFollowUpPreview: String? {
+        let preview = pendingLatestFollowUpStatuses.prefix(2).map(\.item).joined(separator: " • ")
+        return preview.isEmpty ? nil : preview
+    }
     private var isCurrentSnapshotAcknowledged: Bool {
         deps.incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
     }
@@ -68,10 +78,11 @@ struct MainTabView: View {
         )
     }
     private var handoffCheckInTrackingState: HandoffCheckInTrackingState {
-        guard let handoffBannerStatus else { return .init(level: 0, signature: "none") }
+        guard let handoffBannerStatus else { return .init(level: 0, pendingFollowUpCount: 0, signature: "none") }
         return HandoffCheckInTrackingState(
             level: handoffBannerStatus.state == .overdue ? 2 : 1,
-            signature: "\(handoffBannerStatus.state.label)|\(handoffBannerStatus.dueDate.timeIntervalSinceReferenceDate.rounded())"
+            pendingFollowUpCount: pendingLatestFollowUpCount,
+            signature: "\(handoffBannerStatus.state.label)|\(handoffBannerStatus.dueDate.timeIntervalSinceReferenceDate.rounded())|\(pendingLatestFollowUpStatuses.map(\.id).sorted().joined(separator: "|"))"
         )
     }
     private var onCallPriorityItems: [OnCallPriorityItem] {
@@ -261,7 +272,10 @@ struct MainTabView: View {
                 Button {
                     openHandoffCenter()
                 } label: {
-                    HandoffCheckInBanner(status: handoffBannerStatus)
+                    HandoffCheckInBanner(
+                        status: handoffBannerStatus,
+                        pendingFollowUpCount: pendingLatestFollowUpCount
+                    )
                 }
                 .buttonStyle(.plain)
             }
@@ -363,7 +377,10 @@ struct MainTabView: View {
             return
         }
 
-        guard newValue.level > 0, newValue.signature != oldValue.signature, newValue.level >= oldValue.level else {
+        let checkInEscalated = newValue.level > oldValue.level
+        let followUpsIntensified = newValue.pendingFollowUpCount > oldValue.pendingFollowUpCount
+
+        guard newValue.level > 0, newValue.signature != oldValue.signature, (checkInEscalated || followUpsIntensified) else {
             if newValue.level == 0 {
                 handoffCue = nil
             }
@@ -374,10 +391,42 @@ struct MainTabView: View {
 
         handoffCue = ActiveHandoffCue(
             id: newValue.signature,
-            title: handoffBannerStatus.state == .overdue ? "Handoff check-in overdue" : "Handoff check-in due soon",
-            detail: "\(handoffBannerStatus.dueLabel) · \(handoffBannerStatus.summary)"
+            title: handoffCueTitle(for: handoffBannerStatus, pendingFollowUpCount: pendingLatestFollowUpCount),
+            detail: handoffCueDetail(for: handoffBannerStatus)
         )
         HapticManager.notification(handoffBannerStatus.state == .overdue ? .error : .warning)
+    }
+
+    private func handoffCueTitle(for status: HandoffCheckInStatus, pendingFollowUpCount: Int) -> String {
+        guard pendingFollowUpCount > 0 else {
+            return status.state == .overdue ? "Handoff check-in overdue" : "Handoff check-in due soon"
+        }
+
+        let followUpSummary = pendingFollowUpCount == 1
+            ? "1 follow-up open"
+            : "\(pendingFollowUpCount) follow-ups open"
+
+        return status.state == .overdue
+            ? "Handoff overdue · \(followUpSummary)"
+            : "Handoff due soon · \(followUpSummary)"
+    }
+
+    private func handoffCueDetail(for status: HandoffCheckInStatus) -> String {
+        var segments = [status.dueLabel]
+        if pendingLatestFollowUpCount > 0 {
+            let followUpSummary = pendingLatestFollowUpCount == 1
+                ? "1 handoff follow-up still open"
+                : "\(pendingLatestFollowUpCount) handoff follow-ups still open"
+
+            if let pendingLatestFollowUpPreview {
+                segments.append("\(followUpSummary): \(pendingLatestFollowUpPreview)")
+            } else {
+                segments.append(followUpSummary)
+            }
+        } else {
+            segments.append(status.summary)
+        }
+        return segments.joined(separator: " · ")
     }
 
     private func openPreferredSurface() {
@@ -408,6 +457,7 @@ private struct ActiveIncidentCue: Identifiable, Equatable {
 
 private struct HandoffCheckInTrackingState: Equatable {
     let level: Int
+    let pendingFollowUpCount: Int
     let signature: String
 }
 
@@ -470,6 +520,7 @@ private struct CriticalIncidentBanner: View {
 
 private struct HandoffCheckInBanner: View {
     let status: HandoffCheckInStatus
+    let pendingFollowUpCount: Int
 
     private var tint: Color {
         status.state == .overdue ? .red : .orange
@@ -488,6 +539,14 @@ private struct HandoffCheckInBanner: View {
                 .padding(.vertical, 4)
                 .background(.white.opacity(0.12))
                 .clipShape(Capsule())
+            if pendingFollowUpCount > 0 {
+                Text(pendingFollowUpCount == 1 ? "1 open" : "\(pendingFollowUpCount) open")
+                    .font(.caption2.weight(.medium))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(.white.opacity(0.12))
+                    .clipShape(Capsule())
+            }
             Text("Handoff")
                 .font(.caption2.weight(.medium))
                 .padding(.horizontal, 8)

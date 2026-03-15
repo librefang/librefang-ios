@@ -145,7 +145,10 @@ extension DashboardViewModel {
             items.append(checkInItem)
         }
 
-        if let followUpItem = onCallFollowUpItem(for: handoffFollowUpStatuses) {
+        if let followUpItem = onCallFollowUpItem(
+            for: handoffFollowUpStatuses,
+            handoffCheckInStatus: handoffCheckInStatus
+        ) {
             items.append(followUpItem)
         }
 
@@ -169,7 +172,10 @@ extension DashboardViewModel {
         let liveCritical = visibleAlerts.filter { $0.severity == .critical }.count
         let watchIssues = watchedAttentionItems.filter { $0.severity > 0 }.count
         let checkInSummary = checkInDigestSummary(for: handoffCheckInStatus)
-        let followUpSummary = followUpDigestSummary(for: handoffFollowUpStatuses)
+        let followUpSummary = followUpDigestSummary(
+            for: handoffFollowUpStatuses,
+            handoffCheckInStatus: handoffCheckInStatus
+        )
 
         if !visibleAlerts.isEmpty {
             if isAcknowledged {
@@ -288,26 +294,85 @@ extension DashboardViewModel {
         }
     }
 
-    private func onCallFollowUpItem(for statuses: [HandoffFollowUpStatus]) -> OnCallPriorityItem? {
+    private func onCallFollowUpItem(
+        for statuses: [HandoffFollowUpStatus],
+        handoffCheckInStatus: HandoffCheckInStatus?
+    ) -> OnCallPriorityItem? {
         let pending = statuses.filter { !$0.isCompleted }
         guard !pending.isEmpty else { return nil }
 
+        let pendingPreview = pending.prefix(2).map(\.item).joined(separator: " • ")
+        let detail: String
+        if let handoffCheckInStatus, handoffCheckInStatus.state != .scheduled {
+            detail = pendingPreview.isEmpty
+                ? handoffCheckInStatus.dueLabel
+                : "\(handoffCheckInStatus.dueLabel) · \(pendingPreview)"
+        } else {
+            detail = pendingPreview
+        }
+
+        let title: String
+        let footnote: String
+        let severity: OnCallPrioritySeverity
+        let rank: Int
+
+        switch handoffCheckInStatus?.state {
+        case .overdue:
+            title = pending.count == 1
+                ? "1 handoff follow-up overdue"
+                : "\(pending.count) handoff follow-ups overdue"
+            footnote = "Local handoff check-in is overdue with open follow-ups"
+            severity = .critical
+            rank = 90
+        case .dueSoon:
+            title = pending.count == 1
+                ? "1 handoff follow-up open before check-in"
+                : "\(pending.count) handoff follow-ups open before check-in"
+            footnote = "Local handoff checkpoint is due soon"
+            severity = pending.count >= 3 ? .critical : .warning
+            rank = pending.count >= 3 ? 82 : 76
+        case .scheduled, .none:
+            title = pending.count == 1
+                ? "1 handoff follow-up still open"
+                : "\(pending.count) handoff follow-ups still open"
+            footnote = "Latest local handoff follow-through"
+            severity = pending.count >= 3 ? .warning : .advisory
+            rank = pending.count >= 3 ? 74 : 64
+        }
+
         return OnCallPriorityItem(
             id: "handoff-followups",
-            title: pending.count == 1 ? "1 handoff follow-up still open" : "\(pending.count) handoff follow-ups still open",
-            detail: pending.prefix(2).map(\.item).joined(separator: " • "),
-            footnote: "Latest local handoff follow-through",
+            title: title,
+            detail: detail,
+            footnote: footnote,
             symbolName: "checklist",
-            severity: pending.count >= 3 ? .warning : .advisory,
-            rank: pending.count >= 3 ? 74 : 64,
+            severity: severity,
+            rank: rank,
             route: .handoffCenter
         )
     }
 
-    private func followUpDigestSummary(for statuses: [HandoffFollowUpStatus]) -> String? {
+    private func followUpDigestSummary(
+        for statuses: [HandoffFollowUpStatus],
+        handoffCheckInStatus: HandoffCheckInStatus?
+    ) -> String? {
         let pendingCount = statuses.filter { !$0.isCompleted }.count
         guard pendingCount > 0 else { return nil }
-        return pendingCount == 1 ? "1 handoff follow-up still open" : "\(pendingCount) handoff follow-ups still open"
+
+        switch handoffCheckInStatus?.state {
+        case .overdue:
+            return pendingCount == 1
+                ? "1 handoff follow-up is still open after the local check-in deadline"
+                : "\(pendingCount) handoff follow-ups are still open after the local check-in deadline"
+        case .dueSoon:
+            return pendingCount == 1
+                ? "1 handoff follow-up is still open before the next local check-in"
+                : "\(pendingCount) handoff follow-ups are still open before the next local check-in"
+        case .scheduled, .none:
+            return pendingCount == 1
+                ? "1 handoff follow-up still open"
+                : "\(pendingCount) handoff follow-ups still open"
+        }
     }
 }
 
