@@ -68,12 +68,12 @@ private struct A2AAgentRow: View {
                         .font(.caption.weight(.medium))
                     FlowLayout(spacing: 4) {
                         ForEach(skills) { skill in
-                            Text(skill.name)
-                                .font(.caption2)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
-                                .background(Color(.systemGray5))
-                                .clipShape(Capsule())
+                            PresentationToneBadge(
+                                text: skill.name,
+                                tone: .neutral,
+                                horizontalPadding: 8,
+                                verticalPadding: 3
+                            )
                         }
                     }
                 }
@@ -121,13 +121,11 @@ private struct CapabilityBadge: View {
     }
 
     var body: some View {
-        HStack(spacing: 3) {
-            Image(systemName: enabled ? "checkmark.circle.fill" : "xmark.circle")
-                .font(.caption2)
-                .foregroundStyle(tone.color)
-            Text(label)
-                .font(.caption2)
-        }
+        PresentationToneLabelBadge(
+            text: label,
+            systemImage: enabled ? "checkmark.circle.fill" : "xmark.circle",
+            tone: tone
+        )
     }
 }
 

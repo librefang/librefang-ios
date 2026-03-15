@@ -545,16 +545,16 @@ private struct WorkflowDefinitionRow: View {
 
     private var statusBlock: some View {
         VStack(alignment: .leading, spacing: 4) {
-            MonitoringPill(text: String(localized: "\(workflow.steps) steps"), tone: .neutral)
+            PresentationToneBadge(text: String(localized: "\(workflow.steps) steps"), tone: .neutral)
             if failedRuns > 0 {
-                MonitoringPill(
+                PresentationToneBadge(
                     text: failedRuns == 1
                         ? String(localized: "1 failed run")
                         : String(localized: "\(failedRuns) failed"),
                     tone: .critical
                 )
             } else if runningRuns > 0 {
-                MonitoringPill(
+                PresentationToneBadge(
                     text: runningRuns == 1
                         ? String(localized: "1 running")
                         : String(localized: "\(runningRuns) running"),
@@ -574,12 +574,12 @@ private struct WorkflowRunRow: View {
                 HStack {
                     summaryBlock
                     Spacer()
-                    MonitoringPill(text: run.state.label, tone: tone)
+                    PresentationToneBadge(text: run.state.label, tone: tone)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
                     summaryBlock
-                    MonitoringPill(text: run.state.label, tone: tone)
+                    PresentationToneBadge(text: run.state.label, tone: tone)
                 }
             }
 
@@ -598,14 +598,14 @@ private struct WorkflowRunRow: View {
         .padding(.vertical, 2)
     }
 
-    private var tone: MonitoringPill.Tone {
+    private var tone: PresentationTone {
         switch run.state {
         case .failed:
             .critical
         case .running, .pending:
             .warning
         case .completed:
-            .good
+            .positive
         }
     }
 
@@ -643,12 +643,12 @@ private struct TriggerRow: View {
                 HStack {
                     summaryBlock
                     Spacer()
-                    MonitoringPill(text: statusLabel, tone: tone)
+                    PresentationToneBadge(text: statusLabel, tone: tone)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
                     summaryBlock
-                    MonitoringPill(text: statusLabel, tone: tone)
+                    PresentationToneBadge(text: statusLabel, tone: tone)
                 }
             }
 
@@ -683,11 +683,11 @@ private struct TriggerRow: View {
             : String(localized: "Disabled")
     }
 
-    private var tone: MonitoringPill.Tone {
+    private var tone: PresentationTone {
         if trigger.isExhausted {
             return .critical
         }
-        return trigger.enabled ? .good : .neutral
+        return trigger.enabled ? .positive : .neutral
     }
 
     private var summaryBlock: some View {
@@ -722,21 +722,21 @@ private struct ScheduleRow: View {
                 HStack {
                     summaryBlock
                     Spacer()
-                    MonitoringPill(
+                    PresentationToneBadge(
                         text: schedule.enabled
                             ? String(localized: "Enabled")
                             : String(localized: "Paused"),
-                        tone: schedule.enabled ? .good : .warning
+                        tone: schedule.enabled ? .positive : .warning
                     )
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
                     summaryBlock
-                    MonitoringPill(
+                    PresentationToneBadge(
                         text: schedule.enabled
                             ? String(localized: "Enabled")
                             : String(localized: "Paused"),
-                        tone: schedule.enabled ? .good : .warning
+                        tone: schedule.enabled ? .positive : .warning
                     )
                 }
             }
@@ -805,12 +805,12 @@ private struct CronJobRow: View {
                 HStack {
                     summaryBlock
                     Spacer()
-                    MonitoringPill(text: statusLabel, tone: tone)
+                    PresentationToneBadge(text: statusLabel, tone: tone)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
                     summaryBlock
-                    MonitoringPill(text: statusLabel, tone: tone)
+                    PresentationToneBadge(text: statusLabel, tone: tone)
                 }
             }
 
@@ -846,11 +846,11 @@ private struct CronJobRow: View {
             : String(localized: "Enabled")
     }
 
-    private var tone: MonitoringPill.Tone {
+    private var tone: PresentationTone {
         if !job.enabled {
             return .warning
         }
-        return job.nextRun == nil ? .critical : .good
+        return job.nextRun == nil ? .critical : .positive
     }
 
     private func relativeText(from value: String) -> String {
@@ -878,54 +878,6 @@ private struct CronJobRow: View {
         }
         if let lastRun = job.lastRun {
             Label("Last \(relativeText(from: lastRun))", systemImage: "clock.arrow.circlepath")
-        }
-    }
-}
-
-private struct MonitoringPill: View {
-    enum Tone {
-        case good
-        case warning
-        case critical
-        case neutral
-    }
-
-    let text: String
-    let tone: Tone
-
-    var body: some View {
-        Text(text)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(backgroundColor)
-            .foregroundStyle(foregroundColor)
-            .clipShape(Capsule())
-    }
-
-    private var backgroundColor: Color {
-        switch tone {
-        case .good:
-            .green.opacity(0.14)
-        case .warning:
-            .orange.opacity(0.16)
-        case .critical:
-            .red.opacity(0.14)
-        case .neutral:
-            .secondary.opacity(0.14)
-        }
-    }
-
-    private var foregroundColor: Color {
-        switch tone {
-        case .good:
-            .green
-        case .warning:
-            .orange
-        case .critical:
-            .red
-        case .neutral:
-            .secondary
         }
     }
 }
