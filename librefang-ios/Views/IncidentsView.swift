@@ -200,9 +200,9 @@ struct IncidentsView: View {
             if !vm.sessionAttentionItems.isEmpty {
                 Section {
                     ForEach(vm.sessionAttentionItems.prefix(5)) { item in
-                        if let agent = item.agent {
+                        if let sessionQuery = sessionQuery(for: item) {
                             NavigationLink {
-                                AgentDetailView(agent: agent)
+                                SessionsView(initialSearchText: sessionQuery, initialFilter: .attention)
                             } label: {
                                 IncidentSessionRow(item: item)
                             }
@@ -226,7 +226,19 @@ struct IncidentsView: View {
             if !vm.criticalAuditEntries.isEmpty {
                 Section {
                     ForEach(vm.criticalAuditEntries.prefix(5)) { entry in
-                        IncidentEventRow(entry: entry, agentName: agentName(for: entry.agentId))
+                        if let eventQuery = eventQuery(for: entry) {
+                            NavigationLink {
+                                EventsView(api: deps.apiClient, initialSearchText: eventQuery, initialScope: .critical)
+                            } label: {
+                                IncidentEventRow(entry: entry, agentName: agentName(for: entry.agentId))
+                            }
+                        } else {
+                            NavigationLink {
+                                EventsView(api: deps.apiClient, initialScope: .critical)
+                            } label: {
+                                IncidentEventRow(entry: entry, agentName: agentName(for: entry.agentId))
+                            }
+                        }
                     }
 
                     NavigationLink {
@@ -269,6 +281,15 @@ struct IncidentsView: View {
 
     private func agentName(for id: String) -> String? {
         vm.agents.first(where: { $0.id == id })?.name
+    }
+
+    private func sessionQuery(for item: SessionAttentionItem) -> String? {
+        let agentID = item.agent?.id ?? item.session.agentId
+        return agentID.isEmpty ? nil : agentID
+    }
+
+    private func eventQuery(for entry: AuditEntry) -> String? {
+        entry.agentId.isEmpty ? nil : entry.agentId
     }
 }
 

@@ -1179,36 +1179,20 @@ private struct SessionWatchlistCard: View {
             }
 
             ForEach(items.prefix(3)) { item in
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: "rectangle.stack")
-                        .foregroundStyle(item.severity >= 6 ? .red : .orange)
-                        .frame(width: 18)
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text(displayTitle(item))
-                                .font(.subheadline.weight(.medium))
-                            Spacer()
-                            Text("\(item.session.messageCount) msgs")
-                                .font(.caption2.monospacedDigit())
-                                .foregroundStyle(.secondary)
-                        }
-
-                        Text(item.agent?.name ?? item.session.agentId)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-
-                        Text(item.reasons.prefix(2).joined(separator: " • "))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
+                if let sessionQuery = sessionQuery(for: item) {
+                    NavigationLink {
+                        SessionsView(initialSearchText: sessionQuery, initialFilter: .attention)
+                    } label: {
+                        sessionSummaryRow(item)
                     }
+                    .buttonStyle(.plain)
+                } else {
+                    sessionSummaryRow(item)
                 }
             }
 
             NavigationLink {
-                SessionsView()
+                SessionsView(initialFilter: .attention)
             } label: {
                 Label("Open Session Monitor", systemImage: "rectangle.stack")
                     .font(.caption.weight(.medium))
@@ -1223,9 +1207,45 @@ private struct SessionWatchlistCard: View {
         let label = (item.session.label ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         return label.isEmpty ? String(item.session.sessionId.prefix(8)) : label
     }
+
+    @ViewBuilder
+    private func sessionSummaryRow(_ item: SessionAttentionItem) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "rectangle.stack")
+                .foregroundStyle(item.severity >= 6 ? .red : .orange)
+                .frame(width: 18)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(displayTitle(item))
+                        .font(.subheadline.weight(.medium))
+                    Spacer()
+                    Text("\(item.session.messageCount) msgs")
+                        .font(.caption2.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+
+                Text(item.agent?.name ?? item.session.agentId)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+
+                Text(item.reasons.prefix(2).joined(separator: " • "))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        }
+    }
+
+    private func sessionQuery(for item: SessionAttentionItem) -> String? {
+        let agentID = item.agent?.id ?? item.session.agentId
+        return agentID.isEmpty ? nil : agentID
+    }
 }
 
 private struct AuditFeedCard: View {
+    @Environment(\.dependencies) private var deps
     let entries: [AuditEntry]
 
     var body: some View {
@@ -1235,33 +1255,16 @@ private struct AuditFeedCard: View {
                 .foregroundStyle(.secondary)
 
             ForEach(entries.prefix(4)) { entry in
-                HStack(alignment: .top, spacing: 10) {
-                    Circle()
-                        .fill(severityColor(entry.severity))
-                        .frame(width: 8, height: 8)
-                        .padding(.top, 6)
-
-                    VStack(alignment: .leading, spacing: 3) {
-                        HStack {
-                            Text(entry.friendlyAction)
-                                .font(.subheadline.weight(.medium))
-                            Spacer()
-                            Text(relativeTime(entry.timestamp))
-                                .font(.caption2)
-                                .foregroundStyle(.tertiary)
-                        }
-
-                        Text(entry.detail)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-
-                        Text(entry.agentId)
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                            .lineLimit(1)
+                NavigationLink {
+                    if entry.agentId.isEmpty {
+                        EventsView(api: deps.apiClient, initialScope: .critical)
+                    } else {
+                        EventsView(api: deps.apiClient, initialSearchText: entry.agentId, initialScope: .critical)
                     }
+                } label: {
+                    eventSummaryRow(entry)
                 }
+                .buttonStyle(.plain)
             }
         }
         .padding()
@@ -1283,6 +1286,37 @@ private struct AuditFeedCard: View {
     private func relativeTime(_ timestamp: String) -> String {
         guard let date = parseDate(timestamp) else { return timestamp }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+    }
+
+    @ViewBuilder
+    private func eventSummaryRow(_ entry: AuditEntry) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Circle()
+                .fill(severityColor(entry.severity))
+                .frame(width: 8, height: 8)
+                .padding(.top, 6)
+
+            VStack(alignment: .leading, spacing: 3) {
+                HStack {
+                    Text(entry.friendlyAction)
+                        .font(.subheadline.weight(.medium))
+                    Spacer()
+                    Text(relativeTime(entry.timestamp))
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
+
+                Text(entry.detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+
+                Text(entry.agentId)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(1)
+            }
+        }
     }
     
     private func parseDate(_ value: String) -> Date? {

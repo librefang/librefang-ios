@@ -160,14 +160,19 @@ struct RuntimeView: View {
         if !vm.sessions.isEmpty {
             Section {
                 ForEach(vm.sessions.prefix(5)) { session in
-                    SessionRow(
-                        session: session,
-                        agentName: vm.agents.first(where: { $0.id == session.agentId })?.name
-                    )
+                    let query = session.agentId
+                    NavigationLink {
+                        SessionsView(initialSearchText: query, initialFilter: .attention)
+                    } label: {
+                        SessionRow(
+                            session: session,
+                            agentName: vm.agents.first(where: { $0.id == session.agentId })?.name
+                        )
+                    }
                 }
 
                 NavigationLink {
-                    SessionsView()
+                    SessionsView(initialFilter: .attention)
                 } label: {
                     Label("Open Session Monitor", systemImage: "rectangle.stack")
                 }
@@ -359,12 +364,20 @@ struct RuntimeView: View {
                     )
                 } else {
                     ForEach(vm.recentAudit.prefix(6)) { entry in
-                        AuditEventRow(entry: entry)
+                        NavigationLink {
+                            if entry.agentId.isEmpty {
+                                EventsView(api: deps.apiClient, initialScope: .critical)
+                            } else {
+                                EventsView(api: deps.apiClient, initialSearchText: entry.agentId)
+                            }
+                        } label: {
+                            AuditEventRow(entry: entry)
+                        }
                     }
                 }
 
                 NavigationLink {
-                    EventsView(api: deps.apiClient)
+                    EventsView(api: deps.apiClient, initialScope: .critical)
                 } label: {
                     Label("Open Full Event Feed", systemImage: "list.bullet.rectangle.portrait")
                 }
@@ -413,13 +426,13 @@ struct RuntimeView: View {
                 }
 
                 NavigationLink {
-                    SessionsView()
+                    SessionsView(initialFilter: .attention)
                 } label: {
                     Image(systemName: "rectangle.stack")
                 }
 
                 NavigationLink {
-                    EventsView(api: deps.apiClient)
+                    EventsView(api: deps.apiClient, initialScope: .critical)
                 } label: {
                     Image(systemName: "list.bullet.rectangle.portrait")
                 }
