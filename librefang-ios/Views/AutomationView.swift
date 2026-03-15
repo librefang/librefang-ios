@@ -147,6 +147,17 @@ struct AutomationView: View {
         .filter { $0 }
         .count
     }
+    private var automationSectionCount: Int {
+        [
+            !filteredWorkflows.isEmpty,
+            !filteredWorkflowRuns.isEmpty,
+            !filteredTriggers.isEmpty,
+            !filteredSchedules.isEmpty,
+            !filteredCronJobs.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
 
     init(initialSearchText: String = "", initialScope: AutomationMonitorScope = .all) {
         _searchText = State(initialValue: initialSearchText)
@@ -180,6 +191,18 @@ struct AutomationView: View {
                         searchText: searchText,
                         visibleItemCount: visibleItemCount,
                         automationSnapshotSummary: automationSnapshotSummary
+                    )
+                    AutomationSectionInventoryDeck(
+                        sectionCount: automationSectionCount,
+                        visibleItemCount: visibleItemCount,
+                        workflowCount: filteredWorkflows.count,
+                        runCount: filteredWorkflowRuns.count,
+                        triggerCount: filteredTriggers.count,
+                        scheduleCount: filteredSchedules.count,
+                        cronCount: filteredCronJobs.count,
+                        failedRunCount: vm.failedWorkflowRunCount,
+                        exhaustedTriggerCount: vm.exhaustedTriggerCount,
+                        stalledCronCount: vm.stalledCronJobCount
                     )
                     AutomationRouteInventoryDeck(
                         primaryRouteCount: 4,
@@ -935,6 +958,96 @@ private struct AutomationRouteInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Routes and long-section jumps stay summarized here before the grouped workflow lists.")
+    }
+}
+
+private struct AutomationSectionInventoryDeck: View {
+    let sectionCount: Int
+    let visibleItemCount: Int
+    let workflowCount: Int
+    let runCount: Int
+    let triggerCount: Int
+    let scheduleCount: Int
+    let cronCount: Int
+    let failedRunCount: Int
+    let exhaustedTriggerCount: Int
+    let stalledCronCount: Int
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                    tone: .positive
+                )
+                PresentationToneBadge(
+                    text: visibleItemCount == 1 ? String(localized: "1 visible item") : String(localized: "\(visibleItemCount) visible items"),
+                    tone: .neutral
+                )
+                if failedRunCount > 0 {
+                    PresentationToneBadge(
+                        text: failedRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(failedRunCount) failed runs"),
+                        tone: .critical
+                    )
+                }
+                if stalledCronCount > 0 {
+                    PresentationToneBadge(
+                        text: stalledCronCount == 1 ? String(localized: "1 stalled cron") : String(localized: "\(stalledCronCount) stalled cron jobs"),
+                        tone: .warning
+                    )
+                }
+            }
+        }
+        .overlay(alignment: .bottom) { EmptyView() }
+
+        MonitoringFactsRow {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(String(localized: "Section inventory"))
+                    .font(.subheadline.weight(.medium))
+                Text(String(localized: "Keep workflow, trigger, schedule, and cron coverage visible before the route rail and grouped automation lists."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        } accessory: {
+            PresentationToneBadge(
+                text: workflowCount == 1 ? String(localized: "1 workflow") : String(localized: "\(workflowCount) workflows"),
+                tone: workflowCount > 0 ? .positive : .neutral
+            )
+        } facts: {
+            Label(
+                runCount == 1 ? String(localized: "1 run") : String(localized: "\(runCount) runs"),
+                systemImage: "play.rectangle.on.rectangle"
+            )
+            Label(
+                triggerCount == 1 ? String(localized: "1 trigger") : String(localized: "\(triggerCount) triggers"),
+                systemImage: "bolt.badge.clock"
+            )
+            Label(
+                scheduleCount == 1 ? String(localized: "1 schedule") : String(localized: "\(scheduleCount) schedules"),
+                systemImage: "calendar"
+            )
+            Label(
+                cronCount == 1 ? String(localized: "1 cron") : String(localized: "\(cronCount) cron jobs"),
+                systemImage: "clock.arrow.circlepath"
+            )
+            if exhaustedTriggerCount > 0 {
+                Label(
+                    exhaustedTriggerCount == 1 ? String(localized: "1 exhausted trigger") : String(localized: "\(exhaustedTriggerCount) exhausted triggers"),
+                    systemImage: "exclamationmark.triangle"
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 automation section is active below the controls deck.")
+            : String(localized: "\(sectionCount) automation sections are active below the controls deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Workflow, trigger, schedule, and cron coverage stay summarized before the route rail and longer automation inventories.")
     }
 }
 

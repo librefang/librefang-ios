@@ -223,6 +223,17 @@ struct IntegrationsView: View {
         .filter { $0 }
         .count
     }
+    private var integrationsSectionCount: Int {
+        [
+            !filteredProviders.isEmpty,
+            !filteredChannels.isEmpty,
+            !filteredModels.isEmpty,
+            !filteredAliases.isEmpty,
+            !filteredAgentDiagnostics.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
 
     private var scopeSummaryLine: String {
         scope == .attention
@@ -303,6 +314,25 @@ struct IntegrationsView: View {
                 }
 
                 if hasAnyContent {
+                    Section {
+                        IntegrationsSectionInventoryDeck(
+                            sectionCount: integrationsSectionCount,
+                            visibleResultCount: visibleResultCount,
+                            providerCount: filteredProviders.count,
+                            channelCount: filteredChannels.count,
+                            modelCount: filteredModels.count,
+                            aliasCount: filteredAliases.count,
+                            driftCount: filteredAgentDiagnostics.count,
+                            providerAttentionCount: providerAttentionCount,
+                            channelAttentionCount: channelAttentionCount,
+                            modelAttentionCount: modelAttentionCount
+                        )
+                    } header: {
+                        Text("Inventory")
+                    } footer: {
+                        Text("Keep section coverage visible before jumping around the integration inventory.")
+                    }
+
                     Section {
                         integrationsFocusSection(proxy)
                     } header: {
@@ -893,6 +923,97 @@ private struct IntegrationsRouteInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Routes and section jumps stay summarized here before provider, channel, model, and drift inventories.")
+    }
+}
+
+private struct IntegrationsSectionInventoryDeck: View {
+    let sectionCount: Int
+    let visibleResultCount: Int
+    let providerCount: Int
+    let channelCount: Int
+    let modelCount: Int
+    let aliasCount: Int
+    let driftCount: Int
+    let providerAttentionCount: Int
+    let channelAttentionCount: Int
+    let modelAttentionCount: Int
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                    tone: .positive
+                )
+                PresentationToneBadge(
+                    text: visibleResultCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleResultCount) visible results"),
+                    tone: .neutral
+                )
+                if providerAttentionCount > 0 {
+                    PresentationToneBadge(
+                        text: providerAttentionCount == 1 ? String(localized: "1 provider issue") : String(localized: "\(providerAttentionCount) provider issues"),
+                        tone: .warning
+                    )
+                }
+                if channelAttentionCount > 0 {
+                    PresentationToneBadge(
+                        text: channelAttentionCount == 1 ? String(localized: "1 channel gap") : String(localized: "\(channelAttentionCount) channel gaps"),
+                        tone: .warning
+                    )
+                }
+                if modelAttentionCount > 0 {
+                    PresentationToneBadge(
+                        text: modelAttentionCount == 1 ? String(localized: "1 unavailable model") : String(localized: "\(modelAttentionCount) unavailable models"),
+                        tone: .warning
+                    )
+                }
+            }
+        }
+
+        MonitoringFactsRow {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(String(localized: "Section inventory"))
+                    .font(.subheadline.weight(.medium))
+                Text(String(localized: "Keep provider, channel, model, alias, and drift coverage visible before the jump rail and operator routes."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        } accessory: {
+            PresentationToneBadge(
+                text: driftCount == 1 ? String(localized: "1 drift case") : String(localized: "\(driftCount) drift cases"),
+                tone: driftCount > 0 ? .critical : .neutral
+            )
+        } facts: {
+            Label(
+                providerCount == 1 ? String(localized: "1 provider") : String(localized: "\(providerCount) providers"),
+                systemImage: "key.horizontal"
+            )
+            Label(
+                channelCount == 1 ? String(localized: "1 channel") : String(localized: "\(channelCount) channels"),
+                systemImage: "bubble.left.and.bubble.right"
+            )
+            Label(
+                modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
+                systemImage: "square.stack.3d.up"
+            )
+            if aliasCount > 0 {
+                Label(
+                    aliasCount == 1 ? String(localized: "1 alias") : String(localized: "\(aliasCount) aliases"),
+                    systemImage: "arrow.triangle.branch"
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 integration section is active below the snapshot.")
+            : String(localized: "\(sectionCount) integration sections are active below the snapshot.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Providers, channels, models, aliases, and drift stay summarized before the jump rail and deeper operator routes.")
     }
 }
 

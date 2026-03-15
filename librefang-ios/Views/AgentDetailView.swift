@@ -211,6 +211,20 @@ struct AgentDetailView: View {
     private var monitoringSurfaceIssueCount: Int {
         agentApprovals.count + sessionIssueCount + failedDeliveryCount + missingWorkspaceFileCount
     }
+    private var diagnosticsSectionCount: Int {
+        [
+            true,
+            hasModelResolution,
+            !agentApprovals.isEmpty,
+            budgetDetail != nil,
+            true,
+            true,
+            true,
+            !agentRecentEvents.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
 
     private var agentBudgetTone: PresentationTone {
         guard let budgetDetail else { return .neutral }
@@ -557,6 +571,18 @@ struct AgentDetailView: View {
         Section {
             VStack(alignment: .leading, spacing: 12) {
                 agentDiagnosticsStatusDeckCard
+                AgentSectionInventoryDeck(
+                    sectionCount: diagnosticsSectionCount,
+                    issueCount: monitoringSurfaceIssueCount,
+                    approvalCount: agentApprovals.count,
+                    sessionCount: agentSessions.count,
+                    memoryCount: agentMemory.count,
+                    fileCount: agentFiles.count,
+                    deliveryCount: agentDeliveries.count,
+                    auditCount: agentRecentEvents.count,
+                    hasBudget: budgetDetail != nil,
+                    hasModelResolution: hasModelResolution
+                )
                 agentOperatorSurfaceDeckCard
             }
         } header: {
@@ -2186,6 +2212,93 @@ private struct AgentDetailValueRow<Value: View>: View {
         } value: {
             value
         }
+    }
+}
+
+private struct AgentSectionInventoryDeck: View {
+    let sectionCount: Int
+    let issueCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let memoryCount: Int
+    let fileCount: Int
+    let deliveryCount: Int
+    let auditCount: Int
+    let hasBudget: Bool
+    let hasModelResolution: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
+                        tone: issueCount > 0 ? .warning : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: hasModelResolution ? String(localized: "Model path visible") : String(localized: "Model path pending"),
+                        tone: hasModelResolution ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: hasBudget ? String(localized: "Budget visible") : String(localized: "Budget pending"),
+                        tone: .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep session, memory, workspace, receipts, and audit coverage visible before the operator routes and deeper agent sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                    tone: approvalCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    sessionCount == 1 ? String(localized: "1 session") : String(localized: "\(sessionCount) sessions"),
+                    systemImage: "rectangle.stack"
+                )
+                Label(
+                    memoryCount == 1 ? String(localized: "1 memory key") : String(localized: "\(memoryCount) memory keys"),
+                    systemImage: "internaldrive"
+                )
+                Label(
+                    fileCount == 1 ? String(localized: "1 workspace file") : String(localized: "\(fileCount) workspace files"),
+                    systemImage: "doc.text"
+                )
+                Label(
+                    deliveryCount == 1 ? String(localized: "1 receipt") : String(localized: "\(deliveryCount) receipts"),
+                    systemImage: "paperplane"
+                )
+                if auditCount > 0 {
+                    Label(
+                        auditCount == 1 ? String(localized: "1 audit event") : String(localized: "\(auditCount) audit events"),
+                        systemImage: "list.bullet.rectangle.portrait"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 agent section is active below the controls deck.")
+            : String(localized: "\(sectionCount) agent sections are active below the controls deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Current model path, budget visibility, and deeper diagnostics coverage stay summarized before the route rails and detail sections.")
     }
 }
 
