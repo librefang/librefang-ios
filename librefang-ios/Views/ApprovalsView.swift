@@ -70,13 +70,15 @@ struct ApprovalsView: View {
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
             }
 
-            Section("Filter") {
-                Picker("Risk", selection: $filter) {
-                    ForEach(ApprovalRiskFilter.allCases) { option in
-                        Text(option.label).tag(option)
-                    }
-                }
-                .pickerStyle(.segmented)
+            Section {
+                ApprovalsFilterCard(
+                    filter: $filter,
+                    searchText: searchText,
+                    visibleCount: filteredApprovals.count,
+                    totalCount: vm.approvals.count
+                )
+            } header: {
+                Text("Filter")
             }
 
             if filteredApprovals.isEmpty && !vm.isLoading {
@@ -174,6 +176,115 @@ struct ApprovalsView: View {
         }
     }
 
+}
+
+private struct ApprovalsFilterCard: View {
+    @Binding var filter: ApprovalRiskFilter
+    let searchText: String
+    let visibleCount: Int
+    let totalCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    summaryText
+                    Spacer(minLength: 10)
+                    activeBadge
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    summaryText
+                    activeBadge
+                }
+            }
+
+            FlowLayout(spacing: 8) {
+                ForEach(ApprovalRiskFilter.allCases) { option in
+                    Button {
+                        filter = option
+                    } label: {
+                        ApprovalFilterChip(
+                            label: option.label,
+                            isSelected: filter == option
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var summaryText: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(summaryLine)
+                .font(.subheadline.weight(.medium))
+            Text(searchSummary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+    }
+
+    private var activeBadge: some View {
+        PresentationToneBadge(
+            text: filter.label,
+            tone: badgeTone
+        )
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "1 approval in queue")
+                : String(localized: "\(totalCount) approvals in queue")
+        }
+
+        return String(localized: "\(visibleCount) of \(totalCount) approvals visible")
+    }
+
+    private var searchSummary: String {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty {
+            return String(localized: "Use search to narrow by agent, tool, or action.")
+        }
+        return String(localized: "Search active: \"\(query)\"")
+    }
+
+    private var badgeTone: PresentationTone {
+        switch filter {
+        case .all:
+            return .neutral
+        case .critical:
+            return .critical
+        case .high:
+            return .warning
+        }
+    }
+}
+
+private struct ApprovalFilterChip: View {
+    let label: String
+    let isSelected: Bool
+
+    var body: some View {
+        Text(label)
+            .font(.caption.weight(.semibold))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(backgroundColor)
+            .foregroundStyle(foregroundColor)
+            .clipShape(Capsule())
+    }
+
+    private var backgroundColor: Color {
+        isSelected ? Color.accentColor.opacity(0.16) : Color.secondary.opacity(0.12)
+    }
+
+    private var foregroundColor: Color {
+        isSelected ? .accentColor : .secondary
+    }
 }
 
 private struct ApprovalsScoreboard: View {

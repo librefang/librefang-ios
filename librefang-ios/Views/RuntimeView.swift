@@ -24,6 +24,18 @@ struct RuntimeView: View {
         }
     }
 
+    private var visibleProviders: [ProviderStatus] {
+        Array(sortedProviders.prefix(6))
+    }
+
+    private var visibleActiveHands: [HandInstance] {
+        Array(vm.activeHands.prefix(4))
+    }
+
+    private var visibleApprovals: [ApprovalItem] {
+        Array(vm.approvals.prefix(4))
+    }
+
     private var degradedHands: [HandDefinition] {
         vm.hands.filter(\.degraded).sorted {
             $0.name.localizedCompare($1.name) == .orderedAscending
@@ -406,13 +418,17 @@ struct RuntimeView: View {
     private var providersSection: some View {
         if !sortedProviders.isEmpty {
             Section {
-                ForEach(sortedProviders) { provider in
+                ForEach(visibleProviders) { provider in
                     ProviderStatusRow(provider: provider)
                 }
             } header: {
                 Text("Providers")
             } footer: {
-                Text("\(vm.configuredProviderCount)/\(sortedProviders.count) configured")
+                if sortedProviders.count > visibleProviders.count {
+                    Text("Showing \(visibleProviders.count) of \(sortedProviders.count) providers, \(vm.configuredProviderCount) configured")
+                } else {
+                    Text("\(vm.configuredProviderCount)/\(sortedProviders.count) configured")
+                }
             }
         }
     }
@@ -554,7 +570,7 @@ struct RuntimeView: View {
                         subtitle: String(localized: "When autonomous hands are activated, their runtime status appears here.")
                     )
                 } else {
-                    ForEach(vm.activeHands) { instance in
+                    ForEach(visibleActiveHands) { instance in
                         HandInstanceRow(instance: instance, handDisplayName: instance.displayName(using: vm.hands))
                     }
                 }
@@ -567,7 +583,11 @@ struct RuntimeView: View {
             } header: {
                 Text("Hands")
             } footer: {
-                Text("\(vm.activeHandCount) active, \(vm.degradedHandCount) degraded")
+                if vm.activeHands.count > visibleActiveHands.count {
+                    Text("Showing \(visibleActiveHands.count) of \(vm.activeHands.count) active hands, \(vm.degradedHandCount) degraded")
+                } else {
+                    Text("\(vm.activeHandCount) active, \(vm.degradedHandCount) degraded")
+                }
             }
         }
     }
@@ -576,7 +596,7 @@ struct RuntimeView: View {
     private var approvalsSection: some View {
         if !vm.approvals.isEmpty {
             Section {
-                ForEach(vm.approvals) { approval in
+                ForEach(visibleApprovals) { approval in
                     ApprovalOperatorRow(
                         approval: approval,
                         isBusy: approvalActionInFlightID == approval.id,
@@ -597,7 +617,11 @@ struct RuntimeView: View {
             } header: {
                 Text("Pending Approvals")
             } footer: {
-                Text("High-risk tool approvals can now be resolved directly from mobile after confirmation.")
+                if vm.approvals.count > visibleApprovals.count {
+                    Text("Showing \(visibleApprovals.count) of \(vm.approvals.count) approvals. High-risk tool approvals can now be resolved directly from mobile after confirmation.")
+                } else {
+                    Text("High-risk tool approvals can now be resolved directly from mobile after confirmation.")
+                }
             }
         }
     }
@@ -1150,19 +1174,34 @@ private struct ChannelStatusRow: View {
     }
 
     private var channelSummary: some View {
-        HStack(spacing: 12) {
-            Text(channel.icon)
-                .font(.title3)
-                .frame(width: 28)
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(channel.displayName)
-                    .font(.subheadline.weight(.medium))
-                Text(channel.description)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 12) {
+                channelIcon
+                channelTextBlock
             }
+
+            VStack(alignment: .leading, spacing: 6) {
+                channelIcon
+                channelTextBlock
+            }
+        }
+    }
+
+    private var channelIcon: some View {
+        Text(channel.icon)
+            .font(.title3)
+            .frame(width: 28, alignment: .leading)
+    }
+
+    private var channelTextBlock: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(channel.displayName)
+                .font(.subheadline.weight(.medium))
+                .lineLimit(2)
+            Text(channel.description)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
         }
     }
 
@@ -1185,28 +1224,52 @@ private struct HandInstanceRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(handDisplayName)
-                        .font(.subheadline.weight(.medium))
-                    if let agentName = instance.agentName, !agentName.isEmpty {
-                        Text(agentName)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    handSummary
+                    Spacer()
+                    StatusPill(text: statusText, color: instance.statusTone.color)
                 }
-                Spacer()
-                StatusPill(text: statusText, color: instance.statusTone.color)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    handSummary
+                    StatusPill(text: statusText, color: instance.statusTone.color)
+                }
             }
 
-            HStack(spacing: 12) {
-                Label(relativeText(from: instance.activatedAt), systemImage: "play.circle")
-                Label(relativeText(from: instance.updatedAt), systemImage: "clock.arrow.circlepath")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    handFacts
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    handFacts
+                }
             }
             .font(.caption)
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
+    }
+
+    private var handSummary: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(handDisplayName)
+                .font(.subheadline.weight(.medium))
+                .lineLimit(2)
+            if let agentName = instance.agentName, !agentName.isEmpty {
+                Text(agentName)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var handFacts: some View {
+        Label(relativeText(from: instance.activatedAt), systemImage: "play.circle")
+        Label(relativeText(from: instance.updatedAt), systemImage: "clock.arrow.circlepath")
     }
 
     private var statusText: String {
@@ -1223,28 +1286,58 @@ private struct HandDefinitionRow: View {
     let hand: HandDefinition
 
     var body: some View {
-        HStack(spacing: 12) {
-            Text(hand.icon)
-                .font(.title3)
-                .frame(width: 28)
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(hand.name)
-                    .font(.subheadline.weight(.medium))
-                Text(hand.description)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 12) {
+                handSummary
+                Spacer()
+                readinessBadge
             }
 
-            Spacer()
-
-            StatusPill(
-                text: hand.degraded ? String(localized: "Degraded") : hand.requirementsMet ? String(localized: "Ready") : String(localized: "Blocked"),
-                color: hand.degraded ? .orange : hand.requirementsMet ? .green : .secondary
-            )
+            VStack(alignment: .leading, spacing: 8) {
+                handSummary
+                readinessBadge
+            }
         }
         .padding(.vertical, 2)
+    }
+
+    private var handSummary: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 12) {
+                handIcon
+                handTextBlock
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                handIcon
+                handTextBlock
+            }
+        }
+    }
+
+    private var handIcon: some View {
+        Text(hand.icon)
+            .font(.title3)
+            .frame(width: 28, alignment: .leading)
+    }
+
+    private var handTextBlock: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(hand.name)
+                .font(.subheadline.weight(.medium))
+                .lineLimit(2)
+            Text(hand.description)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+    }
+
+    private var readinessBadge: some View {
+        StatusPill(
+            text: hand.degraded ? String(localized: "Degraded") : hand.requirementsMet ? String(localized: "Ready") : String(localized: "Blocked"),
+            color: hand.degraded ? .orange : hand.requirementsMet ? .green : .secondary
+        )
     }
 }
 
@@ -1297,27 +1390,51 @@ private struct PeerRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(peer.nodeName.isEmpty ? peer.nodeId : peer.nodeName)
-                        .font(.subheadline.weight(.medium))
-                    Text(peer.address)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    peerSummary
+                    Spacer()
+                    StatusPill(text: localizedStateLabel, color: peer.stateTone.color)
                 }
-                Spacer()
-                StatusPill(text: localizedStateLabel, color: peer.stateTone.color)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    peerSummary
+                    StatusPill(text: localizedStateLabel, color: peer.stateTone.color)
+                }
             }
 
-            HStack(spacing: 12) {
-                Label(agentsLabel, systemImage: "cpu")
-                Label(peer.protocolVersion, systemImage: "point.3.connected.trianglepath.dotted")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    peerFacts
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    peerFacts
+                }
             }
             .font(.caption)
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
+    }
+
+    private var peerSummary: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(peer.nodeName.isEmpty ? peer.nodeId : peer.nodeName)
+                .font(.subheadline.weight(.medium))
+                .lineLimit(2)
+            Text(peer.address)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .truncationMode(.middle)
+        }
+    }
+
+    @ViewBuilder
+    private var peerFacts: some View {
+        Label(agentsLabel, systemImage: "cpu")
+        Label(peer.protocolVersion, systemImage: "point.3.connected.trianglepath.dotted")
     }
 
     private var localizedStateLabel: String {
@@ -1336,13 +1453,17 @@ private struct AuditEventRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            HStack {
-                Text(entry.friendlyAction)
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                Text(relativeText)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    titleLabel
+                    Spacer()
+                    timestampLabel
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    titleLabel
+                    timestampLabel
+                }
             }
             Text(entry.detail)
                 .font(.caption)
@@ -1358,6 +1479,18 @@ private struct AuditEventRow: View {
     private var relativeText: String {
         guard let date = entry.timestamp.iso8601Date else { return entry.timestamp }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+    }
+
+    private var titleLabel: some View {
+        Text(entry.friendlyAction)
+            .font(.subheadline.weight(.medium))
+            .lineLimit(2)
+    }
+
+    private var timestampLabel: some View {
+        Text(relativeText)
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
     }
 
 }

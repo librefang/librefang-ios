@@ -56,14 +56,7 @@ struct DiagnosticsView: View {
                 if !healthDetail.configWarnings.isEmpty {
                     Section {
                         ForEach(Array(healthDetail.configWarnings.enumerated()), id: \.offset) { _, warning in
-                            HStack(alignment: .top, spacing: 10) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundStyle(.orange)
-                                Text(warning)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .padding(.vertical, 2)
+                            DiagnosticsWarningRow(warning: warning)
                         }
                     } header: {
                         Text("Config Warnings")
@@ -368,15 +361,48 @@ private struct DiagnosticsMetricListRow: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .font(.subheadline.weight(.medium))
+                .lineLimit(2)
             Text(subtitle)
                 .font(.caption)
                 .foregroundStyle(.secondary)
-                .lineLimit(1)
+                .lineLimit(2)
         }
     }
 
     private var valueLabel: some View {
         Text(value)
             .font(.subheadline.monospacedDigit())
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+    }
+}
+
+private struct DiagnosticsWarningRow: View {
+    let warning: String
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 10) {
+                warningIcon
+                warningText
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                warningIcon
+                warningText
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var warningIcon: some View {
+        Image(systemName: "exclamationmark.triangle.fill")
+            .foregroundStyle(.orange)
+    }
+
+    private var warningText: some View {
+        Text(warning)
+            .font(.caption)
+            .foregroundStyle(.secondary)
     }
 }
