@@ -353,6 +353,10 @@ struct OnCallView: View {
             AutomationView()
         case .integrations:
             IntegrationsView()
+        case .integrationsAttention:
+            IntegrationsView(initialScope: .attention)
+        case .integrationsSearch(let query):
+            IntegrationsView(initialSearchText: query, initialScope: .attention)
         case .handoffCenter:
             HandoffCenterView(
                 summary: handoffText,

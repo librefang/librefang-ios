@@ -323,6 +323,10 @@ struct MainTabView: View {
             DiagnosticsView()
         case .surface(.integrations):
             IntegrationsView()
+        case .integrationsAttention:
+            IntegrationsView(initialScope: .attention)
+        case .integrationsSearch(let query):
+            IntegrationsView(initialSearchText: query, initialScope: .attention)
         case .agent(let id):
             if let agent = vm.agents.first(where: { $0.id == id }) {
                 AgentDetailView(agent: agent)

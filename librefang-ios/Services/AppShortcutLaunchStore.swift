@@ -77,6 +77,8 @@ enum AppShortcutLaunchTarget: Hashable, Identifiable {
     case sessionsSearch(String)
     case eventsCritical
     case eventsSearch(String)
+    case integrationsAttention
+    case integrationsSearch(String)
 
     var id: String {
         switch self {
@@ -92,6 +94,10 @@ enum AppShortcutLaunchTarget: Hashable, Identifiable {
             return "events:critical"
         case .eventsSearch(let query):
             return "events:search:\(query)"
+        case .integrationsAttention:
+            return "integrations:attention"
+        case .integrationsSearch(let query):
+            return "integrations:search:\(query)"
         }
     }
 
@@ -109,6 +115,10 @@ enum AppShortcutLaunchTarget: Hashable, Identifiable {
             return "Critical Events"
         case .eventsSearch:
             return "Filtered Events"
+        case .integrationsAttention:
+            return "Integration Attention"
+        case .integrationsSearch:
+            return "Filtered Integrations"
         }
     }
 
@@ -145,6 +155,19 @@ enum AppShortcutLaunchTarget: Hashable, Identifiable {
             var components = URLComponents()
             components.scheme = AppShortcutLaunchBridge.urlScheme
             components.host = "events"
+            components.path = "/search"
+            components.queryItems = [URLQueryItem(name: "query", value: query)]
+            return components.url!
+        case .integrationsAttention:
+            var components = URLComponents()
+            components.scheme = AppShortcutLaunchBridge.urlScheme
+            components.host = "integrations"
+            components.path = "/attention"
+            return components.url!
+        case .integrationsSearch(let query):
+            var components = URLComponents()
+            components.scheme = AppShortcutLaunchBridge.urlScheme
+            components.host = "integrations"
             components.path = "/search"
             components.queryItems = [URLQueryItem(name: "query", value: query)]
             return components.url!
@@ -195,6 +218,12 @@ enum AppShortcutLaunchBridge {
         case .eventsSearch(let query):
             kind = "events-search"
             value = query
+        case .integrationsAttention:
+            kind = "integrations-attention"
+            value = ""
+        case .integrationsSearch(let query):
+            kind = "integrations-search"
+            value = query
         }
         defaults.set(kind, forKey: StorageKey.pendingTargetKind)
         defaults.set(value, forKey: StorageKey.pendingTargetValue)
@@ -238,6 +267,16 @@ enum AppShortcutLaunchBridge {
                 notificationTargetKindKey: "events-search",
                 notificationTargetValueKey: query,
             ]
+        case .integrationsAttention:
+            return [
+                notificationTargetKindKey: "integrations-attention",
+                notificationTargetValueKey: "",
+            ]
+        case .integrationsSearch(let query):
+            return [
+                notificationTargetKindKey: "integrations-search",
+                notificationTargetValueKey: query,
+            ]
         }
     }
 
@@ -265,6 +304,11 @@ enum AppShortcutLaunchBridge {
             case "events-search":
                 guard !value.isEmpty else { return nil }
                 return .eventsSearch(value)
+            case "integrations-attention":
+                return .integrationsAttention
+            case "integrations-search":
+                guard !value.isEmpty else { return nil }
+                return .integrationsSearch(value)
             default:
                 break
             }
@@ -352,6 +396,35 @@ enum AppShortcutLaunchBridge {
             }
         }
 
+        if host == "integrations" {
+            let firstComponent = pathComponents.first?.lowercased()
+            if firstComponent == "attention" {
+                return .integrationsAttention
+            }
+
+            if firstComponent == "search" {
+                if let query = components?.queryItems?.first(where: { $0.name == "query" })?.value,
+                   !query.isEmpty {
+                    return .integrationsSearch(query)
+                }
+
+                if pathComponents.count > 1 {
+                    let query = pathComponents[1].removingPercentEncoding ?? pathComponents[1]
+                    guard !query.isEmpty else { return nil }
+                    return .integrationsSearch(query)
+                }
+            }
+
+            if let query = components?.queryItems?.first(where: { $0.name == "query" })?.value,
+               !query.isEmpty {
+                return .integrationsSearch(query)
+            }
+
+            if components?.queryItems?.first(where: { $0.name == "scope" })?.value?.lowercased() == "attention" {
+                return .integrationsAttention
+            }
+        }
+
         if host == "surface", let candidate = pathComponents.first {
             guard let surface = AppShortcutSurface(routeValue: candidate) else { return nil }
             return .surface(surface)
@@ -398,6 +471,11 @@ enum AppShortcutLaunchBridge {
         case "events-search":
             guard !value.isEmpty else { return nil }
             return .eventsSearch(value)
+        case "integrations-attention":
+            return .integrationsAttention
+        case "integrations-search":
+            guard !value.isEmpty else { return nil }
+            return .integrationsSearch(value)
         default:
             return nil
         }

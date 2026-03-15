@@ -27,6 +27,8 @@ enum OnCallRoute: Hashable {
     case eventsSearch(String)
     case automation
     case integrations
+    case integrationsAttention
+    case integrationsSearch(String)
     case handoffCenter
 }
 
@@ -62,6 +64,10 @@ extension OnCallRoute {
             return .surface(.automation)
         case .integrations:
             return .surface(.integrations)
+        case .integrationsAttention:
+            return .integrationsAttention
+        case .integrationsSearch(let query):
+            return .integrationsSearch(query)
         case .handoffCenter:
             return .surface(.handoffCenter)
         }
@@ -273,6 +279,9 @@ extension DashboardViewModel {
         if !unreachableLocalProviders.isEmpty {
             let preview = unreachableLocalProviders.prefix(2).map(\.displayName).joined(separator: " • ")
             let allLocalProvidersDown = localProviderCount > 0 && unreachableLocalProviderCount >= localProviderCount
+            let route: OnCallRoute = unreachableLocalProviders.count == 1
+                ? .integrationsSearch(unreachableLocalProviders[0].displayName)
+                : .integrationsAttention
             items.append(OnCallPriorityItem(
                 id: "integrations:providers",
                 title: unreachableLocalProviderCount == 1 ? "1 local provider unreachable" : "\(unreachableLocalProviderCount) local providers unreachable",
@@ -281,12 +290,15 @@ extension DashboardViewModel {
                 symbolName: "network.slash",
                 severity: allLocalProvidersDown ? .critical : .warning,
                 rank: allLocalProvidersDown ? 88 : 78,
-                route: .integrations
+                route: route
             ))
         }
 
         if channelRequiredFieldGapCount > 0 {
             let preview = channelsMissingRequiredFields.prefix(2).map(\.displayName).joined(separator: " • ")
+            let route: OnCallRoute = channelsMissingRequiredFields.count == 1
+                ? .integrationsSearch(channelsMissingRequiredFields[0].displayName)
+                : .integrationsAttention
             items.append(OnCallPriorityItem(
                 id: "integrations:channels",
                 title: channelRequiredFieldGapCount == 1 ? "1 channel missing required fields" : "\(channelRequiredFieldGapCount) channels missing required fields",
@@ -295,7 +307,7 @@ extension DashboardViewModel {
                 symbolName: "bubble.left.and.exclamationmark.bubble.right",
                 severity: .warning,
                 rank: 70,
-                route: .integrations
+                route: route
             ))
         }
 
@@ -308,7 +320,7 @@ extension DashboardViewModel {
                 symbolName: "square.stack.3d.up.slash",
                 severity: .critical,
                 rank: 87,
-                route: .integrations
+                route: .integrationsAttention
             ))
         }
 
@@ -321,6 +333,9 @@ extension DashboardViewModel {
                 title = agentsWithModelDiagnostics.count == 1 ? "1 agent has model drift" : "\(agentsWithModelDiagnostics.count) agents have model drift"
             }
             let preview = agentsWithModelDiagnostics.prefix(2).map(\.agent.name).joined(separator: " • ")
+            let route: OnCallRoute = agentsWithModelDiagnostics.count == 1
+                ? .integrationsSearch(agentsWithModelDiagnostics[0].agent.name)
+                : .integrationsAttention
             items.append(
                 OnCallPriorityItem(
                     id: "integrations:model-drift",
@@ -330,7 +345,7 @@ extension DashboardViewModel {
                     symbolName: "square.stack.3d.up.slash",
                     severity: unavailableCount > 0 ? .warning : .advisory,
                     rank: unavailableCount > 0 ? 76 : 66,
-                    route: .integrations
+                    route: route
                 )
             )
         }

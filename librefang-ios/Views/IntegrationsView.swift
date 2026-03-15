@@ -19,7 +19,7 @@ private enum IntegrationsModelFilter: String, CaseIterable, Identifiable {
     }
 }
 
-private enum IntegrationsScope: String, CaseIterable, Identifiable {
+enum IntegrationsScope: String, CaseIterable, Identifiable {
     case attention
     case all
 
@@ -48,8 +48,9 @@ struct IntegrationsView: View {
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
 
-    init(initialSearchText: String = "") {
+    init(initialSearchText: String = "", initialScope: IntegrationsScope = .attention) {
         _searchText = State(initialValue: initialSearchText)
+        _scope = State(initialValue: initialScope)
     }
 
     private var filteredProviders: [ProviderStatus] {
