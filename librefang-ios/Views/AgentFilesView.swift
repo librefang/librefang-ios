@@ -43,6 +43,28 @@ struct AgentFilesView: View {
         files.count - existingCount
     }
 
+    private var exportText: String {
+        let header = [
+            String(localized: "LibreFang Workspace Identity Snapshot"),
+            String(localized: "Agent: \(agent.name)"),
+            String(localized: "Scope: \(scope.label)"),
+            String(localized: "Visible files: \(filteredFiles.count)"),
+            String(localized: "Present: \(existingCount)"),
+            String(localized: "Missing: \(missingCount)")
+        ]
+
+        let rows = filteredFiles.map { file in
+            if file.exists {
+                let size = ByteCountFormatter.string(fromByteCount: Int64(file.sizeBytes), countStyle: .file)
+                return String(localized: "Present · \(file.name) · \(size)")
+            } else {
+                return String(localized: "Missing · \(file.name)")
+            }
+        }
+
+        return (header + [""] + rows).joined(separator: "\n")
+    }
+
     var body: some View {
         List {
             Section {
@@ -94,7 +116,19 @@ struct AgentFilesView: View {
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, prompt: "Search workspace files")
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                if !filteredFiles.isEmpty {
+                    ShareLink(
+                        item: exportText,
+                        preview: SharePreview(
+                            String(localized: "\(agent.name) Workspace Identity"),
+                            image: Image(systemName: "doc.text")
+                        )
+                    ) {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                }
+
                 Menu {
                     Picker("Scope", selection: $scope) {
                         ForEach(AgentFileScope.allCases, id: \.self) { option in
@@ -174,6 +208,19 @@ private struct AgentFileDetailView: View {
     @State private var isLoading = true
     @State private var loadError: String?
 
+    private var shareText: String? {
+        guard let detail else { return nil }
+
+        return [
+            String(localized: "LibreFang Workspace Identity File"),
+            String(localized: "Agent: \(agent.name)"),
+            String(localized: "File: \(detail.name)"),
+            String(localized: "Size: \(ByteCountFormatter.string(fromByteCount: Int64(detail.sizeBytes), countStyle: .file))"),
+            "",
+            detail.content.isEmpty ? String(localized: "File is empty.") : detail.content
+        ].joined(separator: "\n")
+    }
+
     var body: some View {
         Group {
             if isLoading {
@@ -211,7 +258,19 @@ private struct AgentFileDetailView: View {
         .navigationTitle(file.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                if let shareText, let detail {
+                    ShareLink(
+                        item: shareText,
+                        preview: SharePreview(
+                            String(localized: "\(agent.name) \(detail.name)"),
+                            image: Image(systemName: "doc.text")
+                        )
+                    ) {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                }
+
                 if let detail {
                     Button {
                         UIPasteboard.general.string = detail.content
@@ -258,7 +317,7 @@ private struct AgentWorkspaceFileRow: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } else {
-                    Text("Missing")
+                    Text(String(localized: "Missing"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -266,7 +325,7 @@ private struct AgentWorkspaceFileRow: View {
 
             Spacer()
 
-            Text(file.exists ? "Present" : "Missing")
+            Text(file.exists ? String(localized: "Present") : String(localized: "Missing"))
                 .font(.caption2.weight(.semibold))
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
