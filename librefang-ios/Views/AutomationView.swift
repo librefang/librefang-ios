@@ -431,6 +431,13 @@ struct AutomationView: View {
     private var workflowsSection: some View {
         if !filteredWorkflows.isEmpty {
             Section {
+                AutomationWorkflowsSnapshotCard(
+                    workflows: filteredWorkflows,
+                    visibleCount: visibleWorkflows.count,
+                    failedWorkflowNames: Set(vm.workflowRuns.filter { $0.state == .failed }.map(\.workflowName)),
+                    runningWorkflowNames: Set(vm.workflowRuns.filter { $0.state == .running || $0.state == .pending }.map(\.workflowName))
+                )
+
                 ForEach(visibleWorkflows) { workflow in
                     WorkflowDefinitionRow(
                         workflow: workflow,
@@ -455,6 +462,11 @@ struct AutomationView: View {
     private var workflowRunsSection: some View {
         if !filteredWorkflowRuns.isEmpty {
             Section {
+                AutomationWorkflowRunsSnapshotCard(
+                    runs: filteredWorkflowRuns,
+                    visibleCount: visibleWorkflowRuns.count
+                )
+
                 ForEach(visibleWorkflowRuns) { run in
                     WorkflowRunRow(run: run)
                 }
@@ -475,6 +487,11 @@ struct AutomationView: View {
     private var triggersSection: some View {
         if !filteredTriggers.isEmpty {
             Section {
+                AutomationTriggersSnapshotCard(
+                    triggers: filteredTriggers,
+                    visibleCount: visibleTriggers.count
+                )
+
                 ForEach(visibleTriggers) { trigger in
                     TriggerRow(trigger: trigger, agentName: agentName(for: trigger.agentId))
                 }
@@ -495,6 +512,11 @@ struct AutomationView: View {
     private var schedulesSection: some View {
         if !filteredSchedules.isEmpty {
             Section {
+                AutomationSchedulesSnapshotCard(
+                    schedules: filteredSchedules,
+                    visibleCount: visibleSchedules.count
+                )
+
                 ForEach(visibleSchedules) { schedule in
                     ScheduleRow(schedule: schedule, agentName: agentName(for: schedule.agentId))
                 }
@@ -515,6 +537,11 @@ struct AutomationView: View {
     private var cronJobsSection: some View {
         if !filteredCronJobs.isEmpty {
             Section {
+                AutomationCronJobsSnapshotCard(
+                    jobs: filteredCronJobs,
+                    visibleCount: visibleCronJobs.count
+                )
+
                 ForEach(visibleCronJobs) { job in
                     CronJobRow(
                         job: job,
@@ -930,6 +957,479 @@ private struct AutomationScoreboard: View {
     }
 }
 
+private struct AutomationWorkflowsSnapshotCard: View {
+    let workflows: [WorkflowSummary]
+    let visibleCount: Int
+    let failedWorkflowNames: Set<String>
+    let runningWorkflowNames: Set<String>
+
+    private var totalSteps: Int {
+        workflows.reduce(0) { $0 + $1.steps }
+    }
+
+    private var averageSteps: Int {
+        guard !workflows.isEmpty else { return 0 }
+        return totalSteps / workflows.count
+    }
+
+    private var newestWorkflow: WorkflowSummary? {
+        workflows.max {
+            ($0.createdAt.automationISO8601Date ?? .distantPast) < ($1.createdAt.automationISO8601Date ?? .distantPast)
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Workflow definitions stay visible before the longer workflow inventory."),
+                detail: String(localized: "Use the compact summary to see definition depth, failing workflows, and the newest workflow before opening the full list."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == workflows.count
+                            ? (workflows.count == 1 ? String(localized: "1 workflow visible") : String(localized: "\(workflows.count) workflows visible"))
+                            : String(localized: "\(visibleCount) of \(workflows.count) visible"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: averageSteps == 1 ? String(localized: "1 avg step") : String(localized: "\(averageSteps) avg steps"),
+                        tone: .neutral
+                    )
+                    if !failedWorkflowNames.isEmpty {
+                        PresentationToneBadge(
+                            text: failedWorkflowNames.count == 1 ? String(localized: "1 failing workflow") : String(localized: "\(failedWorkflowNames.count) failing workflows"),
+                            tone: .critical
+                        )
+                    }
+                    if !runningWorkflowNames.isEmpty {
+                        PresentationToneBadge(
+                            text: runningWorkflowNames.count == 1 ? String(localized: "1 active workflow") : String(localized: "\(runningWorkflowNames.count) active workflows"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workflow facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep total step depth, visible count, and the newest definition clear before the detailed workflow rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if let newestWorkflow {
+                    PresentationToneBadge(
+                        text: newestWorkflow.createdAt.automationRelativeText(prefix: String(localized: "Newest")),
+                        tone: .neutral
+                    )
+                }
+            } facts: {
+                Label(
+                    workflows.count == 1 ? String(localized: "1 workflow") : String(localized: "\(workflows.count) workflows"),
+                    systemImage: "flowchart"
+                )
+                Label(
+                    totalSteps == 1 ? String(localized: "1 total step") : String(localized: "\(totalSteps) total steps"),
+                    systemImage: "list.number"
+                )
+                Label(
+                    averageSteps == 1 ? String(localized: "1 avg step") : String(localized: "\(averageSteps) avg steps"),
+                    systemImage: "chart.bar"
+                )
+                if let newestWorkflow {
+                    Label(newestWorkflow.name, systemImage: "clock.badge")
+                }
+            }
+        }
+    }
+}
+
+private struct AutomationWorkflowRunsSnapshotCard: View {
+    let runs: [WorkflowRun]
+    let visibleCount: Int
+
+    private var failedCount: Int {
+        runs.filter { $0.state == .failed }.count
+    }
+
+    private var runningCount: Int {
+        runs.filter { $0.state == .running || $0.state == .pending }.count
+    }
+
+    private var completedCount: Int {
+        runs.filter { $0.state == .completed }.count
+    }
+
+    private var latestRun: WorkflowRun? {
+        runs.max {
+            ($0.startedAt.automationISO8601Date ?? .distantPast) < ($1.startedAt.automationISO8601Date ?? .distantPast)
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Recent run pressure stays visible before the per-run execution log."),
+                detail: String(localized: "Use the summary to see failures, active runs, and the latest run start time before opening each execution row."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == runs.count
+                            ? (runs.count == 1 ? String(localized: "1 run visible") : String(localized: "\(runs.count) runs visible"))
+                            : String(localized: "\(visibleCount) of \(runs.count) visible"),
+                        tone: .positive
+                    )
+                    if failedCount > 0 {
+                        PresentationToneBadge(
+                            text: failedCount == 1 ? String(localized: "1 failed") : String(localized: "\(failedCount) failed"),
+                            tone: .critical
+                        )
+                    }
+                    if runningCount > 0 {
+                        PresentationToneBadge(
+                            text: runningCount == 1 ? String(localized: "1 active") : String(localized: "\(runningCount) active"),
+                            tone: .warning
+                        )
+                    }
+                    if completedCount > 0 {
+                        PresentationToneBadge(
+                            text: completedCount == 1 ? String(localized: "1 completed") : String(localized: "\(completedCount) completed"),
+                            tone: .positive
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Run facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep active, failed, and completed execution counts visible before the longer run history."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if let latestRun {
+                    PresentationToneBadge(
+                        text: latestRun.startedAt.automationRelativeText(prefix: String(localized: "Latest")),
+                        tone: latestRun.state == .failed ? .critical : latestRun.state == .completed ? .positive : .warning
+                    )
+                }
+            } facts: {
+                Label(
+                    runs.count == 1 ? String(localized: "1 run") : String(localized: "\(runs.count) runs"),
+                    systemImage: "play.circle"
+                )
+                if failedCount > 0 {
+                    Label(
+                        failedCount == 1 ? String(localized: "1 failed") : String(localized: "\(failedCount) failed"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if runningCount > 0 {
+                    Label(
+                        runningCount == 1 ? String(localized: "1 active") : String(localized: "\(runningCount) active"),
+                        systemImage: "bolt.circle"
+                    )
+                }
+                if let latestRun {
+                    Label(latestRun.workflowName, systemImage: "clock.badge")
+                }
+            }
+        }
+    }
+}
+
+private struct AutomationTriggersSnapshotCard: View {
+    let triggers: [TriggerDefinition]
+    let visibleCount: Int
+
+    private var enabledCount: Int {
+        triggers.filter(\.enabled).count
+    }
+
+    private var exhaustedCount: Int {
+        triggers.filter(\.isExhausted).count
+    }
+
+    private var limitedCount: Int {
+        triggers.filter { $0.maxFires > 0 }.count
+    }
+
+    private var uniqueAgentCount: Int {
+        Set(triggers.map(\.agentId)).count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Trigger coverage stays visible before the longer trigger inventory."),
+                detail: String(localized: "Use the summary to see enablement, exhaustion, and how widely trigger definitions are spread across agents."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == triggers.count
+                            ? (triggers.count == 1 ? String(localized: "1 trigger visible") : String(localized: "\(triggers.count) triggers visible"))
+                            : String(localized: "\(visibleCount) of \(triggers.count) visible"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: enabledCount == 1 ? String(localized: "1 enabled") : String(localized: "\(enabledCount) enabled"),
+                        tone: enabledCount > 0 ? .positive : .neutral
+                    )
+                    if exhaustedCount > 0 {
+                        PresentationToneBadge(
+                            text: exhaustedCount == 1 ? String(localized: "1 exhausted") : String(localized: "\(exhaustedCount) exhausted"),
+                            tone: .critical
+                        )
+                    }
+                    if limitedCount > 0 {
+                        PresentationToneBadge(
+                            text: limitedCount == 1 ? String(localized: "1 capped") : String(localized: "\(limitedCount) capped"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Trigger facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep enablement, capped triggers, and agent spread visible before opening each trigger rule."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: uniqueAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(uniqueAgentCount) agents"),
+                    tone: .neutral
+                )
+            } facts: {
+                Label(
+                    triggers.count == 1 ? String(localized: "1 trigger") : String(localized: "\(triggers.count) triggers"),
+                    systemImage: "bolt.badge.clock"
+                )
+                Label(
+                    enabledCount == 1 ? String(localized: "1 enabled") : String(localized: "\(enabledCount) enabled"),
+                    systemImage: "checkmark.circle"
+                )
+                if exhaustedCount > 0 {
+                    Label(
+                        exhaustedCount == 1 ? String(localized: "1 exhausted") : String(localized: "\(exhaustedCount) exhausted"),
+                        systemImage: "gauge.badge.minus"
+                    )
+                }
+                Label(
+                    uniqueAgentCount == 1 ? String(localized: "1 agent targeted") : String(localized: "\(uniqueAgentCount) agents targeted"),
+                    systemImage: "person.3"
+                )
+            }
+        }
+    }
+}
+
+private struct AutomationSchedulesSnapshotCard: View {
+    let schedules: [ScheduleEntry]
+    let visibleCount: Int
+
+    private var enabledCount: Int {
+        schedules.filter(\.enabled).count
+    }
+
+    private var pausedCount: Int {
+        schedules.count - enabledCount
+    }
+
+    private var uniqueAgentCount: Int {
+        Set(schedules.map(\.agentId)).count
+    }
+
+    private var recentlyRunCount: Int {
+        schedules.filter { $0.lastRun != nil }.count
+    }
+
+    private var busiestSchedule: ScheduleEntry? {
+        schedules.max { $0.runCount < $1.runCount }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Schedule state stays visible before the longer list of timer-driven prompts."),
+                detail: String(localized: "Use the summary to see paused schedules, covered agents, and the most active schedule before scanning the rows."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == schedules.count
+                            ? (schedules.count == 1 ? String(localized: "1 schedule visible") : String(localized: "\(schedules.count) schedules visible"))
+                            : String(localized: "\(visibleCount) of \(schedules.count) visible"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: enabledCount == 1 ? String(localized: "1 enabled") : String(localized: "\(enabledCount) enabled"),
+                        tone: enabledCount > 0 ? .positive : .neutral
+                    )
+                    if pausedCount > 0 {
+                        PresentationToneBadge(
+                            text: pausedCount == 1 ? String(localized: "1 paused") : String(localized: "\(pausedCount) paused"),
+                            tone: .warning
+                        )
+                    }
+                    if recentlyRunCount > 0 {
+                        PresentationToneBadge(
+                            text: recentlyRunCount == 1 ? String(localized: "1 with history") : String(localized: "\(recentlyRunCount) with history"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Schedule facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep agent coverage, recent activity, and the busiest schedule visible before the longer schedule list."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if let busiestSchedule {
+                    PresentationToneBadge(
+                        text: busiestSchedule.runCount == 1 ? String(localized: "1 run") : String(localized: "\(busiestSchedule.runCount) runs"),
+                        tone: busiestSchedule.enabled ? .positive : .warning
+                    )
+                }
+            } facts: {
+                Label(
+                    schedules.count == 1 ? String(localized: "1 schedule") : String(localized: "\(schedules.count) schedules"),
+                    systemImage: "calendar"
+                )
+                Label(
+                    uniqueAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(uniqueAgentCount) agents"),
+                    systemImage: "person.3"
+                )
+                if recentlyRunCount > 0 {
+                    Label(
+                        recentlyRunCount == 1 ? String(localized: "1 recent run") : String(localized: "\(recentlyRunCount) recent runs"),
+                        systemImage: "clock.arrow.circlepath"
+                    )
+                }
+                if let busiestSchedule {
+                    Label(busiestSchedule.name, systemImage: "chart.bar")
+                }
+            }
+        }
+    }
+}
+
+private struct AutomationCronJobsSnapshotCard: View {
+    let jobs: [CronJob]
+    let visibleCount: Int
+
+    private var enabledCount: Int {
+        jobs.filter(\.enabled).count
+    }
+
+    private var pausedCount: Int {
+        jobs.count - enabledCount
+    }
+
+    private var stalledCount: Int {
+        jobs.filter { $0.enabled && $0.nextRun == nil }.count
+    }
+
+    private var deliveryCount: Int {
+        Set(jobs.map(\.delivery.kind)).count
+    }
+
+    private var nextRunCount: Int {
+        jobs.filter { $0.nextRun != nil }.count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Cron timing stays visible before the longer cron delivery inventory."),
+                detail: String(localized: "Use the summary to see stalled jobs, enabled coverage, and delivery spread before opening the cron rows."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == jobs.count
+                            ? (jobs.count == 1 ? String(localized: "1 cron job visible") : String(localized: "\(jobs.count) cron jobs visible"))
+                            : String(localized: "\(visibleCount) of \(jobs.count) visible"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: enabledCount == 1 ? String(localized: "1 enabled") : String(localized: "\(enabledCount) enabled"),
+                        tone: enabledCount > 0 ? .positive : .neutral
+                    )
+                    if pausedCount > 0 {
+                        PresentationToneBadge(
+                            text: pausedCount == 1 ? String(localized: "1 paused") : String(localized: "\(pausedCount) paused"),
+                            tone: .warning
+                        )
+                    }
+                    if stalledCount > 0 {
+                        PresentationToneBadge(
+                            text: stalledCount == 1 ? String(localized: "1 stalled") : String(localized: "\(stalledCount) stalled"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Cron facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep enabled coverage, next-run health, and delivery diversity visible before the full cron list."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: deliveryCount == 1 ? String(localized: "1 delivery mode") : String(localized: "\(deliveryCount) delivery modes"),
+                    tone: .neutral
+                )
+            } facts: {
+                Label(
+                    jobs.count == 1 ? String(localized: "1 cron job") : String(localized: "\(jobs.count) cron jobs"),
+                    systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90"
+                )
+                Label(
+                    enabledCount == 1 ? String(localized: "1 enabled") : String(localized: "\(enabledCount) enabled"),
+                    systemImage: "checkmark.circle"
+                )
+                if nextRunCount > 0 {
+                    Label(
+                        nextRunCount == 1 ? String(localized: "1 next run ready") : String(localized: "\(nextRunCount) next runs ready"),
+                        systemImage: "clock.badge"
+                    )
+                }
+                if stalledCount > 0 {
+                    Label(
+                        stalledCount == 1 ? String(localized: "1 stalled") : String(localized: "\(stalledCount) stalled"),
+                        systemImage: "clock.badge.exclamationmark"
+                    )
+                }
+            }
+        }
+    }
+}
+
 private struct WorkflowDefinitionRow: View {
     let workflow: WorkflowSummary
     let failedRuns: Int
@@ -1247,5 +1747,11 @@ private extension String {
         }
         formatter.formatOptions = [.withInternetDateTime]
         return formatter.date(from: self)
+    }
+
+    func automationRelativeText(prefix: String) -> String {
+        guard let date = automationISO8601Date else { return self }
+        let relative = RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+        return String(localized: "\(prefix) \(relative)")
     }
 }

@@ -959,7 +959,7 @@ struct AgentDetailView: View {
     @ViewBuilder
     private var capabilitiesSection: some View {
         if !isLoadingCapabilities || agent.profile != nil || isLoadingProfile {
-            Section("Assignments & Profile") {
+            Section {
                 if isLoadingCapabilities {
                     HStack {
                         Spacer()
@@ -1036,6 +1036,8 @@ struct AgentDetailView: View {
                         )
                     }
                 }
+            } header: {
+                Text("Assignments & Profile")
             } footer: {
                 Text("Keep tool scope, skills, MCP assignment, and the active tool profile together before leaving the single-agent surface.")
             }
