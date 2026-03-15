@@ -199,167 +199,7 @@ struct HandoffCenterView: View {
                 Text("Shift Context")
             }
 
-            Section {
-                MonitoringFactsRow {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(String(localized: "Handoff signal facts"))
-                            .font(.subheadline.weight(.medium))
-                        Text(String(localized: "Keep live queue shape, follow-up load, and draft composition state visible before editing the full handoff draft."))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                    }
-                } accessory: {
-                    PresentationToneBadge(
-                        text: draftReadiness.state.label,
-                        tone: draftReadiness.state.tone
-                    )
-                } facts: {
-                    Label(
-                        queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
-                        systemImage: "waveform.path.ecg"
-                    )
-                    Label(
-                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                        systemImage: "xmark.octagon"
-                    )
-                    Label(
-                        liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
-                        systemImage: "bell.badge"
-                    )
-                    if vm.pendingApprovalCount > 0 {
-                        Label(
-                            vm.pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(vm.pendingApprovalCount) approvals"),
-                            systemImage: "checkmark.shield"
-                        )
-                    }
-                    if vm.sessionAttentionCount > 0 {
-                        Label(
-                            vm.sessionAttentionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(vm.sessionAttentionCount) session hotspots"),
-                            systemImage: "rectangle.stack"
-                        )
-                    }
-                    if pendingLatestFollowUpCount > 0 {
-                        Label(
-                            pendingLatestFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingLatestFollowUpCount) follow-ups open"),
-                            systemImage: "arrow.triangle.2.circlepath"
-                        )
-                    }
-                    if handoffStore.draftFocusAreas.items.count > 0 {
-                        Label(
-                            handoffStore.draftFocusAreas.items.count == 1 ? String(localized: "1 focus area") : String(localized: "\(handoffStore.draftFocusAreas.items.count) focus areas"),
-                            systemImage: "scope"
-                        )
-                    }
-                }
-            } footer: {
-                Text("This facts row keeps live queue pressure and draft readiness visible above the longer handoff composer.")
-            }
-
-            Section {
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Primary Surfaces"),
-                    detail: String(localized: "Keep the live queue and shift-facing exits closest to the handoff draft.")
-                ) {
-                    NavigationLink {
-                        OnCallView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open On Call"),
-                            detail: String(localized: "Switch back to the prioritized queue while keeping the current handoff draft in mind."),
-                            systemImage: "waveform.path.ecg",
-                            tone: queueCount > 0 ? .warning : .neutral,
-                            badgeText: queueCount == 0 ? nil : (queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued")),
-                            badgeTone: queueCount > 0 ? .warning : .neutral
-                        )
-                    }
-
-                    NavigationLink {
-                        NightWatchView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Night Watch"),
-                            detail: String(localized: "Switch to the compact night-duty surface with the same live queue context."),
-                            systemImage: "moon.stars",
-                            tone: criticalCount > 0 ? .critical : .neutral,
-                            badgeText: criticalCount == 0 ? nil : (criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical")),
-                            badgeTone: .critical
-                        )
-                    }
-
-                    NavigationLink {
-                        StandbyDigestView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Standby Digest"),
-                            detail: String(localized: "Switch to the compressed lock-screen style digest while preserving handoff context."),
-                            systemImage: "rectangle.inset.filled",
-                            tone: liveAlertCount > 0 ? .warning : .neutral,
-                            badgeText: liveAlertCount == 0 ? nil : (liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts")),
-                            badgeTone: .warning
-                        )
-                    }
-
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Incidents"),
-                            detail: String(localized: "Switch to incidents to resolve live alerts, approvals, and shift coverage blockers."),
-                            systemImage: "bell.badge",
-                            tone: criticalCount > 0 ? .critical : .warning,
-                            badgeText: liveAlertCount == 0 ? nil : (liveAlertCount == 1 ? String(localized: "1 alert") : String(localized: "\(liveAlertCount) alerts")),
-                            badgeTone: criticalCount > 0 ? .critical : .warning
-                        )
-                    }
-                }
-
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Supporting Surfaces"),
-                    detail: String(localized: "Keep runtime, diagnostics, and preference routes behind the primary shift exits.")
-                ) {
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Runtime"),
-                            detail: String(localized: "Switch to runtime when handoff notes need provider, approval, session, or diagnostics context."),
-                            systemImage: "server.rack",
-                            tone: liveAlertCount > 0 ? .warning : .neutral
-                        )
-                    }
-
-                    NavigationLink {
-                        DiagnosticsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Diagnostics"),
-                            detail: String(localized: "Switch to health detail, build metadata, config warnings, and metrics while composing the handoff."),
-                            systemImage: "stethoscope",
-                            tone: vm.diagnosticsSummaryTone,
-                            badgeText: vm.diagnosticsConfigWarningCount > 0
-                                ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
-                                : nil,
-                            badgeTone: .warning
-                        )
-                    }
-
-                    NavigationLink {
-                        SettingsView()
-                    } label: {
-                        MonitoringJumpRow(
-                            title: String(localized: "Open Settings"),
-                            detail: String(localized: "Switch to reminder, language, and on-call preferences while you tune handoff behavior."),
-                            systemImage: "gearshape",
-                            tone: handoffStore.freshnessState.tone
-                        )
-                    }
-                }
-            } header: {
-                Text("Operator Surfaces")
-            } footer: {
-                Text("Use these routes when handoff work needs queue, incident, or standby context without backing all the way out.")
-            }
+            controlDeckSection
 
             Section {
                 HandoffDraftContextCard(
@@ -546,6 +386,177 @@ struct HandoffCenterView: View {
         }
         .navigationTitle("Handoff Center")
         .searchable(text: $searchText, prompt: "Search notes or summaries")
+    }
+
+    private var controlDeckSection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 12) {
+                handoffSignalFactsCard
+                handoffSurfaceDeckCard
+            }
+        } header: {
+            Text("Control Deck")
+        } footer: {
+            Text("Keep live queue pressure, draft readiness, and the next shift-facing exits together before editing the handoff composer.")
+        }
+    }
+
+    private var handoffSignalFactsCard: some View {
+        MonitoringFactsRow {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(String(localized: "Handoff signal facts"))
+                    .font(.subheadline.weight(.medium))
+                Text(String(localized: "Keep live queue shape, follow-up load, and draft composition state visible before editing the full handoff draft."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        } accessory: {
+            PresentationToneBadge(
+                text: draftReadiness.state.label,
+                tone: draftReadiness.state.tone
+            )
+        } facts: {
+            Label(
+                queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                systemImage: "waveform.path.ecg"
+            )
+            Label(
+                criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                systemImage: "xmark.octagon"
+            )
+            Label(
+                liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
+                systemImage: "bell.badge"
+            )
+            if vm.pendingApprovalCount > 0 {
+                Label(
+                    vm.pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(vm.pendingApprovalCount) approvals"),
+                    systemImage: "checkmark.shield"
+                )
+            }
+            if vm.sessionAttentionCount > 0 {
+                Label(
+                    vm.sessionAttentionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(vm.sessionAttentionCount) session hotspots"),
+                    systemImage: "rectangle.stack"
+                )
+            }
+            if pendingLatestFollowUpCount > 0 {
+                Label(
+                    pendingLatestFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingLatestFollowUpCount) follow-ups open"),
+                    systemImage: "arrow.triangle.2.circlepath"
+                )
+            }
+            if handoffStore.draftFocusAreas.items.count > 0 {
+                Label(
+                    handoffStore.draftFocusAreas.items.count == 1 ? String(localized: "1 focus area") : String(localized: "\(handoffStore.draftFocusAreas.items.count) focus areas"),
+                    systemImage: "scope"
+                )
+            }
+        }
+    }
+
+    private var handoffSurfaceDeckCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Primary Surfaces"),
+                detail: String(localized: "Keep the live queue and shift-facing exits closest to the handoff draft.")
+            ) {
+                NavigationLink {
+                    OnCallView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open On Call"),
+                        detail: String(localized: "Switch back to the prioritized queue while keeping the current handoff draft in mind."),
+                        systemImage: "waveform.path.ecg",
+                        tone: queueCount > 0 ? .warning : .neutral,
+                        badgeText: queueCount == 0 ? nil : (queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued")),
+                        badgeTone: queueCount > 0 ? .warning : .neutral
+                    )
+                }
+
+                NavigationLink {
+                    NightWatchView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Night Watch"),
+                        detail: String(localized: "Switch to the compact night-duty surface with the same live queue context."),
+                        systemImage: "moon.stars",
+                        tone: criticalCount > 0 ? .critical : .neutral,
+                        badgeText: criticalCount == 0 ? nil : (criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical")),
+                        badgeTone: .critical
+                    )
+                }
+
+                NavigationLink {
+                    StandbyDigestView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Standby Digest"),
+                        detail: String(localized: "Switch to the compressed lock-screen style digest while preserving handoff context."),
+                        systemImage: "rectangle.inset.filled",
+                        tone: liveAlertCount > 0 ? .warning : .neutral,
+                        badgeText: liveAlertCount == 0 ? nil : (liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts")),
+                        badgeTone: .warning
+                    )
+                }
+
+                NavigationLink {
+                    IncidentsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Incidents"),
+                        detail: String(localized: "Switch to incidents to resolve live alerts, approvals, and shift coverage blockers."),
+                        systemImage: "bell.badge",
+                        tone: criticalCount > 0 ? .critical : .warning,
+                        badgeText: liveAlertCount == 0 ? nil : (liveAlertCount == 1 ? String(localized: "1 alert") : String(localized: "\(liveAlertCount) alerts")),
+                        badgeTone: criticalCount > 0 ? .critical : .warning
+                    )
+                }
+            }
+
+            MonitoringSurfaceGroupCard(
+                title: String(localized: "Supporting Surfaces"),
+                detail: String(localized: "Keep runtime, diagnostics, and preference routes behind the primary shift exits.")
+            ) {
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Runtime"),
+                        detail: String(localized: "Switch to runtime when handoff notes need provider, approval, session, or diagnostics context."),
+                        systemImage: "server.rack",
+                        tone: liveAlertCount > 0 ? .warning : .neutral
+                    )
+                }
+
+                NavigationLink {
+                    DiagnosticsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Diagnostics"),
+                        detail: String(localized: "Switch to health detail, build metadata, config warnings, and metrics while composing the handoff."),
+                        systemImage: "stethoscope",
+                        tone: vm.diagnosticsSummaryTone,
+                        badgeText: vm.diagnosticsConfigWarningCount > 0
+                            ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
+                            : nil,
+                        badgeTone: .warning
+                    )
+                }
+
+                NavigationLink {
+                    SettingsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Settings"),
+                        detail: String(localized: "Switch to reminder, language, and on-call preferences while you tune handoff behavior."),
+                        systemImage: "gearshape",
+                        tone: handoffStore.freshnessState.tone
+                    )
+                }
+            }
+        }
     }
 
     private func deleteFilteredEntries(at offsets: IndexSet) {

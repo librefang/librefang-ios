@@ -226,8 +226,7 @@ struct AgentDetailView: View {
     var body: some View {
         List {
             identitySection
-            diagnosticsSnapshotSection
-            operatorHubSection
+            controlDeckSection
             statusSection
             modelResolutionSection
             configSnapshotSection
@@ -491,8 +490,21 @@ struct AgentDetailView: View {
         }
     }
 
-    private var operatorHubSection: some View {
+    private var controlDeckSection: some View {
         Section {
+            VStack(alignment: .leading, spacing: 12) {
+                agentDiagnosticsStatusDeckCard
+                agentOperatorSurfaceDeckCard
+            }
+        } header: {
+            Text("Control Deck")
+        } footer: {
+            Text("Keep the compact agent digest and the next operator exits together before the longer diagnostics sections.")
+        }
+    }
+
+    private var agentOperatorSurfaceDeckCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Primary Surfaces"),
                 detail: String(localized: "Keep the most likely next operator exits closest to the agent snapshot and live issues.")
@@ -717,113 +729,105 @@ struct AgentDetailView: View {
                     .buttonStyle(.plain)
                 }
             }
-        } header: {
-            Text("Operator Hub")
-        } footer: {
-            Text("These jump surfaces keep the highest-value diagnostics close to the top of the agent detail screen.")
         }
     }
 
-    private var diagnosticsSnapshotSection: some View {
-        Section {
-            VStack(alignment: .leading, spacing: 12) {
-                MonitoringSnapshotCard(
-                    summary: diagnosticsSnapshotSummary,
-                    detail: String(localized: "Use this compact digest before jumping into sessions, memory, deliveries, workspace files, or approvals.")
-                ) {
-                    FlowLayout(spacing: 8) {
-                        PresentationToneBadge(text: agent.stateLabel, tone: agent.stateTone)
-                        if !agentApprovals.isEmpty {
-                            PresentationToneBadge(
-                                text: agentApprovals.count == 1 ? String(localized: "1 approval") : String(localized: "\(agentApprovals.count) approvals"),
-                                tone: .critical
-                            )
-                        }
-                        if !agentSessions.isEmpty {
-                            PresentationToneBadge(
-                                text: agentSessions.count == 1 ? String(localized: "1 session") : String(localized: "\(agentSessions.count) sessions"),
-                                tone: sessionIssueCount > 0 ? .warning : .neutral
-                            )
-                        }
-                        if sessionIssueCount > 0 {
-                            PresentationToneBadge(
-                                text: sessionIssueCount == 1 ? String(localized: "1 session issue") : String(localized: "\(sessionIssueCount) session issues"),
-                                tone: .warning
-                            )
-                        }
-                        if !agentMemory.isEmpty {
-                            PresentationToneBadge(
-                                text: agentMemory.count == 1 ? String(localized: "1 memory key") : String(localized: "\(agentMemory.count) memory keys"),
-                                tone: structuredMemoryTone
-                            )
-                        }
-                        if missingWorkspaceFileCount > 0 {
-                            PresentationToneBadge(
-                                text: missingWorkspaceFileCount == 1 ? String(localized: "1 missing identity file") : String(localized: "\(missingWorkspaceFileCount) missing identity files"),
-                                tone: .warning
-                            )
-                        }
-                        if failedDeliveryCount > 0 {
-                            PresentationToneBadge(
-                                text: failedDeliveryCount == 1 ? String(localized: "1 failed delivery") : String(localized: "\(failedDeliveryCount) failed deliveries"),
-                                tone: .critical
-                            )
-                        }
-                        if unsettledDeliveryCount > 0 {
-                            PresentationToneBadge(
-                                text: unsettledDeliveryCount == 1 ? String(localized: "1 unsettled delivery") : String(localized: "\(unsettledDeliveryCount) unsettled deliveries"),
-                                tone: .warning
-                            )
-                        }
-                        if !agentRecentEvents.isEmpty {
-                            PresentationToneBadge(
-                                text: agentRecentEvents.count == 1 ? String(localized: "1 recent event") : String(localized: "\(agentRecentEvents.count) recent events"),
-                                tone: .neutral
-                            )
-                        }
-                        if let agentProfileSummary, !agentProfileSummary.tools.isEmpty {
-                            PresentationToneBadge(
-                                text: agentProfileSummary.tools.count == 1 ? String(localized: "1 profile tool") : String(localized: "\(agentProfileSummary.tools.count) profile tools"),
-                                tone: profileToolCountTone
-                            )
-                        }
-                        if isWatched {
-                            PresentationToneBadge(text: String(localized: "Watched"), tone: .caution)
-                        }
+    private var agentDiagnosticsStatusDeckCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: diagnosticsSnapshotSummary,
+                detail: String(localized: "Use this compact digest before jumping into sessions, memory, deliveries, workspace files, or approvals.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: agent.stateLabel, tone: agent.stateTone)
+                    if !agentApprovals.isEmpty {
+                        PresentationToneBadge(
+                            text: agentApprovals.count == 1 ? String(localized: "1 approval") : String(localized: "\(agentApprovals.count) approvals"),
+                            tone: .critical
+                        )
                     }
-                }
-
-                MonitoringFactsRow {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(String(localized: "Operator facts"))
-                            .font(.subheadline.weight(.medium))
-                        Text(String(localized: "Keep the current model path, session, and failure counts visible while scrolling deeper sections."))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
+                    if !agentSessions.isEmpty {
+                        PresentationToneBadge(
+                            text: agentSessions.count == 1 ? String(localized: "1 session") : String(localized: "\(agentSessions.count) sessions"),
+                            tone: sessionIssueCount > 0 ? .warning : .neutral
+                        )
                     }
-                } accessory: {
-                    if let requestedModelReference {
-                        PresentationToneBadge(text: requestedModelReference, tone: modelDiagnostic?.statusTone ?? .neutral)
+                    if sessionIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: sessionIssueCount == 1 ? String(localized: "1 session issue") : String(localized: "\(sessionIssueCount) session issues"),
+                            tone: .warning
+                        )
                     }
-                } facts: {
-                    Label(currentSessionBadgeText ?? String(localized: "No current session"), systemImage: "text.bubble")
-                    Label(
-                        failedDeliveryCount == 1 ? String(localized: "1 failed receipt") : String(localized: "\(failedDeliveryCount) failed receipts"),
-                        systemImage: "paperplane"
-                    )
-                    Label(
-                        missingWorkspaceFileCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingWorkspaceFileCount) missing files"),
-                        systemImage: "doc.text"
-                    )
-                    Label(
-                        agentMemory.count == 1 ? String(localized: "1 memory key") : String(localized: "\(agentMemory.count) memory keys"),
-                        systemImage: "internaldrive"
-                    )
+                    if !agentMemory.isEmpty {
+                        PresentationToneBadge(
+                            text: agentMemory.count == 1 ? String(localized: "1 memory key") : String(localized: "\(agentMemory.count) memory keys"),
+                            tone: structuredMemoryTone
+                        )
+                    }
+                    if missingWorkspaceFileCount > 0 {
+                        PresentationToneBadge(
+                            text: missingWorkspaceFileCount == 1 ? String(localized: "1 missing identity file") : String(localized: "\(missingWorkspaceFileCount) missing identity files"),
+                            tone: .warning
+                        )
+                    }
+                    if failedDeliveryCount > 0 {
+                        PresentationToneBadge(
+                            text: failedDeliveryCount == 1 ? String(localized: "1 failed delivery") : String(localized: "\(failedDeliveryCount) failed deliveries"),
+                            tone: .critical
+                        )
+                    }
+                    if unsettledDeliveryCount > 0 {
+                        PresentationToneBadge(
+                            text: unsettledDeliveryCount == 1 ? String(localized: "1 unsettled delivery") : String(localized: "\(unsettledDeliveryCount) unsettled deliveries"),
+                            tone: .warning
+                        )
+                    }
+                    if !agentRecentEvents.isEmpty {
+                        PresentationToneBadge(
+                            text: agentRecentEvents.count == 1 ? String(localized: "1 recent event") : String(localized: "\(agentRecentEvents.count) recent events"),
+                            tone: .neutral
+                        )
+                    }
+                    if let agentProfileSummary, !agentProfileSummary.tools.isEmpty {
+                        PresentationToneBadge(
+                            text: agentProfileSummary.tools.count == 1 ? String(localized: "1 profile tool") : String(localized: "\(agentProfileSummary.tools.count) profile tools"),
+                            tone: profileToolCountTone
+                        )
+                    }
+                    if isWatched {
+                        PresentationToneBadge(text: String(localized: "Watched"), tone: .caution)
+                    }
                 }
             }
-        } footer: {
-            Text("This compact agent snapshot keeps operator context visible above the longer diagnostics sections.")
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Operator facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the current model path, session, and failure counts visible while scrolling deeper sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if let requestedModelReference {
+                    PresentationToneBadge(text: requestedModelReference, tone: modelDiagnostic?.statusTone ?? .neutral)
+                }
+            } facts: {
+                Label(currentSessionBadgeText ?? String(localized: "No current session"), systemImage: "text.bubble")
+                Label(
+                    failedDeliveryCount == 1 ? String(localized: "1 failed receipt") : String(localized: "\(failedDeliveryCount) failed receipts"),
+                    systemImage: "paperplane"
+                )
+                Label(
+                    missingWorkspaceFileCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingWorkspaceFileCount) missing files"),
+                    systemImage: "doc.text"
+                )
+                Label(
+                    agentMemory.count == 1 ? String(localized: "1 memory key") : String(localized: "\(agentMemory.count) memory keys"),
+                    systemImage: "internaldrive"
+                )
+            }
         }
     }
 

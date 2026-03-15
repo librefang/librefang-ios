@@ -193,8 +193,7 @@ struct NightWatchView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     heroCard
-                    snapshotCard
-                    signalFactsCard
+                    controlDeckCard
                     mutedSummaryCard
                     primaryQueueCard
                     secondaryQueueCard
@@ -261,6 +260,13 @@ struct NightWatchView: View {
             integrationIssueCount: integrationIssueCount,
             checkInStatus: checkInStatus
         )
+    }
+
+    private var controlDeckCard: some View {
+        VStack(spacing: 12) {
+            snapshotCard
+            signalFactsCard
+        }
     }
 
     private var signalFactsCard: some View {
