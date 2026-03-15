@@ -51,6 +51,29 @@ struct AgentFilesView: View {
         .countStatus(missingCount, activeTone: .warning)
     }
 
+    private var hasActiveFilter: Bool {
+        scope != .all || !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var summarySnapshotText: String {
+        if missingCount > 0 {
+            return String(localized: "Workspace identity drift stays visible before the full file inventory.")
+        }
+        if files.isEmpty {
+            return String(localized: "This surface keeps workspace identity visible before any files load.")
+        }
+        return String(localized: "Workspace identity stays summarized before the per-file inspection list.")
+    }
+
+    private var summarySnapshotDetail: String {
+        if hasActiveFilter {
+            return filteredFiles.count == 1
+                ? String(localized: "1 file matches the current workspace filter.")
+                : String(localized: "\(filteredFiles.count) files match the current workspace filter.")
+        }
+        return String(localized: "Use the route deck when identity files need memory, session, or delivery context.")
+    }
+
     private var exportText: String {
         let header = [
             String(localized: "LibreFang Workspace Identity Snapshot"),
@@ -76,19 +99,49 @@ struct AgentFilesView: View {
     var body: some View {
         List {
             Section {
-                AgentFilesSummaryRow(label: "Agent") {
-                    Text(agent.name)
-                        .foregroundStyle(.secondary)
+                MonitoringSnapshotCard(
+                    summary: summarySnapshotText,
+                    detail: summarySnapshotDetail
+                ) {
+                    FlowLayout(spacing: 8) {
+                        PresentationToneBadge(
+                            text: String(localized: "\(existingCount)/\(files.count) present"),
+                            tone: workspaceIdentitySummary.tone
+                        )
+                        PresentationToneBadge(
+                            text: missingCount == 1 ? String(localized: "1 missing") : String(localized: "\(missingCount) missing"),
+                            tone: missingStatus.tone
+                        )
+                        if hasActiveFilter {
+                            PresentationToneBadge(
+                                text: filteredFiles.count == 1 ? String(localized: "1 visible") : String(localized: "\(filteredFiles.count) visible"),
+                                tone: .neutral
+                            )
+                        }
+                    }
                 }
-                AgentFilesSummaryRow(label: "Present") {
-                    Text("\(existingCount)/\(files.count)")
-                        .foregroundStyle(workspaceIdentitySummary.tone.color)
-                        .monospacedDigit()
-                }
-                AgentFilesSummaryRow(label: "Missing") {
-                    Text(missingCount.formatted())
-                        .foregroundStyle(missingStatus.tone.color)
-                        .monospacedDigit()
+
+                MonitoringFactsRow {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(String(localized: "Active Workspace Slice"))
+                            .font(.subheadline.weight(.medium))
+                        Text(String(localized: "Keep the current scope, visible result count, and agent identity nearby while checking file presence."))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                } accessory: {
+                    PresentationToneBadge(text: scope.label, tone: scope.tone)
+                } facts: {
+                    Label(agent.name, systemImage: "cpu")
+                    Label(
+                        filteredFiles.count == 1 ? String(localized: "1 visible file") : String(localized: "\(filteredFiles.count) visible files"),
+                        systemImage: "line.3.horizontal.decrease.circle"
+                    )
+                    Label(
+                        missingCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingCount) missing files"),
+                        systemImage: "doc.badge.gearshape"
+                    )
                 }
             } header: {
                 Text("Workspace Identity")
@@ -243,24 +296,6 @@ struct AgentFilesView: View {
     }
 }
 
-private struct AgentFilesSummaryRow<Content: View>: View {
-    let label: LocalizedStringKey
-    let content: Content
-
-    init(label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
-        self.label = label
-        self.content = content()
-    }
-
-    var body: some View {
-        ResponsiveValueRow {
-            Text(label)
-        } value: {
-            content
-        }
-    }
-}
-
 enum AgentFileScope: CaseIterable {
     case all
     case missing
@@ -285,6 +320,17 @@ enum AgentFileScope: CaseIterable {
             return "exclamationmark.bubble"
         case .present:
             return "checkmark.circle"
+        }
+    }
+
+    var tone: PresentationTone {
+        switch self {
+        case .all:
+            return .neutral
+        case .missing:
+            return .warning
+        case .present:
+            return .positive
         }
     }
 }

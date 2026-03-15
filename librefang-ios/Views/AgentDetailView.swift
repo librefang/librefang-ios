@@ -223,6 +223,38 @@ struct AgentDetailView: View {
         return StatusPresentation.budgetUtilizationStatus(for: utilization)?.tone ?? .neutral
     }
 
+    private var sessionSnapshotSummary: String {
+        if sessionIssueCount > 0 {
+            return String(localized: "Active session pressure stays visible before controls, inventory, and recent activity.")
+        }
+        return String(localized: "Keep the active session label, message volume, and context window visible before deeper session controls.")
+    }
+
+    private var sessionSnapshotDetail: String {
+        if let label = sessionSnapshot?.label?.trimmingCharacters(in: .whitespacesAndNewlines), !label.isEmpty {
+            return String(localized: "Current session label: \(label)")
+        }
+        return String(localized: "This agent is currently using an unlabeled session.")
+    }
+
+    private var budgetSnapshotSummary: String {
+        guard let budgetDetail else {
+            return String(localized: "Budget guardrails stay visible before the detailed spend rows.")
+        }
+
+        let maxUtilization = max(
+            budgetDetail.hourly.pct,
+            budgetDetail.daily.pct,
+            budgetDetail.monthly.pct,
+            budgetDetail.tokens.pct
+        )
+
+        if maxUtilization >= 0.9 {
+            return String(localized: "Budget pressure stays visible before the detailed hourly, daily, monthly, and token rows.")
+        }
+        return String(localized: "Budget guardrails stay visible before the detailed spend rows.")
+    }
+
     var body: some View {
         List {
             identitySection
@@ -1154,27 +1186,65 @@ struct AgentDetailView: View {
             }
         } else if let detail = budgetDetail {
             Section("Cost (USD)") {
+                MonitoringSnapshotCard(
+                    summary: budgetSnapshotSummary,
+                    detail: String(localized: "Use the global budget surface when this single-agent spend summary no longer has enough context.")
+                ) {
+                    FlowLayout(spacing: 8) {
+                        PresentationToneBadge(
+                            text: String(localized: "Hourly"),
+                            tone: StatusPresentation.budgetUtilizationStatus(for: detail.hourly.pct)?.tone ?? .neutral
+                        )
+                        PresentationToneBadge(
+                            text: String(localized: "Daily"),
+                            tone: StatusPresentation.budgetUtilizationStatus(for: detail.daily.pct)?.tone ?? .neutral
+                        )
+                        PresentationToneBadge(
+                            text: String(localized: "Monthly"),
+                            tone: StatusPresentation.budgetUtilizationStatus(for: detail.monthly.pct)?.tone ?? .neutral
+                        )
+                        PresentationToneBadge(
+                            text: String(localized: "Tokens"),
+                            tone: StatusPresentation.budgetUtilizationStatus(for: detail.tokens.pct)?.tone ?? .neutral
+                        )
+                    }
+                }
+
                 BudgetPeriodRow(label: "Hourly", period: detail.hourly)
                 BudgetPeriodRow(label: "Daily", period: detail.daily)
                 BudgetPeriodRow(label: "Monthly", period: detail.monthly)
             }
 
             Section("Token Usage") {
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text("\(detail.tokens.used.formatted()) / \(detail.tokens.limit.formatted())")
-                            .font(.subheadline.monospacedDigit())
-                        Text("\(Int(detail.tokens.pct * 100))% used")
+                MonitoringFactsRow {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(String(localized: "Token Pressure"))
+                            .font(.subheadline.weight(.medium))
+                        Text(String(localized: "Keep the token budget and utilization visible before leaving the single-agent spend view."))
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                            .lineLimit(2)
                     }
-                    Spacer()
+                } accessory: {
                     Gauge(value: min(detail.tokens.pct, 1.0)) {
                         EmptyView()
                     }
                     .gaugeStyle(.accessoryCircularCapacity)
                     .tint((StatusPresentation.budgetUtilizationStatus(for: detail.tokens.pct) ?? .normal).color())
                     .scaleEffect(0.7)
+                } facts: {
+                    Label(
+                        "\(detail.tokens.used.formatted()) / \(detail.tokens.limit.formatted())",
+                        systemImage: "number"
+                    )
+                    Label(
+                        String(localized: "\(Int(detail.tokens.pct * 100))% used"),
+                        systemImage: "chart.bar"
+                    )
+                    Label(
+                        localizedUSDCurrency(detail.daily.spend, standardPrecision: 2, smallValuePrecision: 4),
+                        systemImage: "dollarsign.circle"
+                    )
                 }
             }
         }
@@ -1201,17 +1271,61 @@ struct AgentDetailView: View {
 
     private func sessionSummarySection(_ snapshot: AgentSessionSnapshot) -> some View {
         Section("Session") {
-            AgentDetailValueRow("Label") {
-                Text((snapshot.label?.isEmpty == false ? snapshot.label : nil) ?? String(localized: "Current"))
-                    .foregroundStyle(.secondary)
+            MonitoringSnapshotCard(
+                summary: sessionSnapshotSummary,
+                detail: sessionSnapshotDetail
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: (snapshot.label?.isEmpty == false ? snapshot.label : nil) ?? String(localized: "Current"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: snapshot.messageCount == 1 ? String(localized: "1 message") : String(localized: "\(snapshot.messageCount) messages"),
+                        tone: .neutral
+                    )
+                    PresentationToneBadge(
+                        text: String(localized: "\(snapshot.contextWindowTokens.formatted()) ctx"),
+                        tone: .neutral
+                    )
+                    if sessionIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: sessionIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(sessionIssueCount) issues"),
+                            tone: .warning
+                        )
+                    }
+                }
             }
-            AgentDetailValueRow("Messages") {
-                Text(snapshot.messageCount.formatted())
-                    .monospacedDigit()
-            }
-            AgentDetailValueRow("Context Tokens") {
-                Text(snapshot.contextWindowTokens.formatted())
-                    .monospacedDigit()
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Session Inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the active label, broader inventory, and recent transcript coverage visible while triaging session state."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if sessionItems.count > 1 {
+                    PresentationToneBadge(
+                        text: sessionItems.count == 1 ? String(localized: "1 known session") : String(localized: "\(sessionItems.count) known sessions"),
+                        tone: sessionAttentionTone
+                    )
+                }
+            } facts: {
+                Label(
+                    currentSessionInfo.map(sessionDisplayTitle) ?? String(localized: "Current session"),
+                    systemImage: "text.bubble"
+                )
+                Label(
+                    snapshot.messageCount == 1 ? String(localized: "1 transcript message") : String(localized: "\(snapshot.messageCount) transcript messages"),
+                    systemImage: "text.bubble.fill"
+                )
+                Label(
+                    sessionItems.count == 1 ? String(localized: "1 tracked session") : String(localized: "\(sessionItems.count) tracked sessions"),
+                    systemImage: "rectangle.stack"
+                )
             }
         }
     }

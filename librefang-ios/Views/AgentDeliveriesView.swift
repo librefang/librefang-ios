@@ -71,6 +71,35 @@ struct AgentDeliveriesView: View {
         .countStatus(unsettledCount, activeTone: .warning)
     }
 
+    private var hasActiveFilter: Bool {
+        scope != .all || !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var latestReceiptTimestampLabel: String? {
+        guard let receipt = filteredReceipts.first ?? receipts.first else { return nil }
+        guard let date = receipt.timestamp.agentSessionISO8601Date else { return receipt.timestamp }
+        return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+    }
+
+    private var summarySnapshotText: String {
+        if failedCount > 0 || unsettledCount > 0 {
+            return String(localized: "Delivery failures and unsettled sends stay visible before the full receipt log.")
+        }
+        if receipts.isEmpty {
+            return String(localized: "This surface keeps outbound delivery state visible before any receipts load.")
+        }
+        return String(localized: "Recent outbound receipts stay summarized before the longer delivery log.")
+    }
+
+    private var summarySnapshotDetail: String {
+        if hasActiveFilter {
+            return filteredReceipts.count == 1
+                ? String(localized: "1 receipt matches the current delivery filter.")
+                : String(localized: "\(filteredReceipts.count) receipts match the current delivery filter.")
+        }
+        return String(localized: "Use the route deck when delivery receipts need incident, audit, or runtime context.")
+    }
+
     private var exportText: String {
         let header = [
             String(localized: "LibreFang Delivery Snapshot"),
@@ -101,28 +130,54 @@ struct AgentDeliveriesView: View {
     var body: some View {
         List {
             Section {
-                DeliverySummaryRow(label: "Agent") {
-                    Text(agent.name)
-                        .foregroundStyle(.secondary)
+                MonitoringSnapshotCard(
+                    summary: summarySnapshotText,
+                    detail: summarySnapshotDetail
+                ) {
+                    FlowLayout(spacing: 8) {
+                        PresentationToneBadge(
+                            text: receipts.count == 1 ? String(localized: "1 receipt") : String(localized: "\(receipts.count) receipts"),
+                            tone: receipts.isEmpty ? .neutral : .positive
+                        )
+                        PresentationToneBadge(
+                            text: deliveredCount == 1 ? String(localized: "1 delivered") : String(localized: "\(deliveredCount) delivered"),
+                            tone: deliveredStatus.tone
+                        )
+                        if failedCount > 0 {
+                            PresentationToneBadge(
+                                text: failedCount == 1 ? String(localized: "1 failed") : String(localized: "\(failedCount) failed"),
+                                tone: failedStatus.tone
+                            )
+                        }
+                        if unsettledCount > 0 {
+                            PresentationToneBadge(
+                                text: unsettledCount == 1 ? String(localized: "1 unsettled") : String(localized: "\(unsettledCount) unsettled"),
+                                tone: unsettledStatus.tone
+                            )
+                        }
+                    }
                 }
-                DeliverySummaryRow(label: "Receipts") {
-                    Text(receipts.count.formatted())
-                        .monospacedDigit()
-                }
-                DeliverySummaryRow(label: "Delivered") {
-                    Text(deliveredCount.formatted())
-                        .foregroundStyle(deliveredStatus.tone.color)
-                        .monospacedDigit()
-                }
-                DeliverySummaryRow(label: "Failed") {
-                    Text(failedCount.formatted())
-                        .foregroundStyle(failedStatus.tone.color)
-                        .monospacedDigit()
-                }
-                DeliverySummaryRow(label: "Unsettled") {
-                    Text(unsettledCount.formatted())
-                        .foregroundStyle(unsettledStatus.tone.color)
-                        .monospacedDigit()
+
+                MonitoringFactsRow {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(String(localized: "Active Delivery Slice"))
+                            .font(.subheadline.weight(.medium))
+                        Text(String(localized: "Keep the agent, current scope, and freshest receipt timing available while filtering receipt history."))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                } accessory: {
+                    PresentationToneBadge(text: scope.label, tone: scope.tone)
+                } facts: {
+                    Label(agent.name, systemImage: "cpu")
+                    Label(
+                        filteredReceipts.count == 1 ? String(localized: "1 visible receipt") : String(localized: "\(filteredReceipts.count) visible receipts"),
+                        systemImage: "line.3.horizontal.decrease.circle"
+                    )
+                    if let latestReceiptTimestampLabel {
+                        Label(latestReceiptTimestampLabel, systemImage: "clock")
+                    }
                 }
             } header: {
                 Text("Delivery Summary")
@@ -281,24 +336,6 @@ struct AgentDeliveriesView: View {
     }
 }
 
-private struct DeliverySummaryRow<Content: View>: View {
-    let label: LocalizedStringKey
-    let content: Content
-
-    init(label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
-        self.label = label
-        self.content = content()
-    }
-
-    var body: some View {
-        ResponsiveValueRow {
-            Text(label)
-        } value: {
-            content
-        }
-    }
-}
-
 enum DeliveryScope: CaseIterable {
     case all
     case failed
@@ -323,6 +360,17 @@ enum DeliveryScope: CaseIterable {
             return "exclamationmark.triangle"
         case .unsettled:
             return "clock.arrow.trianglehead.counterclockwise.rotate.90"
+        }
+    }
+
+    var tone: PresentationTone {
+        switch self {
+        case .all:
+            return .neutral
+        case .failed:
+            return .critical
+        case .unsettled:
+            return .warning
         }
     }
 }

@@ -46,6 +46,29 @@ struct AgentMemoryView: View {
         .countStatus(structuredEntryCount, activeTone: .warning)
     }
 
+    private var hasActiveSearch: Bool {
+        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var summarySnapshotText: String {
+        if structuredEntryCount > 0 {
+            return String(localized: "Structured memory and editable state stay visible before the raw key list.")
+        }
+        if entries.isEmpty {
+            return String(localized: "This surface keeps durable agent memory visible before any keys exist.")
+        }
+        return String(localized: "This surface keeps durable agent memory visible before individual key edits.")
+    }
+
+    private var summarySnapshotDetail: String {
+        if hasActiveSearch {
+            return filteredEntries.count == 1
+                ? String(localized: "1 key matches the current memory search.")
+                : String(localized: "\(filteredEntries.count) keys match the current memory search.")
+        }
+        return String(localized: "Use the route deck when memory state needs session, incident, or runtime context.")
+    }
+
     var body: some View {
         List {
             summarySection
@@ -281,27 +304,60 @@ struct AgentMemoryView: View {
 
     private var summarySection: some View {
         Section {
-            AgentMemorySummaryRow(label: "Agent") {
-                Text(agent.name)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+            MonitoringSnapshotCard(
+                summary: summarySnapshotText,
+                detail: summarySnapshotDetail
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: entries.count == 1 ? String(localized: "1 key") : String(localized: "\(entries.count) keys"),
+                        tone: entries.isEmpty ? .neutral : .positive
+                    )
+                    PresentationToneBadge(
+                        text: structuredEntryCount == 1 ? String(localized: "1 structured") : String(localized: "\(structuredEntryCount) structured"),
+                        tone: structuredStatus.tone
+                    )
+                    PresentationToneBadge(
+                        text: scalarEntryCount == 1 ? String(localized: "1 scalar") : String(localized: "\(scalarEntryCount) scalar"),
+                        tone: .neutral
+                    )
+                    if hasActiveSearch {
+                        PresentationToneBadge(
+                            text: filteredEntries.count == 1 ? String(localized: "1 visible") : String(localized: "\(filteredEntries.count) visible"),
+                            tone: .neutral
+                        )
+                    }
+                }
             }
 
-            AgentMemorySummaryRow(label: "Keys") {
-                Text(entries.count.formatted())
-                    .monospacedDigit()
-            }
-
-            AgentMemorySummaryRow(label: "Structured") {
-                Text(structuredEntryCount.formatted())
-                    .foregroundStyle(structuredStatus.tone.color)
-                    .monospacedDigit()
-            }
-
-            AgentMemorySummaryRow(label: "Scalar") {
-                Text(scalarEntryCount.formatted())
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Working Set"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the current agent, visible results, and export state available while searching or editing memory."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if isExporting {
+                    ProgressView()
+                        .controlSize(.small)
+                } else if exportSnapshot != nil {
+                    PresentationToneBadge(text: String(localized: "Export Ready"), tone: .positive)
+                }
+            } facts: {
+                Label(agent.name, systemImage: "cpu")
+                Label(
+                    hasActiveSearch
+                        ? (filteredEntries.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredEntries.count) visible results"))
+                        : (entries.count == 1 ? String(localized: "1 stored key") : String(localized: "\(entries.count) stored keys")),
+                    systemImage: hasActiveSearch ? "line.3.horizontal.decrease.circle" : "internaldrive"
+                )
+                Label(
+                    structuredEntryCount == 1 ? String(localized: "1 structured value") : String(localized: "\(structuredEntryCount) structured values"),
+                    systemImage: "square.brackets"
+                )
             }
         } header: {
             Text("Summary")
@@ -609,24 +665,6 @@ private struct AgentMemoryRow: View {
                 ProgressView()
                     .controlSize(.small)
             }
-        }
-    }
-}
-
-private struct AgentMemorySummaryRow<Content: View>: View {
-    let label: LocalizedStringKey
-    let content: Content
-
-    init(label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
-        self.label = label
-        self.content = content()
-    }
-
-    var body: some View {
-        ResponsiveValueRow {
-            Text(label)
-        } value: {
-            content
         }
     }
 }
