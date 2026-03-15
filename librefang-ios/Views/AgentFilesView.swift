@@ -189,18 +189,10 @@ private struct AgentFilesSummaryRow<Content: View>: View {
     }
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Text(label)
-                Spacer(minLength: 8)
-                content
-                    .multilineTextAlignment(.trailing)
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(label)
-                content
-                    .multilineTextAlignment(.leading)
-            }
+        ResponsiveValueRow {
+            Text(label)
+        } value: {
+            content
         }
     }
 }
@@ -262,24 +254,14 @@ private struct AgentFileDetailView: View {
             } else if let detail {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
-                        ViewThatFits(in: .horizontal) {
-                            HStack {
-                                Text(detail.name)
-                                    .font(.headline)
-                                    .lineLimit(2)
-                                Spacer()
-                                Text(ByteCountFormatter.string(fromByteCount: Int64(detail.sizeBytes), countStyle: .file))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(detail.name)
-                                    .font(.headline)
-                                Text(ByteCountFormatter.string(fromByteCount: Int64(detail.sizeBytes), countStyle: .file))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
+                        ResponsiveAccessoryRow(horizontalAlignment: .top) {
+                            Text(detail.name)
+                                .font(.headline)
+                                .lineLimit(2)
+                        } accessory: {
+                            Text(ByteCountFormatter.string(fromByteCount: Int64(detail.sizeBytes), countStyle: .file))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
 
                         Text(detail.content.isEmpty ? "File is empty." : detail.content)
@@ -353,21 +335,14 @@ private struct AgentWorkspaceFileRow: View {
     }
 
     var body: some View {
-        HStack(spacing: 12) {
+        ResponsiveIconDetailRow(horizontalAlignment: .top, verticalSpacing: 6) {
             Image(systemName: file.exists ? "doc.text" : "doc")
                 .foregroundStyle(file.exists ? Color.blue : tone.color)
-
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    fileSummary
-                    Spacer(minLength: 8)
-                    presenceBadge
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    fileSummary
-                    presenceBadge
-                }
+        } detail: {
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 6) {
+                fileSummary
+            } accessory: {
+                presenceBadge
             }
         }
         .padding(.vertical, 2)

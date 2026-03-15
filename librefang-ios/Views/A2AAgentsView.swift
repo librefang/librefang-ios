@@ -144,15 +144,10 @@ private struct A2AAgentRow: View {
                 }
             }
         } label: {
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 10) {
-                    headerIcon
-                    headerSummary
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    headerIcon
-                    headerSummary
-                }
+            ResponsiveIconDetailRow(verticalSpacing: 6) {
+                headerIcon
+            } detail: {
+                headerSummary
             }
         }
     }

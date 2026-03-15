@@ -498,16 +498,10 @@ private struct AgentMemoryRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    keyLabel
-                    Spacer(minLength: 8)
-                    trailingIndicators
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    keyLabel
-                    trailingIndicators
-                }
+            ResponsiveAccessoryRow(horizontalSpacing: 8, verticalSpacing: 4) {
+                keyLabel
+            } accessory: {
+                trailingIndicators
             }
 
             Text(entry.summary)
@@ -560,18 +554,10 @@ private struct AgentMemorySummaryRow<Content: View>: View {
     }
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Text(label)
-                Spacer(minLength: 8)
-                content
-                    .multilineTextAlignment(.trailing)
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(label)
-                content
-                    .multilineTextAlignment(.leading)
-            }
+        ResponsiveValueRow {
+            Text(label)
+        } value: {
+            content
         }
     }
 }

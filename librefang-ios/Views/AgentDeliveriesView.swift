@@ -223,18 +223,10 @@ private struct DeliverySummaryRow<Content: View>: View {
     }
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Text(label)
-                Spacer(minLength: 8)
-                content
-                    .multilineTextAlignment(.trailing)
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(label)
-                content
-                    .multilineTextAlignment(.leading)
-            }
+        ResponsiveValueRow {
+            Text(label)
+        } value: {
+            content
         }
     }
 }
@@ -272,17 +264,10 @@ private struct DeliveryReceiptRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline) {
-                    channelLabel
-                    Spacer()
-                    statusBadge
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    channelLabel
-                    statusBadge
-                }
+            ResponsiveAccessoryRow {
+                channelLabel
+            } accessory: {
+                statusBadge
             }
 
             Text(receipt.recipient)
@@ -290,16 +275,9 @@ private struct DeliveryReceiptRow: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) {
-                    timestampLabel
-                    messageIDLabel
-                }
-
-                VStack(alignment: .leading, spacing: 3) {
-                    timestampLabel
-                    messageIDLabel
-                }
+            FlowLayout(spacing: 8) {
+                timestampLabel
+                messageIDLabel
             }
 
             if let error = receipt.error, !error.isEmpty {

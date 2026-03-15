@@ -133,20 +133,11 @@ private struct UploadAssetValueRow<Content: View>: View {
     }
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Text(label)
-                    .foregroundStyle(.secondary)
-                Spacer(minLength: 8)
-                content
-                    .multilineTextAlignment(.trailing)
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(label)
-                    .foregroundStyle(.secondary)
-                content
-                    .multilineTextAlignment(.leading)
-            }
+        ResponsiveValueRow {
+            Text(label)
+                .foregroundStyle(.secondary)
+        } value: {
+            content
         }
         .font(.caption)
     }
