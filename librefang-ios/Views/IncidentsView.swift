@@ -666,13 +666,12 @@ private struct IncidentAlertRow: View {
     }
 
     private var severityBadge: some View {
-        Text(severityLabel)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(color.opacity(0.12))
-            .foregroundStyle(color)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: severityLabel,
+            tone: alert.severity.tone,
+            horizontalPadding: 6,
+            verticalPadding: 2
+        )
     }
 }
 
@@ -767,13 +766,10 @@ private struct IncidentOperatorCard: View {
     }
 
     private var operatorBadge: some View {
-        Text(snapshotState.operatorLabel)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(snapshotState.tone.color.opacity(0.12))
-            .foregroundStyle(snapshotState.tone.color)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: snapshotState.operatorLabel,
+            tone: snapshotState.tone
+        )
     }
 
     private var acknowledgeButton: some View {
@@ -924,22 +920,16 @@ private struct IncidentShiftCoverageCard: View {
     private var headerBadges: some View {
         HStack(spacing: 8) {
             if let checkInStatus {
-                badge(text: checkInStatus.state.label, color: checkInColor)
+                badge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
             }
             if readiness.state != .ready {
-                badge(text: readiness.state.label, color: readinessColor)
+                badge(text: readiness.state.label, tone: readiness.state.tone)
             }
         }
     }
 
-    private func badge(text: String, color: Color) -> some View {
-        Text(text)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(color.opacity(0.12))
-            .foregroundStyle(color)
-            .clipShape(Capsule())
+    private func badge(text: String, tone: PresentationTone) -> some View {
+        PresentationToneBadge(text: text, tone: tone)
     }
 }
 
@@ -1017,13 +1007,10 @@ private struct IncidentAutomationCard: View {
     }
 
     private var headerBadge: some View {
-        Text(vm.automationPressureSummaryLabel)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(vm.automationPressureTone.color.opacity(0.12))
-            .foregroundStyle(vm.automationPressureTone.color)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: vm.automationPressureSummaryLabel,
+            tone: vm.automationPressureTone
+        )
     }
 
     @ViewBuilder
@@ -1158,13 +1145,10 @@ private struct IncidentIntegrationsCard: View {
     }
 
     private var headerBadge: some View {
-        Text(vm.integrationPressureSummaryLabel)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(vm.integrationPressureTone.color.opacity(0.12))
-            .foregroundStyle(vm.integrationPressureTone.color)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: vm.integrationPressureSummaryLabel,
+            tone: vm.integrationPressureTone
+        )
     }
 
     @ViewBuilder
@@ -1342,14 +1326,13 @@ private struct IncidentWatchedDiagnosticRow: View {
         .padding(.vertical, 2)
     }
 
-    private func statusChip(label: String, color: Color) -> some View {
-        Text(label)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(color.opacity(0.12))
-            .foregroundStyle(color)
-            .clipShape(Capsule())
+    private func statusChip(label: String, tone: PresentationTone) -> some View {
+        PresentationToneBadge(
+            text: label,
+            tone: tone,
+            horizontalPadding: 6,
+            verticalPadding: 2
+        )
     }
 
     private func issuePill(text: String, color: Color) -> some View {
@@ -1390,7 +1373,7 @@ private struct IncidentWatchedDiagnosticRow: View {
 
     private var statusBadge: some View {
         let badge = watchedAgentDiagnosticStatusBadge(summary: summary)
-        return statusChip(label: badge.text, color: badge.tone.color)
+        return statusChip(label: badge.text, tone: badge.tone)
     }
 
     @ViewBuilder

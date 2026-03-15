@@ -1107,13 +1107,10 @@ private struct AutomationOverviewCard: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(vm.automationOverviewSummaryLabel)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(vm.automationPressureTone.color.opacity(0.12))
-                    .foregroundStyle(vm.automationPressureTone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(
+                    text: vm.automationOverviewSummaryLabel,
+                    tone: vm.automationPressureTone
+                )
             }
 
             HStack(spacing: 12) {
@@ -1209,13 +1206,10 @@ private struct DiagnosticsOverviewCard: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(vm.diagnosticsSummaryLabel)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(vm.diagnosticsSummaryTone.color.opacity(0.12))
-                    .foregroundStyle(vm.diagnosticsSummaryTone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(
+                    text: vm.diagnosticsSummaryLabel,
+                    tone: vm.diagnosticsSummaryTone
+                )
             }
 
             HStack(spacing: 12) {
@@ -1281,13 +1275,10 @@ private struct IntegrationsOverviewCard: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(vm.integrationsOverviewSummaryLabel)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(vm.integrationPressureTone.color.opacity(0.12))
-                    .foregroundStyle(vm.integrationPressureTone.color)
-                    .clipShape(Capsule())
+                PresentationToneBadge(
+                    text: vm.integrationsOverviewSummaryLabel,
+                    tone: vm.integrationPressureTone
+                )
             }
 
             HStack(spacing: 12) {
@@ -1558,13 +1549,14 @@ private struct AttentionAgentsCard: View {
                                 .font(.subheadline.weight(.medium))
                             Spacer()
                             if item.pendingApprovals > 0 {
-                                Text(item.pendingApprovals == 1 ? String(localized: "1 approval") : String(localized: "\(item.pendingApprovals) approvals"))
-                                    .font(.caption2.weight(.semibold))
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(.red.opacity(0.12))
-                                    .foregroundStyle(.red)
-                                    .clipShape(Capsule())
+                                PresentationToneBadge(
+                                    text: item.pendingApprovals == 1
+                                        ? String(localized: "1 approval")
+                                        : String(localized: "\(item.pendingApprovals) approvals"),
+                                    tone: .critical,
+                                    horizontalPadding: 6,
+                                    verticalPadding: 2
+                                )
                             }
                         }
 

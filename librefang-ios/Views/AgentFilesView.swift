@@ -366,12 +366,11 @@ private struct AgentWorkspaceFileRow: View {
     }
 
     private var presenceBadge: some View {
-        Text(file.exists ? String(localized: "Present") : String(localized: "Missing"))
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(tone.color.opacity(0.12))
-            .foregroundStyle(tone.color)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: file.exists ? String(localized: "Present") : String(localized: "Missing"),
+            tone: tone,
+            horizontalPadding: 6,
+            verticalPadding: 2
+        )
     }
 }

@@ -74,13 +74,10 @@ struct ApprovalOperatorRow: View {
     }
 
     private var riskBadge: some View {
-        Text(approval.localizedRiskLabel)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(approval.riskTone.color.opacity(0.12))
-            .foregroundStyle(approval.riskTone.color)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: approval.localizedRiskLabel,
+            tone: approval.riskTone
+        )
     }
 
     @ViewBuilder
