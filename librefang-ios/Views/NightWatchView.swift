@@ -200,8 +200,7 @@ struct NightWatchView: View {
                     secondaryQueueCard
                     watchlistCard
                     focusControlsCard
-                    primarySurfacesCard
-                    supportingSurfacesCard
+                    surfaceDeckCard
                 }
                 .padding()
             }
@@ -402,11 +401,13 @@ struct NightWatchView: View {
         )
     }
 
-    private var primarySurfacesCard: some View {
+    private var surfaceDeckCard: some View {
         NightWatchSectionCard(
-            title: String(localized: "Primary Surfaces"),
-            detail: String(localized: "Keep the most likely next drills directly under the queue and controls.")
+            title: String(localized: "Operator Surfaces"),
+            detail: String(localized: "Keep the next drills grouped in one deck so the night-duty path stays compact on a phone.")
         ) {
+            NightWatchSurfaceGroupLabel(title: String(localized: "Primary Surfaces"))
+
             NavigationLink {
                 OnCallView()
             } label: {
@@ -460,14 +461,12 @@ struct NightWatchView: View {
                 )
             }
             .buttonStyle(.plain)
-        }
-    }
 
-    private var supportingSurfacesCard: some View {
-        NightWatchSectionCard(
-            title: String(localized: "Supporting Surfaces"),
-            detail: String(localized: "Use deeper runtime and configuration monitors when the queue points at a systemic issue.")
-        ) {
+            Divider()
+                .overlay(.white.opacity(0.08))
+
+            NightWatchSurfaceGroupLabel(title: String(localized: "Supporting Surfaces"))
+
             NavigationLink {
                 StandbyDigestView()
             } label: {
@@ -1175,6 +1174,16 @@ private struct NightWatchControlsCard: View {
                 .tint(.orange)
             }
         }
+    }
+}
+
+private struct NightWatchSurfaceGroupLabel: View {
+    let title: String
+
+    var body: some View {
+        Text(title)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.white.opacity(0.90))
     }
 }
 

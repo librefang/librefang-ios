@@ -168,8 +168,7 @@ struct StandbyDigestView: View {
                     watchlistCard
                 }
 
-                    primarySurfacesCard
-                    supportingSurfacesCard
+                    surfaceDeckCard
                 }
                 .padding()
             }
@@ -523,11 +522,13 @@ struct StandbyDigestView: View {
         )
     }
 
-    private var primarySurfacesCard: some View {
+    private var surfaceDeckCard: some View {
         StandbySurfaceSectionCard(
-            title: String(localized: "Primary Surfaces"),
-            detail: String(localized: "Keep the most common next steps immediately below the digest and watchlist.")
+            title: String(localized: "Operator Surfaces"),
+            detail: String(localized: "Keep the next standby drills grouped in one deck so the page stays tighter on a phone.")
         ) {
+            StandbySurfaceGroupLabel(title: String(localized: "Primary Surfaces"))
+
             NavigationLink {
                 NightWatchView()
             } label: {
@@ -596,14 +597,12 @@ struct StandbyDigestView: View {
                 )
             }
             .buttonStyle(.plain)
-        }
-    }
 
-    private var supportingSurfacesCard: some View {
-        StandbySurfaceSectionCard(
-            title: String(localized: "Supporting Surfaces"),
-            detail: String(localized: "Keep slower runtime, integration, and sharing routes separate from the primary standby exits.")
-        ) {
+            Divider()
+                .overlay(.white.opacity(0.08))
+
+            StandbySurfaceGroupLabel(title: String(localized: "Supporting Surfaces"))
+
             NavigationLink {
                 DiagnosticsView()
             } label: {
@@ -931,6 +930,16 @@ private struct StandbySurfaceSectionCard<Content: View>: View {
         }
         .padding(18)
         .glassPanel(fillOpacity: 0.09, cornerRadius: 22)
+    }
+}
+
+private struct StandbySurfaceGroupLabel: View {
+    let title: String
+
+    var body: some View {
+        Text(title)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.white.opacity(0.90))
     }
 }
 

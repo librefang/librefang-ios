@@ -227,11 +227,7 @@ struct OnCallView: View {
                     checkInStatus: handoffStore.latestCheckInStatus,
                     readiness: draftHandoffReadiness
                 )
-            } footer: {
-                Text("Queue pressure, follow-up readiness, and local watchlist issues stay visible before the longer sections.")
-            }
 
-            Section {
                 MonitoringFactsRow {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(String(localized: "On-call signal facts"))
@@ -298,11 +294,7 @@ struct OnCallView: View {
                         )
                     }
                 }
-            } footer: {
-                Text("This facts row keeps the current on-call shape readable before you dive into queue, watchlist, and handoff sections.")
-            }
 
-            Section {
                 OnCallStatusCard(
                     digestLine: digestLine,
                     liveAlertCount: visibleAlerts.count,
@@ -312,13 +304,7 @@ struct OnCallView: View {
                     watchCount: watchedAgents.count,
                     lastRefresh: vm.lastRefresh
                 )
-            } header: {
-                Text("Operator Snapshot")
-            } footer: {
-                Text("Keep acknowledgement state, muted pressure, and refresh freshness visible before opening deeper queue sections.")
-            }
 
-            Section {
                 OnCallHandoffStatusRow(
                     freshnessState: handoffStore.freshnessState,
                     freshnessSummary: handoffStore.freshnessSummary,
@@ -332,9 +318,9 @@ struct OnCallView: View {
                     followUpStatuses: latestFollowUpStatuses
                 )
             } header: {
-                Text("Handoff State")
+                Text("Control Deck")
             } footer: {
-                Text("Keep latest handoff freshness, readiness, and carryover visible without mixing them into the queue or jump rails.")
+                Text("Queue shape, acknowledgement state, muted pressure, and handoff readiness stay together before queue work and deeper operator surfaces.")
             }
 
             if !priorityItems.isEmpty {
