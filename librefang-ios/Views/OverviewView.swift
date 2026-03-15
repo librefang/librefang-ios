@@ -1036,8 +1036,6 @@ private struct AlertsCard: View {
 }
 
 private struct RecentHandoffCard: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
     let entry: OnCallHandoffEntry
     let gapLabel: String?
     let checkInStatus: HandoffCheckInStatus?
@@ -1045,11 +1043,6 @@ private struct RecentHandoffCard: View {
     let carryover: HandoffCarryoverStatus?
     let pendingFollowUpCount: Int
     let completedFollowUpCount: Int
-
-    private var badgeColumns: [GridItem] {
-        let count = horizontalSizeClass == .compact ? 2 : 4
-        return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -1074,23 +1067,33 @@ private struct RecentHandoffCard: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
 
-            Text(entry.createdAt, style: .relative)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-
-            LazyVGrid(columns: badgeColumns, spacing: 8) {
-                HandoffBadge(value: entry.queueCount, label: String(localized: "Queued"))
-                HandoffBadge(value: entry.criticalCount, label: String(localized: "Critical"))
-                HandoffBadge(value: entry.liveAlertCount, label: String(localized: "Live"))
-                HandoffBadge(value: entry.checklist.completedCount, label: String(localized: "Checks"))
-            }
-
-            HStack {
-                Spacer()
-                TintedCapsuleBadge(
-                    text: String(localized: "Open"),
-                    foregroundStyle: .secondary,
-                    backgroundStyle: .secondary.opacity(0.12)
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Shift inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep queue, critical load, live alerts, and checklist progress visible before reading the shift notes."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: createdAtRelativeLabel, tone: .neutral)
+            } facts: {
+                Label(
+                    entry.queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(entry.queueCount) queued"),
+                    systemImage: "list.bullet"
+                )
+                Label(
+                    entry.criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(entry.criticalCount) critical"),
+                    systemImage: "exclamationmark.triangle"
+                )
+                Label(
+                    entry.liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(entry.liveAlertCount) live alerts"),
+                    systemImage: "bell.badge"
+                )
+                Label(
+                    entry.checklist.completedCount == 1 ? String(localized: "1 completed check") : String(localized: "\(entry.checklist.completedCount) completed checks"),
+                    systemImage: "checkmark.circle"
                 )
             }
 
@@ -1161,6 +1164,10 @@ private struct RecentHandoffCard: View {
             return .stale
         }
         return .fresh
+    }
+
+    private var createdAtRelativeLabel: String {
+        RelativeDateTimeFormatter().localizedString(for: entry.createdAt, relativeTo: Date())
     }
 }
 
@@ -1349,49 +1356,31 @@ private struct SystemSnapshotCard: View {
                 }
             }
 
-            ResponsiveValueRow {
-                Text(String(localized: "Default Provider"))
-                    .foregroundStyle(.secondary)
-            } value: {
-                Text(status.defaultProvider)
-                    .fontWeight(.medium)
-            }
-
-            ResponsiveValueRow {
-                Text(String(localized: "Default Model"))
-                    .foregroundStyle(.secondary)
-            } value: {
-                Text(status.defaultModel)
-                    .fontWeight(.medium)
-            }
-
-            if let networkStatus {
-                ResponsiveValueRow {
-                    Text(String(localized: "Connected Peers"))
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "System inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep model, provider, peer, usage, and security context visible before opening deeper overview cards."))
+                        .font(.caption)
                         .foregroundStyle(.secondary)
-                } value: {
-                    Text("\(networkStatus.connectedPeers)/\(networkStatus.totalPeers)")
-                        .fontWeight(.medium)
+                        .lineLimit(2)
                 }
-            }
-
-            if let usageSummary {
-                ResponsiveValueRow {
-                    Text(String(localized: "Total Tokens"))
-                        .foregroundStyle(.secondary)
-                } value: {
-                    Text((usageSummary.totalInputTokens + usageSummary.totalOutputTokens).formatted())
-                        .fontWeight(.medium)
+            } accessory: {
+                PresentationToneBadge(text: status.version, tone: .neutral)
+            } facts: {
+                Label(status.defaultProvider, systemImage: "key.horizontal")
+                Label(status.defaultModel, systemImage: "square.stack.3d.up")
+                if let networkStatus {
+                    Label("\(networkStatus.connectedPeers)/\(networkStatus.totalPeers) peers", systemImage: "point.3.connected.trianglepath.dotted")
                 }
-            }
-
-            if let security {
-                ResponsiveValueRow {
-                    Text(String(localized: "Security Features"))
-                        .foregroundStyle(.secondary)
-                } value: {
-                    Text("\(security.totalFeatures)")
-                        .fontWeight(.medium)
+                if let usageSummary {
+                    Label((usageSummary.totalInputTokens + usageSummary.totalOutputTokens).formatted(), systemImage: "number")
+                }
+                if let security {
+                    Label(
+                        security.totalFeatures == 1 ? String(localized: "1 security feature") : String(localized: "\(security.totalFeatures) security features"),
+                        systemImage: "lock.shield"
+                    )
                 }
             }
         }
