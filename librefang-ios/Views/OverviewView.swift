@@ -111,14 +111,14 @@ struct OverviewView: View {
     }
     private var summaryColumns: [GridItem] {
         let count = horizontalSizeClass == .compact ? 2 : 3
-        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
+        return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
     }
 
     var body: some View {
         NavigationStack {
             ScrollViewReader { proxy in
                 ScrollView {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 14) {
                         if let error = vm.error {
                             ErrorBanner(message: error, onRetry: {
                                 await vm.refresh()
@@ -217,7 +217,7 @@ struct OverviewView: View {
                             jump(proxy, to: anchor)
                         }
 
-                        LazyVGrid(columns: summaryColumns, spacing: 10) {
+                        LazyVGrid(columns: summaryColumns, spacing: 8) {
                             StatBadge(
                                 value: "\(vm.runningCount)",
                                 label: "Running",
