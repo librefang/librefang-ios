@@ -90,6 +90,47 @@ struct ResponsiveValueRow<Leading: View, Value: View>: View {
     }
 }
 
+struct ResponsiveLabeledContentRow<Label: View, Value: View>: View {
+    let verticalSpacing: CGFloat
+    let horizontalTextAlignment: TextAlignment
+    let verticalTextAlignment: TextAlignment
+    let label: Label
+    let value: Value
+
+    init(
+        verticalSpacing: CGFloat = 6,
+        horizontalTextAlignment: TextAlignment = .trailing,
+        verticalTextAlignment: TextAlignment = .leading,
+        @ViewBuilder label: () -> Label,
+        @ViewBuilder value: () -> Value
+    ) {
+        self.verticalSpacing = verticalSpacing
+        self.horizontalTextAlignment = horizontalTextAlignment
+        self.verticalTextAlignment = verticalTextAlignment
+        self.label = label()
+        self.value = value()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            LabeledContent {
+                value
+                    .multilineTextAlignment(horizontalTextAlignment)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            } label: {
+                label
+            }
+
+            VStack(alignment: .leading, spacing: verticalSpacing) {
+                label
+                value
+                    .multilineTextAlignment(verticalTextAlignment)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+}
+
 struct ResponsiveIconDetailRow<Icon: View, Detail: View>: View {
     let horizontalAlignment: VerticalAlignment
     let horizontalSpacing: CGFloat

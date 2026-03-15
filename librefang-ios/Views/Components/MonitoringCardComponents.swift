@@ -67,17 +67,10 @@ struct MonitoringFilterCard<Accessory: View, Controls: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 12) {
-                    MonitoringSummaryTextBlock(summary: summary, detail: detail)
-                    Spacer(minLength: 10)
-                    accessory
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    MonitoringSummaryTextBlock(summary: summary, detail: detail)
-                    accessory
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, horizontalSpacing: 12, verticalSpacing: 8, spacerMinLength: 10) {
+                MonitoringSummaryTextBlock(summary: summary, detail: detail)
+            } accessory: {
+                accessory
             }
 
             if showsControls {
