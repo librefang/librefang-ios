@@ -19,37 +19,35 @@ struct OnCallDigestCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ResponsiveAccessoryRow(verticalSpacing: 6) {
-                headerLabel
-            } accessory: {
-                queueBadge
-            }
-
-            Text(summary)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(3)
-
-            ResponsiveAccessoryRow(verticalSpacing: 6) {
-                FlowLayout(spacing: 12) {
-                    criticalLabel
-                    watchLabel
-                }
-            } accessory: {
-                openBadge
-            }
-            .font(.caption2)
+        MonitoringFactsRow(
+            verticalSpacing: 12,
+            headerVerticalSpacing: 6,
+            factsFont: .caption2
+        ) {
+            summaryContent
+        } accessory: {
+            queueBadge
+        } facts: {
+            criticalLabel
+            watchLabel
+            openBadge
         }
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    private var headerLabel: some View {
-        Label("On Call", systemImage: "waveform.path.ecg")
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(.secondary)
+    private var summaryContent: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Label("On Call", systemImage: "waveform.path.ecg")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            Text(summary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(3)
+        }
     }
 
     private var queueBadge: some View {

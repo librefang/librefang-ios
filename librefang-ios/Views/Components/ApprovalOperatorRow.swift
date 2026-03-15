@@ -8,24 +8,19 @@ struct ApprovalOperatorRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 6) {
-                titleSummary
+            MonitoringFactsRow(
+                horizontalAlignment: .top,
+                verticalSpacing: 8,
+                headerVerticalSpacing: 6,
+                factsFont: .caption2,
+                factsColor: .tertiary
+            ) {
+                summaryBlock
             } accessory: {
                 riskBadge
-            }
-
-            if !approval.description.isEmpty {
-                Text(approval.description)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(3)
-            }
-
-            FlowLayout(spacing: 12) {
+            } facts: {
                 metadataLabels
             }
-            .font(.caption2)
-            .foregroundStyle(.tertiary)
 
             ResponsiveInlineGroup(horizontalSpacing: 10, verticalSpacing: 10) {
                 approveButton
@@ -39,6 +34,18 @@ struct ApprovalOperatorRow: View {
     private var relativeRequestedAt: String {
         guard let date = approval.requestedAt.approvalISO8601Date else { return approval.requestedAt }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+    }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            titleSummary
+            if !approval.description.isEmpty {
+                Text(approval.description)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(3)
+            }
+        }
     }
 
     private var titleSummary: some View {

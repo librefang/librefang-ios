@@ -1746,30 +1746,29 @@ private struct IncidentIntegrationAgentRow: View {
     let diagnostic: AgentModelDiagnostic
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            ResponsiveAccessoryRow(verticalSpacing: 6) {
-                titleLabel
-            } accessory: {
-                statusLabel
-            }
-
-            Text(diagnostic.detail)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-
-            FlowLayout(spacing: 12) {
-                metadataLabels
-            }
-            .font(.caption2)
-            .foregroundStyle(.secondary)
+        MonitoringFactsRow(
+            verticalSpacing: 6,
+            headerVerticalSpacing: 6,
+            factsFont: .caption2
+        ) {
+            summaryBlock
+        } accessory: {
+            statusLabel
+        } facts: {
+            metadataLabels
         }
         .padding(.vertical, 2)
     }
 
-    private var titleLabel: some View {
-        Text(diagnostic.agent.name)
-            .font(.subheadline.weight(.medium))
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(diagnostic.agent.name)
+                .font(.subheadline.weight(.medium))
+            Text(diagnostic.detail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
     }
 
     private var statusLabel: some View {

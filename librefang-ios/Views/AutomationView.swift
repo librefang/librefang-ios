@@ -1073,26 +1073,18 @@ private struct CronJobRow: View {
     let deliverySummary: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
-                summaryBlock
-            } accessory: {
-                PresentationToneBadge(text: statusLabel, tone: tone)
-            }
-
-            VStack(alignment: .leading, spacing: 4) {
-                Label(scheduleSummary, systemImage: "calendar.badge.clock")
-                Label(actionSummary, systemImage: "paperplane")
-                Label(deliverySummary, systemImage: "point.3.filled.connected.trianglepath.dotted")
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-
-            FlowLayout(spacing: 12) {
-                timingFacts
-            }
-            .font(.caption2)
-            .foregroundStyle(.tertiary)
+        MonitoringFactsRow(
+            horizontalAlignment: .top,
+            verticalSpacing: 8,
+            headerVerticalSpacing: 8,
+            factsFont: .caption2,
+            factsColor: .tertiary
+        ) {
+            summaryContent
+        } accessory: {
+            PresentationToneBadge(text: statusLabel, tone: tone)
+        } facts: {
+            timingFacts
         }
         .padding(.vertical, 2)
     }
@@ -1118,14 +1110,24 @@ private struct CronJobRow: View {
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
     }
 
-    private var summaryBlock: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(job.name)
-                .font(.subheadline.weight(.medium))
-            Text(agentName ?? job.agentId)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+    private var summaryContent: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(job.name)
+                    .font(.subheadline.weight(.medium))
+                Text(agentName ?? job.agentId)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Label(scheduleSummary, systemImage: "calendar.badge.clock")
+                Label(actionSummary, systemImage: "paperplane")
+                Label(deliverySummary, systemImage: "point.3.filled.connected.trianglepath.dotted")
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
         }
     }
 
