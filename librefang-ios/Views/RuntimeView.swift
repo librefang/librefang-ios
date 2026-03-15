@@ -74,8 +74,7 @@ struct RuntimeView: View {
                 List {
                     errorSection
                     scoreboardSection
-                    runtimeSnapshotSection
-                    runtimeFactsSection
+                    runtimeStatusDeckSection
                     runtimeOperatorSurfacesSection
                     runtimeFocusSection(proxy)
                     systemSection
@@ -158,106 +157,13 @@ struct RuntimeView: View {
         }
     }
 
-    private var runtimeSnapshotSection: some View {
+    private var runtimeStatusDeckSection: some View {
         Section {
-            MonitoringSnapshotCard(
-                summary: runtimeSnapshotSummary,
-                detail: String(localized: "This mobile snapshot keeps the most important runtime buckets visible before the longer provider and hand lists.")
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: vm.pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(vm.pendingApprovalCount) approvals"),
-                        tone: vm.pendingApprovalCount > 0 ? .critical : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: vm.sessionAttentionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(vm.sessionAttentionCount) session hotspots"),
-                        tone: vm.sessionAttentionCount > 0 ? .warning : .neutral
-                    )
-                    if vm.recentCriticalAuditCount > 0 {
-                        PresentationToneBadge(
-                            text: vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical audit event") : String(localized: "\(vm.recentCriticalAuditCount) critical audit events"),
-                            tone: .critical
-                        )
-                    }
-                    if vm.runtimeAlertCount > 0 {
-                        PresentationToneBadge(
-                            text: vm.runtimeAlertCount == 1 ? String(localized: "1 runtime alert") : String(localized: "\(vm.runtimeAlertCount) runtime alerts"),
-                            tone: .warning
-                        )
-                    }
-                    if vm.automationPressureIssueCategoryCount > 0 {
-                        PresentationToneBadge(
-                            text: vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) automation issues"),
-                            tone: .warning
-                        )
-                    }
-                    if vm.integrationPressureIssueCategoryCount > 0 {
-                        PresentationToneBadge(
-                            text: vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) integration issues"),
-                            tone: .critical
-                        )
-                    }
-                    if vm.degradedHandCount > 0 {
-                        PresentationToneBadge(
-                            text: vm.degradedHandCount == 1 ? String(localized: "1 degraded hand") : String(localized: "\(vm.degradedHandCount) degraded hands"),
-                            tone: .warning
-                        )
-                    }
-                    if vm.connectedMCPServerCount > 0 || vm.configuredMCPServerCount > 0 {
-                        PresentationToneBadge(
-                            text: String(localized: "\(vm.connectedMCPServerCount)/\(max(vm.configuredMCPServerCount, vm.connectedMCPServerCount)) MCP connected"),
-                            tone: vm.connectedMCPServerCount > 0 ? .positive : .warning
-                        )
-                    }
-                }
-            }
+            RuntimeStatusDeckCard(vm: vm, runtimeSnapshotSummary: runtimeSnapshotSummary)
+        } header: {
+            Text("Status Deck")
         } footer: {
-            Text("Use this as the compact runtime digest before drilling into diagnostics, integrations, sessions, or approvals.")
-        }
-    }
-
-    private var runtimeFactsSection: some View {
-        Section {
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Runtime facts"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep provider, channel, hand, network, and MCP pressure visible before opening deeper runtime sections."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: vm.status?.localizedStatusLabel ?? String(localized: "Unavailable"),
-                    tone: vm.status?.statusTone ?? .neutral
-                )
-            } facts: {
-                Label(
-                    vm.configuredProviderCount == 1 ? String(localized: "1 provider") : String(localized: "\(vm.configuredProviderCount) providers"),
-                    systemImage: "key.horizontal"
-                )
-                Label(
-                    vm.readyChannelCount == 1 ? String(localized: "1 ready channel") : String(localized: "\(vm.readyChannelCount) ready channels"),
-                    systemImage: "bubble.left.and.bubble.right"
-                )
-                Label(
-                    vm.activeHandCount == 1 ? String(localized: "1 active hand") : String(localized: "\(vm.activeHandCount) active hands"),
-                    systemImage: "hand.raised"
-                )
-                Label(
-                    vm.connectedMCPServerCount == 1 ? String(localized: "1 MCP server") : String(localized: "\(vm.connectedMCPServerCount) MCP servers"),
-                    systemImage: "shippingbox"
-                )
-                Label(
-                    (vm.networkStatus?.connectedPeers ?? 0) == 1
-                        ? String(localized: "1 connected peer")
-                        : String(localized: "\((vm.networkStatus?.connectedPeers ?? 0)) connected peers"),
-                    systemImage: "point.3.connected.trianglepath.dotted"
-                )
-            }
-        } footer: {
-            Text("This keeps the most important runtime subsystems visible before you open any single monitor.")
+            Text("Keep the compact runtime digest in one place before drilling into diagnostics, integrations, sessions, or approvals.")
         }
     }
 
@@ -1249,6 +1155,106 @@ private struct RuntimeSystemRow<Content: View>: View {
             Text(label)
         } value: {
             content
+        }
+    }
+}
+
+private struct RuntimeStatusDeckCard: View {
+    let vm: DashboardViewModel
+    let runtimeSnapshotSummary: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: runtimeSnapshotSummary,
+                detail: String(localized: "This mobile snapshot keeps the most important runtime buckets visible before the longer provider and hand lists.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: vm.pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(vm.pendingApprovalCount) approvals"),
+                        tone: vm.pendingApprovalCount > 0 ? .critical : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: vm.sessionAttentionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(vm.sessionAttentionCount) session hotspots"),
+                        tone: vm.sessionAttentionCount > 0 ? .warning : .neutral
+                    )
+                    if vm.recentCriticalAuditCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical audit event") : String(localized: "\(vm.recentCriticalAuditCount) critical audit events"),
+                            tone: .critical
+                        )
+                    }
+                    if vm.runtimeAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.runtimeAlertCount == 1 ? String(localized: "1 runtime alert") : String(localized: "\(vm.runtimeAlertCount) runtime alerts"),
+                            tone: .warning
+                        )
+                    }
+                    if vm.automationPressureIssueCategoryCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) automation issues"),
+                            tone: .warning
+                        )
+                    }
+                    if vm.integrationPressureIssueCategoryCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) integration issues"),
+                            tone: .critical
+                        )
+                    }
+                    if vm.degradedHandCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.degradedHandCount == 1 ? String(localized: "1 degraded hand") : String(localized: "\(vm.degradedHandCount) degraded hands"),
+                            tone: .warning
+                        )
+                    }
+                    if vm.connectedMCPServerCount > 0 || vm.configuredMCPServerCount > 0 {
+                        PresentationToneBadge(
+                            text: String(localized: "\(vm.connectedMCPServerCount)/\(max(vm.configuredMCPServerCount, vm.connectedMCPServerCount)) MCP connected"),
+                            tone: vm.connectedMCPServerCount > 0 ? .positive : .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Runtime facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep provider, channel, hand, network, and MCP pressure visible before opening deeper runtime sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: vm.status?.localizedStatusLabel ?? String(localized: "Unavailable"),
+                    tone: vm.status?.statusTone ?? .neutral
+                )
+            } facts: {
+                Label(
+                    vm.configuredProviderCount == 1 ? String(localized: "1 provider") : String(localized: "\(vm.configuredProviderCount) providers"),
+                    systemImage: "key.horizontal"
+                )
+                Label(
+                    vm.readyChannelCount == 1 ? String(localized: "1 ready channel") : String(localized: "\(vm.readyChannelCount) ready channels"),
+                    systemImage: "bubble.left.and.bubble.right"
+                )
+                Label(
+                    vm.activeHandCount == 1 ? String(localized: "1 active hand") : String(localized: "\(vm.activeHandCount) active hands"),
+                    systemImage: "hand.raised"
+                )
+                Label(
+                    vm.connectedMCPServerCount == 1 ? String(localized: "1 MCP server") : String(localized: "\(vm.connectedMCPServerCount) MCP servers"),
+                    systemImage: "shippingbox"
+                )
+                Label(
+                    (vm.networkStatus?.connectedPeers ?? 0) == 1
+                        ? String(localized: "1 connected peer")
+                        : String(localized: "\((vm.networkStatus?.connectedPeers ?? 0)) connected peers"),
+                    systemImage: "point.3.connected.trianglepath.dotted"
+                )
+            }
         }
     }
 }

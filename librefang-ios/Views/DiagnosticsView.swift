@@ -41,19 +41,11 @@ struct DiagnosticsView: View {
 
                 if hasDiagnosticsData {
                     Section {
-                        DiagnosticsSnapshotCard(vm: vm, metrics: metrics)
+                        DiagnosticsStatusDeckCard(vm: vm, metrics: metrics)
                     } header: {
-                        Text("Snapshot")
+                        Text("Status Deck")
                     } footer: {
-                        Text("These badges summarize which deep-diagnostic feeds are currently loaded into the mobile snapshot.")
-                    }
-
-                    Section {
-                        diagnosticsSignalFactsCard
-                    } header: {
-                        Text("Signal Facts")
-                    } footer: {
-                        Text("Keep warning, supervisor, and metrics pressure visible before diving into the longer diagnostics sections.")
+                        Text("Keep feed availability, warning pressure, and metrics state in one compact diagnostic digest before the long sections.")
                     }
 
                     Section {
@@ -254,49 +246,6 @@ struct DiagnosticsView: View {
                     await vm.refresh()
                 }
             }
-        }
-    }
-
-    private var diagnosticsSignalFactsCard: some View {
-        MonitoringFactsRow {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(String(localized: "Deep-diagnostic facts"))
-                    .font(.subheadline.weight(.medium))
-                Text(String(localized: "Use this compact digest to decide whether health, config, or metrics deserves the next tap."))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-        } accessory: {
-            PresentationToneBadge(
-                text: vm.healthDetail?.localizedStatusLabel ?? String(localized: "Unavailable"),
-                tone: vm.diagnosticsSummaryTone
-            )
-        } facts: {
-            Label(
-                vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"),
-                systemImage: "exclamationmark.triangle"
-            )
-            Label(
-                vm.supervisorPanicCount == 1 ? String(localized: "1 panic") : String(localized: "\(vm.supervisorPanicCount) panics"),
-                systemImage: "bolt.trianglebadge.exclamationmark"
-            )
-            Label(
-                vm.supervisorRestartCount == 1 ? String(localized: "1 restart") : String(localized: "\(vm.supervisorRestartCount) restarts"),
-                systemImage: "arrow.clockwise.circle"
-            )
-            Label(
-                metrics == nil
-                    ? String(localized: "Metrics unavailable")
-                    : String(localized: "\(metrics?.totalRollingTokens ?? 0) rolling tokens"),
-                systemImage: "number"
-            )
-            Label(
-                metrics == nil
-                    ? String(localized: "No tool-call metrics")
-                    : String(localized: "\(metrics?.totalRollingToolCalls ?? 0) tool calls"),
-                systemImage: "wrench.and.screwdriver"
-            )
         }
     }
 
@@ -623,49 +572,92 @@ private struct DiagnosticsScoreboard: View {
     }
 }
 
-private struct DiagnosticsSnapshotCard: View {
+private struct DiagnosticsStatusDeckCard: View {
     let vm: DashboardViewModel
     let metrics: PrometheusMetricsSnapshot?
 
     var body: some View {
-        MonitoringSnapshotCard(summary: summaryLine, verticalPadding: 4) {
-            FlowLayout(spacing: 8) {
-                snapshotBadge(
-                    label: String(localized: "Health"),
-                    isPresent: vm.healthDetail != nil,
-                    activeTone: vm.healthDetail?.isHealthy == false ? .warning : .positive
-                )
-                snapshotBadge(
-                    label: String(localized: "Build"),
-                    isPresent: vm.versionInfo != nil,
-                    activeTone: .neutral
-                )
-                snapshotBadge(
-                    label: String(localized: "Config"),
-                    isPresent: vm.configSummary != nil,
-                    activeTone: vm.diagnosticsConfigWarningCount > 0 ? .warning : .positive
-                )
-                snapshotBadge(
-                    label: String(localized: "Metrics"),
-                    isPresent: metrics != nil,
-                    activeTone: .positive
-                )
-
-                if vm.diagnosticsConfigWarningCount > 0 {
-                    PresentationToneBadge(
-                        text: vm.diagnosticsConfigWarningCount == 1
-                            ? String(localized: "1 warning")
-                            : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"),
-                        tone: .warning
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(summary: summaryLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    snapshotBadge(
+                        label: String(localized: "Health"),
+                        isPresent: vm.healthDetail != nil,
+                        activeTone: vm.healthDetail?.isHealthy == false ? .warning : .positive
                     )
-                }
-
-                if vm.supervisorPanicCount > 0 || vm.supervisorRestartCount > 0 {
-                    PresentationToneBadge(
-                        text: String(localized: "\(vm.supervisorPanicCount) panics / \(vm.supervisorRestartCount) restarts"),
-                        tone: vm.supervisorPanicCount > 0 ? .critical : .warning
+                    snapshotBadge(
+                        label: String(localized: "Build"),
+                        isPresent: vm.versionInfo != nil,
+                        activeTone: .neutral
                     )
+                    snapshotBadge(
+                        label: String(localized: "Config"),
+                        isPresent: vm.configSummary != nil,
+                        activeTone: vm.diagnosticsConfigWarningCount > 0 ? .warning : .positive
+                    )
+                    snapshotBadge(
+                        label: String(localized: "Metrics"),
+                        isPresent: metrics != nil,
+                        activeTone: .positive
+                    )
+
+                    if vm.diagnosticsConfigWarningCount > 0 {
+                        PresentationToneBadge(
+                            text: vm.diagnosticsConfigWarningCount == 1
+                                ? String(localized: "1 warning")
+                                : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"),
+                            tone: .warning
+                        )
+                    }
+
+                    if vm.supervisorPanicCount > 0 || vm.supervisorRestartCount > 0 {
+                        PresentationToneBadge(
+                            text: String(localized: "\(vm.supervisorPanicCount) panics / \(vm.supervisorRestartCount) restarts"),
+                            tone: vm.supervisorPanicCount > 0 ? .critical : .warning
+                        )
+                    }
                 }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Deep-diagnostic facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use this compact digest to decide whether health, config, or metrics deserves the next tap."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: vm.healthDetail?.localizedStatusLabel ?? String(localized: "Unavailable"),
+                    tone: vm.diagnosticsSummaryTone
+                )
+            } facts: {
+                Label(
+                    vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"),
+                    systemImage: "exclamationmark.triangle"
+                )
+                Label(
+                    vm.supervisorPanicCount == 1 ? String(localized: "1 panic") : String(localized: "\(vm.supervisorPanicCount) panics"),
+                    systemImage: "bolt.trianglebadge.exclamationmark"
+                )
+                Label(
+                    vm.supervisorRestartCount == 1 ? String(localized: "1 restart") : String(localized: "\(vm.supervisorRestartCount) restarts"),
+                    systemImage: "arrow.clockwise.circle"
+                )
+                Label(
+                    metrics == nil
+                        ? String(localized: "Metrics unavailable")
+                        : String(localized: "\(metrics?.totalRollingTokens ?? 0) rolling tokens"),
+                    systemImage: "number"
+                )
+                Label(
+                    metrics == nil
+                        ? String(localized: "No tool-call metrics")
+                        : String(localized: "\(metrics?.totalRollingToolCalls ?? 0) tool calls"),
+                    systemImage: "wrench.and.screwdriver"
+                )
             }
         }
     }
