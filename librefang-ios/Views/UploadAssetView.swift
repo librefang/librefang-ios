@@ -14,6 +14,8 @@ struct UploadAssetView: View {
         Group {
             if isLoading {
                 ProgressView("Loading attachment...")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black.opacity(0.94))
             } else if let uiImage {
                 ScrollView([.horizontal, .vertical]) {
                     Image(uiImage: uiImage)
@@ -31,14 +33,35 @@ struct UploadAssetView: View {
                 )
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            if !isLoading {
+                UploadAssetInfoCard(
+                    filename: image.filename,
+                    fileId: image.fileId,
+                    contentType: contentType
+                )
+                .padding(.horizontal, 12)
+                .padding(.bottom, 8)
+            }
+        }
         .navigationTitle(image.filename)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    UIPasteboard.general.string = image.fileId
+                Menu {
+                    Button {
+                        UIPasteboard.general.string = image.fileId
+                    } label: {
+                        Label("Copy File ID", systemImage: "doc.on.doc")
+                    }
+
+                    Button {
+                        UIPasteboard.general.string = image.filename
+                    } label: {
+                        Label("Copy Filename", systemImage: "text.cursor")
+                    }
                 } label: {
-                    Image(systemName: "doc.on.doc")
+                    Image(systemName: "ellipsis.circle")
                 }
             }
         }
@@ -65,5 +88,66 @@ struct UploadAssetView: View {
             loadError = error.localizedDescription
             uiImage = nil
         }
+    }
+}
+
+private struct UploadAssetInfoCard: View {
+    let filename: String
+    let fileId: String
+    let contentType: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            UploadAssetValueRow(label: "Filename") {
+                Text(filename)
+                    .lineLimit(2)
+            }
+
+            UploadAssetValueRow(label: "File ID") {
+                Text(fileId)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+
+            if let contentType, !contentType.isEmpty {
+                UploadAssetValueRow(label: "Content-Type") {
+                    Text(contentType)
+                        .lineLimit(2)
+                        .truncationMode(.middle)
+                }
+            }
+        }
+        .padding(12)
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+}
+
+private struct UploadAssetValueRow<Content: View>: View {
+    let label: LocalizedStringKey
+    let content: Content
+
+    init(label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
+        self.label = label
+        self.content = content()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(label)
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 8)
+                content
+                    .multilineTextAlignment(.trailing)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                    .foregroundStyle(.secondary)
+                content
+                    .multilineTextAlignment(.leading)
+            }
+        }
+        .font(.caption)
     }
 }

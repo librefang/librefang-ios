@@ -219,7 +219,7 @@ private struct MessageBubble: View {
 
     var body: some View {
         HStack(alignment: .bottom) {
-            if message.role == .user { Spacer(minLength: 48) }
+            if message.role == .user { Spacer(minLength: 28) }
 
             VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 4) {
                 Text(message.content)
@@ -229,6 +229,7 @@ private struct MessageBubble: View {
                     .background(bubbleBackground)
                     .foregroundStyle(foregroundColor)
                     .clipShape(RoundedRectangle(cornerRadius: 18))
+                    .frame(maxWidth: .infinity, alignment: bubbleAlignment)
 
                 if !message.images.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -240,6 +241,7 @@ private struct MessageBubble: View {
                                     Label(image.filename, systemImage: "photo")
                                         .font(.caption2.weight(.medium))
                                         .lineLimit(1)
+                                        .truncationMode(.middle)
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 6)
                                         .background(Color.blue.opacity(0.12))
@@ -250,6 +252,7 @@ private struct MessageBubble: View {
                             }
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: bubbleAlignment)
                 }
 
                 // Metadata
@@ -257,9 +260,11 @@ private struct MessageBubble: View {
                     metadataInline
                     metadataStacked
                 }
+                .frame(maxWidth: .infinity, alignment: bubbleAlignment)
             }
+            .frame(maxWidth: .infinity, alignment: bubbleAlignment)
 
-            if message.role != .user { Spacer(minLength: 48) }
+            if message.role != .user { Spacer(minLength: 28) }
         }
     }
 
@@ -310,6 +315,10 @@ private struct MessageBubble: View {
 
     private var hasUsageMetadata: Bool {
         (message.tokens ?? 0) > 0 || (message.cost ?? 0) > 0
+    }
+
+    private var bubbleAlignment: Alignment {
+        message.role == .user ? .trailing : .leading
     }
 
     private var bubbleBackground: Color {
