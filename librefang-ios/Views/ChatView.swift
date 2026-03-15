@@ -152,17 +152,38 @@ private struct SessionBanner: View {
         viewModel.connectionState
     }
 
+    private var shouldShowBanner: Bool {
+        viewModel.messageCount > 0
+            || viewModel.contextWindowTokens > 0
+            || viewModel.sessionLabel != nil
+            || viewModel.isLoadingHistory
+            || viewModel.isSending
+            || viewModel.error != nil
+    }
+
     var body: some View {
-        if viewModel.messageCount > 0 || viewModel.contextWindowTokens > 0 || viewModel.sessionLabel != nil {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 10) {
-                sessionSummary
-            } accessory: {
-                FlowLayout(spacing: 10) {
-                    realtimeIndicator
-                    if viewModel.contextWindowTokens > 0 {
-                        contextTokens
+        if shouldShowBanner {
+            VStack(alignment: .leading, spacing: 8) {
+                ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 10) {
+                    sessionSummary
+                } accessory: {
+                    FlowLayout(spacing: 10) {
+                        realtimeIndicator
+                        if viewModel.contextWindowTokens > 0 {
+                            contextTokens
+                        }
                     }
                 }
+                ChatSessionInventoryDeck(
+                    sessionLabel: viewModel.sessionLabel,
+                    messageCount: viewModel.messageCount,
+                    loadedMessageCount: viewModel.messages.count,
+                    contextWindowTokens: viewModel.contextWindowTokens,
+                    isLoadingHistory: viewModel.isLoadingHistory,
+                    isSending: viewModel.isSending,
+                    hasError: viewModel.error != nil,
+                    connectionState: connectionState
+                )
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
@@ -178,6 +199,10 @@ private struct SessionBanner: View {
             Text(String(localized: "\(viewModel.messageCount) messages"))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
+            Text(transportDetail)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -201,6 +226,125 @@ private struct SessionBanner: View {
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
+    }
+
+    private var transportDetail: String {
+        if viewModel.isLoadingHistory {
+            return String(localized: "Loading recent conversation and session context.")
+        }
+        if viewModel.isSending {
+            return connectionState == .live
+                ? String(localized: "Agent is replying over the live session.")
+                : String(localized: "Agent is replying through fallback request and response.")
+        }
+        switch connectionState {
+        case .live:
+            return String(localized: "Realtime replies stay attached to this session.")
+        case .fallback:
+            return String(localized: "Messages use fallback request and response until realtime reconnects.")
+        }
+    }
+}
+
+private struct ChatSessionInventoryDeck: View {
+    let sessionLabel: String?
+    let messageCount: Int
+    let loadedMessageCount: Int
+    let contextWindowTokens: Int
+    let isLoadingHistory: Bool
+    let isSending: Bool
+    let hasError: Bool
+    let connectionState: ChatConnectionState
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ResponsiveAccessoryRow(horizontalSpacing: 8, verticalSpacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "Session inventory"))
+                        .font(.caption.weight(.semibold))
+                    Text(detailLine)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } accessory: {
+                PresentationToneLabelBadge(
+                    text: connectionState.label,
+                    systemImage: connectionState.symbolName,
+                    tone: connectionState.tone
+                )
+            }
+
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: messageCount == 1 ? String(localized: "1 message") : String(localized: "\(messageCount) messages"),
+                    tone: .neutral,
+                    horizontalPadding: 10,
+                    verticalPadding: 6
+                )
+                if loadedMessageCount > 0 && loadedMessageCount != messageCount {
+                    PresentationToneBadge(
+                        text: loadedMessageCount == 1 ? String(localized: "1 loaded") : String(localized: "\(loadedMessageCount) loaded"),
+                        tone: .neutral,
+                        horizontalPadding: 10,
+                        verticalPadding: 6
+                    )
+                }
+                if contextWindowTokens > 0 {
+                    PresentationToneBadge(
+                        text: String(localized: "\(contextWindowTokens.formatted()) context"),
+                        tone: .neutral,
+                        horizontalPadding: 10,
+                        verticalPadding: 6
+                    )
+                }
+                if sessionLabel?.isEmpty == false {
+                    PresentationToneBadge(
+                        text: String(localized: "Named session"),
+                        tone: .neutral,
+                        horizontalPadding: 10,
+                        verticalPadding: 6
+                    )
+                }
+                if isLoadingHistory {
+                    PresentationToneBadge(
+                        text: String(localized: "History loading"),
+                        tone: .neutral,
+                        horizontalPadding: 10,
+                        verticalPadding: 6
+                    )
+                }
+                if isSending {
+                    PresentationToneBadge(
+                        text: String(localized: "Replying"),
+                        tone: connectionState == .live ? .positive : .warning,
+                        horizontalPadding: 10,
+                        verticalPadding: 6
+                    )
+                }
+                if hasError {
+                    PresentationToneBadge(
+                        text: String(localized: "Needs retry"),
+                        tone: .critical,
+                        horizontalPadding: 10,
+                        verticalPadding: 6
+                    )
+                }
+            }
+        }
+    }
+
+    private var detailLine: String {
+        if isLoadingHistory {
+            return String(localized: "The banner stays compact while recent history loads.")
+        }
+        if isSending {
+            return String(localized: "Reply state, context usage, and loaded history stay visible while the agent is typing.")
+        }
+        if hasError {
+            return String(localized: "Session pressure stays visible so you can retry without losing context.")
+        }
+        return String(localized: "Session pressure stays readable before you scroll into the conversation.")
     }
 }
 

@@ -969,9 +969,27 @@ private struct OperatorOverlayQuickAction: Identifiable {
     let systemImage: String
     let tone: PresentationTone
     let priority: OperatorOverlayActionPriority
-    let isCritical: Bool = false
+    let isCritical: Bool
     let badgeText: String?
     let action: () -> Void
+
+    init(
+        title: String,
+        systemImage: String,
+        tone: PresentationTone,
+        priority: OperatorOverlayActionPriority,
+        isCritical: Bool = false,
+        badgeText: String?,
+        action: @escaping () -> Void
+    ) {
+        self.title = title
+        self.systemImage = systemImage
+        self.tone = tone
+        self.priority = priority
+        self.isCritical = isCritical
+        self.badgeText = badgeText
+        self.action = action
+    }
 
     var hasBadge: Bool {
         badgeText != nil
