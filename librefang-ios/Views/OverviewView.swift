@@ -176,7 +176,7 @@ struct OverviewView: View {
                             .buttonStyle(.plain)
                         }
 
-                        OverviewTriageCard(
+                        OverviewStatusDeckCard(
                             queueCount: onCallPriorityItems.count,
                             criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
                             approvalCount: vm.pendingApprovalCount,
@@ -184,20 +184,12 @@ struct OverviewView: View {
                             watchIssueCount: overviewWatchIssueCount,
                             automationIssueCount: vm.automationPressureIssueCategoryCount,
                             integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                            handoffStateLabel: deps.onCallHandoffStore.freshnessLabel,
-                            handoffTone: deps.onCallHandoffStore.freshnessState.tone
-                        )
-
-                        OverviewSignalFactsCard(
                             isDataStale: vm.isDataStale,
                             isLoopbackServer: isLoopbackServer,
                             providerCount: vm.configuredProviderCount,
                             channelCount: vm.readyChannelCount,
-                            approvalCount: vm.pendingApprovalCount,
-                            sessionCount: vm.sessionAttentionCount,
-                            watchIssueCount: overviewWatchIssueCount,
-                            automationIssueCount: vm.automationPressureIssueCategoryCount,
-                            integrationIssueCount: vm.integrationPressureIssueCategoryCount
+                            handoffStateLabel: deps.onCallHandoffStore.freshnessLabel,
+                            handoffTone: deps.onCallHandoffStore.freshnessState.tone
                         )
 
                         OverviewControlDeckCard(
@@ -473,7 +465,7 @@ struct OverviewView: View {
     }
 }
 
-private struct OverviewTriageCard: View {
+private struct OverviewStatusDeckCard: View {
     let queueCount: Int
     let criticalCount: Int
     let approvalCount: Int
@@ -481,118 +473,110 @@ private struct OverviewTriageCard: View {
     let watchIssueCount: Int
     let automationIssueCount: Int
     let integrationIssueCount: Int
-    let handoffStateLabel: String
-    let handoffTone: PresentationTone
-
-    var body: some View {
-        MonitoringSnapshotCard(summary: String(localized: "Mobile triage is ready from the current snapshot.")) {
-            FlowLayout(spacing: 8) {
-                PresentationToneBadge(
-                    text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
-                    tone: queueCount > 0 ? .warning : .neutral
-                )
-                PresentationToneBadge(
-                    text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                    tone: criticalCount > 0 ? .critical : .neutral
-                )
-                PresentationToneBadge(
-                    text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                    tone: approvalCount > 0 ? .warning : .neutral
-                )
-                PresentationToneBadge(
-                    text: sessionCount == 1 ? String(localized: "1 session") : String(localized: "\(sessionCount) sessions"),
-                    tone: sessionCount > 0 ? .warning : .neutral
-                )
-                PresentationToneBadge(
-                    text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                    tone: watchIssueCount > 0 ? .warning : .neutral
-                )
-                if automationIssueCount > 0 {
-                    PresentationToneBadge(
-                        text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        tone: .warning
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    PresentationToneBadge(
-                        text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        tone: .warning
-                    )
-                }
-                PresentationToneBadge(text: handoffStateLabel, tone: handoffTone)
-            }
-        }
-    }
-}
-
-private struct OverviewSignalFactsCard: View {
     let isDataStale: Bool
     let isLoopbackServer: Bool
     let providerCount: Int
     let channelCount: Int
-    let approvalCount: Int
-    let sessionCount: Int
-    let watchIssueCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
+    let handoffStateLabel: String
+    let handoffTone: PresentationTone
 
     var body: some View {
-        MonitoringFactsRow {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(String(localized: "Overview signal facts"))
-                    .font(.subheadline.weight(.medium))
-                Text(String(localized: "Keep connection, queue, and operator pressure visible before opening the longer overview cards."))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(summary: String(localized: "Mobile triage is ready from the current snapshot.")) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                        tone: queueCount > 0 ? .warning : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        tone: criticalCount > 0 ? .critical : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        tone: approvalCount > 0 ? .warning : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: sessionCount == 1 ? String(localized: "1 session") : String(localized: "\(sessionCount) sessions"),
+                        tone: sessionCount > 0 ? .warning : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        tone: watchIssueCount > 0 ? .warning : .neutral
+                    )
+                    if automationIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                            tone: .warning
+                        )
+                    }
+                    if integrationIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                            tone: .warning
+                        )
+                    }
+                    PresentationToneBadge(text: handoffStateLabel, tone: handoffTone)
+                }
             }
-        } accessory: {
-            PresentationToneBadge(
-                text: isDataStale ? String(localized: "Stale") : String(localized: "Live"),
-                tone: isDataStale ? .warning : .positive
-            )
-        } facts: {
-            Label(
-                isLoopbackServer ? String(localized: "Loopback server") : String(localized: "Remote server"),
-                systemImage: "network"
-            )
-            Label(
-                providerCount == 1 ? String(localized: "1 provider") : String(localized: "\(providerCount) providers"),
-                systemImage: "key.horizontal"
-            )
-            Label(
-                channelCount == 1 ? String(localized: "1 ready channel") : String(localized: "\(channelCount) ready channels"),
-                systemImage: "bubble.left.and.bubble.right"
-            )
-            if approvalCount > 0 {
-                Label(
-                    approvalCount == 1 ? String(localized: "1 pending approval") : String(localized: "\(approvalCount) pending approvals"),
-                    systemImage: "checkmark.shield"
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Overview signal facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep connection, queue, and operator pressure visible before opening the longer overview cards."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: isDataStale ? String(localized: "Stale") : String(localized: "Live"),
+                    tone: isDataStale ? .warning : .positive
                 )
-            }
-            if sessionCount > 0 {
+            } facts: {
                 Label(
-                    sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
-                    systemImage: "rectangle.stack"
+                    isLoopbackServer ? String(localized: "Loopback server") : String(localized: "Remote server"),
+                    systemImage: "network"
                 )
-            }
-            if watchIssueCount > 0 {
                 Label(
-                    watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                    systemImage: "star.fill"
+                    providerCount == 1 ? String(localized: "1 provider") : String(localized: "\(providerCount) providers"),
+                    systemImage: "key.horizontal"
                 )
-            }
-            if automationIssueCount > 0 {
                 Label(
-                    automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                    systemImage: "flowchart"
+                    channelCount == 1 ? String(localized: "1 ready channel") : String(localized: "\(channelCount) ready channels"),
+                    systemImage: "bubble.left.and.bubble.right"
                 )
-            }
-            if integrationIssueCount > 0 {
-                Label(
-                    integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                    systemImage: "square.3.layers.3d.down.forward"
-                )
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 pending approval") : String(localized: "\(approvalCount) pending approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if sessionCount > 0 {
+                    Label(
+                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        systemImage: "rectangle.stack"
+                    )
+                }
+                if watchIssueCount > 0 {
+                    Label(
+                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
             }
         }
     }
