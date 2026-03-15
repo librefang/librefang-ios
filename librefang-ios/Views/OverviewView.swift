@@ -1555,14 +1555,51 @@ private struct BudgetGaugesCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Cost Overview")
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.secondary)
+            MonitoringSnapshotCard(
+                summary: String(localized: "Cost overview keeps hourly, daily, and monthly guardrails visible together."),
+                detail: String(localized: "Use this compact slice before opening the longer budget charts and trend views."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: String(localized: "\(Int(budget.hourlyPct * 100))% hourly"),
+                        tone: StatusPresentation.budgetUtilizationStatus(for: budget.hourlyPct)?.tone ?? .neutral
+                    )
+                    PresentationToneBadge(
+                        text: String(localized: "\(Int(budget.dailyPct * 100))% daily"),
+                        tone: StatusPresentation.budgetUtilizationStatus(for: budget.dailyPct)?.tone ?? .neutral
+                    )
+                    PresentationToneBadge(
+                        text: String(localized: "\(Int(budget.monthlyPct * 100))% monthly"),
+                        tone: StatusPresentation.budgetUtilizationStatus(for: budget.monthlyPct)?.tone ?? .neutral
+                    )
+                }
+            }
 
             HStack(spacing: 16) {
                 GaugeItem(label: "Hourly", spend: budget.hourlySpend, limit: budget.hourlyLimit, pct: budget.hourlyPct)
                 GaugeItem(label: "Daily", spend: budget.dailySpend, limit: budget.dailyLimit, pct: budget.dailyPct)
                 GaugeItem(label: "Monthly", spend: budget.monthlySpend, limit: budget.monthlyLimit, pct: budget.monthlyPct)
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Budget inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep hourly, daily, and monthly spend visible without leaving the overview grid."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: String(localized: "\(Int(budget.alertThreshold * 100))% alert"),
+                    tone: .warning
+                )
+            } facts: {
+                Label(localizedUSDCurrency(budget.hourlySpend), systemImage: "clock")
+                Label(localizedUSDCurrency(budget.dailySpend), systemImage: "sun.max")
+                Label(localizedUSDCurrency(budget.monthlySpend), systemImage: "calendar")
             }
 
             if budget.alertThreshold > 0 {
@@ -1621,9 +1658,47 @@ private struct TopSpendersCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Top Spenders Today")
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.secondary)
+            MonitoringSnapshotCard(
+                summary: agents.isEmpty
+                    ? String(localized: "No agent spend has been recorded for today.")
+                    : String(localized: "Top spenders stay ranked here before you open the deeper budget monitor."),
+                detail: agents.first.map { String(localized: "\($0.name) is currently leading today's spend.") },
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: agents.count == 1 ? String(localized: "1 ranked agent") : String(localized: "\(agents.count) ranked agents"),
+                        tone: agents.isEmpty ? .neutral : .positive
+                    )
+                    if let lead = agents.first {
+                        PresentationToneBadge(
+                            text: localizedUSDCurrency(lead.dailyCostUsd, standardPrecision: 2, smallValuePrecision: 4),
+                            tone: lead.dailySpendStatus.tone
+                        )
+                    }
+                }
+            }
+
+            if let lead = agents.first {
+                MonitoringFactsRow {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(String(localized: "Spend inventory"))
+                            .font(.subheadline.weight(.medium))
+                        Text(String(localized: "Keep the lead agent and visible ranking depth summarized before the per-agent spend rows."))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                } accessory: {
+                    PresentationToneBadge(text: lead.name, tone: lead.dailySpendStatus.tone)
+                } facts: {
+                    Label(localizedUSDCurrency(lead.dailyCostUsd, standardPrecision: 2, smallValuePrecision: 4), systemImage: "dollarsign.circle")
+                    Label(
+                        agents.count == 1 ? String(localized: "1 ranked agent") : String(localized: "\(agents.count) ranked agents"),
+                        systemImage: "person.3"
+                    )
+                }
+            }
 
             ForEach(Array(agents.prefix(5).enumerated()), id: \.element.id) { index, agent in
                 ResponsiveValueRow(horizontalSpacing: 8) {
@@ -1672,9 +1747,51 @@ private struct LiveSignalsCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Live Signals")
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.secondary)
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Keep the active approvals and running hands visible before opening the runtime monitor."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: approvals.count == 1 ? String(localized: "1 approval") : String(localized: "\(approvals.count) approvals"),
+                        tone: approvals.isEmpty ? .neutral : .critical
+                    )
+                    PresentationToneBadge(
+                        text: activeHands.count == 1 ? String(localized: "1 hand") : String(localized: "\(activeHands.count) hands"),
+                        tone: activeHands.isEmpty ? .neutral : .positive
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Live inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep pending approvals and active hands visible without opening the deeper runtime queues."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: approvals.isEmpty ? String(localized: "Runtime") : String(localized: "Needs review"),
+                    tone: approvals.isEmpty ? .neutral : .warning
+                )
+            } facts: {
+                if let firstApproval = approvals.first {
+                    Label(firstApproval.agentName, systemImage: "checkmark.shield")
+                }
+                if let firstHand = activeHands.first {
+                    Label(firstHand.displayName(using: hands), systemImage: "hand.raised")
+                }
+                if approvals.count > 1 {
+                    Label(
+                        approvals.count == 1 ? String(localized: "1 pending approval") : String(localized: "\(approvals.count) pending approvals"),
+                        systemImage: "bell.badge"
+                    )
+                }
+            }
 
             if !approvals.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
@@ -1718,6 +1835,13 @@ private struct LiveSignalsCard: View {
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
+
+    private var summaryLine: String {
+        if approvals.isEmpty && activeHands.isEmpty {
+            return String(localized: "No live approvals or autonomous hands are active in this snapshot.")
+        }
+        return String(localized: "Live approvals and hands stay grouped here for quick runtime triage.")
+    }
 }
 
 private struct AutomationOverviewCard: View {
@@ -1736,6 +1860,23 @@ private struct AutomationOverviewCard: View {
                 automationMetric("\(vm.workflowCount)", label: String(localized: "Workflows"), systemImage: "flowchart")
                 automationMetric("\(vm.enabledTriggerCount)/\(vm.triggers.count)", label: String(localized: "Triggers"), systemImage: "bolt.horizontal.circle")
                 automationMetric("\(vm.enabledScheduleCount + vm.enabledCronJobCount)", label: String(localized: "Active Jobs"), systemImage: "calendar.badge.clock")
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Automation inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep active workflow depth and scheduler pressure visible before opening the automation monitor."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                summaryBadge
+            } facts: {
+                Label("\(vm.workflowCount)", systemImage: "flowchart")
+                Label("\(vm.workflowRuns.count)", systemImage: "play.circle")
+                Label("\(vm.enabledScheduleCount + vm.enabledCronJobCount)", systemImage: "calendar.badge.clock")
             }
 
             if vm.automationOverviewIssueCount == 0 {
@@ -1863,6 +2004,23 @@ private struct DiagnosticsOverviewCard: View {
                 )
             }
 
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Diagnostics inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep database, warning, and supervisor pressure visible before opening the deep diagnostics view."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                summaryBadge
+            } facts: {
+                Label(vm.healthDetail?.localizedDatabaseLabel ?? "--", systemImage: "externaldrive")
+                Label("\(vm.diagnosticsConfigWarningCount)", systemImage: "exclamationmark.triangle")
+                Label("\(supervisorEvents)", systemImage: "bolt.trianglebadge.exclamationmark")
+            }
+
             if let versionInfo = vm.versionInfo {
                 Text("\(versionInfo.version) · \(versionInfo.platform)/\(versionInfo.arch) · \(String(versionInfo.gitSHA.prefix(12)))")
                     .font(.caption)
@@ -1944,6 +2102,26 @@ private struct IntegrationsOverviewCard: View {
                     label: String(localized: "Models"),
                     systemImage: "square.stack.3d.up"
                 )
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Integration inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep provider, channel, and model drift pressure visible before opening the integration monitor."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                summaryBadge
+            } facts: {
+                Label("\(vm.configuredProviderCount)/\(vm.providers.count)", systemImage: "key.horizontal")
+                Label("\(vm.readyChannelCount)/\(vm.configuredChannelCount)", systemImage: "bubble.left.and.bubble.right")
+                Label("\(vm.availableCatalogModelCount)", systemImage: "square.stack.3d.up")
+                if vm.agentsWithModelDiagnostics.count > 0 {
+                    Label("\(vm.agentsWithModelDiagnostics.count)", systemImage: "cpu")
+                }
             }
 
             if vm.integrationsOverviewIssueCount == 0 {
