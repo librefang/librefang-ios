@@ -197,6 +197,75 @@ struct HandoffCenterView: View {
             }
 
             Section {
+                NavigationLink {
+                    OnCallView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open On Call"),
+                        detail: String(localized: "Switch back to the prioritized queue while keeping the current handoff draft in mind."),
+                        systemImage: "waveform.path.ecg",
+                        tone: queueCount > 0 ? .warning : .neutral,
+                        badgeText: queueCount == 0 ? nil : (queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued")),
+                        badgeTone: queueCount > 0 ? .warning : .neutral
+                    )
+                }
+
+                NavigationLink {
+                    NightWatchView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Night Watch"),
+                        detail: String(localized: "Switch to the compact night-duty surface with the same live queue context."),
+                        systemImage: "moon.stars",
+                        tone: criticalCount > 0 ? .critical : .neutral,
+                        badgeText: criticalCount == 0 ? nil : (criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical")),
+                        badgeTone: .critical
+                    )
+                }
+
+                NavigationLink {
+                    StandbyDigestView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Standby Digest"),
+                        detail: String(localized: "Switch to the compressed lock-screen style digest while preserving handoff context."),
+                        systemImage: "rectangle.inset.filled",
+                        tone: liveAlertCount > 0 ? .warning : .neutral,
+                        badgeText: liveAlertCount == 0 ? nil : (liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts")),
+                        badgeTone: .warning
+                    )
+                }
+
+                NavigationLink {
+                    IncidentsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Incidents"),
+                        detail: String(localized: "Switch to incidents to resolve live alerts, approvals, and shift coverage blockers."),
+                        systemImage: "bell.badge",
+                        tone: criticalCount > 0 ? .critical : .warning,
+                        badgeText: liveAlertCount == 0 ? nil : (liveAlertCount == 1 ? String(localized: "1 alert") : String(localized: "\(liveAlertCount) alerts")),
+                        badgeTone: criticalCount > 0 ? .critical : .warning
+                    )
+                }
+
+                NavigationLink {
+                    SettingsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Settings"),
+                        detail: String(localized: "Switch to reminder, language, and on-call preferences while you tune handoff behavior."),
+                        systemImage: "gearshape",
+                        tone: handoffStore.freshnessState.tone
+                    )
+                }
+            } header: {
+                Text("Operator Surfaces")
+            } footer: {
+                Text("Use these routes when handoff work needs queue, incident, or standby context without backing all the way out.")
+            }
+
+            Section {
                 VStack(alignment: .leading, spacing: 10) {
                     HandoffDraftSnapshotCard(
                         kind: handoffStore.draftKind,

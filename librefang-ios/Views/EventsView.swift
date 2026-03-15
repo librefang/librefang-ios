@@ -19,6 +19,18 @@ struct EventsView: View {
                 && entry.matchesSearch(searchText, agentName: agentName(for: entry.agentId))
         }
     }
+    private var scopeTone: PresentationTone {
+        switch scope {
+        case .all:
+            return .neutral
+        case .critical:
+            return .critical
+        case .warning:
+            return .warning
+        case .info:
+            return .positive
+        }
+    }
 
     var body: some View {
         List {
@@ -37,6 +49,105 @@ struct EventsView: View {
             Section {
                 EventScoreboard(viewModel: viewModel)
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+            }
+
+            Section {
+                MonitoringSnapshotCard(
+                    summary: filteredEntries.isEmpty
+                        ? String(localized: "Event feed is ready for a fresh mobile review.")
+                        : (filteredEntries.count == 1
+                            ? String(localized: "1 event is visible in the current event feed.")
+                            : String(localized: "\(filteredEntries.count) events are visible in the current event feed.")),
+                    detail: String(localized: "Critical audit pressure and transport state stay visible before the longer event list.")
+                ) {
+                    FlowLayout(spacing: 8) {
+                        PresentationToneBadge(text: scope.label, tone: scopeTone)
+                        PresentationToneBadge(
+                            text: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                            tone: viewModel.isStreaming ? .positive : .warning
+                        )
+                        if viewModel.criticalCount > 0 {
+                            PresentationToneBadge(
+                                text: viewModel.criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(viewModel.criticalCount) critical"),
+                                tone: .critical
+                            )
+                        }
+                        if viewModel.warningCount > 0 {
+                            PresentationToneBadge(
+                                text: viewModel.warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(viewModel.warningCount) warnings"),
+                                tone: .warning
+                            )
+                        }
+                        if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            PresentationToneBadge(
+                                text: filteredEntries.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredEntries.count) visible results"),
+                                tone: .neutral
+                            )
+                        }
+                    }
+                }
+            } footer: {
+                Text("Use the snapshot to judge event pressure and transport state before scanning the full feed.")
+            }
+
+            Section {
+                NavigationLink {
+                    IncidentsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Incidents"),
+                        detail: String(localized: "Switch to incident queue when critical events should be triaged beside alerts and approvals."),
+                        systemImage: "bell.badge",
+                        tone: viewModel.criticalCount > 0 ? .critical : .neutral,
+                        badgeText: viewModel.criticalCount > 0
+                            ? (viewModel.criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(viewModel.criticalCount) critical"))
+                            : nil,
+                        badgeTone: .critical
+                    )
+                }
+
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Runtime"),
+                        detail: String(localized: "Switch to runtime when event pressure needs system, provider, or approval context."),
+                        systemImage: "server.rack",
+                        tone: viewModel.warningCount > 0 ? .warning : .neutral,
+                        badgeText: viewModel.warningCount > 0
+                            ? (viewModel.warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(viewModel.warningCount) warnings"))
+                            : nil,
+                        badgeTone: .warning
+                    )
+                }
+
+                NavigationLink {
+                    SessionsView(initialFilter: .attention)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Sessions"),
+                        detail: String(localized: "Switch to session hotspots when audit events suggest backlog or session drift."),
+                        systemImage: "text.bubble",
+                        tone: .warning,
+                        badgeText: nil,
+                        badgeTone: .warning
+                    )
+                }
+
+                NavigationLink {
+                    DiagnosticsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Diagnostics"),
+                        detail: String(localized: "Switch to diagnostics when audit activity may reflect deeper runtime problems."),
+                        systemImage: "stethoscope",
+                        tone: .neutral
+                    )
+                }
+            } header: {
+                Text("Operator Surfaces")
+            } footer: {
+                Text("Use these routes when the event feed is only one part of the operator path.")
             }
 
             Section {

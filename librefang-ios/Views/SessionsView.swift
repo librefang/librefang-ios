@@ -116,6 +116,72 @@ struct SessionsView: View {
             }
 
             Section {
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Runtime"),
+                        detail: String(localized: "Switch back to runtime with session hotspots folded into the main operator snapshot."),
+                        systemImage: "server.rack",
+                        tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                        badgeText: vm.sessionAttentionCount > 0
+                            ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
+                            : nil,
+                        badgeTone: .warning
+                    )
+                }
+
+                NavigationLink {
+                    IncidentsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Incidents"),
+                        detail: String(localized: "Switch to incidents where session backlog sits beside alerts and approvals."),
+                        systemImage: "bell.badge",
+                        tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                        badgeText: vm.sessionAttentionCount > 0
+                            ? (vm.sessionAttentionCount == 1 ? String(localized: "1 queue item") : String(localized: "\(vm.sessionAttentionCount) queue items"))
+                            : nil,
+                        badgeTone: .warning
+                    )
+                }
+
+                NavigationLink {
+                    OnCallView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open On Call"),
+                        detail: String(localized: "Switch to the prioritized queue when session hotspots need incident-level triage."),
+                        systemImage: "waveform.path.ecg",
+                        tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                        badgeText: vm.sessionAttentionCount > 0
+                            ? (vm.sessionAttentionCount == 1 ? String(localized: "1 session issue") : String(localized: "\(vm.sessionAttentionCount) session issues"))
+                            : nil,
+                        badgeTone: .warning
+                    )
+                }
+
+                NavigationLink {
+                    AgentsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Agents"),
+                        detail: String(localized: "Switch to fleet view when session pressure clusters around specific agents."),
+                        systemImage: "person.3",
+                        tone: vm.multiSessionAgentCount > 0 ? .warning : .neutral,
+                        badgeText: vm.multiSessionAgentCount > 0
+                            ? (vm.multiSessionAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(vm.multiSessionAgentCount) agents"))
+                            : nil,
+                        badgeTone: .warning
+                    )
+                }
+            } header: {
+                Text("Operator Surfaces")
+            } footer: {
+                Text("Use these routes when session backlog or relabeling work needs runtime, incident, or fleet context.")
+            }
+
+            Section {
                 SessionFilterCard(
                     filter: $filter,
                     searchText: searchText,
