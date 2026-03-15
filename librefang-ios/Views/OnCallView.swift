@@ -231,6 +231,77 @@ struct OnCallView: View {
                 Text("Queue pressure, follow-up readiness, and local watchlist issues stay visible before the longer sections.")
             }
 
+            Section {
+                MonitoringFactsRow {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(String(localized: "On-call signal facts"))
+                            .font(.subheadline.weight(.medium))
+                        Text(String(localized: "Keep queue shape, acknowledgement state, and cross-surface pressure visible before working the deeper on-call sections."))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                } accessory: {
+                    PresentationToneBadge(
+                        text: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts) ? String(localized: "Acked") : String(localized: "Live"),
+                        tone: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts) ? .positive : .critical
+                    )
+                } facts: {
+                    Label(
+                        priorityItems.count == 1 ? String(localized: "1 queued item") : String(localized: "\(priorityItems.count) queued items"),
+                        systemImage: "waveform.path.ecg"
+                    )
+                    Label(
+                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        systemImage: "xmark.octagon"
+                    )
+                    if vm.pendingApprovalCount > 0 {
+                        Label(
+                            vm.pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(vm.pendingApprovalCount) approvals"),
+                            systemImage: "checkmark.shield"
+                        )
+                    }
+                    if watchIssueCount > 0 {
+                        Label(
+                            watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                            systemImage: "star.fill"
+                        )
+                    }
+                    if vm.sessionAttentionCount > 0 {
+                        Label(
+                            vm.sessionAttentionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(vm.sessionAttentionCount) session hotspots"),
+                            systemImage: "rectangle.stack"
+                        )
+                    }
+                    if vm.recentCriticalAuditCount > 0 {
+                        Label(
+                            vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical event") : String(localized: "\(vm.recentCriticalAuditCount) critical events"),
+                            systemImage: "list.bullet.rectangle.portrait"
+                        )
+                    }
+                    if pendingFollowUpCount > 0 {
+                        Label(
+                            pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
+                            systemImage: "arrow.triangle.2.circlepath"
+                        )
+                    }
+                    if automationIssueCount > 0 {
+                        Label(
+                            automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                            systemImage: "flowchart"
+                        )
+                    }
+                    if integrationIssueCount > 0 {
+                        Label(
+                            integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                            systemImage: "square.3.layers.3d.down.forward"
+                        )
+                    }
+                }
+            } footer: {
+                Text("This facts row keeps the current on-call shape readable before you dive into queue, watchlist, and handoff sections.")
+            }
+
             Section("Shift Status") {
                 OnCallStatusCard(
                     digestLine: digestLine,

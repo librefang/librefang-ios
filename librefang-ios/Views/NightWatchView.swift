@@ -194,6 +194,7 @@ struct NightWatchView: View {
                 VStack(spacing: 16) {
                     heroCard
                     snapshotCard
+                    signalFactsCard
                     mutedSummaryCard
                     primaryQueueCard
                     secondaryQueueCard
@@ -260,6 +261,58 @@ struct NightWatchView: View {
             integrationIssueCount: integrationIssueCount,
             checkInStatus: checkInStatus
         )
+    }
+
+    private var signalFactsCard: some View {
+        NightWatchSectionCard(
+            title: String(localized: "Signal Facts"),
+            detail: String(localized: "Keep focus mode, queue size, and current operator pressure visible before opening deeper night-duty surfaces.")
+        ) {
+            FlowLayout(spacing: 8) {
+                GlassCapsuleBadge(text: focusStore.mode.label, backgroundOpacity: 0.16)
+                GlassCapsuleBadge(
+                    text: priorityItems.count == 1 ? String(localized: "1 queued") : String(localized: "\(priorityItems.count) queued"),
+                    backgroundOpacity: 0.14
+                )
+                GlassCapsuleBadge(
+                    text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                    backgroundOpacity: criticalCount > 0 ? 0.18 : 0.10
+                )
+                if vm.pendingApprovalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: vm.pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(vm.pendingApprovalCount) approvals"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if watchIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    GlassCapsuleBadge(
+                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if automationIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if let checkInStatus {
+                    GlassCapsuleBadge(text: checkInStatus.state.label, backgroundOpacity: 0.14)
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -392,6 +445,39 @@ struct NightWatchView: View {
             .buttonStyle(.plain)
 
             NavigationLink {
+                RuntimeView()
+            } label: {
+                NightWatchActionRow(
+                    title: String(localized: "Runtime"),
+                    detail: String(localized: "Open providers, channels, approvals, and runtime pressure from the night-duty path."),
+                    systemImage: "server.rack"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                ApprovalsView()
+            } label: {
+                NightWatchActionRow(
+                    title: String(localized: "Approvals"),
+                    detail: String(localized: "Open the full approval queue when the night queue points at gated actions."),
+                    systemImage: "checkmark.shield"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                CommsView(api: deps.apiClient)
+            } label: {
+                NightWatchActionRow(
+                    title: String(localized: "Comms"),
+                    detail: String(localized: "Open live inter-agent traffic when alerts or events look coordination-related."),
+                    systemImage: "point.3.connected.trianglepath.dotted"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
                 DiagnosticsView()
             } label: {
                 NightWatchActionRow(
@@ -432,6 +518,17 @@ struct NightWatchView: View {
                     title: String(localized: "Handoff Center"),
                     detail: String(localized: "Capture notes and keep local shift context close to the night queue."),
                     systemImage: "text.badge.plus"
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                SettingsView()
+            } label: {
+                NightWatchActionRow(
+                    title: String(localized: "Settings"),
+                    detail: String(localized: "Tune reminder, language, and local display preferences without leaving night watch."),
+                    systemImage: "gearshape"
                 )
             }
             .buttonStyle(.plain)

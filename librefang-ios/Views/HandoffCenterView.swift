@@ -79,6 +79,9 @@ struct HandoffCenterView: View {
     private var latestFollowUpStatuses: [HandoffFollowUpStatus] {
         handoffStore.latestFollowUpStatuses
     }
+    private var pendingLatestFollowUpCount: Int {
+        latestFollowUpStatuses.filter { !$0.isCompleted }.count
+    }
     private var carryoverStatus: HandoffCarryoverStatus? {
         handoffStore.carryoverFromLatest(
             liveAlertCount: liveAlertCount,
@@ -197,6 +200,63 @@ struct HandoffCenterView: View {
             }
 
             Section {
+                MonitoringFactsRow {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(String(localized: "Handoff signal facts"))
+                            .font(.subheadline.weight(.medium))
+                        Text(String(localized: "Keep live queue shape, follow-up load, and draft composition state visible before editing the full handoff draft."))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                } accessory: {
+                    PresentationToneBadge(
+                        text: draftReadiness.state.label,
+                        tone: draftReadiness.state.tone
+                    )
+                } facts: {
+                    Label(
+                        queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                        systemImage: "waveform.path.ecg"
+                    )
+                    Label(
+                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        systemImage: "xmark.octagon"
+                    )
+                    Label(
+                        liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
+                        systemImage: "bell.badge"
+                    )
+                    if vm.pendingApprovalCount > 0 {
+                        Label(
+                            vm.pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(vm.pendingApprovalCount) approvals"),
+                            systemImage: "checkmark.shield"
+                        )
+                    }
+                    if vm.sessionAttentionCount > 0 {
+                        Label(
+                            vm.sessionAttentionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(vm.sessionAttentionCount) session hotspots"),
+                            systemImage: "rectangle.stack"
+                        )
+                    }
+                    if pendingLatestFollowUpCount > 0 {
+                        Label(
+                            pendingLatestFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingLatestFollowUpCount) follow-ups open"),
+                            systemImage: "arrow.triangle.2.circlepath"
+                        )
+                    }
+                    if handoffStore.draftFocusAreas.items.count > 0 {
+                        Label(
+                            handoffStore.draftFocusAreas.items.count == 1 ? String(localized: "1 focus area") : String(localized: "\(handoffStore.draftFocusAreas.items.count) focus areas"),
+                            systemImage: "scope"
+                        )
+                    }
+                }
+            } footer: {
+                Text("This facts row keeps live queue pressure and draft readiness visible above the longer handoff composer.")
+            }
+
+            Section {
                 NavigationLink {
                     OnCallView()
                 } label: {
@@ -246,6 +306,32 @@ struct HandoffCenterView: View {
                         tone: criticalCount > 0 ? .critical : .warning,
                         badgeText: liveAlertCount == 0 ? nil : (liveAlertCount == 1 ? String(localized: "1 alert") : String(localized: "\(liveAlertCount) alerts")),
                         badgeTone: criticalCount > 0 ? .critical : .warning
+                    )
+                }
+
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Runtime"),
+                        detail: String(localized: "Switch to runtime when handoff notes need provider, approval, session, or diagnostics context."),
+                        systemImage: "server.rack",
+                        tone: liveAlertCount > 0 ? .warning : .neutral
+                    )
+                }
+
+                NavigationLink {
+                    DiagnosticsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Diagnostics"),
+                        detail: String(localized: "Switch to health detail, build metadata, config warnings, and metrics while composing the handoff."),
+                        systemImage: "stethoscope",
+                        tone: vm.diagnosticsSummaryTone,
+                        badgeText: vm.diagnosticsConfigWarningCount > 0
+                            ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
+                            : nil,
+                        badgeTone: .warning
                     )
                 }
 
