@@ -74,6 +74,24 @@ struct SessionsView: View {
         }
     }
 
+    private var highVolumeThreshold: Int { 40 }
+
+    private var visibleAttentionCount: Int {
+        filteredItems.filter { $0.severity > 0 }.count
+    }
+
+    private var visibleHighVolumeCount: Int {
+        filteredItems.filter { $0.session.messageCount >= highVolumeThreshold }.count
+    }
+
+    private var visibleUnlabeledCount: Int {
+        filteredItems.filter { !$0.hasLabel }.count
+    }
+
+    private var visibleDuplicateAgentCount: Int {
+        Set(filteredItems.filter { $0.duplicateCount > 1 }.map { $0.session.agentId }).count
+    }
+
     var body: some View {
         List {
             Section {
@@ -103,9 +121,12 @@ struct SessionsView: View {
                     SessionListInventoryDeck(
                         visibleCount: filteredItems.count,
                         totalCount: vm.sessionAttentionItems.count,
-                        attentionCount: filteredItems.filter { !$0.reasons.isEmpty }.count,
+                        attentionCount: visibleAttentionCount,
+                        highVolumeCount: visibleHighVolumeCount,
+                        unlabeledCount: visibleUnlabeledCount,
+                        duplicateAgentCount: visibleDuplicateAgentCount,
                         searchText: searchText,
-                        filter: selectedFilter
+                        filter: filter
                     )
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
 
@@ -776,21 +797,81 @@ private struct SessionListInventoryDeck: View {
     let visibleCount: Int
     let totalCount: Int
     let attentionCount: Int
+    let highVolumeCount: Int
+    let unlabeledCount: Int
+    let duplicateAgentCount: Int
     let searchText: String
-    let filter: SessionMonitorFilter
+    let filter: SessionFilter
 
     var body: some View {
-        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine) {
-            FlowLayout(spacing: 6) {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine) {
+                FlowLayout(spacing: 6) {
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 visible") : String(localized: "\(visibleCount) visible"),
+                        tone: visibleCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: attentionCount == 1 ? String(localized: "1 attention") : String(localized: "\(attentionCount) attention"),
+                        tone: attentionCount > 0 ? .warning : .neutral
+                    )
+                    if highVolumeCount > 0 {
+                        PresentationToneBadge(
+                            text: highVolumeCount == 1 ? String(localized: "1 high-volume") : String(localized: "\(highVolumeCount) high-volume"),
+                            tone: .warning
+                        )
+                    }
+                    if unlabeledCount > 0 {
+                        PresentationToneBadge(
+                            text: unlabeledCount == 1 ? String(localized: "1 unlabeled") : String(localized: "\(unlabeledCount) unlabeled"),
+                            tone: .caution
+                        )
+                    }
+                    PresentationToneBadge(text: filter.label, tone: filterTone)
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Session inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the compact queue slice to judge volume, labeling debt, and duplicate-agent spread before opening the rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
                 PresentationToneBadge(
-                    text: visibleCount == 1 ? String(localized: "1 visible") : String(localized: "\(visibleCount) visible"),
-                    tone: visibleCount > 0 ? .positive : .neutral
+                    text: filter.label,
+                    tone: filterTone
                 )
-                PresentationToneBadge(
-                    text: attentionCount == 1 ? String(localized: "1 attention") : String(localized: "\(attentionCount) attention"),
-                    tone: attentionCount > 0 ? .warning : .neutral
+            } facts: {
+                Label(
+                    visibleCount == 1 ? String(localized: "1 visible session") : String(localized: "\(visibleCount) visible sessions"),
+                    systemImage: "text.bubble"
                 )
-                PresentationToneBadge(text: filter.label, tone: filterTone)
+                Label(
+                    attentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(attentionCount) hotspots"),
+                    systemImage: "exclamationmark.triangle"
+                )
+                if highVolumeCount > 0 {
+                    Label(
+                        highVolumeCount == 1 ? String(localized: "1 high-volume session") : String(localized: "\(highVolumeCount) high-volume sessions"),
+                        systemImage: "chart.bar.xaxis"
+                    )
+                }
+                if unlabeledCount > 0 {
+                    Label(
+                        unlabeledCount == 1 ? String(localized: "1 unlabeled session") : String(localized: "\(unlabeledCount) unlabeled sessions"),
+                        systemImage: "tag.slash"
+                    )
+                }
+                if duplicateAgentCount > 0 {
+                    Label(
+                        duplicateAgentCount == 1 ? String(localized: "1 duplicate agent") : String(localized: "\(duplicateAgentCount) duplicate agents"),
+                        systemImage: "person.2"
+                    )
+                }
             }
         }
     }

@@ -110,6 +110,23 @@ struct OnCallView: View {
             summaries: watchedDiagnostics
         )
     }
+    private var watchedDiagnosticIssueAgentCount: Int {
+        watchedAttentionItems.filter {
+            watchedDiagnostics[$0.agent.id]?.hasIssues == true || $0.severity > 0
+        }.count
+    }
+    private var watchedFailedDeliveryAgentCount: Int {
+        watchedAttentionItems.filter { watchedDiagnostics[$0.agent.id]?.failedDeliveries ?? 0 > 0 }.count
+    }
+    private var watchedMissingIdentityAgentCount: Int {
+        watchedAttentionItems.filter { !(watchedDiagnostics[$0.agent.id]?.missingIdentityFiles.isEmpty ?? true) }.count
+    }
+    private var watchedFallbackDriftAgentCount: Int {
+        watchedAttentionItems.filter { !(watchedDiagnostics[$0.agent.id]?.unavailableFallbackModels.isEmpty ?? true) }.count
+    }
+    private var watchedPausedAgentCount: Int {
+        watchedAttentionItems.filter { !$0.agent.isRunning }.count
+    }
     private var criticalCount: Int {
         visibleAlerts.filter { $0.severity == .critical }.count
     }
@@ -296,6 +313,16 @@ struct OnCallView: View {
 
             if !watchedAttentionItems.isEmpty {
                 Section {
+                    OnCallWatchlistInventoryDeck(
+                        watchedCount: watchedAttentionItems.count,
+                        visibleCount: min(watchedAttentionItems.count, 6),
+                        issueCount: watchedDiagnosticIssueAgentCount,
+                        failedDeliveryCount: watchedFailedDeliveryAgentCount,
+                        missingIdentityCount: watchedMissingIdentityAgentCount,
+                        fallbackDriftCount: watchedFallbackDriftAgentCount,
+                        pausedCount: watchedPausedAgentCount
+                    )
+
                     ForEach(watchedAttentionItems.prefix(6)) { item in
                         NavigationLink {
                             watchedDiagnosticsDestination(for: item)
@@ -1430,6 +1457,108 @@ private struct WatchedAgentRow: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct OnCallWatchlistInventoryDeck: View {
+    let watchedCount: Int
+    let visibleCount: Int
+    let issueCount: Int
+    let failedDeliveryCount: Int
+    let missingIdentityCount: Int
+    let fallbackDriftCount: Int
+    let pausedCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: watchedCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchedCount) watched agents"),
+                        tone: watchedCount > 0 ? .positive : .neutral
+                    )
+                    if issueCount > 0 {
+                        PresentationToneBadge(
+                            text: issueCount == 1 ? String(localized: "1 issue visible") : String(localized: "\(issueCount) issues visible"),
+                            tone: .warning
+                        )
+                    }
+                    if failedDeliveryCount > 0 {
+                        PresentationToneBadge(
+                            text: failedDeliveryCount == 1 ? String(localized: "1 delivery failure") : String(localized: "\(failedDeliveryCount) delivery failures"),
+                            tone: .critical
+                        )
+                    }
+                    if fallbackDriftCount > 0 {
+                        PresentationToneBadge(
+                            text: fallbackDriftCount == 1 ? String(localized: "1 fallback drift") : String(localized: "\(fallbackDriftCount) fallback drift"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Watchlist inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep watched-agent pressure, diagnostics drift, and paused coverage visible before opening the pinned agents."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == watchedCount
+                        ? String(localized: "Full watchlist")
+                        : String(localized: "\(visibleCount)/\(watchedCount) visible"),
+                    tone: visibleCount == watchedCount ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    issueCount == 1 ? String(localized: "1 operator issue") : String(localized: "\(issueCount) operator issues"),
+                    systemImage: "exclamationmark.triangle"
+                )
+                if failedDeliveryCount > 0 {
+                    Label(
+                        failedDeliveryCount == 1 ? String(localized: "1 delivery failure") : String(localized: "\(failedDeliveryCount) delivery failures"),
+                        systemImage: "shippingbox"
+                    )
+                }
+                if missingIdentityCount > 0 {
+                    Label(
+                        missingIdentityCount == 1 ? String(localized: "1 identity gap") : String(localized: "\(missingIdentityCount) identity gaps"),
+                        systemImage: "doc.badge.gearshape"
+                    )
+                }
+                if fallbackDriftCount > 0 {
+                    Label(
+                        fallbackDriftCount == 1 ? String(localized: "1 fallback drift") : String(localized: "\(fallbackDriftCount) fallback drift"),
+                        systemImage: "square.stack.3d.up.slash"
+                    )
+                }
+                if pausedCount > 0 {
+                    Label(
+                        pausedCount == 1 ? String(localized: "1 paused watch") : String(localized: "\(pausedCount) paused watches"),
+                        systemImage: "pause.circle"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == watchedCount {
+            return watchedCount == 1
+                ? String(localized: "The watchlist is showing the only pinned agent.")
+                : String(localized: "The watchlist is showing all \(watchedCount) pinned agents.")
+        }
+        return String(localized: "The watchlist is showing \(visibleCount) of \(watchedCount) pinned agents.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Issue-heavy watched agents and diagnostic drift stay summarized here before the pinned rows.")
     }
 }
 
