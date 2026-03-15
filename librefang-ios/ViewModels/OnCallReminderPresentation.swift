@@ -127,6 +127,7 @@ extension DashboardViewModel {
 
         let signature = ([scope.rawValue] + priorityItems.map(\.id)).joined(separator: "|")
         let includesCheckIn = priorityItems.contains { $0.id.hasPrefix("handoff-checkin:") }
+        let handoffFollowUpItem = priorityItems.first { $0.id == "handoff-followups" }
         let suggestedDeliveryDate: Date?
         let schedulingHint: String?
 
@@ -142,6 +143,12 @@ extension DashboardViewModel {
                 suggestedDeliveryDate = Date().addingTimeInterval(30)
                 schedulingHint = "Handoff check-in overdue"
             }
+        } else if let followUpReminderDriver = followUpReminderDriver(
+            for: handoffFollowUpItem,
+            handoffCheckInStatus: handoffCheckInStatus
+        ) {
+            suggestedDeliveryDate = followUpReminderDriver.date
+            schedulingHint = followUpReminderDriver.hint
         } else {
             suggestedDeliveryDate = nil
             schedulingHint = nil
@@ -192,6 +199,23 @@ extension DashboardViewModel {
             }
         case .fullQueue:
             return acknowledgedLiveSnapshot ? watchlistOnlyItems + handoffCheckInItems + handoffFollowUpItems : allItems
+        }
+    }
+
+    private func followUpReminderDriver(
+        for followUpItem: OnCallPriorityItem?,
+        handoffCheckInStatus: HandoffCheckInStatus?
+    ) -> (date: Date, hint: String)? {
+        guard let followUpItem, let handoffCheckInStatus else { return nil }
+
+        switch handoffCheckInStatus.state {
+        case .scheduled:
+            return nil
+        case .dueSoon:
+            guard followUpItem.severity == .critical else { return nil }
+            return (handoffCheckInStatus.dueDate, "Handoff follow-ups due soon")
+        case .overdue:
+            return (Date().addingTimeInterval(30), "Handoff follow-ups overdue")
         }
     }
 }
