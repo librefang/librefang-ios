@@ -35,6 +35,9 @@ struct EventsView: View {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    private var eventsPrimaryRouteCount: Int { 3 }
+    private var eventsSupportRouteCount: Int { 2 }
+
     var body: some View {
         List {
             eventsErrorSection
@@ -228,6 +231,18 @@ struct EventsView: View {
 
     private var eventsControlDeckCard: some View {
         VStack(alignment: .leading, spacing: 12) {
+            EventsRouteInventoryDeck(
+                primaryRouteCount: eventsPrimaryRouteCount,
+                supportRouteCount: eventsSupportRouteCount,
+                visibleCount: filteredEntries.count,
+                totalCount: viewModel.entries.count,
+                criticalCount: viewModel.criticalCount,
+                warningCount: viewModel.warningCount,
+                hasSearchScope: !trimmedSearchText.isEmpty,
+                scopeLabel: scope.label,
+                scopeTone: scopeTone
+            )
+
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Routes"),
                 detail: String(localized: "Jump straight to incidents, runtime, sessions, diagnostics, or comms without another long route stack.")
@@ -310,6 +325,77 @@ struct EventsView: View {
                 isStreaming: viewModel.isStreaming
             )
         }
+    }
+}
+
+private struct EventsRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let criticalCount: Int
+    let warningCount: Int
+    let hasSearchScope: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: hasSearchScope
+                    ? String(localized: "Event routes stay compact while the feed is search-scoped.")
+                    : String(localized: "Event routes stay compact before the surrounding incident and runtime drilldowns."),
+                detail: String(localized: "Use the route inventory to gauge the active event slice before leaving the feed."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    PresentationToneBadge(
+                        text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        tone: .neutral
+                    )
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep feed scope and event pressure visible before pivoting into incidents, runtime, sessions, diagnostics, or comms."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleCount) visible events"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: .positive
+                )
+            } facts: {
+                if warningCount > 0 {
+                    Label(
+                        warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

@@ -29,6 +29,9 @@ struct CommsView: View {
         }
     }
 
+    private var commsPrimaryRouteCount: Int { 3 }
+    private var commsSupportRouteCount: Int { 1 }
+
     var body: some View {
         List {
             if let error = viewModel.error, viewModel.events.isEmpty {
@@ -240,6 +243,16 @@ struct CommsView: View {
 
     private var commsControlDeckCard: some View {
         VStack(alignment: .leading, spacing: 12) {
+            CommsRouteInventoryDeck(
+                primaryRouteCount: commsPrimaryRouteCount,
+                supportRouteCount: commsSupportRouteCount,
+                visibleEventCount: filteredEvents.count,
+                totalEventCount: viewModel.events.count,
+                nodeCount: viewModel.nodeCount,
+                edgeCount: viewModel.edgeCount,
+                hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            )
+
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Routes"),
                 detail: String(localized: "Jump straight to runtime, incidents, audit, or external-agent inventory without another long route stack.")
@@ -306,6 +319,72 @@ struct CommsView: View {
                 edgeCount: viewModel.edgeCount
             )
         }
+    }
+}
+
+private struct CommsRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleEventCount: Int
+    let totalEventCount: Int
+    let nodeCount: Int
+    let edgeCount: Int
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: hasSearchScope
+                    ? String(localized: "Comms routes stay compact while the traffic feed is search-scoped.")
+                    : String(localized: "Comms routes stay compact before deeper runtime and incident drilldowns."),
+                detail: String(localized: "Use the route inventory to gauge the active traffic slice before leaving the comms feed."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        tone: .neutral
+                    )
+                    if visibleEventCount > 0 {
+                        PresentationToneBadge(
+                            text: visibleEventCount == totalEventCount
+                                ? (visibleEventCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleEventCount) visible events"))
+                                : String(localized: "\(visibleEventCount) of \(totalEventCount) visible"),
+                            tone: .positive
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep traffic size and topology depth visible before pivoting from comms into runtime, incidents, or external-agent inventory."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: edgeCount == 1 ? String(localized: "1 live link") : String(localized: "\(edgeCount) live links"),
+                    tone: edgeCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    nodeCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(nodeCount) visible agents"),
+                    systemImage: "cpu"
+                )
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

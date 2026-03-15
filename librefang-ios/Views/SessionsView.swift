@@ -92,6 +92,9 @@ struct SessionsView: View {
         Set(filteredItems.filter { $0.duplicateCount > 1 }.map { $0.session.agentId }).count
     }
 
+    private var sessionsPrimaryRouteCount: Int { 3 }
+    private var sessionsSupportRouteCount: Int { 2 }
+
     var body: some View {
         List {
             Section {
@@ -321,6 +324,17 @@ struct SessionsView: View {
 
     private var sessionsControlDeckCard: some View {
         VStack(alignment: .leading, spacing: 12) {
+            SessionsRouteInventoryDeck(
+                primaryRouteCount: sessionsPrimaryRouteCount,
+                supportRouteCount: sessionsSupportRouteCount,
+                visibleCount: filteredItems.count,
+                totalCount: vm.sessions.count,
+                attentionCount: visibleAttentionCount,
+                highVolumeCount: visibleHighVolumeCount,
+                hasSearchScope: !normalizedSearchText.isEmpty,
+                filterLabel: filter.label
+            )
+
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Routes"),
                 detail: String(localized: "Jump straight to the next queue, fleet, or audit surface without another long route stack.")
@@ -411,6 +425,76 @@ struct SessionsView: View {
             )
         }
     }
+
+private struct SessionsRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let attentionCount: Int
+    let highVolumeCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: hasSearchScope
+                    ? String(localized: "Session routes stay compact while the backlog is search-scoped.")
+                    : String(localized: "Session routes stay compact before the wider runtime and incident drilldowns."),
+                detail: String(localized: "Use the route inventory to gauge the active session slice before leaving the queue."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: .neutral)
+                    PresentationToneBadge(
+                        text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        tone: .neutral
+                    )
+                    if attentionCount > 0 {
+                        PresentationToneBadge(
+                            text: attentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(attentionCount) hotspots"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route Facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep visible backlog size and high-volume pressure readable before pivoting into runtime, incidents, agents, or events."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible session") : String(localized: "\(visibleCount) visible sessions"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: .positive
+                )
+            } facts: {
+                if highVolumeCount > 0 {
+                    Label(
+                        highVolumeCount == 1 ? String(localized: "1 high-volume session") : String(localized: "\(highVolumeCount) high-volume sessions"),
+                        systemImage: "chart.bar.xaxis"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
 
     @ViewBuilder
     private func sessionRow(for item: SessionAttentionItem) -> some View {
