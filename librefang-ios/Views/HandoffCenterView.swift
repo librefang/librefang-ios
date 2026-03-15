@@ -564,7 +564,7 @@ private struct HandoffReadinessCard: View {
             ForEach(status.issues) { issue in
                 Label(issue.message, systemImage: issue.isBlocking ? "exclamationmark.triangle.fill" : "info.circle")
                     .font(.caption2)
-                    .foregroundStyle(issue.isBlocking ? Color.red : Color.secondary)
+                    .foregroundStyle(issue.tone.color)
             }
         }
         .padding(.vertical, 6)
@@ -610,7 +610,7 @@ struct HandoffKindBadge: View {
             .font(.caption2.weight(.semibold))
             .padding(.horizontal, 8)
             .padding(.vertical, 5)
-            .background(kind.tintColor.opacity(0.12))
+            .background(kind.badgeBackgroundColor)
             .foregroundStyle(kind.tintColor)
             .clipShape(Capsule())
     }
@@ -634,10 +634,6 @@ private struct HandoffStatsRow: View {
 private struct HandoffTimelineRow: View {
     let item: HandoffTimelineItem
 
-    private var gapColor: Color {
-        item.isGapWarning ? PresentationTone.warning.color : PresentationTone.neutral.color
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top) {
@@ -658,8 +654,8 @@ private struct HandoffTimelineRow: View {
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(gapColor.opacity(0.12))
-                        .foregroundStyle(gapColor)
+                        .background(item.gapTone.badgeBackgroundColor)
+                        .foregroundStyle(item.gapTone.color)
                         .clipShape(Capsule())
                 }
             }
@@ -731,7 +727,7 @@ private struct HandoffFreshnessCard: View {
             if uncoveredChecklistKeys.isEmpty {
                 Text("All checklist items appeared in the recent handoff window.")
                     .font(.caption2)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(PresentationTone.positive.color)
             } else {
                 Text(String(localized: "Recent gap: \(uncoveredChecklistKeys.map(\.label).joined(separator: ", "))"))
                     .font(.caption2)
@@ -760,6 +756,7 @@ private struct HandoffCoverageCard: View {
             }
 
             ForEach(Array(HandoffChecklistKey.allCases.enumerated()), id: \.element.rawValue) { _, key in
+                let coverageTone = HandoffChecklistState.coverageTone(for: coverageCount(key))
                 HStack {
                     Label(key.label, systemImage: key.symbolName)
                         .font(.caption)
@@ -767,7 +764,7 @@ private struct HandoffCoverageCard: View {
                     Spacer()
                     Text("\(coverageCount(key))/\(max(entries.count, 1))")
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(coverageCount(key) > 0 ? Color.secondary : Color.orange)
+                        .foregroundStyle(coverageTone.color)
                 }
             }
         }
@@ -794,10 +791,9 @@ private struct HandoffChecklistComposer: View {
                 Button {
                     toggle(key)
                 } label: {
-                    let itemTone: PresentationTone = checklist.contains(key) ? .positive : .neutral
                     HStack(spacing: 10) {
                         Image(systemName: checklist.contains(key) ? "checkmark.circle.fill" : key.symbolName)
-                            .foregroundStyle(itemTone.color)
+                            .foregroundStyle(checklist.itemTone(for: key).color)
                             .frame(width: 18)
 
                         Text(key.label)
@@ -854,7 +850,7 @@ private struct HandoffFollowUpTrackerCard: View {
                 } label: {
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: status.isCompleted ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(status.isCompleted ? PresentationTone.positive.color : followUpSummary.tone.color)
+                            .foregroundStyle(status.tone.color)
                             .font(.body)
                         Text(status.item)
                             .font(.caption)
@@ -894,9 +890,10 @@ private struct HandoffFocusComposer: View {
                 Button {
                     toggle(area)
                 } label: {
+                        let isSelected = focusAreas.contains(area)
                         HStack(spacing: 10) {
                             Image(systemName: area.symbolName)
-                            .foregroundStyle(focusAreas.contains(area) ? area.tintColor : Color.secondary)
+                            .foregroundStyle(area.selectionColor(isSelected: isSelected))
                             .frame(width: 18)
 
                         Text(area.label)
@@ -904,10 +901,10 @@ private struct HandoffFocusComposer: View {
 
                         Spacer()
 
-                        if focusAreas.contains(area) {
+                        if isSelected {
                             Image(systemName: "checkmark")
                                 .font(.caption.weight(.bold))
-                                .foregroundStyle(area.tintColor)
+                                .foregroundStyle(area.selectionColor(isSelected: true))
                         }
                     }
                     .padding(.horizontal, 12)
@@ -981,6 +978,10 @@ private struct HandoffFollowUpComposer: View {
 private struct HandoffCheckInComposer: View {
     @Binding var window: HandoffCheckInWindow
 
+    private var windowStatus: MonitoringSummaryStatus {
+        .presenceStatus(isPresent: window != .none)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
@@ -989,7 +990,7 @@ private struct HandoffCheckInComposer: View {
                 Spacer()
                 Text(window.label)
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(window == .none ? .secondary : .primary)
+                    .foregroundStyle(windowStatus.color(positive: .primary))
             }
 
             Picker("Check-in Window", selection: $window) {
@@ -1019,7 +1020,7 @@ struct HandoffFocusAreaBadge: View {
             .font(.caption2.weight(.semibold))
             .padding(.horizontal, 8)
             .padding(.vertical, 5)
-            .background(area.tintColor.opacity(0.12))
+            .background(area.badgeBackgroundColor)
             .foregroundStyle(area.tintColor)
             .clipShape(Capsule())
     }

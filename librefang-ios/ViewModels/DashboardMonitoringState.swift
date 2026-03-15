@@ -62,6 +62,13 @@ struct MonitoringSummaryStatus {
     }
 }
 
+struct AgentAttentionPill: Identifiable {
+    let id: String
+    let label: String
+    let systemImage: String
+    let tone: PresentationTone
+}
+
 struct AgentAttentionItem: Identifiable {
     let agent: Agent
     let pendingApprovals: Int
@@ -79,6 +86,80 @@ struct AgentAttentionItem: Identifiable {
             return .critical
         }
         return severity > 0 ? .warning : .neutral
+    }
+
+    var statusPills: [AgentAttentionPill] {
+        var pills: [AgentAttentionPill] = []
+
+        if pendingApprovals > 0 {
+            pills.append(
+                AgentAttentionPill(
+                    id: "approvals",
+                    label: pendingApprovals == 1
+                        ? String(localized: "1 approval")
+                        : String(localized: "\(pendingApprovals) approvals"),
+                    systemImage: "exclamationmark.shield",
+                    tone: .critical
+                )
+            )
+        }
+
+        if !agent.ready {
+            pills.append(
+                AgentAttentionPill(
+                    id: "ready",
+                    label: String(localized: "Not ready"),
+                    systemImage: "hourglass",
+                    tone: .warning
+                )
+            )
+        }
+
+        if hasAuthIssue {
+            pills.append(
+                AgentAttentionPill(
+                    id: "auth",
+                    label: String(localized: "Auth"),
+                    systemImage: "lock.slash",
+                    tone: .critical
+                )
+            )
+        }
+
+        if isStale {
+            pills.append(
+                AgentAttentionPill(
+                    id: "stale",
+                    label: String(localized: "Stale"),
+                    systemImage: "clock.badge.exclamationmark",
+                    tone: .warning
+                )
+            )
+        }
+
+        if sessionPressure {
+            pills.append(
+                AgentAttentionPill(
+                    id: "sessions",
+                    label: String(localized: "Sessions"),
+                    systemImage: "rectangle.stack.badge.person.crop",
+                    tone: .warning
+                )
+            )
+        }
+
+        if modelDiagnostic != nil {
+            pills.append(
+                AgentAttentionPill(
+                    id: "model",
+                    label: String(localized: "Model"),
+                    systemImage: "square.stack.3d.up.slash",
+                    tone: .warning
+                )
+            )
+        }
+
+        return pills
     }
 }
 

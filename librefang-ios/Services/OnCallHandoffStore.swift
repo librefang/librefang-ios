@@ -392,6 +392,10 @@ struct HandoffFollowUpStatus: Identifiable {
             item: item
         )
     }
+
+    var tone: PresentationTone {
+        isCompleted ? .positive : .warning
+    }
 }
 
 struct HandoffFollowUpSummary {
@@ -485,12 +489,20 @@ struct HandoffTimelineItem: Identifiable {
         guard let gapToOlderEntry else { return false }
         return gapToOlderEntry >= gapWarningThreshold
     }
+
+    var gapTone: PresentationTone {
+        isGapWarning ? .warning : .neutral
+    }
 }
 
 struct HandoffReadinessIssue: Identifiable {
     let id: String
     let message: String
     let isBlocking: Bool
+
+    var tone: PresentationTone {
+        isBlocking ? .critical : .neutral
+    }
 }
 
 struct HandoffReadinessStatus {
@@ -646,6 +658,14 @@ struct HandoffChecklistState: Codable, Equatable {
 
     var tone: PresentationTone {
         isComplete ? .positive : .neutral
+    }
+
+    func itemTone(for key: HandoffChecklistKey) -> PresentationTone {
+        contains(key) ? .positive : .neutral
+    }
+
+    static func coverageTone(for coveredCount: Int) -> PresentationTone {
+        coveredCount > 0 ? .neutral : .warning
     }
 
     var pendingLabels: [String] {

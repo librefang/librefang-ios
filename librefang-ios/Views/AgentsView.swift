@@ -209,6 +209,7 @@ private struct AgentRow: View {
     let isWatched: Bool
 
     private var agent: Agent { attention.agent }
+    private var watchAccentColor: Color { PresentationTone.caution.color }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -223,60 +224,18 @@ private struct AgentRow: View {
                     if isWatched {
                         Image(systemName: "star.fill")
                             .font(.caption2)
-                            .foregroundStyle(.yellow)
+                            .foregroundStyle(watchAccentColor)
                     }
                 }
 
                 HStack(spacing: 6) {
                     StatePill(state: agent.state)
 
-                    if attention.pendingApprovals > 0 {
+                    ForEach(attention.statusPills) { pill in
                         InlineStatusPill(
-                            label: attention.pendingApprovals == 1
-                                ? String(localized: "1 approval")
-                                : String(localized: "\(attention.pendingApprovals) approvals"),
-                            color: .red,
-                            systemImage: "exclamationmark.shield"
-                        )
-                    }
-
-                    if !agent.ready {
-                        InlineStatusPill(
-                            label: String(localized: "Not ready"),
-                            color: .orange,
-                            systemImage: "hourglass"
-                        )
-                    }
-
-                    if attention.hasAuthIssue {
-                        InlineStatusPill(
-                            label: String(localized: "Auth"),
-                            color: .red,
-                            systemImage: "lock.slash"
-                        )
-                    }
-
-                    if attention.isStale {
-                        InlineStatusPill(
-                            label: String(localized: "Stale"),
-                            color: .orange,
-                            systemImage: "clock.badge.exclamationmark"
-                        )
-                    }
-
-                    if attention.sessionPressure {
-                        InlineStatusPill(
-                            label: String(localized: "Sessions"),
-                            color: .orange,
-                            systemImage: "rectangle.stack.badge.person.crop"
-                        )
-                    }
-
-                    if attention.modelDiagnostic != nil {
-                        InlineStatusPill(
-                            label: String(localized: "Model"),
-                            color: .orange,
-                            systemImage: "square.stack.3d.up.slash"
+                            label: pill.label,
+                            tone: pill.tone,
+                            systemImage: pill.systemImage
                         )
                     }
 
@@ -325,7 +284,7 @@ private struct StatePill: View {
 
 private struct InlineStatusPill: View {
     let label: String
-    let color: Color
+    let tone: PresentationTone
     let systemImage: String
 
     var body: some View {
@@ -333,8 +292,8 @@ private struct InlineStatusPill: View {
             .font(.caption2.weight(.medium))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(color.opacity(0.12))
-            .foregroundStyle(color)
+            .background(tone.badgeBackgroundColor)
+            .foregroundStyle(tone.color)
             .clipShape(Capsule())
     }
 }
@@ -362,6 +321,14 @@ private struct AgentFleetSummaryCard: View {
         .countStatus(approvalCount, activeTone: .critical)
     }
 
+    private var watchlistStatus: MonitoringSummaryStatus {
+        .countStatus(watchlistCount, activeTone: .positive)
+    }
+
+    private var tertiaryLabelColor: Color {
+        Color(uiColor: .tertiaryLabel)
+    }
+
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 10) {
@@ -379,7 +346,7 @@ private struct AgentFleetSummaryCard: View {
                     systemImage: "star.fill"
                 )
                 .font(.caption)
-                .foregroundStyle(watchlistCount > 0 ? .secondary : .tertiary)
+                .foregroundStyle(watchlistStatus.color(positive: .secondary, neutral: tertiaryLabelColor))
                 Spacer()
             }
         }

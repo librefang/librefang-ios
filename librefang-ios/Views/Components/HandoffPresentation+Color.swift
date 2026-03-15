@@ -13,6 +13,10 @@ extension HandoffSnapshotKind {
             return .green
         }
     }
+
+    var badgeBackgroundColor: Color {
+        tintColor.opacity(0.12)
+    }
 }
 
 extension HandoffFocusArea {
@@ -29,5 +33,13 @@ extension HandoffFocusArea {
         case .audit:
             return .purple
         }
+    }
+
+    var badgeBackgroundColor: Color {
+        tintColor.opacity(0.12)
+    }
+
+    func selectionColor(isSelected: Bool) -> Color {
+        isSelected ? tintColor : .secondary
     }
 }
