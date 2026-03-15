@@ -2269,14 +2269,54 @@ private struct WatchlistCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Watchlist")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(items.count == 1 ? String(localized: "1 pinned") : String(localized: "\(items.count) pinned"))
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
+            MonitoringSnapshotCard(
+                summary: items.count == 1
+                    ? String(localized: "1 pinned agent is on this watchlist.")
+                    : String(localized: "\(items.count) pinned agents are on this watchlist."),
+                detail: String(localized: "Pinned agents stay grouped here before opening the deeper fleet monitor."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: items.count == 1 ? String(localized: "1 pinned") : String(localized: "\(items.count) pinned"),
+                        tone: items.isEmpty ? .neutral : .positive
+                    )
+                    let issueCount = items.filter { $0.severity > 0 }.count
+                    if issueCount > 0 {
+                        PresentationToneBadge(
+                            text: issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Watch inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep pinned-agent pressure and diagnostic issues visible before opening the fleet list."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: items.count == 1 ? String(localized: "Single watch") : String(localized: "Watchlist"),
+                    tone: items.isEmpty ? .neutral : .caution
+                )
+            } facts: {
+                Label(
+                    items.count == 1 ? String(localized: "1 pinned agent") : String(localized: "\(items.count) pinned agents"),
+                    systemImage: "star.fill"
+                )
+                let issueCount = items.filter { $0.severity > 0 }.count
+                if issueCount > 0 {
+                    Label(
+                        issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
             }
 
             ForEach(items.prefix(4)) { item in
@@ -2375,14 +2415,26 @@ private struct AttentionAgentsCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Needs Attention")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text("\(items.count)")
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.tertiary)
+            MonitoringSnapshotCard(
+                summary: items.count == 1
+                    ? String(localized: "1 agent currently needs attention.")
+                    : String(localized: "\(items.count) agents currently need attention."),
+                detail: String(localized: "Attention-heavy agents stay grouped here before opening the full fleet."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: items.count == 1 ? String(localized: "1 agent") : String(localized: "\(items.count) agents"),
+                        tone: items.isEmpty ? .neutral : .warning
+                    )
+                    let approvalCount = items.reduce(0) { $0 + $1.pendingApprovals }
+                    if approvalCount > 0 {
+                        PresentationToneBadge(
+                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                            tone: .critical
+                        )
+                    }
+                }
             }
 
             ForEach(items.prefix(4)) { item in
@@ -2427,14 +2479,26 @@ private struct SessionWatchlistCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Session Watchlist")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text("\(items.count)")
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.tertiary)
+            MonitoringSnapshotCard(
+                summary: items.count == 1
+                    ? String(localized: "1 session is pinned in the watchlist.")
+                    : String(localized: "\(items.count) sessions are pinned in the watchlist."),
+                detail: String(localized: "Hot sessions stay grouped here before opening the full session monitor."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: items.count == 1 ? String(localized: "1 pinned session") : String(localized: "\(items.count) pinned sessions"),
+                        tone: items.isEmpty ? .neutral : .warning
+                    )
+                    let highVolumeCount = items.filter { $0.reasons.contains(where: { $0.localizedCaseInsensitiveContains("message") }) }.count
+                    if highVolumeCount > 0 {
+                        PresentationToneBadge(
+                            text: highVolumeCount == 1 ? String(localized: "1 high-volume") : String(localized: "\(highVolumeCount) high-volume"),
+                            tone: .warning
+                        )
+                    }
+                }
             }
 
             ForEach(items.prefix(3)) { item in
@@ -2510,9 +2574,27 @@ private struct AuditFeedCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Recent Events")
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.secondary)
+            MonitoringSnapshotCard(
+                summary: entries.count == 1
+                    ? String(localized: "1 recent event is visible in the audit feed.")
+                    : String(localized: "\(entries.count) recent events are visible in the audit feed."),
+                detail: String(localized: "Critical and recent audit entries stay grouped here before opening the full event feed."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    let criticalCount = entries.filter { $0.severity == .critical }.count
+                    PresentationToneBadge(
+                        text: entries.count == 1 ? String(localized: "1 event") : String(localized: "\(entries.count) events"),
+                        tone: entries.isEmpty ? .neutral : .positive
+                    )
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
 
             ForEach(entries.prefix(4)) { entry in
                 NavigationLink {
