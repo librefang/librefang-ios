@@ -66,6 +66,12 @@ extension DashboardViewModel {
             }
         }
 
+        lines.append("")
+        lines.append("Mobile links:")
+        lines.append("- \(AppShortcutSurface.onCall.label): \(AppShortcutSurface.onCall.deepLinkURL.absoluteString)")
+        lines.append("- \(AppShortcutSurface.incidents.label): \(AppShortcutSurface.incidents.deepLinkURL.absoluteString)")
+        lines.append("- \(AppShortcutSurface.handoffCenter.label): \(AppShortcutSurface.handoffCenter.deepLinkURL.absoluteString)")
+
         return lines.joined(separator: "\n")
     }
 }
