@@ -4,7 +4,7 @@ struct MainTabView: View {
     @Environment(\.dependencies) private var deps
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedTab = 0
-    @State private var presentedRoute: PresentedMonitoringRoute?
+    @State private var presentedTarget: AppShortcutLaunchTarget?
     @State private var incidentCue: ActiveIncidentCue?
     @State private var hasObservedCriticalState = false
     @State private var handoffCue: ActiveHandoffCue?
@@ -208,9 +208,9 @@ struct MainTabView: View {
             guard handoffCue?.id == cueID else { return }
             handoffCue = nil
         }
-        .sheet(item: $presentedRoute) { route in
+        .sheet(item: $presentedTarget) { target in
             NavigationStack {
-                monitoringRouteView(for: route)
+                monitoringRouteView(for: target)
             }
         }
     }
@@ -298,7 +298,7 @@ struct MainTabView: View {
     }
 
     @ViewBuilder
-    private func monitoringRouteView(for route: PresentedMonitoringRoute) -> some View {
+    private func monitoringRouteView(for route: AppShortcutLaunchTarget) -> some View {
         switch route {
         case .surface(.onCall):
             OnCallView()
@@ -325,6 +325,12 @@ struct MainTabView: View {
                     description: Text("The requested agent is not available in the current dashboard snapshot.")
                 )
             }
+        case .sessionsAttention:
+            SessionsView(initialFilter: .attention)
+        case .eventsCritical:
+            EventsView(api: deps.apiClient, initialScope: .critical)
+        case .eventsSearch(let query):
+            EventsView(api: deps.apiClient, initialSearchText: query, initialScope: .critical)
         }
     }
 
@@ -470,21 +476,15 @@ struct MainTabView: View {
         openRoute(.agent(id))
     }
 
-    private func openRoute(_ route: PresentedMonitoringRoute) {
+    private func openRoute(_ route: AppShortcutLaunchTarget) {
         incidentCue = nil
         handoffCue = nil
-        presentedRoute = route
+        presentedTarget = route
     }
 
     private func handlePendingAppShortcut() {
         guard let target = deps.appShortcutLaunchStore.consumePendingTarget() else { return }
-
-        switch target {
-        case .surface(let surface):
-            openSurface(surface)
-        case .agent(let id):
-            openAgent(id)
-        }
+        openRoute(target)
     }
 }
 
@@ -503,20 +503,6 @@ private struct HandoffCheckInTrackingState: Equatable {
     let level: Int
     let pendingFollowUpCount: Int
     let signature: String
-}
-
-private enum PresentedMonitoringRoute: Identifiable {
-    case surface(AppShortcutSurface)
-    case agent(String)
-
-    var id: String {
-        switch self {
-        case .surface(let surface):
-            return "surface:\(surface.rawValue)"
-        case .agent(let id):
-            return "agent:\(id)"
-        }
-    }
 }
 
 private struct ActiveHandoffCue: Identifiable, Equatable {

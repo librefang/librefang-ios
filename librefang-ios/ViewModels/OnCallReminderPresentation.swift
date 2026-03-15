@@ -36,6 +36,7 @@ struct OnCallReminderSnapshot: Equatable {
     let body: String
     let itemCount: Int
     let criticalCount: Int
+    let destinationTarget: AppShortcutLaunchTarget
     let suggestedDeliveryDate: Date?
     let schedulingHint: String?
 }
@@ -130,6 +131,7 @@ extension DashboardViewModel {
         let handoffFollowUpItem = priorityItems.first { $0.id == "handoff-followups" }
         let suggestedDeliveryDate: Date?
         let schedulingHint: String?
+        let destinationTarget: AppShortcutLaunchTarget
 
         if includesCheckIn, let handoffCheckInStatus {
             switch handoffCheckInStatus.state {
@@ -143,15 +145,18 @@ extension DashboardViewModel {
                 suggestedDeliveryDate = Date().addingTimeInterval(30)
                 schedulingHint = "Handoff check-in overdue"
             }
+            destinationTarget = .surface(.handoffCenter)
         } else if let followUpReminderDriver = followUpReminderDriver(
             for: handoffFollowUpItem,
             handoffCheckInStatus: handoffCheckInStatus
         ) {
             suggestedDeliveryDate = followUpReminderDriver.date
             schedulingHint = followUpReminderDriver.hint
+            destinationTarget = handoffFollowUpItem?.route.launchTarget ?? .surface(.handoffCenter)
         } else {
             suggestedDeliveryDate = nil
             schedulingHint = nil
+            destinationTarget = priorityItems.first?.route.launchTarget ?? .surface(.onCall)
         }
 
         return OnCallReminderSnapshot(
@@ -160,6 +165,7 @@ extension DashboardViewModel {
             body: body.isEmpty ? "Open LibreFang to review the on-call queue." : body,
             itemCount: priorityItems.count,
             criticalCount: criticalCount,
+            destinationTarget: destinationTarget,
             suggestedDeliveryDate: suggestedDeliveryDate,
             schedulingHint: schedulingHint
         )

@@ -37,6 +37,25 @@ struct OnCallPriorityItem: Identifiable, Hashable {
     let route: OnCallRoute
 }
 
+extension OnCallRoute {
+    var launchTarget: AppShortcutLaunchTarget {
+        switch self {
+        case .incidents:
+            return .surface(.incidents)
+        case .agent(let id):
+            return .agent(id)
+        case .sessionsAttention:
+            return .sessionsAttention
+        case .eventsCritical:
+            return .eventsCritical
+        case .eventsSearch(let query):
+            return .eventsSearch(query)
+        case .handoffCenter:
+            return .surface(.handoffCenter)
+        }
+    }
+}
+
 extension DashboardViewModel {
     func onCallPriorityItems(
         visibleAlerts: [MonitoringAlertItem],

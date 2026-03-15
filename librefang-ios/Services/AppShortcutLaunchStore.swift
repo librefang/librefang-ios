@@ -50,16 +50,72 @@ enum AppShortcutSurface: String, CaseIterable, Identifiable {
     }
 }
 
-enum AppShortcutLaunchTarget: Equatable {
+enum AppShortcutLaunchTarget: Hashable, Identifiable {
     case surface(AppShortcutSurface)
     case agent(String)
+    case sessionsAttention
+    case eventsCritical
+    case eventsSearch(String)
+
+    var id: String {
+        switch self {
+        case .surface(let surface):
+            return "surface:\(surface.rawValue)"
+        case .agent(let id):
+            return "agent:\(id)"
+        case .sessionsAttention:
+            return "sessions:attention"
+        case .eventsCritical:
+            return "events:critical"
+        case .eventsSearch(let query):
+            return "events:search:\(query)"
+        }
+    }
+
+    var label: String {
+        switch self {
+        case .surface(let surface):
+            return surface.label
+        case .agent:
+            return "Agent Detail"
+        case .sessionsAttention:
+            return "Session Monitor"
+        case .eventsCritical:
+            return "Critical Events"
+        case .eventsSearch:
+            return "Filtered Events"
+        }
+    }
 
     var deepLinkURL: URL {
         switch self {
         case .surface(let surface):
             return surface.deepLinkURL
         case .agent(let id):
-            return URL(string: "\(AppShortcutLaunchBridge.urlScheme)://agent/\(id)")!
+            var components = URLComponents()
+            components.scheme = AppShortcutLaunchBridge.urlScheme
+            components.host = "agent"
+            components.path = "/\(id)"
+            return components.url!
+        case .sessionsAttention:
+            var components = URLComponents()
+            components.scheme = AppShortcutLaunchBridge.urlScheme
+            components.host = "sessions"
+            components.path = "/attention"
+            return components.url!
+        case .eventsCritical:
+            var components = URLComponents()
+            components.scheme = AppShortcutLaunchBridge.urlScheme
+            components.host = "events"
+            components.path = "/critical"
+            return components.url!
+        case .eventsSearch(let query):
+            var components = URLComponents()
+            components.scheme = AppShortcutLaunchBridge.urlScheme
+            components.host = "events"
+            components.path = "/search"
+            components.queryItems = [URLQueryItem(name: "query", value: query)]
+            return components.url!
         }
     }
 }
@@ -85,14 +141,28 @@ enum AppShortcutLaunchBridge {
     }
 
     static func queue(_ target: AppShortcutLaunchTarget, defaults: UserDefaults = .standard) {
+        let kind: String
+        let value: String
+
         switch target {
         case .surface(let surface):
-            defaults.set("surface", forKey: StorageKey.pendingTargetKind)
-            defaults.set(surface.rawValue, forKey: StorageKey.pendingTargetValue)
+            kind = "surface"
+            value = surface.rawValue
         case .agent(let id):
-            defaults.set("agent", forKey: StorageKey.pendingTargetKind)
-            defaults.set(id, forKey: StorageKey.pendingTargetValue)
+            kind = "agent"
+            value = id
+        case .sessionsAttention:
+            kind = "sessions-attention"
+            value = ""
+        case .eventsCritical:
+            kind = "events-critical"
+            value = ""
+        case .eventsSearch(let query):
+            kind = "events-search"
+            value = query
         }
+        defaults.set(kind, forKey: StorageKey.pendingTargetKind)
+        defaults.set(value, forKey: StorageKey.pendingTargetValue)
         defaults.set(UUID().uuidString, forKey: StorageKey.pendingToken)
     }
 
@@ -113,6 +183,21 @@ enum AppShortcutLaunchBridge {
                 notificationTargetKindKey: "agent",
                 notificationTargetValueKey: id,
             ]
+        case .sessionsAttention:
+            return [
+                notificationTargetKindKey: "sessions-attention",
+                notificationTargetValueKey: "",
+            ]
+        case .eventsCritical:
+            return [
+                notificationTargetKindKey: "events-critical",
+                notificationTargetValueKey: "",
+            ]
+        case .eventsSearch(let query):
+            return [
+                notificationTargetKindKey: "events-search",
+                notificationTargetValueKey: query,
+            ]
         }
     }
 
@@ -122,14 +207,21 @@ enum AppShortcutLaunchBridge {
     }
 
     static func target(from userInfo: [AnyHashable: Any]) -> AppShortcutLaunchTarget? {
-        if let kind = userInfo[notificationTargetKindKey] as? String,
-           let value = userInfo[notificationTargetValueKey] as? String {
+        if let kind = userInfo[notificationTargetKindKey] as? String {
+            let value = userInfo[notificationTargetValueKey] as? String ?? ""
             switch kind {
             case "surface":
                 guard let surface = AppShortcutSurface(rawValue: value) else { return nil }
                 return .surface(surface)
             case "agent":
                 return .agent(value)
+            case "sessions-attention":
+                return .sessionsAttention
+            case "events-critical":
+                return .eventsCritical
+            case "events-search":
+                guard !value.isEmpty else { return nil }
+                return .eventsSearch(value)
             default:
                 break
             }
@@ -152,12 +244,51 @@ enum AppShortcutLaunchBridge {
     static func target(from url: URL) -> AppShortcutLaunchTarget? {
         guard url.scheme?.lowercased() == urlScheme else { return nil }
 
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         let host = url.host?.lowercased()
         let pathComponents = url.pathComponents.filter { $0 != "/" }
 
         if host == "agent" || host == "agents" {
             guard let id = pathComponents.first, !id.isEmpty else { return nil }
             return .agent(id)
+        }
+
+        if host == "sessions" {
+            if pathComponents.first?.lowercased() == "attention" {
+                return .sessionsAttention
+            }
+
+            if components?.queryItems?.first(where: { $0.name == "filter" })?.value?.lowercased() == "attention" {
+                return .sessionsAttention
+            }
+        }
+
+        if host == "events" {
+            let firstComponent = pathComponents.first?.lowercased()
+            if firstComponent == "critical" {
+                return .eventsCritical
+            }
+
+            if firstComponent == "search" {
+                if let query = components?.queryItems?.first(where: { $0.name == "query" })?.value,
+                   !query.isEmpty {
+                    return .eventsSearch(query)
+                }
+
+                if pathComponents.count > 1 {
+                    let query = pathComponents[1].removingPercentEncoding ?? pathComponents[1]
+                    guard !query.isEmpty else { return nil }
+                    return .eventsSearch(query)
+                }
+            }
+
+            if components?.queryItems?.first(where: { $0.name == "scope" })?.value?.lowercased() == "critical" {
+                if let query = components?.queryItems?.first(where: { $0.name == "query" })?.value,
+                   !query.isEmpty {
+                    return .eventsSearch(query)
+                }
+                return .eventsCritical
+            }
         }
 
         if host == "surface", let candidate = pathComponents.first {
@@ -185,10 +316,10 @@ enum AppShortcutLaunchBridge {
     }
 
     static func pendingTarget(defaults: UserDefaults = .standard) -> AppShortcutLaunchTarget? {
-        guard let kind = defaults.string(forKey: StorageKey.pendingTargetKind),
-              let value = defaults.string(forKey: StorageKey.pendingTargetValue) else {
+        guard let kind = defaults.string(forKey: StorageKey.pendingTargetKind) else {
             return nil
         }
+        let value = defaults.string(forKey: StorageKey.pendingTargetValue) ?? ""
 
         switch kind {
         case "surface":
@@ -196,6 +327,13 @@ enum AppShortcutLaunchBridge {
             return .surface(surface)
         case "agent":
             return .agent(value)
+        case "sessions-attention":
+            return .sessionsAttention
+        case "events-critical":
+            return .eventsCritical
+        case "events-search":
+            guard !value.isEmpty else { return nil }
+            return .eventsSearch(value)
         default:
             return nil
         }
@@ -235,6 +373,11 @@ final class AppShortcutLaunchStore {
 
     func queue(_ surface: AppShortcutSurface) {
         AppShortcutLaunchBridge.queue(surface, defaults: defaults)
+        refreshFromDefaults()
+    }
+
+    func queue(_ target: AppShortcutLaunchTarget) {
+        AppShortcutLaunchBridge.queue(target, defaults: defaults)
         refreshFromDefaults()
     }
 
