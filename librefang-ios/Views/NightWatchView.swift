@@ -87,7 +87,8 @@ struct NightWatchView: View {
     private var allPriorityItems: [OnCallPriorityItem] {
         vm.onCallPriorityItems(
             visibleAlerts: visibleAlerts,
-            watchedAttentionItems: watchedAttentionItems
+            watchedAttentionItems: watchedAttentionItems,
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
         )
     }
 
@@ -138,7 +139,18 @@ struct NightWatchView: View {
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
-            isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
+            isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
+        )
+    }
+
+    private var handoffText: String {
+        vm.onCallHandoffText(
+            visibleAlerts: visibleAlerts,
+            watchedAttentionItems: watchedAttentionItems,
+            mutedAlertCount: mutedAlertCount,
+            isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
         )
     }
 
@@ -400,6 +412,13 @@ struct NightWatchView: View {
             EventsView(api: deps.apiClient, initialScope: .critical)
         case .eventsSearch(let query):
             EventsView(api: deps.apiClient, initialSearchText: query, initialScope: .critical)
+        case .handoffCenter:
+            HandoffCenterView(
+                summary: handoffText,
+                queueCount: allPriorityItems.count,
+                criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
+                liveAlertCount: visibleAlerts.count
+            )
         }
     }
 

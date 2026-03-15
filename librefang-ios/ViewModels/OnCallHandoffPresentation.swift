@@ -5,11 +5,13 @@ extension DashboardViewModel {
         visibleAlerts: [MonitoringAlertItem],
         watchedAttentionItems: [AgentAttentionItem],
         mutedAlertCount: Int,
-        isAcknowledged: Bool
+        isAcknowledged: Bool,
+        handoffCheckInStatus: HandoffCheckInStatus? = nil
     ) -> String {
         let queue = onCallPriorityItems(
             visibleAlerts: visibleAlerts,
-            watchedAttentionItems: watchedAttentionItems
+            watchedAttentionItems: watchedAttentionItems,
+            handoffCheckInStatus: handoffCheckInStatus
         )
 
         let watchIssueCount = watchedAttentionItems.filter { $0.severity > 0 }.count
@@ -22,13 +24,18 @@ extension DashboardViewModel {
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
-            isAcknowledged: isAcknowledged
+            isAcknowledged: isAcknowledged,
+            handoffCheckInStatus: handoffCheckInStatus
         ))
         lines.append("Live alerts: \(visibleAlerts.count) (\(criticalCount) critical)")
         lines.append("Approvals: \(pendingApprovalCount)")
         lines.append("Watchlist issues: \(watchIssueCount)")
         lines.append("Session hotspots: \(sessionAttentionCount)")
         lines.append("Critical audit events: \(recentCriticalAuditCount)")
+
+        if let handoffCheckInStatus {
+            lines.append("Handoff check-in: \(handoffCheckInStatus.state.label) · \(handoffCheckInStatus.dueLabel)")
+        }
 
         if mutedAlertCount > 0 {
             lines.append("Muted locally: \(mutedAlertCount)")

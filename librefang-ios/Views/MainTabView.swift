@@ -164,7 +164,8 @@ struct MainTabView: View {
             visibleAlerts: visibleMonitoringAlerts,
             watchedAttentionItems: watchedAttentionItems,
             scope: deps.onCallNotificationManager.scope,
-            isAcknowledged: isCurrentSnapshotAcknowledged
+            isAcknowledged: isCurrentSnapshotAcknowledged,
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
         )
     }
 

@@ -81,7 +81,8 @@ struct StandbyDigestView: View {
     private var priorityItems: [OnCallPriorityItem] {
         vm.onCallPriorityItems(
             visibleAlerts: visibleAlerts,
-            watchedAttentionItems: watchedAttentionItems
+            watchedAttentionItems: watchedAttentionItems,
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
         )
     }
 
@@ -119,7 +120,8 @@ struct StandbyDigestView: View {
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
-            isAcknowledged: isAcknowledged
+            isAcknowledged: isAcknowledged,
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
         )
     }
     private var handoffText: String {
@@ -127,7 +129,8 @@ struct StandbyDigestView: View {
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
-            isAcknowledged: isAcknowledged
+            isAcknowledged: isAcknowledged,
+            handoffCheckInStatus: deps.onCallHandoffStore.latestCheckInStatus
         )
     }
 
@@ -428,6 +431,13 @@ struct StandbyDigestView: View {
             EventsView(api: deps.apiClient, initialScope: .critical)
         case .eventsSearch(let query):
             EventsView(api: deps.apiClient, initialSearchText: query, initialScope: .critical)
+        case .handoffCenter:
+            HandoffCenterView(
+                summary: handoffText,
+                queueCount: priorityItems.count,
+                criticalCount: criticalCount,
+                liveAlertCount: visibleAlerts.count
+            )
         }
     }
 

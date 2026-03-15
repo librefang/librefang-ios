@@ -84,7 +84,8 @@ struct OnCallView: View {
     private var priorityItems: [OnCallPriorityItem] {
         vm.onCallPriorityItems(
             visibleAlerts: visibleAlerts,
-            watchedAttentionItems: watchedAttentionItems
+            watchedAttentionItems: watchedAttentionItems,
+            handoffCheckInStatus: handoffStore.latestCheckInStatus
         )
     }
 
@@ -93,7 +94,8 @@ struct OnCallView: View {
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
-            isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
+            isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
+            handoffCheckInStatus: handoffStore.latestCheckInStatus
         )
     }
     private var handoffText: String {
@@ -101,7 +103,8 @@ struct OnCallView: View {
             visibleAlerts: visibleAlerts,
             watchedAttentionItems: watchedAttentionItems,
             mutedAlertCount: mutedAlertCount,
-            isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
+            isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
+            handoffCheckInStatus: handoffStore.latestCheckInStatus
         )
     }
     private var handoffStore: OnCallHandoffStore { deps.onCallHandoffStore }
@@ -335,6 +338,13 @@ struct OnCallView: View {
             EventsView(api: deps.apiClient, initialScope: .critical)
         case .eventsSearch(let query):
             EventsView(api: deps.apiClient, initialSearchText: query, initialScope: .critical)
+        case .handoffCenter:
+            HandoffCenterView(
+                summary: handoffText,
+                queueCount: priorityItems.count,
+                criticalCount: visibleAlerts.filter { $0.severity == .critical }.count,
+                liveAlertCount: visibleAlerts.count
+            )
         }
     }
 

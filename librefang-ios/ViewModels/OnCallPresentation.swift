@@ -23,6 +23,7 @@ enum OnCallRoute: Hashable {
     case sessionsAttention
     case eventsCritical
     case eventsSearch(String)
+    case handoffCenter
 }
 
 struct OnCallPriorityItem: Identifiable, Hashable {
@@ -39,7 +40,8 @@ struct OnCallPriorityItem: Identifiable, Hashable {
 extension DashboardViewModel {
     func onCallPriorityItems(
         visibleAlerts: [MonitoringAlertItem],
-        watchedAttentionItems: [AgentAttentionItem]
+        watchedAttentionItems: [AgentAttentionItem],
+        handoffCheckInStatus: HandoffCheckInStatus? = nil
     ) -> [OnCallPriorityItem] {
         var items: [OnCallPriorityItem] = []
 
@@ -138,6 +140,10 @@ extension DashboardViewModel {
                 )
             })
 
+        if let checkInItem = onCallCheckInItem(for: handoffCheckInStatus) {
+            items.append(checkInItem)
+        }
+
         return items
             .sorted { lhs, rhs in
                 if lhs.rank != rhs.rank {
@@ -151,29 +157,49 @@ extension DashboardViewModel {
         visibleAlerts: [MonitoringAlertItem],
         watchedAttentionItems: [AgentAttentionItem],
         mutedAlertCount: Int,
-        isAcknowledged: Bool
+        isAcknowledged: Bool,
+        handoffCheckInStatus: HandoffCheckInStatus? = nil
     ) -> String {
         let liveCritical = visibleAlerts.filter { $0.severity == .critical }.count
         let watchIssues = watchedAttentionItems.filter { $0.severity > 0 }.count
+        let checkInSummary = checkInDigestSummary(for: handoffCheckInStatus)
 
         if !visibleAlerts.isEmpty {
             if isAcknowledged {
-                return liveCritical > 0
+                let base = liveCritical > 0
                     ? "\(liveCritical) critical items acknowledged on this iPhone"
                     : "\(visibleAlerts.count) live alerts acknowledged on this iPhone"
+                return [base, checkInSummary].compactMap { $0 }.joined(separator: " · ")
             }
 
-            return "\(visibleAlerts.count) live alerts · \(pendingApprovalCount) approvals · \(watchIssues) watched agents need review"
+            return [
+                "\(visibleAlerts.count) live alerts",
+                "\(pendingApprovalCount) approvals",
+                "\(watchIssues) watched agents need review",
+                checkInSummary
+            ]
+            .compactMap { $0 }
+            .joined(separator: " · ")
         }
 
         if mutedAlertCount > 0 {
-            return mutedAlertCount == 1
+            let base = mutedAlertCount == 1
                 ? "1 alert is muted locally; watchlist and sessions remain active"
                 : "\(mutedAlertCount) alerts are muted locally; watchlist and sessions remain active"
+            return [base, checkInSummary].compactMap { $0 }.joined(separator: " · ")
         }
 
         if watchIssues > 0 {
-            return "\(watchIssues) watched agents still need review even though no live alert card is visible"
+            return [
+                "\(watchIssues) watched agents still need review even though no live alert card is visible",
+                checkInSummary
+            ]
+            .compactMap { $0 }
+            .joined(separator: " · ")
+        }
+
+        if let checkInSummary {
+            return checkInSummary
         }
 
         return "No live alerts. Monitoring is currently in a calm state on this iPhone."
@@ -198,6 +224,50 @@ extension DashboardViewModel {
             68
         case .info:
             52
+        }
+    }
+
+    private func onCallCheckInItem(for status: HandoffCheckInStatus?) -> OnCallPriorityItem? {
+        guard let status else { return nil }
+
+        switch status.state {
+        case .scheduled:
+            return nil
+        case .dueSoon:
+            return OnCallPriorityItem(
+                id: "handoff-checkin:due-soon",
+                title: "Handoff check-in due soon",
+                detail: status.dueLabel,
+                footnote: "Local handoff checkpoint \(RelativeDateTimeFormatter().localizedString(for: status.baseline.createdAt, relativeTo: Date()))",
+                symbolName: "timer",
+                severity: .warning,
+                rank: 76,
+                route: .handoffCenter
+            )
+        case .overdue:
+            return OnCallPriorityItem(
+                id: "handoff-checkin:overdue",
+                title: "Handoff check-in overdue",
+                detail: status.dueLabel,
+                footnote: "Local handoff checkpoint \(RelativeDateTimeFormatter().localizedString(for: status.baseline.createdAt, relativeTo: Date()))",
+                symbolName: "timer",
+                severity: .critical,
+                rank: 92,
+                route: .handoffCenter
+            )
+        }
+    }
+
+    private func checkInDigestSummary(for status: HandoffCheckInStatus?) -> String? {
+        guard let status else { return nil }
+
+        switch status.state {
+        case .scheduled:
+            return nil
+        case .dueSoon:
+            return "handoff check-in due soon"
+        case .overdue:
+            return "handoff check-in overdue"
         }
     }
 }
