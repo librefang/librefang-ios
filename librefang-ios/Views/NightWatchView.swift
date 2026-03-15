@@ -151,6 +151,16 @@ struct NightWatchView: View {
     private var integrationIssueCount: Int {
         vm.integrationPressureIssueCategoryCount
     }
+    private var nightWatchSectionCount: Int {
+        [
+            true,
+            !primaryItems.isEmpty,
+            !secondaryItems.isEmpty,
+            !activeWatchedItems.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
 
     private var tone: NightWatchTone {
         if primaryItems.contains(where: { $0.severity == .critical }) {
@@ -446,6 +456,18 @@ struct NightWatchView: View {
                 approvalCount: vm.pendingApprovalCount,
                 sessionCount: vm.sessionAttentionCount,
                 eventCount: vm.recentCriticalAuditCount,
+                automationIssueCount: automationIssueCount,
+                integrationIssueCount: integrationIssueCount
+            )
+
+            NightWatchSectionInventoryDeck(
+                sectionCount: nightWatchSectionCount,
+                primaryQueueCount: primaryItems.count,
+                secondaryQueueCount: secondaryItems.count,
+                watchCount: activeWatchedItems.count,
+                pendingFollowUpCount: pendingFollowUpCount,
+                approvalCount: vm.pendingApprovalCount,
+                criticalCount: criticalCount,
                 automationIssueCount: automationIssueCount,
                 integrationIssueCount: integrationIssueCount
             )
@@ -1360,6 +1382,101 @@ private struct NightWatchRouteInventoryCard: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct NightWatchSectionInventoryDeck: View {
+    let sectionCount: Int
+    let primaryQueueCount: Int
+    let secondaryQueueCount: Int
+    let watchCount: Int
+    let pendingFollowUpCount: Int
+    let approvalCount: Int
+    let criticalCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 2
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: primaryQueueCount == 1 ? String(localized: "1 primary card") : String(localized: "\(primaryQueueCount) primary cards"),
+                        tone: primaryQueueCount > 0 ? .warning : .neutral
+                    )
+                    if secondaryQueueCount > 0 {
+                        PresentationToneBadge(
+                            text: secondaryQueueCount == 1 ? String(localized: "1 secondary card") : String(localized: "\(secondaryQueueCount) secondary cards"),
+                            tone: .neutral
+                        )
+                    }
+                    if watchCount > 0 {
+                        PresentationToneBadge(
+                            text: watchCount == 1 ? String(localized: "1 watched item") : String(localized: "\(watchCount) watched items"),
+                            tone: .caution
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow(factsColor: .white.opacity(0.72)) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section inventory"))
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white)
+                    Text(String(localized: "Keep queue depth, watch pressure, and supporting issue buckets visible before the display controls and route rails."))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.66))
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                    tone: approvalCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                    systemImage: "exclamationmark.triangle"
+                )
+                if pendingFollowUpCount > 0 {
+                    Label(
+                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                        systemImage: "arrow.triangle.2.circlepath"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 night-watch section is active below the hero snapshot.")
+            : String(localized: "\(sectionCount) night-watch sections are active below the hero snapshot.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Priority cards, watchlist pressure, and support issue buckets stay summarized before the display controls and route rails take over.")
     }
 }
 
