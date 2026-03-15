@@ -1343,7 +1343,7 @@ private struct IntegrationsOverviewCard: View {
                     if vm.hasCatalogFreshnessIssue {
                         issueRow(
                             icon: "clock.arrow.trianglehead.counterclockwise.rotate.90",
-                            color: vm.catalogModels.isEmpty ? .red : .orange,
+                            color: vm.catalogFreshnessIssueTone.color,
                             text: vm.catalogLastSyncDate == nil
                                 ? String(localized: "Catalog sync timestamp missing")
                                 : String(localized: "Catalog sync is stale"),
@@ -1353,7 +1353,7 @@ private struct IntegrationsOverviewCard: View {
                     if !vm.agentsWithModelDiagnostics.isEmpty {
                         issueRow(
                             icon: "cpu",
-                            color: vm.unavailableModelAgentCount > 0 ? .red : .orange,
+                            color: vm.modelDriftIssueTone.color,
                             text: vm.agentsWithModelDiagnostics.count == 1
                                 ? String(localized: "1 agent resolves to a drifted catalog model")
                                 : String(localized: "\(vm.agentsWithModelDiagnostics.count) agents resolve to drifted catalog models"),

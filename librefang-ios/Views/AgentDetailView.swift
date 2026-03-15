@@ -133,6 +133,26 @@ struct AgentDetailView: View {
         return ProviderAlignmentStatus(isAligned: providerMatchesResolvedModel)
     }
 
+    private var profileToolCountTone: PresentationTone {
+        (agentProfileSummary?.tools.isEmpty == false) ? .positive : .neutral
+    }
+
+    private var sessionAttentionTone: PresentationTone {
+        sessionItems.contains { $0.severity > 0 } ? .warning : .neutral
+    }
+
+    private var structuredMemoryTone: PresentationTone {
+        agentMemory.contains { $0.isStructured } ? .warning : .neutral
+    }
+
+    private var deliveredReceiptTone: PresentationTone {
+        agentDeliveries.contains { $0.status == .delivered } ? .positive : .neutral
+    }
+
+    private var failedReceiptTone: PresentationTone {
+        agentDeliveries.contains { $0.status == .failed } ? .critical : .neutral
+    }
+
     private var diagnosticsShareText: String {
         let structuredMemoryCount = agentMemory.filter(\.isStructured).count
         let diagnosticsModelLabel = requestedModelReference ?? agent.modelName ?? String(localized: "Unknown")
@@ -545,7 +565,7 @@ struct AgentDetailView: View {
                 } else if let agentProfileSummary {
                     LabeledContent("Tools") {
                         Text(agentProfileSummary.tools.count.formatted())
-                            .foregroundStyle(agentProfileSummary.tools.isEmpty ? Color.secondary : Color.blue)
+                            .foregroundStyle(profileToolCountTone.color)
                             .monospacedDigit()
                     }
                     if !agentProfileSummary.tools.isEmpty {
@@ -899,7 +919,7 @@ struct AgentDetailView: View {
                 }
                 LabeledContent("Attention") {
                     Text("\(sessionItems.filter { $0.severity > 0 }.count)")
-                        .foregroundStyle(sessionItems.contains { $0.severity > 0 } ? .orange : .secondary)
+                        .foregroundStyle(sessionAttentionTone.color)
                 }
 
                 ForEach(sessionItems.prefix(4)) { item in
@@ -969,7 +989,7 @@ struct AgentDetailView: View {
                 LabeledContent("Structured") {
                     let structured = agentMemory.filter(\.isStructured).count
                     Text(structured.formatted())
-                        .foregroundStyle(structured > 0 ? .orange : .secondary)
+                        .foregroundStyle(structuredMemoryTone.color)
                         .monospacedDigit()
                 }
 
@@ -1058,12 +1078,12 @@ struct AgentDetailView: View {
                 }
                 LabeledContent("Delivered") {
                     Text(delivered.formatted())
-                        .foregroundStyle(delivered > 0 ? .green : .secondary)
+                        .foregroundStyle(deliveredReceiptTone.color)
                         .monospacedDigit()
                 }
                 LabeledContent("Failed") {
                     Text(failed.formatted())
-                        .foregroundStyle(failed > 0 ? .red : .secondary)
+                        .foregroundStyle(failedReceiptTone.color)
                         .monospacedDigit()
                 }
 

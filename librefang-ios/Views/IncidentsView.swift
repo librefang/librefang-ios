@@ -982,7 +982,7 @@ private struct IncidentIntegrationsCard: View {
             if vm.hasCatalogFreshnessIssue {
                 integrationIssueRow(
                     icon: "clock.arrow.trianglehead.counterclockwise.rotate.90",
-                    color: vm.catalogModels.isEmpty ? .red : .orange,
+                    color: vm.catalogFreshnessIssueTone.color,
                     title: vm.catalogLastSyncDate == nil
                         ? String(localized: "Catalog sync timestamp missing")
                         : String(localized: "Catalog sync is stale"),
@@ -993,7 +993,7 @@ private struct IncidentIntegrationsCard: View {
             if !vm.agentsWithModelDiagnostics.isEmpty {
                 integrationIssueRow(
                     icon: "cpu",
-                    color: vm.unavailableModelAgentCount > 0 ? .red : .orange,
+                    color: vm.modelDriftIssueTone.color,
                     title: vm.agentsWithModelDiagnostics.count == 1
                         ? String(localized: "1 agent has model drift")
                         : String(localized: "\(vm.agentsWithModelDiagnostics.count) agents have model drift"),

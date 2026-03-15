@@ -216,6 +216,14 @@ extension DashboardViewModel {
         )
     }
 
+    var catalogFreshnessIssueTone: PresentationTone {
+        catalogModels.isEmpty ? .critical : .warning
+    }
+
+    var modelDriftIssueTone: PresentationTone {
+        unavailableModelAgentCount > 0 ? .critical : .warning
+    }
+
     var isDataStale: Bool {
         guard let lastRefresh else { return true }
         return Date().timeIntervalSince(lastRefresh) > MonitoringThresholds.refreshStaleInterval
