@@ -136,6 +136,17 @@ struct AutomationView: View {
         }
         return String(localized: "Automation monitor keeps workflows, runs, triggers, schedules, and cron jobs grouped on one mobile page.")
     }
+    private var automationJumpCount: Int {
+        [
+            !filteredWorkflows.isEmpty,
+            !filteredWorkflowRuns.isEmpty,
+            !filteredTriggers.isEmpty,
+            !filteredSchedules.isEmpty,
+            !filteredCronJobs.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
 
     init(initialSearchText: String = "", initialScope: AutomationMonitorScope = .all) {
         _searchText = State(initialValue: initialSearchText)
@@ -169,6 +180,14 @@ struct AutomationView: View {
                         searchText: searchText,
                         visibleItemCount: visibleItemCount,
                         automationSnapshotSummary: automationSnapshotSummary
+                    )
+                    AutomationRouteInventoryDeck(
+                        primaryRouteCount: 4,
+                        supportRouteCount: 1,
+                        jumpCount: automationJumpCount,
+                        failedRunCount: vm.failedWorkflowRunCount,
+                        stalledCronCount: vm.stalledCronJobCount,
+                        visibleItemCount: visibleItemCount
                     )
 
                     MonitoringSurfaceGroupCard(
@@ -861,6 +880,61 @@ private struct AutomationFilterCard: View {
         case .active:
             return .positive
         }
+    }
+}
+
+private struct AutomationRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let jumpCount: Int
+    let failedRunCount: Int
+    let stalledCronCount: Int
+    let visibleItemCount: Int
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: jumpCount == 1 ? String(localized: "1 jump") : String(localized: "\(jumpCount) jumps"),
+                    tone: jumpCount > 0 ? .positive : .neutral
+                )
+                if failedRunCount > 0 {
+                    PresentationToneBadge(
+                        text: failedRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(failedRunCount) failed runs"),
+                        tone: .critical
+                    )
+                }
+                if stalledCronCount > 0 {
+                    PresentationToneBadge(
+                        text: stalledCronCount == 1 ? String(localized: "1 stalled cron") : String(localized: "\(stalledCronCount) stalled cron jobs"),
+                        tone: .warning
+                    )
+                }
+                PresentationToneBadge(
+                    text: visibleItemCount == 1 ? String(localized: "1 visible item") : String(localized: "\(visibleItemCount) visible items"),
+                    tone: .neutral
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        let totalRoutes = primaryRouteCount + supportRouteCount + jumpCount
+        return totalRoutes == 1
+            ? String(localized: "1 automation route or jump is grouped in this deck.")
+            : String(localized: "\(totalRoutes) automation routes and jumps are grouped in this deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Routes and long-section jumps stay summarized here before the grouped workflow lists.")
     }
 }
 

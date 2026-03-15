@@ -87,6 +87,8 @@ struct ApprovalsView: View {
     private var approvalAgentCount: Int {
         Set(vm.approvals.map(\.agentId)).count
     }
+    private var approvalsPrimaryRouteCount: Int { 3 }
+    private var approvalsSupportRouteCount: Int { 1 }
 
     var body: some View {
         List {
@@ -105,6 +107,13 @@ struct ApprovalsView: View {
                     filterLabel: filter.label,
                     filterTone: filterTone,
                     hasSearchScope: !trimmedSearchText.isEmpty
+                )
+                ApprovalsRouteInventoryDeck(
+                    primaryRouteCount: approvalsPrimaryRouteCount,
+                    supportRouteCount: approvalsSupportRouteCount,
+                    pendingApprovalCount: vm.pendingApprovalCount,
+                    criticalApprovalCount: criticalApprovalCount,
+                    approvalAgentCount: approvalAgentCount
                 )
                 MonitoringSurfaceGroupCard(
                     title: String(localized: "Routes"),
@@ -565,6 +574,58 @@ private struct ApprovalsQueueInventoryDeck: View {
     private var latestRequestLabel: String? {
         guard let date = approvals.compactMap(\.requestedAt.approvalRequestedDate).max() else { return nil }
         return String(localized: "Latest \(RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date()))")
+    }
+}
+
+private struct ApprovalsRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let pendingApprovalCount: Int
+    let criticalApprovalCount: Int
+    let approvalAgentCount: Int
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                    tone: .neutral
+                )
+                if pendingApprovalCount > 0 {
+                    PresentationToneBadge(
+                        text: pendingApprovalCount == 1 ? String(localized: "1 pending") : String(localized: "\(pendingApprovalCount) pending"),
+                        tone: .warning
+                    )
+                }
+                if criticalApprovalCount > 0 {
+                    PresentationToneBadge(
+                        text: criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"),
+                        tone: .critical
+                    )
+                }
+                if approvalAgentCount > 0 {
+                    PresentationToneBadge(
+                        text: approvalAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(approvalAgentCount) agents"),
+                        tone: .neutral
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        let totalRoutes = primaryRouteCount + supportRouteCount
+        return totalRoutes == 1
+            ? String(localized: "1 approval route is grouped in this deck.")
+            : String(localized: "\(totalRoutes) approval routes are grouped in this deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Queue exits stay summarized here before the runtime, incident, and fleet route chips.")
     }
 }
 

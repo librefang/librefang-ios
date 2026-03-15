@@ -212,6 +212,17 @@ struct IntegrationsView: View {
     private var channelAttentionCount: Int { vm.channelRequiredFieldGapCount }
     private var modelAttentionCount: Int { vm.unavailableCatalogModelCount }
     private var driftAttentionCount: Int { vm.agentsWithModelDiagnostics.count }
+    private var integrationsJumpCount: Int {
+        [
+            !filteredProviders.isEmpty,
+            !filteredChannels.isEmpty,
+            !filteredModels.isEmpty,
+            !filteredAliases.isEmpty,
+            !filteredAgentDiagnostics.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
 
     private var scopeSummaryLine: String {
         scope == .attention
@@ -305,6 +316,15 @@ struct IntegrationsView: View {
                             title: String(localized: "Routes"),
                             detail: String(localized: "Keep the next operator exits compact and visible above the provider, channel, and drift inventory.")
                         ) {
+                            IntegrationsRouteInventoryDeck(
+                                primaryRouteCount: 4,
+                                supportRouteCount: 3,
+                                jumpCount: integrationsJumpCount,
+                                providerAttentionCount: providerAttentionCount,
+                                channelAttentionCount: channelAttentionCount,
+                                driftAttentionCount: driftAttentionCount
+                            )
+
                             MonitoringShortcutRail(
                                 title: String(localized: "Primary"),
                                 detail: String(localized: "Use these routes first when provider, channel, or drift diagnostics need broader context.")
@@ -816,6 +836,63 @@ private struct IntegrationsStatusDeckCard: View {
                 )
             }
         }
+    }
+}
+
+private struct IntegrationsRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let jumpCount: Int
+    let providerAttentionCount: Int
+    let channelAttentionCount: Int
+    let driftAttentionCount: Int
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                    tone: .neutral
+                )
+                PresentationToneBadge(
+                    text: jumpCount == 1 ? String(localized: "1 jump") : String(localized: "\(jumpCount) jumps"),
+                    tone: jumpCount > 0 ? .positive : .neutral
+                )
+                if providerAttentionCount > 0 {
+                    PresentationToneBadge(
+                        text: providerAttentionCount == 1 ? String(localized: "1 provider issue") : String(localized: "\(providerAttentionCount) provider issues"),
+                        tone: .warning
+                    )
+                }
+                if channelAttentionCount > 0 {
+                    PresentationToneBadge(
+                        text: channelAttentionCount == 1 ? String(localized: "1 channel gap") : String(localized: "\(channelAttentionCount) channel gaps"),
+                        tone: .warning
+                    )
+                }
+                if driftAttentionCount > 0 {
+                    PresentationToneBadge(
+                        text: driftAttentionCount == 1 ? String(localized: "1 drifted agent") : String(localized: "\(driftAttentionCount) drifted agents"),
+                        tone: .critical
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        let totalRoutes = primaryRouteCount + supportRouteCount + jumpCount
+        return totalRoutes == 1
+            ? String(localized: "1 integration route or jump is grouped in this deck.")
+            : String(localized: "\(totalRoutes) integration routes and jumps are grouped in this deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Routes and section jumps stay summarized here before provider, channel, model, and drift inventories.")
     }
 }
 
