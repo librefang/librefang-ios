@@ -29,6 +29,7 @@ struct CommsView: View {
         }
     }
 
+    private var commsSectionCount: Int { 2 }
     private var commsPrimaryRouteCount: Int { 3 }
     private var commsSupportRouteCount: Int { 1 }
 
@@ -53,6 +54,7 @@ struct CommsView: View {
 
             Section {
                 commsStatusDeckCard
+                commsSectionInventoryDeck
                 commsControlDeckCard
             } header: {
                 Text("Controls")
@@ -319,6 +321,103 @@ struct CommsView: View {
                 edgeCount: viewModel.edgeCount
             )
         }
+    }
+
+    private var commsSectionInventoryDeck: some View {
+        CommsSectionInventoryDeck(
+            sectionCount: commsSectionCount,
+            visibleEventCount: filteredEvents.count,
+            totalEventCount: viewModel.events.count,
+            nodeCount: viewModel.nodeCount,
+            edgeCount: viewModel.edgeCount,
+            taskEventCount: viewModel.taskEventCount,
+            isStreaming: viewModel.isStreaming,
+            hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        )
+    }
+}
+
+private struct CommsSectionInventoryDeck: View {
+    let sectionCount: Int
+    let visibleEventCount: Int
+    let totalEventCount: Int
+    let nodeCount: Int
+    let edgeCount: Int
+    let taskEventCount: Int
+    let isStreaming: Bool
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: visibleEventCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleEventCount) visible events"),
+                        tone: visibleEventCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: edgeCount == 1 ? String(localized: "1 live link") : String(localized: "\(edgeCount) live links"),
+                        tone: edgeCount > 0 ? .positive : .neutral
+                    )
+                    if hasSearchScope {
+                        PresentationToneBadge(
+                            text: String(localized: "Search scoped"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep topology depth, traffic volume, and transport state visible before the comms rows take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                    tone: isStreaming ? .positive : .warning
+                )
+            } facts: {
+                Label(
+                    nodeCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(nodeCount) visible agents"),
+                    systemImage: "cpu"
+                )
+                if taskEventCount > 0 {
+                    Label(
+                        taskEventCount == 1 ? String(localized: "1 task-flow event") : String(localized: "\(taskEventCount) task-flow events"),
+                        systemImage: "checklist"
+                    )
+                }
+                Label(
+                    totalEventCount == 1 ? String(localized: "1 total event") : String(localized: "\(totalEventCount) total events"),
+                    systemImage: "arrow.left.arrow.right.circle"
+                )
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 comms section is active below the controls deck.")
+            : String(localized: "\(sectionCount) comms sections are active below the controls deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Topology depth, traffic volume, and transport state stay summarized before the comms topology and traffic rows take over.")
     }
 }
 

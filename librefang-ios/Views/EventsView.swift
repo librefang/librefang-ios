@@ -35,6 +35,7 @@ struct EventsView: View {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    private var eventSectionCount: Int { 1 }
     private var eventsPrimaryRouteCount: Int { 3 }
     private var eventsSupportRouteCount: Int { 2 }
 
@@ -103,6 +104,7 @@ struct EventsView: View {
     private var eventsControlsSection: some View {
         Section {
             eventsStatusDeckCard
+            eventsSectionInventoryDeck
             eventsControlDeckCard
         } header: {
             Text("Controls")
@@ -325,6 +327,104 @@ struct EventsView: View {
                 isStreaming: viewModel.isStreaming
             )
         }
+    }
+
+    private var eventsSectionInventoryDeck: some View {
+        EventsSectionInventoryDeck(
+            sectionCount: eventSectionCount,
+            visibleCount: filteredEntries.count,
+            totalCount: viewModel.entries.count,
+            criticalCount: filteredEntries.filter { $0.severity == .critical }.count,
+            warningCount: filteredEntries.filter { $0.severity == .warning }.count,
+            infoCount: filteredEntries.filter { $0.severity == .info }.count,
+            isStreaming: viewModel.isStreaming,
+            hasSearchScope: !trimmedSearchText.isEmpty
+        )
+    }
+}
+
+private struct EventsSectionInventoryDeck: View {
+    let sectionCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let criticalCount: Int
+    let warningCount: Int
+    let infoCount: Int
+    let isStreaming: Bool
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleCount) visible events"),
+                        tone: visibleCount > 0 ? .positive : .neutral
+                    )
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if warningCount > 0 {
+                        PresentationToneBadge(
+                            text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep event severity, result volume, and transport state visible before the feed rows take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                    tone: isStreaming ? .positive : .warning
+                )
+            } facts: {
+                Label(
+                    totalCount == 1 ? String(localized: "1 total event") : String(localized: "\(totalCount) total events"),
+                    systemImage: "list.bullet.rectangle"
+                )
+                if infoCount > 0 {
+                    Label(
+                        infoCount == 1 ? String(localized: "1 info") : String(localized: "\(infoCount) info"),
+                        systemImage: "info.circle"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 event section is active below the controls deck.")
+            : String(localized: "\(sectionCount) event sections are active below the controls deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Severity mix, result volume, and transport mode stay summarized before the event feed takes over the page.")
     }
 }
 

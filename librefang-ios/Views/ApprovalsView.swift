@@ -87,6 +87,10 @@ struct ApprovalsView: View {
     private var approvalAgentCount: Int {
         Set(vm.approvals.map(\.agentId)).count
     }
+    private var visibleToolCount: Int {
+        Set(filteredApprovals.map(\.toolName)).count
+    }
+    private var approvalsSectionCount: Int { 1 }
     private var approvalsPrimaryRouteCount: Int { 3 }
     private var approvalsSupportRouteCount: Int { 1 }
 
@@ -106,6 +110,16 @@ struct ApprovalsView: View {
                     visibleApprovalCount: filteredApprovals.count,
                     filterLabel: filter.label,
                     filterTone: filterTone,
+                    hasSearchScope: !trimmedSearchText.isEmpty
+                )
+                ApprovalsSectionInventoryDeck(
+                    sectionCount: approvalsSectionCount,
+                    pendingApprovalCount: vm.pendingApprovalCount,
+                    visibleApprovalCount: filteredApprovals.count,
+                    criticalApprovalCount: criticalApprovalCount,
+                    highRiskApprovalCount: highRiskApprovalCount,
+                    approvalAgentCount: approvalAgentCount,
+                    toolCount: visibleToolCount,
                     hasSearchScope: !trimmedSearchText.isEmpty
                 )
                 ApprovalsRouteInventoryDeck(
@@ -449,6 +463,89 @@ private struct ApprovalsStatusDeckCard: View {
                 }
             }
         }
+    }
+}
+
+private struct ApprovalsSectionInventoryDeck: View {
+    let sectionCount: Int
+    let pendingApprovalCount: Int
+    let visibleApprovalCount: Int
+    let criticalApprovalCount: Int
+    let highRiskApprovalCount: Int
+    let approvalAgentCount: Int
+    let toolCount: Int
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: visibleApprovalCount == 1 ? String(localized: "1 visible approval") : String(localized: "\(visibleApprovalCount) visible approvals"),
+                        tone: visibleApprovalCount > 0 ? .positive : .neutral
+                    )
+                    if criticalApprovalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if highRiskApprovalCount > criticalApprovalCount {
+                        PresentationToneBadge(
+                            text: highRiskApprovalCount == 1 ? String(localized: "1 high-risk") : String(localized: "\(highRiskApprovalCount) high-risk"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep queue coverage, agent spread, and tool load visible before the approval rows take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: pendingApprovalCount == 1 ? String(localized: "1 pending") : String(localized: "\(pendingApprovalCount) pending"),
+                    tone: pendingApprovalCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    approvalAgentCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(approvalAgentCount) visible agents"),
+                    systemImage: "person.3"
+                )
+                Label(
+                    toolCount == 1 ? String(localized: "1 visible tool") : String(localized: "\(toolCount) visible tools"),
+                    systemImage: "wrench.and.screwdriver"
+                )
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 approval section is active below the controls deck.")
+            : String(localized: "\(sectionCount) approval sections are active below the controls deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Visible queue coverage, agent spread, and tool load stay summarized before the phone-sized approval list takes over.")
     }
 }
 

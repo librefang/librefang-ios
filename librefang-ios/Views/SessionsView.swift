@@ -92,6 +92,7 @@ struct SessionsView: View {
         Set(filteredItems.filter { $0.duplicateCount > 1 }.map { $0.session.agentId }).count
     }
 
+    private var sessionsSectionCount: Int { 1 }
     private var sessionsPrimaryRouteCount: Int { 3 }
     private var sessionsSupportRouteCount: Int { 2 }
 
@@ -104,6 +105,7 @@ struct SessionsView: View {
 
             Section {
                 sessionsStatusDeckCard
+                sessionsSectionInventoryDeck
                 sessionsControlDeckCard
             } header: {
                 Text("Controls")
@@ -426,6 +428,21 @@ struct SessionsView: View {
         }
     }
 
+    private var sessionsSectionInventoryDeck: some View {
+        SessionsSectionInventoryDeck(
+            sectionCount: sessionsSectionCount,
+            visibleCount: filteredItems.count,
+            totalCount: vm.sessions.count,
+            attentionCount: visibleAttentionCount,
+            highVolumeCount: visibleHighVolumeCount,
+            unlabeledCount: visibleUnlabeledCount,
+            duplicateAgentCount: visibleDuplicateAgentCount,
+            hasSearchScope: !normalizedSearchText.isEmpty,
+            filterLabel: filter.label,
+            filterTone: snapshotFilterTone
+        )
+    }
+
 private struct SessionsRouteInventoryDeck: View {
     let primaryRouteCount: Int
     let supportRouteCount: Int
@@ -493,6 +510,96 @@ private struct SessionsRouteInventoryDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct SessionsSectionInventoryDeck: View {
+    let sectionCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let attentionCount: Int
+    let highVolumeCount: Int
+    let unlabeledCount: Int
+    let duplicateAgentCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 visible session") : String(localized: "\(visibleCount) visible sessions"),
+                        tone: visibleCount > 0 ? .positive : .neutral
+                    )
+                    if attentionCount > 0 {
+                        PresentationToneBadge(
+                            text: attentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(attentionCount) hotspots"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep hotspot counts, label hygiene, and duplicate-agent pressure visible before the session rows take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: totalCount == 1 ? String(localized: "1 total session") : String(localized: "\(totalCount) total sessions"),
+                    tone: .neutral
+                )
+            } facts: {
+                if highVolumeCount > 0 {
+                    Label(
+                        highVolumeCount == 1 ? String(localized: "1 high-volume session") : String(localized: "\(highVolumeCount) high-volume sessions"),
+                        systemImage: "chart.bar.xaxis"
+                    )
+                }
+                if unlabeledCount > 0 {
+                    Label(
+                        unlabeledCount == 1 ? String(localized: "1 unlabeled session") : String(localized: "\(unlabeledCount) unlabeled sessions"),
+                        systemImage: "tag.slash"
+                    )
+                }
+                if duplicateAgentCount > 0 {
+                    Label(
+                        duplicateAgentCount == 1 ? String(localized: "1 multi-session agent") : String(localized: "\(duplicateAgentCount) multi-session agents"),
+                        systemImage: "person.3"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 session section is active below the controls deck.")
+            : String(localized: "\(sectionCount) session sections are active below the controls deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Hotspot counts, label hygiene, and duplicate-agent pressure stay summarized before the session list takes over the page.")
     }
 }
 
