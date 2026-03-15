@@ -35,10 +35,7 @@ struct ToolProfilesView: View {
                 Section {
                     profileHeader(selectedProfile, highlight: true)
 
-                    ForEach(selectedProfile.tools, id: \.self) { tool in
-                        Label(tool, systemImage: "wrench.and.screwdriver")
-                            .font(.subheadline)
-                    }
+                    toolSummary(profile: selectedProfile, maxVisibleTools: selectedProfile.tools.count)
                 } header: {
                     Text("Current Profile")
                 } footer: {
@@ -69,11 +66,7 @@ struct ToolProfilesView: View {
                     ForEach(filteredProfiles) { profile in
                         VStack(alignment: .leading, spacing: 6) {
                             profileHeader(profile, highlight: profile.name.lowercased() == selectedProfileName?.lowercased())
-
-                            Text(profile.tools.joined(separator: ", "))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(3)
+                            toolSummary(profile: profile, maxVisibleTools: 4)
                         }
                         .padding(.vertical, 2)
                     }
@@ -135,6 +128,34 @@ struct ToolProfilesView: View {
         )
     }
 
+    @ViewBuilder
+    private func toolSummary(profile: ToolProfileSummary, maxVisibleTools: Int) -> some View {
+        let visibleTools = Array(profile.tools.prefix(maxVisibleTools))
+        let remaining = max(profile.tools.count - visibleTools.count, 0)
+
+        if visibleTools.isEmpty {
+            Text("No tools in this profile.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        } else {
+            FlowLayout(spacing: 6) {
+                ForEach(visibleTools, id: \.self) { tool in
+                    ToolProfileToolChip(label: tool)
+                }
+
+                if remaining > 0 {
+                    Text(String(localized: "+\(remaining) more"))
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .background(Color(.systemGray5))
+                        .foregroundStyle(.secondary)
+                        .clipShape(Capsule())
+                }
+            }
+        }
+    }
+
     @MainActor
     private func loadProfiles() async {
         isLoading = true
@@ -146,5 +167,20 @@ struct ToolProfilesView: View {
         } catch {
             loadError = error.localizedDescription
         }
+    }
+}
+
+private struct ToolProfileToolChip: View {
+    let label: String
+
+    var body: some View {
+        Label(label, systemImage: "wrench.and.screwdriver")
+            .font(.caption2)
+            .lineLimit(1)
+            .truncationMode(.middle)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(Color(.systemGray5))
+            .clipShape(Capsule())
     }
 }

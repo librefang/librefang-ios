@@ -846,13 +846,16 @@ private struct HandoffChecklistComposer: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Handoff checklist")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Text(checklist.progressLabel)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    progressLabel
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    titleLabel
+                    progressLabel
+                }
             }
 
             ForEach(HandoffChecklistKey.allCases) { key in
@@ -878,6 +881,17 @@ private struct HandoffChecklistComposer: View {
             }
         }
     }
+
+    private var titleLabel: some View {
+        Text("Handoff checklist")
+            .font(.subheadline.weight(.semibold))
+    }
+
+    private var progressLabel: some View {
+        Text(checklist.progressLabel)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
 }
 
 private struct HandoffFollowUpTrackerCard: View {
@@ -890,21 +904,33 @@ private struct HandoffFollowUpTrackerCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Label("Follow-up Tracker", systemImage: "checklist")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                PresentationToneBadge(text: followUpSummary.badgeLabel, tone: followUpSummary.tone)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    PresentationToneBadge(text: followUpSummary.badgeLabel, tone: followUpSummary.tone)
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    PresentationToneBadge(text: followUpSummary.badgeLabel, tone: followUpSummary.tone)
+                }
             }
 
             Text(followUpSummary.detailLabel)
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            Text(String(localized: "\(followUpSummary.completedCount) complete · \(followUpSummary.pendingCount) pending"))
+            ViewThatFits(in: .horizontal) {
+                Text(String(localized: "\(followUpSummary.completedCount) complete · \(followUpSummary.pendingCount) pending"))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "\(followUpSummary.completedCount) complete"))
+                    Text(String(localized: "\(followUpSummary.pendingCount) pending"))
+                }
                 .font(.caption2)
                 .foregroundStyle(.secondary)
+            }
 
             ForEach(statuses) { status in
                 Button {
@@ -931,6 +957,12 @@ private struct HandoffFollowUpTrackerCard: View {
         }
         .padding(.vertical, 6)
     }
+
+    private var titleLabel: some View {
+        Label("Follow-up Tracker", systemImage: "checklist")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
 }
 
 private struct HandoffFocusComposer: View {
@@ -939,13 +971,16 @@ private struct HandoffFocusComposer: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Focus areas")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Text(focusAreas.items.isEmpty ? String(localized: "None") : String(localized: "\(focusAreas.items.count)"))
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    countLabel
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    titleLabel
+                    countLabel
+                }
             }
 
             ForEach(HandoffFocusArea.allCases) { area in
@@ -978,6 +1013,17 @@ private struct HandoffFocusComposer: View {
             }
         }
     }
+
+    private var titleLabel: some View {
+        Text("Focus areas")
+            .font(.subheadline.weight(.semibold))
+    }
+
+    private var countLabel: some View {
+        Text(focusAreas.items.isEmpty ? String(localized: "None") : String(localized: "\(focusAreas.items.count)"))
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
 }
 
 private struct HandoffFollowUpComposer: View {
@@ -988,25 +1034,28 @@ private struct HandoffFollowUpComposer: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Follow-ups")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Text(items.isEmpty ? String(localized: "None") : String(localized: "\(items.count)"))
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    itemCountLabel
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    titleLabel
+                    itemCountLabel
+                }
             }
 
-            HStack(spacing: 10) {
-                TextField(String(localized: "Add follow-up item"), text: $draftText)
-                    .textInputAutocapitalization(.sentences)
-
-                Button(action: addAction) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title3)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) {
+                    followUpField
+                    addButton
                 }
-                .buttonStyle(.plain)
-                .disabled(draftText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                VStack(alignment: .leading, spacing: 8) {
+                    followUpField
+                    addButton
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
             }
 
             if items.isEmpty {
@@ -1035,6 +1084,31 @@ private struct HandoffFollowUpComposer: View {
             }
         }
     }
+
+    private var titleLabel: some View {
+        Text("Follow-ups")
+            .font(.subheadline.weight(.semibold))
+    }
+
+    private var itemCountLabel: some View {
+        Text(items.isEmpty ? String(localized: "None") : String(localized: "\(items.count)"))
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
+
+    private var followUpField: some View {
+        TextField(String(localized: "Add follow-up item"), text: $draftText)
+            .textInputAutocapitalization(.sentences)
+    }
+
+    private var addButton: some View {
+        Button(action: addAction) {
+            Image(systemName: "plus.circle.fill")
+                .font(.title3)
+        }
+        .buttonStyle(.plain)
+        .disabled(draftText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+    }
 }
 
 private struct HandoffCheckInComposer: View {
@@ -1046,13 +1120,16 @@ private struct HandoffCheckInComposer: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Check-in window")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Text(window.label)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(windowStatus.color(positive: .primary))
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    windowLabel
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    titleLabel
+                    windowLabel
+                }
             }
 
             Picker("Check-in Window", selection: $window) {
@@ -1071,6 +1148,17 @@ private struct HandoffCheckInComposer: View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+
+    private var titleLabel: some View {
+        Text("Check-in window")
+            .font(.subheadline.weight(.semibold))
+    }
+
+    private var windowLabel: some View {
+        Text(window.label)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(windowStatus.color(positive: .primary))
     }
 }
 
