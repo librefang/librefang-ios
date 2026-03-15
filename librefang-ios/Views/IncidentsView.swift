@@ -570,11 +570,11 @@ private struct IncidentAlertRow: View {
     private var severityLabel: String {
         switch alert.severity {
         case .critical:
-            "Critical"
+            String(localized: "Critical")
         case .warning:
-            "Warn"
+            String(localized: "Warn")
         case .info:
-            "Info"
+            String(localized: "Info")
         }
     }
 }
@@ -615,7 +615,7 @@ private struct IncidentOperatorCard: View {
 
             HStack(spacing: 10) {
                 if activeAlertCount > 0 {
-                    Button(isAcknowledged ? "Reset Ack" : "Acknowledge Snapshot") {
+                    Button(isAcknowledged ? String(localized: "Reset Ack") : String(localized: "Acknowledge Snapshot")) {
                         if isAcknowledged {
                             onClearAcknowledgement()
                         } else {
@@ -646,27 +646,27 @@ private struct IncidentOperatorCard: View {
 
     private var statusText: String {
         if activeAlertCount == 0 {
-            return mutedAlertCount > 0 ? "Muted" : "Clear"
+            return mutedAlertCount > 0 ? String(localized: "Muted") : String(localized: "Clear")
         }
-        return isAcknowledged ? "Acked" : "Needs review"
+        return isAcknowledged ? String(localized: "Acked") : String(localized: "Needs review")
     }
 
     private var statusDetail: String {
         if activeAlertCount == 0, mutedAlertCount > 0 {
             return mutedAlertCount == 1
-                ? "1 active alert is muted locally. It will stay out of summary surfaces until you unmute it."
-                : "\(mutedAlertCount) active alerts are muted locally. They will stay out of summary surfaces until you unmute them."
+                ? String(localized: "1 active alert is muted locally. It will stay out of summary surfaces until you unmute it.")
+                : String(localized: "\(mutedAlertCount) active alerts are muted locally. They will stay out of summary surfaces until you unmute them.")
         }
 
         if activeAlertCount == 0 {
-            return "No live alert cards are currently visible on this device."
+            return String(localized: "No live alert cards are currently visible on this device.")
         }
 
         if isAcknowledged {
-            return "The current alert snapshot is acknowledged on this iPhone. If counts or details change, it will surface as live again."
+            return String(localized: "The current alert snapshot is acknowledged on this iPhone. If counts or details change, it will surface as live again.")
         }
 
-        return "Acknowledge the current alert snapshot after review, or mute noisy alert classes locally if they are already understood."
+        return String(localized: "Acknowledge the current alert snapshot after review, or mute noisy alert classes locally if they are already understood.")
     }
 }
 
@@ -735,7 +735,11 @@ private struct IncidentShiftCoverageCard: View {
                     Image(systemName: "timer")
                         .foregroundStyle(checkInColor)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(checkInStatus.state == .overdue ? "Handoff check-in missed" : "Handoff check-in approaching")
+                        Text(
+                            checkInStatus.state == .overdue
+                                ? String(localized: "Handoff check-in missed")
+                                : String(localized: "Handoff check-in approaching")
+                        )
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.primary)
                         Text(checkInStatus.summary)
@@ -750,7 +754,7 @@ private struct IncidentShiftCoverageCard: View {
                     Image(systemName: readiness.state == .blocked ? "exclamationmark.octagon" : "checkmark.seal")
                         .foregroundStyle(readinessColor)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Next handoff draft needs work")
+                        Text(String(localized: "Next handoff draft needs work"))
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.primary)
                         Text(topIssue?.message ?? readiness.summary)
@@ -769,12 +773,18 @@ private struct IncidentShiftCoverageCard: View {
                     Image(systemName: pendingFollowUpCount == 0 ? "checkmark.circle" : "checklist")
                         .foregroundStyle(pendingFollowUpCount == 0 ? Color.green : Color.orange)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(pendingFollowUpCount == 0 ? "Handoff follow-ups are clear" : "Handoff follow-ups still open")
+                        Text(
+                            pendingFollowUpCount == 0
+                                ? String(localized: "Handoff follow-ups are clear")
+                                : String(localized: "Handoff follow-ups still open")
+                        )
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.primary)
-                        Text(pendingFollowUpCount == 0
-                            ? "\(completedFollowUpCount) follow-up items from the latest local handoff are complete on this iPhone."
-                            : "\(pendingFollowUpCount) of \(pendingFollowUpCount + completedFollowUpCount) latest local follow-up items are still pending.")
+                        Text(
+                            pendingFollowUpCount == 0
+                                ? String(localized: "\(completedFollowUpCount) follow-up items from the latest local handoff are complete on this iPhone.")
+                                : String(localized: "\(pendingFollowUpCount) of \(pendingFollowUpCount + completedFollowUpCount) latest local follow-up items are still pending.")
+                        )
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -821,7 +831,9 @@ private struct IncidentAutomationCard: View {
                 automationIssueRow(
                     icon: "exclamationmark.triangle.fill",
                     color: .red,
-                    title: vm.failedWorkflowRunCount == 1 ? "Workflow run failed" : "\(vm.failedWorkflowRunCount) workflow runs failed",
+                    title: vm.failedWorkflowRunCount == 1
+                        ? String(localized: "Workflow run failed")
+                        : String(localized: "\(vm.failedWorkflowRunCount) workflow runs failed"),
                     detail: vm.workflowRuns
                         .filter { $0.state == .failed }
                         .prefix(2)
@@ -834,8 +846,10 @@ private struct IncidentAutomationCard: View {
                 automationIssueRow(
                     icon: "bolt.badge.clock",
                     color: .orange,
-                    title: vm.exhaustedTriggerCount == 1 ? "Trigger exhausted" : "\(vm.exhaustedTriggerCount) triggers exhausted",
-                    detail: "Event triggers reached their fire budget and stopped waking agents."
+                    title: vm.exhaustedTriggerCount == 1
+                        ? String(localized: "Trigger exhausted")
+                        : String(localized: "\(vm.exhaustedTriggerCount) triggers exhausted"),
+                    detail: String(localized: "Event triggers reached their fire budget and stopped waking agents.")
                 )
             }
 
@@ -843,8 +857,10 @@ private struct IncidentAutomationCard: View {
                 automationIssueRow(
                     icon: "calendar.badge.exclamationmark",
                     color: .orange,
-                    title: vm.stalledCronJobCount == 1 ? "Cron missing next run" : "\(vm.stalledCronJobCount) cron jobs missing next run",
-                    detail: "Enabled scheduler jobs exist without a next execution timestamp."
+                    title: vm.stalledCronJobCount == 1
+                        ? String(localized: "Cron missing next run")
+                        : String(localized: "\(vm.stalledCronJobCount) cron jobs missing next run"),
+                    detail: String(localized: "Enabled scheduler jobs exist without a next execution timestamp.")
                 )
             }
 
@@ -865,7 +881,7 @@ private struct IncidentAutomationCard: View {
         let count = (vm.failedWorkflowRunCount > 0 ? 1 : 0)
             + (vm.exhaustedTriggerCount > 0 ? 1 : 0)
             + (vm.stalledCronJobCount > 0 ? 1 : 0)
-        return count == 1 ? "1 issue" : "\(count) issues"
+        return count == 1 ? String(localized: "1 issue") : String(localized: "\(count) issues")
     }
 
     @ViewBuilder
@@ -906,7 +922,7 @@ private struct IncidentIntegrationsCard: View {
             + (vm.channelRequiredFieldGapCount > 0 ? 1 : 0)
             + (noAvailableModels ? 1 : 0)
             + (vm.agentsWithModelDiagnostics.isEmpty ? 0 : 1)
-        return issueCount == 1 ? "1 issue" : "\(issueCount) issues"
+        return issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues")
     }
 
     var body: some View {
@@ -928,7 +944,9 @@ private struct IncidentIntegrationsCard: View {
                 integrationIssueRow(
                     icon: "network.slash",
                     color: .orange,
-                    title: vm.unreachableLocalProviderCount == 1 ? "Local provider unreachable" : "\(vm.unreachableLocalProviderCount) local providers unreachable",
+                    title: vm.unreachableLocalProviderCount == 1
+                        ? String(localized: "Local provider unreachable")
+                        : String(localized: "\(vm.unreachableLocalProviderCount) local providers unreachable"),
                     detail: vm.providers
                         .filter { $0.isLocal == true && $0.reachable == false }
                         .prefix(2)
@@ -941,7 +959,9 @@ private struct IncidentIntegrationsCard: View {
                 integrationIssueRow(
                     icon: "bubble.left.and.exclamationmark.bubble.right",
                     color: .orange,
-                    title: vm.channelRequiredFieldGapCount == 1 ? "Channel missing required fields" : "\(vm.channelRequiredFieldGapCount) channels missing required fields",
+                    title: vm.channelRequiredFieldGapCount == 1
+                        ? String(localized: "Channel missing required fields")
+                        : String(localized: "\(vm.channelRequiredFieldGapCount) channels missing required fields"),
                     detail: vm.channelsMissingRequiredFields
                         .prefix(2)
                         .map(\.displayName)
@@ -953,8 +973,8 @@ private struct IncidentIntegrationsCard: View {
                 integrationIssueRow(
                     icon: "square.stack.3d.up.slash",
                     color: .red,
-                    title: "No catalog models available",
-                    detail: "Providers are configured, but the current LibreFang catalog exposes zero executable models."
+                    title: String(localized: "No catalog models available"),
+                    detail: String(localized: "Providers are configured, but the current LibreFang catalog exposes zero executable models.")
                 )
             }
 
@@ -962,7 +982,9 @@ private struct IncidentIntegrationsCard: View {
                 integrationIssueRow(
                     icon: "cpu",
                     color: vm.unavailableModelAgentCount > 0 ? .red : .orange,
-                    title: vm.agentsWithModelDiagnostics.count == 1 ? "1 agent has model drift" : "\(vm.agentsWithModelDiagnostics.count) agents have model drift",
+                    title: vm.agentsWithModelDiagnostics.count == 1
+                        ? String(localized: "1 agent has model drift")
+                        : String(localized: "\(vm.agentsWithModelDiagnostics.count) agents have model drift"),
                     detail: vm.agentsWithModelDiagnostics
                         .prefix(2)
                         .map { "\($0.agent.name) (\($0.issueSummary))" }
