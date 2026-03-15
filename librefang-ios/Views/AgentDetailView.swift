@@ -691,17 +691,10 @@ struct AgentDetailView: View {
 
     private var identitySection: some View {
         Section {
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 16) {
-                    identityEmoji
-                    identityText
-                    Spacer(minLength: 0)
-                }
-
-                VStack(alignment: .leading, spacing: 10) {
-                    identityEmoji
-                    identityText
-                }
+            ResponsiveIconDetailRow(horizontalAlignment: .center, horizontalSpacing: 16, verticalSpacing: 10, spacerMinLength: 0) {
+                identityEmoji
+            } detail: {
+                identityText
             }
             .listRowBackground(Color.clear)
         }
@@ -1851,17 +1844,11 @@ private struct DetailRow: View {
     var valueColor: Color = .primary
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            LabeledContent {
-                valueLabel(alignment: .trailing, isTrailing: true)
-            } label: {
-                rowLabel
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                rowLabel
-                valueLabel(alignment: .leading, isTrailing: false)
-            }
+        ResponsiveLabeledContentRow(verticalSpacing: 6) {
+            rowLabel
+        } value: {
+            Text(value)
+                .foregroundStyle(valueColor)
         }
     }
 
@@ -1871,13 +1858,6 @@ private struct DetailRow: View {
         } icon: {
             Image(systemName: icon)
         }
-    }
-
-    private func valueLabel(alignment: Alignment, isTrailing: Bool) -> some View {
-        Text(value)
-            .foregroundStyle(valueColor)
-            .multilineTextAlignment(isTrailing ? .trailing : .leading)
-            .frame(maxWidth: .infinity, alignment: alignment)
     }
 }
 
@@ -1891,21 +1871,12 @@ private struct AgentDetailValueRow<Value: View>: View {
     }
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            LabeledContent {
-                value
-                    .multilineTextAlignment(.trailing)
-            } label: {
-                Text(label)
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text(label)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                value
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
+        ResponsiveLabeledContentRow(verticalSpacing: 6) {
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        } value: {
+            value
         }
     }
 }
@@ -1920,28 +1891,16 @@ private struct BudgetPeriodRow: View {
         let utilizationStatus = StatusPresentation.budgetUtilizationStatus(for: period.pct) ?? .normal
 
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    Text(label)
-                        .font(.subheadline)
-                    Spacer()
+            ResponsiveAccessoryRow(verticalSpacing: 4) {
+                Text(label)
+                    .font(.subheadline)
+            } accessory: {
+                HStack(spacing: 6) {
                     Text(localizedUSDCurrency(period.spend, standardPrecision: 2, smallValuePrecision: 4))
                         .font(.subheadline.monospacedDigit().weight(.medium))
                     Text("/ \(localizedUSDCurrency(period.limit))")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(label)
-                        .font(.subheadline)
-                    HStack(spacing: 6) {
-                        Text(localizedUSDCurrency(period.spend, standardPrecision: 2, smallValuePrecision: 4))
-                            .font(.subheadline.monospacedDigit().weight(.medium))
-                        Text("/ \(localizedUSDCurrency(period.limit))")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
                 }
             }
             ProgressView(value: min(period.pct, 1.0))
@@ -1973,17 +1932,10 @@ private struct SessionPreviewRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    roleLabel
-                    Spacer()
-                    toolSummary
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    roleLabel
-                    toolSummary
-                }
+            ResponsiveAccessoryRow(horizontalSpacing: 8, verticalSpacing: 4, spacerMinLength: 0) {
+                roleLabel
+            } accessory: {
+                toolSummary
             }
 
             Text(displayText)
@@ -2076,30 +2028,16 @@ private struct AgentSessionInventoryRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 10) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    trailingControls
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    trailingControls
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, horizontalSpacing: 10, verticalSpacing: 6) {
+                titleLabel
+            } accessory: {
+                trailingControls
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) {
-                    reasonSummary
-                    Spacer()
-                    createdAtLabel
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    reasonSummary
-                    createdAtLabel
-                }
+            ResponsiveAccessoryRow(horizontalSpacing: 8, verticalSpacing: 6, spacerMinLength: 0) {
+                reasonSummary
+            } accessory: {
+                createdAtLabel
             }
         }
         .padding(.vertical, 2)
@@ -2183,7 +2121,7 @@ private struct AgentSessionInventoryRow: View {
     }
 
     private var trailingControls: some View {
-        HStack(spacing: 8) {
+        FlowLayout(spacing: 8) {
             if isCurrentSession {
                 currentBadge
             } else {
@@ -2201,17 +2139,9 @@ private struct AgentSessionInventoryRow: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         } else {
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) {
-                    ForEach(item.reasons.prefix(2), id: \.self) { reason in
-                        reasonChip(reason)
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    ForEach(item.reasons.prefix(2), id: \.self) { reason in
-                        reasonChip(reason)
-                    }
+            FlowLayout(spacing: 8) {
+                ForEach(item.reasons.prefix(2), id: \.self) { reason in
+                    reasonChip(reason)
                 }
             }
         }
@@ -2239,17 +2169,10 @@ private struct AgentAuditRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    titleLabel
-                    Spacer()
-                    timestampLabel
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    timestampLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6, spacerMinLength: 0) {
+                titleLabel
+            } accessory: {
+                timestampLabel
             }
 
             Text(entry.detail)
@@ -2287,17 +2210,10 @@ private struct AgentMemorySummaryRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    keyLabel
-                    Spacer()
-                    structureBadge
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    keyLabel
-                    structureBadge
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6, spacerMinLength: 0) {
+                keyLabel
+            } accessory: {
+                structureBadge
             }
 
             Text(entry.summary)
@@ -2332,10 +2248,11 @@ private struct AgentFileSummaryRow: View {
     let file: AgentWorkspaceFileSummary
 
     var body: some View {
-        HStack {
+        ResponsiveAccessoryRow(verticalSpacing: 4, spacerMinLength: 0) {
             Text(file.name)
                 .font(.subheadline.weight(.medium))
-            Spacer()
+                .lineLimit(2)
+        } accessory: {
             Text(ByteCountFormatter.string(fromByteCount: Int64(file.sizeBytes), countStyle: .file))
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -2349,10 +2266,10 @@ private struct AgentDeliverySummaryRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack {
+            ResponsiveAccessoryRow(verticalSpacing: 6, spacerMinLength: 0) {
                 Text(receipt.localizedChannelLabel)
                     .font(.subheadline.weight(.medium))
-                Spacer()
+            } accessory: {
                 PresentationToneBadge(
                     text: receipt.status.label,
                     tone: receipt.status.tone,
