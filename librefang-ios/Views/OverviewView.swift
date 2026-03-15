@@ -648,109 +648,124 @@ private struct OverviewControlDeckCard: View {
 
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Primary Surfaces"),
-                detail: String(localized: "Keep the first operator exits closest to the overview triage summary.")
+                detail: String(localized: "Keep the first operator exits visible as compact shortcuts right below the overview triage summary.")
             ) {
-                NavigationLink {
-                    IncidentsView()
-                } label: {
-                    OverviewQuickLinkRow(
-                        title: String(localized: "Open Incidents Center"),
-                        detail: criticalCount > 0
-                            ? (criticalCount == 1
-                                ? String(localized: "1 critical item is already active in the incident queue.")
-                                : String(localized: "\(criticalCount) critical items are already active in the incident queue."))
-                            : String(localized: "Review live alerts, muted alerts, approvals, and shift coverage in one place."),
-                        systemImage: "bell.badge"
-                    )
-                }
-                .buttonStyle(.plain)
+                FlowLayout(spacing: 8) {
+                    NavigationLink {
+                        IncidentsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Incidents"),
+                            systemImage: "bell.badge",
+                            tone: criticalCount > 0 ? .critical : .neutral,
+                            badgeText: criticalCount > 0
+                                ? (criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    RuntimeView()
-                } label: {
-                    OverviewQuickLinkRow(
-                        title: String(localized: "Open Runtime"),
-                        detail: String(localized: "Inspect providers, channels, hands, sessions, and approvals from the runtime monitor."),
-                        systemImage: "waveform.path.ecg"
-                    )
-                }
-                .buttonStyle(.plain)
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Runtime"),
+                            systemImage: "waveform.path.ecg",
+                            tone: approvalCount > 0 || sessionCount > 0 ? .warning : .neutral
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    DiagnosticsView()
-                } label: {
-                    OverviewQuickLinkRow(
-                        title: String(localized: "Open Diagnostics"),
-                        detail: String(localized: "Jump into health detail, build info, config warnings, and metrics."),
-                        systemImage: "stethoscope"
-                    )
-                }
-                .buttonStyle(.plain)
+                    NavigationLink {
+                        DiagnosticsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Diagnostics"),
+                            systemImage: "stethoscope",
+                            tone: diagnosticsWarningCount > 0 ? .warning : .neutral,
+                            badgeText: diagnosticsWarningCount > 0
+                                ? (diagnosticsWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(diagnosticsWarningCount) warnings"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    HandoffCenterView(
-                        summary: handoffText,
-                        queueCount: queueCount,
-                        criticalCount: criticalCount,
-                        liveAlertCount: liveAlertCount
-                    )
-                } label: {
-                    OverviewQuickLinkRow(
-                        title: String(localized: "Open Handoff Center"),
-                        detail: String(localized: "Capture the current queue and keep the next operator aligned on this iPhone."),
-                        systemImage: "text.badge.plus"
-                    )
+                    NavigationLink {
+                        HandoffCenterView(
+                            summary: handoffText,
+                            queueCount: queueCount,
+                            criticalCount: criticalCount,
+                            liveAlertCount: liveAlertCount
+                        )
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Handoff"),
+                            systemImage: "text.badge.plus",
+                            tone: liveAlertCount > 0 ? .warning : .neutral,
+                            badgeText: queueCount > 0
+                                ? (queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
 
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Supporting Surfaces"),
-                detail: String(localized: "Keep slower spend and device-setting routes behind the primary overview exits.")
+                detail: String(localized: "Keep slower spend and configuration routes visible as a secondary shortcut rail.")
             ) {
-                NavigationLink {
-                    IntegrationsView(initialScope: .attention)
-                } label: {
-                    OverviewQuickLinkRow(
-                        title: String(localized: "Open Integrations"),
-                        detail: String(localized: "Inspect provider outages, channel gaps, model catalog availability, and agent drift."),
-                        systemImage: "square.3.layers.3d.down.forward"
-                    )
-                }
-                .buttonStyle(.plain)
+                FlowLayout(spacing: 8) {
+                    NavigationLink {
+                        IntegrationsView(initialScope: .attention)
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Integrations"),
+                            systemImage: "square.3.layers.3d.down.forward",
+                            tone: integrationIssueCount > 0 ? .critical : .neutral,
+                            badgeText: integrationIssueCount > 0
+                                ? (integrationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(integrationIssueCount) issues"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    AutomationView()
-                } label: {
-                    OverviewQuickLinkRow(
-                        title: String(localized: "Open Automation"),
-                        detail: String(localized: "Inspect workflows, recent runs, triggers, schedules, and cron pressure."),
-                        systemImage: "flowchart"
-                    )
-                }
-                .buttonStyle(.plain)
+                    NavigationLink {
+                        AutomationView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Automation"),
+                            systemImage: "flowchart",
+                            tone: automationIssueCount > 0 ? .warning : .neutral,
+                            badgeText: automationIssueCount > 0
+                                ? (automationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(automationIssueCount) issues"))
+                                : nil
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    BudgetView()
-                } label: {
-                    OverviewQuickLinkRow(
-                        title: String(localized: "Open Budget"),
-                        detail: String(localized: "Inspect spend limits, daily trend, model cost distribution, and per-agent usage."),
-                        systemImage: "chart.bar"
-                    )
-                }
-                .buttonStyle(.plain)
+                    NavigationLink {
+                        BudgetView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Budget"),
+                            systemImage: "chart.bar",
+                            tone: budgetDailyCost == nil ? .neutral : .warning,
+                            badgeText: budgetDailyCost.map { localizedUSDCurrency($0) }
+                        )
+                    }
+                    .buttonStyle(.plain)
 
-                NavigationLink {
-                    SettingsView()
-                } label: {
-                    OverviewQuickLinkRow(
-                        title: String(localized: "Open Settings"),
-                        detail: String(localized: "Adjust server connection, refresh behavior, language, and on-call device settings."),
-                        systemImage: "gearshape"
-                    )
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        MonitoringSurfaceShortcutChip(
+                            title: String(localized: "Settings"),
+                            systemImage: "gearshape"
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
         }
     }
@@ -778,93 +793,79 @@ private struct OverviewFocusRailCard: View {
             summary: String(localized: "Keep compact overview sections reachable without long thumb-scrolling."),
             detail: String(localized: "These jump targets stay inside overview and land on the deepest mobile monitoring cards.")
         ) {
-            VStack(alignment: .leading, spacing: 10) {
+            FlowLayout(spacing: 8) {
                 if showsDiagnostics {
-                    jumpButton(
+                    jumpChip(
                         title: String(localized: "Diagnostics Summary"),
-                        detail: String(localized: "Jump to runtime health, config, and metrics snapshot."),
                         systemImage: "stethoscope",
                         tone: diagnosticsWarningCount > 0 ? .warning : .neutral,
                         badgeText: diagnosticsWarningCount > 0
                             ? (diagnosticsWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(diagnosticsWarningCount) warnings"))
                             : nil,
-                        badgeTone: diagnosticsWarningCount > 0 ? .warning : .neutral,
                         anchor: .diagnostics
                     )
                 }
 
                 if showsIntegrations {
-                    jumpButton(
+                    jumpChip(
                         title: String(localized: "Integrations Summary"),
-                        detail: String(localized: "Jump to provider, channel, model, and catalog readiness."),
                         systemImage: "square.3.layers.3d.down.forward",
                         tone: integrationIssueCount > 0 ? .warning : .neutral,
                         badgeText: integrationIssueCount > 0
                             ? (integrationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(integrationIssueCount) issues"))
                             : nil,
-                        badgeTone: integrationIssueCount > 0 ? .warning : .neutral,
                         anchor: .integrations
                     )
                 }
 
                 if showsAutomation {
-                    jumpButton(
+                    jumpChip(
                         title: String(localized: "Automation Summary"),
-                        detail: String(localized: "Jump to workflow runs, schedules, triggers, and cron pressure."),
                         systemImage: "flowchart",
                         tone: automationIssueCount > 0 ? .warning : .neutral,
                         badgeText: automationIssueCount > 0
                             ? (automationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(automationIssueCount) issues"))
                             : nil,
-                        badgeTone: automationIssueCount > 0 ? .warning : .neutral,
                         anchor: .automation
                     )
                 }
 
                 if showsWatchlist {
-                    jumpButton(
+                    jumpChip(
                         title: String(localized: "Watchlist"),
-                        detail: String(localized: "Jump to watched agents with delivery, identity, and runtime pressure."),
                         systemImage: "star.fill",
                         tone: watchIssueCount > 0 ? .warning : .neutral,
                         badgeText: watchIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(watchIssueCount) issues"),
-                        badgeTone: watchIssueCount > 0 ? .warning : .neutral,
                         anchor: .watchlist
                     )
                 }
 
                 if showsSessions {
-                    jumpButton(
+                    jumpChip(
                         title: String(localized: "Sessions"),
-                        detail: String(localized: "Jump to session hotspots and current attention queue."),
                         systemImage: "text.bubble",
                         tone: sessionCount > 0 ? .warning : .neutral,
                         badgeText: sessionCount == 1 ? String(localized: "1 hot session") : String(localized: "\(sessionCount) hot sessions"),
-                        badgeTone: sessionCount > 0 ? .warning : .neutral,
                         anchor: .sessions
                     )
                 }
 
                 if showsAudit {
-                    jumpButton(
+                    jumpChip(
                         title: String(localized: "Audit Feed"),
-                        detail: String(localized: "Jump to the most recent audit and event pressure from overview."),
                         systemImage: "text.justify.leading",
-                        tone: auditCount > 0 ? .neutral : .neutral,
+                        tone: .neutral,
                         badgeText: auditCount == 1 ? String(localized: "1 recent event") : String(localized: "\(auditCount) recent events"),
-                        badgeTone: .neutral,
                         anchor: .audit
                     )
                 }
 
                 if showsAgents {
-                    jumpButton(
+                    jumpChip(
                         title: String(localized: "Fleet Preview"),
-                        detail: String(localized: "Jump to the agent preview rail at the bottom of overview."),
                         systemImage: "person.3",
                         tone: .neutral,
                         badgeText: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
-                        badgeTone: .neutral,
                         anchor: .agents
                     )
                 }
@@ -875,64 +876,24 @@ private struct OverviewFocusRailCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    private func jumpButton(
+    private func jumpChip(
         title: String,
-        detail: String,
         systemImage: String,
         tone: PresentationTone,
         badgeText: String?,
-        badgeTone: PresentationTone,
         anchor: OverviewSectionAnchor
     ) -> some View {
         Button {
             onJump(anchor)
         } label: {
-            MonitoringJumpRow(
+            MonitoringSurfaceShortcutChip(
                 title: title,
-                detail: detail,
                 systemImage: systemImage,
                 tone: tone,
-                badgeText: badgeText,
-                badgeTone: badgeTone
+                badgeText: badgeText
             )
         }
         .buttonStyle(.plain)
-    }
-}
-
-private struct OverviewQuickLinkRow: View {
-    let title: String
-    let detail: String
-    let systemImage: String
-
-    var body: some View {
-        ResponsiveIconDetailRow {
-            iconBadge
-        } detail: {
-            contentBlock
-        }
-        .padding(12)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var iconBadge: some View {
-        Image(systemName: systemImage)
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(.secondary)
-            .frame(width: 34, height: 34)
-            .background(.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var contentBlock: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.primary)
-            Text(detail)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
     }
 }
 
