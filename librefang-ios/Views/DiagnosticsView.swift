@@ -28,6 +28,16 @@ struct DiagnosticsView: View {
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
             }
 
+            if hasDiagnosticsData {
+                Section {
+                    DiagnosticsSnapshotCard(vm: vm, metrics: metrics)
+                } header: {
+                    Text("Snapshot")
+                } footer: {
+                    Text("These badges summarize which deep-diagnostic feeds are currently loaded into the mobile snapshot.")
+                }
+            }
+
             if let healthDetail = vm.healthDetail {
                 Section {
                     DiagnosticsMetricRow(
@@ -286,6 +296,75 @@ private struct DiagnosticsScoreboard: View {
             )
         }
         .padding(.horizontal)
+    }
+}
+
+private struct DiagnosticsSnapshotCard: View {
+    let vm: DashboardViewModel
+    let metrics: PrometheusMetricsSnapshot?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(summaryLine)
+                .font(.subheadline.weight(.medium))
+
+            FlowLayout(spacing: 8) {
+                snapshotBadge(
+                    label: String(localized: "Health"),
+                    isPresent: vm.healthDetail != nil,
+                    activeTone: vm.healthDetail?.isHealthy == false ? .warning : .positive
+                )
+                snapshotBadge(
+                    label: String(localized: "Build"),
+                    isPresent: vm.versionInfo != nil,
+                    activeTone: .neutral
+                )
+                snapshotBadge(
+                    label: String(localized: "Config"),
+                    isPresent: vm.configSummary != nil,
+                    activeTone: vm.diagnosticsConfigWarningCount > 0 ? .warning : .positive
+                )
+                snapshotBadge(
+                    label: String(localized: "Metrics"),
+                    isPresent: metrics != nil,
+                    activeTone: .positive
+                )
+
+                if vm.diagnosticsConfigWarningCount > 0 {
+                    PresentationToneBadge(
+                        text: vm.diagnosticsConfigWarningCount == 1
+                            ? String(localized: "1 warning")
+                            : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"),
+                        tone: .warning
+                    )
+                }
+
+                if vm.supervisorPanicCount > 0 || vm.supervisorRestartCount > 0 {
+                    PresentationToneBadge(
+                        text: String(localized: "\(vm.supervisorPanicCount) panics / \(vm.supervisorRestartCount) restarts"),
+                        tone: vm.supervisorPanicCount > 0 ? .critical : .warning
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var summaryLine: String {
+        let loadedCount = [vm.healthDetail != nil, vm.versionInfo != nil, vm.configSummary != nil, metrics != nil]
+            .filter { $0 }
+            .count
+
+        return loadedCount == 1
+            ? String(localized: "1 diagnostic feed loaded")
+            : String(localized: "\(loadedCount) diagnostic feeds loaded")
+    }
+
+    private func snapshotBadge(label: String, isPresent: Bool, activeTone: PresentationTone) -> some View {
+        PresentationToneBadge(
+            text: isPresent ? label : String(localized: "\(label) missing"),
+            tone: isPresent ? activeTone : .neutral
+        )
     }
 }
 

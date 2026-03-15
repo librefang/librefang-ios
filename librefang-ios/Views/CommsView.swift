@@ -9,6 +9,11 @@ struct CommsView: View {
         _viewModel = State(initialValue: CommsViewModel(api: api))
     }
 
+    private var visibleEdges: [CommsEdge] {
+        guard let edges = viewModel.topology?.edges else { return [] }
+        return Array(edges.prefix(6))
+    }
+
     private var filteredEvents: [CommsEvent] {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return viewModel.events }
@@ -42,6 +47,19 @@ struct CommsView: View {
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
             }
 
+            Section {
+                CommsFilterCard(
+                    searchText: searchText,
+                    visibleCount: filteredEvents.count,
+                    totalCount: viewModel.events.count,
+                    isStreaming: viewModel.isStreaming,
+                    nodeCount: viewModel.nodeCount,
+                    edgeCount: viewModel.edgeCount
+                )
+            } header: {
+                Text("Filter")
+            }
+
             Section("Topology") {
                 CommsSummaryRow(label: "Agents") {
                     Text("\(viewModel.nodeCount)")
@@ -52,15 +70,11 @@ struct CommsView: View {
                         .monospacedDigit()
                 }
                 if let topology = viewModel.topology, !topology.edges.isEmpty {
-                    ForEach(topology.edges.prefix(8)) { edge in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(edgeTitle(edge, topology: topology))
-                                .font(.subheadline.weight(.medium))
-                            Text(edge.kind == .parentChild ? String(localized: "Parent-child relationship") : String(localized: "Peer communication path"))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(.vertical, 2)
+                    ForEach(visibleEdges) { edge in
+                        CommsTopologyEdgeRow(
+                            title: edgeTitle(edge, topology: topology),
+                            kind: edge.kind
+                        )
                     }
                 } else {
                     ContentUnavailableView(
@@ -68,6 +82,10 @@ struct CommsView: View {
                         systemImage: "point.3.connected.trianglepath.dotted",
                         description: Text("When agents start messaging, spawning, or coordinating tasks, their topology appears here.")
                     )
+                }
+            } footer: {
+                if let topology = viewModel.topology, topology.edges.count > visibleEdges.count {
+                    Text("Showing \(visibleEdges.count) of \(topology.edges.count) active links")
                 }
             }
 
@@ -129,6 +147,120 @@ struct CommsView: View {
     private func shortID(_ id: String) -> String {
         guard id.count > 8 else { return id }
         return String(id.prefix(8))
+    }
+}
+
+private struct CommsFilterCard: View {
+    let searchText: String
+    let visibleCount: Int
+    let totalCount: Int
+    let isStreaming: Bool
+    let nodeCount: Int
+    let edgeCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    summaryBlock
+                    Spacer(minLength: 10)
+                    statusBadges
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    summaryBlock
+                    statusBadges
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(summaryLine)
+                .font(.subheadline.weight(.medium))
+            Text(searchSummary)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+    }
+
+    private var statusBadges: some View {
+        FlowLayout(spacing: 6) {
+            PresentationToneBadge(
+                text: isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                tone: isStreaming ? .positive : .warning
+            )
+            PresentationToneBadge(
+                text: nodeCount == 1 ? String(localized: "1 agent") : String(localized: "\(nodeCount) agents"),
+                tone: nodeCount > 1 ? .positive : .neutral
+            )
+            PresentationToneBadge(
+                text: edgeCount == 1 ? String(localized: "1 link") : String(localized: "\(edgeCount) links"),
+                tone: edgeCount > 0 ? .positive : .neutral
+            )
+        }
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "1 comms event in feed")
+                : String(localized: "\(totalCount) comms events in feed")
+        }
+
+        return String(localized: "\(visibleCount) of \(totalCount) comms events visible")
+    }
+
+    private var searchSummary: String {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty {
+            return String(localized: "Search by source, target, task, or event detail.")
+        }
+        return String(localized: "Search active: \"\(query)\"")
+    }
+}
+
+private struct CommsTopologyEdgeRow: View {
+    let title: String
+    let kind: CommsEdgeKind
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    relationshipBadge
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    titleLabel
+                    relationshipBadge
+                }
+            }
+
+            Text(kind == .parentChild ? String(localized: "Parent-child relationship") : String(localized: "Peer communication path"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var titleLabel: some View {
+        Text(title)
+            .font(.subheadline.weight(.medium))
+            .lineLimit(2)
+    }
+
+    private var relationshipBadge: some View {
+        PresentationToneBadge(
+            text: kind == .parentChild ? String(localized: "Parent Child") : String(localized: "Peer"),
+            tone: kind == .parentChild ? .warning : .positive
+        )
     }
 }
 
