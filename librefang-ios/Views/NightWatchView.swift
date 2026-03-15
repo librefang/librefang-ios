@@ -582,12 +582,7 @@ private struct NightWatchHeroCard: View {
 
     private var headerStatus: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(tone.label)
-                .font(.caption.weight(.semibold))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(.white.opacity(0.14))
-                .clipShape(Capsule())
+            GlassCapsuleBadge(text: tone.label, backgroundOpacity: 0.14, horizontalPadding: 10, verticalPadding: 6)
             Text(focusModeLabel)
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(.white.opacity(0.74))
@@ -607,7 +602,7 @@ private struct NightWatchHeroCard: View {
                     Text(String(localized: "Clear Ack"))
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(NightWatchPrimaryButtonStyle(fill: .white.opacity(0.16)))
+                .buttonStyle(GlassCapsuleButtonStyle(fillOpacity: 0.16))
             )
         }
 
@@ -617,7 +612,7 @@ private struct NightWatchHeroCard: View {
                     Text(String(localized: "Acknowledge Snapshot"))
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(NightWatchPrimaryButtonStyle(fill: .white.opacity(0.16)))
+                .buttonStyle(GlassCapsuleButtonStyle(fillOpacity: 0.16))
             )
         }
 
@@ -631,7 +626,7 @@ private struct NightWatchHeroCard: View {
             Text(String(localized: "Full Queue"))
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(NightWatchPrimaryButtonStyle(fill: .white.opacity(0.10)))
+        .buttonStyle(GlassCapsuleButtonStyle(fillOpacity: 0.10))
     }
 
     @ViewBuilder
@@ -839,13 +834,7 @@ private struct NightWatchPriorityCard: View {
     }
 
     private var severityBadge: some View {
-        Text(item.severity.label)
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(item.severity.tone.color.opacity(0.18))
-            .foregroundStyle(item.severity.tone.color)
-            .clipShape(Capsule())
+        PresentationToneBadge(text: item.severity.label, tone: item.severity.tone)
     }
 
     private var footnoteLabel: some View {
@@ -858,13 +847,12 @@ private struct NightWatchPriorityCard: View {
     @ViewBuilder
     private var watchedBadge: some View {
         if isWatched {
-            Label {
-                Text(String(localized: "Watched"))
-            } icon: {
-                Image(systemName: "star.fill")
-            }
-            .font(.caption2.weight(.medium))
-            .foregroundStyle(.yellow)
+            GlassLabelBadge(
+                text: String(localized: "Watched"),
+                systemImage: "star.fill",
+                foregroundStyle: .yellow,
+                backgroundOpacity: 0.10
+            )
         }
     }
 }
@@ -912,13 +900,10 @@ private struct NightWatchWatchlistRow: View {
     }
 
     private var statusBadge: some View {
-        Text(item.severity >= 10 ? String(localized: "Critical") : String(localized: "Watch"))
-            .font(.caption2.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(item.tone.color.opacity(0.16))
-            .foregroundStyle(item.tone.color)
-            .clipShape(Capsule())
+        PresentationToneBadge(
+            text: item.severity >= 10 ? String(localized: "Critical") : String(localized: "Watch"),
+            tone: item.tone
+        )
     }
 }
 
@@ -1026,19 +1011,5 @@ private struct NightWatchCountPill: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.white.opacity(0.10))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-}
-
-private struct NightWatchPrimaryButtonStyle: ButtonStyle {
-    let fill: Color
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            .background(fill.opacity(configuration.isPressed ? 0.65 : 1))
-            .clipShape(Capsule())
     }
 }

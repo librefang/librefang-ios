@@ -83,12 +83,11 @@ struct OnCallDigestCard: View {
     }
 
     private var openBadge: some View {
-        Text("Open")
-            .font(.caption2.weight(.medium))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(.secondary.opacity(0.12))
-            .clipShape(Capsule())
+        GlassCapsuleBadge(
+            text: String(localized: "Open"),
+            foregroundStyle: .secondary,
+            backgroundOpacity: 0.08
+        )
     }
 }
 

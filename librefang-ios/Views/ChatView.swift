@@ -81,23 +81,16 @@ struct ChatView: View {
             Divider()
 
             // Input Bar
-            HStack(alignment: .bottom, spacing: 8) {
-                TextField("Message...", text: $viewModel.inputText, axis: .vertical)
-                    .textFieldStyle(.plain)
-                    .lineLimit(1...6)
-                    .focused($isInputFocused)
-                    .padding(10)
-                    .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-
-                Button {
-                    Task { await viewModel.send() }
-                } label: {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.system(size: 32))
-                        .foregroundStyle(canSend ? .blue : .gray.opacity(0.5))
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .bottom, spacing: 8) {
+                    messageField
+                    sendButton
                 }
-                .disabled(!canSend)
+
+                VStack(alignment: .trailing, spacing: 8) {
+                    messageField
+                    sendButton
+                }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
@@ -122,6 +115,28 @@ struct ChatView: View {
 
     private var canSend: Bool {
         !viewModel.isSending && !viewModel.inputText.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    private var messageField: some View {
+        TextField("Message...", text: $viewModel.inputText, axis: .vertical)
+            .textFieldStyle(.plain)
+            .lineLimit(1...6)
+            .focused($isInputFocused)
+            .padding(10)
+            .background(Color(.systemGray6))
+            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var sendButton: some View {
+        Button {
+            Task { await viewModel.send() }
+        } label: {
+            Image(systemName: "arrow.up.circle.fill")
+                .font(.system(size: 32))
+                .foregroundStyle(canSend ? .blue : .gray.opacity(0.5))
+        }
+        .disabled(!canSend)
     }
 
     private func scrollToBottom(proxy: ScrollViewProxy) {
@@ -195,21 +210,38 @@ private struct SessionBanner: View {
     }
 
     private var realtimeIndicator: some View {
-        Label(
-            connectionState.label,
-            systemImage: connectionState.symbolName
+        PresentationToneLabelBadge(
+            text: connectionState.label,
+            systemImage: connectionState.symbolName,
+            tone: connectionState.tone
         )
-        .font(.caption2.weight(.semibold))
-        .foregroundStyle(connectionState.tone.color)
     }
 
     private var contextTokens: some View {
-        VStack(alignment: .trailing, spacing: 2) {
-            Text(viewModel.contextWindowTokens.formatted())
-                .font(.caption.weight(.semibold).monospacedDigit())
-            Text("context tokens")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 6) {
+                PresentationToneBadge(
+                    text: viewModel.contextWindowTokens.formatted(),
+                    tone: .neutral,
+                    horizontalPadding: 10,
+                    verticalPadding: 6
+                )
+                Text("context tokens")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                PresentationToneBadge(
+                    text: viewModel.contextWindowTokens.formatted(),
+                    tone: .neutral,
+                    horizontalPadding: 10,
+                    verticalPadding: 6
+                )
+                Text("context tokens")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 }
@@ -309,7 +341,12 @@ private struct MessageBubble: View {
     private var deliveryMetadata: some View {
         Text(message.timestamp, style: .time)
         if message.isStreaming {
-            Text("Live")
+            PresentationToneBadge(
+                text: String(localized: "Live"),
+                tone: .positive,
+                horizontalPadding: 6,
+                verticalPadding: 2
+            )
         }
     }
 
