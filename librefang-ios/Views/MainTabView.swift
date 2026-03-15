@@ -26,6 +26,9 @@ struct MainTabView: View {
     private var visibleCriticalAlertCount: Int {
         visibleCriticalAlerts.count
     }
+    private var overviewTabSignalCount: Int {
+        visibleCriticalAlertCount + watchedIssueCount
+    }
     private var handoffCheckInStatus: HandoffCheckInStatus? {
         deps.onCallHandoffStore.latestCheckInStatus
     }
@@ -289,6 +292,10 @@ struct MainTabView: View {
         vm.runtimeAlertCount
     }
 
+    private var settingsTabSignalCount: Int {
+        pendingLatestFollowUpCount + activeMutedAlertCount
+    }
+
     private var storedRefreshInterval: TimeInterval {
         let value = UserDefaults.standard.double(forKey: "refreshInterval")
         return value == 0 ? 30 : min(max(value, 10), 120)
@@ -402,6 +409,11 @@ struct MainTabView: View {
                         pendingFollowUpCount: pendingLatestFollowUpCount,
                         preferredSurfaceLabel: preferredOnCallSurface.label,
                         isOffline: !deps.networkMonitor.isConnected,
+                        overviewCount: overviewTabSignalCount,
+                        agentsCount: vm.issueAgentCount,
+                        runtimeCount: runtimeAlertBadge,
+                        budgetCount: budgetAlertBadge,
+                        settingsCount: settingsTabSignalCount,
                         actions: overlayQuickActions
                     )
                     .padding(.horizontal, 12)
@@ -762,6 +774,11 @@ private struct OperatorOverlayDeck: View {
     let pendingFollowUpCount: Int
     let preferredSurfaceLabel: String
     let isOffline: Bool
+    let overviewCount: Int
+    let agentsCount: Int
+    let runtimeCount: Int
+    let budgetCount: Int
+    let settingsCount: Int
     let actions: [OperatorOverlayQuickAction]
 
     private var primaryActions: [OperatorOverlayQuickAction] {
@@ -778,6 +795,12 @@ private struct OperatorOverlayDeck: View {
 
     private var criticalActionCount: Int {
         actions.filter(\.isCritical).count
+    }
+
+    private var tabSignalCount: Int {
+        [overviewCount, agentsCount, runtimeCount, budgetCount, settingsCount]
+            .filter { $0 > 0 }
+            .count
     }
 
     var body: some View {
@@ -820,6 +843,16 @@ private struct OperatorOverlayDeck: View {
                 sessionCount: sessionCount,
                 pendingFollowUpCount: pendingFollowUpCount
             )
+
+            if tabSignalCount > 0 {
+                OperatorOverlayTabDeck(
+                    overviewCount: overviewCount,
+                    agentsCount: agentsCount,
+                    runtimeCount: runtimeCount,
+                    budgetCount: budgetCount,
+                    settingsCount: settingsCount
+                )
+            }
 
             OperatorOverlayPressureDeck(
                 isOffline: isOffline,
@@ -891,6 +924,68 @@ private struct OperatorOverlayDeck: View {
             .background(.white.opacity(0.10), in: Capsule())
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct OperatorOverlayTabDeck: View {
+    let overviewCount: Int
+    let agentsCount: Int
+    let runtimeCount: Int
+    let budgetCount: Int
+    let settingsCount: Int
+
+    private var liveTabCount: Int {
+        [overviewCount, agentsCount, runtimeCount, budgetCount, settingsCount]
+            .filter { $0 > 0 }
+            .count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ResponsiveAccessoryRow(horizontalSpacing: 10, verticalSpacing: 6) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Tab coverage"))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(String(localized: "Keep tab-level pressure readable before jumping into the next monitor surface."))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } accessory: {
+                GlassCapsuleBadge(
+                    text: liveTabCount == 1 ? String(localized: "1 live tab") : String(localized: "\(liveTabCount) live tabs"),
+                    foregroundStyle: .secondary,
+                    backgroundOpacity: 0.08
+                )
+            }
+
+            FlowLayout(spacing: 8) {
+                if overviewCount > 0 {
+                    tabBadge(title: String(localized: "Overview"), count: overviewCount)
+                }
+                if agentsCount > 0 {
+                    tabBadge(title: String(localized: "Agents"), count: agentsCount)
+                }
+                if runtimeCount > 0 {
+                    tabBadge(title: String(localized: "Runtime"), count: runtimeCount)
+                }
+                if budgetCount > 0 {
+                    tabBadge(title: String(localized: "Budget"), count: budgetCount)
+                }
+                if settingsCount > 0 {
+                    tabBadge(title: String(localized: "Settings"), count: settingsCount)
+                }
+            }
+        }
+    }
+
+    private func tabBadge(title: String, count: Int) -> some View {
+        GlassCapsuleBadge(
+            text: count == 1 ? String(localized: "\(title) 1 issue") : String(localized: "\(title) \(count) issues"),
+            foregroundStyle: .primary,
+            backgroundOpacity: 0.10
+        )
     }
 }
 
