@@ -609,37 +609,49 @@ private struct StandbyPriorityRow: View {
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: item.symbolName)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.white)
-                .frame(width: 30, height: 30)
-                .background(tint.opacity(0.34))
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(item.title)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .lineLimit(2)
-
-                Text(item.detail)
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.80))
-                    .lineLimit(2)
-
-                Text(item.footnote)
-                    .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.62))
-                    .lineLimit(1)
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 12) {
+                iconBadge
+                contentBlock
+                Spacer(minLength: 8)
             }
-
-            Spacer()
+            VStack(alignment: .leading, spacing: 10) {
+                iconBadge
+                contentBlock
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
         .background(.white.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private var iconBadge: some View {
+        Image(systemName: item.symbolName)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.white)
+            .frame(width: 30, height: 30)
+            .background(tint.opacity(0.34))
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+
+    private var contentBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(item.title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.white)
+                .lineLimit(2)
+
+            Text(item.detail)
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.80))
+                .lineLimit(2)
+
+            Text(item.footnote)
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.62))
+                .lineLimit(2)
+        }
     }
 }
 
@@ -649,30 +661,42 @@ private struct StandbyActionRow: View {
     let systemImage: String
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: systemImage)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.white)
-                .frame(width: 34, height: 34)
-                .background(.white.opacity(0.10))
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white)
-                Text(detail)
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.74))
-                    .lineLimit(2)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 12) {
+                iconBadge
+                contentBlock
+                Spacer(minLength: 8)
             }
-
-            Spacer()
+            VStack(alignment: .leading, spacing: 10) {
+                iconBadge
+                contentBlock
+            }
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.white.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private var iconBadge: some View {
+        Image(systemName: systemImage)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.white)
+            .frame(width: 34, height: 34)
+            .background(.white.opacity(0.10))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private var contentBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.white)
+            Text(detail)
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.74))
+                .lineLimit(2)
+        }
     }
 }
 

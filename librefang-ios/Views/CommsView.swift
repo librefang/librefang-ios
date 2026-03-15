@@ -244,9 +244,19 @@ private struct CommsEventRow: View {
                         }
                     }
 
-                    Text("\(sourceLabel) → \(targetLabel)")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 6) {
+                            sourceTargetLabel
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(sourceLabel)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                            Text(targetLabel)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
 
                     if !event.detail.isEmpty {
                         Text(event.detail)
@@ -299,6 +309,14 @@ private struct CommsEventRow: View {
         Text(relativeTimestamp)
             .font(.caption2)
             .foregroundStyle(.tertiary)
+    }
+
+    private var sourceTargetLabel: some View {
+        Text("\(sourceLabel) → \(targetLabel)")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+            .truncationMode(.middle)
     }
 
     private func shortID(_ id: String) -> String {

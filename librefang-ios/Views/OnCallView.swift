@@ -20,15 +20,16 @@ struct OnCallDigestCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Label("On Call", systemImage: "waveform.path.ecg")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                PresentationToneBadge(
-                    text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
-                    tone: criticalStatus.tone
-                )
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    headerLabel
+                    Spacer(minLength: 8)
+                    queueBadge
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    headerLabel
+                    queueBadge
+                }
             }
 
             Text(summary)
@@ -36,24 +37,58 @@ struct OnCallDigestCard: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
 
-            HStack(spacing: 12) {
-                Label("\(criticalCount)", systemImage: "xmark.octagon")
-                    .foregroundStyle(criticalStatus.tone.color)
-                Label("\(watchCount)", systemImage: "star.fill")
-                    .foregroundStyle(watchAccentColor)
-                Spacer()
-                Text("Open")
-                    .font(.caption2.weight(.medium))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.secondary.opacity(0.12))
-                    .clipShape(Capsule())
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    criticalLabel
+                    watchLabel
+                    Spacer(minLength: 8)
+                    openBadge
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 12) {
+                        criticalLabel
+                        watchLabel
+                    }
+                    openBadge
+                }
             }
             .font(.caption2)
         }
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var headerLabel: some View {
+        Label("On Call", systemImage: "waveform.path.ecg")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+    }
+
+    private var queueBadge: some View {
+        PresentationToneBadge(
+            text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
+            tone: criticalStatus.tone
+        )
+    }
+
+    private var criticalLabel: some View {
+        Label("\(criticalCount)", systemImage: "xmark.octagon")
+            .foregroundStyle(criticalStatus.tone.color)
+    }
+
+    private var watchLabel: some View {
+        Label("\(watchCount)", systemImage: "star.fill")
+            .foregroundStyle(watchAccentColor)
+    }
+
+    private var openBadge: some View {
+        Text("Open")
+            .font(.caption2.weight(.medium))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(.secondary.opacity(0.12))
+            .clipShape(Capsule())
     }
 }
 
