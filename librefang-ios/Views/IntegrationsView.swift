@@ -205,6 +205,16 @@ struct IntegrationsView: View {
                 Text(scope == .attention ? "Attention mode shows only provider outages, channel field gaps, unavailable models, and agent drift." : "All mode shows the full provider, channel, model, and alias inventory.")
             }
 
+            if vm.catalogStatus != nil || !vm.catalogModels.isEmpty {
+                Section {
+                    IntegrationCatalogStatusCard(vm: vm)
+                } header: {
+                    Text("Catalog Sync")
+                } footer: {
+                    Text("LibreFang syncs the model catalog on startup and then in the background every 24 hours.")
+                }
+            }
+
             if !vm.catalogModels.isEmpty && scope == .all {
                 Section {
                     Picker("Models", selection: $modelFilter) {
@@ -487,6 +497,80 @@ private struct IntegrationsScoreboard: View {
                 color: vm.agentsWithModelDiagnostics.isEmpty ? .secondary : .orange
             )
         }
+    }
+}
+
+private struct IntegrationCatalogStatusCard: View {
+    let vm: DashboardViewModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label("Catalog Freshness", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+                    .font(.subheadline.weight(.medium))
+                Spacer()
+                IntegrationStatusChip(text: statusText, color: statusColor)
+            }
+
+            Text(detailText)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            HStack(spacing: 12) {
+                Label("\(vm.catalogModels.count) models", systemImage: "square.stack.3d.up")
+                Label("\(vm.modelAliasCount) aliases", systemImage: "arrow.left.arrow.right")
+                if let relativeSyncText {
+                    Label(relativeSyncText, systemImage: "clock")
+                }
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var statusText: String {
+        if vm.hasEmptyModelCatalog {
+            return "Empty"
+        }
+        if vm.isCatalogSyncStale {
+            return "Stale"
+        }
+        if vm.catalogLastSyncDate == nil {
+            return "Unknown"
+        }
+        return "Fresh"
+    }
+
+    private var statusColor: Color {
+        if vm.hasEmptyModelCatalog {
+            return .red
+        }
+        if vm.isCatalogSyncStale {
+            return .orange
+        }
+        if vm.catalogLastSyncDate == nil {
+            return .secondary
+        }
+        return .green
+    }
+
+    private var detailText: String {
+        if let catalogLastSyncDate = vm.catalogLastSyncDate {
+            let relative = RelativeDateTimeFormatter().localizedString(for: catalogLastSyncDate, relativeTo: Date())
+            if vm.isCatalogSyncStale {
+                return "The model catalog last synced \(relative). Review provider hub freshness if newly added models are missing."
+            }
+            return "The model catalog last synced \(relative). Current aliases and provider auth were enriched from that snapshot."
+        }
+        return vm.catalogModels.isEmpty
+            ? "This server has not reported a catalog sync timestamp and currently exposes no catalog models."
+            : "This server did not report a catalog sync timestamp, but the current cached catalog is still available."
+    }
+
+    private var relativeSyncText: String? {
+        guard let catalogLastSyncDate = vm.catalogLastSyncDate else { return nil }
+        return RelativeDateTimeFormatter().localizedString(for: catalogLastSyncDate, relativeTo: Date())
     }
 }
 

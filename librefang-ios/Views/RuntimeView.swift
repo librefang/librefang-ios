@@ -241,6 +241,11 @@ struct RuntimeView: View {
                     value: "\(vm.availableCatalogModelCount)/\(vm.catalogModels.count) available",
                     detail: vm.hasEmptyModelCatalog ? "No executable models in the current catalog" : "\(vm.modelAliasCount) aliases"
                 )
+                RuntimeMetricRow(
+                    label: "Catalog Sync",
+                    value: catalogSyncValue,
+                    detail: catalogSyncDetail
+                )
                 if !vm.agentsWithModelDiagnostics.isEmpty {
                     RuntimeMetricRow(
                         label: "Agent Drift",
@@ -254,6 +259,26 @@ struct RuntimeView: View {
                 Text("This section focuses on model providers, delivery channels, and the model catalog rather than runtime execution.")
             }
         }
+    }
+
+    private var catalogSyncValue: String {
+        if vm.hasEmptyModelCatalog {
+            return "Empty"
+        }
+        if vm.isCatalogSyncStale {
+            return "Stale"
+        }
+        if vm.catalogLastSyncDate == nil {
+            return "Unknown"
+        }
+        return "Fresh"
+    }
+
+    private var catalogSyncDetail: String {
+        guard let catalogLastSyncDate = vm.catalogLastSyncDate else {
+            return vm.catalogModels.isEmpty ? "No catalog sync timestamp and no cached models" : "Sync timestamp unavailable"
+        }
+        return RelativeDateTimeFormatter().localizedString(for: catalogLastSyncDate, relativeTo: Date())
     }
 
     @ViewBuilder

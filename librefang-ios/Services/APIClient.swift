@@ -43,6 +43,7 @@ protocol APIClientProtocol: Sendable {
     func channels() async throws -> ChannelList
     func models() async throws -> CatalogModelListResponse
     func modelAliases() async throws -> ModelAliasListResponse
+    func catalogStatus() async throws -> CatalogStatusResponse
     func hands() async throws -> HandCatalog
     func activeHands() async throws -> ActiveHandList
     func approvals() async throws -> ApprovalQueue
@@ -153,6 +154,10 @@ actor APIClient: APIClientProtocol {
 
     func modelAliases() async throws -> ModelAliasListResponse {
         try await get("/api/models/aliases")
+    }
+
+    func catalogStatus() async throws -> CatalogStatusResponse {
+        try await get("/api/catalog/status")
     }
 
     func hands() async throws -> HandCatalog {

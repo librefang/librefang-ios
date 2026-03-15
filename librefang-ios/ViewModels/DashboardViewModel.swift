@@ -17,6 +17,7 @@ final class DashboardViewModel {
     var channels: [ChannelStatus] = []
     var catalogModels: [CatalogModel] = []
     var modelAliases: [ModelAliasEntry] = []
+    var catalogStatus: CatalogStatusResponse?
     var hands: [HandDefinition] = []
     var activeHands: [HandInstance] = []
     var approvals: [ApprovalItem] = []
@@ -131,6 +132,10 @@ final class DashboardViewModel {
             group.addTask { @MainActor in
                 do { self.modelAliases = (try await self.api.modelAliases()).aliases }
                 catch { /* Alias inventory is optional */ }
+            }
+            group.addTask { @MainActor in
+                do { self.catalogStatus = try await self.api.catalogStatus() }
+                catch { /* Catalog sync status is optional */ }
             }
             group.addTask { @MainActor in
                 do { self.hands = (try await self.api.hands()).hands }
@@ -258,6 +263,15 @@ final class DashboardViewModel {
     var availableCatalogModelCount: Int { catalogModels.filter(\.available).count }
     var unavailableCatalogModelCount: Int { catalogModels.filter { !$0.available }.count }
     var modelAliasCount: Int { modelAliases.count }
+    var catalogLastSyncDate: Date? {
+        guard let raw = catalogStatus?.lastSync, !raw.isEmpty else { return nil }
+        let formatter = ISO8601DateFormatter()
+        return formatter.date(from: raw)
+    }
+    var isCatalogSyncStale: Bool {
+        guard let catalogLastSyncDate else { return false }
+        return Date().timeIntervalSince(catalogLastSyncDate) > 60 * 60 * 48
+    }
     var activeHandCount: Int { activeHands.count }
     var degradedHandCount: Int { hands.filter(\.degraded).count }
     var pendingApprovalCount: Int { approvals.count }

@@ -261,6 +261,14 @@ nonisolated struct ModelAliasEntry: Codable, Identifiable, Sendable {
     }
 }
 
+nonisolated struct CatalogStatusResponse: Codable, Sendable {
+    let lastSync: String?
+
+    enum CodingKeys: String, CodingKey {
+        case lastSync = "last_sync"
+    }
+}
+
 nonisolated struct IntegrationProbeResult: Codable, Sendable {
     let status: String
     let provider: String?

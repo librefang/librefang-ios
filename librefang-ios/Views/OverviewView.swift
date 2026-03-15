@@ -1278,6 +1278,7 @@ private struct IntegrationsOverviewCard: View {
         vm.unreachableLocalProviderCount
             + vm.channelRequiredFieldGapCount
             + (vm.hasEmptyModelCatalog ? 1 : 0)
+            + (hasCatalogFreshnessIssue ? 1 : 0)
             + vm.agentsWithModelDiagnostics.count
     }
 
@@ -1286,6 +1287,10 @@ private struct IntegrationsOverviewCard: View {
             return "Degraded"
         }
         return issueCount == 0 ? "Stable" : issueCount == 1 ? "1 issue" : "\(issueCount) issues"
+    }
+
+    private var hasCatalogFreshnessIssue: Bool {
+        vm.isCatalogSyncStale || (vm.catalogLastSyncDate == nil && vm.catalogModels.isEmpty)
     }
 
     var body: some View {
@@ -1352,6 +1357,14 @@ private struct IntegrationsOverviewCard: View {
                             detail: "\(vm.configuredProviderCount) configured providers are not yielding executable models"
                         )
                     }
+                    if hasCatalogFreshnessIssue {
+                        issueRow(
+                            icon: "clock.arrow.trianglehead.counterclockwise.rotate.90",
+                            color: vm.catalogModels.isEmpty ? .red : .orange,
+                            text: vm.catalogLastSyncDate == nil ? "Catalog sync timestamp missing" : "Catalog sync is stale",
+                            detail: catalogFreshnessDetail
+                        )
+                    }
                     if !vm.agentsWithModelDiagnostics.isEmpty {
                         issueRow(
                             icon: "cpu",
@@ -1369,10 +1382,17 @@ private struct IntegrationsOverviewCard: View {
     }
 
     private var statusColor: Color {
-        if vm.hasEmptyModelCatalog || vm.unavailableModelAgentCount > 0 {
+        if vm.hasEmptyModelCatalog || vm.unavailableModelAgentCount > 0 || (vm.catalogLastSyncDate == nil && vm.catalogModels.isEmpty) {
             return .red
         }
         return issueCount > 0 ? .orange : .green
+    }
+
+    private var catalogFreshnessDetail: String {
+        guard let catalogLastSyncDate = vm.catalogLastSyncDate else {
+            return vm.catalogModels.isEmpty ? "The server has not reported a sync timestamp and the catalog is empty." : "The server did not report a catalog sync timestamp."
+        }
+        return "Last synced " + RelativeDateTimeFormatter().localizedString(for: catalogLastSyncDate, relativeTo: Date())
     }
 
     @ViewBuilder
