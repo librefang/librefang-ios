@@ -107,18 +107,32 @@ struct ToolProfilesView: View {
             tone: highlight ? .positive : .neutral
         )
 
-        HStack {
-            Text(profile.name)
-                .font(.subheadline.weight(.semibold))
-            Spacer()
-            Text(profileStatus.summary)
-                .font(.caption2.weight(.semibold))
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(profileStatus.color(positive: .blue).opacity(0.12))
-                .foregroundStyle(profileStatus.color(positive: .blue))
-                .clipShape(Capsule())
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                profileNameLabel(profile)
+                Spacer(minLength: 8)
+                toolCountBadge(profileStatus)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                profileNameLabel(profile)
+                toolCountBadge(profileStatus)
+            }
         }
+    }
+
+    private func profileNameLabel(_ profile: ToolProfileSummary) -> some View {
+        Text(profile.name)
+            .font(.subheadline.weight(.semibold))
+            .lineLimit(2)
+    }
+
+    private func toolCountBadge(_ status: MonitoringSummaryStatus) -> some View {
+        PresentationToneBadge(
+            text: status.summary,
+            tone: status.tone,
+            horizontalPadding: 6,
+            verticalPadding: 2
+        )
     }
 
     @MainActor

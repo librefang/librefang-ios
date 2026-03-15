@@ -42,12 +42,12 @@ struct BudgetView: View {
                     }
 
                     Section("Alert") {
-                        LabeledContent("Threshold") {
+                        BudgetValueRow(label: "Threshold") {
                             Text("\(Int(budget.alertThreshold * 100))%")
                                 .foregroundStyle(.orange)
                         }
                         if let maxTokens = budget.defaultMaxLlmTokensPerHour, maxTokens > 0 {
-                            LabeledContent("Default Token Limit/hr") {
+                            BudgetValueRow(label: "Default Token Limit/hr") {
                                 Text(maxTokens.formatted())
                                     .monospacedDigit()
                             }
@@ -57,16 +57,16 @@ struct BudgetView: View {
 
                 if let usageSummary = vm.usageSummary {
                     Section("Cost Signals") {
-                        LabeledContent("Total Recorded Cost") {
+                        BudgetValueRow(label: "Total Recorded Cost") {
                             Text(formatCost(usageSummary.totalCostUsd))
                                 .monospacedDigit()
                         }
-                        LabeledContent("Avg Cost / Call") {
+                        BudgetValueRow(label: "Avg Cost / Call") {
                             Text(formatCost(averageCostPerCall(usageSummary)))
                                 .monospacedDigit()
                         }
                         if let projected = projectedMonthlyCost(usageSummary) {
-                            LabeledContent("Projected 30-Day Cost") {
+                            BudgetValueRow(label: "Projected 30-Day Cost") {
                                 Text(formatCost(projected))
                                     .monospacedDigit()
                             }
@@ -119,19 +119,15 @@ struct BudgetView: View {
                             AgentCostRow(item: item)
                         }
                     } header: {
-                        HStack {
-                            Text("Per-Agent Cost")
-                            Spacer()
-                            Menu {
-                                Picker("Sort", selection: $sortOrder) {
-                                    ForEach(BudgetSort.allCases, id: \.self) { sort in
-                                        Label(sort.label, systemImage: sort.icon)
-                                            .tag(sort)
-                                    }
-                                }
-                            } label: {
-                                Label("Sort", systemImage: "arrow.up.arrow.down")
-                                    .font(.caption)
+                        ViewThatFits(in: .horizontal) {
+                            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                                Text("Per-Agent Cost")
+                                Spacer()
+                                sortMenu
+                            }
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("Per-Agent Cost")
+                                sortMenu
                             }
                         }
                     }
@@ -160,6 +156,20 @@ struct BudgetView: View {
                     await vm.refresh()
                 }
             }
+        }
+    }
+
+    private var sortMenu: some View {
+        Menu {
+            Picker("Sort", selection: $sortOrder) {
+                ForEach(BudgetSort.allCases, id: \.self) { sort in
+                    Label(sort.label, systemImage: sort.icon)
+                        .tag(sort)
+                }
+            }
+        } label: {
+            Label("Sort", systemImage: "arrow.up.arrow.down")
+                .font(.caption)
         }
     }
 
@@ -446,6 +456,32 @@ private struct CostSlice: Identifiable {
     let title: String
     let value: Double
     let color: Color
+}
+
+private struct BudgetValueRow<Content: View>: View {
+    let label: LocalizedStringKey
+    let content: Content
+
+    init(label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
+        self.label = label
+        self.content = content()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(label)
+                Spacer(minLength: 8)
+                content
+                    .multilineTextAlignment(.trailing)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                content
+                    .multilineTextAlignment(.leading)
+            }
+        }
+    }
 }
 
 private struct BudgetLimitRow: View {
