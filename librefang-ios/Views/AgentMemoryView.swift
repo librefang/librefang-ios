@@ -50,6 +50,10 @@ struct AgentMemoryView: View {
         !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    private var agentMemorySectionCount: Int {
+        isLoading && entries.isEmpty && loadError == nil ? 2 : 3
+    }
+
     private var agentMemoryPrimaryRouteCount: Int { 3 }
     private var agentMemorySupportRouteCount: Int { 1 }
 
@@ -247,6 +251,16 @@ struct AgentMemoryView: View {
 
     private var operatorSurfacesSection: some View {
         Section {
+            AgentMemorySectionInventoryDeck(
+                sectionCount: agentMemorySectionCount,
+                visibleCount: filteredEntries.count,
+                totalCount: entries.count,
+                structuredCount: structuredEntryCount,
+                hasActiveSearch: hasActiveSearch,
+                isLoading: isLoading && entries.isEmpty && loadError == nil,
+                hasLoadError: loadError != nil
+            )
+
             AgentMemoryRouteInventoryDeck(
                 primaryRouteCount: agentMemoryPrimaryRouteCount,
                 supportRouteCount: agentMemorySupportRouteCount,
@@ -687,6 +701,84 @@ private struct AgentMemoryRow: View {
                     .controlSize(.small)
             }
         }
+    }
+}
+
+private struct AgentMemorySectionInventoryDeck: View {
+    let sectionCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let structuredCount: Int
+    let hasActiveSearch: Bool
+    let isLoading: Bool
+    let hasLoadError: Bool
+
+    private var coverageTone: PresentationTone {
+        if hasLoadError { return .critical }
+        if isLoading { return .warning }
+        return .positive
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: isLoading
+                    ? String(localized: "Section coverage stays visible while agent memory is still loading.")
+                    : String(localized: "Section coverage stays visible before memory routes and editable keys."),
+                detail: hasActiveSearch
+                    ? String(localized: "Use section coverage to confirm the filtered memory slice before pivoting into routes or key edits.")
+                    : String(localized: "Use section coverage to confirm how much memory context is ready before leaving the current agent."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 section ready") : String(localized: "\(sectionCount) sections ready"),
+                        tone: coverageTone
+                    )
+                    PresentationToneBadge(
+                        text: totalCount == 1 ? String(localized: "1 stored key") : String(localized: "\(totalCount) stored keys"),
+                        tone: totalCount == 0 ? .neutral : .positive
+                    )
+                    if structuredCount > 0 {
+                        PresentationToneBadge(
+                            text: structuredCount == 1 ? String(localized: "1 structured block") : String(localized: "\(structuredCount) structured blocks"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section Coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep summary, routes, and memory sections visible before drilling into individual key edits."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if isLoading {
+                    PresentationToneBadge(text: String(localized: "Loading"), tone: .warning)
+                } else if hasLoadError {
+                    PresentationToneBadge(text: String(localized: "Blocked"), tone: .critical)
+                } else {
+                    PresentationToneBadge(text: String(localized: "Ready"), tone: .positive)
+                }
+            } facts: {
+                if hasActiveSearch {
+                    Label(
+                        visibleCount == 1 ? String(localized: "1 visible key") : String(localized: "\(visibleCount) visible keys"),
+                        systemImage: "line.3.horizontal.decrease.circle"
+                    )
+                }
+                Label(
+                    structuredCount == 1 ? String(localized: "1 structured value") : String(localized: "\(structuredCount) structured values"),
+                    systemImage: "square.brackets"
+                )
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

@@ -55,6 +55,10 @@ struct AgentFilesView: View {
         scope != .all || !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    private var agentFilesSectionCount: Int {
+        isLoading && files.isEmpty && loadError == nil ? 2 : 3
+    }
+
     private var agentFilesPrimaryRouteCount: Int { 3 }
     private var agentFilesSupportRouteCount: Int { 1 }
 
@@ -153,6 +157,18 @@ struct AgentFilesView: View {
             }
 
             Section {
+                AgentFilesSectionInventoryDeck(
+                    sectionCount: agentFilesSectionCount,
+                    visibleCount: filteredFiles.count,
+                    totalCount: files.count,
+                    missingCount: missingCount,
+                    hasActiveFilter: hasActiveFilter,
+                    scopeLabel: scope.label,
+                    scopeTone: scope.tone,
+                    isLoading: isLoading && files.isEmpty && loadError == nil,
+                    hasLoadError: loadError != nil
+                )
+
                 AgentFilesRouteInventoryDeck(
                     primaryRouteCount: agentFilesPrimaryRouteCount,
                     supportRouteCount: agentFilesSupportRouteCount,
@@ -354,6 +370,85 @@ enum AgentFileScope: CaseIterable {
         case .present:
             return .positive
         }
+    }
+}
+
+private struct AgentFilesSectionInventoryDeck: View {
+    let sectionCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let missingCount: Int
+    let hasActiveFilter: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+    let isLoading: Bool
+    let hasLoadError: Bool
+
+    private var coverageTone: PresentationTone {
+        if hasLoadError { return .critical }
+        if isLoading { return .warning }
+        return .positive
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: isLoading
+                    ? String(localized: "Section coverage stays visible while workspace identity is still loading.")
+                    : String(localized: "Section coverage stays visible before routes and individual identity files."),
+                detail: hasActiveFilter
+                    ? String(localized: "Use section coverage to confirm the active workspace scope before pivoting into related agent surfaces.")
+                    : String(localized: "Use section coverage to confirm how much identity context is ready before leaving file inspection."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 section ready") : String(localized: "\(sectionCount) sections ready"),
+                        tone: coverageTone
+                    )
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    if missingCount > 0 {
+                        PresentationToneBadge(
+                            text: missingCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingCount) missing files"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section Coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep summary, routes, and file coverage readable before drilling into specific workspace identity files."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if isLoading {
+                    PresentationToneBadge(text: String(localized: "Loading"), tone: .warning)
+                } else if hasLoadError {
+                    PresentationToneBadge(text: String(localized: "Blocked"), tone: .critical)
+                } else {
+                    PresentationToneBadge(
+                        text: visibleCount == totalCount
+                            ? (visibleCount == 1 ? String(localized: "1 visible file") : String(localized: "\(visibleCount) visible files"))
+                            : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                        tone: .positive
+                    )
+                }
+            } facts: {
+                if hasActiveFilter {
+                    Label(String(localized: "Scoped inventory"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+                Label(
+                    missingCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingCount) missing files"),
+                    systemImage: "doc.badge.gearshape"
+                )
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

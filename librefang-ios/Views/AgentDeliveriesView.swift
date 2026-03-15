@@ -75,6 +75,10 @@ struct AgentDeliveriesView: View {
         scope != .all || !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    private var agentDeliveriesSectionCount: Int {
+        isLoading && receipts.isEmpty && loadError == nil ? 2 : 3
+    }
+
     private var agentDeliveriesPrimaryRouteCount: Int { 3 }
     private var agentDeliveriesSupportRouteCount: Int { 1 }
 
@@ -189,6 +193,19 @@ struct AgentDeliveriesView: View {
             }
 
             Section {
+                AgentDeliveriesSectionInventoryDeck(
+                    sectionCount: agentDeliveriesSectionCount,
+                    visibleCount: filteredReceipts.count,
+                    totalCount: receipts.count,
+                    failedCount: failedCount,
+                    unsettledCount: unsettledCount,
+                    hasActiveFilter: hasActiveFilter,
+                    scopeLabel: scope.label,
+                    scopeTone: scope.tone,
+                    isLoading: isLoading && receipts.isEmpty && loadError == nil,
+                    hasLoadError: loadError != nil
+                )
+
                 AgentDeliveriesRouteInventoryDeck(
                     primaryRouteCount: agentDeliveriesPrimaryRouteCount,
                     supportRouteCount: agentDeliveriesSupportRouteCount,
@@ -356,6 +373,94 @@ struct AgentDeliveriesView: View {
         } catch {
             loadError = error.localizedDescription
         }
+    }
+}
+
+private struct AgentDeliveriesSectionInventoryDeck: View {
+    let sectionCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let failedCount: Int
+    let unsettledCount: Int
+    let hasActiveFilter: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+    let isLoading: Bool
+    let hasLoadError: Bool
+
+    private var coverageTone: PresentationTone {
+        if hasLoadError { return .critical }
+        if isLoading { return .warning }
+        return .positive
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: isLoading
+                    ? String(localized: "Section coverage stays visible while delivery receipts are still loading.")
+                    : String(localized: "Section coverage stays visible before routes and the longer receipt log."),
+                detail: hasActiveFilter
+                    ? String(localized: "Use section coverage to confirm the active receipt scope before pivoting into nearby incident or runtime surfaces.")
+                    : String(localized: "Use section coverage to confirm how much delivery context is ready before leaving receipt inspection."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 section ready") : String(localized: "\(sectionCount) sections ready"),
+                        tone: coverageTone
+                    )
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    if failedCount > 0 {
+                        PresentationToneBadge(
+                            text: failedCount == 1 ? String(localized: "1 failure") : String(localized: "\(failedCount) failures"),
+                            tone: .critical
+                        )
+                    }
+                    if unsettledCount > 0 {
+                        PresentationToneBadge(
+                            text: unsettledCount == 1 ? String(localized: "1 unsettled") : String(localized: "\(unsettledCount) unsettled"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section Coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep summary, routes, and receipt coverage visible before drilling into the full outbound delivery log."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if isLoading {
+                    PresentationToneBadge(text: String(localized: "Loading"), tone: .warning)
+                } else if hasLoadError {
+                    PresentationToneBadge(text: String(localized: "Blocked"), tone: .critical)
+                } else {
+                    PresentationToneBadge(
+                        text: visibleCount == totalCount
+                            ? (visibleCount == 1 ? String(localized: "1 visible receipt") : String(localized: "\(visibleCount) visible receipts"))
+                            : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                        tone: .positive
+                    )
+                }
+            } facts: {
+                if hasActiveFilter {
+                    Label(String(localized: "Scoped inventory"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+                if failedCount > 0 {
+                    Label(
+                        failedCount == 1 ? String(localized: "1 failed receipt") : String(localized: "\(failedCount) failed receipts"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
