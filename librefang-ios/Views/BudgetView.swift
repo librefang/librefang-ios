@@ -151,6 +151,12 @@ struct BudgetView: View {
 
                     if let usageSummary = vm.usageSummary {
                         Section("Cost Signals") {
+                            BudgetCostSignalsSnapshotCard(
+                                usageSummary: usageSummary,
+                                budget: vm.budget,
+                                projectedMonthlyCost: projectedMonthlyCost(usageSummary)
+                            )
+
                             BudgetValueRow(label: "Total Recorded Cost") {
                                 Text(formatCost(usageSummary.totalCostUsd))
                                     .monospacedDigit()
@@ -191,6 +197,14 @@ struct BudgetView: View {
                         .id(BudgetSectionAnchor.trend)
 
                         Section("Daily Breakdown") {
+                            BudgetDailyBreakdownSnapshotCard(
+                                days: vm.usageDaily,
+                                peakDay: peakUsageDay,
+                                averageDailyCost: trendAverageDailyCost,
+                                totalCalls: trendTotalCalls,
+                                totalTokens: trendTotalTokens
+                            )
+
                             ForEach(vm.usageDaily.reversed()) { day in
                                 DailyUsageRow(day: day)
                             }
@@ -1247,6 +1261,138 @@ private struct BudgetTrendSnapshotCard: View {
                 )
             }
         }
+    }
+}
+
+private struct BudgetCostSignalsSnapshotCard: View {
+    let usageSummary: UsageSummary
+    let budget: BudgetOverview?
+    let projectedMonthlyCost: Double?
+
+    private var averageCostPerCall: Double {
+        guard usageSummary.callCount > 0 else { return 0 }
+        return usageSummary.totalCostUsd / Double(usageSummary.callCount)
+    }
+
+    private var totalTokens: Int {
+        usageSummary.totalInputTokens + usageSummary.totalOutputTokens
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Cost signals stay visible before the raw spend rows."),
+                detail: String(localized: "Use this compact slice to decide whether total cost, projected spend, or per-call efficiency needs the next glance."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: String(localized: "Total \(localizedUSDCurrency(usageSummary.totalCostUsd))"), tone: .warning)
+                    PresentationToneBadge(
+                        text: usageSummary.callCount == 1 ? String(localized: "1 call") : String(localized: "\(usageSummary.callCount) calls"),
+                        tone: usageSummary.callCount > 0 ? .positive : .neutral
+                    )
+                    if let projectedMonthlyCost {
+                        PresentationToneBadge(text: String(localized: "30-day \(localizedUSDCurrency(projectedMonthlyCost))"), tone: .warning)
+                    }
+                    if let budget {
+                        PresentationToneBadge(
+                            text: String(localized: "Daily \(Int(budget.dailyPct * 100))%"),
+                            tone: StatusPresentation.budgetUtilizationStatus(for: budget.dailyPct)?.tone ?? .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Cost signal snapshot"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep total spend, efficiency, and projected burn visible before reading the individual signal rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: String(localized: "Avg \(localizedUSDCurrency(averageCostPerCall)) / call"),
+                    tone: .neutral
+                )
+            } facts: {
+                Label(String(localized: "Total \(localizedUSDCurrency(usageSummary.totalCostUsd))"), systemImage: "dollarsign.circle")
+                if usageSummary.totalToolCalls > 0 {
+                    Label(
+                        usageSummary.totalToolCalls == 1 ? String(localized: "1 tool call") : String(localized: "\(usageSummary.totalToolCalls) tool calls"),
+                        systemImage: "wrench.and.screwdriver"
+                    )
+                }
+                Label(String(localized: "\(totalTokens.formatted()) tokens"), systemImage: "number")
+                if let projectedMonthlyCost {
+                    Label(String(localized: "Projected \(localizedUSDCurrency(projectedMonthlyCost))"), systemImage: "calendar")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+private struct BudgetDailyBreakdownSnapshotCard: View {
+    let days: [DailyUsage]
+    let peakDay: DailyUsage?
+    let averageDailyCost: Double?
+    let totalCalls: Int
+    let totalTokens: Int
+
+    private var latestDay: DailyUsage? {
+        days.last
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Daily breakdown stays visible before the full reverse-chronological spend list."),
+                detail: String(localized: "Use the compact slice to see the loaded day count, peak spend, and current average before opening every day row."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: days.count == 1 ? String(localized: "1 day loaded") : String(localized: "\(days.count) days loaded"),
+                        tone: .positive
+                    )
+                    if let latestDay {
+                        PresentationToneBadge(text: latestDay.date, tone: .neutral)
+                    }
+                    if let peakDay {
+                        PresentationToneBadge(text: String(localized: "Peak \(localizedUSDCurrency(peakDay.costUsd))"), tone: .warning)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Daily breakdown snapshot"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep average burn, total calls, and total tokens visible before scanning the full day-by-day spend history."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: averageDailyCost == nil ? String(localized: "No average") : String(localized: "Avg \(localizedUSDCurrency(averageDailyCost!))"),
+                    tone: averageDailyCost == nil ? .neutral : .warning
+                )
+            } facts: {
+                if let peakDay {
+                    Label(String(localized: "Peak \(peakDay.date)"), systemImage: "chart.line.uptrend.xyaxis")
+                }
+                Label(
+                    totalCalls == 1 ? String(localized: "1 total call") : String(localized: "\(totalCalls) total calls"),
+                    systemImage: "waveform"
+                )
+                Label(String(localized: "\(totalTokens.formatted()) tokens"), systemImage: "number")
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

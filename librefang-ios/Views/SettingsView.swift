@@ -241,6 +241,14 @@ struct SettingsView: View {
                     }
 
                     Section("Server") {
+                    SettingsServerSnapshotCard(
+                        serverURL: serverURL,
+                        apiKey: apiKey,
+                        serverStatusLabel: deps.dashboardViewModel.health?.localizedStatusLabel ?? String(localized: "Unavailable"),
+                        serverStatusTone: deps.dashboardViewModel.health?.statusTone ?? .neutral,
+                        connectionHint: serverConnectionHint
+                    )
+
                     TextField("Server URL", text: $serverURL)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
@@ -273,6 +281,11 @@ struct SettingsView: View {
                 .id(SettingsSectionAnchor.server)
 
                     Section("Auto Refresh") {
+                    SettingsRefreshSnapshotCard(
+                        refreshInterval: Int(refreshInterval),
+                        lastRefresh: deps.dashboardViewModel.lastRefresh
+                    )
+
                     SettingsValueRow("Interval") {
                         Text("\(Int(refreshInterval))s")
                             .foregroundStyle(.secondary)
@@ -288,6 +301,11 @@ struct SettingsView: View {
                 .id(SettingsSectionAnchor.refresh)
 
                     Section("Language") {
+                    SettingsLanguageSnapshotCard(
+                        currentLanguageLabel: currentLanguageLabel,
+                        supportedLanguageLabels: supportedLanguageLabels
+                    )
+
                     SettingsValueRow("Current") {
                         Text(currentLanguageLabel)
                             .foregroundStyle(.secondary)
@@ -395,6 +413,18 @@ struct SettingsView: View {
                 .id(SettingsSectionAnchor.onCall)
 
                     Section("Standby Reminder") {
+                    SettingsReminderSnapshotCard(
+                        isEnabled: deps.onCallNotificationManager.isEnabled,
+                        authorizationLabel: deps.onCallNotificationManager.authorizationLabel,
+                        authorizationTone: deps.onCallNotificationManager.authorizationTone,
+                        authorizationSummary: deps.onCallNotificationManager.authorizationSummary,
+                        scopeLabel: deps.onCallNotificationManager.isEnabled ? deps.onCallNotificationManager.scope.label : nil,
+                        delayMinutes: deps.onCallNotificationManager.isEnabled ? deps.onCallNotificationManager.remindAfterMinutes : nil,
+                        pendingReminderLabel: deps.onCallNotificationManager.pendingReminderLabel,
+                        pendingReminderSourceLabel: deps.onCallNotificationManager.pendingReminderSourceLabel,
+                        pendingReminderSummary: deps.onCallNotificationManager.pendingReminderSummary
+                    )
+
                     SettingsBadgeFlow(items: standbyReminderBadges)
 
                     Toggle("Enable Reminder", isOn: Binding(
@@ -914,6 +944,247 @@ struct SettingsView: View {
         MonitoringSummaryStatus.presenceStatus(isPresent: entry.checkInWindow != .none)
     }
 
+}
+
+private struct SettingsServerSnapshotCard: View {
+    let serverURL: String
+    let apiKey: String
+    let serverStatusLabel: String
+    let serverStatusTone: PresentationTone
+    let connectionHint: String
+
+    private var trimmedURL: String {
+        serverURL.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var hostLabel: String {
+        guard !trimmedURL.isEmpty else { return String(localized: "No server URL") }
+        return URL(string: trimmedURL)?.host ?? trimmedURL
+    }
+
+    private var hostTone: PresentationTone {
+        let normalized = trimmedURL.lowercased()
+        if normalized.contains("127.0.0.1") || normalized.contains("localhost") {
+            return .warning
+        }
+        return trimmedURL.isEmpty ? .neutral : .positive
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: connectionHint,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    SettingsBadge(text: hostLabel, tone: hostTone)
+                    SettingsBadge(
+                        text: apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? String(localized: "No API key") : String(localized: "API key set"),
+                        tone: apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .neutral : .positive
+                    )
+                    SettingsBadge(text: serverStatusLabel, tone: serverStatusTone)
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Server settings snapshot"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep address scope, auth state, and current server reachability visible before editing connection fields."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                SettingsBadge(
+                    text: trimmedURL.isEmpty ? String(localized: "Unset") : String(localized: "Configured"),
+                    tone: trimmedURL.isEmpty ? .neutral : .positive
+                )
+            } facts: {
+                Label(hostLabel, systemImage: "server.rack")
+                Label(
+                    apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? String(localized: "No auth override") : String(localized: "Auth override present"),
+                    systemImage: "key"
+                )
+                Label(serverStatusLabel, systemImage: "bolt.horizontal.circle")
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if trimmedURL.isEmpty {
+            return String(localized: "No server endpoint is configured for this device yet.")
+        }
+        return String(localized: "This device is pointed at \(hostLabel) for runtime refreshes and action routing.")
+    }
+}
+
+private struct SettingsRefreshSnapshotCard: View {
+    let refreshInterval: Int
+    let lastRefresh: Date?
+
+    private var refreshTone: PresentationTone {
+        if refreshInterval <= 15 {
+            return .warning
+        }
+        if refreshInterval >= 60 {
+            return .neutral
+        }
+        return .positive
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Dashboard refresh is set to every \(refreshInterval) seconds."),
+                detail: String(localized: "Shorter intervals keep mobile triage fresh but increase server polling pressure."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    SettingsBadge(text: String(localized: "\(refreshInterval)s cadence"), tone: refreshTone)
+                    if let lastRefresh {
+                        SettingsBadge(
+                            text: RelativeDateTimeFormatter().localizedString(for: lastRefresh, relativeTo: Date()),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Refresh snapshot"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the polling cadence and latest successful refresh visible before tuning the device refresh slider."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                SettingsBadge(
+                    text: refreshInterval <= 15 ? String(localized: "Fast") : refreshInterval >= 60 ? String(localized: "Relaxed") : String(localized: "Balanced"),
+                    tone: refreshTone
+                )
+            } facts: {
+                Label(String(localized: "\(refreshInterval)s interval"), systemImage: "arrow.clockwise")
+                if let lastRefresh {
+                    Label(RelativeDateTimeFormatter().localizedString(for: lastRefresh, relativeTo: Date()), systemImage: "clock")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+private struct SettingsLanguageSnapshotCard: View {
+    let currentLanguageLabel: String
+    let supportedLanguageLabels: [String]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "This iPhone is currently using \(currentLanguageLabel) for LibreFang."),
+                detail: String(localized: "Per-app language is controlled in iPhone settings, so UI strings and system surfaces stay aligned."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    SettingsBadge(text: currentLanguageLabel, tone: .neutral)
+                    SettingsBadge(
+                        text: supportedLanguageLabels.count == 1 ? String(localized: "1 supported language") : String(localized: "\(supportedLanguageLabels.count) supported languages"),
+                        tone: .positive
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Language snapshot"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the active locale and supported catalog visible before leaving the app for system language settings."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                SettingsBadge(text: String(localized: "Per-app"), tone: .neutral)
+            } facts: {
+                Label(currentLanguageLabel, systemImage: "globe")
+                Label(
+                    supportedLanguageLabels.count == 1 ? String(localized: "1 supported language") : String(localized: "\(supportedLanguageLabels.count) supported languages"),
+                    systemImage: "textformat.abc"
+                )
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+private struct SettingsReminderSnapshotCard: View {
+    let isEnabled: Bool
+    let authorizationLabel: String
+    let authorizationTone: PresentationTone
+    let authorizationSummary: String
+    let scopeLabel: String?
+    let delayMinutes: Int?
+    let pendingReminderLabel: String
+    let pendingReminderSourceLabel: String
+    let pendingReminderSummary: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: pendingReminderSummary ?? authorizationSummary,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    SettingsBadge(
+                        text: isEnabled ? String(localized: "Reminder On") : String(localized: "Reminder Off"),
+                        tone: isEnabled ? .positive : .neutral
+                    )
+                    SettingsBadge(text: authorizationLabel, tone: authorizationTone)
+                    if let scopeLabel {
+                        SettingsBadge(text: scopeLabel, tone: .warning)
+                    }
+                    if let delayMinutes {
+                        SettingsBadge(text: String(localized: "\(delayMinutes) min"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Reminder snapshot"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep authorization, arming scope, and any queued reminder visible before adjusting standby reminder controls."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                SettingsBadge(
+                    text: pendingReminderSummary == nil ? String(localized: "No queued reminder") : String(localized: "Queued"),
+                    tone: pendingReminderSummary == nil ? .neutral : .caution
+                )
+            } facts: {
+                Label(pendingReminderLabel, systemImage: "bell.badge")
+                Label(pendingReminderSourceLabel, systemImage: "arrow.triangle.2.circlepath")
+                if let delayMinutes {
+                    Label(String(localized: "\(delayMinutes) min delay"), systemImage: "timer")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if !isEnabled {
+            return String(localized: "Standby reminders are currently disabled on this device.")
+        }
+        return String(localized: "Standby reminders are armed for queued on-call pressure on this device.")
+    }
 }
 
 private struct SettingsValueRow<Value: View>: View {
