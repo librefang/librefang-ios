@@ -414,6 +414,10 @@ struct IntegrationsView: View {
 
                 if !filteredProviders.isEmpty {
                     Section {
+                        IntegrationProvidersSnapshotCard(
+                            providers: filteredProviders
+                        )
+
                         ForEach(filteredProviders) { provider in
                             IntegrationProviderRow(
                                 provider: provider,
@@ -434,6 +438,10 @@ struct IntegrationsView: View {
 
                 if !filteredChannels.isEmpty {
                     Section {
+                        IntegrationChannelsSnapshotCard(
+                            channels: filteredChannels
+                        )
+
                         ForEach(filteredChannels) { channel in
                             IntegrationChannelRow(
                                 channel: channel,
@@ -454,6 +462,11 @@ struct IntegrationsView: View {
 
                 if !filteredModels.isEmpty {
                     Section {
+                        IntegrationModelsSnapshotCard(
+                            models: filteredModels,
+                            modelFilter: modelFilter
+                        )
+
                         ForEach(filteredModels.prefix(40)) { model in
                             IntegrationModelRow(model: model)
                         }
@@ -471,6 +484,10 @@ struct IntegrationsView: View {
 
                 if !filteredAliases.isEmpty {
                     Section {
+                        IntegrationAliasesSnapshotCard(
+                            aliases: filteredAliases
+                        )
+
                         ForEach(filteredAliases.prefix(20)) { alias in
                             IntegrationAliasRow(alias: alias)
                         }
@@ -486,6 +503,10 @@ struct IntegrationsView: View {
 
                 if !filteredAgentDiagnostics.isEmpty {
                     Section {
+                        IntegrationDriftSnapshotCard(
+                            diagnostics: filteredAgentDiagnostics
+                        )
+
                         ForEach(filteredAgentDiagnostics.prefix(20)) { diagnostic in
                             NavigationLink {
                                 AgentDetailView(agent: diagnostic.agent)
@@ -1044,6 +1065,98 @@ private struct IntegrationProviderRow: View {
     }
 }
 
+private struct IntegrationProvidersSnapshotCard: View {
+    let providers: [ProviderStatus]
+
+    private var configuredCount: Int {
+        providers.filter(\.isConfigured).count
+    }
+
+    private var localCount: Int {
+        providers.filter { $0.isLocal == true }.count
+    }
+
+    private var unreachableLocalCount: Int {
+        providers.filter { $0.isLocal == true && $0.reachable == false }.count
+    }
+
+    private var discoveredModelCount: Int {
+        providers.reduce(0) { $0 + ($1.discoveredModels?.count ?? 0) }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Provider readiness stays visible before the detailed provider inventory."),
+                detail: String(localized: "Use the compact summary to see local outages, configured providers, and discovery depth before opening individual provider rows."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: providers.count == 1 ? String(localized: "1 provider visible") : String(localized: "\(providers.count) providers visible"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: configuredCount == 1 ? String(localized: "1 configured") : String(localized: "\(configuredCount) configured"),
+                        tone: configuredCount > 0 ? .positive : .neutral
+                    )
+                    if localCount > 0 {
+                        PresentationToneBadge(
+                            text: localCount == 1 ? String(localized: "1 local") : String(localized: "\(localCount) local"),
+                            tone: .neutral
+                        )
+                    }
+                    if unreachableLocalCount > 0 {
+                        PresentationToneBadge(
+                            text: unreachableLocalCount == 1 ? String(localized: "1 local down") : String(localized: "\(unreachableLocalCount) local down"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Provider facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep auth readiness, local reachability, and discovered model depth visible before the longer provider list."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if discoveredModelCount > 0 {
+                    PresentationToneBadge(
+                        text: discoveredModelCount == 1 ? String(localized: "1 discovered model") : String(localized: "\(discoveredModelCount) discovered models"),
+                        tone: .neutral
+                    )
+                }
+            } facts: {
+                Label(
+                    providers.count == 1 ? String(localized: "1 provider") : String(localized: "\(providers.count) providers"),
+                    systemImage: "key.horizontal"
+                )
+                Label(
+                    configuredCount == 1 ? String(localized: "1 configured") : String(localized: "\(configuredCount) configured"),
+                    systemImage: "checkmark.circle"
+                )
+                if localCount > 0 {
+                    Label(
+                        localCount == 1 ? String(localized: "1 local provider") : String(localized: "\(localCount) local providers"),
+                        systemImage: "network"
+                    )
+                }
+                if unreachableLocalCount > 0 {
+                    Label(
+                        unreachableLocalCount == 1 ? String(localized: "1 local outage") : String(localized: "\(unreachableLocalCount) local outages"),
+                        systemImage: "network.slash"
+                    )
+                }
+            }
+        }
+    }
+}
+
 private struct IntegrationChannelRow: View {
     let channel: ChannelStatus
     let probeResult: IntegrationProbeResult?
@@ -1167,6 +1280,102 @@ private struct IntegrationChannelRow: View {
     }
 }
 
+private struct IntegrationChannelsSnapshotCard: View {
+    let channels: [ChannelStatus]
+
+    private var readyCount: Int {
+        channels.filter { $0.configured && $0.hasToken }.count
+    }
+
+    private var missingRequiredCount: Int {
+        channels.reduce(0) { partialResult, channel in
+            partialResult + (channel.fields?.filter { $0.required && !$0.hasValue }.count ?? 0)
+        }
+    }
+
+    private var quickSetupCount: Int {
+        channels.filter(\.quickSetup).count
+    }
+
+    private var setupStepCount: Int {
+        channels.reduce(0) { partialResult, channel in
+            partialResult + (channel.setupSteps?.count ?? 0)
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Channel readiness stays visible before the longer channel setup inventory."),
+                detail: String(localized: "Use the summary to see ready channels, missing fields, and setup weight before opening per-channel diagnostics."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: channels.count == 1 ? String(localized: "1 channel visible") : String(localized: "\(channels.count) channels visible"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: readyCount == 1 ? String(localized: "1 ready") : String(localized: "\(readyCount) ready"),
+                        tone: readyCount > 0 ? .positive : .neutral
+                    )
+                    if missingRequiredCount > 0 {
+                        PresentationToneBadge(
+                            text: missingRequiredCount == 1 ? String(localized: "1 missing field") : String(localized: "\(missingRequiredCount) missing fields"),
+                            tone: .warning
+                        )
+                    }
+                    if quickSetupCount > 0 {
+                        PresentationToneBadge(
+                            text: quickSetupCount == 1 ? String(localized: "1 quick setup") : String(localized: "\(quickSetupCount) quick setups"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Channel facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep readiness, setup depth, and missing field pressure visible before opening each channel row."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if setupStepCount > 0 {
+                    PresentationToneBadge(
+                        text: setupStepCount == 1 ? String(localized: "1 setup step") : String(localized: "\(setupStepCount) setup steps"),
+                        tone: .neutral
+                    )
+                }
+            } facts: {
+                Label(
+                    channels.count == 1 ? String(localized: "1 channel") : String(localized: "\(channels.count) channels"),
+                    systemImage: "bubble.left.and.bubble.right"
+                )
+                Label(
+                    readyCount == 1 ? String(localized: "1 ready") : String(localized: "\(readyCount) ready"),
+                    systemImage: "checkmark.circle"
+                )
+                if missingRequiredCount > 0 {
+                    Label(
+                        missingRequiredCount == 1 ? String(localized: "1 missing field") : String(localized: "\(missingRequiredCount) missing fields"),
+                        systemImage: "exclamationmark.circle"
+                    )
+                }
+                if quickSetupCount > 0 {
+                    Label(
+                        quickSetupCount == 1 ? String(localized: "1 quick setup") : String(localized: "\(quickSetupCount) quick setups"),
+                        systemImage: "bolt"
+                    )
+                }
+            }
+        }
+    }
+}
+
 private struct IntegrationModelRow: View {
     let model: CatalogModel
 
@@ -1255,6 +1464,92 @@ private struct IntegrationModelRow: View {
     }
 }
 
+private struct IntegrationModelsSnapshotCard: View {
+    let models: [CatalogModel]
+    let modelFilter: IntegrationsModelFilter
+
+    private var providerCount: Int {
+        Set(models.map { $0.provider.lowercased() }).count
+    }
+
+    private var availableCount: Int {
+        models.filter(\.available).count
+    }
+
+    private var toolReadyCount: Int {
+        models.filter(\.supportsTools).count
+    }
+
+    private var topProvider: String? {
+        Dictionary(grouping: models, by: { $0.provider })
+            .max { $0.value.count < $1.value.count }?
+            .key
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Model availability stays visible before the longer catalog inventory."),
+                detail: String(localized: "Use the summary to see provider spread, available models, and tool-capable coverage before opening the model rows."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: models.count == 1 ? String(localized: "1 model visible") : String(localized: "\(models.count) models visible"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: availableCount == 1 ? String(localized: "1 available") : String(localized: "\(availableCount) available"),
+                        tone: availableCount > 0 ? .positive : .warning
+                    )
+                    PresentationToneBadge(
+                        text: providerCount == 1 ? String(localized: "1 provider") : String(localized: "\(providerCount) providers"),
+                        tone: .neutral
+                    )
+                    PresentationToneBadge(
+                        text: modelFilter.label,
+                        tone: modelFilter == .unavailable ? .warning : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Model facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep availability, provider spread, and tool-capable catalog depth visible before scanning the model list."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if let topProvider {
+                    PresentationToneBadge(
+                        text: topProvider,
+                        tone: .neutral
+                    )
+                }
+            } facts: {
+                Label(
+                    models.count == 1 ? String(localized: "1 model") : String(localized: "\(models.count) models"),
+                    systemImage: "square.stack.3d.up"
+                )
+                Label(
+                    availableCount == 1 ? String(localized: "1 available") : String(localized: "\(availableCount) available"),
+                    systemImage: "checkmark.circle"
+                )
+                Label(
+                    toolReadyCount == 1 ? String(localized: "1 tool-ready") : String(localized: "\(toolReadyCount) tool-ready"),
+                    systemImage: "hammer"
+                )
+                if let topProvider {
+                    Label(topProvider, systemImage: "cloud")
+                }
+            }
+        }
+    }
+}
+
 private struct IntegrationAliasRow: View {
     let alias: ModelAliasEntry
 
@@ -1268,6 +1563,69 @@ private struct IntegrationAliasRow: View {
                 .lineLimit(2)
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct IntegrationAliasesSnapshotCard: View {
+    let aliases: [ModelAliasEntry]
+
+    private var targetCount: Int {
+        Set(aliases.map(\.modelId)).count
+    }
+
+    private var longestAlias: ModelAliasEntry? {
+        aliases.max { $0.alias.count < $1.alias.count }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Alias coverage stays visible before the longer alias map."),
+                detail: String(localized: "Use the summary to see how many alias entries point into the catalog before opening the alias list."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: aliases.count == 1 ? String(localized: "1 alias visible") : String(localized: "\(aliases.count) aliases visible"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: targetCount == 1 ? String(localized: "1 target model") : String(localized: "\(targetCount) target models"),
+                        tone: .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Alias facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep alias count and target coverage visible before scrolling the longer alias mapping list."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if let longestAlias {
+                    PresentationToneBadge(
+                        text: longestAlias.alias,
+                        tone: .neutral
+                    )
+                }
+            } facts: {
+                Label(
+                    aliases.count == 1 ? String(localized: "1 alias") : String(localized: "\(aliases.count) aliases"),
+                    systemImage: "arrow.left.arrow.right"
+                )
+                Label(
+                    targetCount == 1 ? String(localized: "1 target model") : String(localized: "\(targetCount) target models"),
+                    systemImage: "square.stack.3d.up"
+                )
+                if let longestAlias {
+                    Label(longestAlias.modelId, systemImage: "cpu")
+                }
+            }
+        }
     }
 }
 
@@ -1310,6 +1668,102 @@ private struct IntegrationAgentModelRow: View {
         }
     }
 
+}
+
+private struct IntegrationDriftSnapshotCard: View {
+    let diagnostics: [AgentModelDiagnostic]
+
+    private var unknownCount: Int {
+        diagnostics.filter { $0.kind == .unknownModel }.count
+    }
+
+    private var unavailableCount: Int {
+        diagnostics.filter { $0.kind == .unavailableModel }.count
+    }
+
+    private var mismatchCount: Int {
+        diagnostics.filter { $0.kind == .providerMismatch }.count
+    }
+
+    private var affectedProviderCount: Int {
+        Set(diagnostics.compactMap { $0.resolvedModel?.provider.lowercased() }).count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Agent drift stays visible before the longer mismatch list."),
+                detail: String(localized: "Use the summary to see how many agents are unknown, unavailable, or provider-mismatched before opening the drift inventory."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: diagnostics.count == 1 ? String(localized: "1 drifted agent") : String(localized: "\(diagnostics.count) drifted agents"),
+                        tone: .warning
+                    )
+                    if unknownCount > 0 {
+                        PresentationToneBadge(
+                            text: unknownCount == 1 ? String(localized: "1 unknown") : String(localized: "\(unknownCount) unknown"),
+                            tone: .critical
+                        )
+                    }
+                    if unavailableCount > 0 {
+                        PresentationToneBadge(
+                            text: unavailableCount == 1 ? String(localized: "1 unavailable") : String(localized: "\(unavailableCount) unavailable"),
+                            tone: .warning
+                        )
+                    }
+                    if mismatchCount > 0 {
+                        PresentationToneBadge(
+                            text: mismatchCount == 1 ? String(localized: "1 mismatch") : String(localized: "\(mismatchCount) mismatches"),
+                            tone: .caution
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Drift facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep unknown models, unavailable catalog entries, and provider mismatch spread visible before opening affected agents."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                if affectedProviderCount > 0 {
+                    PresentationToneBadge(
+                        text: affectedProviderCount == 1 ? String(localized: "1 provider") : String(localized: "\(affectedProviderCount) providers"),
+                        tone: .neutral
+                    )
+                }
+            } facts: {
+                Label(
+                    diagnostics.count == 1 ? String(localized: "1 drifted agent") : String(localized: "\(diagnostics.count) drifted agents"),
+                    systemImage: "cpu"
+                )
+                if unknownCount > 0 {
+                    Label(
+                        unknownCount == 1 ? String(localized: "1 unknown") : String(localized: "\(unknownCount) unknown"),
+                        systemImage: "questionmark.circle"
+                    )
+                }
+                if unavailableCount > 0 {
+                    Label(
+                        unavailableCount == 1 ? String(localized: "1 unavailable") : String(localized: "\(unavailableCount) unavailable"),
+                        systemImage: "xmark.circle"
+                    )
+                }
+                if mismatchCount > 0 {
+                    Label(
+                        mismatchCount == 1 ? String(localized: "1 mismatch") : String(localized: "\(mismatchCount) mismatches"),
+                        systemImage: "arrow.triangle.branch"
+                    )
+                }
+            }
+        }
+    }
 }
 
 private struct IntegrationStatusChip: View {
