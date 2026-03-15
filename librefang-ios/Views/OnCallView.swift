@@ -715,79 +715,86 @@ private struct OnCallJumpCard: View {
                 }
             }
 
-            NavigationLink(value: OnCallRoute.incidents) {
-                OnCallJumpRow(
-                    title: String(localized: "Open Incidents Center"),
-                    detail: criticalCount > 0
-                        ? (criticalCount == 1
-                            ? String(localized: "1 critical item is still active on this phone.")
-                            : String(localized: "\(criticalCount) critical items are still active on this phone."))
-                        : String(localized: "Review muted alerts, approvals, and active incidents in one queue."),
-                    systemImage: "bell.badge"
-                )
-            }
+            FlowLayout(spacing: 8) {
+                NavigationLink(value: OnCallRoute.incidents) {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Incidents"),
+                        systemImage: "bell.badge",
+                        tone: criticalCount > 0 ? .critical : .neutral,
+                        badgeText: criticalCount > 0
+                            ? (criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"))
+                            : (liveAlertCount > 0 ? String(localized: "\(liveAlertCount) alerts") : nil)
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                RuntimeView()
-            } label: {
-                OnCallJumpRow(
-                    title: String(localized: "Open Runtime"),
-                    detail: String(localized: "Inspect providers, channels, approvals, and runtime pressure from the on-call path."),
-                    systemImage: "server.rack"
-                )
-            }
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Runtime"),
+                        systemImage: "server.rack",
+                        tone: approvalCount > 0 || sessionCount > 0 ? .warning : .neutral
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                ApprovalsView()
-            } label: {
-                OnCallJumpRow(
-                    title: String(localized: "Open Approvals"),
-                    detail: approvalCount > 0
-                        ? (approvalCount == 1
-                            ? String(localized: "1 approval is still waiting for operator action.")
-                            : String(localized: "\(approvalCount) approvals are still waiting for operator action."))
-                        : String(localized: "Open the full approval queue when gated actions are driving the on-call path."),
-                    systemImage: "checkmark.shield"
-                )
-            }
+                NavigationLink {
+                    ApprovalsView()
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Approvals"),
+                        systemImage: "checkmark.shield",
+                        tone: approvalCount > 0 ? .critical : .neutral,
+                        badgeText: approvalCount > 0
+                            ? (approvalCount == 1 ? String(localized: "1 waiting") : String(localized: "\(approvalCount) waiting"))
+                            : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink(value: OnCallRoute.sessionsAttention) {
-                OnCallJumpRow(
-                    title: String(localized: "Session Pressure"),
-                    detail: sessionCount > 0
-                        ? (sessionCount == 1
-                            ? String(localized: "1 session hotspot is already surfaced for review.")
-                            : String(localized: "\(sessionCount) session hotspots are already surfaced for review."))
-                        : String(localized: "Jump straight into duplicated, unlabeled, or high-volume sessions."),
-                    systemImage: "rectangle.stack"
-                )
-            }
+                NavigationLink(value: OnCallRoute.sessionsAttention) {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Sessions"),
+                        systemImage: "rectangle.stack",
+                        tone: sessionCount > 0 ? .warning : .neutral,
+                        badgeText: sessionCount > 0
+                            ? (sessionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(sessionCount) hotspots"))
+                            : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink(value: OnCallRoute.eventsCritical) {
-                OnCallJumpRow(
-                    title: String(localized: "Critical Event Feed"),
-                    detail: eventCount > 0
-                        ? (eventCount == 1
-                            ? String(localized: "1 critical audit event needs review.")
-                            : String(localized: "\(eventCount) critical audit events need review."))
-                        : String(localized: "Review the recent audit feed without leaving the on-call flow."),
-                    systemImage: "list.bullet.rectangle.portrait"
-                )
-            }
+                NavigationLink(value: OnCallRoute.eventsCritical) {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Critical Events"),
+                        systemImage: "list.bullet.rectangle.portrait",
+                        tone: eventCount > 0 ? .critical : .neutral,
+                        badgeText: eventCount > 0
+                            ? (eventCount == 1 ? String(localized: "1 event") : String(localized: "\(eventCount) events"))
+                            : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                HandoffCenterView(
-                    summary: handoffText,
-                    queueCount: queueCount,
-                    criticalCount: criticalCount,
-                    liveAlertCount: liveAlertCount
-                )
-            } label: {
-                OnCallJumpRow(
-                    title: String(localized: "Open Handoff Center"),
-                    detail: String(localized: "Capture the current queue and keep the next operator aligned."),
-                    systemImage: "text.badge.plus"
-                )
+                NavigationLink {
+                    HandoffCenterView(
+                        summary: handoffText,
+                        queueCount: queueCount,
+                        criticalCount: criticalCount,
+                        liveAlertCount: liveAlertCount
+                    )
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Handoff"),
+                        systemImage: "text.badge.plus",
+                        tone: queueCount > 0 ? .warning : .neutral,
+                        badgeText: queueCount > 0
+                            ? (queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"))
+                            : nil
+                    )
+                }
+                .buttonStyle(.plain)
             }
         }
         .padding(.vertical, 4)
@@ -836,70 +843,72 @@ private struct OnCallSupportingSurfacesCard: View {
                 }
             }
 
-            NavigationLink {
-                DiagnosticsView()
-            } label: {
-                OnCallJumpRow(
-                    title: String(localized: "Open Diagnostics"),
-                    detail: String(localized: "Inspect health detail, config warnings, build metadata, and metrics when the queue looks systemic."),
-                    systemImage: "stethoscope"
-                )
-            }
+            FlowLayout(spacing: 8) {
+                NavigationLink {
+                    DiagnosticsView()
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Diagnostics"),
+                        systemImage: "stethoscope"
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                IntegrationsView(initialScope: .attention)
-            } label: {
-                OnCallJumpRow(
-                    title: String(localized: "Open Integrations"),
-                    detail: integrationIssueCount > 0
-                        ? (integrationIssueCount == 1
-                            ? String(localized: "1 integration issue is already promoted into the on-call path.")
-                            : String(localized: "\(integrationIssueCount) integration issues are already promoted into the on-call path."))
-                        : String(localized: "Inspect provider, channel, model, and catalog drift from the on-call path."),
-                    systemImage: "square.3.layers.3d.down.forward"
-                )
-            }
+                NavigationLink {
+                    IntegrationsView(initialScope: .attention)
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Integrations"),
+                        systemImage: "square.3.layers.3d.down.forward",
+                        tone: integrationIssueCount > 0 ? .critical : .neutral,
+                        badgeText: integrationIssueCount > 0
+                            ? (integrationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(integrationIssueCount) issues"))
+                            : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                AutomationView(initialScope: .attention)
-            } label: {
-                OnCallJumpRow(
-                    title: String(localized: "Open Automation"),
-                    detail: automationIssueCount > 0
-                        ? (automationIssueCount == 1
-                            ? String(localized: "1 automation issue is already promoted into the on-call path.")
-                            : String(localized: "\(automationIssueCount) automation issues are already promoted into the on-call path."))
-                        : String(localized: "Inspect workflows, runs, triggers, schedules, and cron pressure from the on-call path."),
-                    systemImage: "flowchart"
-                )
-            }
+                NavigationLink {
+                    AutomationView(initialScope: .attention)
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Automation"),
+                        systemImage: "flowchart",
+                        tone: automationIssueCount > 0 ? .warning : .neutral,
+                        badgeText: automationIssueCount > 0
+                            ? (automationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(automationIssueCount) issues"))
+                            : nil
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                NightWatchView()
-            } label: {
-                OnCallJumpRow(
-                    title: String(localized: "Open Night Watch"),
-                    detail: String(localized: "Switch to the focused night-duty surface when you only want the highest-priority cards."),
-                    systemImage: "moon.stars"
-                )
-            }
+                NavigationLink {
+                    NightWatchView()
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Night Watch"),
+                        systemImage: "moon.stars"
+                    )
+                }
+                .buttonStyle(.plain)
 
-            NavigationLink {
-                StandbyDigestView()
-            } label: {
-                OnCallJumpRow(
-                    title: String(localized: "Open Standby Digest"),
-                    detail: String(localized: "Switch to the compressed standby digest for a lock-screen style summary."),
-                    systemImage: "rectangle.inset.filled"
-                )
-            }
+                NavigationLink {
+                    StandbyDigestView()
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Standby"),
+                        systemImage: "rectangle.inset.filled"
+                    )
+                }
+                .buttonStyle(.plain)
 
-            ShareLink(item: handoffText) {
-                OnCallJumpRow(
-                    title: String(localized: "Share Handoff Summary"),
-                    detail: String(localized: "Export the current on-call snapshot and handoff context as plain text."),
-                    systemImage: "square.and.arrow.up"
-                )
+                ShareLink(item: handoffText) {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Share Handoff"),
+                        systemImage: "square.and.arrow.up"
+                    )
+                }
+                .buttonStyle(.plain)
             }
         }
         .padding(.vertical, 4)

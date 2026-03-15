@@ -227,6 +227,58 @@ struct GlassCircleIconButton: View {
     }
 }
 
+struct GlassSurfaceShortcutChip: View {
+    let title: String
+    let systemImage: String
+    let accent: Color
+    let badgeText: String?
+    let horizontalPadding: CGFloat
+    let verticalPadding: CGFloat
+
+    init(
+        title: String,
+        systemImage: String,
+        accent: Color = .white,
+        badgeText: String? = nil,
+        horizontalPadding: CGFloat = 10,
+        verticalPadding: CGFloat = 8
+    ) {
+        self.title = title
+        self.systemImage = systemImage
+        self.accent = accent
+        self.badgeText = badgeText
+        self.horizontalPadding = horizontalPadding
+        self.verticalPadding = verticalPadding
+    }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(accent)
+                .frame(width: 22, height: 22)
+                .background(.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
+
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+
+            if let badgeText {
+                Text(badgeText)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(accent)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(.white.opacity(0.96), in: Capsule())
+            }
+        }
+        .padding(.horizontal, horizontalPadding)
+        .padding(.vertical, verticalPadding)
+        .background(.white.opacity(0.10), in: Capsule())
+    }
+}
+
 struct TintedCircleIconButton: View {
     let systemImage: String
     let foregroundStyle: Color
