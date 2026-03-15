@@ -1160,10 +1160,30 @@ private struct SessionPreviewRow: View {
                 .font(.subheadline)
                 .lineLimit(4)
 
-            if let imageCount = message.images?.count, imageCount > 0 {
-                Text("\(imageCount) image attachment\(imageCount == 1 ? "" : "s")")
+            if let images = message.images, !images.isEmpty {
+                Text("\(images.count) image attachment\(images.count == 1 ? "" : "s")")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(images) { image in
+                            NavigationLink {
+                                UploadAssetView(image: image)
+                            } label: {
+                                Label(image.filename, systemImage: "photo")
+                                    .font(.caption2.weight(.medium))
+                                    .lineLimit(1)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 6)
+                                    .background(Color.blue.opacity(0.12))
+                                    .foregroundStyle(.blue)
+                                    .clipShape(Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
             }
         }
         .padding(.vertical, 2)

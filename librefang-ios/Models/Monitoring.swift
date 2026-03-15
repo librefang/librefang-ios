@@ -681,9 +681,11 @@ nonisolated struct AgentSessionTool: Codable, Sendable {
     }
 }
 
-nonisolated struct AgentSessionImage: Codable, Sendable {
+nonisolated struct AgentSessionImage: Codable, Identifiable, Sendable {
     let fileId: String
     let filename: String
+
+    var id: String { fileId }
 
     enum CodingKeys: String, CodingKey {
         case filename

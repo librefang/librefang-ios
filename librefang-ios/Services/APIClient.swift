@@ -85,6 +85,7 @@ protocol APIClientProtocol: Sendable {
     func session(agentId: String) async throws -> AgentSessionSnapshot
     func sendMessage(agentId: String, message: String) async throws -> MessageResponse
     func a2aAgents() async throws -> A2AAgentList
+    func uploadedFile(fileId: String) async throws -> UploadedFilePayload
     func connectionInfo() async throws -> APIConnectionInfo
     func updateConfig(_ config: ServerConfig) async
 }
@@ -327,6 +328,25 @@ actor APIClient: APIClientProtocol {
 
     func a2aAgents() async throws -> A2AAgentList {
         try await get("/api/a2a/agents")
+    }
+
+    func uploadedFile(fileId: String) async throws -> UploadedFilePayload {
+        let request = try buildRequest(path: "/api/uploads/\(encodedPathComponent(fileId))", method: "GET")
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
+
+        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+            let message = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw APIError.httpError(http.statusCode, message)
+        }
+
+        let contentType = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Content-Type")
+        return UploadedFilePayload(data: data, contentType: contentType)
     }
 
     func connectionInfo() throws -> APIConnectionInfo {
