@@ -20,16 +20,10 @@ struct OnCallDigestCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    headerLabel
-                    Spacer(minLength: 8)
-                    queueBadge
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    headerLabel
-                    queueBadge
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                headerLabel
+            } accessory: {
+                queueBadge
             }
 
             Text(summary)
@@ -37,20 +31,13 @@ struct OnCallDigestCard: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                FlowLayout(spacing: 12) {
                     criticalLabel
                     watchLabel
-                    Spacer(minLength: 8)
-                    openBadge
                 }
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 12) {
-                        criticalLabel
-                        watchLabel
-                    }
-                    openBadge
-                }
+            } accessory: {
+                openBadge
             }
             .font(.caption2)
         }
@@ -507,17 +494,10 @@ private struct OnCallQueueSnapshotCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    headerLabel
-                    Spacer(minLength: 8)
-                    PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    headerLabel
-                    PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 8) {
+                headerLabel
+            } accessory: {
+                PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
             }
 
             Text(readiness.summary)
@@ -708,17 +688,10 @@ private struct OnCallJumpRow: View {
     let systemImage: String
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: 12) {
-                iconBadge
-                contentBlock
-                Spacer(minLength: 8)
-            }
-
-            VStack(alignment: .leading, spacing: 10) {
-                iconBadge
-                contentBlock
-            }
+        ResponsiveIconDetailRow(horizontalAlignment: .top, verticalSpacing: 10) {
+            iconBadge
+        } detail: {
+            contentBlock
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -1009,28 +982,15 @@ private struct OnCallStatusCard: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    statusChip(
-                        text: watchCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchCount) watched agents"),
-                        systemImage: "star.fill"
-                    )
-                    statusChip(
-                        text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
-                        systemImage: "bell.slash"
-                    )
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    statusChip(
-                        text: watchCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchCount) watched agents"),
-                        systemImage: "star.fill"
-                    )
-                    statusChip(
-                        text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
-                        systemImage: "bell.slash"
-                    )
-                }
+            ResponsiveInlineGroup(horizontalSpacing: 12, verticalSpacing: 6) {
+                statusChip(
+                    text: watchCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchCount) watched agents"),
+                    systemImage: "star.fill"
+                )
+                statusChip(
+                    text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                    systemImage: "bell.slash"
+                )
             }
             .font(.caption2)
             .foregroundStyle(.secondary)

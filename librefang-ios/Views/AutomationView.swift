@@ -1,6 +1,6 @@
 import SwiftUI
 
-private enum AutomationMonitorScope: String, CaseIterable, Identifiable {
+enum AutomationMonitorScope: String, CaseIterable, Identifiable {
     case all
     case attention
     case active
@@ -17,6 +17,14 @@ private enum AutomationMonitorScope: String, CaseIterable, Identifiable {
             String(localized: "Active")
         }
     }
+}
+
+private enum AutomationSectionAnchor: Hashable {
+    case workflows
+    case runs
+    case triggers
+    case schedules
+    case cron
 }
 
 struct AutomationView: View {
@@ -129,133 +137,244 @@ struct AutomationView: View {
         return String(localized: "Automation monitor keeps workflows, runs, triggers, schedules, and cron jobs grouped on one mobile page.")
     }
 
+    init(initialSearchText: String = "", initialScope: AutomationMonitorScope = .all) {
+        _searchText = State(initialValue: initialSearchText)
+        _scope = State(initialValue: initialScope)
+    }
+
     var body: some View {
-        List {
-            if let error = vm.error, !hasAutomationData {
-                Section {
-                    ErrorBanner(message: error, onRetry: {
-                        await vm.refresh()
-                    }, onDismiss: {
-                        vm.error = nil
-                    })
-                    .listRowInsets(.init())
-                    .listRowBackground(Color.clear)
-                }
-            }
-
-            Section {
-                AutomationScoreboard(vm: vm)
-                    .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-            }
-
-            Section {
-                MonitoringSnapshotCard(
-                    summary: automationSnapshotSummary,
-                    detail: String(localized: "Use the snapshot to judge workflow and scheduler pressure before digging into the sectioned lists.")
-                ) {
-                    FlowLayout(spacing: 8) {
-                        PresentationToneBadge(
-                            text: scope.label,
-                            tone: scope == .attention ? .warning : scope == .active ? .positive : .neutral
-                        )
-                        if vm.failedWorkflowRunCount > 0 {
-                            PresentationToneBadge(
-                                text: vm.failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(vm.failedWorkflowRunCount) failed runs"),
-                                tone: .critical
-                            )
-                        }
-                        if vm.exhaustedTriggerCount > 0 {
-                            PresentationToneBadge(
-                                text: vm.exhaustedTriggerCount == 1 ? String(localized: "1 exhausted trigger") : String(localized: "\(vm.exhaustedTriggerCount) exhausted triggers"),
-                                tone: .warning
-                            )
-                        }
-                        if vm.pausedScheduleCount > 0 {
-                            PresentationToneBadge(
-                                text: vm.pausedScheduleCount == 1 ? String(localized: "1 paused schedule") : String(localized: "\(vm.pausedScheduleCount) paused schedules"),
-                                tone: .warning
-                            )
-                        }
-                        if vm.stalledCronJobCount > 0 {
-                            PresentationToneBadge(
-                                text: vm.stalledCronJobCount == 1 ? String(localized: "1 stalled cron") : String(localized: "\(vm.stalledCronJobCount) stalled cron jobs"),
-                                tone: .warning
-                            )
-                        }
-                        if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            PresentationToneBadge(
-                                text: visibleItemCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleItemCount) visible results"),
-                                tone: .neutral
-                            )
-                        }
+        ScrollViewReader { proxy in
+            List {
+                if let error = vm.error, !hasAutomationData {
+                    Section {
+                        ErrorBanner(message: error, onRetry: {
+                            await vm.refresh()
+                        }, onDismiss: {
+                            vm.error = nil
+                        })
+                        .listRowInsets(.init())
+                        .listRowBackground(Color.clear)
                     }
                 }
-            } footer: {
-                Text("This compact automation digest keeps failure pressure visible before the longer workflow and schedule sections.")
-            }
 
-            Section {
-                AutomationFilterCard(
-                    scope: $scope,
-                    searchText: searchText,
-                    visibleCount: visibleItemCount,
-                    totalCount: totalItemCount
-                )
-            } header: {
-                Text("Filter")
-            }
-
-            if !hasAutomationData && !vm.isLoading {
-                Section("Automation") {
-                    ContentUnavailableView(
-                        "No Automation Inventory",
-                        systemImage: "flowchart",
-                        description: Text("LibreFang has no workflows, triggers, schedules, or cron jobs in the current snapshot.")
-                    )
+                Section {
+                    AutomationScoreboard(vm: vm)
+                        .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
                 }
-            } else {
-                if filteredWorkflows.isEmpty
-                    && filteredWorkflowRuns.isEmpty
-                    && filteredTriggers.isEmpty
-                    && filteredSchedules.isEmpty
-                    && filteredCronJobs.isEmpty
-                    && !vm.isLoading {
+
+                Section {
+                    MonitoringSnapshotCard(
+                        summary: automationSnapshotSummary,
+                        detail: String(localized: "Use the snapshot to judge workflow and scheduler pressure before digging into the sectioned lists.")
+                    ) {
+                        FlowLayout(spacing: 8) {
+                            PresentationToneBadge(
+                                text: scope.label,
+                                tone: scope == .attention ? .warning : scope == .active ? .positive : .neutral
+                            )
+                            if vm.failedWorkflowRunCount > 0 {
+                                PresentationToneBadge(
+                                    text: vm.failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(vm.failedWorkflowRunCount) failed runs"),
+                                    tone: .critical
+                                )
+                            }
+                            if vm.exhaustedTriggerCount > 0 {
+                                PresentationToneBadge(
+                                    text: vm.exhaustedTriggerCount == 1 ? String(localized: "1 exhausted trigger") : String(localized: "\(vm.exhaustedTriggerCount) exhausted triggers"),
+                                    tone: .warning
+                                )
+                            }
+                            if vm.pausedScheduleCount > 0 {
+                                PresentationToneBadge(
+                                    text: vm.pausedScheduleCount == 1 ? String(localized: "1 paused schedule") : String(localized: "\(vm.pausedScheduleCount) paused schedules"),
+                                    tone: .warning
+                                )
+                            }
+                            if vm.stalledCronJobCount > 0 {
+                                PresentationToneBadge(
+                                    text: vm.stalledCronJobCount == 1 ? String(localized: "1 stalled cron") : String(localized: "\(vm.stalledCronJobCount) stalled cron jobs"),
+                                    tone: .warning
+                                )
+                            }
+                            if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                PresentationToneBadge(
+                                    text: visibleItemCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleItemCount) visible results"),
+                                    tone: .neutral
+                                )
+                            }
+                        }
+                    }
+                } footer: {
+                    Text("This compact automation digest keeps failure pressure visible before the longer workflow and schedule sections.")
+                }
+
+                Section {
+                    AutomationFilterCard(
+                        scope: $scope,
+                        searchText: searchText,
+                        visibleCount: visibleItemCount,
+                        totalCount: totalItemCount
+                    )
+                } header: {
+                    Text("Filter")
+                }
+
+                if hasAutomationData {
+                    Section {
+                        automationFocusSection(proxy)
+                    } header: {
+                        Text("Focus Areas")
+                    } footer: {
+                        Text("These jump targets move through the long automation monitor without forcing a full scroll on iPhone.")
+                    }
+                }
+
+                if !hasAutomationData && !vm.isLoading {
                     Section("Automation") {
                         ContentUnavailableView(
-                            searchText.isEmpty
-                                ? String(localized: "No Matching Automation")
-                                : String(localized: "No Search Results"),
-                            systemImage: scope == .all ? "flowchart" : "line.3.horizontal.decrease.circle",
-                            description: Text(
-                                searchText.isEmpty
-                                    ? String(localized: "Widen the scope or wait for the next dashboard refresh.")
-                                    : String(localized: "Try a different workflow, trigger, or agent query.")
-                            )
+                            "No Automation Inventory",
+                            systemImage: "flowchart",
+                            description: Text("LibreFang has no workflows, triggers, schedules, or cron jobs in the current snapshot.")
                         )
                     }
                 } else {
-                    workflowsSection
-                    workflowRunsSection
-                    triggersSection
-                    schedulesSection
-                    cronJobsSection
+                    if filteredWorkflows.isEmpty
+                        && filteredWorkflowRuns.isEmpty
+                        && filteredTriggers.isEmpty
+                        && filteredSchedules.isEmpty
+                        && filteredCronJobs.isEmpty
+                        && !vm.isLoading {
+                        Section("Automation") {
+                            ContentUnavailableView(
+                                searchText.isEmpty
+                                    ? String(localized: "No Matching Automation")
+                                    : String(localized: "No Search Results"),
+                                systemImage: scope == .all ? "flowchart" : "line.3.horizontal.decrease.circle",
+                                description: Text(
+                                    searchText.isEmpty
+                                        ? String(localized: "Widen the scope or wait for the next dashboard refresh.")
+                                        : String(localized: "Try a different workflow, trigger, or agent query.")
+                                )
+                            )
+                        }
+                    } else {
+                        workflowsSection
+                        workflowRunsSection
+                        triggersSection
+                        schedulesSection
+                        cronJobsSection
+                    }
+                }
+            }
+            .navigationTitle("Automation")
+            .searchable(text: $searchText, prompt: "Search workflow, trigger, or job")
+            .refreshable {
+                await vm.refresh()
+            }
+            .overlay {
+                if vm.isLoading && !hasAutomationData {
+                    ProgressView("Loading automation...")
+                }
+            }
+            .task {
+                if !hasAutomationData {
+                    await vm.refresh()
                 }
             }
         }
-        .navigationTitle("Automation")
-        .searchable(text: $searchText, prompt: "Search workflow, trigger, or job")
-        .refreshable {
-            await vm.refresh()
+    }
+
+    @ViewBuilder
+    private func automationFocusSection(_ proxy: ScrollViewProxy) -> some View {
+        Button {
+            jump(proxy, to: .workflows)
+        } label: {
+            MonitoringJumpRow(
+                title: String(localized: "Workflow Definitions"),
+                detail: filteredWorkflows.isEmpty
+                    ? String(localized: "No workflows are visible in the current automation scope.")
+                    : String(localized: "Jump to workflow definitions before digging into recent runs."),
+                systemImage: "flowchart",
+                tone: vm.failedWorkflowRunCount > 0 ? .warning : .neutral,
+                badgeText: filteredWorkflows.isEmpty ? String(localized: "Empty") : String(localized: "\(filteredWorkflows.count) visible"),
+                badgeTone: .neutral
+            )
         }
-        .overlay {
-            if vm.isLoading && !hasAutomationData {
-                ProgressView("Loading automation...")
-            }
+        .buttonStyle(.plain)
+        .disabled(filteredWorkflows.isEmpty)
+
+        Button {
+            jump(proxy, to: .runs)
+        } label: {
+            MonitoringJumpRow(
+                title: String(localized: "Recent Runs"),
+                detail: filteredWorkflowRuns.isEmpty
+                    ? String(localized: "No recent workflow runs are visible in the current automation scope.")
+                    : String(localized: "Jump to recent workflow executions and their current run state."),
+                systemImage: "play.rectangle.on.rectangle",
+                tone: vm.failedWorkflowRunCount > 0 ? .critical : .neutral,
+                badgeText: filteredWorkflowRuns.isEmpty ? String(localized: "Empty") : String(localized: "\(filteredWorkflowRuns.count) visible"),
+                badgeTone: vm.failedWorkflowRunCount > 0 ? .critical : .neutral
+            )
         }
-        .task {
-            if !hasAutomationData {
-                await vm.refresh()
-            }
+        .buttonStyle(.plain)
+        .disabled(filteredWorkflowRuns.isEmpty)
+
+        Button {
+            jump(proxy, to: .triggers)
+        } label: {
+            MonitoringJumpRow(
+                title: String(localized: "Triggers"),
+                detail: filteredTriggers.isEmpty
+                    ? String(localized: "No triggers are visible in the current automation scope.")
+                    : String(localized: "Jump to trigger exhaustion, enablement, and agent targeting."),
+                systemImage: "bolt.horizontal.circle",
+                tone: vm.exhaustedTriggerCount > 0 ? .warning : .neutral,
+                badgeText: filteredTriggers.isEmpty ? String(localized: "Empty") : String(localized: "\(filteredTriggers.count) visible"),
+                badgeTone: vm.exhaustedTriggerCount > 0 ? .warning : .neutral
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(filteredTriggers.isEmpty)
+
+        Button {
+            jump(proxy, to: .schedules)
+        } label: {
+            MonitoringJumpRow(
+                title: String(localized: "Schedules"),
+                detail: filteredSchedules.isEmpty
+                    ? String(localized: "No schedules are visible in the current automation scope.")
+                    : String(localized: "Jump to enabled and paused schedules without scanning the full page."),
+                systemImage: "calendar",
+                tone: vm.pausedScheduleCount > 0 ? .warning : .neutral,
+                badgeText: filteredSchedules.isEmpty ? String(localized: "Empty") : String(localized: "\(filteredSchedules.count) visible"),
+                badgeTone: vm.pausedScheduleCount > 0 ? .warning : .neutral
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(filteredSchedules.isEmpty)
+
+        Button {
+            jump(proxy, to: .cron)
+        } label: {
+            MonitoringJumpRow(
+                title: String(localized: "Cron Jobs"),
+                detail: filteredCronJobs.isEmpty
+                    ? String(localized: "No cron jobs are visible in the current automation scope.")
+                    : String(localized: "Jump to cron timing, delivery targets, and missing next-run state."),
+                systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90",
+                tone: vm.stalledCronJobCount > 0 ? .warning : .neutral,
+                badgeText: filteredCronJobs.isEmpty ? String(localized: "Empty") : String(localized: "\(filteredCronJobs.count) visible"),
+                badgeTone: vm.stalledCronJobCount > 0 ? .warning : .neutral
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(filteredCronJobs.isEmpty)
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: AutomationSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
         }
     }
 
@@ -279,6 +398,7 @@ struct AutomationView: View {
                     Text("\(vm.workflowCount) definitions, \(vm.recentWorkflowRunCount) recent runs cached from the server")
                 }
             }
+            .id(AutomationSectionAnchor.workflows)
         }
     }
 
@@ -298,6 +418,7 @@ struct AutomationView: View {
                     Text("\(vm.failedWorkflowRunCount) failed, \(vm.runningWorkflowRunCount) still running")
                 }
             }
+            .id(AutomationSectionAnchor.runs)
         }
     }
 
@@ -317,6 +438,7 @@ struct AutomationView: View {
                     Text("\(vm.enabledTriggerCount) enabled, \(vm.exhaustedTriggerCount) exhausted")
                 }
             }
+            .id(AutomationSectionAnchor.triggers)
         }
     }
 
@@ -336,6 +458,7 @@ struct AutomationView: View {
                     Text("\(vm.enabledScheduleCount) enabled, \(vm.pausedScheduleCount) paused")
                 }
             }
+            .id(AutomationSectionAnchor.schedules)
         }
     }
 
@@ -361,6 +484,7 @@ struct AutomationView: View {
                     Text("\(vm.enabledCronJobCount) enabled, \(vm.pausedCronJobCount) paused, \(vm.stalledCronJobCount) missing next run")
                 }
             }
+            .id(AutomationSectionAnchor.cron)
         }
     }
 
@@ -653,17 +777,10 @@ private struct WorkflowDefinitionRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    summaryBlock
-                    Spacer()
-                    statusBlock
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    summaryBlock
-                    statusBlock
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                summaryBlock
+            } accessory: {
+                statusBlock
             }
 
             Text(relativeText(from: workflow.createdAt))
@@ -718,27 +835,14 @@ private struct WorkflowRunRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    summaryBlock
-                    Spacer()
-                    PresentationToneBadge(text: run.state.label, tone: tone)
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    summaryBlock
-                    PresentationToneBadge(text: run.state.label, tone: tone)
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                summaryBlock
+            } accessory: {
+                PresentationToneBadge(text: run.state.label, tone: tone)
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    facts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    facts
-                }
+            FlowLayout(spacing: 12) {
+                facts
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -787,27 +891,14 @@ private struct TriggerRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    summaryBlock
-                    Spacer()
-                    PresentationToneBadge(text: statusLabel, tone: tone)
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    summaryBlock
-                    PresentationToneBadge(text: statusLabel, tone: tone)
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                summaryBlock
+            } accessory: {
+                PresentationToneBadge(text: statusLabel, tone: tone)
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    facts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    facts
-                }
+            FlowLayout(spacing: 12) {
+                facts
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -866,37 +957,19 @@ private struct ScheduleRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    summaryBlock
-                    Spacer()
-                    PresentationToneBadge(
-                        text: schedule.enabled
-                            ? String(localized: "Enabled")
-                            : String(localized: "Paused"),
-                        tone: schedule.enabled ? .positive : .warning
-                    )
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    summaryBlock
-                    PresentationToneBadge(
-                        text: schedule.enabled
-                            ? String(localized: "Enabled")
-                            : String(localized: "Paused"),
-                        tone: schedule.enabled ? .positive : .warning
-                    )
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                summaryBlock
+            } accessory: {
+                PresentationToneBadge(
+                    text: schedule.enabled
+                        ? String(localized: "Enabled")
+                        : String(localized: "Paused"),
+                    tone: schedule.enabled ? .positive : .warning
+                )
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    facts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    facts
-                }
+            FlowLayout(spacing: 12) {
+                facts
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -949,17 +1022,10 @@ private struct CronJobRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    summaryBlock
-                    Spacer()
-                    PresentationToneBadge(text: statusLabel, tone: tone)
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    summaryBlock
-                    PresentationToneBadge(text: statusLabel, tone: tone)
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                summaryBlock
+            } accessory: {
+                PresentationToneBadge(text: statusLabel, tone: tone)
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -970,14 +1036,8 @@ private struct CronJobRow: View {
             .font(.caption)
             .foregroundStyle(.secondary)
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    timingFacts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    timingFacts
-                }
+            FlowLayout(spacing: 12) {
+                timingFacts
             }
             .font(.caption2)
             .foregroundStyle(.tertiary)

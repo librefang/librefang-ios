@@ -1,6 +1,6 @@
 import SwiftUI
 
-private enum IntegrationsModelFilter: String, CaseIterable, Identifiable {
+internal enum IntegrationsModelFilter: String, CaseIterable, Identifiable {
     case available
     case all
     case unavailable
@@ -19,7 +19,7 @@ private enum IntegrationsModelFilter: String, CaseIterable, Identifiable {
     }
 }
 
-enum IntegrationsScope: String, CaseIterable, Identifiable {
+internal enum IntegrationsScope: String, CaseIterable, Identifiable {
     case attention
     case all
 
@@ -35,6 +35,14 @@ enum IntegrationsScope: String, CaseIterable, Identifiable {
     }
 }
 
+private enum IntegrationsSectionAnchor: Hashable {
+    case providers
+    case channels
+    case models
+    case aliases
+    case drift
+}
+
 struct IntegrationsView: View {
     @Environment(\.dependencies) private var deps
     @State private var searchText = ""
@@ -48,9 +56,14 @@ struct IntegrationsView: View {
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
 
-    init(initialSearchText: String = "", initialScope: IntegrationsScope = .attention) {
+    internal init(
+        initialSearchText: String = "",
+        initialScope: IntegrationsScope = .attention,
+        initialModelFilter: IntegrationsModelFilter = .available
+    ) {
         _searchText = State(initialValue: initialSearchText)
         _scope = State(initialValue: initialScope)
+        _modelFilter = State(initialValue: initialModelFilter)
     }
 
     private var filteredProviders: [ProviderStatus] {
@@ -210,210 +223,320 @@ struct IntegrationsView: View {
     }
 
     var body: some View {
-        List {
-            Section {
-                IntegrationsScoreboard(vm: vm)
-                    .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-            }
-
-            Section {
-                MonitoringFilterCard(summary: scopeSummaryLine, detail: searchSummaryLine) {
-                    PresentationToneBadge(
-                        text: scope.label,
-                        tone: scope == .attention ? .warning : .neutral
-                    )
-                } controls: {
-                    FlowLayout(spacing: 8) {
-                        ForEach(IntegrationsScope.allCases) { candidate in
-                            Button {
-                                scope = candidate
-                            } label: {
-                                SelectableCapsuleBadge(text: candidate.label, isSelected: scope == candidate)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                }
-            } footer: {
-                Text(
-                    scope == .attention
-                        ? String(localized: "Attention mode shows only provider outages, channel field gaps, unavailable models, and agent drift.")
-                        : String(localized: "All mode shows the full provider, channel, model, and alias inventory.")
-                )
-            }
-
-            if vm.catalogStatus != nil || !vm.catalogModels.isEmpty {
+        ScrollViewReader { proxy in
+            List {
                 Section {
-                    IntegrationCatalogStatusCard(vm: vm)
-                } header: {
-                    Text("Catalog Sync")
-                } footer: {
-                    Text("LibreFang syncs the model catalog on startup and then in the background every 24 hours.")
+                    IntegrationsScoreboard(vm: vm)
+                        .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
                 }
-            }
 
-            if !vm.catalogModels.isEmpty && scope == .all {
                 Section {
-                    MonitoringFilterCard(
-                        summary: String(localized: "Model filter keeps the catalog focused without hiding the broader provider and channel diagnostics."),
-                        detail: filteredModels.isEmpty
-                            ? String(localized: "No catalog models match the current filter.")
-                            : String(localized: "\(filteredModels.count) catalog models visible in \(modelFilter.label.lowercased()) mode.")
-                    ) {
+                    MonitoringFilterCard(summary: scopeSummaryLine, detail: searchSummaryLine) {
                         PresentationToneBadge(
-                            text: modelFilter.label,
-                            tone: modelFilter == .unavailable ? .warning : .neutral
+                            text: scope.label,
+                            tone: scope == .attention ? .warning : .neutral
                         )
                     } controls: {
                         FlowLayout(spacing: 8) {
-                            ForEach(IntegrationsModelFilter.allCases) { filter in
+                            ForEach(IntegrationsScope.allCases) { candidate in
                                 Button {
-                                    modelFilter = filter
+                                    scope = candidate
                                 } label: {
-                                    SelectableCapsuleBadge(text: filter.label, isSelected: modelFilter == filter)
+                                    SelectableCapsuleBadge(text: candidate.label, isSelected: scope == candidate)
                                 }
                                 .buttonStyle(.plain)
                             }
                         }
                     }
-                } header: {
-                    Text("Model Filter")
                 } footer: {
-                    Text("The catalog comes from LibreFang's model registry, including discovered local models and aliases.")
+                    Text(
+                        scope == .attention
+                            ? String(localized: "Attention mode shows only provider outages, channel field gaps, unavailable models, and agent drift.")
+                            : String(localized: "All mode shows the full provider, channel, model, and alias inventory.")
+                    )
                 }
-            }
 
-            if !filteredProviders.isEmpty {
-                Section {
-                    ForEach(filteredProviders) { provider in
-                        IntegrationProviderRow(
-                            provider: provider,
-                            probeResult: providerProbeResults[provider.id],
-                            isTesting: providerProbeInFlightID == provider.id,
-                            onTest: {
-                                Task { await testProvider(provider) }
+                if vm.catalogStatus != nil || !vm.catalogModels.isEmpty {
+                    Section {
+                        IntegrationCatalogStatusCard(vm: vm)
+                    } header: {
+                        Text("Catalog Sync")
+                    } footer: {
+                        Text("LibreFang syncs the model catalog on startup and then in the background every 24 hours.")
+                    }
+                }
+
+                if !vm.catalogModels.isEmpty && scope == .all {
+                    Section {
+                        MonitoringFilterCard(
+                            summary: String(localized: "Model filter keeps the catalog focused without hiding the broader provider and channel diagnostics."),
+                            detail: filteredModels.isEmpty
+                                ? String(localized: "No catalog models match the current filter.")
+                                : String(localized: "\(filteredModels.count) catalog models visible in \(modelFilter.label.lowercased()) mode.")
+                        ) {
+                            PresentationToneBadge(
+                                text: modelFilter.label,
+                                tone: modelFilter == .unavailable ? .warning : .neutral
+                            )
+                        } controls: {
+                            FlowLayout(spacing: 8) {
+                                ForEach(IntegrationsModelFilter.allCases) { filter in
+                                    Button {
+                                        modelFilter = filter
+                                    } label: {
+                                        SelectableCapsuleBadge(text: filter.label, isSelected: modelFilter == filter)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
                             }
-                        )
-                    }
-                } header: {
-                    Text("Providers")
-                } footer: {
-                    Text("Remote providers surface auth readiness. Local providers also surface probe reachability, latency, and discovered models.")
-                }
-            }
-
-            if !filteredChannels.isEmpty {
-                Section {
-                    ForEach(filteredChannels) { channel in
-                        IntegrationChannelRow(
-                            channel: channel,
-                            probeResult: channelProbeResults[channel.id],
-                            isTesting: channelProbeInFlightID == channel.id,
-                            onTest: {
-                                Task { await testChannel(channel) }
-                            }
-                        )
-                    }
-                } header: {
-                    Text("Channels")
-                } footer: {
-                    Text("Channel diagnostics only run credential validation unless the server receives a specific target channel or chat ID.")
-                }
-            }
-
-            if !filteredModels.isEmpty {
-                Section {
-                    ForEach(filteredModels.prefix(40)) { model in
-                        IntegrationModelRow(model: model)
-                    }
-                } header: {
-                    Text("Models")
-                } footer: {
-                    if filteredModels.count > 40 {
-                        Text("Showing 40 of \(filteredModels.count) catalog models after filtering.")
-                    } else {
-                        Text("\(filteredModels.count) models visible after filtering.")
+                        }
+                    } header: {
+                        Text("Model Filter")
+                    } footer: {
+                        Text("The catalog comes from LibreFang's model registry, including discovered local models and aliases.")
                     }
                 }
-            }
 
-            if !filteredAliases.isEmpty {
-                Section {
-                    ForEach(filteredAliases.prefix(20)) { alias in
-                        IntegrationAliasRow(alias: alias)
-                    }
-                } header: {
-                    Text("Aliases")
-                } footer: {
-                    if filteredAliases.count > 20 {
-                        Text("Showing 20 of \(filteredAliases.count) aliases after filtering.")
+                if hasAnyContent {
+                    Section {
+                        integrationsFocusSection(proxy)
+                    } header: {
+                        Text("Focus Areas")
+                    } footer: {
+                        Text("Use these jump targets to move through the compact integrations monitor instead of scrolling the full inventory.")
                     }
                 }
-            }
 
-            if !filteredAgentDiagnostics.isEmpty {
-                Section {
-                    ForEach(filteredAgentDiagnostics.prefix(20)) { diagnostic in
-                        NavigationLink {
-                            AgentDetailView(agent: diagnostic.agent)
-                        } label: {
-                            IntegrationAgentModelRow(diagnostic: diagnostic)
+                if !filteredProviders.isEmpty {
+                    Section {
+                        ForEach(filteredProviders) { provider in
+                            IntegrationProviderRow(
+                                provider: provider,
+                                probeResult: providerProbeResults[provider.id],
+                                isTesting: providerProbeInFlightID == provider.id,
+                                onTest: {
+                                    Task { await testProvider(provider) }
+                                }
+                            )
+                        }
+                    } header: {
+                        Text("Providers")
+                    } footer: {
+                        Text("Remote providers surface auth readiness. Local providers also surface probe reachability, latency, and discovered models.")
+                    }
+                    .id(IntegrationsSectionAnchor.providers)
+                }
+
+                if !filteredChannels.isEmpty {
+                    Section {
+                        ForEach(filteredChannels) { channel in
+                            IntegrationChannelRow(
+                                channel: channel,
+                                probeResult: channelProbeResults[channel.id],
+                                isTesting: channelProbeInFlightID == channel.id,
+                                onTest: {
+                                    Task { await testChannel(channel) }
+                                }
+                            )
+                        }
+                    } header: {
+                        Text("Channels")
+                    } footer: {
+                        Text("Channel diagnostics only run credential validation unless the server receives a specific target channel or chat ID.")
+                    }
+                    .id(IntegrationsSectionAnchor.channels)
+                }
+
+                if !filteredModels.isEmpty {
+                    Section {
+                        ForEach(filteredModels.prefix(40)) { model in
+                            IntegrationModelRow(model: model)
+                        }
+                    } header: {
+                        Text("Models")
+                    } footer: {
+                        if filteredModels.count > 40 {
+                            Text("Showing 40 of \(filteredModels.count) catalog models after filtering.")
+                        } else {
+                            Text("\(filteredModels.count) models visible after filtering.")
                         }
                     }
-                } header: {
-                    Text("Agent Model Drift")
-                } footer: {
-                    if filteredAgentDiagnostics.count > 20 {
-                        Text("Showing 20 of \(filteredAgentDiagnostics.count) agents with catalog drift.")
+                    .id(IntegrationsSectionAnchor.models)
+                }
+
+                if !filteredAliases.isEmpty {
+                    Section {
+                        ForEach(filteredAliases.prefix(20)) { alias in
+                            IntegrationAliasRow(alias: alias)
+                        }
+                    } header: {
+                        Text("Aliases")
+                    } footer: {
+                        if filteredAliases.count > 20 {
+                            Text("Showing 20 of \(filteredAliases.count) aliases after filtering.")
+                        }
+                    }
+                    .id(IntegrationsSectionAnchor.aliases)
+                }
+
+                if !filteredAgentDiagnostics.isEmpty {
+                    Section {
+                        ForEach(filteredAgentDiagnostics.prefix(20)) { diagnostic in
+                            NavigationLink {
+                                AgentDetailView(agent: diagnostic.agent)
+                            } label: {
+                                IntegrationAgentModelRow(diagnostic: diagnostic)
+                            }
+                        }
+                    } header: {
+                        Text("Agent Model Drift")
+                    } footer: {
+                        if filteredAgentDiagnostics.count > 20 {
+                            Text("Showing 20 of \(filteredAgentDiagnostics.count) agents with catalog drift.")
+                        }
+                    }
+                    .id(IntegrationsSectionAnchor.drift)
+                }
+
+                if !hasAnyContent && !vm.isLoading {
+                    Section {
+                        ContentUnavailableView(
+                            "No Integration Diagnostics",
+                            systemImage: "square.3.layers.3d.down.forward",
+                            description: Text("Pull to refresh after the server exposes provider, channel, and model inventory.")
+                        )
+                    }
+                } else if hasAnyContent
+                            && filteredProviders.isEmpty
+                            && filteredChannels.isEmpty
+                            && filteredModels.isEmpty
+                            && filteredAliases.isEmpty
+                            && filteredAgentDiagnostics.isEmpty
+                            && !vm.isLoading {
+                    Section {
+                        ContentUnavailableView(
+                            "No Search Results",
+                            systemImage: "magnifyingglass",
+                            description: Text("Try a different provider, channel, model, or alias query.")
+                        )
                     }
                 }
             }
-
-            if !hasAnyContent && !vm.isLoading {
-                Section {
-                    ContentUnavailableView(
-                        "No Integration Diagnostics",
-                        systemImage: "square.3.layers.3d.down.forward",
-                        description: Text("Pull to refresh after the server exposes provider, channel, and model inventory.")
-                    )
-                }
-            } else if hasAnyContent
-                        && filteredProviders.isEmpty
-                        && filteredChannels.isEmpty
-                        && filteredModels.isEmpty
-                        && filteredAliases.isEmpty
-                        && filteredAgentDiagnostics.isEmpty
-                        && !vm.isLoading {
-                Section {
-                    ContentUnavailableView(
-                        "No Search Results",
-                        systemImage: "magnifyingglass",
-                        description: Text("Try a different provider, channel, model, or alias query.")
-                    )
-                }
-            }
-        }
-        .navigationTitle("Integrations")
-        .searchable(text: $searchText, prompt: "Search provider, channel, model, alias, agent")
-        .refreshable {
-            await vm.refresh()
-        }
-        .overlay {
-            if vm.isLoading && !hasAnyContent {
-                ProgressView("Loading integrations...")
-            }
-        }
-        .task {
-            if !hasAnyContent {
+            .navigationTitle("Integrations")
+            .searchable(text: $searchText, prompt: "Search provider, channel, model, alias, agent")
+            .refreshable {
                 await vm.refresh()
             }
+            .overlay {
+                if vm.isLoading && !hasAnyContent {
+                    ProgressView("Loading integrations...")
+                }
+            }
+            .task {
+                if !hasAnyContent {
+                    await vm.refresh()
+                }
+            }
+            .alert(item: $operatorNotice) { notice in
+                Alert(
+                    title: Text(notice.title),
+                    message: Text(notice.message),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
         }
-        .alert(item: $operatorNotice) { notice in
-            Alert(
-                title: Text(notice.title),
-                message: Text(notice.message),
-                dismissButton: .default(Text("OK"))
+    }
+
+    @ViewBuilder
+    private func integrationsFocusSection(_ proxy: ScrollViewProxy) -> some View {
+        Button {
+            jump(proxy, to: .providers)
+        } label: {
+            MonitoringJumpRow(
+                title: String(localized: "Provider Health"),
+                detail: filteredProviders.isEmpty
+                    ? String(localized: "No providers are visible in the current integration scope.")
+                    : String(localized: "Jump to provider outages, auth readiness, and manual probe status."),
+                systemImage: "key.horizontal",
+                tone: vm.unreachableLocalProviderCount > 0 ? .warning : .neutral,
+                badgeText: filteredProviders.isEmpty ? String(localized: "Empty") : String(localized: "\(filteredProviders.count) visible"),
+                badgeTone: vm.unreachableLocalProviderCount > 0 ? .warning : .neutral
             )
+        }
+        .buttonStyle(.plain)
+        .disabled(filteredProviders.isEmpty)
+
+        Button {
+            jump(proxy, to: .channels)
+        } label: {
+            MonitoringJumpRow(
+                title: String(localized: "Channel Readiness"),
+                detail: filteredChannels.isEmpty
+                    ? String(localized: "No channels are visible in the current integration scope.")
+                    : String(localized: "Jump to required field gaps and manual channel validation."),
+                systemImage: "bubble.left.and.bubble.right",
+                tone: vm.channelCredentialGapCount > 0 ? .warning : .neutral,
+                badgeText: filteredChannels.isEmpty ? String(localized: "Empty") : String(localized: "\(filteredChannels.count) visible"),
+                badgeTone: vm.channelCredentialGapCount > 0 ? .warning : .neutral
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(filteredChannels.isEmpty)
+
+        Button {
+            jump(proxy, to: .models)
+        } label: {
+            MonitoringJumpRow(
+                title: String(localized: "Model Catalog"),
+                detail: filteredModels.isEmpty
+                    ? String(localized: "No catalog models are visible for the current model filter.")
+                    : String(localized: "Jump to model availability, pricing, and capability coverage."),
+                systemImage: "square.stack.3d.up",
+                tone: modelFilter == .unavailable ? .warning : .neutral,
+                badgeText: filteredModels.isEmpty ? String(localized: "Empty") : String(localized: "\(filteredModels.count) visible"),
+                badgeTone: modelFilter == .unavailable ? .warning : .neutral
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(filteredModels.isEmpty)
+
+        if !filteredAliases.isEmpty {
+            Button {
+                jump(proxy, to: .aliases)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Aliases"),
+                    detail: String(localized: "Jump to the alias map that resolves requested model names into catalog models."),
+                    systemImage: "arrow.left.arrow.right",
+                    tone: .neutral,
+                    badgeText: String(localized: "\(filteredAliases.count) visible"),
+                    badgeTone: .neutral
+                )
+            }
+            .buttonStyle(.plain)
+        }
+
+        Button {
+            jump(proxy, to: .drift)
+        } label: {
+            MonitoringJumpRow(
+                title: String(localized: "Agent Model Drift"),
+                detail: filteredAgentDiagnostics.isEmpty
+                    ? String(localized: "No agent model drift is visible in the current integration scope.")
+                    : String(localized: "Jump to agents whose requested model or provider no longer aligns with the live catalog."),
+                systemImage: "cpu",
+                tone: filteredAgentDiagnostics.isEmpty ? .neutral : .warning,
+                badgeText: filteredAgentDiagnostics.isEmpty ? String(localized: "Clear") : String(localized: "\(filteredAgentDiagnostics.count) agents"),
+                badgeTone: filteredAgentDiagnostics.isEmpty ? .positive : .warning
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(filteredAgentDiagnostics.isEmpty)
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: IntegrationsSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
         }
     }
 
@@ -591,31 +714,18 @@ private struct IntegrationCatalogStatusCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    titleLabel
-                    Spacer()
-                    IntegrationStatusChip(text: vm.catalogSyncStatusLabel, tone: vm.catalogSyncTone)
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    titleLabel
-                    IntegrationStatusChip(text: vm.catalogSyncStatusLabel, tone: vm.catalogSyncTone)
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 8) {
+                titleLabel
+            } accessory: {
+                IntegrationStatusChip(text: vm.catalogSyncStatusLabel, tone: vm.catalogSyncTone)
             }
 
             Text(detailText)
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    summaryFacts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    summaryFacts
-                }
+            FlowLayout(spacing: 12) {
+                summaryFacts
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -664,27 +774,14 @@ private struct IntegrationProviderRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 12) {
-                    providerSummary
-                    Spacer()
-                    providerControls
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    providerSummary
-                    providerControls
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                providerSummary
+            } accessory: {
+                providerControls
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    providerFacts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    providerFacts
-                }
+            FlowLayout(spacing: 12) {
+                providerFacts
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -793,27 +890,14 @@ private struct IntegrationChannelRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 12) {
-                    channelSummary
-                    Spacer()
-                    channelControls
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    channelSummary
-                    channelControls
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                channelSummary
+            } accessory: {
+                channelControls
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    channelFacts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    channelFacts
-                }
+            FlowLayout(spacing: 12) {
+                channelFacts
             }
             .font(.caption)
 
@@ -921,39 +1005,20 @@ private struct IntegrationModelRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 12) {
-                    modelSummary
-                    Spacer()
-                    availabilityChip
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    modelSummary
-                    availabilityChip
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                modelSummary
+            } accessory: {
+                availabilityChip
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    modelFacts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    modelFacts
-                }
+            FlowLayout(spacing: 12) {
+                modelFacts
             }
             .font(.caption)
             .foregroundStyle(.secondary)
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) {
-                    capabilityChips
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    capabilityChips
-                }
+            FlowLayout(spacing: 8) {
+                capabilityChips
             }
 
             if model.inputCostPerM != nil || model.outputCostPerM != nil {
@@ -1048,27 +1113,14 @@ private struct IntegrationAgentModelRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 12) {
-                    diagnosticSummary
-                    Spacer()
-                    IntegrationStatusChip(text: diagnostic.localizedStatusLabel, tone: diagnostic.statusTone)
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    diagnosticSummary
-                    IntegrationStatusChip(text: diagnostic.localizedStatusLabel, tone: diagnostic.statusTone)
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                diagnosticSummary
+            } accessory: {
+                IntegrationStatusChip(text: diagnostic.localizedStatusLabel, tone: diagnostic.statusTone)
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    diagnosticFacts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    diagnosticFacts
-                }
+            FlowLayout(spacing: 12) {
+                diagnosticFacts
             }
             .font(.caption)
             .foregroundStyle(.secondary)
