@@ -55,6 +55,14 @@ struct DiagnosticsView: View {
                     } footer: {
                         Text("Use these jump targets to move around the deep runtime monitor without scanning the whole page.")
                     }
+
+                    Section {
+                        diagnosticsOperatorSurfaces
+                    } header: {
+                        Text("Operator Surfaces")
+                    } footer: {
+                        Text("Use these one-tap routes when diagnostics already tells you the next operator surface you need.")
+                    }
                 }
 
                 if let healthDetail = vm.healthDetail {
@@ -350,9 +358,88 @@ struct DiagnosticsView: View {
                     )
                 }
                 .buttonStyle(.plain)
+        }
+    }
+
+    private var diagnosticsOperatorSurfaces: some View {
+        Group {
+            NavigationLink {
+                RuntimeView()
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Runtime"),
+                    detail: String(localized: "Return to the compact runtime digest and operational buckets."),
+                    systemImage: "server.rack",
+                    tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
+                    badgeText: vm.runtimeAlertCount > 0
+                        ? (vm.runtimeAlertCount == 1 ? String(localized: "1 alert") : String(localized: "\(vm.runtimeAlertCount) alerts"))
+                        : nil,
+                    badgeTone: .warning
+                )
+            }
+
+            NavigationLink {
+                IncidentsView()
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Incidents"),
+                    detail: String(localized: "Switch to active alerts, approvals, and shift coverage from diagnostics."),
+                    systemImage: "bell.badge",
+                    tone: vm.monitoringAlerts.contains { $0.severity == .critical } ? .critical : .neutral,
+                    badgeText: vm.monitoringAlerts.isEmpty
+                        ? nil
+                        : (vm.monitoringAlerts.count == 1 ? String(localized: "1 alert") : String(localized: "\(vm.monitoringAlerts.count) alerts")),
+                    badgeTone: vm.monitoringAlerts.contains { $0.severity == .critical } ? .critical : .warning
+                )
+            }
+
+            NavigationLink {
+                IntegrationsView(initialScope: .attention)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Integrations"),
+                    detail: String(localized: "Switch to provider, channel, and catalog diagnostics when health points to integration drift."),
+                    systemImage: "square.3.layers.3d.down.forward",
+                    tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                    badgeText: vm.integrationPressureIssueCategoryCount > 0
+                        ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
+                        : nil,
+                    badgeTone: .critical
+                )
+            }
+
+            NavigationLink {
+                AutomationView(initialScope: .attention)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Automation"),
+                    detail: String(localized: "Switch to failed workflow runs, paused schedules, and exhausted triggers."),
+                    systemImage: "flowchart",
+                    tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                    badgeText: vm.automationPressureIssueCategoryCount > 0
+                        ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
+                        : nil,
+                    badgeTone: .warning
+                )
+            }
+
+            NavigationLink {
+                SessionsView(initialFilter: .attention)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Sessions"),
+                    detail: String(localized: "Switch to the session monitor when runtime metrics or health implies active pressure."),
+                    systemImage: "text.bubble",
+                    tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                    badgeText: vm.sessionAttentionCount > 0
+                        ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
+                        : nil,
+                    badgeTone: .warning
+                )
             }
         }
     }
+}
 
     private func jump(_ proxy: ScrollViewProxy, to anchor: DiagnosticsSectionAnchor) {
         withAnimation(.easeInOut(duration: 0.2)) {

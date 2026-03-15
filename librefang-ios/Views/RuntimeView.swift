@@ -75,6 +75,7 @@ struct RuntimeView: View {
                     errorSection
                     scoreboardSection
                     runtimeSnapshotSection
+                    runtimeOperatorSurfacesSection
                     runtimeFocusSection(proxy)
                     systemSection
                     diagnosticsSection
@@ -211,6 +212,104 @@ struct RuntimeView: View {
             }
         } footer: {
             Text("Use this as the compact runtime digest before drilling into diagnostics, integrations, sessions, or approvals.")
+        }
+    }
+
+    private var runtimeOperatorSurfacesSection: some View {
+        Section {
+            NavigationLink {
+                DiagnosticsView()
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Diagnostics"),
+                    detail: String(localized: "Switch from runtime digest to deep health, config, build, and metrics analysis."),
+                    systemImage: "stethoscope",
+                    tone: vm.diagnosticsSummaryTone,
+                    badgeText: vm.diagnosticsConfigWarningCount > 0
+                        ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
+                        : nil,
+                    badgeTone: .warning
+                )
+            }
+
+            NavigationLink {
+                IntegrationsView(initialScope: .attention)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Integrations"),
+                    detail: String(localized: "Switch to provider, channel, model, and catalog diagnostics from the runtime hub."),
+                    systemImage: "square.3.layers.3d.down.forward",
+                    tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                    badgeText: vm.integrationPressureIssueCategoryCount > 0
+                        ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
+                        : nil,
+                    badgeTone: .critical
+                )
+            }
+
+            NavigationLink {
+                AutomationView(initialScope: .attention)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Automation"),
+                    detail: String(localized: "Switch to workflow pressure, stalled schedules, and cron issues."),
+                    systemImage: "flowchart",
+                    tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                    badgeText: vm.automationPressureIssueCategoryCount > 0
+                        ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
+                        : nil,
+                    badgeTone: .warning
+                )
+            }
+
+            NavigationLink {
+                ApprovalsView()
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Approvals"),
+                    detail: String(localized: "Switch to the approval queue with compact operator actions."),
+                    systemImage: "checkmark.shield",
+                    tone: vm.pendingApprovalCount > 0 ? .critical : .neutral,
+                    badgeText: vm.pendingApprovalCount > 0
+                        ? (vm.pendingApprovalCount == 1 ? String(localized: "1 pending") : String(localized: "\(vm.pendingApprovalCount) pending"))
+                        : nil,
+                    badgeTone: .critical
+                )
+            }
+
+            NavigationLink {
+                SessionsView(initialFilter: .attention)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Sessions"),
+                    detail: String(localized: "Switch to the session monitor focused on current hotspots."),
+                    systemImage: "text.bubble",
+                    tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                    badgeText: vm.sessionAttentionCount > 0
+                        ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
+                        : nil,
+                    badgeTone: .warning
+                )
+            }
+
+            NavigationLink {
+                EventsView(api: deps.apiClient, initialScope: .critical)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Critical Events"),
+                    detail: String(localized: "Switch to the critical audit feed without leaving the mobile runtime path."),
+                    systemImage: "text.justify.leading",
+                    tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
+                    badgeText: vm.recentCriticalAuditCount > 0
+                        ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
+                        : nil,
+                    badgeTone: .critical
+                )
+            }
+        } header: {
+            Text("Operator Surfaces")
+        } footer: {
+            Text("Use these one-tap routes when the runtime digest already tells you which deeper monitor you need next.")
         }
     }
 

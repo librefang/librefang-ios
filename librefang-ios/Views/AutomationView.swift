@@ -219,6 +219,72 @@ struct AutomationView: View {
                     Text("Filter")
                 }
 
+                Section {
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Runtime"),
+                            detail: String(localized: "Switch back to the runtime digest with automation pressure folded into the main monitor."),
+                            systemImage: "server.rack",
+                            tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                            badgeText: vm.automationPressureIssueCategoryCount > 0
+                                ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
+                                : nil,
+                            badgeTone: .warning
+                        )
+                    }
+
+                    NavigationLink {
+                        IncidentsView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Incidents"),
+                            detail: String(localized: "Switch to the incident queue where automation pressure is ranked with alerts and approvals."),
+                            systemImage: "bell.badge",
+                            tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                            badgeText: vm.failedWorkflowRunCount > 0
+                                ? (vm.failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(vm.failedWorkflowRunCount) failed runs"))
+                                : nil,
+                            badgeTone: .critical
+                        )
+                    }
+
+                    NavigationLink {
+                        DiagnosticsView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Diagnostics"),
+                            detail: String(localized: "Switch to runtime health, build, config, and metrics when automation failures may be systemic."),
+                            systemImage: "stethoscope",
+                            tone: vm.diagnosticsSummaryTone,
+                            badgeText: vm.diagnosticsConfigWarningCount > 0
+                                ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
+                                : nil,
+                            badgeTone: .warning
+                        )
+                    }
+
+                    NavigationLink {
+                        EventsView(api: deps.apiClient, initialScope: .critical)
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Critical Events"),
+                            detail: String(localized: "Switch to the critical event feed if workflow failures correlate with audit activity."),
+                            systemImage: "text.justify.leading",
+                            tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
+                            badgeText: vm.recentCriticalAuditCount > 0
+                                ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
+                                : nil,
+                            badgeTone: .critical
+                        )
+                    }
+                } header: {
+                    Text("Operator Surfaces")
+                } footer: {
+                    Text("Use these routes when automation issues need incident, runtime, or event context beyond the current filtered list.")
+                }
+
                 if hasAutomationData {
                     Section {
                         automationFocusSection(proxy)
