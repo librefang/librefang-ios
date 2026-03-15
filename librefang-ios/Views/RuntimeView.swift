@@ -448,6 +448,17 @@ struct RuntimeView: View {
     private var systemSection: some View {
         if let status = vm.status {
             Section("System") {
+                RuntimeSystemInventoryDeck(
+                    statusLabel: status.localizedStatusLabel,
+                    version: status.version,
+                    uptimeLabel: formatDuration(status.uptimeSeconds),
+                    agentCount: status.agentCount,
+                    networkEnabled: status.networkEnabled,
+                    providerCount: vm.configuredProviderCount,
+                    channelCount: vm.readyChannelCount,
+                    sessionCount: vm.totalSessionCount
+                )
+
                 RuntimeSystemRow(label: "Kernel") {
                     StatusPill(text: status.localizedStatusLabel, color: status.statusTone.color)
                 }
@@ -483,6 +494,16 @@ struct RuntimeView: View {
     private var diagnosticsSection: some View {
         if vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || vm.metricsSnapshot != nil {
             Section {
+                RuntimeDiagnosticsInventoryDeck(
+                    healthStatusLabel: vm.healthDetail?.localizedStatusLabel,
+                    configWarningCount: vm.diagnosticsConfigWarningCount,
+                    panicCount: vm.supervisorPanicCount,
+                    restartCount: vm.supervisorRestartCount,
+                    hasBuild: vm.versionInfo != nil,
+                    hasConfig: vm.configSummary != nil,
+                    hasMetrics: vm.metricsSnapshot != nil
+                )
+
                 MonitoringSurfaceGroupCard(
                     title: String(localized: "Routes"),
                     detail: String(localized: "Open deeper diagnostics without another long text row.")
@@ -556,6 +577,18 @@ struct RuntimeView: View {
     private var integrationsSection: some View {
         if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
             Section {
+                RuntimeIntegrationsInventoryDeck(
+                    providerCount: vm.configuredProviderCount,
+                    totalProviderCount: vm.providers.count,
+                    channelCount: vm.readyChannelCount,
+                    configuredChannelCount: vm.configuredChannelCount,
+                    catalogModelCount: vm.catalogModels.count,
+                    availableCatalogModelCount: vm.availableCatalogModelCount,
+                    providerIssueCount: vm.unreachableLocalProviderCount,
+                    channelGapCount: vm.channelRequiredFieldGapCount,
+                    driftCount: vm.agentsWithModelDiagnostics.count
+                )
+
                 MonitoringSurfaceGroupCard(
                     title: String(localized: "Routes"),
                     detail: String(localized: "Open provider, channel, and catalog diagnostics without another full-width text row.")
@@ -673,6 +706,15 @@ struct RuntimeView: View {
     private var usageSection: some View {
         if let usage = vm.usageSummary {
             Section("Usage") {
+                RuntimeUsageInventoryDeck(
+                    inputTokenCount: usage.totalInputTokens,
+                    outputTokenCount: usage.totalOutputTokens,
+                    toolCallCount: usage.totalToolCalls,
+                    llmCallCount: usage.callCount,
+                    totalCost: usage.totalCostUsd,
+                    sessionCount: vm.totalSessionCount
+                )
+
                 RuntimeMetricRow(
                     label: String(localized: "Tokens"),
                     value: String(localized: "\(usage.totalInputTokens.formatted()) in / \(usage.totalOutputTokens.formatted()) out"),
@@ -1437,6 +1479,244 @@ private struct RuntimeRouteInventoryDeck: View {
             return String(localized: "Primary and support routes stay grouped before the longer runtime sections load.")
         }
         return String(localized: "Primary routes, support surfaces, and long-section jumps stay grouped in one compact runtime deck.")
+    }
+}
+
+private struct RuntimeSystemInventoryDeck: View {
+    let statusLabel: String
+    let version: String
+    let uptimeLabel: String
+    let agentCount: Int
+    let networkEnabled: Bool
+    let providerCount: Int
+    let channelCount: Int
+    let sessionCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Kernel snapshot is condensed before the full system rows."),
+                detail: String(localized: "Use the compact system inventory to judge kernel state, connectivity, and fleet size before opening individual rows."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: statusLabel, tone: .neutral)
+                    PresentationToneBadge(text: version, tone: .neutral)
+                    PresentationToneBadge(text: uptimeLabel, tone: .positive)
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "System inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Kernel basics, provider reach, ready channels, and retained sessions stay summarized here before the detailed system rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: networkEnabled ? String(localized: "Network on") : String(localized: "Network off"),
+                    tone: networkEnabled ? .positive : .warning
+                )
+            } facts: {
+                Label(
+                    agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                    systemImage: "cpu"
+                )
+                Label(
+                    providerCount == 1 ? String(localized: "1 provider") : String(localized: "\(providerCount) providers"),
+                    systemImage: "key.horizontal"
+                )
+                Label(
+                    channelCount == 1 ? String(localized: "1 channel") : String(localized: "\(channelCount) channels"),
+                    systemImage: "bubble.left.and.bubble.right"
+                )
+                Label(
+                    sessionCount == 1 ? String(localized: "1 retained session") : String(localized: "\(sessionCount) retained sessions"),
+                    systemImage: "rectangle.stack"
+                )
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+private struct RuntimeDiagnosticsInventoryDeck: View {
+    let healthStatusLabel: String?
+    let configWarningCount: Int
+    let panicCount: Int
+    let restartCount: Int
+    let hasBuild: Bool
+    let hasConfig: Bool
+    let hasMetrics: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Diagnostics inventory keeps health, build, config, and metrics readiness visible before the section rows."),
+                detail: String(localized: "Warnings, panic counters, and loaded diagnostic feeds stay condensed here for faster runtime triage."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if let healthStatusLabel {
+                        PresentationToneBadge(text: healthStatusLabel, tone: .neutral)
+                    }
+                    PresentationToneBadge(text: hasBuild ? String(localized: "Build ready") : String(localized: "Build missing"), tone: hasBuild ? .positive : .neutral)
+                    PresentationToneBadge(text: hasConfig ? String(localized: "Config ready") : String(localized: "Config missing"), tone: hasConfig ? .positive : .neutral)
+                    PresentationToneBadge(text: hasMetrics ? String(localized: "Metrics ready") : String(localized: "Metrics missing"), tone: hasMetrics ? .positive : .neutral)
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Diagnostics inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "The runtime surface keeps diagnostics readiness, warnings, and supervisor counters visible before the deeper diagnostics monitor opens."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: configWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(configWarningCount) warnings"),
+                    tone: configWarningCount > 0 ? .warning : .positive
+                )
+            } facts: {
+                Label(
+                    panicCount == 1 ? String(localized: "1 panic") : String(localized: "\(panicCount) panics"),
+                    systemImage: "bolt.trianglebadge.exclamationmark"
+                )
+                Label(
+                    restartCount == 1 ? String(localized: "1 restart") : String(localized: "\(restartCount) restarts"),
+                    systemImage: "arrow.clockwise.circle"
+                )
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+private struct RuntimeIntegrationsInventoryDeck: View {
+    let providerCount: Int
+    let totalProviderCount: Int
+    let channelCount: Int
+    let configuredChannelCount: Int
+    let catalogModelCount: Int
+    let availableCatalogModelCount: Int
+    let providerIssueCount: Int
+    let channelGapCount: Int
+    let driftCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Integrations inventory keeps provider, channel, catalog, and drift pressure visible before the detailed integration rows."),
+                detail: String(localized: "Use this compact slice to decide whether the next tap should go to provider failures, channel gaps, or catalog drift."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: String(localized: "\(providerCount)/\(totalProviderCount) providers"),
+                        tone: providerIssueCount > 0 ? .warning : .positive
+                    )
+                    PresentationToneBadge(
+                        text: String(localized: "\(channelCount)/\(configuredChannelCount) channels"),
+                        tone: channelGapCount > 0 ? .warning : .positive
+                    )
+                    PresentationToneBadge(
+                        text: String(localized: "\(availableCatalogModelCount)/\(catalogModelCount) catalog"),
+                        tone: availableCatalogModelCount == 0 && catalogModelCount > 0 ? .critical : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Integrations inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Provider reachability, channel readiness, catalog health, and agent model drift stay summarized here before opening the detailed rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: driftCount == 1 ? String(localized: "1 drift") : String(localized: "\(driftCount) drift"),
+                    tone: driftCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if providerIssueCount > 0 {
+                    Label(
+                        providerIssueCount == 1 ? String(localized: "1 provider issue") : String(localized: "\(providerIssueCount) provider issues"),
+                        systemImage: "network.slash"
+                    )
+                }
+                if channelGapCount > 0 {
+                    Label(
+                        channelGapCount == 1 ? String(localized: "1 channel gap") : String(localized: "\(channelGapCount) channel gaps"),
+                        systemImage: "bubble.left.and.exclamationmark.bubble.right"
+                    )
+                }
+                Label(
+                    catalogModelCount == 1 ? String(localized: "1 catalog model") : String(localized: "\(catalogModelCount) catalog models"),
+                    systemImage: "square.stack.3d.up"
+                )
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+private struct RuntimeUsageInventoryDeck: View {
+    let inputTokenCount: Int
+    let outputTokenCount: Int
+    let toolCallCount: Int
+    let llmCallCount: Int
+    let totalCost: Double
+    let sessionCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Usage inventory keeps token flow, tool activity, spend, and retained session load visible before the detailed usage rows."),
+                detail: String(localized: "This compact slice shows whether runtime pressure is mostly token-heavy, tool-heavy, or session-heavy."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: String(localized: "\(inputTokenCount.formatted()) in"), tone: .neutral)
+                    PresentationToneBadge(text: String(localized: "\(outputTokenCount.formatted()) out"), tone: .neutral)
+                    PresentationToneBadge(text: localizedUSDCurrency(totalCost), tone: totalCost > 0 ? .warning : .neutral)
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Usage inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Rolling token flow, tool activity, and session retention stay summarized before the detailed usage facts below."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: llmCallCount == 1 ? String(localized: "1 LLM call") : String(localized: "\(llmCallCount.formatted()) LLM calls"),
+                    tone: .neutral
+                )
+            } facts: {
+                Label(
+                    toolCallCount == 1 ? String(localized: "1 tool call") : String(localized: "\(toolCallCount.formatted()) tool calls"),
+                    systemImage: "wrench.and.screwdriver"
+                )
+                Label(
+                    sessionCount == 1 ? String(localized: "1 session retained") : String(localized: "\(sessionCount) sessions retained"),
+                    systemImage: "rectangle.stack"
+                )
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

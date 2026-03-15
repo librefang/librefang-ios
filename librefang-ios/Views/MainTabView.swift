@@ -745,6 +745,17 @@ private struct OperatorOverlayDeck: View {
                 )
             }
 
+            OperatorOverlayInventoryDeck(
+                isOffline: isOffline,
+                criticalCount: criticalCount,
+                approvalCount: approvalCount,
+                watchIssueCount: watchIssueCount,
+                sessionCount: sessionCount,
+                pendingFollowUpCount: pendingFollowUpCount,
+                primaryActionCount: primaryActions.count,
+                supportActionCount: supportActions.count
+            )
+
             FlowLayout(spacing: 8) {
                 if isOffline {
                     GlassCapsuleBadge(
@@ -851,6 +862,96 @@ private struct OperatorOverlayDeck: View {
             .background(.white.opacity(0.10), in: Capsule())
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct OperatorOverlayInventoryDeck: View {
+    let isOffline: Bool
+    let criticalCount: Int
+    let approvalCount: Int
+    let watchIssueCount: Int
+    let sessionCount: Int
+    let pendingFollowUpCount: Int
+    let primaryActionCount: Int
+    let supportActionCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ResponsiveAccessoryRow(horizontalSpacing: 10, verticalSpacing: 6) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Overlay inventory"))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(String(localized: "Keep the current pressure and quick-action spread readable before opening the full monitor surface."))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } accessory: {
+                GlassCapsuleBadge(
+                    text: String(localized: "\(primaryActionCount + supportActionCount) actions"),
+                    foregroundStyle: .secondary,
+                    backgroundOpacity: 0.08
+                )
+            }
+
+            FlowLayout(spacing: 8) {
+                GlassCapsuleBadge(
+                    text: primaryActionCount == 1 ? String(localized: "1 primary") : String(localized: "\(primaryActionCount) primary"),
+                    foregroundStyle: .primary,
+                    backgroundOpacity: 0.10
+                )
+                if supportActionCount > 0 {
+                    GlassCapsuleBadge(
+                        text: supportActionCount == 1 ? String(localized: "1 support") : String(localized: "\(supportActionCount) support"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if isOffline {
+                    GlassCapsuleBadge(
+                        text: String(localized: "Offline"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if criticalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if approvalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if watchIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if sessionCount > 0 {
+                    GlassCapsuleBadge(
+                        text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    GlassCapsuleBadge(
+                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
+                        foregroundStyle: .primary,
+                        backgroundOpacity: 0.10
+                    )
+                }
+            }
+        }
     }
 }
 
