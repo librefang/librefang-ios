@@ -317,18 +317,9 @@ private struct StatePill: View {
             .font(.caption2.weight(.medium))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(color.opacity(0.15))
-            .foregroundStyle(color)
+            .background(Agent.stateTone(for: state).color.opacity(0.15))
+            .foregroundStyle(Agent.stateTone(for: state).color)
             .clipShape(Capsule())
-    }
-
-    private var color: Color {
-        switch state {
-        case "Running": .green
-        case "Suspended": .yellow
-        case "Terminated": .red
-        default: .gray
-        }
     }
 }
 

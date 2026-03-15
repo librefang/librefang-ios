@@ -119,6 +119,17 @@ enum HandoffCadenceState {
             String(localized: "Sparse")
         }
     }
+
+    var tone: PresentationTone {
+        switch self {
+        case .steady:
+            return .positive
+        case .sparse:
+            return .warning
+        case .missing, .single:
+            return .neutral
+        }
+    }
 }
 
 enum HandoffFreshnessState {
@@ -134,6 +145,17 @@ enum HandoffFreshnessState {
             String(localized: "Stale")
         case .fresh:
             String(localized: "Fresh")
+        }
+    }
+
+    var tone: PresentationTone {
+        switch self {
+        case .fresh:
+            return .positive
+        case .stale:
+            return .warning
+        case .missing:
+            return .critical
         }
     }
 }
@@ -156,6 +178,19 @@ enum HandoffDriftState {
             String(localized: "Mixed")
         }
     }
+
+    var tone: PresentationTone {
+        switch self {
+        case .steady:
+            return .neutral
+        case .improving:
+            return .positive
+        case .worsening:
+            return .critical
+        case .mixed:
+            return .warning
+        }
+    }
 }
 
 enum HandoffCarryoverState {
@@ -173,6 +208,17 @@ enum HandoffCarryoverState {
             String(localized: "Active")
         }
     }
+
+    var tone: PresentationTone {
+        switch self {
+        case .cleared:
+            return .positive
+        case .partial:
+            return .warning
+        case .active:
+            return .critical
+        }
+    }
 }
 
 enum HandoffReadinessState {
@@ -188,6 +234,17 @@ enum HandoffReadinessState {
             String(localized: "Caution")
         case .blocked:
             String(localized: "Blocked")
+        }
+    }
+
+    var tone: PresentationTone {
+        switch self {
+        case .ready:
+            return .positive
+        case .caution:
+            return .warning
+        case .blocked:
+            return .critical
         }
     }
 }
@@ -286,6 +343,17 @@ enum HandoffCheckInState {
             String(localized: "Overdue")
         }
     }
+
+    var tone: PresentationTone {
+        switch self {
+        case .scheduled:
+            return .caution
+        case .dueSoon:
+            return .warning
+        case .overdue:
+            return .critical
+        }
+    }
 }
 
 struct HandoffCheckInStatus {
@@ -323,6 +391,81 @@ struct HandoffFollowUpStatus: Identifiable {
             index: index,
             item: item
         )
+    }
+}
+
+struct HandoffFollowUpSummary {
+    let pendingCount: Int
+    let completedCount: Int
+
+    var totalCount: Int {
+        pendingCount + completedCount
+    }
+
+    var hasItems: Bool {
+        totalCount > 0
+    }
+
+    var tone: PresentationTone {
+        if pendingCount > 0 {
+            return .warning
+        }
+        return hasItems ? .positive : .neutral
+    }
+
+    var symbolName: String {
+        pendingCount == 0 ? "checkmark.circle" : "checklist"
+    }
+
+    var badgeLabel: String {
+        if !hasItems {
+            return String(localized: "None")
+        }
+        if pendingCount == 0 {
+            return String(localized: "Clear")
+        }
+        return pendingCount == 1
+            ? String(localized: "1 pending")
+            : String(localized: "\(pendingCount) pending")
+    }
+
+    var settingsLabel: String {
+        if !hasItems {
+            return String(localized: "None")
+        }
+        return String(localized: "\(pendingCount) pending · \(completedCount) done")
+    }
+
+    var headlineLabel: String {
+        if !hasItems {
+            return String(localized: "No handoff follow-ups")
+        }
+        return pendingCount == 0
+            ? String(localized: "Handoff follow-ups are clear")
+            : String(localized: "Handoff follow-ups still open")
+    }
+
+    var detailLabel: String {
+        if !hasItems {
+            return String(localized: "No follow-up items were saved with the latest local handoff.")
+        }
+        if pendingCount == 0 {
+            return completedCount == 1
+                ? String(localized: "1 follow-up item from the latest local handoff is complete on this iPhone.")
+                : String(localized: "\(completedCount) follow-up items from the latest local handoff are complete on this iPhone.")
+        }
+        return String(localized: "\(pendingCount) of \(totalCount) latest local follow-up items are still pending.")
+    }
+
+    static func summarize(statuses: [HandoffFollowUpStatus]) -> HandoffFollowUpSummary {
+        summarize(
+            pendingCount: statuses.filter { !$0.isCompleted }.count,
+            completedCount: statuses.filter(\.isCompleted).count
+        )
+    }
+
+    static func summarize(pendingCount: Int, completedCount: Int) -> HandoffFollowUpSummary {
+        HandoffFollowUpSummary(pendingCount: pendingCount, completedCount: completedCount)
     }
 }
 
@@ -497,6 +640,14 @@ struct HandoffChecklistState: Codable, Equatable {
         "\(completedCount)/\(totalCount)"
     }
 
+    var isComplete: Bool {
+        pendingLabels.isEmpty
+    }
+
+    var tone: PresentationTone {
+        isComplete ? .positive : .neutral
+    }
+
     var pendingLabels: [String] {
         HandoffChecklistKey.allCases
             .filter { !completedKeys.contains($0) }
@@ -507,6 +658,12 @@ struct HandoffChecklistState: Codable, Equatable {
         HandoffChecklistKey.allCases
             .filter { completedKeys.contains($0) }
             .map(\.label)
+    }
+
+    var summaryLabel: String {
+        isComplete
+            ? String(localized: "Checklist complete")
+            : String(localized: "Pending: \(pendingLabels.joined(separator: ", "))")
     }
 }
 
@@ -888,6 +1045,10 @@ final class OnCallHandoffStore {
     var latestFollowUpStatuses: [HandoffFollowUpStatus] {
         guard let latestEntry else { return [] }
         return followUpStatuses(for: latestEntry)
+    }
+
+    var latestFollowUpSummary: HandoffFollowUpSummary {
+        HandoffFollowUpSummary.summarize(statuses: latestFollowUpStatuses)
     }
 
     var pendingLatestFollowUpCount: Int {

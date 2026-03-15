@@ -51,9 +51,9 @@ struct EventsView: View {
             if filteredEntries.isEmpty && !viewModel.isLoading {
                 Section("Event Feed") {
                     ContentUnavailableView(
-                        searchText.isEmpty ? "No Matching Events" : "No Search Results",
+                        searchText.isEmpty ? String(localized: "No Matching Events") : String(localized: "No Search Results"),
                         systemImage: scope == .all ? "list.bullet.rectangle" : "line.3.horizontal.decrease.circle",
-                        description: Text(searchText.isEmpty ? "Pull to refresh or widen the severity filter." : "Try a different agent, action, or detail query.")
+                        description: Text(searchText.isEmpty ? String(localized: "Pull to refresh or widen the severity filter.") : String(localized: "Try a different agent, action, or detail query."))
                     )
                 }
             } else {
@@ -142,7 +142,7 @@ private struct EventScoreboard: View {
                 color: chainColor
             )
             StatBadge(
-                value: viewModel.isStreaming ? "Live" : "Polling",
+                value: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
                 label: "Transport",
                 icon: viewModel.isStreaming ? "dot.radiowaves.left.and.right" : "arrow.clockwise",
                 color: viewModel.isStreaming ? .green : .orange
@@ -153,7 +153,7 @@ private struct EventScoreboard: View {
 
     private var chainLabel: String {
         guard let verify = viewModel.auditVerify else { return "--" }
-        return verify.valid ? "Valid" : "Broken"
+        return verify.valid ? String(localized: "Valid") : String(localized: "Broken")
     }
 
     private var chainColor: Color {
@@ -170,7 +170,7 @@ private struct EventRow: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 10) {
                 Image(systemName: entry.severity.symbolName)
-                    .foregroundStyle(severityColor)
+                    .foregroundStyle(entry.severity.tone.color)
                     .frame(width: 18)
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -188,12 +188,12 @@ private struct EventRow: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
 
-                        Text(entry.outcome.capitalized)
+                        Text(entry.localizedOutcomeLabel)
                             .font(.caption2.weight(.semibold))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(severityColor.opacity(0.12))
-                            .foregroundStyle(severityColor)
+                            .background(entry.severity.tone.color.opacity(0.12))
+                            .foregroundStyle(entry.severity.tone.color)
                             .clipShape(Capsule())
                     }
 
@@ -216,17 +216,6 @@ private struct EventRow: View {
     private var relativeTimestamp: String {
         guard let date = entry.timestamp.eventsISO8601Date else { return entry.timestamp }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
-    }
-
-    private var severityColor: Color {
-        switch entry.severity {
-        case .critical:
-            .red
-        case .warning:
-            .orange
-        case .info:
-            .blue
-        }
     }
 }
 

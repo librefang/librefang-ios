@@ -2,7 +2,7 @@ import SwiftUI
 
 struct StatBadge: View {
     let value: String
-    let label: LocalizedStringResource
+    let label: LocalizedStringKey
     let icon: String
     var color: Color = .primary
 

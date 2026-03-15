@@ -26,6 +26,16 @@ nonisolated struct SystemStatus: Codable, Sendable {
     }
 }
 
+extension SystemStatus {
+    var localizedStatusLabel: String {
+        StatusPresentation.localizedHealthLabel(for: status)
+    }
+
+    var statusTone: PresentationTone {
+        StatusPresentation.healthTone(for: status)
+    }
+}
+
 nonisolated struct SystemStatusAgent: Codable, Identifiable, Sendable {
     let id: String
     let name: String
@@ -147,6 +157,34 @@ nonisolated struct ProviderStatus: Codable, Identifiable, Sendable {
     var isConfigured: Bool {
         authStatus == "configured"
     }
+
+    var localizedStatusLabel: String {
+        if isLocal == true {
+            switch reachable {
+            case true:
+                return String(localized: "Reachable")
+            case false:
+                return String(localized: "Unavailable")
+            case nil:
+                return String(localized: "Local")
+            }
+        }
+        return isConfigured ? String(localized: "Configured") : String(localized: "Missing")
+    }
+
+    var statusTone: PresentationTone {
+        if isLocal == true {
+            switch reachable {
+            case true:
+                return .positive
+            case false:
+                return .warning
+            case nil:
+                return .neutral
+            }
+        }
+        return isConfigured ? .positive : .neutral
+    }
 }
 
 nonisolated struct ChannelList: Codable, Sendable {
@@ -189,6 +227,71 @@ nonisolated struct ChannelStatus: Codable, Identifiable, Sendable {
     }
 
     var id: String { name }
+}
+
+extension ChannelStatus {
+    var localizedCategoryLabel: String {
+        switch category.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "chat":
+            return String(localized: "Chat")
+        case "email":
+            return String(localized: "Email")
+        case "push":
+            return String(localized: "Push")
+        case "sms":
+            return String(localized: "SMS")
+        case "webhook":
+            return String(localized: "Webhook")
+        default:
+            return category.replacingOccurrences(of: "_", with: " ").capitalized
+        }
+    }
+
+    var localizedSetupTypeLabel: String {
+        switch setupType.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "api_key":
+            return String(localized: "API Key")
+        case "oauth":
+            return String(localized: "OAuth")
+        case "webhook":
+            return String(localized: "Webhook")
+        case "manual":
+            return String(localized: "Manual")
+        case "local":
+            return String(localized: "Local")
+        default:
+            return setupType.replacingOccurrences(of: "_", with: " ").capitalized
+        }
+    }
+
+    var localizedDifficultyLabel: String {
+        switch difficulty.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "easy":
+            return String(localized: "Easy")
+        case "medium":
+            return String(localized: "Medium")
+        case "hard":
+            return String(localized: "Hard")
+        default:
+            return difficulty.replacingOccurrences(of: "_", with: " ").capitalized
+        }
+    }
+
+    var localizedConfigurationLabel: String {
+        if configured {
+            return hasToken
+                ? String(localized: "Ready")
+                : String(localized: "Needs Token")
+        }
+        return String(localized: "Not Set")
+    }
+
+    var configurationTone: PresentationTone {
+        if configured {
+            return hasToken ? .positive : .warning
+        }
+        return .neutral
+    }
 }
 
 nonisolated struct ChannelConfigField: Codable, Identifiable, Sendable {
@@ -241,6 +344,45 @@ nonisolated struct CatalogModel: Codable, Identifiable, Sendable {
         case supportsTools = "supports_tools"
         case supportsVision = "supports_vision"
         case supportsStreaming = "supports_streaming"
+    }
+}
+
+extension CatalogModel {
+    var localizedTierLabel: String {
+        switch tier.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "mini":
+            return String(localized: "Mini")
+        case "fast":
+            return String(localized: "Fast")
+        case "balanced":
+            return String(localized: "Balanced")
+        case "standard":
+            return String(localized: "Standard")
+        case "reasoning":
+            return String(localized: "Reasoning")
+        case "premium":
+            return String(localized: "Premium")
+        case "flagship":
+            return String(localized: "Flagship")
+        case "economy":
+            return String(localized: "Economy")
+        case "local":
+            return String(localized: "Local")
+        case "custom":
+            return String(localized: "Custom")
+        default:
+            return tier.replacingOccurrences(of: "_", with: " ").capitalized
+        }
+    }
+
+    var localizedAvailabilityLabel: String {
+        available
+            ? String(localized: "Available")
+            : String(localized: "Unavailable")
+    }
+
+    var availabilityTone: PresentationTone {
+        available ? .positive : .warning
     }
 }
 
@@ -354,6 +496,46 @@ nonisolated struct HandInstance: Codable, Identifiable, Sendable {
     var id: String { instanceId }
 }
 
+extension HandInstance {
+    func displayName(using definitions: [HandDefinition]) -> String {
+        if let definition = definitions.first(where: { $0.id == handId }) {
+            return definition.name
+        }
+        return handId
+            .replacingOccurrences(of: "_", with: " ")
+            .replacingOccurrences(of: "-", with: " ")
+            .capitalized
+    }
+
+    var localizedStatusLabel: String {
+        switch status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "active", "running":
+            return String(localized: "Running")
+        case "paused":
+            return String(localized: "Paused")
+        case "degraded":
+            return String(localized: "Degraded")
+        case "blocked":
+            return String(localized: "Blocked")
+        case "idle":
+            return String(localized: "Idle")
+        default:
+            return status.replacingOccurrences(of: "_", with: " ").capitalized
+        }
+    }
+
+    var statusTone: PresentationTone {
+        switch status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "active", "running":
+            return .positive
+        case "paused":
+            return .warning
+        default:
+            return .neutral
+        }
+    }
+}
+
 nonisolated struct ApprovalQueue: Codable, Sendable {
     let approvals: [ApprovalItem]
     let total: Int
@@ -420,6 +602,25 @@ nonisolated struct AuditEntry: Codable, Identifiable, Sendable {
     enum CodingKeys: String, CodingKey {
         case seq, timestamp, action, detail, outcome, hash
         case agentId = "agent_id"
+    }
+}
+
+extension AuditEntry {
+    var localizedOutcomeLabel: String {
+        switch outcome.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "ok", "success", "succeeded", "completed":
+            return String(localized: "Success")
+        case "running", "started", "in_progress":
+            return String(localized: "Running")
+        case "pending":
+            return String(localized: "Pending")
+        case "failed", "failure", "error", "broken":
+            return String(localized: "Failed")
+        case "cancelled", "canceled":
+            return String(localized: "Canceled")
+        default:
+            return outcome.replacingOccurrences(of: "_", with: " ").capitalized
+        }
     }
 }
 
@@ -527,6 +728,55 @@ nonisolated struct ApprovalItem: Codable, Identifiable, Sendable {
     }
 }
 
+extension ApprovalItem {
+    var localizedRiskLabel: String {
+        switch riskLevel.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "critical":
+            return String(localized: "Critical")
+        case "high":
+            return String(localized: "High")
+        case "medium":
+            return String(localized: "Medium")
+        case "low":
+            return String(localized: "Low")
+        default:
+            return riskLevel.replacingOccurrences(of: "_", with: " ").capitalized
+        }
+    }
+
+    var riskRank: Int {
+        switch riskLevel.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "critical":
+            return 3
+        case "high":
+            return 2
+        case "medium":
+            return 1
+        default:
+            return 0
+        }
+    }
+
+    var isCriticalRisk: Bool {
+        riskRank >= 3
+    }
+
+    var isHighRiskOrAbove: Bool {
+        riskRank >= 2
+    }
+
+    var riskTone: PresentationTone {
+        switch riskRank {
+        case 3:
+            return .critical
+        case 2:
+            return .warning
+        default:
+            return .caution
+        }
+    }
+}
+
 nonisolated struct SecurityStatus: Codable, Sendable {
     let configurable: SecurityConfigurable
     let monitoring: SecurityMonitoring
@@ -599,6 +849,45 @@ nonisolated struct PeerStatus: Codable, Identifiable, Sendable {
     }
 }
 
+extension PeerStatus {
+    var localizedStateLabel: String {
+        switch state.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "connected":
+            return String(localized: "Connected")
+        case "connecting":
+            return String(localized: "Connecting")
+        case "disconnected":
+            return String(localized: "Disconnected")
+        case "offline":
+            return String(localized: "Offline")
+        case "degraded":
+            return String(localized: "Degraded")
+        default:
+            return state.replacingOccurrences(of: "_", with: " ").capitalized
+        }
+    }
+
+    var isConnectedState: Bool {
+        state.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "connected"
+    }
+
+    var isWarningState: Bool {
+        switch state.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "connecting", "degraded":
+            return true
+        default:
+            return false
+        }
+    }
+
+    var stateTone: PresentationTone {
+        if isConnectedState {
+            return .positive
+        }
+        return .warning
+    }
+}
+
 nonisolated struct PeerAgent: Codable, Identifiable, Sendable {
     let id: String
     let name: String
@@ -615,6 +904,27 @@ nonisolated struct SecurityAuthConfig: Codable, Sendable {
     enum CodingKeys: String, CodingKey {
         case mode
         case apiKeySet = "api_key_set"
+    }
+}
+
+extension SecurityAuthConfig {
+    var localizedModeLabel: String {
+        switch mode.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "api_key":
+            return String(localized: "API Key")
+        case "oauth":
+            return String(localized: "OAuth")
+        case "jwt":
+            return String(localized: "JWT")
+        case "mtls":
+            return String(localized: "mTLS")
+        case "local":
+            return String(localized: "Local")
+        case "disabled", "none", "open":
+            return String(localized: "Open")
+        default:
+            return mode.replacingOccurrences(of: "_", with: " ").capitalized
+        }
     }
 }
 

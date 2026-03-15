@@ -29,14 +29,21 @@ nonisolated struct Agent: Codable, Identifiable, Sendable {
     var stateLabel: String {
         Agent.localizedStateLabel(for: state)
     }
-
-    var stateColor: String {
-        switch state {
-        case "Running": return "green"
-        case "Suspended": return "yellow"
-        case "Terminated": return "red"
-        default: return "gray"
-        }
+    var stateTone: PresentationTone {
+        Agent.stateTone(for: state)
+    }
+    var modeLabel: String {
+        Agent.localizedModeLabel(for: mode)
+    }
+    var readyLabel: String {
+        ready ? String(localized: "Yes") : String(localized: "No")
+    }
+    var readyTone: PresentationTone {
+        ready ? .positive : .warning
+    }
+    var modelTierLabel: String? {
+        guard let modelTier else { return nil }
+        return Agent.localizedModelTierLabel(for: modelTier)
     }
 
     var authStatusLabel: String? {
@@ -55,6 +62,20 @@ nonisolated struct Agent: Codable, Identifiable, Sendable {
         }
     }
 
+    var authStatusTone: PresentationTone? {
+        guard let authStatus else { return nil }
+        switch authStatus.lowercased() {
+        case "configured":
+            return .positive
+        case "missing", "invalid":
+            return .critical
+        case "unconfigured", "not_configured":
+            return .warning
+        default:
+            return .neutral
+        }
+    }
+
     static func localizedStateLabel(for state: String) -> String {
         switch state {
         case "Running":
@@ -65,6 +86,67 @@ nonisolated struct Agent: Codable, Identifiable, Sendable {
             return String(localized: "Terminated")
         default:
             return state
+        }
+    }
+
+    static func stateTone(for state: String) -> PresentationTone {
+        switch state {
+        case "Running":
+            return .positive
+        case "Suspended":
+            return .caution
+        case "Terminated":
+            return .critical
+        default:
+            return .neutral
+        }
+    }
+
+    static func localizedModeLabel(for mode: String) -> String {
+        switch mode.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "auto", "autonomous":
+            return String(localized: "Autonomous")
+        case "manual":
+            return String(localized: "Manual")
+        case "interactive":
+            return String(localized: "Interactive")
+        case "scheduled":
+            return String(localized: "Scheduled")
+        case "on_demand", "on-demand":
+            return String(localized: "On Demand")
+        case "daemon":
+            return String(localized: "Daemon")
+        case "supervised":
+            return String(localized: "Supervised")
+        default:
+            return mode.replacingOccurrences(of: "_", with: " ").capitalized
+        }
+    }
+
+    static func localizedModelTierLabel(for tier: String) -> String {
+        switch tier.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "mini":
+            return String(localized: "Mini")
+        case "fast":
+            return String(localized: "Fast")
+        case "balanced":
+            return String(localized: "Balanced")
+        case "standard":
+            return String(localized: "Standard")
+        case "reasoning":
+            return String(localized: "Reasoning")
+        case "premium":
+            return String(localized: "Premium")
+        case "flagship":
+            return String(localized: "Flagship")
+        case "economy":
+            return String(localized: "Economy")
+        case "local":
+            return String(localized: "Local")
+        case "custom":
+            return String(localized: "Custom")
+        default:
+            return tier.replacingOccurrences(of: "_", with: " ").capitalized
         }
     }
 }

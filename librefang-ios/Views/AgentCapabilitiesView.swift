@@ -92,34 +92,34 @@ struct AgentCapabilitiesView: View {
         Section {
             CapabilityDetailRow(
                 icon: "slider.horizontal.3",
-                label: "Scope",
-                value: filters.isRestricted ? "Restricted" : "All tools",
-                valueColor: filters.isRestricted ? .orange : .green
+                label: String(localized: "Scope"),
+                value: filters.scopeLabel,
+                valueColor: filters.scopeTone.color
             )
             CapabilityDetailRow(
                 icon: "checkmark.circle",
-                label: "Allowlist",
-                value: filters.toolAllowlist.isEmpty ? "None" : "\(filters.toolAllowlist.count)"
+                label: String(localized: "Allowlist"),
+                value: filters.toolAllowlist.isEmpty ? String(localized: "None") : "\(filters.toolAllowlist.count)"
             )
             CapabilityDetailRow(
                 icon: "nosign",
-                label: "Blocklist",
-                value: filters.toolBlocklist.isEmpty ? "None" : "\(filters.toolBlocklist.count)",
+                label: String(localized: "Blocklist"),
+                value: filters.toolBlocklist.isEmpty ? String(localized: "None") : "\(filters.toolBlocklist.count)",
                 valueColor: filters.toolBlocklist.isEmpty ? .secondary : .orange
             )
 
             capabilityNamesSection(
-                title: "Allowed Tools",
+                title: String(localized: "Allowed Tools"),
                 names: filters.toolAllowlist,
-                emptyText: "This agent inherits the full tool catalog unless tools are blocked elsewhere."
+                emptyText: String(localized: "This agent inherits the full tool catalog unless tools are blocked elsewhere.")
             ) { name in
                 toolCatalog[name]?.description
             }
 
             capabilityNamesSection(
-                title: "Blocked Tools",
+                title: String(localized: "Blocked Tools"),
                 names: filters.toolBlocklist,
-                emptyText: "No blocked tools."
+                emptyText: String(localized: "No blocked tools.")
             ) { name in
                 toolCatalog[name]?.description
             }
@@ -134,27 +134,27 @@ struct AgentCapabilitiesView: View {
         Section {
             CapabilityDetailRow(
                 icon: "sparkles",
-                label: "Mode",
-                value: assignment.usesAllowlist ? "Allowlist" : "All skills",
-                valueColor: assignment.usesAllowlist ? .orange : .green
+                label: String(localized: "Mode"),
+                value: assignment.scopeLabel(openAccessLabel: String(localized: "All skills")),
+                valueColor: assignment.scopeTone.color
             )
             CapabilityDetailRow(
                 icon: "wand.and.stars",
-                label: "Assigned",
-                value: assignment.assigned.isEmpty ? "None" : "\(assignment.assigned.count)"
+                label: String(localized: "Assigned"),
+                value: assignment.assigned.isEmpty ? String(localized: "None") : "\(assignment.assigned.count)"
             )
             CapabilityDetailRow(
                 icon: "square.stack.3d.up",
-                label: "Available",
+                label: String(localized: "Available"),
                 value: "\(assignment.available.count)"
             )
 
             capabilityNamesSection(
-                title: "Assigned Skills",
+                title: String(localized: "Assigned Skills"),
                 names: assignment.assigned,
                 emptyText: assignment.usesAllowlist
-                    ? "No skills are currently assigned."
-                    : "This agent inherits all available skills."
+                    ? String(localized: "No skills are currently assigned.")
+                    : String(localized: "This agent inherits all available skills.")
             ) { _ in
                 nil
             }
@@ -169,35 +169,35 @@ struct AgentCapabilitiesView: View {
         Section {
             CapabilityDetailRow(
                 icon: "shippingbox",
-                label: "Mode",
-                value: assignment.usesAllowlist ? "Allowlist" : "All connected servers",
-                valueColor: assignment.usesAllowlist ? .orange : .green
+                label: String(localized: "Mode"),
+                value: assignment.scopeLabel(openAccessLabel: String(localized: "All connected servers")),
+                valueColor: assignment.scopeTone.color
             )
             CapabilityDetailRow(
                 icon: "checkmark.rectangle.stack",
-                label: "Assigned",
-                value: assignment.assigned.isEmpty ? "None" : "\(assignment.assigned.count)"
+                label: String(localized: "Assigned"),
+                value: assignment.assigned.isEmpty ? String(localized: "None") : "\(assignment.assigned.count)"
             )
             CapabilityDetailRow(
                 icon: "point.3.connected.trianglepath.dotted",
-                label: "Available",
+                label: String(localized: "Available"),
                 value: "\(assignment.available.count)"
             )
 
             capabilityNamesSection(
-                title: "Assigned MCP Servers",
+                title: String(localized: "Assigned MCP Servers"),
                 names: assignment.assigned,
                 emptyText: assignment.usesAllowlist
-                    ? "No MCP servers are explicitly assigned."
-                    : "This agent inherits all currently available MCP servers."
+                    ? String(localized: "No MCP servers are explicitly assigned.")
+                    : String(localized: "This agent inherits all currently available MCP servers.")
             ) { name in
                 mcpServerStatus(name)
             }
 
             capabilityNamesSection(
-                title: "Available MCP Servers",
+                title: String(localized: "Available MCP Servers"),
                 names: assignment.available,
-                emptyText: "No MCP servers are currently discoverable for this agent."
+                emptyText: String(localized: "No MCP servers are currently discoverable for this agent.")
             ) { name in
                 mcpServerStatus(name)
             }
@@ -233,7 +233,7 @@ struct AgentCapabilitiesView: View {
             }
 
             if names.count > 8 {
-                Text("Showing 8 of \(names.count) \(title.lowercased())")
+                Text(String(localized: "Showing 8 of \(names.count) items in \(title)"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -242,12 +242,12 @@ struct AgentCapabilitiesView: View {
 
     private func mcpServerStatus(_ name: String) -> String {
         if connectedMCPServerNames.contains(name) {
-            return "Connected"
+            return String(localized: "Connected")
         }
         if configuredMCPServerNames.contains(name) {
-            return "Configured"
+            return String(localized: "Configured")
         }
-        return "Discovered"
+        return String(localized: "Discovered")
     }
 
     @MainActor

@@ -24,5 +24,13 @@ nonisolated struct HealthStatus: Codable, Sendable {
     let status: String
     let version: String
 
-    var isHealthy: Bool { status == "ok" }
+    var isHealthy: Bool { status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "ok" }
+
+    var localizedStatusLabel: String {
+        StatusPresentation.localizedHealthLabel(for: status)
+    }
+
+    var statusTone: PresentationTone {
+        StatusPresentation.healthTone(for: status)
+    }
 }

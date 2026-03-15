@@ -15,6 +15,17 @@ enum OnCallPrioritySeverity: Int {
             String(localized: "Critical")
         }
     }
+
+    var tone: PresentationTone {
+        switch self {
+        case .advisory:
+            return .caution
+        case .warning:
+            return .warning
+        case .critical:
+            return .critical
+        }
+    }
 }
 
 enum OnCallRoute: Hashable {

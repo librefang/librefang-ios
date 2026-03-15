@@ -437,17 +437,6 @@ private struct HandoffCadenceCard: View {
     let cadenceSummary: String
     let warningCount: Int
 
-    private var cadenceColor: Color {
-        switch cadenceState {
-        case .steady:
-            .green
-        case .sparse:
-            .orange
-        case .missing, .single:
-            .secondary
-        }
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
@@ -459,8 +448,8 @@ private struct HandoffCadenceCard: View {
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(cadenceColor.opacity(0.12))
-                    .foregroundStyle(cadenceColor)
+                    .background(cadenceState.tone.color.opacity(0.12))
+                    .foregroundStyle(cadenceState.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -485,19 +474,6 @@ private struct HandoffCadenceCard: View {
 private struct HandoffDriftCard: View {
     let drift: HandoffSnapshotDrift
 
-    private var driftColor: Color {
-        switch drift.state {
-        case .steady:
-            .secondary
-        case .improving:
-            .green
-        case .worsening:
-            .red
-        case .mixed:
-            .orange
-        }
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
@@ -509,8 +485,8 @@ private struct HandoffDriftCard: View {
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(driftColor.opacity(0.12))
-                    .foregroundStyle(driftColor)
+                    .background(drift.state.tone.color.opacity(0.12))
+                    .foregroundStyle(drift.state.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -529,17 +505,6 @@ private struct HandoffDriftCard: View {
 private struct HandoffCarryoverCard: View {
     let status: HandoffCarryoverStatus
 
-    private var accentColor: Color {
-        switch status.state {
-        case .cleared:
-            .green
-        case .partial:
-            .orange
-        case .active:
-            .red
-        }
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
@@ -551,8 +516,8 @@ private struct HandoffCarryoverCard: View {
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(accentColor.opacity(0.12))
-                    .foregroundStyle(accentColor)
+                    .background(status.state.tone.color.opacity(0.12))
+                    .foregroundStyle(status.state.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -576,17 +541,6 @@ private struct HandoffCarryoverCard: View {
 private struct HandoffReadinessCard: View {
     let status: HandoffReadinessStatus
 
-    private var accentColor: Color {
-        switch status.state {
-        case .ready:
-            .green
-        case .caution:
-            .orange
-        case .blocked:
-            .red
-        }
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
@@ -598,8 +552,8 @@ private struct HandoffReadinessCard: View {
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(accentColor.opacity(0.12))
-                    .foregroundStyle(accentColor)
+                    .background(status.state.tone.color.opacity(0.12))
+                    .foregroundStyle(status.state.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -620,17 +574,6 @@ private struct HandoffReadinessCard: View {
 private struct HandoffCheckInCard: View {
     let status: HandoffCheckInStatus
 
-    private var accentColor: Color {
-        switch status.state {
-        case .scheduled:
-            .blue
-        case .dueSoon:
-            .orange
-        case .overdue:
-            .red
-        }
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
@@ -642,8 +585,8 @@ private struct HandoffCheckInCard: View {
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(accentColor.opacity(0.12))
-                    .foregroundStyle(accentColor)
+                    .background(status.state.tone.color.opacity(0.12))
+                    .foregroundStyle(status.state.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -662,26 +605,13 @@ private struct HandoffCheckInCard: View {
 struct HandoffKindBadge: View {
     let kind: HandoffSnapshotKind
 
-    private var accentColor: Color {
-        switch kind {
-        case .routine:
-            .blue
-        case .watch:
-            .yellow
-        case .incident:
-            .red
-        case .recovery:
-            .green
-        }
-    }
-
     var body: some View {
         Label(kind.label, systemImage: kind.symbolName)
             .font(.caption2.weight(.semibold))
             .padding(.horizontal, 8)
             .padding(.vertical, 5)
-            .background(accentColor.opacity(0.12))
-            .foregroundStyle(accentColor)
+            .background(kind.tintColor.opacity(0.12))
+            .foregroundStyle(kind.tintColor)
             .clipShape(Capsule())
     }
 }
@@ -704,6 +634,10 @@ private struct HandoffStatsRow: View {
 private struct HandoffTimelineRow: View {
     let item: HandoffTimelineItem
 
+    private var gapColor: Color {
+        item.isGapWarning ? PresentationTone.warning.color : PresentationTone.neutral.color
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top) {
@@ -724,8 +658,8 @@ private struct HandoffTimelineRow: View {
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background((item.isGapWarning ? Color.orange : Color.secondary).opacity(0.12))
-                        .foregroundStyle(item.isGapWarning ? Color.orange : Color.secondary)
+                        .background(gapColor.opacity(0.12))
+                        .foregroundStyle(gapColor)
                         .clipShape(Capsule())
                 }
             }
@@ -766,17 +700,6 @@ private struct HandoffFreshnessCard: View {
     let latestEntry: OnCallHandoffEntry?
     let uncoveredChecklistKeys: [HandoffChecklistKey]
 
-    private var freshnessColor: Color {
-        switch freshnessState {
-        case .fresh:
-            .green
-        case .stale:
-            .orange
-        case .missing:
-            .red
-        }
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -788,8 +711,8 @@ private struct HandoffFreshnessCard: View {
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(freshnessColor.opacity(0.12))
-                    .foregroundStyle(freshnessColor)
+                    .background(freshnessState.tone.color.opacity(0.12))
+                    .foregroundStyle(freshnessState.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -896,16 +819,8 @@ private struct HandoffFollowUpTrackerCard: View {
     let statuses: [HandoffFollowUpStatus]
     let onToggle: (HandoffFollowUpStatus) -> Void
 
-    private var pendingCount: Int {
-        statuses.filter { !$0.isCompleted }.count
-    }
-
-    private var completedCount: Int {
-        statuses.filter(\.isCompleted).count
-    }
-
-    private var accentColor: Color {
-        pendingCount == 0 ? .green : .orange
+    private var followUpSummary: HandoffFollowUpSummary {
+        HandoffFollowUpSummary.summarize(statuses: statuses)
     }
 
     var body: some View {
@@ -915,24 +830,20 @@ private struct HandoffFollowUpTrackerCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(pendingCount == 0 ? String(localized: "Clear") : String(localized: "\(pendingCount) pending"))
+                Text(followUpSummary.badgeLabel)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(accentColor.opacity(0.12))
-                    .foregroundStyle(accentColor)
+                    .background(followUpSummary.tone.color.opacity(0.12))
+                    .foregroundStyle(followUpSummary.tone.color)
                     .clipShape(Capsule())
             }
 
-            Text(
-                pendingCount == 0
-                    ? String(localized: "All follow-up items from the latest local handoff are complete on this iPhone.")
-                    : String(localized: "\(pendingCount) of \(statuses.count) local handoff follow-ups still need operator follow-through.")
-            )
+            Text(followUpSummary.detailLabel)
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            Text(String(localized: "\(completedCount) complete · \(pendingCount) pending"))
+            Text(String(localized: "\(followUpSummary.completedCount) complete · \(followUpSummary.pendingCount) pending"))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
@@ -942,7 +853,7 @@ private struct HandoffFollowUpTrackerCard: View {
                 } label: {
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: status.isCompleted ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(status.isCompleted ? Color.green : accentColor)
+                            .foregroundStyle(status.isCompleted ? PresentationTone.positive.color : followUpSummary.tone.color)
                             .font(.body)
                         Text(status.item)
                             .font(.caption)
@@ -982,9 +893,9 @@ private struct HandoffFocusComposer: View {
                 Button {
                     toggle(area)
                 } label: {
-                    HStack(spacing: 10) {
-                        Image(systemName: area.symbolName)
-                            .foregroundStyle(focusAreas.contains(area) ? focusColor(for: area) : Color.secondary)
+                        HStack(spacing: 10) {
+                            Image(systemName: area.symbolName)
+                            .foregroundStyle(focusAreas.contains(area) ? area.tintColor : Color.secondary)
                             .frame(width: 18)
 
                         Text(area.label)
@@ -995,7 +906,7 @@ private struct HandoffFocusComposer: View {
                         if focusAreas.contains(area) {
                             Image(systemName: "checkmark")
                                 .font(.caption.weight(.bold))
-                                .foregroundStyle(focusColor(for: area))
+                                .foregroundStyle(area.tintColor)
                         }
                     }
                     .padding(.horizontal, 12)
@@ -1005,21 +916,6 @@ private struct HandoffFocusComposer: View {
                 }
                 .buttonStyle(.plain)
             }
-        }
-    }
-
-    private func focusColor(for area: HandoffFocusArea) -> Color {
-        switch area {
-        case .alerts:
-            .red
-        case .approvals:
-            .orange
-        case .watchlist:
-            .yellow
-        case .sessions:
-            .blue
-        case .audit:
-            .purple
         }
     }
 }
@@ -1117,28 +1013,13 @@ private struct HandoffCheckInComposer: View {
 struct HandoffFocusAreaBadge: View {
     let area: HandoffFocusArea
 
-    private var accentColor: Color {
-        switch area {
-        case .alerts:
-            .red
-        case .approvals:
-            .orange
-        case .watchlist:
-            .yellow
-        case .sessions:
-            .blue
-        case .audit:
-            .purple
-        }
-    }
-
     var body: some View {
         Label(area.label, systemImage: area.symbolName)
             .font(.caption2.weight(.semibold))
             .padding(.horizontal, 8)
             .padding(.vertical, 5)
-            .background(accentColor.opacity(0.12))
-            .foregroundStyle(accentColor)
+            .background(area.tintColor.opacity(0.12))
+            .foregroundStyle(area.tintColor)
             .clipShape(Capsule())
     }
 }
@@ -1308,19 +1189,13 @@ private struct HandoffChecklistStatusRow: View {
                 Spacer()
                 Text(checklist.progressLabel)
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(checklist.completedCount == checklist.totalCount ? .green : .secondary)
+                    .foregroundStyle(checklist.tone.color)
             }
 
-            if checklist.pendingLabels.isEmpty {
-                Text("All handoff checks completed.")
-                    .font(.caption2)
-                    .foregroundStyle(.green)
-            } else {
-                Text(String(localized: "Pending: \(checklist.pendingLabels.joined(separator: ", "))"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
+            Text(checklist.summaryLabel)
+                .font(.caption2)
+                .foregroundStyle(checklist.tone.color)
+                .lineLimit(2)
         }
     }
 }

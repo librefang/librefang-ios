@@ -56,7 +56,7 @@ struct CommsView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(edgeTitle(edge, topology: topology))
                                 .font(.subheadline.weight(.medium))
-                            Text(edge.kind == .parentChild ? "Parent-child relationship" : "Peer communication path")
+                            Text(edge.kind == .parentChild ? String(localized: "Parent-child relationship") : String(localized: "Peer communication path"))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -74,9 +74,9 @@ struct CommsView: View {
             if filteredEvents.isEmpty && !viewModel.isLoading {
                 Section("Recent Comms") {
                     ContentUnavailableView(
-                        searchText.isEmpty ? "No Communication Events" : "No Search Results",
+                        searchText.isEmpty ? String(localized: "No Communication Events") : String(localized: "No Search Results"),
                         systemImage: "arrow.left.arrow.right.circle",
-                        description: Text(searchText.isEmpty ? "Live inter-agent traffic will appear here." : "Try a different agent, task, or detail query.")
+                        description: Text(searchText.isEmpty ? String(localized: "Live inter-agent traffic will appear here.") : String(localized: "Try a different agent, task, or detail query."))
                     )
                 }
             } else {
@@ -161,7 +161,7 @@ private struct CommsScoreboard: View {
                 color: viewModel.taskEventCount > 0 ? .orange : .secondary
             )
             StatBadge(
-                value: viewModel.isStreaming ? "Live" : "Polling",
+                value: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
                 label: "Transport",
                 icon: viewModel.isStreaming ? "dot.radiowaves.left.and.right" : "arrow.clockwise",
                 color: viewModel.isStreaming ? .green : .orange

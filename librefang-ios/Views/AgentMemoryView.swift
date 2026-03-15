@@ -57,9 +57,9 @@ struct AgentMemoryView: View {
             } else if filteredEntries.isEmpty, !isLoading {
                 Section("Memory") {
                     ContentUnavailableView(
-                        entries.isEmpty ? "No Memory Keys" : "No Matching Keys",
+                        entries.isEmpty ? String(localized: "No Memory Keys") : String(localized: "No Matching Keys"),
                         systemImage: "internaldrive",
-                        description: Text(entries.isEmpty ? "This agent has not stored any KV entries yet." : "Try a different key or value search.")
+                        description: Text(entries.isEmpty ? String(localized: "This agent has not stored any KV entries yet.") : String(localized: "Try a different key or value search."))
                     )
                 }
             } else {
@@ -436,7 +436,7 @@ private struct AgentMemoryEditor: View {
     var body: some View {
         Form {
             Section {
-                TextField("Memory Key", text: $key, prompt: Text("state.current_task"))
+                TextField("Memory Key", text: $key, prompt: Text(String(localized: "Memory Key")))
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .disabled(!keyEditable)

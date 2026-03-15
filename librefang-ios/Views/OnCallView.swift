@@ -413,74 +413,6 @@ private struct OnCallHandoffStatusRow: View {
     let readiness: HandoffReadinessStatus
     let followUpStatuses: [HandoffFollowUpStatus]
 
-    private var freshnessColor: Color {
-        switch freshnessState {
-        case .fresh:
-            .green
-        case .stale:
-            .orange
-        case .missing:
-            .red
-        }
-    }
-
-    private var cadenceColor: Color {
-        switch cadenceState {
-        case .steady:
-            .green
-        case .sparse:
-            .orange
-        case .missing, .single:
-            .secondary
-        }
-    }
-
-    private func driftColor(for drift: HandoffSnapshotDrift) -> Color {
-        switch drift.state {
-        case .steady:
-            .secondary
-        case .improving:
-            .green
-        case .worsening:
-            .red
-        case .mixed:
-            .orange
-        }
-    }
-
-    private func carryoverColor(for carryover: HandoffCarryoverStatus) -> Color {
-        switch carryover.state {
-        case .cleared:
-            .green
-        case .partial:
-            .orange
-        case .active:
-            .red
-        }
-    }
-
-    private var readinessColor: Color {
-        switch readiness.state {
-        case .ready:
-            .green
-        case .caution:
-            .orange
-        case .blocked:
-            .red
-        }
-    }
-
-    private func checkInColor(for status: HandoffCheckInStatus) -> Color {
-        switch status.state {
-        case .scheduled:
-            .blue
-        case .dueSoon:
-            .orange
-        case .overdue:
-            .red
-        }
-    }
-
     private var pendingFollowUpCount: Int {
         followUpStatuses.filter { !$0.isCompleted }.count
     }
@@ -500,8 +432,8 @@ private struct OnCallHandoffStatusRow: View {
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(freshnessColor.opacity(0.12))
-                    .foregroundStyle(freshnessColor)
+                    .background(freshnessState.tone.color.opacity(0.12))
+                    .foregroundStyle(freshnessState.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -518,8 +450,8 @@ private struct OnCallHandoffStatusRow: View {
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(cadenceColor.opacity(0.12))
-                    .foregroundStyle(cadenceColor)
+                    .background(cadenceState.tone.color.opacity(0.12))
+                    .foregroundStyle(cadenceState.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -537,8 +469,8 @@ private struct OnCallHandoffStatusRow: View {
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(driftColor(for: drift).opacity(0.12))
-                        .foregroundStyle(driftColor(for: drift))
+                        .background(drift.state.tone.color.opacity(0.12))
+                        .foregroundStyle(drift.state.tone.color)
                         .clipShape(Capsule())
                 }
 
@@ -557,8 +489,8 @@ private struct OnCallHandoffStatusRow: View {
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(carryoverColor(for: carryover).opacity(0.12))
-                        .foregroundStyle(carryoverColor(for: carryover))
+                        .background(carryover.state.tone.color.opacity(0.12))
+                        .foregroundStyle(carryover.state.tone.color)
                         .clipShape(Capsule())
                 }
 
@@ -576,8 +508,8 @@ private struct OnCallHandoffStatusRow: View {
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(readinessColor.opacity(0.12))
-                    .foregroundStyle(readinessColor)
+                    .background(readiness.state.tone.color.opacity(0.12))
+                    .foregroundStyle(readiness.state.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -595,8 +527,8 @@ private struct OnCallHandoffStatusRow: View {
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(checkInColor(for: checkInStatus).opacity(0.12))
-                        .foregroundStyle(checkInColor(for: checkInStatus))
+                        .background(checkInStatus.state.tone.color.opacity(0.12))
+                        .foregroundStyle(checkInStatus.state.tone.color)
                         .clipShape(Capsule())
                 }
 
@@ -610,29 +542,23 @@ private struct OnCallHandoffStatusRow: View {
             }
 
             if !followUpStatuses.isEmpty {
+                let followUpSummary = HandoffFollowUpSummary.summarize(statuses: followUpStatuses)
+
                 HStack {
                     Text("Follow-ups")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(
-                        pendingFollowUpCount == 0
-                            ? String(localized: "Clear")
-                            : String(localized: "\(pendingFollowUpCount) pending")
-                    )
+                    Text(followUpSummary.badgeLabel)
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background((pendingFollowUpCount == 0 ? Color.green : Color.orange).opacity(0.12))
-                        .foregroundStyle(pendingFollowUpCount == 0 ? Color.green : Color.orange)
+                        .background(followUpSummary.tone.color.opacity(0.12))
+                        .foregroundStyle(followUpSummary.tone.color)
                         .clipShape(Capsule())
                 }
 
-                Text(
-                    pendingFollowUpCount == 0
-                        ? String(localized: "Latest handoff follow-up items are complete on this iPhone.")
-                        : String(localized: "\(pendingFollowUpCount) of \(followUpStatuses.count) latest handoff follow-up items are still open.")
-                )
+                Text(followUpSummary.detailLabel)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -734,18 +660,26 @@ private struct OnCallStatusCard: View {
     let watchCount: Int
     let lastRefresh: Date?
 
+    private var snapshotState: AlertSnapshotState {
+        AlertSnapshotState(
+            liveAlertCount: liveAlertCount,
+            mutedAlertCount: mutedAlertCount,
+            isAcknowledged: isAcknowledged
+        )
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Label("Operator Snapshot", systemImage: "person.crop.rectangle.badge.exclamationmark")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
-                Text(statusLabel)
+                Text(snapshotState.onCallLabel)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(statusColor.opacity(0.12))
-                    .foregroundStyle(statusColor)
+                    .background(snapshotState.tone.color.opacity(0.12))
+                    .foregroundStyle(snapshotState.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -780,24 +714,6 @@ private struct OnCallStatusCard: View {
         }
         .padding(.vertical, 4)
     }
-
-    private var statusLabel: String {
-        if liveAlertCount > 0 {
-            return isAcknowledged ? String(localized: "Acked") : String(localized: "Live")
-        }
-        if isAcknowledged { return String(localized: "Acked") }
-        if mutedAlertCount > 0 { return String(localized: "Watching") }
-        return String(localized: "Calm")
-    }
-
-    private var statusColor: Color {
-        if liveAlertCount > 0 {
-            return isAcknowledged ? .orange : .red
-        }
-        if isAcknowledged { return .orange }
-        if mutedAlertCount > 0 { return .secondary }
-        return .green
-    }
 }
 
 private struct OnCallPriorityRow: View {
@@ -807,7 +723,7 @@ private struct OnCallPriorityRow: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 10) {
                 Image(systemName: item.symbolName)
-                    .foregroundStyle(severityColor)
+                    .foregroundStyle(item.severity.tone.color)
                     .frame(width: 18)
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -820,8 +736,8 @@ private struct OnCallPriorityRow: View {
                             .font(.caption2.weight(.semibold))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(severityColor.opacity(0.12))
-                            .foregroundStyle(severityColor)
+                            .background(item.severity.tone.color.opacity(0.12))
+                            .foregroundStyle(item.severity.tone.color)
                             .clipShape(Capsule())
                     }
 
@@ -838,17 +754,6 @@ private struct OnCallPriorityRow: View {
             }
         }
         .padding(.vertical, 2)
-    }
-
-    private var severityColor: Color {
-        switch item.severity {
-        case .critical:
-            .red
-        case .warning:
-            .orange
-        case .advisory:
-            .yellow
-        }
     }
 }
 
@@ -872,23 +777,21 @@ private struct WatchedAgentRow: View {
                     .font(.caption2)
                     .foregroundStyle(.yellow)
                 if let diagnostics, diagnostics.hasIssues {
-                    Text(
-                        diagnostics.issueCount == 1
-                            ? String(localized: "1 operator issue")
-                            : String(localized: "\(diagnostics.issueCount) operator issues")
-                    )
+                    let issueBadge = watchedAgentDiagnosticIssueCountBadge(summary: diagnostics)
+                    Text(issueBadge.text)
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.red.opacity(0.12))
-                        .foregroundStyle(.red)
+                        .background(issueBadge.tone.color.opacity(0.12))
+                        .foregroundStyle(issueBadge.tone.color)
                         .clipShape(Capsule())
-                    Text(watchedAgentDiagnosticHeadline(summary: diagnostics))
+                    let headlineBadge = watchedAgentDiagnosticHeadlineBadge(summary: diagnostics)
+                    Text(headlineBadge.text)
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.orange.opacity(0.12))
-                        .foregroundStyle(.orange)
+                        .background(headlineBadge.tone.color.opacity(0.12))
+                        .foregroundStyle(headlineBadge.tone.color)
                         .clipShape(Capsule())
                 }
             }
@@ -918,8 +821,8 @@ private struct WatchedAgentRow: View {
                     .font(.caption2.weight(.medium))
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(stateColor.opacity(0.12))
-                    .foregroundStyle(stateColor)
+                    .background(watchedAgentStateTone(agent: agent, severity: severity, diagnostics: diagnostics).color.opacity(0.12))
+                    .foregroundStyle(watchedAgentStateTone(agent: agent, severity: severity, diagnostics: diagnostics).color)
                     .clipShape(Capsule())
 
                 if let lastActive = agent.lastActive {
@@ -930,13 +833,6 @@ private struct WatchedAgentRow: View {
             }
         }
         .padding(.vertical, 2)
-    }
-
-    private var stateColor: Color {
-        if let diagnostics, diagnostics.hasIssues { return .red }
-        if severity >= 10 { return .red }
-        if severity > 0 { return .orange }
-        return agent.isRunning ? .green : .secondary
     }
 }
 

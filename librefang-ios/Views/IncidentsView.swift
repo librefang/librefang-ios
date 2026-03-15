@@ -94,15 +94,10 @@ struct IncidentsView: View {
             + (handoffStore.pendingLatestFollowUpCount > 0 ? 1 : 0)
     }
     private var automationIssueCount: Int {
-        (vm.failedWorkflowRunCount > 0 ? 1 : 0)
-            + (vm.exhaustedTriggerCount > 0 ? 1 : 0)
-            + (vm.stalledCronJobCount > 0 ? 1 : 0)
+        vm.automationPressureIssueCategoryCount
     }
     private var integrationIssueCount: Int {
-        (vm.unreachableLocalProviderCount > 0 ? 1 : 0)
-            + (vm.channelRequiredFieldGapCount > 0 ? 1 : 0)
-            + (vm.hasEmptyModelCatalog ? 1 : 0)
-            + (vm.agentsWithModelDiagnostics.isEmpty ? 0 : 1)
+        vm.integrationPressureIssueCategoryCount
     }
     private var onCallPriorityItems: [OnCallPriorityItem] {
         vm.onCallPriorityItems(
@@ -612,25 +607,11 @@ private struct IncidentAlertRow: View {
     }
 
     private var color: Color {
-        switch alert.severity {
-        case .critical:
-            .red
-        case .warning:
-            .orange
-        case .info:
-            .yellow
-        }
+        alert.severity.tone.color
     }
 
     private var severityLabel: String {
-        switch alert.severity {
-        case .critical:
-            String(localized: "Critical")
-        case .warning:
-            String(localized: "Warn")
-        case .info:
-            String(localized: "Info")
-        }
+        alert.severity.localizedLabel
     }
 }
 
@@ -643,18 +624,26 @@ private struct IncidentOperatorCard: View {
     let onClearAcknowledgement: () -> Void
     let onUnmuteAll: () -> Void
 
+    private var snapshotState: AlertSnapshotState {
+        AlertSnapshotState(
+            liveAlertCount: activeAlertCount,
+            mutedAlertCount: mutedAlertCount,
+            isAcknowledged: isAcknowledged
+        )
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Label("Mobile Operator State", systemImage: "person.crop.rectangle.badge.exclamationmark")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
-                Text(statusText)
+                Text(snapshotState.operatorLabel)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(statusColor.opacity(0.12))
-                    .foregroundStyle(statusColor)
+                    .background(snapshotState.tone.color.opacity(0.12))
+                    .foregroundStyle(snapshotState.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -678,7 +667,7 @@ private struct IncidentOperatorCard: View {
                         }
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(isAcknowledged ? .orange : .red)
+                    .tint(snapshotState.tone.color)
                 }
 
                 if mutedAlertCount > 0 {
@@ -690,20 +679,6 @@ private struct IncidentOperatorCard: View {
             }
         }
         .padding(.vertical, 4)
-    }
-
-    private var statusColor: Color {
-        if activeAlertCount == 0 {
-            return mutedAlertCount > 0 ? .secondary : .green
-        }
-        return isAcknowledged ? .orange : .red
-    }
-
-    private var statusText: String {
-        if activeAlertCount == 0 {
-            return mutedAlertCount > 0 ? String(localized: "Muted") : String(localized: "Clear")
-        }
-        return isAcknowledged ? String(localized: "Acked") : String(localized: "Needs review")
     }
 
     private var statusDetail: String {
@@ -824,22 +799,19 @@ private struct IncidentShiftCoverageCard: View {
             }
 
             if (pendingFollowUpCount + completedFollowUpCount) > 0 {
+                let followUpSummary = HandoffFollowUpSummary.summarize(
+                    pendingCount: pendingFollowUpCount,
+                    completedCount: completedFollowUpCount
+                )
+
                 HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: pendingFollowUpCount == 0 ? "checkmark.circle" : "checklist")
-                        .foregroundStyle(pendingFollowUpCount == 0 ? Color.green : Color.orange)
+                    Image(systemName: followUpSummary.symbolName)
+                        .foregroundStyle(followUpSummary.tone.color)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(
-                            pendingFollowUpCount == 0
-                                ? String(localized: "Handoff follow-ups are clear")
-                                : String(localized: "Handoff follow-ups still open")
-                        )
+                        Text(followUpSummary.headlineLabel)
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.primary)
-                        Text(
-                            pendingFollowUpCount == 0
-                                ? String(localized: "\(completedFollowUpCount) follow-up items from the latest local handoff are complete on this iPhone.")
-                                : String(localized: "\(pendingFollowUpCount) of \(pendingFollowUpCount + completedFollowUpCount) latest local follow-up items are still pending.")
-                        )
+                        Text(followUpSummary.detailLabel)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -863,22 +835,18 @@ private struct IncidentShiftCoverageCard: View {
 private struct IncidentAutomationCard: View {
     let vm: DashboardViewModel
 
-    private var statusColor: Color {
-        vm.failedWorkflowRunCount > 0 ? .red : .orange
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Label("Automation Pressure", systemImage: "flowchart")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
-                Text(statusLabel)
+                Text(vm.automationPressureSummaryLabel)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(statusColor.opacity(0.12))
-                    .foregroundStyle(statusColor)
+                    .background(vm.automationPressureTone.color.opacity(0.12))
+                    .foregroundStyle(vm.automationPressureTone.color)
                     .clipShape(Capsule())
             }
 
@@ -932,13 +900,6 @@ private struct IncidentAutomationCard: View {
         .padding(.vertical, 4)
     }
 
-    private var statusLabel: String {
-        let count = (vm.failedWorkflowRunCount > 0 ? 1 : 0)
-            + (vm.exhaustedTriggerCount > 0 ? 1 : 0)
-            + (vm.stalledCronJobCount > 0 ? 1 : 0)
-        return count == 1 ? String(localized: "1 issue") : String(localized: "\(count) issues")
-    }
-
     @ViewBuilder
     private func automationIssueRow(icon: String, color: Color, title: String, detail: String) -> some View {
         HStack(alignment: .top, spacing: 10) {
@@ -965,33 +926,18 @@ private struct IncidentIntegrationsCard: View {
         vm.hasEmptyModelCatalog
     }
 
-    private var statusColor: Color {
-        if noAvailableModels || vm.unavailableModelAgentCount > 0 {
-            return .red
-        }
-        return .orange
-    }
-
-    private var statusLabel: String {
-        let issueCount = (vm.unreachableLocalProviderCount > 0 ? 1 : 0)
-            + (vm.channelRequiredFieldGapCount > 0 ? 1 : 0)
-            + (noAvailableModels ? 1 : 0)
-            + (vm.agentsWithModelDiagnostics.isEmpty ? 0 : 1)
-        return issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues")
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Label("Integration Pressure", systemImage: "square.3.layers.3d.down.forward")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
-                Text(statusLabel)
+                Text(vm.integrationPressureSummaryLabel)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(statusColor.opacity(0.12))
-                    .foregroundStyle(statusColor)
+                    .background(vm.integrationPressureTone.color.opacity(0.12))
+                    .foregroundStyle(vm.integrationPressureTone.color)
                     .clipShape(Capsule())
             }
 
@@ -1033,6 +979,17 @@ private struct IncidentIntegrationsCard: View {
                 )
             }
 
+            if vm.hasCatalogFreshnessIssue {
+                integrationIssueRow(
+                    icon: "clock.arrow.trianglehead.counterclockwise.rotate.90",
+                    color: vm.catalogModels.isEmpty ? .red : .orange,
+                    title: vm.catalogLastSyncDate == nil
+                        ? String(localized: "Catalog sync timestamp missing")
+                        : String(localized: "Catalog sync is stale"),
+                    detail: catalogFreshnessDetail
+                )
+            }
+
             if !vm.agentsWithModelDiagnostics.isEmpty {
                 integrationIssueRow(
                     icon: "cpu",
@@ -1058,6 +1015,15 @@ private struct IncidentIntegrationsCard: View {
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 4)
+    }
+
+    private var catalogFreshnessDetail: String {
+        guard let catalogLastSyncDate = vm.catalogLastSyncDate else {
+            return vm.catalogModels.isEmpty
+                ? String(localized: "The server has not reported a sync timestamp and the catalog is empty.")
+                : String(localized: "The server did not report a catalog sync timestamp.")
+        }
+        return String(localized: "Last synced \(RelativeDateTimeFormatter().localizedString(for: catalogLastSyncDate, relativeTo: Date()))")
     }
 
     @ViewBuilder
@@ -1106,7 +1072,7 @@ private struct IncidentAgentRow: View {
                 Spacer()
                 Text(item.agent.stateLabel)
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(item.agent.isRunning ? .green : .secondary)
+                    .foregroundStyle(item.agent.stateTone.color)
             }
 
             Text(item.reasons.prefix(3).joined(separator: " • "))
@@ -1127,9 +1093,9 @@ private struct IncidentIntegrationAgentRow: View {
                 Text(diagnostic.agent.name)
                     .font(.subheadline.weight(.medium))
                 Spacer()
-                Text(statusText)
+                Text(diagnostic.localizedStatusLabel)
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(statusColor)
+                    .foregroundStyle(diagnostic.statusTone.color)
             }
 
             Text(diagnostic.detail)
@@ -1151,28 +1117,6 @@ private struct IncidentIntegrationAgentRow: View {
         }
         .padding(.vertical, 2)
     }
-
-    private var statusText: String {
-        switch diagnostic.kind {
-        case .unknownModel:
-            String(localized: "Unknown")
-        case .unavailableModel:
-            String(localized: "Unavailable")
-        case .providerMismatch:
-            String(localized: "Mismatch")
-        }
-    }
-
-    private var statusColor: Color {
-        switch diagnostic.kind {
-        case .unknownModel:
-            .red
-        case .unavailableModel:
-            .orange
-        case .providerMismatch:
-            .indigo
-        }
-    }
 }
 
 private struct IncidentWatchedDiagnosticRow: View {
@@ -1191,28 +1135,8 @@ private struct IncidentWatchedDiagnosticRow: View {
                     .font(.caption2)
                     .foregroundStyle(.yellow)
                 Spacer()
-                if summary.failedDeliveries > 0 {
-                    statusChip(
-                        label: summary.failedDeliveries == 1
-                            ? String(localized: "1 failed")
-                            : String(localized: "\(summary.failedDeliveries) failed"),
-                        color: .red
-                    )
-                } else if !summary.unavailableFallbackModels.isEmpty {
-                    statusChip(
-                        label: summary.unavailableFallbackModels.count == 1
-                            ? String(localized: "1 fallback drift")
-                            : String(localized: "\(summary.unavailableFallbackModels.count) fallback drift"),
-                        color: .orange
-                    )
-                } else {
-                    statusChip(
-                        label: summary.issueCount == 1
-                            ? String(localized: "1 issue")
-                            : String(localized: "\(summary.issueCount) issues"),
-                        color: .orange
-                    )
-                }
+                let statusBadge = watchedAgentDiagnosticStatusBadge(summary: summary)
+                statusChip(label: statusBadge.text, color: statusBadge.tone.color)
             }
 
             Text(summary.summaryLine)
@@ -1299,7 +1223,7 @@ private struct IncidentSessionRow: View {
                 Spacer()
                 Text(String(localized: "\(item.session.messageCount) msgs"))
                     .font(.caption2.monospacedDigit())
-                    .foregroundStyle(item.severity >= 6 ? .red : .orange)
+                    .foregroundStyle(item.messageCountTone.color)
             }
 
             Text(item.agent?.name ?? item.session.agentId)
@@ -1340,9 +1264,9 @@ private struct IncidentEventRow: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
 
-            Text(entry.outcome.capitalized)
+            Text(entry.localizedOutcomeLabel)
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(.red)
+                .foregroundStyle(entry.severity.tone.color)
         }
         .padding(.vertical, 2)
     }

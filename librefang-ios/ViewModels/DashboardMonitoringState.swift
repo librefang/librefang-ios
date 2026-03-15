@@ -6,12 +6,41 @@ enum MonitoringAlertSeverity: Int {
     case critical
 }
 
+extension MonitoringAlertSeverity {
+    var localizedLabel: String {
+        switch self {
+        case .critical:
+            return String(localized: "Critical")
+        case .warning:
+            return String(localized: "Warn")
+        case .info:
+            return String(localized: "Info")
+        }
+    }
+
+    var tone: PresentationTone {
+        switch self {
+        case .critical:
+            return .critical
+        case .warning:
+            return .warning
+        case .info:
+            return .caution
+        }
+    }
+}
+
 struct MonitoringAlertItem: Identifiable {
     let id: String
     let title: String
     let detail: String
     let severity: MonitoringAlertSeverity
     let symbolName: String
+}
+
+struct MonitoringSummaryStatus {
+    let summary: String
+    let tone: PresentationTone
 }
 
 struct AgentAttentionItem: Identifiable {
@@ -25,6 +54,13 @@ struct AgentAttentionItem: Identifiable {
     let reasons: [String]
 
     var id: String { agent.id }
+
+    var tone: PresentationTone {
+        if pendingApprovals > 0 || hasAuthIssue {
+            return .critical
+        }
+        return severity > 0 ? .warning : .neutral
+    }
 }
 
 struct SessionAttentionItem: Identifiable {
@@ -36,9 +72,150 @@ struct SessionAttentionItem: Identifiable {
     let duplicateCount: Int
 
     var id: String { session.id }
+
+    var tone: PresentationTone {
+        if severity >= 6 {
+            return .critical
+        }
+        return severity > 0 ? .warning : .neutral
+    }
+
+    var messageCountTone: PresentationTone {
+        if session.messageCount >= MonitoringThresholds.veryHighVolumeSessionMessages {
+            return .critical
+        }
+        return session.messageCount >= MonitoringThresholds.highVolumeSessionMessages ? .warning : .neutral
+    }
 }
 
 extension DashboardViewModel {
+    var runningAgentStatus: MonitoringSummaryStatus {
+        if runningCount > 0 {
+            return MonitoringSummaryStatus(
+                summary: runningCount == 1
+                    ? String(localized: "1 running")
+                    : String(localized: "\(runningCount) running"),
+                tone: .positive
+            )
+        }
+        return MonitoringSummaryStatus(
+            summary: String(localized: "Idle"),
+            tone: .neutral
+        )
+    }
+
+    var agentAttentionStatus: MonitoringSummaryStatus {
+        if issueAgentCount == 0 {
+            return MonitoringSummaryStatus(
+                summary: String(localized: "Stable"),
+                tone: .neutral
+            )
+        }
+        return MonitoringSummaryStatus(
+            summary: issueAgentCount == 1
+                ? String(localized: "1 needs attention")
+                : String(localized: "\(issueAgentCount) need attention"),
+            tone: .warning
+        )
+    }
+
+    var providerReadinessStatus: MonitoringSummaryStatus {
+        if configuredProviderCount > 0 {
+            return MonitoringSummaryStatus(
+                summary: configuredProviderCount == 1
+                    ? String(localized: "1 provider ready")
+                    : String(localized: "\(configuredProviderCount) providers ready"),
+                tone: .positive
+            )
+        }
+        return MonitoringSummaryStatus(
+            summary: String(localized: "No provider configured"),
+            tone: .warning
+        )
+    }
+
+    var channelReadinessStatus: MonitoringSummaryStatus {
+        if readyChannelCount > 0 {
+            return MonitoringSummaryStatus(
+                summary: readyChannelCount == 1
+                    ? String(localized: "1 channel delivering")
+                    : String(localized: "\(readyChannelCount) channels delivering"),
+                tone: .positive
+            )
+        }
+        return MonitoringSummaryStatus(
+            summary: String(localized: "No channel configured"),
+            tone: .neutral
+        )
+    }
+
+    var handReadinessStatus: MonitoringSummaryStatus {
+        if activeHandCount > 0 {
+            return MonitoringSummaryStatus(
+                summary: String(localized: "\(activeHandCount) active, \(degradedHandCount) degraded"),
+                tone: degradedHandCount > 0 ? .warning : .positive
+            )
+        }
+        return MonitoringSummaryStatus(
+            summary: String(localized: "No active hands"),
+            tone: .neutral
+        )
+    }
+
+    var approvalBacklogStatus: MonitoringSummaryStatus {
+        if pendingApprovalCount > 0 {
+            return MonitoringSummaryStatus(
+                summary: pendingApprovalCount == 1
+                    ? String(localized: "1 action waiting")
+                    : String(localized: "\(pendingApprovalCount) actions waiting"),
+                tone: .critical
+            )
+        }
+        return MonitoringSummaryStatus(
+            summary: String(localized: "No approval backlog"),
+            tone: .positive
+        )
+    }
+
+    var peerConnectivityStatus: MonitoringSummaryStatus {
+        if totalPeerCount > 0 {
+            return MonitoringSummaryStatus(
+                summary: String(localized: "\(connectedPeerCount)/\(totalPeerCount) peer links active"),
+                tone: connectedPeerCount > 0 ? .positive : .neutral
+            )
+        }
+        return MonitoringSummaryStatus(
+            summary: String(localized: "No peer links discovered"),
+            tone: .neutral
+        )
+    }
+
+    var mcpConnectivityStatus: MonitoringSummaryStatus {
+        if configuredMCPServerCount > 0 {
+            return MonitoringSummaryStatus(
+                summary: String(localized: "\(connectedMCPServerCount)/\(configuredMCPServerCount) MCP servers online"),
+                tone: connectedMCPServerCount > 0 ? .positive : .warning
+            )
+        }
+        return MonitoringSummaryStatus(
+            summary: String(localized: "No MCP extension servers configured"),
+            tone: .neutral
+        )
+    }
+
+    var auditIntegrityStatus: MonitoringSummaryStatus {
+        guard let auditVerify else {
+            return MonitoringSummaryStatus(
+                summary: String(localized: "Unavailable"),
+                tone: .neutral
+            )
+        }
+        return MonitoringSummaryStatus(
+            summary: auditVerify.valid ? String(localized: "Verified") : String(localized: "Broken"),
+            tone: auditVerify.valid ? .positive : .critical
+        )
+    }
+
     var isDataStale: Bool {
         guard let lastRefresh else { return true }
         return Date().timeIntervalSince(lastRefresh) > MonitoringThresholds.refreshStaleInterval
@@ -66,11 +243,112 @@ extension DashboardViewModel {
         hasHealthDatabaseIssue || diagnosticsConfigWarningCount > 0 || (supervisorPanicCount + supervisorRestartCount) > 0
     }
 
+    var diagnosticsSummaryLabel: String {
+        if hasHealthDatabaseIssue {
+            return String(localized: "Degraded")
+        }
+        if hasDiagnosticsIssue {
+            return String(localized: "Warn")
+        }
+        return String(localized: "Healthy")
+    }
+
+    var diagnosticsSummaryTone: PresentationTone {
+        if hasHealthDatabaseIssue {
+            return .critical
+        }
+        return hasDiagnosticsIssue ? .warning : .positive
+    }
+
     var hasIntegrationIssue: Bool {
         unreachableLocalProviderCount > 0
             || channelRequiredFieldGapCount > 0
             || hasEmptyModelCatalog
+            || hasCatalogFreshnessIssue
             || !agentsWithModelDiagnostics.isEmpty
+    }
+
+    var automationOverviewIssueCount: Int {
+        failedWorkflowRunCount + exhaustedTriggerCount + stalledCronJobCount
+    }
+
+    var automationOverviewSummaryLabel: String {
+        if automationOverviewIssueCount == 0 {
+            return String(localized: "Stable")
+        }
+        return automationOverviewIssueCount == 1
+            ? String(localized: "1 issue")
+            : String(localized: "\(automationOverviewIssueCount) issues")
+    }
+
+    var automationPressureIssueCategoryCount: Int {
+        (failedWorkflowRunCount > 0 ? 1 : 0)
+            + (exhaustedTriggerCount > 0 ? 1 : 0)
+            + (stalledCronJobCount > 0 ? 1 : 0)
+    }
+
+    var automationPressureSummaryLabel: String {
+        if automationPressureIssueCategoryCount == 0 {
+            return String(localized: "Stable")
+        }
+        return automationPressureIssueCategoryCount == 1
+            ? String(localized: "1 issue")
+            : String(localized: "\(automationPressureIssueCategoryCount) issues")
+    }
+
+    var automationPressureTone: PresentationTone {
+        if failedWorkflowRunCount > 0 {
+            return .critical
+        }
+        return automationPressureIssueCategoryCount > 0 ? .warning : .positive
+    }
+
+    var hasCatalogFreshnessIssue: Bool {
+        isCatalogSyncStale || (catalogLastSyncDate == nil && catalogModels.isEmpty)
+    }
+
+    var integrationsOverviewIssueCount: Int {
+        unreachableLocalProviderCount
+            + channelRequiredFieldGapCount
+            + (hasEmptyModelCatalog ? 1 : 0)
+            + (hasCatalogFreshnessIssue ? 1 : 0)
+            + agentsWithModelDiagnostics.count
+    }
+
+    var integrationsOverviewSummaryLabel: String {
+        if hasEmptyModelCatalog || unavailableModelAgentCount > 0 {
+            return String(localized: "Degraded")
+        }
+        if integrationsOverviewIssueCount == 0 {
+            return String(localized: "Stable")
+        }
+        return integrationsOverviewIssueCount == 1
+            ? String(localized: "1 issue")
+            : String(localized: "\(integrationsOverviewIssueCount) issues")
+    }
+
+    var integrationPressureIssueCategoryCount: Int {
+        (unreachableLocalProviderCount > 0 ? 1 : 0)
+            + (channelRequiredFieldGapCount > 0 ? 1 : 0)
+            + (hasEmptyModelCatalog ? 1 : 0)
+            + (hasCatalogFreshnessIssue ? 1 : 0)
+            + (agentsWithModelDiagnostics.isEmpty ? 0 : 1)
+    }
+
+    var integrationPressureSummaryLabel: String {
+        if integrationPressureIssueCategoryCount == 0 {
+            return String(localized: "Stable")
+        }
+        return integrationPressureIssueCategoryCount == 1
+            ? String(localized: "1 issue")
+            : String(localized: "\(integrationPressureIssueCategoryCount) issues")
+    }
+
+    var integrationPressureTone: PresentationTone {
+        if hasEmptyModelCatalog || unavailableModelAgentCount > 0 || (catalogLastSyncDate == nil && catalogModels.isEmpty) {
+            return .critical
+        }
+        return integrationPressureIssueCategoryCount > 0 ? .warning : .positive
     }
 
     var staleRunningAgentCount: Int {

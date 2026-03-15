@@ -518,7 +518,7 @@ private struct IntegrationCatalogStatusCard: View {
                 Label("Catalog Freshness", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
                     .font(.subheadline.weight(.medium))
                 Spacer()
-                IntegrationStatusChip(text: statusText, color: statusColor)
+                IntegrationStatusChip(text: vm.catalogSyncStatusLabel, color: vm.catalogSyncTone.color)
             }
 
             Text(detailText)
@@ -536,32 +536,6 @@ private struct IntegrationCatalogStatusCard: View {
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
-    }
-
-    private var statusText: String {
-        if vm.hasEmptyModelCatalog {
-            return String(localized: "Empty")
-        }
-        if vm.isCatalogSyncStale {
-            return String(localized: "Stale")
-        }
-        if vm.catalogLastSyncDate == nil {
-            return String(localized: "Unknown")
-        }
-        return String(localized: "Fresh")
-    }
-
-    private var statusColor: Color {
-        if vm.hasEmptyModelCatalog {
-            return .red
-        }
-        if vm.isCatalogSyncStale {
-            return .orange
-        }
-        if vm.catalogLastSyncDate == nil {
-            return .secondary
-        }
-        return .green
     }
 
     private var detailText: String {
@@ -607,7 +581,7 @@ private struct IntegrationProviderRow: View {
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 6) {
-                    IntegrationStatusChip(text: statusText, color: statusColor)
+                    IntegrationStatusChip(text: provider.localizedStatusLabel, color: provider.statusTone.color)
                     Button {
                         onTest()
                     } label: {
@@ -652,28 +626,6 @@ private struct IntegrationProviderRow: View {
             }
         }
         .padding(.vertical, 2)
-    }
-
-    private var statusText: String {
-        if provider.isLocal == true {
-            if provider.reachable == true {
-                return String(localized: "Reachable")
-            }
-            if provider.reachable == false {
-                return String(localized: "Unavailable")
-            }
-            return String(localized: "Local")
-        }
-        return provider.isConfigured
-            ? String(localized: "Configured")
-            : String(localized: "Missing")
-    }
-
-    private var statusColor: Color {
-        if provider.isLocal == true {
-            return provider.reachable == false ? .orange : .green
-        }
-        return provider.isConfigured ? .green : .secondary
     }
 
     private func probeCaption(for result: IntegrationProbeResult) -> String {
@@ -725,7 +677,7 @@ private struct IntegrationChannelRow: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
-                    Text("\(channel.category.capitalized) · \(channel.setupType.capitalized) · \(channel.difficulty.capitalized)")
+                    Text("\(channel.localizedCategoryLabel) · \(channel.localizedSetupTypeLabel) · \(channel.localizedDifficultyLabel)")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }
@@ -733,7 +685,7 @@ private struct IntegrationChannelRow: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 6) {
-                    IntegrationStatusChip(text: statusText, color: statusColor)
+                    IntegrationStatusChip(text: channel.localizedConfigurationLabel, color: channel.configurationTone.color)
                     Button {
                         onTest()
                     } label: {
@@ -787,22 +739,6 @@ private struct IntegrationChannelRow: View {
         .padding(.vertical, 2)
     }
 
-    private var statusText: String {
-        if channel.configured {
-            return channel.hasToken
-                ? String(localized: "Ready")
-                : String(localized: "Needs Token")
-        }
-        return String(localized: "Not Set")
-    }
-
-    private var statusColor: Color {
-        if channel.configured {
-            return channel.hasToken ? .green : .orange
-        }
-        return .secondary
-    }
-
     private func probeCaption(for result: IntegrationProbeResult) -> String {
         if let message = result.message, !message.isEmpty {
             return message
@@ -841,16 +777,14 @@ private struct IntegrationModelRow: View {
                 }
                 Spacer()
                 IntegrationStatusChip(
-                    text: model.available
-                        ? String(localized: "Available")
-                        : String(localized: "Unavailable"),
-                    color: model.available ? .green : .orange
+                    text: model.localizedAvailabilityLabel,
+                    color: model.availabilityTone.color
                 )
             }
 
             HStack(spacing: 12) {
                 Label(model.provider, systemImage: "cloud")
-                Label(model.tier.capitalized, systemImage: "square.3.layers.3d")
+                Label(model.localizedTierLabel, systemImage: "square.3.layers.3d")
                 if let contextWindow = model.contextWindow {
                     Label(contextWindow.formatted(), systemImage: "text.redaction")
                 }
@@ -878,10 +812,14 @@ private struct IntegrationModelRow: View {
 
     private var costLine: String {
         let input = model.inputCostPerM.map {
-            String(localized: "$\($0.formatted(.number.precision(.fractionLength(2))))/M in")
+            String(
+                localized: "\(localizedUSDCurrency($0, standardPrecision: 2))/M in"
+            )
         } ?? String(localized: "n/a in")
         let output = model.outputCostPerM.map {
-            String(localized: "$\($0.formatted(.number.precision(.fractionLength(2))))/M out")
+            String(
+                localized: "\(localizedUSDCurrency($0, standardPrecision: 2))/M out"
+            )
         } ?? String(localized: "n/a out")
         return String(localized: "\(input) · \(output)")
     }
@@ -931,7 +869,7 @@ private struct IntegrationAgentModelRow: View {
                         .lineLimit(2)
                 }
                 Spacer()
-                IntegrationStatusChip(text: statusText, color: statusColor)
+                IntegrationStatusChip(text: diagnostic.localizedStatusLabel, color: diagnostic.statusTone.color)
             }
 
             HStack(spacing: 12) {
@@ -949,27 +887,6 @@ private struct IntegrationAgentModelRow: View {
         .padding(.vertical, 2)
     }
 
-    private var statusText: String {
-        switch diagnostic.kind {
-        case .unknownModel:
-            String(localized: "Unknown")
-        case .unavailableModel:
-            String(localized: "Unavailable")
-        case .providerMismatch:
-            String(localized: "Mismatch")
-        }
-    }
-
-    private var statusColor: Color {
-        switch diagnostic.kind {
-        case .unknownModel:
-            .red
-        case .unavailableModel:
-            .orange
-        case .providerMismatch:
-            .indigo
-        }
-    }
 }
 
 private struct IntegrationStatusChip: View {
@@ -985,4 +902,29 @@ private struct IntegrationStatusChip: View {
             .foregroundStyle(color)
             .clipShape(Capsule())
     }
+}
+
+private func localizedUSDCurrency(
+    _ value: Double,
+    standardPrecision: Int = 2,
+    smallValuePrecision: Int? = nil,
+    minimumDisplayValue: Double = 0.01
+) -> String {
+    let standard = FloatingPointFormatStyle<Double>.Currency(code: "USD")
+        .precision(.fractionLength(standardPrecision))
+    if value == 0 {
+        return value.formatted(standard)
+    }
+    if value < minimumDisplayValue {
+        let minimumPrecision = smallValuePrecision ?? standardPrecision
+        let minimumStyle = FloatingPointFormatStyle<Double>.Currency(code: "USD")
+            .precision(.fractionLength(minimumPrecision))
+        return "<\(minimumDisplayValue.formatted(minimumStyle))"
+    }
+    if let smallValuePrecision, value < 1 {
+        let small = FloatingPointFormatStyle<Double>.Currency(code: "USD")
+            .precision(.fractionLength(smallValuePrecision))
+        return value.formatted(small)
+    }
+    return value.formatted(standard)
 }

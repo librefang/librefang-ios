@@ -1,5 +1,10 @@
 import Foundation
 
+struct WatchedAgentDiagnosticBadge: Sendable, Hashable {
+    let text: String
+    let tone: PresentationTone
+}
+
 @MainActor
 func watchedAgentDiagnosticPriorityItems(
     agents: [Agent],
@@ -110,6 +115,68 @@ func watchedAgentDiagnosticHeadline(summary: WatchedAgentDiagnosticsSummary) -> 
         return String(localized: "Unsettled deliveries")
     }
     return String(localized: "Operator issue")
+}
+
+func watchedAgentDiagnosticIssueCountBadge(summary: WatchedAgentDiagnosticsSummary) -> WatchedAgentDiagnosticBadge {
+    WatchedAgentDiagnosticBadge(
+        text: summary.issueCount == 1
+            ? String(localized: "1 operator issue")
+            : String(localized: "\(summary.issueCount) operator issues"),
+        tone: watchedAgentDiagnosticTone(summary: summary)
+    )
+}
+
+func watchedAgentDiagnosticHeadlineBadge(summary: WatchedAgentDiagnosticsSummary) -> WatchedAgentDiagnosticBadge {
+    WatchedAgentDiagnosticBadge(
+        text: watchedAgentDiagnosticHeadline(summary: summary),
+        tone: watchedAgentDiagnosticTone(summary: summary)
+    )
+}
+
+func watchedAgentDiagnosticStatusBadge(summary: WatchedAgentDiagnosticsSummary) -> WatchedAgentDiagnosticBadge {
+    if summary.failedDeliveries > 0 {
+        return WatchedAgentDiagnosticBadge(
+            text: summary.failedDeliveries == 1
+                ? String(localized: "1 failed")
+                : String(localized: "\(summary.failedDeliveries) failed"),
+            tone: .critical
+        )
+    }
+    if !summary.unavailableFallbackModels.isEmpty {
+        return WatchedAgentDiagnosticBadge(
+            text: summary.unavailableFallbackModels.count == 1
+                ? String(localized: "1 fallback drift")
+                : String(localized: "\(summary.unavailableFallbackModels.count) fallback drift"),
+            tone: .warning
+        )
+    }
+    return WatchedAgentDiagnosticBadge(
+        text: summary.issueCount == 1
+            ? String(localized: "1 issue")
+            : String(localized: "\(summary.issueCount) issues"),
+        tone: watchedAgentDiagnosticTone(summary: summary)
+    )
+}
+
+func watchedAgentStateTone(
+    agent: Agent,
+    severity: Int,
+    diagnostics: WatchedAgentDiagnosticsSummary?
+) -> PresentationTone {
+    if let diagnostics, diagnostics.hasIssues {
+        return watchedAgentDiagnosticTone(summary: diagnostics)
+    }
+    if severity >= 10 {
+        return .critical
+    }
+    if severity > 0 {
+        return .warning
+    }
+    return agent.isRunning ? .positive : .neutral
+}
+
+private func watchedAgentDiagnosticTone(summary: WatchedAgentDiagnosticsSummary) -> PresentationTone {
+    summary.failedDeliveries > 0 ? .critical : .warning
 }
 
 private func watchedAgentDiagnosticRank(summary: WatchedAgentDiagnosticsSummary?) -> Int {

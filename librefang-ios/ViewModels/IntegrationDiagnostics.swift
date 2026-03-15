@@ -6,6 +6,30 @@ enum AgentModelDiagnosticKind: String {
     case providerMismatch
 }
 
+extension AgentModelDiagnosticKind {
+    var localizedLabel: String {
+        switch self {
+        case .unknownModel:
+            return String(localized: "Unknown")
+        case .unavailableModel:
+            return String(localized: "Unavailable")
+        case .providerMismatch:
+            return String(localized: "Mismatch")
+        }
+    }
+
+    var tone: PresentationTone {
+        switch self {
+        case .unknownModel:
+            return .critical
+        case .unavailableModel:
+            return .warning
+        case .providerMismatch:
+            return .caution
+        }
+    }
+}
+
 struct AgentModelDiagnostic: Identifiable {
     let agent: Agent
     let requestedModel: String
@@ -17,9 +41,43 @@ struct AgentModelDiagnostic: Identifiable {
     let severity: Int
 
     var id: String { agent.id }
+
+    var localizedStatusLabel: String {
+        kind.localizedLabel
+    }
+
+    var statusTone: PresentationTone {
+        kind.tone
+    }
 }
 
 extension DashboardViewModel {
+    var catalogSyncStatusLabel: String {
+        if hasEmptyModelCatalog {
+            return String(localized: "Empty")
+        }
+        if isCatalogSyncStale {
+            return String(localized: "Stale")
+        }
+        if catalogLastSyncDate == nil {
+            return String(localized: "Unknown")
+        }
+        return String(localized: "Fresh")
+    }
+
+    var catalogSyncTone: PresentationTone {
+        if hasEmptyModelCatalog {
+            return .critical
+        }
+        if isCatalogSyncStale {
+            return .warning
+        }
+        if catalogLastSyncDate == nil {
+            return .neutral
+        }
+        return .positive
+    }
+
     var unreachableLocalProviders: [ProviderStatus] {
         providers
             .filter { $0.isLocal == true && $0.reachable == false }

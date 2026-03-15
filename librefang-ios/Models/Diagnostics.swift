@@ -24,6 +24,18 @@ nonisolated struct HealthDetail: Codable, Sendable {
     var isHealthy: Bool {
         status == "ok" && database.lowercased() == "connected"
     }
+
+    var localizedStatusLabel: String {
+        StatusPresentation.localizedHealthLabel(for: status)
+    }
+
+    var statusTone: PresentationTone {
+        StatusPresentation.healthTone(for: status)
+    }
+
+    var localizedDatabaseLabel: String {
+        StatusPresentation.localizedConnectionLabel(for: database)
+    }
 }
 
 nonisolated struct BuildVersionInfo: Codable, Sendable {

@@ -464,27 +464,27 @@ struct MainTabView: View {
 
     private func handoffCueTitle(for status: HandoffCheckInStatus, pendingFollowUpCount: Int) -> String {
         guard pendingFollowUpCount > 0 else {
-            return status.state == .overdue ? "Handoff check-in overdue" : "Handoff check-in due soon"
+            return status.state == .overdue ? String(localized: "Handoff check-in overdue") : String(localized: "Handoff check-in due soon")
         }
 
         let followUpSummary = pendingFollowUpCount == 1
-            ? "1 follow-up open"
-            : "\(pendingFollowUpCount) follow-ups open"
+            ? String(localized: "1 follow-up open")
+            : String(localized: "\(pendingFollowUpCount) follow-ups open")
 
         return status.state == .overdue
-            ? "Handoff overdue · \(followUpSummary)"
-            : "Handoff due soon · \(followUpSummary)"
+            ? String(localized: "Handoff overdue · \(followUpSummary)")
+            : String(localized: "Handoff due soon · \(followUpSummary)")
     }
 
     private func handoffCueDetail(for status: HandoffCheckInStatus) -> String {
         var segments = [status.dueLabel]
         if pendingLatestFollowUpCount > 0 {
             let followUpSummary = pendingLatestFollowUpCount == 1
-                ? "1 handoff follow-up still open"
-                : "\(pendingLatestFollowUpCount) handoff follow-ups still open"
+                ? String(localized: "1 handoff follow-up still open")
+                : String(localized: "\(pendingLatestFollowUpCount) handoff follow-ups still open")
 
             if let pendingLatestFollowUpPreview {
-                segments.append("\(followUpSummary): \(pendingLatestFollowUpPreview)")
+                segments.append(String(localized: "\(followUpSummary): \(pendingLatestFollowUpPreview)"))
             } else {
                 segments.append(followUpSummary)
             }
@@ -577,11 +577,11 @@ private struct CriticalIncidentBanner: View {
         HStack(spacing: 8) {
             Image(systemName: "bell.badge.fill")
                 .font(.caption)
-            Text(count == 1 ? "1 critical incident active" : "\(count) critical incidents active")
+            Text(count == 1 ? String(localized: "1 critical incident active") : String(localized: "\(count) critical incidents active"))
                 .font(.caption.weight(.semibold))
             Spacer()
             if mutedCount > 0 {
-                Text("\(mutedCount) muted")
+                Text(String(localized: "\(mutedCount) muted"))
                     .font(.caption2.weight(.medium))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -615,7 +615,7 @@ private struct HandoffCheckInBanner: View {
         HStack(spacing: 8) {
             Image(systemName: "timer")
                 .font(.caption)
-            Text(status.state == .overdue ? "Handoff check-in overdue" : "Handoff check-in due soon")
+            Text(status.state == .overdue ? String(localized: "Handoff check-in overdue") : String(localized: "Handoff check-in due soon"))
                 .font(.caption.weight(.semibold))
             Spacer()
             Text(status.window.label)
@@ -625,7 +625,7 @@ private struct HandoffCheckInBanner: View {
                 .background(.white.opacity(0.12))
                 .clipShape(Capsule())
             if pendingFollowUpCount > 0 {
-                Text(pendingFollowUpCount == 1 ? "1 open" : "\(pendingFollowUpCount) open")
+                Text(pendingFollowUpCount == 1 ? String(localized: "1 open") : String(localized: "\(pendingFollowUpCount) open"))
                     .font(.caption2.weight(.medium))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -655,11 +655,11 @@ private struct AcknowledgedIncidentBanner: View {
         HStack(spacing: 8) {
             Image(systemName: "checkmark.seal.fill")
                 .font(.caption)
-            Text(count == 1 ? "1 critical incident acknowledged" : "\(count) critical incidents acknowledged")
+            Text(count == 1 ? String(localized: "1 critical incident acknowledged") : String(localized: "\(count) critical incidents acknowledged"))
                 .font(.caption.weight(.semibold))
             Spacer()
             if mutedCount > 0 {
-                Text("\(mutedCount) muted")
+                Text(String(localized: "\(mutedCount) muted"))
                     .font(.caption2.weight(.medium))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)

@@ -164,9 +164,7 @@ struct BudgetView: View {
     }
 
     private func formatCost(_ value: Double) -> String {
-        if value == 0 { return "$0.00" }
-        if value < 0.01 { return "<$0.01" }
-        return String(format: "$%.2f", value)
+        return localizedUSDCurrency(value)
     }
 
     private func averageCostPerCall(_ usage: UsageSummary) -> Double {
@@ -233,7 +231,7 @@ private struct BudgetBarChart: View {
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 3]))
                     .foregroundStyle(.red.opacity(0.5))
                     .annotation(position: .top, alignment: .trailing) {
-                        Text("$\(entry.limit, specifier: "%.0f")")
+                        Text(localizedUSDCurrency(entry.limit, standardPrecision: 0))
                             .font(.caption2)
                             .foregroundStyle(.red.opacity(0.6))
                     }
@@ -243,7 +241,7 @@ private struct BudgetBarChart: View {
             AxisMarks(position: .leading) { value in
                 AxisValueLabel {
                     if let amount = value.as(Double.self) {
-                        Text("$\(amount, specifier: "%.0f")")
+                        Text(localizedUSDCurrency(amount, standardPrecision: 0))
                             .font(.caption2)
                     }
                 }
@@ -253,11 +251,8 @@ private struct BudgetBarChart: View {
     }
 
     private func barColor(spend: Double, limit: Double) -> Color {
-        guard limit > 0 else { return .blue }
-        let pct = spend / limit
-        if pct > 0.9 { return .red }
-        if pct > 0.7 { return .orange }
-        return .blue
+        let pct = limit > 0 ? spend / limit : nil
+        return (StatusPresentation.budgetUtilizationStatus(for: pct) ?? .normal).color(normalColor: .blue)
     }
 }
 
@@ -303,7 +298,7 @@ private struct DailyCostTrendChart: View {
             AxisMarks(position: .leading) { value in
                 AxisValueLabel {
                     if let amount = value.as(Double.self) {
-                        Text("$\(amount, specifier: amount >= 1 ? "%.0f" : "%.2f")")
+                        Text(localizedUSDCurrency(amount, standardPrecision: amount >= 1 ? 0 : 2))
                             .font(.caption2)
                     }
                 }
@@ -314,7 +309,7 @@ private struct DailyCostTrendChart: View {
                 if let latest = chartDays.last,
                    let xPosition = proxy.position(forX: latest.date) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("$\(latest.cost, specifier: latest.cost >= 1 ? "%.2f" : "%.4f")")
+                        Text(localizedUSDCurrency(latest.cost, standardPrecision: 2, smallValuePrecision: 4))
                             .font(.caption.weight(.semibold))
                         Text("\(latest.tokens.formatted()) tokens")
                             .font(.caption2)
@@ -356,7 +351,7 @@ private struct CostDistributionCard: View {
         if othersCost > 0 {
             slices.append(CostSlice(
                 id: "others",
-                title: "Others",
+                title: String(localized: "Others"),
                 value: othersCost,
                 color: .gray
             ))
@@ -420,9 +415,7 @@ private struct CostDistributionCard: View {
     }
 
     private func formatCost(_ value: Double) -> String {
-        if value == 0 { return "$0.00" }
-        if value < 0.01 { return "<$0.01" }
-        return String(format: "$%.2f", value)
+        localizedUSDCurrency(value)
     }
 
     private func shortModelName(_ name: String) -> String {
@@ -456,29 +449,31 @@ private struct CostSlice: Identifiable {
 }
 
 private struct BudgetLimitRow: View {
-    let label: LocalizedStringKey
+    let label: LocalizedStringResource
     let spend: Double
     let limit: Double
     let pct: Double
 
     var body: some View {
+        let utilizationStatus = StatusPresentation.budgetUtilizationStatus(for: pct) ?? .normal
+
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(label)
                     .font(.subheadline)
                 Spacer()
-                Text("$\(spend, specifier: "%.4f")")
+                Text(localizedUSDCurrency(spend, standardPrecision: 2, smallValuePrecision: 4))
                     .font(.subheadline.monospacedDigit().weight(.medium))
-                Text("/ $\(limit, specifier: "%.2f")")
+                Text("/ \(localizedUSDCurrency(limit))")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Text("(\(Int(pct * 100))%)")
                     .font(.caption2)
-                    .foregroundStyle(pct > 0.9 ? .red : pct > 0.7 ? .orange : .secondary)
+                    .foregroundStyle(utilizationStatus.color(normalColor: .secondary))
             }
             Gauge(value: min(pct, 1.0)) { EmptyView() }
                 .gaugeStyle(.linearCapacity)
-                .tint(pct > 0.9 ? .red : pct > 0.7 ? .orange : .green)
+                .tint(utilizationStatus.color())
         }
         .padding(.vertical, 2)
     }
@@ -513,9 +508,7 @@ private struct DailyUsageRow: View {
     }
 
     private var costText: String {
-        if day.costUsd == 0 { return "$0.00" }
-        if day.costUsd < 0.01 { return "<$0.01" }
-        return String(format: "$%.2f", day.costUsd)
+        return localizedUSDCurrency(day.costUsd)
     }
 }
 
@@ -586,13 +579,11 @@ private struct ModelCostRow: View {
         if lower.contains("mistral") {
             return "Mistral"
         }
-        return "Other"
+        return String(localized: "Other")
     }
 
     private var costText: String {
-        if model.totalCostUsd == 0 { return "$0.00" }
-        if model.totalCostUsd < 0.01 { return "<$0.01" }
-        return String(format: "$%.2f", model.totalCostUsd)
+        return localizedUSDCurrency(model.totalCostUsd)
     }
 
     private var costColor: Color {
@@ -617,11 +608,11 @@ private struct AgentCostRow: View {
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 3) {
-                Text("$\(item.dailyCostUsd, specifier: "%.4f")")
+                Text(localizedUSDCurrency(item.dailyCostUsd, standardPrecision: 2, smallValuePrecision: 4))
                     .font(.subheadline.monospacedDigit().weight(.medium))
                     .foregroundStyle(item.dailyCostUsd > 1.0 ? .red : .primary)
                 if let limit = item.dailyLimit, limit > 0 {
-                    Text("limit $\(limit, specifier: "%.2f")")
+                    Text(localizedUSDCurrency(limit))
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }
@@ -643,4 +634,21 @@ private extension String {
         shortFormatter.dateFormat = "yyyy-MM-dd"
         return shortFormatter.date(from: self)
     }
+}
+
+private func localizedUSDCurrency(
+    _ value: Double,
+    standardPrecision: Int = 2,
+    smallValuePrecision: Int? = nil,
+    minimumDisplayValue: Double = 0.01
+) -> String {
+    let style = FloatingPointFormatStyle<Double>.Currency(code: "USD")
+    if value == 0 {
+        return value.formatted(style.precision(.fractionLength(standardPrecision)))
+    }
+    if value < minimumDisplayValue {
+        return "<\(minimumDisplayValue.formatted(style.precision(.fractionLength(standardPrecision))))"
+    }
+    let precision = value < 1 ? (smallValuePrecision ?? standardPrecision) : standardPrecision
+    return value.formatted(style.precision(.fractionLength(precision)))
 }

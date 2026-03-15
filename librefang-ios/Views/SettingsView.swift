@@ -1,38 +1,5 @@
 import SwiftUI
 
-private enum SettingsSnapshotStatus {
-    case clear
-    case muted
-    case acknowledged
-    case needsReview
-
-    var label: String {
-        switch self {
-        case .clear:
-            String(localized: "Clear")
-        case .muted:
-            String(localized: "Muted")
-        case .acknowledged:
-            String(localized: "Acknowledged")
-        case .needsReview:
-            String(localized: "Needs review")
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .needsReview:
-            .red
-        case .acknowledged:
-            .orange
-        case .muted:
-            .secondary
-        case .clear:
-            .green
-        }
-    }
-}
-
 struct SettingsView: View {
     @Environment(\.dependencies) private var deps
     @Environment(\.openURL) private var openURL
@@ -191,7 +158,7 @@ struct SettingsView: View {
 
                     LabeledContent("Authorization") {
                         Text(deps.onCallNotificationManager.authorizationLabel)
-                            .foregroundStyle(notificationAuthorizationColor)
+                            .foregroundStyle(deps.onCallNotificationManager.authorizationTone.color)
                     }
 
                     Text(deps.onCallNotificationManager.authorizationSummary)
@@ -271,6 +238,8 @@ struct SettingsView: View {
                     }
 
                     if let latest = deps.onCallHandoffStore.latestEntry {
+                        let followUpSummary = deps.onCallHandoffStore.latestFollowUpSummary
+
                         LabeledContent("Last Saved") {
                             Text(latest.createdAt, format: .dateTime.month(.abbreviated).day().hour().minute())
                                 .foregroundStyle(.secondary)
@@ -281,30 +250,24 @@ struct SettingsView: View {
                         }
                         LabeledContent("Checklist") {
                             Text(latest.checklist.progressLabel)
-                                .foregroundStyle(latest.checklist.pendingLabels.isEmpty ? .green : .secondary)
+                                .foregroundStyle(latest.checklist.tone.color)
                         }
                         LabeledContent("Type") {
                             Text(latest.kind.label)
-                                .foregroundStyle(handoffKindColor(for: latest.kind))
+                                .foregroundStyle(latest.kind.tintColor)
                         }
                         LabeledContent("Focus") {
                             Text(latest.focusAreas.summaryLabel)
                                 .foregroundStyle(latest.focusAreas.items.isEmpty ? Color.secondary : Color.primary)
                         }
                         LabeledContent("Follow-ups") {
-                            Text(latest.followUpItems.isEmpty
-                                ? String(localized: "None")
-                                : String(localized: "\(deps.onCallHandoffStore.pendingLatestFollowUpCount) pending · \(deps.onCallHandoffStore.completedLatestFollowUpCount) done"))
-                                .foregroundStyle(
-                                    latest.followUpItems.isEmpty
-                                        ? Color.secondary
-                                        : (deps.onCallHandoffStore.pendingLatestFollowUpCount == 0 ? Color.green : Color.primary)
-                                )
+                            Text(followUpSummary.settingsLabel)
+                                .foregroundStyle(followUpSummary.tone.color)
                         }
                         LabeledContent("Check-in") {
                             if let checkInStatus = deps.onCallHandoffStore.latestCheckInStatus {
                                 Text(checkInStatus.state.label)
-                                    .foregroundStyle(handoffCheckInColor(for: checkInStatus))
+                                    .foregroundStyle(checkInStatus.state.tone.color)
                             } else {
                                 Text(latest.checkInWindow == .none ? String(localized: "None") : latest.checkInWindow.label)
                                     .foregroundStyle(latest.checkInWindow == .none ? Color.secondary : Color.primary)
@@ -317,7 +280,7 @@ struct SettingsView: View {
                         }
                         LabeledContent("Draft Readiness") {
                             Text(draftHandoffReadiness.state.label)
-                                .foregroundStyle(handoffReadinessColor)
+                                .foregroundStyle(draftHandoffReadiness.state.tone.color)
                         }
                         Text(draftHandoffReadiness.summary)
                             .font(.caption)
@@ -329,7 +292,7 @@ struct SettingsView: View {
                         ) {
                             LabeledContent("Drift") {
                                 Text(drift.state.label)
-                                    .foregroundStyle(handoffDriftColor(for: drift))
+                                    .foregroundStyle(drift.state.tone.color)
                             }
                             Text(drift.summary)
                                 .font(.caption)
@@ -338,7 +301,7 @@ struct SettingsView: View {
                         if let carryover = handoffCarryoverStatus {
                             LabeledContent("Carryover") {
                                 Text(carryover.state.label)
-                                    .foregroundStyle(handoffCarryoverColor(for: carryover))
+                                    .foregroundStyle(carryover.state.tone.color)
                             }
                             Text(carryover.summary)
                                 .font(.caption)
@@ -346,11 +309,11 @@ struct SettingsView: View {
                         }
                         LabeledContent("Freshness") {
                             Text(deps.onCallHandoffStore.freshnessLabel)
-                                .foregroundStyle(handoffFreshnessColor)
+                                .foregroundStyle(deps.onCallHandoffStore.freshnessState.tone.color)
                         }
                         LabeledContent("Cadence") {
                             Text(deps.onCallHandoffStore.cadenceState.label)
-                                .foregroundStyle(handoffCadenceColor)
+                                .foregroundStyle(deps.onCallHandoffStore.cadenceState.tone.color)
                         }
                         if !latest.checklist.pendingLabels.isEmpty {
                             Text(String(localized: "Pending: \(latest.checklist.pendingLabels.joined(separator: ", "))"))
@@ -372,32 +335,32 @@ struct SettingsView: View {
 
                 Section("Monitoring") {
                     LabeledContent("Agents") {
-                        Text("\(deps.dashboardViewModel.issueAgentCount) need attention")
-                            .foregroundStyle(deps.dashboardViewModel.issueAgentCount > 0 ? .orange : .secondary)
+                        Text(deps.dashboardViewModel.agentAttentionStatus.summary)
+                            .foregroundStyle(deps.dashboardViewModel.agentAttentionStatus.tone.color)
                     }
                     LabeledContent("Providers") {
-                        Text("\(deps.dashboardViewModel.configuredProviderCount) configured")
-                            .foregroundStyle(.secondary)
+                        Text(deps.dashboardViewModel.providerReadinessStatus.summary)
+                            .foregroundStyle(deps.dashboardViewModel.providerReadinessStatus.tone.color)
                     }
                     LabeledContent("Channels") {
-                        Text("\(deps.dashboardViewModel.readyChannelCount) ready")
-                            .foregroundStyle(.secondary)
+                        Text(deps.dashboardViewModel.channelReadinessStatus.summary)
+                            .foregroundStyle(deps.dashboardViewModel.channelReadinessStatus.tone.color)
                     }
                     LabeledContent("Hands") {
-                        Text("\(deps.dashboardViewModel.activeHandCount) active")
-                            .foregroundStyle(.secondary)
+                        Text(deps.dashboardViewModel.handReadinessStatus.summary)
+                            .foregroundStyle(deps.dashboardViewModel.handReadinessStatus.tone.color)
                     }
                     LabeledContent("Approvals") {
-                        Text("\(deps.dashboardViewModel.pendingApprovalCount) pending")
-                            .foregroundStyle(deps.dashboardViewModel.pendingApprovalCount > 0 ? .red : .secondary)
+                        Text(deps.dashboardViewModel.approvalBacklogStatus.summary)
+                            .foregroundStyle(deps.dashboardViewModel.approvalBacklogStatus.tone.color)
                     }
                     LabeledContent("Peers") {
-                        Text("\(deps.dashboardViewModel.connectedPeerCount)/\(deps.dashboardViewModel.totalPeerCount)")
-                            .foregroundStyle(.secondary)
+                        Text(deps.dashboardViewModel.peerConnectivityStatus.summary)
+                            .foregroundStyle(deps.dashboardViewModel.peerConnectivityStatus.tone.color)
                     }
                     LabeledContent("MCP") {
-                        Text("\(deps.dashboardViewModel.connectedMCPServerCount)/\(deps.dashboardViewModel.configuredMCPServerCount)")
-                            .foregroundStyle(.secondary)
+                        Text(deps.dashboardViewModel.mcpConnectivityStatus.summary)
+                            .foregroundStyle(deps.dashboardViewModel.mcpConnectivityStatus.tone.color)
                     }
                     LabeledContent("Sessions") {
                         Text("\(deps.dashboardViewModel.totalSessionCount)")
@@ -416,12 +379,12 @@ struct SettingsView: View {
                             .foregroundStyle(activeMutedAlertCount > 0 ? .secondary : .tertiary)
                     }
                     LabeledContent("Incident Snapshot") {
-                        Text(snapshotStatus.label)
-                            .foregroundStyle(snapshotStatus.color)
+                        Text(snapshotStatus.settingsLabel)
+                            .foregroundStyle(snapshotStatus.tone.color)
                     }
                     LabeledContent("Audit") {
-                        Text(auditStatus)
-                            .foregroundStyle(deps.dashboardViewModel.hasAuditIntegrityIssue ? .red : .secondary)
+                        Text(deps.dashboardViewModel.auditIntegrityStatus.summary)
+                            .foregroundStyle(deps.dashboardViewModel.auditIntegrityStatus.tone.color)
                     }
                     LabeledContent("Security") {
                         Text("\(deps.dashboardViewModel.securityFeatureCount) features")
@@ -433,7 +396,7 @@ struct SettingsView: View {
                     LabeledContent("App", value: "LibreFang iOS")
                     if let health = deps.dashboardViewModel.health {
                         LabeledContent("Server Version", value: health.version)
-                        LabeledContent("Server Status", value: health.status)
+                        LabeledContent("Server Status", value: health.localizedStatusLabel)
                     }
                     if let refresh = deps.dashboardViewModel.lastRefresh {
                         LabeledContent("Last Refresh") {
@@ -468,11 +431,6 @@ struct SettingsView: View {
         }
 
         return String(localized: "The app connects to this base URL on launch and refreshes the dashboard immediately after you save.")
-    }
-
-    private var auditStatus: String {
-        guard let verify = deps.dashboardViewModel.auditVerify else { return String(localized: "Unavailable") }
-        return verify.valid ? String(localized: "Verified") : String(localized: "Broken")
     }
 
     private var currentLanguageLabel: String {
@@ -562,107 +520,14 @@ struct SettingsView: View {
         )
     }
 
-    private var snapshotStatus: SettingsSnapshotStatus {
-        if visibleAlerts.isEmpty {
-            return activeMutedAlertCount > 0 ? .muted : .clear
-        }
-
-        return deps.incidentStateStore.isCurrentSnapshotAcknowledged(alerts: deps.dashboardViewModel.monitoringAlerts)
-            ? .acknowledged
-            : .needsReview
+    private var snapshotStatus: AlertSnapshotState {
+        AlertSnapshotState(
+            liveAlertCount: visibleAlerts.count,
+            mutedAlertCount: activeMutedAlertCount,
+            isAcknowledged: deps.incidentStateStore.isCurrentSnapshotAcknowledged(alerts: deps.dashboardViewModel.monitoringAlerts)
+        )
     }
 
-    private var notificationAuthorizationColor: Color {
-        switch deps.onCallNotificationManager.authorizationStatus {
-        case .authorized, .provisional, .ephemeral:
-            .green
-        case .denied:
-            .red
-        default:
-            .secondary
-        }
-    }
-
-    private var handoffFreshnessColor: Color {
-        switch deps.onCallHandoffStore.freshnessState {
-        case .fresh:
-            .green
-        case .stale:
-            .orange
-        case .missing:
-            .red
-        }
-    }
-
-    private var handoffCadenceColor: Color {
-        switch deps.onCallHandoffStore.cadenceState {
-        case .steady:
-            .green
-        case .sparse:
-            .orange
-        default:
-            .secondary
-        }
-    }
-
-    private func handoffKindColor(for kind: HandoffSnapshotKind) -> Color {
-        switch kind {
-        case .routine:
-            .blue
-        case .watch:
-            .yellow
-        case .incident:
-            .red
-        case .recovery:
-            .green
-        }
-    }
-
-    private func handoffDriftColor(for drift: HandoffSnapshotDrift) -> Color {
-        switch drift.state {
-        case .steady:
-            .secondary
-        case .improving:
-            .green
-        case .worsening:
-            .red
-        case .mixed:
-            .orange
-        }
-    }
-
-    private func handoffCarryoverColor(for carryover: HandoffCarryoverStatus) -> Color {
-        switch carryover.state {
-        case .cleared:
-            .green
-        case .partial:
-            .orange
-        case .active:
-            .red
-        }
-    }
-
-    private func handoffCheckInColor(for status: HandoffCheckInStatus) -> Color {
-        switch status.state {
-        case .scheduled:
-            .blue
-        case .dueSoon:
-            .orange
-        case .overdue:
-            .red
-        }
-    }
-
-    private var handoffReadinessColor: Color {
-        switch draftHandoffReadiness.state {
-        case .ready:
-            .green
-        case .caution:
-            .orange
-        case .blocked:
-            .red
-        }
-    }
 }
 
 // MARK: - Helpers

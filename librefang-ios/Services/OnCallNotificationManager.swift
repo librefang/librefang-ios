@@ -73,6 +73,19 @@ final class OnCallNotificationManager {
         }
     }
 
+    var authorizationTone: PresentationTone {
+        switch authorizationStatus {
+        case .authorized, .provisional, .ephemeral:
+            return .positive
+        case .denied:
+            return .critical
+        case .notDetermined:
+            return .neutral
+        @unknown default:
+            return .neutral
+        }
+    }
+
     var authorizationSummary: String {
         switch authorizationStatus {
         case .authorized:

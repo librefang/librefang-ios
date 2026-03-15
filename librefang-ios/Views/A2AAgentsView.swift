@@ -9,9 +9,9 @@ struct A2AAgentsView: View {
         Group {
             if agents.isEmpty {
                 ContentUnavailableView(
-                    "No External Agents",
+                    String(localized: "No External Agents"),
                     systemImage: "link.circle",
-                    description: Text("Discover A2A agents from the server.")
+                    description: Text(String(localized: "Discover A2A agents from the server."))
                 )
             } else {
                 List(agents) { agent in
@@ -35,27 +35,33 @@ private struct A2AAgentRow: View {
                         .foregroundStyle(.secondary)
                 }
 
-                LabeledContent("URL") {
+                LabeledContent {
                     Text(agent.url)
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                         .lineLimit(1)
+                } label: {
+                    Text(String(localized: "URL"))
                 }
 
                 if let version = agent.version {
-                    LabeledContent("Version", value: version)
+                    LabeledContent {
+                        Text(version)
+                    } label: {
+                        Text(String(localized: "Version"))
+                    }
                         .font(.caption)
                 }
 
                 if let caps = agent.capabilities {
                     HStack(spacing: 12) {
-                        CapabilityBadge(label: "Stream", enabled: caps.streaming ?? false)
-                        CapabilityBadge(label: "Push", enabled: caps.pushNotifications ?? false)
+                        CapabilityBadge(label: String(localized: "Stream"), enabled: caps.streaming ?? false)
+                        CapabilityBadge(label: String(localized: "Push"), enabled: caps.pushNotifications ?? false)
                     }
                 }
 
                 if let skills = agent.skills, !skills.isEmpty {
-                    Text("Skills")
+                    Text(String(localized: "Skills"))
                         .font(.caption.weight(.medium))
                     FlowLayout(spacing: 4) {
                         ForEach(skills) { skill in

@@ -244,8 +244,8 @@ private struct DeliveryReceiptRow: View {
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(statusColor.opacity(0.12))
-                    .foregroundStyle(statusColor)
+                    .background(receipt.status.tone.color.opacity(0.12))
+                    .foregroundStyle(receipt.status.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -273,19 +273,6 @@ private struct DeliveryReceiptRow: View {
             }
         }
         .padding(.vertical, 2)
-    }
-
-    private var statusColor: Color {
-        switch receipt.status {
-        case .delivered:
-            return .green
-        case .failed:
-            return .red
-        case .bestEffort:
-            return .orange
-        case .sent:
-            return .blue
-        }
     }
 
     private var relativeTimestamp: String {

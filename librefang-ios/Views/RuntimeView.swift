@@ -127,7 +127,7 @@ struct RuntimeView: View {
         if let status = vm.status {
             Section("System") {
                 LabeledContent("Kernel") {
-                    StatusPill(text: localizedSystemStatus(status.status), color: systemStatusColor(status.status))
+                    StatusPill(text: status.localizedStatusLabel, color: status.statusTone.color)
                 }
                 LabeledContent("Version", value: status.version)
                 LabeledContent("Uptime") {
@@ -173,9 +173,9 @@ struct RuntimeView: View {
                 if let healthDetail = vm.healthDetail {
                     RuntimeMetricRow(
                         label: String(localized: "Health"),
-                        value: localizedSystemStatus(healthDetail.status),
+                        value: healthDetail.localizedStatusLabel,
                         detail: String(
-                            localized: "Database \(localizedSystemStatus(healthDetail.database)), \(configWarningSummary(healthDetail.configWarnings.count))"
+                            localized: "Database \(healthDetail.localizedDatabaseLabel), \(configWarningSummary(healthDetail.configWarnings.count))"
                         )
                     )
                     RuntimeMetricRow(
@@ -245,7 +245,7 @@ struct RuntimeView: View {
                 )
                 RuntimeMetricRow(
                     label: String(localized: "Catalog Sync"),
-                    value: catalogSyncValue,
+                    value: vm.catalogSyncStatusLabel,
                     detail: catalogSyncDetail
                 )
                 if vm.unreachableLocalProviderCount > 0 {
@@ -288,19 +288,6 @@ struct RuntimeView: View {
                 Text("This section focuses on model providers, delivery channels, and the model catalog rather than runtime execution.")
             }
         }
-    }
-
-    private var catalogSyncValue: String {
-        if vm.hasEmptyModelCatalog {
-            return String(localized: "Empty")
-        }
-        if vm.isCatalogSyncStale {
-            return String(localized: "Stale")
-        }
-        if vm.catalogLastSyncDate == nil {
-            return String(localized: "Unknown")
-        }
-        return String(localized: "Fresh")
     }
 
     private var catalogSyncDetail: String {
@@ -566,7 +553,7 @@ struct RuntimeView: View {
                     )
                 } else {
                     ForEach(vm.activeHands) { instance in
-                        HandInstanceRow(instance: instance)
+                        HandInstanceRow(instance: instance, handDisplayName: instance.displayName(using: vm.hands))
                     }
                 }
 
@@ -656,7 +643,7 @@ struct RuntimeView: View {
                 )
                 RuntimeMetricRow(
                     label: String(localized: "Auth"),
-                    value: security.configurable.auth.mode.replacingOccurrences(of: "_", with: " ").capitalized,
+                    value: security.configurable.auth.localizedModeLabel,
                     detail: security.configurable.auth.apiKeySet ? String(localized: "API key configured") : String(localized: "No API key configured")
                 )
                 RuntimeMetricRow(
@@ -731,9 +718,14 @@ struct RuntimeView: View {
     }
 
     private func currency(_ value: Double) -> String {
-        if value == 0 { return "$0.00" }
-        if value < 0.01 { return "<$0.01" }
-        return String(format: "$%.2f", value)
+        let style = FloatingPointFormatStyle<Double>.Currency(code: "USD")
+        if value == 0 {
+            return value.formatted(style.precision(.fractionLength(2)))
+        }
+        if value < 0.01 {
+            return "<\(0.01.formatted(style.precision(.fractionLength(2))))"
+        }
+        return value.formatted(style.precision(.fractionLength(2)))
     }
 
     private func formatDuration(_ seconds: Int) -> String {
@@ -748,32 +740,6 @@ struct RuntimeView: View {
             return String(localized: "\(hours)h \(minutes)m")
         }
         return String(localized: "\(minutes)m")
-    }
-
-    private func localizedSystemStatus(_ status: String) -> String {
-        switch status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
-        case "ok", "healthy", "connected", "ready", "valid":
-            return String(localized: "Healthy")
-        case "warn", "warning", "degraded":
-            return String(localized: "Degraded")
-        case "error", "broken", "offline", "disconnected", "unhealthy", "invalid":
-            return String(localized: "Broken")
-        default:
-            return status.capitalized
-        }
-    }
-
-    private func systemStatusColor(_ status: String) -> Color {
-        switch status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
-        case "ok", "healthy", "connected", "ready", "valid":
-            return .green
-        case "warn", "warning", "degraded":
-            return .orange
-        case "error", "broken", "offline", "disconnected", "unhealthy", "invalid":
-            return .red
-        default:
-            return .secondary
-        }
     }
 
     private func configWarningSummary(_ count: Int) -> String {
@@ -923,7 +889,7 @@ private struct ProviderStatusRow: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                StatusPill(text: statusText, color: statusColor)
+                StatusPill(text: provider.localizedStatusLabel, color: provider.statusTone.color)
             }
 
             HStack(spacing: 12) {
@@ -941,20 +907,6 @@ private struct ProviderStatusRow: View {
             .font(.caption)
         }
         .padding(.vertical, 2)
-    }
-
-    private var statusText: String {
-        if provider.isLocal == true {
-            return provider.reachable == true ? String(localized: "Reachable") : String(localized: "Unavailable")
-        }
-        return provider.isConfigured ? String(localized: "Configured") : String(localized: "Missing")
-    }
-
-    private var statusColor: Color {
-        if provider.isLocal == true {
-            return provider.reachable == true ? .green : .orange
-        }
-        return provider.isConfigured ? .green : .secondary
     }
 
     private var discoveredModelsLabel: String {
@@ -1053,10 +1005,10 @@ private struct ChannelStatusRow: View {
 
             VStack(alignment: .trailing, spacing: 4) {
                 StatusPill(
-                    text: channel.hasToken ? String(localized: "Ready") : String(localized: "Needs Token"),
-                    color: channel.hasToken ? .green : .orange
+                    text: channel.localizedConfigurationLabel,
+                    color: channel.configurationTone.color
                 )
-                Text(localizedChannelCategory(channel.category))
+                Text(channel.localizedCategoryLabel)
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
@@ -1067,12 +1019,13 @@ private struct ChannelStatusRow: View {
 
 private struct HandInstanceRow: View {
     let instance: HandInstance
+    let handDisplayName: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(instance.handId.capitalized)
+                    Text(handDisplayName)
                         .font(.subheadline.weight(.medium))
                     if let agentName = instance.agentName, !agentName.isEmpty {
                         Text(agentName)
@@ -1081,7 +1034,7 @@ private struct HandInstanceRow: View {
                     }
                 }
                 Spacer()
-                StatusPill(text: statusText, color: statusColor)
+                StatusPill(text: statusText, color: instance.statusTone.color)
             }
 
             HStack(spacing: 12) {
@@ -1094,32 +1047,8 @@ private struct HandInstanceRow: View {
         .padding(.vertical, 2)
     }
 
-    private var statusColor: Color {
-        switch instance.status.lowercased() {
-        case "active", "running":
-            .green
-        case "paused":
-            .orange
-        default:
-            .secondary
-        }
-    }
-
     private var statusText: String {
-        switch instance.status.lowercased() {
-        case "active", "running":
-            String(localized: "Running")
-        case "paused":
-            String(localized: "Paused")
-        case "degraded":
-            String(localized: "Degraded")
-        case "blocked":
-            String(localized: "Blocked")
-        case "idle":
-            String(localized: "Idle")
-        default:
-            instance.status
-        }
+        instance.localizedStatusLabel
     }
 
     private func relativeText(from value: String) -> String {
@@ -1171,7 +1100,7 @@ private struct ApprovalRow: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                StatusPill(text: localizedRiskLevel, color: riskColor)
+                StatusPill(text: localizedRiskLevel, color: approval.riskTone.color)
             }
 
             if !approval.description.isEmpty {
@@ -1191,35 +1120,13 @@ private struct ApprovalRow: View {
         .padding(.vertical, 2)
     }
 
-    private var riskColor: Color {
-        switch approval.riskLevel.lowercased() {
-        case "critical":
-            .red
-        case "high":
-            .orange
-        default:
-            .yellow
-        }
-    }
-
     private var relativeRequestedAt: String {
         guard let date = approval.requestedAt.iso8601Date else { return approval.requestedAt }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
     }
 
     private var localizedRiskLevel: String {
-        switch approval.riskLevel.lowercased() {
-        case "critical":
-            String(localized: "Critical")
-        case "high":
-            String(localized: "High")
-        case "medium":
-            String(localized: "Medium")
-        case "low":
-            String(localized: "Low")
-        default:
-            approval.riskLevel
-        }
+        approval.localizedRiskLabel
     }
 }
 
@@ -1238,7 +1145,7 @@ private struct PeerRow: View {
                         .lineLimit(1)
                 }
                 Spacer()
-                StatusPill(text: localizedStateLabel, color: stateColor)
+                StatusPill(text: localizedStateLabel, color: peer.stateTone.color)
             }
 
             HStack(spacing: 12) {
@@ -1252,31 +1159,7 @@ private struct PeerRow: View {
     }
 
     private var localizedStateLabel: String {
-        switch peer.state.lowercased() {
-        case "connected":
-            String(localized: "Connected")
-        case "connecting":
-            String(localized: "Connecting")
-        case "disconnected":
-            String(localized: "Disconnected")
-        case "offline":
-            String(localized: "Offline")
-        case "degraded":
-            String(localized: "Degraded")
-        default:
-            peer.state
-        }
-    }
-
-    private var stateColor: Color {
-        switch peer.state.lowercased() {
-        case "connected":
-            .green
-        case "connecting", "degraded":
-            .orange
-        default:
-            .orange
-        }
+        peer.localizedStateLabel
     }
 
     private var agentsLabel: String {
@@ -1305,7 +1188,7 @@ private struct AuditEventRow: View {
                 .lineLimit(2)
             Text(entry.outcome)
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(outcomeColor)
+                .foregroundStyle(entry.severity.tone.color)
         }
         .padding(.vertical, 2)
     }
@@ -1315,16 +1198,6 @@ private struct AuditEventRow: View {
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
     }
 
-    private var outcomeColor: Color {
-        switch entry.severity {
-        case .critical:
-            .red
-        case .warning:
-            .orange
-        case .info:
-            .green
-        }
-    }
 }
 
 private struct RuntimeEmptyRow: View {
@@ -1355,23 +1228,6 @@ private struct StatusPill: View {
             .background(color.opacity(0.14))
             .foregroundStyle(color)
             .clipShape(Capsule())
-    }
-}
-
-private func localizedChannelCategory(_ value: String) -> String {
-    switch value.lowercased() {
-    case "chat":
-        String(localized: "Chat")
-    case "email":
-        String(localized: "Email")
-    case "push":
-        String(localized: "Push")
-    case "sms":
-        String(localized: "SMS")
-    case "webhook":
-        String(localized: "Webhook")
-    default:
-        value
     }
 }
 

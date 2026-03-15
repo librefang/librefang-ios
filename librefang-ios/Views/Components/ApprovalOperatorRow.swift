@@ -19,12 +19,12 @@ struct ApprovalOperatorRow: View {
 
                 Spacer()
 
-                Text(approval.riskLevel.capitalized)
+                Text(approval.localizedRiskLabel)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(riskColor.opacity(0.12))
-                    .foregroundStyle(riskColor)
+                    .background(approval.riskTone.color.opacity(0.12))
+                    .foregroundStyle(approval.riskTone.color)
                     .clipShape(Capsule())
             }
 
@@ -68,17 +68,6 @@ struct ApprovalOperatorRow: View {
             .font(.caption.weight(.semibold))
         }
         .padding(.vertical, 2)
-    }
-
-    private var riskColor: Color {
-        switch approval.riskLevel.lowercased() {
-        case "critical":
-            .red
-        case "high":
-            .orange
-        default:
-            .yellow
-        }
     }
 
     private var relativeRequestedAt: String {

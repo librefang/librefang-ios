@@ -1,28 +1,5 @@
 import SwiftUI
 
-private enum OverviewHandoffFreshness {
-    case fresh
-    case stale
-
-    var label: String {
-        switch self {
-        case .fresh:
-            String(localized: "Fresh")
-        case .stale:
-            String(localized: "Stale")
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .fresh:
-            .green
-        case .stale:
-            .orange
-        }
-    }
-}
-
 struct OverviewView: View {
     @Environment(\.dependencies) private var deps
 
@@ -190,37 +167,37 @@ struct OverviewView: View {
                             value: "\(vm.runningCount)",
                             label: "Running",
                             icon: "play.circle.fill",
-                            color: .green
+                            color: vm.runningAgentStatus.color(positive: .green)
                         )
                         StatBadge(
                             value: formatCost(vm.budget?.dailySpend),
                             label: "Today",
                             icon: "dollarsign.circle",
-                            color: costColor(vm.budget?.dailyPct)
+                            color: StatusPresentation.budgetUtilizationStatus(for: vm.budget?.dailyPct)?.color() ?? .primary
                         )
                         StatBadge(
                             value: "\(vm.pendingApprovalCount)",
                             label: "Approvals",
                             icon: "exclamationmark.shield",
-                            color: vm.pendingApprovalCount > 0 ? .red : .green
+                            color: vm.approvalBacklogStatus.color(positive: .green)
                         )
                         StatBadge(
                             value: "\(vm.configuredProviderCount)",
                             label: "Providers",
                             icon: "key.horizontal",
-                            color: vm.configuredProviderCount > 0 ? .blue : .orange
+                            color: vm.providerReadinessStatus.color(positive: .blue)
                         )
                         StatBadge(
                             value: "\(vm.readyChannelCount)",
                             label: "Channels",
                             icon: "bubble.left.and.bubble.right",
-                            color: vm.readyChannelCount > 0 ? .teal : .secondary
+                            color: vm.channelReadinessStatus.color(positive: .teal)
                         )
                         StatBadge(
                             value: "\(vm.activeHandCount)",
                             label: "Hands",
                             icon: "hand.raised",
-                            color: vm.degradedHandCount > 0 ? .orange : .indigo
+                            color: vm.handReadinessStatus.color(positive: .indigo)
                         )
                     }
 
@@ -254,17 +231,7 @@ struct OverviewView: View {
                         .buttonStyle(.plain)
                     }
 
-                    ReadinessCard(
-                        providerCount: vm.configuredProviderCount,
-                        channelCount: vm.readyChannelCount,
-                        activeHands: vm.activeHandCount,
-                        degradedHands: vm.degradedHandCount,
-                        pendingApprovals: vm.pendingApprovalCount,
-                        connectedPeers: vm.connectedPeerCount,
-                        totalPeers: vm.totalPeerCount,
-                        connectedMCPServers: vm.connectedMCPServerCount,
-                        configuredMCPServers: vm.configuredMCPServerCount
-                    )
+                    ReadinessCard(vm: vm)
 
                     if let usageSummary = vm.usageSummary {
                         UsageSnapshotCard(usageSummary: usageSummary)
@@ -279,7 +246,7 @@ struct OverviewView: View {
                     }
 
                     if !vm.activeHands.isEmpty || !vm.approvals.isEmpty {
-                        LiveSignalsCard(activeHands: vm.activeHands, approvals: vm.approvals)
+                        LiveSignalsCard(activeHands: vm.activeHands, approvals: vm.approvals, hands: vm.hands)
                     }
 
                     if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
@@ -400,15 +367,7 @@ struct OverviewView: View {
 
     private func formatCost(_ value: Double?) -> String {
         guard let value else { return "--" }
-        if value < 0.01 { return "<$0.01" }
-        return String(format: "$%.2f", value)
-    }
-
-    private func costColor(_ pct: Double?) -> Color {
-        guard let pct else { return .primary }
-        if pct > 0.9 { return .red }
-        if pct > 0.7 { return .orange }
-        return .green
+        return localizedUSDCurrency(value)
     }
 
     @ViewBuilder
@@ -429,6 +388,14 @@ private struct AlertsCard: View {
     let mutedCount: Int
     let snapshotAcknowledged: Bool
 
+    private var snapshotState: AlertSnapshotState {
+        AlertSnapshotState(
+            liveAlertCount: alerts.count,
+            mutedAlertCount: mutedCount,
+            isAcknowledged: snapshotAcknowledged
+        )
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -436,12 +403,12 @@ private struct AlertsCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(statusText)
+                Text(snapshotState.overviewLabel)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(statusColor.opacity(0.12))
-                    .foregroundStyle(statusColor)
+                    .background(snapshotState.tone.color.opacity(0.12))
+                    .foregroundStyle(snapshotState.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -453,7 +420,7 @@ private struct AlertsCard: View {
                 ForEach(alerts.prefix(4)) { alert in
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: alert.symbolName)
-                            .foregroundStyle(color(for: alert.severity))
+                            .foregroundStyle(alert.severity.tone.color)
                             .frame(width: 18)
 
                         VStack(alignment: .leading, spacing: 2) {
@@ -483,36 +450,6 @@ private struct AlertsCard: View {
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
-
-    private var statusColor: Color {
-        if alerts.isEmpty && mutedCount > 0 {
-            return .secondary
-        }
-        return snapshotAcknowledged ? .orange : .red
-    }
-
-    private var statusText: String {
-        if alerts.isEmpty && mutedCount > 0 {
-            return String(localized: "Muted")
-        }
-        if snapshotAcknowledged {
-            return String(localized: "Acked")
-        }
-        return alerts.count == 1
-            ? String(localized: "1 live")
-            : String(localized: "\(alerts.count) live")
-    }
-
-    private func color(for severity: MonitoringAlertSeverity) -> Color {
-        switch severity {
-        case .critical:
-            .red
-        case .warning:
-            .orange
-        case .info:
-            .yellow
-        }
-    }
 }
 
 private struct RecentHandoffCard: View {
@@ -531,12 +468,13 @@ private struct RecentHandoffCard: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(statusText(for: entry))
+                let freshnessState = freshnessState(for: entry)
+                Text(freshnessState.label)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(statusColor(for: entry).opacity(0.12))
-                    .foregroundStyle(statusColor(for: entry))
+                    .background(freshnessState.tone.color.opacity(0.12))
+                    .foregroundStyle(freshnessState.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -571,12 +509,10 @@ private struct RecentHandoffCard: View {
             }
 
             Text(
-                entry.checklist.pendingLabels.isEmpty
-                    ? String(localized: "Checklist complete")
-                    : String(localized: "Pending: \(entry.checklist.pendingLabels.joined(separator: ", "))")
+                entry.checklist.summaryLabel
             )
                 .font(.caption2)
-                .foregroundStyle(entry.checklist.pendingLabels.isEmpty ? .green : .secondary)
+                .foregroundStyle(entry.checklist.tone.color)
                 .lineLimit(2)
 
             if !entry.focusAreas.items.isEmpty {
@@ -587,9 +523,14 @@ private struct RecentHandoffCard: View {
             }
 
             if !entry.followUpItems.isEmpty {
-                Text(String(localized: "Follow-ups: \(pendingFollowUpCount) pending · \(completedFollowUpCount) done"))
+                let followUpSummary = HandoffFollowUpSummary.summarize(
+                    pendingCount: pendingFollowUpCount,
+                    completedCount: completedFollowUpCount
+                )
+
+                Text(String(localized: "Follow-ups: \(followUpSummary.settingsLabel)"))
                     .font(.caption2)
-                    .foregroundStyle(pendingFollowUpCount == 0 ? .green : .secondary)
+                    .foregroundStyle(followUpSummary.tone.color)
             }
 
             if let checkInStatus {
@@ -629,19 +570,11 @@ private struct RecentHandoffCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    private func freshnessState(for entry: OnCallHandoffEntry) -> OverviewHandoffFreshness {
+    private func freshnessState(for entry: OnCallHandoffEntry) -> HandoffFreshnessState {
         if Date().timeIntervalSince(entry.createdAt) >= 8 * 60 * 60 {
             return .stale
         }
         return .fresh
-    }
-
-    private func statusText(for entry: OnCallHandoffEntry) -> String {
-        freshnessState(for: entry).label
-    }
-
-    private func statusColor(for entry: OnCallHandoffEntry) -> Color {
-        freshnessState(for: entry).color
     }
 }
 
@@ -703,11 +636,19 @@ private struct ConnectionCard: View {
     let lastRefresh: Date?
     let isStale: Bool
 
+    private var connectionTone: PresentationTone {
+        guard let health else { return .critical }
+        if health.isHealthy && isStale {
+            return .warning
+        }
+        return health.statusTone
+    }
+
     var body: some View {
         HStack {
             HStack(spacing: 8) {
                 Circle()
-                    .fill(connectionColor)
+                    .fill(connectionTone.color)
                     .frame(width: 10, height: 10)
                     .overlay {
                         if health?.isHealthy == true && !isStale {
@@ -753,13 +694,6 @@ private struct ConnectionCard: View {
         }
         return String(localized: "Connected")
     }
-
-    private var connectionColor: Color {
-        if health?.isHealthy != true {
-            return .red
-        }
-        return isStale ? .orange : .green
-    }
 }
 
 private struct SystemSnapshotCard: View {
@@ -781,7 +715,7 @@ private struct SystemSnapshotCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(status.version)
                         .font(.title3.weight(.bold))
-                    Text("Kernel \(status.status)")
+                    Text("Kernel \(status.localizedStatusLabel)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -864,15 +798,7 @@ private struct OverviewMetricRow: View {
 }
 
 private struct ReadinessCard: View {
-    let providerCount: Int
-    let channelCount: Int
-    let activeHands: Int
-    let degradedHands: Int
-    let pendingApprovals: Int
-    let connectedPeers: Int
-    let totalPeers: Int
-    let connectedMCPServers: Int
-    let configuredMCPServers: Int
+    let vm: DashboardViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -882,45 +808,33 @@ private struct ReadinessCard: View {
 
             ReadinessRow(
                 title: String(localized: "Model Layer"),
-                subtitle: providerCount > 0
-                    ? String(localized: "\(providerCount) provider ready")
-                    : String(localized: "No provider configured"),
-                color: providerCount > 0 ? .green : .orange
+                subtitle: vm.providerReadinessStatus.summary,
+                color: vm.providerReadinessStatus.tone.color
             )
             ReadinessRow(
                 title: String(localized: "Channels"),
-                subtitle: channelCount > 0
-                    ? String(localized: "\(channelCount) channel delivering")
-                    : String(localized: "No channel configured"),
-                color: channelCount > 0 ? .green : .secondary
+                subtitle: vm.channelReadinessStatus.summary,
+                color: vm.channelReadinessStatus.tone.color
             )
             ReadinessRow(
                 title: String(localized: "Autonomous Hands"),
-                subtitle: activeHands > 0
-                    ? String(localized: "\(activeHands) active, \(degradedHands) degraded")
-                    : String(localized: "No active hands"),
-                color: degradedHands > 0 ? .orange : activeHands > 0 ? .green : .secondary
+                subtitle: vm.handReadinessStatus.summary,
+                color: vm.handReadinessStatus.tone.color
             )
             ReadinessRow(
                 title: String(localized: "Approvals"),
-                subtitle: pendingApprovals > 0
-                    ? String(localized: "\(pendingApprovals) action waiting")
-                    : String(localized: "No approval backlog"),
-                color: pendingApprovals > 0 ? .red : .green
+                subtitle: vm.approvalBacklogStatus.summary,
+                color: vm.approvalBacklogStatus.tone.color
             )
             ReadinessRow(
                 title: String(localized: "Peer Network"),
-                subtitle: totalPeers > 0
-                    ? String(localized: "\(connectedPeers)/\(totalPeers) peer links active")
-                    : String(localized: "No peer links discovered"),
-                color: connectedPeers > 0 ? .green : .secondary
+                subtitle: vm.peerConnectivityStatus.summary,
+                color: vm.peerConnectivityStatus.tone.color
             )
             ReadinessRow(
                 title: String(localized: "Tooling"),
-                subtitle: configuredMCPServers > 0
-                    ? String(localized: "\(connectedMCPServers)/\(configuredMCPServers) MCP servers online")
-                    : String(localized: "No MCP extension servers configured"),
-                color: connectedMCPServers > 0 ? .green : configuredMCPServers > 0 ? .orange : .secondary
+                subtitle: vm.mcpConnectivityStatus.summary,
+                color: vm.mcpConnectivityStatus.tone.color
             )
         }
         .padding()
@@ -996,9 +910,7 @@ private struct UsageSnapshotCard: View {
     }
 
     private func formatCost(_ value: Double) -> String {
-        if value == 0 { return "$0.00" }
-        if value < 0.01 { return "<$0.01" }
-        return String(format: "$%.2f", value)
+        return localizedUSDCurrency(value)
     }
 }
 
@@ -1062,6 +974,8 @@ private struct GaugeItem: View {
     let pct: Double
 
     var body: some View {
+        let utilizationStatus = StatusPresentation.budgetUtilizationStatus(for: pct) ?? .normal
+
         VStack(spacing: 8) {
             Gauge(value: min(pct, 1.0)) {
                 EmptyView()
@@ -1070,24 +984,18 @@ private struct GaugeItem: View {
                     .font(.system(size: 11, weight: .bold, design: .rounded))
             }
             .gaugeStyle(.accessoryCircularCapacity)
-            .tint(gaugeColor)
+            .tint(utilizationStatus.color())
             .scaleEffect(0.85)
 
             Text(label)
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(.secondary)
 
-            Text("$\(spend, specifier: spend < 1 ? "%.4f" : "%.2f")")
+            Text(localizedUSDCurrency(spend, standardPrecision: 2, smallValuePrecision: 4))
                 .font(.caption2.monospacedDigit())
                 .foregroundStyle(.primary)
         }
         .frame(maxWidth: .infinity)
-    }
-
-    private var gaugeColor: Color {
-        if pct > 0.9 { return .red }
-        if pct > 0.7 { return .orange }
-        return .green
     }
 }
 
@@ -1113,7 +1021,7 @@ private struct TopSpendersCard: View {
 
                     Spacer()
 
-                    Text("$\(agent.dailyCostUsd, specifier: "%.4f")")
+                    Text(localizedUSDCurrency(agent.dailyCostUsd, standardPrecision: 2, smallValuePrecision: 4))
                         .font(.subheadline.monospacedDigit())
                         .foregroundStyle(agent.dailyCostUsd > 1.0 ? .red : .primary)
                 }
@@ -1132,6 +1040,7 @@ private struct TopSpendersCard: View {
 private struct LiveSignalsCard: View {
     let activeHands: [HandInstance]
     let approvals: [ApprovalItem]
+    let hands: [HandDefinition]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -1167,10 +1076,10 @@ private struct LiveSignalsCard: View {
 
                     ForEach(activeHands.prefix(3)) { instance in
                         HStack {
-                            Label(instance.handId.capitalized, systemImage: "hand.raised.fill")
+                            Label(instance.displayName(using: hands), systemImage: "hand.raised.fill")
                                 .foregroundStyle(.indigo)
                             Spacer()
-                            Text(instance.status.capitalized)
+                            Text(instance.localizedStatusLabel)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -1187,10 +1096,6 @@ private struct LiveSignalsCard: View {
 private struct AutomationOverviewCard: View {
     let vm: DashboardViewModel
 
-    private var issueCount: Int {
-        vm.failedWorkflowRunCount + vm.exhaustedTriggerCount + vm.stalledCronJobCount
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -1198,18 +1103,12 @@ private struct AutomationOverviewCard: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(
-                    issueCount == 0
-                        ? String(localized: "Stable")
-                        : (issueCount == 1
-                            ? String(localized: "1 issue")
-                            : String(localized: "\(issueCount) issues"))
-                )
+                Text(vm.automationOverviewSummaryLabel)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(statusColor.opacity(0.12))
-                    .foregroundStyle(statusColor)
+                    .background(vm.automationPressureTone.color.opacity(0.12))
+                    .foregroundStyle(vm.automationPressureTone.color)
                     .clipShape(Capsule())
             }
 
@@ -1219,7 +1118,7 @@ private struct AutomationOverviewCard: View {
                 automationMetric("\(vm.enabledScheduleCount + vm.enabledCronJobCount)", label: String(localized: "Active Jobs"), systemImage: "calendar.badge.clock")
             }
 
-            if issueCount == 0 {
+            if vm.automationOverviewIssueCount == 0 {
                 Text(String(localized: "Workflow runs, triggers, schedules, and cron jobs are visible without active scheduler pressure."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -1258,10 +1157,6 @@ private struct AutomationOverviewCard: View {
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var statusColor: Color {
-        issueCount > 0 ? .orange : .green
     }
 
     @ViewBuilder
@@ -1310,18 +1205,18 @@ private struct DiagnosticsOverviewCard: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(statusLabel)
+                Text(vm.diagnosticsSummaryLabel)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(statusColor.opacity(0.12))
-                    .foregroundStyle(statusColor)
+                    .background(vm.diagnosticsSummaryTone.color.opacity(0.12))
+                    .foregroundStyle(vm.diagnosticsSummaryTone.color)
                     .clipShape(Capsule())
             }
 
             HStack(spacing: 12) {
                 diagnosticsMetric(
-                    vm.healthDetail?.database.capitalized ?? "--",
+                    vm.healthDetail?.localizedDatabaseLabel ?? "--",
                     label: String(localized: "Database"),
                     systemImage: "externaldrive"
                 )
@@ -1353,23 +1248,6 @@ private struct DiagnosticsOverviewCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    private var statusLabel: String {
-        if vm.hasHealthDatabaseIssue {
-            return String(localized: "Degraded")
-        }
-        if vm.hasDiagnosticsIssue {
-            return String(localized: "Warn")
-        }
-        return String(localized: "Healthy")
-    }
-
-    private var statusColor: Color {
-        if vm.hasHealthDatabaseIssue {
-            return .red
-        }
-        return vm.hasDiagnosticsIssue ? .orange : .green
-    }
-
     @ViewBuilder
     private func diagnosticsMetric(_ value: String, label: String, systemImage: String) -> some View {
         VStack(spacing: 6) {
@@ -1392,29 +1270,6 @@ private struct DiagnosticsOverviewCard: View {
 private struct IntegrationsOverviewCard: View {
     let vm: DashboardViewModel
 
-    private var issueCount: Int {
-        vm.unreachableLocalProviderCount
-            + vm.channelRequiredFieldGapCount
-            + (vm.hasEmptyModelCatalog ? 1 : 0)
-            + (hasCatalogFreshnessIssue ? 1 : 0)
-            + vm.agentsWithModelDiagnostics.count
-    }
-
-    private var summaryLabel: String {
-        if vm.hasEmptyModelCatalog || vm.unavailableModelAgentCount > 0 {
-            return String(localized: "Degraded")
-        }
-        return issueCount == 0
-            ? String(localized: "Stable")
-            : (issueCount == 1
-                ? String(localized: "1 issue")
-                : String(localized: "\(issueCount) issues"))
-    }
-
-    private var hasCatalogFreshnessIssue: Bool {
-        vm.isCatalogSyncStale || (vm.catalogLastSyncDate == nil && vm.catalogModels.isEmpty)
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -1422,12 +1277,12 @@ private struct IntegrationsOverviewCard: View {
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(summaryLabel)
+                Text(vm.integrationsOverviewSummaryLabel)
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(statusColor.opacity(0.12))
-                    .foregroundStyle(statusColor)
+                    .background(vm.integrationPressureTone.color.opacity(0.12))
+                    .foregroundStyle(vm.integrationPressureTone.color)
                     .clipShape(Capsule())
             }
 
@@ -1449,7 +1304,7 @@ private struct IntegrationsOverviewCard: View {
                 )
             }
 
-            if issueCount == 0 {
+            if vm.integrationsOverviewIssueCount == 0 {
                 Text(String(localized: "Providers, channels, and the model catalog look consistent from the latest mobile snapshot."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -1485,7 +1340,7 @@ private struct IntegrationsOverviewCard: View {
                             detail: String(localized: "\(vm.configuredProviderCount) configured providers are not yielding executable models")
                         )
                     }
-                    if hasCatalogFreshnessIssue {
+                    if vm.hasCatalogFreshnessIssue {
                         issueRow(
                             icon: "clock.arrow.trianglehead.counterclockwise.rotate.90",
                             color: vm.catalogModels.isEmpty ? .red : .orange,
@@ -1511,13 +1366,6 @@ private struct IntegrationsOverviewCard: View {
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var statusColor: Color {
-        if vm.hasEmptyModelCatalog || vm.unavailableModelAgentCount > 0 || (vm.catalogLastSyncDate == nil && vm.catalogModels.isEmpty) {
-            return .red
-        }
-        return issueCount > 0 ? .orange : .green
     }
 
     private var catalogFreshnessDetail: String {
@@ -1606,24 +1454,26 @@ private struct WatchlistCard: View {
                                         .font(.caption2.weight(.semibold))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
-                                        .background(signalColor(for: item).opacity(0.12))
-                                        .foregroundStyle(signalColor(for: item))
+                                        .background(item.tone.color.opacity(0.12))
+                                        .foregroundStyle(item.tone.color)
                                         .clipShape(Capsule())
                                 }
                                 if let summary = diagnostics[item.agent.id], summary.hasIssues {
-                                    Text(summary.issueCount == 1 ? String(localized: "1 operator issue") : String(localized: "\(summary.issueCount) operator issues"))
+                                    let issueBadge = watchedAgentDiagnosticIssueCountBadge(summary: summary)
+                                    Text(issueBadge.text)
                                         .font(.caption2.weight(.semibold))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
-                                        .background(Color.red.opacity(0.12))
-                                        .foregroundStyle(.red)
+                                        .background(issueBadge.tone.color.opacity(0.12))
+                                        .foregroundStyle(issueBadge.tone.color)
                                         .clipShape(Capsule())
-                                    Text(watchedAgentDiagnosticHeadline(summary: summary))
+                                    let headlineBadge = watchedAgentDiagnosticHeadlineBadge(summary: summary)
+                                    Text(headlineBadge.text)
                                         .font(.caption2.weight(.semibold))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
-                                        .background(Color.orange.opacity(0.12))
-                                        .foregroundStyle(.orange)
+                                        .background(headlineBadge.tone.color.opacity(0.12))
+                                        .foregroundStyle(headlineBadge.tone.color)
                                         .clipShape(Capsule())
                                 }
                             }
@@ -1662,16 +1512,6 @@ private struct WatchlistCard: View {
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    private func signalColor(for item: AgentAttentionItem) -> Color {
-        if item.pendingApprovals > 0 || item.hasAuthIssue {
-            return .red
-        }
-        if item.severity > 0 {
-            return .orange
-        }
-        return .secondary
     }
 
     @ViewBuilder
@@ -1786,7 +1626,7 @@ private struct SessionWatchlistCard: View {
     private func sessionSummaryRow(_ item: SessionAttentionItem) -> some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: "rectangle.stack")
-                .foregroundStyle(item.severity >= 6 ? .red : .orange)
+                .foregroundStyle(item.tone.color)
                 .frame(width: 18)
 
             VStack(alignment: .leading, spacing: 4) {
@@ -1846,17 +1686,6 @@ private struct AuditFeedCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    private func severityColor(_ severity: AuditEventSeverity) -> Color {
-        switch severity {
-        case .critical:
-            .red
-        case .warning:
-            .orange
-        case .info:
-            .blue
-        }
-    }
-
     private func relativeTime(_ timestamp: String) -> String {
         guard let date = parseDate(timestamp) else { return timestamp }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
@@ -1866,7 +1695,7 @@ private struct AuditFeedCard: View {
     private func eventSummaryRow(_ entry: AuditEntry) -> some View {
         HStack(alignment: .top, spacing: 10) {
             Circle()
-                .fill(severityColor(entry.severity))
+                .fill(entry.severity.tone.color)
                 .frame(width: 8, height: 8)
                 .padding(.top, 6)
 
@@ -1902,6 +1731,23 @@ private struct AuditFeedCard: View {
         formatter.formatOptions = [.withInternetDateTime]
         return formatter.date(from: value)
     }
+}
+
+private func localizedUSDCurrency(
+    _ value: Double,
+    standardPrecision: Int = 2,
+    smallValuePrecision: Int? = nil,
+    minimumDisplayValue: Double = 0.01
+) -> String {
+    let style = FloatingPointFormatStyle<Double>.Currency(code: "USD")
+    if value == 0 {
+        return value.formatted(style.precision(.fractionLength(standardPrecision)))
+    }
+    if value < minimumDisplayValue {
+        return "<\(minimumDisplayValue.formatted(style.precision(.fractionLength(standardPrecision))))"
+    }
+    let precision = value < 1 ? (smallValuePrecision ?? standardPrecision) : standardPrecision
+    return value.formatted(style.precision(.fractionLength(precision)))
 }
 
 private struct A2ASummaryCard: View {
@@ -1957,7 +1803,7 @@ private struct AgentPreviewCard: View {
                         .lineLimit(1)
                     Spacer()
                     Circle()
-                        .fill(agent.isRunning ? .green : .gray)
+                        .fill(agent.stateTone.color)
                         .frame(width: 8, height: 8)
                 }
             }

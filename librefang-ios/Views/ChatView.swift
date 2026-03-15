@@ -144,16 +144,19 @@ private struct SessionBanner: View {
         if viewModel.messageCount > 0 || viewModel.contextWindowTokens > 0 || viewModel.sessionLabel != nil {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(viewModel.sessionLabel?.isEmpty == false ? viewModel.sessionLabel! : "Current Session")
+                    Text(viewModel.sessionLabel?.isEmpty == false ? viewModel.sessionLabel! : String(localized: "Current Session"))
                         .font(.caption.weight(.semibold))
-                    Text("\(viewModel.messageCount) messages")
+                    Text(String(localized: "\(viewModel.messageCount) messages"))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
 
                 Spacer()
 
-                Label(viewModel.isRealtimeConnected ? "Live" : "Fallback", systemImage: viewModel.isRealtimeConnected ? "dot.radiowaves.left.and.right" : "arrow.clockwise")
+                Label(
+                    viewModel.isRealtimeConnected ? String(localized: "Live") : String(localized: "Fallback"),
+                    systemImage: viewModel.isRealtimeConnected ? "dot.radiowaves.left.and.right" : "arrow.clockwise"
+                )
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(viewModel.isRealtimeConnected ? .green : .orange)
 
@@ -219,7 +222,7 @@ private struct MessageBubble: View {
                             Label("\(tokens)", systemImage: "number")
                         }
                         if let cost = message.cost, cost > 0 {
-                            Label("$\(cost, specifier: "%.4f")", systemImage: "dollarsign.circle")
+                            Label(localizedUSDCurrency(cost, standardPrecision: 4, minimumDisplayValue: 0.0001), systemImage: "dollarsign.circle")
                         }
                     }
                     Text(message.timestamp, style: .time)
@@ -288,4 +291,29 @@ private struct TypingIndicator: View {
     private func dotScale(for index: Int) -> CGFloat {
         phase == 0 ? 0.6 : 1.0
     }
+}
+
+private func localizedUSDCurrency(
+    _ value: Double,
+    standardPrecision: Int = 2,
+    smallValuePrecision: Int? = nil,
+    minimumDisplayValue: Double = 0.01
+) -> String {
+    let standard = FloatingPointFormatStyle<Double>.Currency(code: "USD")
+        .precision(.fractionLength(standardPrecision))
+    if value == 0 {
+        return value.formatted(standard)
+    }
+    if value < minimumDisplayValue {
+        let minimumPrecision = smallValuePrecision ?? standardPrecision
+        let minimumStyle = FloatingPointFormatStyle<Double>.Currency(code: "USD")
+            .precision(.fractionLength(minimumPrecision))
+        return "<\(minimumDisplayValue.formatted(minimumStyle))"
+    }
+    if let smallValuePrecision, value < 1 {
+        let small = FloatingPointFormatStyle<Double>.Currency(code: "USD")
+            .precision(.fractionLength(smallValuePrecision))
+        return value.formatted(small)
+    }
+    return value.formatted(standard)
 }

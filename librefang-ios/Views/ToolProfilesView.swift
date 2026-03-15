@@ -47,9 +47,9 @@ struct ToolProfilesView: View {
             } else if let selectedProfileName, !selectedProfileName.isEmpty, !isLoading, loadError == nil {
                 Section {
                     ContentUnavailableView(
-                        "Current Profile Missing",
+                        String(localized: "Current Profile Missing"),
                         systemImage: "person.crop.circle.badge.exclamationmark",
-                        description: Text("LibreFang did not return a tool profile named \"\(selectedProfileName)\".")
+                        description: Text(String(localized: "LibreFang did not return a tool profile named \"\(selectedProfileName)\"."))
                     )
                 } header: {
                     Text("Current Profile")
@@ -59,7 +59,7 @@ struct ToolProfilesView: View {
             if let loadError {
                 Section("Status") {
                     ContentUnavailableView(
-                        "Profiles Unavailable",
+                        String(localized: "Profiles Unavailable"),
                         systemImage: "person.crop.circle.badge.exclamationmark",
                         description: Text(loadError)
                     )
@@ -101,10 +101,14 @@ struct ToolProfilesView: View {
     @ViewBuilder
     private func profileHeader(_ profile: ToolProfileSummary, highlight: Bool) -> some View {
         HStack {
-            Text(profile.name.capitalized)
+            Text(profile.name)
                 .font(.subheadline.weight(.semibold))
             Spacer()
-            Text("\(profile.tools.count) tools")
+            Text(
+                profile.tools.count == 1
+                    ? String(localized: "1 tool")
+                    : String(localized: "\(profile.tools.count) tools")
+            )
                 .font(.caption2.weight(.semibold))
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)

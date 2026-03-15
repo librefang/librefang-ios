@@ -26,6 +26,17 @@ enum AuditEventSeverity: Int, CaseIterable {
             "xmark.octagon"
         }
     }
+
+    var tone: PresentationTone {
+        switch self {
+        case .critical:
+            return .critical
+        case .warning:
+            return .warning
+        case .info:
+            return .positive
+        }
+    }
 }
 
 enum AuditSeverityScope: String, CaseIterable, Identifiable {

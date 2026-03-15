@@ -69,9 +69,9 @@ struct SessionsView: View {
             if filteredItems.isEmpty && !vm.isLoading {
                 Section("Sessions") {
                     ContentUnavailableView(
-                        searchText.isEmpty ? "No Sessions In This Filter" : "No Search Results",
+                        searchText.isEmpty ? String(localized: "No Sessions In This Filter") : String(localized: "No Search Results"),
                         systemImage: "rectangle.stack",
-                        description: Text(searchText.isEmpty ? "Pull to refresh or switch the session filter." : "Try a different agent name, label, or session signal.")
+                        description: Text(searchText.isEmpty ? String(localized: "Pull to refresh or switch the session filter.") : String(localized: "Try a different agent name, label, or session signal."))
                     )
                 }
             } else {
@@ -371,12 +371,12 @@ struct SessionsView: View {
             sessionLabelDraft = ""
             await vm.refresh()
             operatorNotice = OperatorActionNotice(
-                title: "Session Label",
-                message: response.message ?? (trimmedLabel.isEmpty ? "Session label cleared." : "Session label updated.")
+                title: String(localized: "Session Label"),
+                message: response.message ?? (trimmedLabel.isEmpty ? String(localized: "Session label cleared.") : String(localized: "Session label updated."))
             )
         } catch {
             operatorNotice = OperatorActionNotice(
-                title: "Session Label",
+                title: String(localized: "Session Label"),
                 message: error.localizedDescription
             )
         }
@@ -392,12 +392,12 @@ struct SessionsView: View {
             let response = try await deps.apiClient.deleteSession(id: session.sessionId)
             await vm.refresh()
             operatorNotice = OperatorActionNotice(
-                title: "Delete Session",
-                message: response.message ?? "Session deleted."
+                title: String(localized: "Delete Session"),
+                message: response.message ?? String(localized: "Session deleted.")
             )
         } catch {
             operatorNotice = OperatorActionNotice(
-                title: "Delete Session",
+                title: String(localized: "Delete Session"),
                 message: error.localizedDescription
             )
         }
@@ -413,13 +413,13 @@ enum SessionFilter: CaseIterable {
     var label: String {
         switch self {
         case .all:
-            "All"
+            String(localized: "All")
         case .attention:
-            "Attention"
+            String(localized: "Attention")
         case .highVolume:
-            "High Volume"
+            String(localized: "High Volume")
         case .unlabeled:
-            "Unlabeled"
+            String(localized: "Unlabeled")
         }
     }
 
@@ -504,7 +504,7 @@ private struct SessionMonitorRow: View {
             HStack(spacing: 8) {
                 Label("\(item.session.messageCount)", systemImage: "bubble.left.and.bubble.right")
                     .font(.caption)
-                    .foregroundStyle(item.session.messageCount >= 40 ? .orange : .secondary)
+                    .foregroundStyle(item.messageCountTone.color)
 
                 if !item.reasons.isEmpty {
                     ForEach(item.reasons.prefix(2), id: \.self) { reason in
@@ -512,8 +512,8 @@ private struct SessionMonitorRow: View {
                             .font(.caption2.weight(.medium))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(signalColor.opacity(0.12))
-                            .foregroundStyle(signalColor)
+                            .background(item.tone.color.opacity(0.12))
+                            .foregroundStyle(item.tone.color)
                             .clipShape(Capsule())
                     }
                 }
@@ -530,12 +530,6 @@ private struct SessionMonitorRow: View {
     private var relativeCreatedAt: String {
         guard let date = item.session.createdAt.sessionISO8601Date else { return item.session.createdAt }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
-    }
-
-    private var signalColor: Color {
-        if item.severity >= 6 { return .red }
-        if item.severity > 0 { return .orange }
-        return .secondary
     }
 }
 

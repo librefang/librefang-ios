@@ -27,6 +27,23 @@ nonisolated struct DeliveryReceipt: Codable, Identifiable, Sendable, Hashable {
     }
 }
 
+extension DeliveryReceipt {
+    var localizedChannelLabel: String {
+        switch channel.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "email":
+            return String(localized: "Email")
+        case "sms":
+            return String(localized: "SMS")
+        case "push":
+            return String(localized: "Push")
+        case "webhook":
+            return String(localized: "Webhook")
+        default:
+            return channel.replacingOccurrences(of: "_", with: " ").capitalized
+        }
+    }
+}
+
 nonisolated enum DeliveryStatus: String, Codable, Sendable, Hashable {
     case sent
     case delivered
@@ -43,6 +60,19 @@ nonisolated enum DeliveryStatus: String, Codable, Sendable, Hashable {
             return String(localized: "Failed")
         case .bestEffort:
             return String(localized: "Best Effort")
+        }
+    }
+
+    var tone: PresentationTone {
+        switch self {
+        case .delivered:
+            return .positive
+        case .failed:
+            return .critical
+        case .bestEffort:
+            return .warning
+        case .sent:
+            return .caution
         }
     }
 }

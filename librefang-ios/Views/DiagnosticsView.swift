@@ -31,24 +31,26 @@ struct DiagnosticsView: View {
             if let healthDetail = vm.healthDetail {
                 Section {
                     DiagnosticsMetricRow(
-                        label: "Kernel Status",
-                        value: healthDetail.status.capitalized,
-                        detail: "Database \(healthDetail.database.capitalized)"
+                        label: String(localized: "Kernel Status"),
+                        value: healthDetail.localizedStatusLabel,
+                        detail: String(localized: "Database \(healthDetail.localizedDatabaseLabel)")
                     )
                     DiagnosticsMetricRow(
-                        label: "Uptime",
+                        label: String(localized: "Uptime"),
                         value: formatDuration(healthDetail.uptimeSeconds),
-                        detail: "\(healthDetail.agentCount) agents in registry"
+                        detail: healthDetail.agentCount == 1
+                            ? String(localized: "1 agent in registry")
+                            : String(localized: "\(healthDetail.agentCount) agents in registry")
                     )
                     DiagnosticsMetricRow(
-                        label: "Supervisor",
-                        value: "\(healthDetail.panicCount) panics / \(healthDetail.restartCount) restarts",
-                        detail: healthDetail.panicCount > 0 ? "Kernel supervisor recovered at least one panic." : "No panic recovery recorded."
+                        label: String(localized: "Supervisor"),
+                        value: String(localized: "\(healthDetail.panicCount) panics / \(healthDetail.restartCount) restarts"),
+                        detail: healthDetail.panicCount > 0 ? String(localized: "Kernel supervisor recovered at least one panic.") : String(localized: "No panic recovery recorded.")
                     )
                 } header: {
                     Text("Health Detail")
                 } footer: {
-                    Text(healthDetail.isHealthy ? "Deep health diagnostics are currently healthy." : "Deep health diagnostics report degraded runtime state.")
+                    Text(healthDetail.isHealthy ? String(localized: "Deep health diagnostics are currently healthy.") : String(localized: "Deep health diagnostics report degraded runtime state."))
                 }
 
                 if !healthDetail.configWarnings.isEmpty {
@@ -74,19 +76,19 @@ struct DiagnosticsView: View {
             if let versionInfo = vm.versionInfo {
                 Section {
                     DiagnosticsMetricRow(
-                        label: "Version",
+                        label: String(localized: "Version"),
                         value: versionInfo.version,
                         detail: versionInfo.name
                     )
                     DiagnosticsMetricRow(
-                        label: "Git SHA",
+                        label: String(localized: "Git SHA"),
                         value: shortSHA(versionInfo.gitSHA),
                         detail: versionInfo.buildDate
                     )
                     DiagnosticsMetricRow(
-                        label: "Toolchain",
+                        label: String(localized: "Toolchain"),
                         value: versionInfo.rustVersion,
-                        detail: "\(versionInfo.platform) / \(versionInfo.arch)"
+                        detail: String(localized: "\(versionInfo.platform) / \(versionInfo.arch)")
                     )
                 } header: {
                     Text("Build")
@@ -96,24 +98,24 @@ struct DiagnosticsView: View {
             if let configSummary = vm.configSummary {
                 Section {
                     DiagnosticsMetricRow(
-                        label: "Home Dir",
+                        label: String(localized: "Home Dir"),
                         value: configSummary.homeDir,
                         detail: configSummary.dataDir
                     )
                     DiagnosticsMetricRow(
-                        label: "Default Model",
+                        label: String(localized: "Default Model"),
                         value: configSummary.defaultModel.model,
                         detail: configSummary.defaultModel.provider
                     )
                     DiagnosticsMetricRow(
-                        label: "API Key",
+                        label: String(localized: "API Key"),
                         value: configSummary.apiKey,
-                        detail: configSummary.defaultModel.apiKeyEnv ?? "No provider env override"
+                        detail: configSummary.defaultModel.apiKeyEnv ?? String(localized: "No provider env override")
                     )
                     DiagnosticsMetricRow(
-                        label: "Memory Decay",
-                        value: String(format: "%.3f", configSummary.memory.decayRate),
-                        detail: "Kernel memory compaction / decay tuning"
+                        label: String(localized: "Memory Decay"),
+                        value: configSummary.memory.decayRate.formatted(.number.precision(.fractionLength(3))),
+                        detail: String(localized: "Kernel memory compaction / decay tuning")
                     )
                 } header: {
                     Text("Config")
@@ -125,25 +127,27 @@ struct DiagnosticsView: View {
             if let metrics {
                 Section {
                     DiagnosticsMetricRow(
-                        label: "Agents",
-                        value: "\(metrics.activeAgents)/\(metrics.totalAgents) active",
-                        detail: "Prometheus gauge snapshot"
+                        label: String(localized: "Agents"),
+                        value: String(localized: "\(metrics.activeAgents)/\(metrics.totalAgents) active"),
+                        detail: String(localized: "Prometheus gauge snapshot")
                     )
                     DiagnosticsMetricRow(
-                        label: "Rolling Tokens",
+                        label: String(localized: "Rolling Tokens"),
                         value: metrics.totalRollingTokens.formatted(),
-                        detail: "\(metrics.totalRollingToolCalls.formatted()) tool calls in the current metrics window"
+                        detail: metrics.totalRollingToolCalls == 1
+                            ? String(localized: "1 tool call in the current metrics window")
+                            : String(localized: "\(metrics.totalRollingToolCalls.formatted()) tool calls in the current metrics window")
                     )
                     DiagnosticsMetricRow(
-                        label: "Supervisor Counters",
-                        value: "\(metrics.panicCount) panics / \(metrics.restartCount) restarts",
-                        detail: "Exported through /api/metrics"
+                        label: String(localized: "Supervisor Counters"),
+                        value: String(localized: "\(metrics.panicCount) panics / \(metrics.restartCount) restarts"),
+                        detail: String(localized: "Exported through /api/metrics")
                     )
                     if let versionLabel = metrics.versionLabel {
                         DiagnosticsMetricRow(
-                            label: "Metrics Version",
+                            label: String(localized: "Metrics Version"),
                             value: versionLabel,
-                            detail: "Version label from librefang_info"
+                            detail: String(localized: "Version label from librefang_info")
                         )
                     }
                 } header: {
@@ -155,8 +159,8 @@ struct DiagnosticsView: View {
                         ForEach(Array(metrics.tokenLeaders.prefix(5).enumerated()), id: \.offset) { index, sample in
                             DiagnosticsMetricListRow(
                                 rank: index + 1,
-                                title: sample.labels["agent"] ?? "Unknown agent",
-                                subtitle: sample.labels["model"] ?? sample.labels["provider"] ?? "Token usage",
+                                title: sample.labels["agent"] ?? String(localized: "Unknown agent"),
+                                subtitle: sample.labels["model"] ?? sample.labels["provider"] ?? String(localized: "Token usage"),
                                 value: Int(sample.value).formatted()
                             )
                         }
@@ -170,8 +174,8 @@ struct DiagnosticsView: View {
                         ForEach(Array(metrics.toolCallLeaders.prefix(5).enumerated()), id: \.offset) { index, sample in
                             DiagnosticsMetricListRow(
                                 rank: index + 1,
-                                title: sample.labels["agent"] ?? "Unknown agent",
-                                subtitle: "Tool calls",
+                                title: sample.labels["agent"] ?? String(localized: "Unknown agent"),
+                                subtitle: String(localized: "Tool calls"),
                                 value: Int(sample.value).formatted()
                             )
                         }
@@ -213,12 +217,12 @@ struct DiagnosticsView: View {
         let minutes = (seconds % 3_600) / 60
 
         if days > 0 {
-            return "\(days)d \(hours)h"
+            return String(localized: "\(days)d \(hours)h")
         }
         if hours > 0 {
-            return "\(hours)h \(minutes)m"
+            return String(localized: "\(hours)h \(minutes)m")
         }
-        return "\(minutes)m"
+        return String(localized: "\(minutes)m")
     }
 
     private func shortSHA(_ sha: String) -> String {
@@ -239,7 +243,7 @@ private struct DiagnosticsScoreboard: View {
     var body: some View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatBadge(
-                value: vm.healthDetail?.status.capitalized ?? "--",
+                value: vm.healthDetail?.localizedStatusLabel ?? "--",
                 label: "Status",
                 icon: "stethoscope",
                 color: vm.hasDiagnosticsIssue ? .orange : .green

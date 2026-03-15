@@ -120,6 +120,19 @@ struct AgentDetailView: View {
         agentFiles.filter { !$0.exists }.count
     }
 
+    private var existingWorkspaceFileCount: Int {
+        agentFiles.filter(\.exists).count
+    }
+
+    private var workspaceIdentitySummary: WorkspaceIdentitySummary {
+        .summarize(existingCount: existingWorkspaceFileCount, totalCount: agentFiles.count)
+    }
+
+    private var providerAlignmentStatus: ProviderAlignmentStatus? {
+        guard let providerMatchesResolvedModel else { return nil }
+        return ProviderAlignmentStatus(isAligned: providerMatchesResolvedModel)
+    }
+
     private var diagnosticsShareText: String {
         let structuredMemoryCount = agentMemory.filter(\.isStructured).count
         let diagnosticsModelLabel = requestedModelReference ?? agent.modelName ?? String(localized: "Unknown")
@@ -430,10 +443,10 @@ struct AgentDetailView: View {
 
     private var statusSection: some View {
         Section("Status") {
-            DetailRow(icon: "power", label: "State", value: agent.stateLabel, valueColor: stateColor)
-            DetailRow(icon: "gearshape.2", label: "Mode", value: agent.mode)
-            DetailRow(icon: "checkmark.circle", label: "Ready", value: agent.ready ? String(localized: "Yes") : String(localized: "No"),
-                      valueColor: agent.ready ? .green : .orange)
+            DetailRow(icon: "power", label: "State", value: agent.stateLabel, valueColor: agent.stateTone.color)
+            DetailRow(icon: "gearshape.2", label: "Mode", value: agent.modeLabel)
+            DetailRow(icon: "checkmark.circle", label: "Ready", value: agent.readyLabel,
+                      valueColor: agent.readyTone.color)
             if let provider = agent.modelProvider {
                 DetailRow(icon: "cloud", label: "Provider", value: provider)
             }
@@ -445,7 +458,7 @@ struct AgentDetailView: View {
                     icon: "square.stack.3d.up.slash",
                     label: "Catalog Check",
                     value: modelDiagnostic.issueSummary,
-                    valueColor: .orange
+                    valueColor: modelDiagnostic.statusTone.color
                 )
                 if let resolvedModel = modelDiagnostic.resolvedModel {
                     DetailRow(
@@ -455,7 +468,7 @@ struct AgentDetailView: View {
                     )
                 }
             }
-            if let tier = agent.modelTier {
+            if let tier = agent.modelTierLabel {
                 DetailRow(icon: "star", label: "Tier", value: tier)
             }
             if let auth = agent.authStatus {
@@ -463,7 +476,7 @@ struct AgentDetailView: View {
                     icon: "lock",
                     label: "Auth",
                     value: agent.authStatusLabel ?? auth,
-                    valueColor: auth == "configured" ? .green : .red
+                    valueColor: agent.authStatusTone?.color ?? .secondary
                 )
             }
             if !isLoadingDeliveries {
@@ -471,17 +484,15 @@ struct AgentDetailView: View {
                     icon: "paperplane",
                     label: "Delivery Check",
                     value: deliveryStatusSummary,
-                    valueColor: deliveryStatusColor
+                    valueColor: deliverySummaryStatus.tone.color
                 )
             }
             if !isLoadingFiles && !agentFiles.isEmpty {
                 DetailRow(
                     icon: "doc.badge.gearshape",
                     label: "Workspace Check",
-                    value: missingWorkspaceFileCount == 0
-                        ? String(localized: "Identity files present")
-                        : String(localized: "\(missingWorkspaceFileCount) missing"),
-                    valueColor: missingWorkspaceFileCount == 0 ? .green : .orange
+                    value: workspaceIdentitySummary.statusLabel,
+                    valueColor: workspaceIdentitySummary.tone.color
                 )
             }
             if !isLoadingCapabilities {
@@ -490,7 +501,7 @@ struct AgentDetailView: View {
                         icon: "slider.horizontal.3",
                         label: "Tool Scope",
                         value: toolScopeSummary(agentToolFilters),
-                        valueColor: agentToolFilters.isRestricted ? .orange : .green
+                        valueColor: agentToolFilters.scopeTone.color
                     )
                 }
                 if let agentSkills {
@@ -498,7 +509,7 @@ struct AgentDetailView: View {
                         icon: "sparkles",
                         label: "Skills",
                         value: assignmentSummary(agentSkills, emptyLabel: String(localized: "All skills")),
-                        valueColor: agentSkills.usesAllowlist ? .orange : .green
+                        valueColor: agentSkills.scopeTone.color
                     )
                 }
                 if let agentMCPServers {
@@ -506,7 +517,7 @@ struct AgentDetailView: View {
                         icon: "shippingbox",
                         label: "MCP Scope",
                         value: assignmentSummary(agentMCPServers, emptyLabel: String(localized: "All servers")),
-                        valueColor: agentMCPServers.usesAllowlist ? .orange : .green
+                        valueColor: agentMCPServers.scopeTone.color
                     )
                 }
                 NavigationLink {
@@ -586,19 +597,15 @@ struct AgentDetailView: View {
                     DetailRow(
                         icon: "checkmark.circle",
                         label: "Availability",
-                        value: resolvedCatalogModel.available
-                            ? String(localized: "Available")
-                            : String(localized: "Unavailable"),
-                        valueColor: resolvedCatalogModel.available ? .green : .orange
+                        value: resolvedCatalogModel.localizedAvailabilityLabel,
+                        valueColor: resolvedCatalogModel.availabilityTone.color
                     )
-                    if let providerMatchesResolvedModel {
+                    if let providerAlignmentStatus {
                         DetailRow(
                             icon: "arrow.triangle.branch",
                             label: "Provider Match",
-                            value: providerMatchesResolvedModel
-                                ? String(localized: "Match")
-                                : String(localized: "Drift"),
-                            valueColor: providerMatchesResolvedModel ? .green : .orange
+                            value: providerAlignmentStatus.label,
+                            valueColor: providerAlignmentStatus.tone.color
                         )
                     }
                     LabeledContent("Capabilities") {
@@ -670,17 +677,15 @@ struct AgentDetailView: View {
                                 .font(.subheadline.weight(.medium))
 
                             if let match = fallbackCatalogModel(for: fallback) {
-                                Text(
-                                    match.available
-                                        ? String(localized: "Catalog available")
-                                        : String(localized: "Catalog unavailable")
-                                )
+                                Text(match.available
+                                    ? String(localized: "Catalog available")
+                                    : String(localized: "Catalog unavailable"))
                                     .font(.caption)
-                                    .foregroundStyle(match.available ? .green : .orange)
+                                    .foregroundStyle(match.availabilityTone.color)
                             } else {
                                 Text("No catalog match")
                                     .font(.caption)
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(PresentationTone.warning.color)
                             }
                         }
                         .padding(.vertical, 2)
@@ -777,7 +782,7 @@ struct AgentDetailView: View {
                         EmptyView()
                     }
                     .gaugeStyle(.accessoryCircularCapacity)
-                    .tint(progressColor(detail.tokens.pct))
+                    .tint((StatusPresentation.budgetUtilizationStatus(for: detail.tokens.pct) ?? .normal).color())
                     .scaleEffect(0.7)
                 }
             }
@@ -1003,11 +1008,9 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             } else {
-                let existingFiles = agentFiles.filter(\.exists)
-
                 LabeledContent("Identity Files") {
-                    Text("\(existingFiles.count)/\(agentFiles.count)")
-                        .foregroundStyle(existingFiles.count < agentFiles.count ? .orange : .green)
+                    Text(workspaceIdentitySummary.progressLabel)
+                        .foregroundStyle(workspaceIdentitySummary.tone.color)
                         .monospacedDigit()
                 }
 
@@ -1189,21 +1192,6 @@ struct AgentDetailView: View {
         }
     }
 
-    private var stateColor: Color {
-        switch agent.state {
-        case "Running": .green
-        case "Suspended": .yellow
-        case "Terminated": .red
-        default: .gray
-        }
-    }
-
-    private func progressColor(_ pct: Double) -> Color {
-        if pct > 0.9 { return .red }
-        if pct > 0.7 { return .orange }
-        return .green
-    }
-
     private func normalizedProvider(_ value: String?) -> String? {
         guard let value else { return nil }
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1226,23 +1214,15 @@ struct AgentDetailView: View {
     }
 
     private var deliveryStatusSummary: String {
-        if failedDeliveryCount > 0 {
-            return String(localized: "\(failedDeliveryCount) failed")
-        }
-        if unsettledDeliveryCount > 0 {
-            return String(localized: "\(unsettledDeliveryCount) unsettled")
-        }
-        if !agentDeliveries.isEmpty {
-            return String(localized: "No recent failures")
-        }
-        return String(localized: "No recent sends")
+        deliverySummaryStatus.label
     }
 
-    private var deliveryStatusColor: Color {
-        if failedDeliveryCount > 0 { return .red }
-        if unsettledDeliveryCount > 0 { return .orange }
-        if !agentDeliveries.isEmpty { return .green }
-        return .secondary
+    private var deliverySummaryStatus: DeliverySummaryStatus {
+        .summarize(
+            failedCount: failedDeliveryCount,
+            unsettledCount: unsettledDeliveryCount,
+            totalCount: agentDeliveries.count
+        )
     }
 
     private func profileToolPreview(_ profile: ToolProfileSummary) -> String {
@@ -1651,22 +1631,41 @@ private struct BudgetPeriodRow: View {
     let period: BudgetPeriod
 
     var body: some View {
+        let utilizationStatus = StatusPresentation.budgetUtilizationStatus(for: period.pct) ?? .normal
+
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(label)
                     .font(.subheadline)
                 Spacer()
-                Text("$\(period.spend, specifier: "%.4f")")
+                Text(localizedUSDCurrency(period.spend, standardPrecision: 2, smallValuePrecision: 4))
                     .font(.subheadline.monospacedDigit().weight(.medium))
-                Text("/ $\(period.limit, specifier: "%.2f")")
+                Text("/ \(localizedUSDCurrency(period.limit))")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             ProgressView(value: min(period.pct, 1.0))
-                .tint(period.pct > 0.9 ? .red : period.pct > 0.7 ? .orange : .green)
+                .tint(utilizationStatus.color())
         }
         .padding(.vertical, 2)
     }
+}
+
+private func localizedUSDCurrency(
+    _ value: Double,
+    standardPrecision: Int = 2,
+    smallValuePrecision: Int? = nil,
+    minimumDisplayValue: Double = 0.01
+) -> String {
+    let style = FloatingPointFormatStyle<Double>.Currency(code: "USD")
+    if value == 0 {
+        return value.formatted(style.precision(.fractionLength(standardPrecision)))
+    }
+    if value < minimumDisplayValue {
+        return "<\(minimumDisplayValue.formatted(style.precision(.fractionLength(standardPrecision))))"
+    }
+    let precision = value < 1 ? (smallValuePrecision ?? standardPrecision) : standardPrecision
+    return value.formatted(style.precision(.fractionLength(precision)))
 }
 
 private struct SessionPreviewRow: View {
@@ -1675,9 +1674,9 @@ private struct SessionPreviewRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(roleTitle)
+                Text(message.localizedRoleLabel)
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(roleColor)
+                    .foregroundStyle(message.roleTintColor)
                 Spacer()
                 if let toolCount = message.tools?.count, toolCount > 0 {
                     Text(toolSummaryLabel(toolCount))
@@ -1706,8 +1705,8 @@ private struct SessionPreviewRow: View {
                                     .lineLimit(1)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 6)
-                                    .background(Color.blue.opacity(0.12))
-                                    .foregroundStyle(.blue)
+                                    .background(message.roleTintColor.opacity(0.12))
+                                    .foregroundStyle(message.roleTintColor)
                                     .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
@@ -1717,28 +1716,6 @@ private struct SessionPreviewRow: View {
             }
         }
         .padding(.vertical, 2)
-    }
-
-    private var roleTitle: String {
-        switch message.role {
-        case "User":
-            String(localized: "User")
-        case "System":
-            String(localized: "System")
-        default:
-            String(localized: "Agent")
-        }
-    }
-
-    private var roleColor: Color {
-        switch message.role {
-        case "User":
-            .blue
-        case "System":
-            .orange
-        default:
-            .green
-        }
     }
 
     private var displayText: String {
@@ -1832,7 +1809,7 @@ private struct AgentSessionInventoryRow: View {
                 }
                 Text("\(item.session.messageCount) msgs")
                     .font(.caption2.monospacedDigit())
-                    .foregroundStyle(item.session.messageCount >= 40 ? .orange : .secondary)
+                    .foregroundStyle(item.messageCountTone.color)
             }
 
             HStack(spacing: 8) {
@@ -1846,8 +1823,8 @@ private struct AgentSessionInventoryRow: View {
                             .font(.caption2.weight(.medium))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(signalColor.opacity(0.12))
-                            .foregroundStyle(signalColor)
+                            .background(item.tone.color.opacity(0.12))
+                            .foregroundStyle(item.tone.color)
                             .clipShape(Capsule())
                     }
                 }
@@ -1872,11 +1849,6 @@ private struct AgentSessionInventoryRow: View {
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
     }
 
-    private var signalColor: Color {
-        if item.severity >= 6 { return .red }
-        if item.severity > 0 { return .orange }
-        return .secondary
-    }
 }
 
 private struct AgentAuditRow: View {
@@ -1900,7 +1872,7 @@ private struct AgentAuditRow: View {
 
             Text(entry.localizedOutcomeLabel)
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(outcomeColor)
+                .foregroundStyle(entry.severity.tone.color)
         }
         .padding(.vertical, 2)
     }
@@ -1910,16 +1882,6 @@ private struct AgentAuditRow: View {
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
     }
 
-    private var outcomeColor: Color {
-        switch entry.severity {
-        case .critical:
-            .red
-        case .warning:
-            .orange
-        case .info:
-            .green
-        }
-    }
 }
 
 private struct AgentMemorySummaryRow: View {
@@ -1980,8 +1942,8 @@ private struct AgentDeliverySummaryRow: View {
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(statusColor.opacity(0.12))
-                    .foregroundStyle(statusColor)
+                    .background(receipt.status.tone.color.opacity(0.12))
+                    .foregroundStyle(receipt.status.tone.color)
                     .clipShape(Capsule())
             }
 
@@ -1993,18 +1955,6 @@ private struct AgentDeliverySummaryRow: View {
         .padding(.vertical, 2)
     }
 
-    private var statusColor: Color {
-        switch receipt.status {
-        case .delivered:
-            .green
-        case .failed:
-            .red
-        case .bestEffort:
-            .orange
-        case .sent:
-            .blue
-        }
-    }
 }
 
 private extension String {

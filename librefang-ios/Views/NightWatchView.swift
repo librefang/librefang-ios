@@ -541,27 +541,39 @@ private struct NightWatchHeroCard: View {
 
             HStack(spacing: 10) {
                 if isAcknowledged {
-                    Button("Clear Ack", action: onClearAcknowledgement)
+                    Button(action: onClearAcknowledgement) {
+                        Text(String(localized: "Clear Ack"))
+                    }
                         .buttonStyle(NightWatchPrimaryButtonStyle(fill: .white.opacity(0.16)))
                 } else if queueCount > 0 {
-                    Button("Acknowledge Snapshot", action: onAcknowledge)
+                    Button(action: onAcknowledge) {
+                        Text(String(localized: "Acknowledge Snapshot"))
+                    }
                         .buttonStyle(NightWatchPrimaryButtonStyle(fill: .white.opacity(0.16)))
                 }
 
                 NavigationLink {
                     OnCallView()
                 } label: {
-                    Text("Full Queue")
+                    Text(String(localized: "Full Queue"))
                 }
                 .buttonStyle(NightWatchPrimaryButtonStyle(fill: .white.opacity(0.10)))
             }
 
             HStack(spacing: 12) {
                 if let acknowledgedAt, isAcknowledged {
-                    Label("Acked \(acknowledgedAt, style: .relative) ago", systemImage: "checkmark.seal")
+                    Label {
+                        Text(String(localized: "Acknowledged \(acknowledgedAt.formatted(.relative(presentation: .named)))"))
+                    } icon: {
+                        Image(systemName: "checkmark.seal")
+                    }
                 }
                 if let lastRefresh {
-                    Label("Refreshed \(lastRefresh, style: .relative)", systemImage: "clock")
+                    Label {
+                        Text(String(localized: "Refreshed \(lastRefresh.formatted(.relative(presentation: .named)))"))
+                    } icon: {
+                        Image(systemName: "clock")
+                    }
                 }
             }
             .font(.caption2)
@@ -687,7 +699,7 @@ private struct NightWatchPriorityCard: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: item.symbolName)
                 .font(.headline)
-                .foregroundStyle(severityColor)
+                .foregroundStyle(item.severity.tone.color)
                 .frame(width: 20)
 
             VStack(alignment: .leading, spacing: 6) {
@@ -701,8 +713,8 @@ private struct NightWatchPriorityCard: View {
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(severityColor.opacity(0.18))
-                        .foregroundStyle(severityColor)
+                        .background(item.severity.tone.color.opacity(0.18))
+                        .foregroundStyle(item.severity.tone.color)
                         .clipShape(Capsule())
                 }
 
@@ -717,7 +729,11 @@ private struct NightWatchPriorityCard: View {
                         .foregroundStyle(.white.opacity(0.58))
                         .lineLimit(2)
                     if isWatched {
-                        Label("Watched", systemImage: "star.fill")
+                        Label {
+                            Text(String(localized: "Watched"))
+                        } icon: {
+                            Image(systemName: "star.fill")
+                        }
                             .font(.caption2.weight(.medium))
                             .foregroundStyle(.yellow)
                     }
@@ -728,17 +744,6 @@ private struct NightWatchPriorityCard: View {
         .padding(14)
         .background(.white.opacity(emphasis == .primary ? 0.09 : 0.06))
         .clipShape(RoundedRectangle(cornerRadius: 14))
-    }
-
-    private var severityColor: Color {
-        switch item.severity {
-        case .critical:
-            .red
-        case .warning:
-            .orange
-        case .advisory:
-            .blue
-        }
     }
 }
 
@@ -761,8 +766,8 @@ private struct NightWatchWatchlistRow: View {
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background((item.severity >= 10 ? Color.red : Color.orange).opacity(0.16))
-                        .foregroundStyle(item.severity >= 10 ? .red : .orange)
+                        .background(item.tone.color.opacity(0.16))
+                        .foregroundStyle(item.tone.color)
                         .clipShape(Capsule())
                 }
 
@@ -789,7 +794,7 @@ private struct NightWatchControlsCard: View {
             title: String(localized: "Display Controls"),
             detail: String(localized: "All settings are local to this iPhone.")
         ) {
-            LabeledContent("Queue Mode") {
+            LabeledContent {
                 Menu {
                     ForEach(OnCallFocusMode.allCases) { option in
                         Button(option.label) {
@@ -800,6 +805,8 @@ private struct NightWatchControlsCard: View {
                     Text(mode.label)
                         .foregroundStyle(.white)
                 }
+            } label: {
+                Text(String(localized: "Queue Mode"))
             }
             .foregroundStyle(.white.opacity(0.74))
 
@@ -807,7 +814,7 @@ private struct NightWatchControlsCard: View {
                 .font(.caption)
                 .foregroundStyle(.white.opacity(0.66))
 
-            LabeledContent("Critical Banner") {
+            LabeledContent {
                 Menu {
                     ForEach(OnCallSurfacePreference.allCases) { option in
                         Button(option.label) {
@@ -818,6 +825,8 @@ private struct NightWatchControlsCard: View {
                     Text(preferredSurface.label)
                         .foregroundStyle(.white)
                 }
+            } label: {
+                Text(String(localized: "Critical Banner"))
             }
             .foregroundStyle(.white.opacity(0.74))
 
@@ -826,7 +835,7 @@ private struct NightWatchControlsCard: View {
                 .foregroundStyle(.white.opacity(0.66))
 
             Toggle(isOn: $showsMutedSummary) {
-                Text("Show muted summary")
+                Text(String(localized: "Show muted summary"))
                     .foregroundStyle(.white)
             }
             .tint(.orange)

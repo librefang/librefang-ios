@@ -236,7 +236,11 @@ struct StandbyDigestView: View {
                 Button {
                     incidentStateStore.acknowledgeCurrentSnapshot(alerts: vm.monitoringAlerts)
                 } label: {
-                    Label("Acknowledge", systemImage: "checkmark.seal")
+                    Label {
+                        Text(String(localized: "Acknowledge"))
+                    } icon: {
+                        Image(systemName: "checkmark.seal")
+                    }
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(StandbyActionButtonStyle(fill: .white.opacity(0.12)))
@@ -245,7 +249,11 @@ struct StandbyDigestView: View {
                     Button {
                         incidentStateStore.clearAcknowledgement()
                     } label: {
-                        Label("Clear Ack", systemImage: "arrow.uturn.backward.circle")
+                        Label {
+                            Text(String(localized: "Clear Ack"))
+                        } icon: {
+                            Image(systemName: "arrow.uturn.backward.circle")
+                        }
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(StandbyActionButtonStyle(fill: .white.opacity(0.16)))
@@ -265,12 +273,18 @@ struct StandbyDigestView: View {
     private var glanceCard: some View {
         if primaryItems.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
-                Label("Standby is quiet", systemImage: "checkmark.shield")
+                Label {
+                    Text(String(localized: "Standby is quiet"))
+                } icon: {
+                    Image(systemName: "checkmark.shield")
+                }
                     .font(.headline.weight(.semibold))
                     .foregroundStyle(.white)
                 Text(
                     mutedAlertCount > 0
-                        ? String(localized: "\(mutedAlertCount) muted alerts remain hidden on this iPhone.")
+                        ? (mutedAlertCount == 1
+                            ? String(localized: "1 muted alert remains hidden on this iPhone.")
+                            : String(localized: "\(mutedAlertCount) muted alerts remain hidden on this iPhone."))
                         : String(localized: "No live critical pressure is visible right now.")
                 )
                     .font(.subheadline)
@@ -283,7 +297,11 @@ struct StandbyDigestView: View {
         } else {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Label("At a Glance", systemImage: "rectangle.inset.filled")
+                    Label {
+                        Text(String(localized: "At a Glance"))
+                    } icon: {
+                        Image(systemName: "rectangle.inset.filled")
+                    }
                         .font(.headline.weight(.semibold))
                         .foregroundStyle(.white)
                     Spacer()
@@ -308,7 +326,11 @@ struct StandbyDigestView: View {
     private var watchlistCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Label("Pinned Watchlist", systemImage: "star.fill")
+                Label {
+                    Text(String(localized: "Pinned Watchlist"))
+                } icon: {
+                    Image(systemName: "star.fill")
+                }
                     .font(.headline.weight(.semibold))
                     .foregroundStyle(.white)
                 Spacer()
@@ -350,7 +372,11 @@ struct StandbyDigestView: View {
 
     private var actionCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Jump", systemImage: "arrowshape.turn.up.right")
+            Label {
+                Text(String(localized: "Jump"))
+            } icon: {
+                Image(systemName: "arrowshape.turn.up.right")
+            }
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(.white)
 

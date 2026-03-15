@@ -10,11 +10,11 @@ private enum ApprovalRiskFilter: String, CaseIterable, Identifiable {
     var label: String {
         switch self {
         case .all:
-            "All"
+            String(localized: "All")
         case .critical:
-            "Critical"
+            String(localized: "Critical")
         case .high:
-            "High+"
+            String(localized: "High+")
         }
     }
 }
@@ -36,10 +36,9 @@ struct ApprovalsView: View {
                 case .all:
                     return true
                 case .critical:
-                    return approval.riskLevel.lowercased().contains("critical")
+                    return approval.isCriticalRisk
                 case .high:
-                    let level = approval.riskLevel.lowercased()
-                    return level.contains("critical") || level.contains("high")
+                    return approval.isHighRiskOrAbove
                 }
             }
             .filter { approval in
@@ -57,10 +56,8 @@ struct ApprovalsView: View {
                 .contains(query)
             }
             .sorted { lhs, rhs in
-                let lhsRisk = approvalRank(lhs.riskLevel)
-                let rhsRisk = approvalRank(rhs.riskLevel)
-                if lhsRisk != rhsRisk {
-                    return lhsRisk > rhsRisk
+                if lhs.riskRank != rhs.riskRank {
+                    return lhs.riskRank > rhs.riskRank
                 }
                 return lhs.requestedAt > rhs.requestedAt
             }
@@ -85,9 +82,9 @@ struct ApprovalsView: View {
             if filteredApprovals.isEmpty && !vm.isLoading {
                 Section("Approvals") {
                     ContentUnavailableView(
-                        searchText.isEmpty ? "No Pending Approvals" : "No Search Results",
+                        searchText.isEmpty ? String(localized: "No Pending Approvals") : String(localized: "No Search Results"),
                         systemImage: "checkmark.shield",
-                        description: Text(searchText.isEmpty ? "The current dashboard snapshot has no unresolved approval gates." : "Try a different agent, tool, or action query.")
+                        description: Text(searchText.isEmpty ? String(localized: "The current dashboard snapshot has no unresolved approval gates.") : String(localized: "Try a different agent, tool, or action query."))
                     )
                 }
             } else {
@@ -177,19 +174,6 @@ struct ApprovalsView: View {
         }
     }
 
-    private func approvalRank(_ riskLevel: String) -> Int {
-        let normalized = riskLevel.lowercased()
-        if normalized.contains("critical") {
-            return 3
-        }
-        if normalized.contains("high") {
-            return 2
-        }
-        if normalized.contains("medium") {
-            return 1
-        }
-        return 0
-    }
 }
 
 private struct ApprovalsScoreboard: View {
@@ -231,14 +215,11 @@ private struct ApprovalsScoreboard: View {
     }
 
     private var criticalCount: Int {
-        vm.approvals.filter { $0.riskLevel.lowercased().contains("critical") }.count
+        vm.approvals.filter(\.isCriticalRisk).count
     }
 
     private var highCount: Int {
-        vm.approvals.filter {
-            let risk = $0.riskLevel.lowercased()
-            return risk.contains("critical") || risk.contains("high")
-        }.count
+        vm.approvals.filter(\.isHighRiskOrAbove).count
     }
 
     private var agentCount: Int {
