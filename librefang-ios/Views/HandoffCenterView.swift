@@ -26,6 +26,7 @@ struct HandoffCenterView: View {
     @Environment(\.dependencies) private var deps
     @State private var searchText = ""
     @State private var historyFilter: HandoffHistoryFilter = .all
+    @State private var draftFollowUpText = ""
 
     let summary: String
     let queueCount: Int
@@ -45,7 +46,8 @@ struct HandoffCenterView: View {
             criticalCount: criticalCount,
             liveAlertCount: liveAlertCount,
             checklist: handoffStore.draftChecklist,
-            focusAreas: handoffStore.draftFocusAreas
+            focusAreas: handoffStore.draftFocusAreas,
+            followUpItems: handoffStore.draftFollowUpItems
         )
     }
     private var suggestedTemplateNote: String {
@@ -87,6 +89,7 @@ struct HandoffCenterView: View {
             note: handoffStore.draftNote,
             checklist: handoffStore.draftChecklist,
             focusAreas: handoffStore.draftFocusAreas,
+            followUpItems: handoffStore.draftFollowUpItems,
             liveAlertCount: liveAlertCount,
             pendingApprovalCount: vm.pendingApprovalCount,
             watchlistIssueCount: watchlistStore.watchedAgents(from: vm.agents).filter { vm.attentionItem(for: $0).severity > 0 }.count,
@@ -115,6 +118,32 @@ struct HandoffCenterView: View {
         }
 
         return areas
+    }
+    private var suggestedFollowUps: [String] {
+        var items: [String] = []
+
+        if liveAlertCount > 0 {
+            items.append("Review \(liveAlertCount) live alerts and confirm owner or next check.")
+        }
+        if vm.pendingApprovalCount > 0 {
+            items.append("Triage \(vm.pendingApprovalCount) pending approvals.")
+        }
+        let watchIssues = watchlistStore.watchedAgents(from: vm.agents).filter { vm.attentionItem(for: $0).severity > 0 }.count
+        if watchIssues > 0 {
+            items.append("Re-check \(watchIssues) watchlist agents for readiness, auth, or stale-session issues.")
+        }
+        if vm.sessionAttentionCount > 0 {
+            items.append("Inspect \(vm.sessionAttentionCount) session hotspots for backlog or unlabeled sessions.")
+        }
+        if vm.recentCriticalAuditCount > 0 {
+            items.append("Review \(vm.recentCriticalAuditCount) recent critical audit events.")
+        }
+        if let carryoverStatus, carryoverStatus.unresolvedCount > 0 {
+            let labels = carryoverStatus.items.filter(\.isActive).map { $0.area.label }.joined(separator: ", ")
+            items.append("Close remaining carryover focus: \(labels).")
+        }
+
+        return items
     }
 
     var body: some View {
@@ -233,6 +262,27 @@ struct HandoffCenterView: View {
                             }
                         }
                     }
+
+                    HandoffFollowUpComposer(
+                        items: handoffStore.draftFollowUpItems,
+                        draftText: $draftFollowUpText,
+                        addAction: {
+                            handoffStore.addDraftFollowUp(draftFollowUpText)
+                            draftFollowUpText = ""
+                        },
+                        removeAction: { offsets in
+                            handoffStore.removeDraftFollowUps(at: offsets)
+                        }
+                    )
+
+                    Button {
+                        handoffStore.appendDraftFollowUps(suggestedFollowUps)
+                    } label: {
+                        Label("Use Suggested Follow-ups", systemImage: "checklist.unchecked")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(suggestedFollowUps.isEmpty)
 
                     Button {
                         handoffStore.saveSnapshot(
@@ -629,6 +679,10 @@ private struct HandoffTimelineRow: View {
             if !item.entry.focusAreas.items.isEmpty {
                 HandoffFocusSummaryRow(focusAreas: item.entry.focusAreas)
             }
+
+            if !item.entry.followUpItems.isEmpty {
+                HandoffFollowUpSummaryRow(items: item.entry.followUpItems)
+            }
         }
         .padding(.vertical, 4)
     }
@@ -827,6 +881,63 @@ private struct HandoffFocusComposer: View {
     }
 }
 
+private struct HandoffFollowUpComposer: View {
+    let items: [String]
+    @Binding var draftText: String
+    let addAction: () -> Void
+    let removeAction: (IndexSet) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Follow-ups")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                Text(items.isEmpty ? "None" : "\(items.count)")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+
+            HStack(spacing: 10) {
+                TextField("Add follow-up item", text: $draftText)
+                    .textInputAutocapitalization(.sentences)
+
+                Button(action: addAction) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                }
+                .buttonStyle(.plain)
+                .disabled(draftText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+
+            if items.isEmpty {
+                Text("Capture concrete next-shift follow-ups when runtime pressure is still active.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                    HStack(alignment: .top, spacing: 10) {
+                        Text("\(index + 1).")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        Text(item)
+                            .font(.caption)
+                            .foregroundStyle(.primary)
+                        Spacer()
+                    }
+                }
+
+                Button(role: .destructive) {
+                    removeAction(IndexSet(integersIn: items.indices))
+                } label: {
+                    Text("Clear Follow-ups")
+                }
+                .buttonStyle(.borderless)
+            }
+        }
+    }
+}
+
 struct HandoffFocusAreaBadge: View {
     let area: HandoffFocusArea
 
@@ -880,6 +991,31 @@ struct HandoffFocusSummaryRow: View {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+struct HandoffFollowUpSummaryRow: View {
+    let items: [String]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Label("Follow-ups", systemImage: "checklist.unchecked")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(items.count == 1 ? "1 item" : "\(items.count) items")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            ForEach(Array(items.prefix(2).enumerated()), id: \.offset) { index, item in
+                Text("\(index + 1). \(item)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
             }
         }
     }
@@ -952,6 +1088,10 @@ private struct HandoffEntryCard: View {
 
             if !entry.focusAreas.items.isEmpty {
                 HandoffFocusSummaryRow(focusAreas: entry.focusAreas)
+            }
+
+            if !entry.followUpItems.isEmpty {
+                HandoffFollowUpSummaryRow(items: entry.followUpItems)
             }
         }
         .padding(.vertical, 6)

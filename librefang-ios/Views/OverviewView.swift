@@ -473,6 +473,12 @@ private struct RecentHandoffCard: View {
                     .lineLimit(2)
             }
 
+            if !entry.followUpItems.isEmpty {
+                Text("Follow-ups: \(entry.followUpItems.count)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
             if let drift {
                 Text("Drift: \(drift.state.label) · \(drift.compactSummary)")
                     .font(.caption2)

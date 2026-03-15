@@ -126,6 +126,7 @@ struct OnCallView: View {
             note: handoffStore.draftNote,
             checklist: handoffStore.draftChecklist,
             focusAreas: handoffStore.draftFocusAreas,
+            followUpItems: handoffStore.draftFollowUpItems,
             liveAlertCount: visibleAlerts.count,
             pendingApprovalCount: vm.pendingApprovalCount,
             watchlistIssueCount: watchedAttentionItems.filter { $0.severity > 0 }.count,
@@ -520,6 +521,10 @@ private struct OnCallHandoffStatusRow: View {
 
                 if !latestEntry.focusAreas.items.isEmpty {
                     HandoffFocusSummaryRow(focusAreas: latestEntry.focusAreas)
+                }
+
+                if !latestEntry.followUpItems.isEmpty {
+                    HandoffFollowUpSummaryRow(items: latestEntry.followUpItems)
                 }
             }
         }

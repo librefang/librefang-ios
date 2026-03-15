@@ -211,6 +211,10 @@ struct SettingsView: View {
                             Text(latest.focusAreas.summaryLabel)
                                 .foregroundStyle(latest.focusAreas.items.isEmpty ? Color.secondary : Color.primary)
                         }
+                        LabeledContent("Follow-ups") {
+                            Text(latest.followUpItems.isEmpty ? "None" : "\(latest.followUpItems.count)")
+                                .foregroundStyle(latest.followUpItems.isEmpty ? Color.secondary : Color.primary)
+                        }
                         LabeledContent("Draft Readiness") {
                             Text(draftHandoffReadiness.state.label)
                                 .foregroundStyle(handoffReadinessColor)
@@ -412,6 +416,7 @@ struct SettingsView: View {
             note: deps.onCallHandoffStore.draftNote,
             checklist: deps.onCallHandoffStore.draftChecklist,
             focusAreas: deps.onCallHandoffStore.draftFocusAreas,
+            followUpItems: deps.onCallHandoffStore.draftFollowUpItems,
             liveAlertCount: visibleAlertCount,
             pendingApprovalCount: deps.dashboardViewModel.pendingApprovalCount,
             watchlistIssueCount: watchedAttentionItems.filter { $0.severity > 0 }.count,

@@ -410,6 +410,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
     let liveAlertCount: Int
     let checklist: HandoffChecklistState
     let focusAreas: HandoffFocusState
+    let followUpItems: [String]
 
     private enum CodingKeys: String, CodingKey {
         case id
@@ -422,6 +423,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         case liveAlertCount
         case checklist
         case focusAreas
+        case followUpItems
     }
 
     init(
@@ -434,7 +436,8 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         criticalCount: Int,
         liveAlertCount: Int,
         checklist: HandoffChecklistState = HandoffChecklistState(),
-        focusAreas: HandoffFocusState = HandoffFocusState()
+        focusAreas: HandoffFocusState = HandoffFocusState(),
+        followUpItems: [String] = []
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -446,6 +449,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         self.liveAlertCount = liveAlertCount
         self.checklist = checklist
         self.focusAreas = focusAreas
+        self.followUpItems = followUpItems
     }
 
     init(from decoder: any Decoder) throws {
@@ -460,6 +464,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         liveAlertCount = try container.decode(Int.self, forKey: .liveAlertCount)
         checklist = try container.decodeIfPresent(HandoffChecklistState.self, forKey: .checklist) ?? HandoffChecklistState()
         focusAreas = try container.decodeIfPresent(HandoffFocusState.self, forKey: .focusAreas) ?? HandoffFocusState()
+        followUpItems = try container.decodeIfPresent([String].self, forKey: .followUpItems) ?? []
     }
 
     func encode(to encoder: any Encoder) throws {
@@ -474,6 +479,7 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         try container.encode(liveAlertCount, forKey: .liveAlertCount)
         try container.encode(checklist, forKey: .checklist)
         try container.encode(focusAreas, forKey: .focusAreas)
+        try container.encode(followUpItems, forKey: .followUpItems)
     }
 
     static func buildShareText(
@@ -485,7 +491,8 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
         criticalCount: Int,
         liveAlertCount: Int,
         checklist: HandoffChecklistState,
-        focusAreas: HandoffFocusState
+        focusAreas: HandoffFocusState,
+        followUpItems: [String]
     ) -> String {
         var lines = ["LibreFang handoff snapshot · \(timestamp.formatted(date: .abbreviated, time: .shortened))"]
 
@@ -508,6 +515,11 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
             lines.append("Pending: \(checklist.pendingLabels.joined(separator: ", "))")
         }
 
+        if !followUpItems.isEmpty {
+            lines.append("Follow-ups:")
+            lines.append(contentsOf: followUpItems.map { "- \($0)" })
+        }
+
         lines.append("")
         lines.append(summary)
         return lines.joined(separator: "\n")
@@ -523,7 +535,8 @@ struct OnCallHandoffEntry: Identifiable, Codable, Equatable {
             criticalCount: criticalCount,
             liveAlertCount: liveAlertCount,
             checklist: checklist,
-            focusAreas: focusAreas
+            focusAreas: focusAreas,
+            followUpItems: followUpItems
         )
     }
 }
@@ -537,6 +550,7 @@ final class OnCallHandoffStore {
         static let draftChecklist = "oncall.handoff.draftChecklist"
         static let draftKind = "oncall.handoff.draftKind"
         static let draftFocusAreas = "oncall.handoff.draftFocusAreas"
+        static let draftFollowUpItems = "oncall.handoff.draftFollowUpItems"
     }
 
     private let defaults: UserDefaults
@@ -567,6 +581,12 @@ final class OnCallHandoffStore {
     var draftFocusAreas: HandoffFocusState {
         didSet {
             persistDraftFocusAreas()
+        }
+    }
+
+    var draftFollowUpItems: [String] {
+        didSet {
+            persistDraftFollowUpItems()
         }
     }
 
@@ -760,6 +780,7 @@ final class OnCallHandoffStore {
         note: String,
         checklist: HandoffChecklistState,
         focusAreas: HandoffFocusState,
+        followUpItems: [String],
         liveAlertCount: Int,
         pendingApprovalCount: Int,
         watchlistIssueCount: Int,
@@ -786,6 +807,23 @@ final class OnCallHandoffStore {
                     id: "note",
                     message: "Add a short operator note so the next shift has direct context.",
                     isBlocking: false
+                )
+            )
+        }
+
+        let hasRuntimePressure = liveAlertCount > 0
+            || pendingApprovalCount > 0
+            || watchlistIssueCount > 0
+            || sessionAttentionCount > 0
+            || criticalAuditCount > 0
+            || (carryover?.unresolvedCount ?? 0) > 0
+
+        if hasRuntimePressure && followUpItems.isEmpty {
+            issues.append(
+                HandoffReadinessIssue(
+                    id: "followups",
+                    message: "Active runtime pressure exists, but no follow-up items are captured for the next shift.",
+                    isBlocking: true
                 )
             )
         }
@@ -895,6 +933,12 @@ final class OnCallHandoffStore {
         } else {
             self.draftFocusAreas = HandoffFocusState()
         }
+        if let data = defaults.data(forKey: StorageKey.draftFollowUpItems),
+           let decoded = try? decoder.decode([String].self, from: data) {
+            self.draftFollowUpItems = decoded
+        } else {
+            self.draftFollowUpItems = []
+        }
 
         if let data = defaults.data(forKey: StorageKey.entries),
            let decoded = try? decoder.decode([OnCallHandoffEntry].self, from: data) {
@@ -918,7 +962,8 @@ final class OnCallHandoffStore {
             criticalCount: criticalCount,
             liveAlertCount: liveAlertCount,
             checklist: draftChecklist,
-            focusAreas: draftFocusAreas
+            focusAreas: draftFocusAreas,
+            followUpItems: draftFollowUpItems
         )
 
         entries.insert(entry, at: 0)
@@ -957,6 +1002,25 @@ final class OnCallHandoffStore {
         draftFocusAreas.set(areas)
     }
 
+    func addDraftFollowUp(_ item: String) {
+        let trimmed = item.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        guard !draftFollowUpItems.contains(trimmed) else { return }
+        draftFollowUpItems.append(trimmed)
+    }
+
+    func appendDraftFollowUps(_ items: [String]) {
+        for item in items {
+            addDraftFollowUp(item)
+        }
+    }
+
+    func removeDraftFollowUps(at offsets: IndexSet) {
+        for offset in offsets.sorted(by: >) where draftFollowUpItems.indices.contains(offset) {
+            draftFollowUpItems.remove(at: offset)
+        }
+    }
+
     func useSuggestedDraftNote(
         queueCount: Int,
         criticalCount: Int,
@@ -974,6 +1038,7 @@ final class OnCallHandoffStore {
         draftChecklist = HandoffChecklistState()
         draftKind = .routine
         draftFocusAreas = HandoffFocusState()
+        draftFollowUpItems = []
     }
 
     private func persistEntries() {
@@ -991,6 +1056,12 @@ final class OnCallHandoffStore {
     private func persistDraftFocusAreas() {
         if let data = try? encoder.encode(draftFocusAreas) {
             defaults.set(data, forKey: StorageKey.draftFocusAreas)
+        }
+    }
+
+    private func persistDraftFollowUpItems() {
+        if let data = try? encoder.encode(draftFollowUpItems) {
+            defaults.set(data, forKey: StorageKey.draftFollowUpItems)
         }
     }
 
