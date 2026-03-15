@@ -975,6 +975,36 @@ private struct AlertsCard: View {
                 PresentationToneBadge(text: snapshotState.overviewLabel, tone: snapshotState.tone)
             }
 
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Alert inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep live, muted, and acknowledgement state visible before reading each alert row."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: snapshotAcknowledged ? String(localized: "Acknowledged") : String(localized: "Live"),
+                    tone: snapshotAcknowledged ? .neutral : snapshotState.tone
+                )
+            } facts: {
+                Label(
+                    alerts.count == 1 ? String(localized: "1 live alert") : String(localized: "\(alerts.count) live alerts"),
+                    systemImage: "bell.badge"
+                )
+                if mutedCount > 0 {
+                    Label(
+                        mutedCount == 1 ? String(localized: "1 muted locally") : String(localized: "\(mutedCount) muted locally"),
+                        systemImage: "bell.slash"
+                    )
+                }
+                if let leadAlert = alerts.first {
+                    Label(leadAlert.title, systemImage: leadAlert.symbolName)
+                }
+            }
+
             if alerts.isEmpty {
                 Text(String(localized: "All current alert cards are muted on this iPhone. Open incidents to review or unmute them."))
                     .font(.caption)
@@ -997,16 +1027,6 @@ private struct AlertsCard: View {
                         Spacer()
                     }
                 }
-            }
-
-            if mutedCount > 0 {
-                Text(
-                    mutedCount == 1
-                        ? String(localized: "1 alert is muted locally.")
-                        : String(localized: "\(mutedCount) alerts are muted locally.")
-                )
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
             }
         }
         .padding(14)
@@ -1168,25 +1188,37 @@ private struct StartupConnectionCard: View {
     let showsLoopbackHint: Bool
 
     var body: some View {
-        VStack(spacing: 14) {
-            ProgressView()
-                .controlSize(.large)
-
-            VStack(spacing: 6) {
-                Text("Connecting to LibreFang")
-                    .font(.headline)
-
-                Text(serverURL)
-                    .font(.caption.monospaced())
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+        VStack(alignment: .leading, spacing: 14) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Connecting to LibreFang"),
+                detail: serverURL,
+                verticalPadding: 6
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: String(localized: "Connecting"), tone: .warning)
+                    if showsLoopbackHint {
+                        PresentationToneBadge(text: String(localized: "Loopback host"), tone: .warning)
+                    }
+                }
             }
 
-            if showsLoopbackHint {
-                Text("If this app is running on a physical iPhone, 127.0.0.1 or localhost points to the phone itself. Use your Mac's LAN IP in Settings.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Connection inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the target server and loopback hint visible while the first snapshot is loading."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                ProgressView()
+                    .controlSize(.small)
+            } facts: {
+                Label(serverURL, systemImage: "network")
+                if showsLoopbackHint {
+                    Label(String(localized: "Use your Mac LAN IP on a physical iPhone"), systemImage: "iphone")
+                }
             }
         }
         .padding(20)
@@ -1211,20 +1243,49 @@ private struct ConnectionCard: View {
     }
 
     var body: some View {
-        MonitoringSnapshotCard(
-            summary: connectionText,
-            detail: (health?.version).map { String(localized: "Server v\($0)") }
-        ) {
-            FlowLayout(spacing: 8) {
-                PresentationToneBadge(text: connectionText, tone: connectionTone)
-                if let date = lastRefresh {
-                    PresentationToneBadge(
-                        text: String(localized: "Updated \(date.formatted(.relative(presentation: .named)))"),
-                        tone: isStale ? .warning : .neutral
-                    )
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: connectionText,
+                detail: (health?.version).map { String(localized: "Server v\($0)") },
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: connectionText, tone: connectionTone)
+                    if let date = lastRefresh {
+                        PresentationToneBadge(
+                            text: String(localized: "Updated \(date.formatted(.relative(presentation: .named)))"),
+                            tone: isStale ? .warning : .neutral
+                        )
+                    }
+                    if health?.isHealthy == true && !isStale {
+                        PresentationToneBadge(text: String(localized: "Live"), tone: .positive)
+                    }
                 }
-                if health?.isHealthy == true && !isStale {
-                    PresentationToneBadge(text: String(localized: "Live"), tone: .positive)
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Connection inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep connection health, refresh age, and server version visible before opening deeper cards."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: isStale ? String(localized: "Stale") : String(localized: "Fresh"),
+                    tone: isStale ? .warning : .positive
+                )
+            } facts: {
+                if let health {
+                    Label(health.localizedStatusLabel, systemImage: "stethoscope")
+                    Label(health.version, systemImage: "shippingbox")
+                } else {
+                    Label(String(localized: "No health snapshot"), systemImage: "xmark.octagon")
+                }
+                if let date = lastRefresh {
+                    Label(date.formatted(.relative(presentation: .named)), systemImage: "clock")
                 }
             }
         }
