@@ -179,11 +179,11 @@ enum AgentFileScope: CaseIterable {
     var label: String {
         switch self {
         case .all:
-            return "All"
+            return String(localized: "All")
         case .missing:
-            return "Missing"
+            return String(localized: "Missing")
         case .present:
-            return "Present"
+            return String(localized: "Present")
         }
     }
 

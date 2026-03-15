@@ -129,9 +129,9 @@ struct AgentDeliveriesView: View {
             } else if filteredReceipts.isEmpty, !isLoading {
                 Section("Receipts") {
                     ContentUnavailableView(
-                        receipts.isEmpty ? "No Delivery Receipts" : "No Matching Receipts",
+                        receipts.isEmpty ? String(localized: "No Delivery Receipts") : String(localized: "No Matching Receipts"),
                         systemImage: "paperplane",
-                        description: Text(receipts.isEmpty ? "This agent has no recent outbound delivery receipts." : "Try a different recipient, channel, or status search.")
+                        description: Text(receipts.isEmpty ? String(localized: "This agent has no recent outbound delivery receipts.") : String(localized: "Try a different recipient, channel, or status search."))
                     )
                 }
             } else {
@@ -209,11 +209,11 @@ enum DeliveryScope: CaseIterable {
     var label: String {
         switch self {
         case .all:
-            return "All"
+            return String(localized: "All")
         case .failed:
-            return "Failed"
+            return String(localized: "Failed")
         case .unsettled:
-            return "Unsettled"
+            return String(localized: "Unsettled")
         }
     }
 
@@ -235,7 +235,7 @@ private struct DeliveryReceiptRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline) {
-                Text(receipt.channel.capitalized)
+                Text(receipt.localizedChannelLabel)
                     .font(.subheadline.weight(.semibold))
 
                 Spacer()
