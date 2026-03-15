@@ -25,6 +25,7 @@ struct SettingsView: View {
     private var primaryControlCount: Int { 4 }
     private var supportControlCount: Int { 4 }
     private var utilityRouteCount: Int { 2 }
+    private var settingsSectionCount: Int { 8 }
 
     var body: some View {
         NavigationStack {
@@ -67,6 +68,16 @@ struct SettingsView: View {
                             utilityRouteCount: utilityRouteCount,
                             onCallQueueCount: onCallQueueCount,
                             currentCriticalCount: currentCriticalCount,
+                            refreshIntervalLabel: "\(Int(refreshInterval))s",
+                            languageLabel: currentLanguageLabel
+                        )
+
+                        SettingsSectionInventoryDeck(
+                            sectionCount: settingsSectionCount,
+                            onCallQueueCount: onCallQueueCount,
+                            currentCriticalCount: currentCriticalCount,
+                            visibleAlertCount: visibleAlertCount,
+                            hasQueuedReminder: deps.onCallNotificationManager.pendingReminderDate != nil,
                             refreshIntervalLabel: "\(Int(refreshInterval))s",
                             languageLabel: currentLanguageLabel
                         )
@@ -1266,6 +1277,78 @@ private struct SettingsRouteInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Monitoring exits, device controls, and utility routes stay summarized here before the longer settings form.")
+    }
+}
+
+private struct SettingsSectionInventoryDeck: View {
+    let sectionCount: Int
+    let onCallQueueCount: Int
+    let currentCriticalCount: Int
+    let visibleAlertCount: Int
+    let hasQueuedReminder: Bool
+    let refreshIntervalLabel: String
+    let languageLabel: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: languageLabel, tone: .neutral)
+                    PresentationToneBadge(text: refreshIntervalLabel, tone: .neutral)
+                    PresentationToneBadge(
+                        text: onCallQueueCount == 1 ? String(localized: "1 on-call item") : String(localized: "\(onCallQueueCount) on-call items"),
+                        tone: onCallQueueCount > 0 ? .warning : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: hasQueuedReminder ? String(localized: "Reminder queued") : String(localized: "Reminder idle"),
+                        tone: hasQueuedReminder ? .caution : .neutral
+                    )
+                    if currentCriticalCount > 0 {
+                        PresentationToneBadge(
+                            text: currentCriticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(currentCriticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Settings inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep device sections, queued reminders, and on-call pressure visible before the longer settings form opens up."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: sectionCount == 1 ? String(localized: "1 section") : String(localized: "\(sectionCount) sections"),
+                    tone: sectionCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(languageLabel, systemImage: "globe")
+                Label(String(localized: "Refresh \(refreshIntervalLabel)"), systemImage: "arrow.clockwise")
+                Label(
+                    visibleAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(visibleAlertCount) live alerts"),
+                    systemImage: "bell.badge"
+                )
+                Label(
+                    hasQueuedReminder ? String(localized: "Reminder armed") : String(localized: "Reminder idle"),
+                    systemImage: "bell"
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 settings section is loaded into the compact device deck.")
+            : String(localized: "\(sectionCount) settings sections are loaded into the compact device deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Server, language, refresh, on-call, reminder, handoff, monitoring, and about sections stay summarized before the deeper form.")
     }
 }
 

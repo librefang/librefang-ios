@@ -85,6 +85,17 @@ struct BudgetView: View {
     private var budgetSupportAreaCount: Int {
         (!sortedModels.isEmpty ? 1 : 0) + (!sortedAgents.isEmpty ? 1 : 0)
     }
+    private var budgetSectionCount: Int {
+        [
+            vm.budget != nil,
+            vm.usageSummary != nil,
+            !vm.usageDaily.isEmpty,
+            !sortedModels.isEmpty,
+            !sortedAgents.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
 
     var body: some View {
         NavigationStack {
@@ -362,6 +373,17 @@ struct BudgetView: View {
                     projectedMonthlyCost: projectedMonthlyCost(usageSummary)
                 )
             }
+
+            BudgetSectionInventoryDeck(
+                sectionCount: budgetSectionCount,
+                trendDays: vm.usageDaily.count,
+                modelCount: sortedModels.count,
+                agentCount: sortedAgents.count,
+                hasBudgetGuardrails: vm.budget != nil,
+                hasUsageSignals: vm.usageSummary != nil,
+                topModelName: topModelName,
+                topAgentName: topAgentBudgetItem?.name
+            )
 
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Focus Rail"),
@@ -1728,6 +1750,87 @@ private struct BudgetRouteInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Focus areas and operator exits stay summarized here before the longer charts and spend rankings.")
+    }
+}
+
+private struct BudgetSectionInventoryDeck: View {
+    let sectionCount: Int
+    let trendDays: Int
+    let modelCount: Int
+    let agentCount: Int
+    let hasBudgetGuardrails: Bool
+    let hasUsageSignals: Bool
+    let topModelName: String?
+    let topAgentName: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: hasBudgetGuardrails ? String(localized: "Limits ready") : String(localized: "Limits pending"),
+                        tone: hasBudgetGuardrails ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: hasUsageSignals ? String(localized: "Signals ready") : String(localized: "Signals pending"),
+                        tone: hasUsageSignals ? .warning : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: trendDays > 0 ? String(localized: "\(trendDays) trend days") : String(localized: "Trend pending"),
+                        tone: trendDays > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
+                        tone: modelCount > 0 ? .neutral : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                        tone: agentCount > 0 ? .neutral : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Budget inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep guardrails, trend coverage, and rankings visible before the focus rail and long spend sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: sectionCount == 1 ? String(localized: "1 section") : String(localized: "\(sectionCount) sections"),
+                    tone: sectionCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if let topModelName {
+                    Label(topModelName, systemImage: "square.stack.3d.up")
+                }
+                if let topAgentName {
+                    Label(topAgentName, systemImage: "person.3")
+                }
+                Label(
+                    trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
+                    systemImage: "chart.xyaxis.line"
+                )
+                Label(
+                    modelCount == 1 ? String(localized: "1 model rank") : String(localized: "\(modelCount) model ranks"),
+                    systemImage: "chart.pie"
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 budget section is loaded into the compact operator deck.")
+            : String(localized: "\(sectionCount) budget sections are loaded into the compact operator deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Budget guardrails, cost signals, trend coverage, and rankings stay grouped before the route rails take over.")
     }
 }
 
