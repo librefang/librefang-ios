@@ -128,11 +128,11 @@ struct AgentsView: View {
                                 }
 
                                 MonitoringSurfaceGroupCard(
-                                    title: String(localized: "Fleet Surfaces"),
+                                    title: String(localized: "Routes"),
                                     detail: String(localized: "Keep the broader operator queues one tap away from the compact fleet filter.")
                                 ) {
                                     MonitoringShortcutRail(
-                                        title: String(localized: "Primary Routes"),
+                                        title: String(localized: "Primary"),
                                         detail: String(localized: "Use these routes when fleet review needs broader incident or runtime context.")
                                     ) {
                                         NavigationLink {
@@ -187,7 +187,7 @@ struct AgentsView: View {
                                     }
 
                                     MonitoringShortcutRail(
-                                        title: String(localized: "Support Routes"),
+                                        title: String(localized: "Support"),
                                         detail: String(localized: "Keep approvals, diagnostics, and slower fleet drilldowns reachable without leaving the compact list flow.")
                                     ) {
                                         if vm.pendingApprovalCount > 0 {

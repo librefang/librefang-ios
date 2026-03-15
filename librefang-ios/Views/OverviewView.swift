@@ -651,7 +651,7 @@ private struct OverviewEntryDeckCard: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Primary Routes"),
+                title: String(localized: "Primary"),
                 detail: String(localized: "Keep the first operator exits right below the overview snapshot.")
             ) {
                 FlowLayout(spacing: 8) {
@@ -716,7 +716,7 @@ private struct OverviewEntryDeckCard: View {
             }
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Support Routes"),
+                title: String(localized: "Support"),
                 detail: String(localized: "Keep slower spend and config routes in a secondary rail.")
             ) {
                 FlowLayout(spacing: 8) {
