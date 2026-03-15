@@ -49,6 +49,19 @@ struct DiagnosticsView: View {
         .filter { $0 }
         .count
     }
+    private var diagnosticsSectionCount: Int {
+        [
+            vm.healthDetail != nil,
+            !(vm.healthDetail?.configWarnings.isEmpty ?? true),
+            vm.versionInfo != nil,
+            vm.configSummary != nil,
+            metrics != nil,
+            !(metrics?.tokenLeaders.isEmpty ?? true),
+            !(metrics?.toolCallLeaders.isEmpty ?? true)
+        ]
+        .filter { $0 }
+        .count
+    }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -79,6 +92,16 @@ struct DiagnosticsView: View {
                             warningCount: vm.diagnosticsConfigWarningCount,
                             panicCount: vm.supervisorPanicCount,
                             restartCount: vm.supervisorRestartCount,
+                            hasMetrics: metrics != nil,
+                            hasHealth: vm.healthDetail != nil,
+                            hasBuild: vm.versionInfo != nil,
+                            hasConfig: vm.configSummary != nil
+                        )
+                        DiagnosticsSectionInventoryDeck(
+                            sectionCount: diagnosticsSectionCount,
+                            loadedFeedCount: loadedFeedCount,
+                            leaderboardCount: leaderboardCount,
+                            warningCount: vm.diagnosticsConfigWarningCount,
                             hasMetrics: metrics != nil,
                             hasHealth: vm.healthDetail != nil,
                             hasBuild: vm.versionInfo != nil,
@@ -813,6 +836,86 @@ private struct DiagnosticsFeedInventoryDeck: View {
             return String(localized: "Feed coverage is grouped ahead of the route deck even when no token or tool leaderboard is present.")
         }
         return String(localized: "Feed coverage and leaderboard presence stay grouped before the route deck, so diagnostics start with signal coverage instead of links.")
+    }
+}
+
+private struct DiagnosticsSectionInventoryDeck: View {
+    let sectionCount: Int
+    let loadedFeedCount: Int
+    let leaderboardCount: Int
+    let warningCount: Int
+    let hasMetrics: Bool
+    let hasHealth: Bool
+    let hasBuild: Bool
+    let hasConfig: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: loadedFeedCount == 1 ? String(localized: "1 loaded feed") : String(localized: "\(loadedFeedCount) loaded feeds"),
+                        tone: loadedFeedCount > 0 ? .positive : .neutral
+                    )
+                    if leaderboardCount > 0 {
+                        PresentationToneBadge(
+                            text: leaderboardCount == 1 ? String(localized: "1 leaderboard") : String(localized: "\(leaderboardCount) leaderboards"),
+                            tone: .warning
+                        )
+                    }
+                    if warningCount > 0 {
+                        PresentationToneBadge(
+                            text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep deep-diagnostic coverage visible before the long health, build, config, metrics, and leaderboard sections take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: hasMetrics ? String(localized: "Metrics ready") : String(localized: "Metrics pending"),
+                    tone: hasMetrics ? .positive : .neutral
+                )
+            } facts: {
+                if hasHealth {
+                    Label(String(localized: "Health loaded"), systemImage: "stethoscope")
+                }
+                if hasBuild {
+                    Label(String(localized: "Build loaded"), systemImage: "shippingbox")
+                }
+                if hasConfig {
+                    Label(String(localized: "Config loaded"), systemImage: "gearshape.2")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 diagnostics section is active below the controls deck.")
+            : String(localized: "\(sectionCount) diagnostics sections are active below the controls deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Deep-diagnostic coverage stays summarized here so the longer health, config, metrics, and leaderboard sections start with context.")
     }
 }
 

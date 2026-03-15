@@ -146,6 +146,9 @@ struct OverviewView: View {
         .filter { $0 }
         .count
     }
+    private var overviewSectionCount: Int {
+        platformCardCount + signalCardCount + fleetCardCount
+    }
 
     var body: some View {
         NavigationStack {
@@ -249,6 +252,18 @@ struct OverviewView: View {
                         ) { anchor in
                             jump(proxy, to: anchor)
                         }
+
+                        OverviewSectionInventoryDeck(
+                            sectionCount: overviewSectionCount,
+                            platformCardCount: platformCardCount,
+                            signalCardCount: signalCardCount,
+                            fleetCardCount: fleetCardCount,
+                            approvalCount: vm.pendingApprovalCount,
+                            sessionCount: vm.sessionAttentionCount,
+                            watchIssueCount: overviewWatchIssueCount,
+                            automationIssueCount: vm.automationPressureIssueCategoryCount,
+                            integrationIssueCount: vm.integrationPressureIssueCategoryCount
+                        )
 
                         LazyVGrid(columns: summaryColumns, spacing: 8) {
                             StatBadge(
@@ -956,6 +971,100 @@ private struct OverviewEntryDeckCard: View {
             )
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct OverviewSectionInventoryDeck: View {
+    let sectionCount: Int
+    let platformCardCount: Int
+    let signalCardCount: Int
+    let fleetCardCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let watchIssueCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: platformCardCount == 1 ? String(localized: "1 platform card") : String(localized: "\(platformCardCount) platform cards"),
+                        tone: .neutral
+                    )
+                    PresentationToneBadge(
+                        text: signalCardCount == 1 ? String(localized: "1 signal card") : String(localized: "\(signalCardCount) signal cards"),
+                        tone: .neutral
+                    )
+                    if fleetCardCount > 0 {
+                        PresentationToneBadge(
+                            text: fleetCardCount == 1 ? String(localized: "1 fleet card") : String(localized: "\(fleetCardCount) fleet cards"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep platform, signal, and fleet coverage visible before the overview cards fan out below the entry deck."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                    tone: approvalCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if sessionCount > 0 {
+                    Label(
+                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        systemImage: "text.bubble"
+                    )
+                }
+                if watchIssueCount > 0 {
+                    Label(
+                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 overview section is active below the entry deck.")
+            : String(localized: "\(sectionCount) overview sections are active below the entry deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Platform, signal, and fleet coverage stay summarized before the overview cards fan out into the longer mobile monitor.")
     }
 }
 
