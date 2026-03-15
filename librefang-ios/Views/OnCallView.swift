@@ -1054,7 +1054,7 @@ private struct OnCallScoreboard: View {
 
     private var columns: [GridItem] {
         let count = horizontalSizeClass == .compact ? 2 : 3
-        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
+        return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
     }
 
     private var criticalStatus: MonitoringSummaryStatus {
@@ -1082,7 +1082,7 @@ private struct OnCallScoreboard: View {
     }
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 10) {
+        LazyVGrid(columns: columns, spacing: 8) {
             StatBadge(
                 value: "\(criticalCount)",
                 label: "Critical",
@@ -1120,7 +1120,7 @@ private struct OnCallScoreboard: View {
                 color: eventStatus.tone.color
             )
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 6)
     }
 }
 
