@@ -100,6 +100,15 @@ struct SessionsView: View {
                 }
             } else {
                 Section("Sessions") {
+                    SessionListInventoryDeck(
+                        visibleCount: filteredItems.count,
+                        totalCount: vm.sessionAttentionItems.count,
+                        attentionCount: filteredItems.filter { !$0.reasons.isEmpty }.count,
+                        searchText: searchText,
+                        filter: selectedFilter
+                    )
+                    .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
+
                     ForEach(filteredItems) { item in
                         sessionRow(for: item)
                     }
@@ -760,6 +769,61 @@ private struct SessionFilterChip: View {
             systemImage: systemImage,
             isSelected: isSelected
         )
+    }
+}
+
+private struct SessionListInventoryDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let attentionCount: Int
+    let searchText: String
+    let filter: SessionMonitorFilter
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine) {
+            FlowLayout(spacing: 6) {
+                PresentationToneBadge(
+                    text: visibleCount == 1 ? String(localized: "1 visible") : String(localized: "\(visibleCount) visible"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+                PresentationToneBadge(
+                    text: attentionCount == 1 ? String(localized: "1 attention") : String(localized: "\(attentionCount) attention"),
+                    tone: attentionCount > 0 ? .warning : .neutral
+                )
+                PresentationToneBadge(text: filter.label, tone: filterTone)
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "1 session is ready in this monitor.")
+                : String(localized: "\(totalCount) sessions are ready in this monitor.")
+        }
+
+        return String(localized: "\(visibleCount) of \(totalCount) sessions are visible in this monitor.")
+    }
+
+    private var detailLine: String {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty {
+            return String(localized: "Attention pressure stays summarized before the session list.")
+        }
+        return String(localized: "Filtered by \"\(query)\" before the session list.")
+    }
+
+    private var filterTone: PresentationTone {
+        switch filter {
+        case .all:
+            return .neutral
+        case .attention:
+            return .warning
+        case .highVolume:
+            return .caution
+        case .unlabeled:
+            return .critical
+        }
     }
 }
 

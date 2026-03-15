@@ -70,6 +70,15 @@ struct EventsView: View {
                 }
             } else {
                 Section {
+                    EventFeedInventoryDeck(
+                        visibleCount: filteredEntries.count,
+                        totalCount: viewModel.entries.count,
+                        criticalCount: filteredEntries.filter { $0.presentation.severity == .critical }.count,
+                        isStreaming: viewModel.isStreaming,
+                        searchText: searchText
+                    )
+                    .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
+
                     ForEach(filteredEntries) { entry in
                         EventRow(entry: entry, agentName: agentName(for: entry.agentId))
                     }
@@ -347,6 +356,51 @@ private struct EventFilterCard: View {
         case .info:
             return .positive
         }
+    }
+}
+
+private struct EventFeedInventoryDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let criticalCount: Int
+    let isStreaming: Bool
+    let searchText: String
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine) {
+            FlowLayout(spacing: 6) {
+                PresentationToneBadge(
+                    text: visibleCount == 1 ? String(localized: "1 visible") : String(localized: "\(visibleCount) visible"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+                PresentationToneBadge(
+                    text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                    tone: criticalCount > 0 ? .critical : .neutral
+                )
+                PresentationToneBadge(
+                    text: isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                    tone: isStreaming ? .positive : .warning
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "1 event is ready in the feed.")
+                : String(localized: "\(totalCount) events are ready in the feed.")
+        }
+
+        return String(localized: "\(visibleCount) of \(totalCount) events are visible in this feed.")
+    }
+
+    private var detailLine: String {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty {
+            return String(localized: "Critical entries stay summarized before the event list.")
+        }
+        return String(localized: "Filtered by \"\(query)\" before the event list.")
     }
 }
 

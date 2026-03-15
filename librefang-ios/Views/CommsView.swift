@@ -98,6 +98,15 @@ struct CommsView: View {
                 }
             } else {
                 Section {
+                    CommsTrafficInventoryDeck(
+                        visibleCount: filteredEvents.count,
+                        totalCount: viewModel.events.count,
+                        activeLinks: visibleEdges.count,
+                        isStreaming: viewModel.isStreaming,
+                        searchText: searchText
+                    )
+                    .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
+
                     ForEach(filteredEvents) { event in
                         CommsEventRow(event: event)
                     }
@@ -339,6 +348,51 @@ private struct CommsFilterCard: View {
             return String(localized: "Search by source, target, task, or event detail.")
         }
         return String(localized: "Search active: \"\(query)\"")
+    }
+}
+
+private struct CommsTrafficInventoryDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let activeLinks: Int
+    let isStreaming: Bool
+    let searchText: String
+
+    var body: some View {
+        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine) {
+            FlowLayout(spacing: 6) {
+                PresentationToneBadge(
+                    text: visibleCount == 1 ? String(localized: "1 visible") : String(localized: "\(visibleCount) visible"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+                PresentationToneBadge(
+                    text: activeLinks == 1 ? String(localized: "1 live link") : String(localized: "\(activeLinks) live links"),
+                    tone: activeLinks > 0 ? .positive : .neutral
+                )
+                PresentationToneBadge(
+                    text: isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                    tone: isStreaming ? .positive : .warning
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "1 comms event is ready in the traffic feed.")
+                : String(localized: "\(totalCount) comms events are ready in the traffic feed.")
+        }
+
+        return String(localized: "\(visibleCount) of \(totalCount) comms events are visible in the traffic feed.")
+    }
+
+    private var detailLine: String {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty {
+            return String(localized: "Live links and transport state stay summarized before the traffic feed.")
+        }
+        return String(localized: "Filtered by \"\(query)\" before the traffic feed.")
     }
 }
 
