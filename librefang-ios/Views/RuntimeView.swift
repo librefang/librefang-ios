@@ -263,7 +263,7 @@ struct RuntimeView: View {
 
     private var runtimeOperatorSurfacesSection: some View {
         Section {
-            RuntimeSurfaceGroup(
+            MonitoringSurfaceGroupCard(
                 title: String(localized: "Primary Surfaces"),
                 detail: String(localized: "Keep the next operator drills closest to the digest and focus rail.")
             ) {
@@ -343,7 +343,7 @@ struct RuntimeView: View {
                 }
             }
 
-            RuntimeSurfaceGroup(
+            MonitoringSurfaceGroupCard(
                 title: String(localized: "Supporting Surfaces"),
                 detail: String(localized: "Keep slower infrastructure and configuration routes behind the primary runtime exits.")
             ) {
@@ -399,27 +399,6 @@ struct RuntimeView: View {
             Text("Operator Surfaces")
         } footer: {
             Text("Use these one-tap routes when the runtime digest already tells you which deeper monitor you need next.")
-        }
-    }
-
-    private struct RuntimeSurfaceGroup<Content: View>: View {
-        let title: String
-        let detail: String
-        let content: Content
-
-        init(title: String, detail: String, @ViewBuilder content: () -> Content) {
-            self.title = title
-            self.detail = detail
-            self.content = content()
-        }
-
-        var body: some View {
-            MonitoringSnapshotCard(summary: title, detail: detail) {
-                VStack(spacing: 10) {
-                    content
-                }
-            }
-            .padding(.vertical, 4)
         }
     }
 

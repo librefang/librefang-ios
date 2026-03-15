@@ -170,62 +170,72 @@ struct ApprovalsView: View {
             }
 
             Section {
-                NavigationLink {
-                    IncidentsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Incidents"),
-                        detail: String(localized: "Switch to the incident queue where approvals sit beside alerts, sessions, and shift coverage."),
-                        systemImage: "bell.badge",
-                        tone: criticalApprovalCount > 0 ? .critical : .neutral,
-                        badgeText: criticalApprovalCount > 0
-                            ? (criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"))
-                            : nil,
-                        badgeTone: .critical
-                    )
+                MonitoringSurfaceGroupCard(
+                    title: String(localized: "Primary Surfaces"),
+                    detail: String(localized: "Keep the incident, on-call, and runtime exits closest to approval decisions.")
+                ) {
+                    NavigationLink {
+                        IncidentsView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Incidents"),
+                            detail: String(localized: "Switch to the incident queue where approvals sit beside alerts, sessions, and shift coverage."),
+                            systemImage: "bell.badge",
+                            tone: criticalApprovalCount > 0 ? .critical : .neutral,
+                            badgeText: criticalApprovalCount > 0
+                                ? (criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"))
+                                : nil,
+                            badgeTone: .critical
+                        )
+                    }
+
+                    NavigationLink {
+                        OnCallView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open On Call"),
+                            detail: String(localized: "Switch back to the prioritized on-call queue with approval pressure folded into the triage list."),
+                            systemImage: "waveform.path.ecg",
+                            tone: vm.pendingApprovalCount > 0 ? .warning : .neutral,
+                            badgeText: vm.pendingApprovalCount > 0
+                                ? (vm.pendingApprovalCount == 1 ? String(localized: "1 queued") : String(localized: "\(vm.pendingApprovalCount) queued"))
+                                : nil,
+                            badgeTone: .warning
+                        )
+                    }
+
+                    NavigationLink {
+                        RuntimeView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Runtime"),
+                            detail: String(localized: "Switch to runtime to inspect the broader approval, hand, and provider context."),
+                            systemImage: "server.rack",
+                            tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
+                            badgeText: vm.runtimeAlertCount > 0
+                                ? (vm.runtimeAlertCount == 1 ? String(localized: "1 runtime alert") : String(localized: "\(vm.runtimeAlertCount) runtime alerts"))
+                                : nil,
+                            badgeTone: .warning
+                        )
+                    }
                 }
 
-                NavigationLink {
-                    OnCallView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open On Call"),
-                        detail: String(localized: "Switch back to the prioritized on-call queue with approval pressure folded into the triage list."),
-                        systemImage: "waveform.path.ecg",
-                        tone: vm.pendingApprovalCount > 0 ? .warning : .neutral,
-                        badgeText: vm.pendingApprovalCount > 0
-                            ? (vm.pendingApprovalCount == 1 ? String(localized: "1 queued") : String(localized: "\(vm.pendingApprovalCount) queued"))
-                            : nil,
-                        badgeTone: .warning
-                    )
-                }
-
-                NavigationLink {
-                    RuntimeView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Runtime"),
-                        detail: String(localized: "Switch to runtime to inspect the broader approval, hand, and provider context."),
-                        systemImage: "server.rack",
-                        tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
-                        badgeText: vm.runtimeAlertCount > 0
-                            ? (vm.runtimeAlertCount == 1 ? String(localized: "1 runtime alert") : String(localized: "\(vm.runtimeAlertCount) runtime alerts"))
-                            : nil,
-                        badgeTone: .warning
-                    )
-                }
-
-                NavigationLink {
-                    AgentsView()
-                } label: {
-                    MonitoringJumpRow(
-                        title: String(localized: "Open Agents"),
-                        detail: String(localized: "Switch to fleet view when approval requests cluster around specific agents."),
-                        systemImage: "person.3",
-                        tone: approvalAgentCount > 1 ? .neutral : .neutral,
-                        badgeText: approvalAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(approvalAgentCount) agents"),
-                        badgeTone: .neutral
-                    )
+                MonitoringSurfaceGroupCard(
+                    title: String(localized: "Supporting Surfaces"),
+                    detail: String(localized: "Keep fleet-level drill-down behind the primary approval exits.")
+                ) {
+                    NavigationLink {
+                        AgentsView()
+                    } label: {
+                        MonitoringJumpRow(
+                            title: String(localized: "Open Agents"),
+                            detail: String(localized: "Switch to fleet view when approval requests cluster around specific agents."),
+                            systemImage: "person.3",
+                            tone: .neutral,
+                            badgeText: approvalAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(approvalAgentCount) agents"),
+                            badgeTone: .neutral
+                        )
+                    }
                 }
             } header: {
                 Text("Operator Surfaces")

@@ -217,50 +217,60 @@ struct BudgetView: View {
                         }
 
                         Section {
-                            NavigationLink {
-                                OverviewView()
-                            } label: {
-                                MonitoringJumpRow(
-                                    title: String(localized: "Open Overview"),
-                                    detail: String(localized: "Return to the mobile triage snapshot when spend pressure needs broader on-call context."),
-                                    systemImage: "square.grid.2x2",
-                                    tone: .neutral
-                                )
+                            MonitoringSurfaceGroupCard(
+                                title: String(localized: "Primary Surfaces"),
+                                detail: String(localized: "Keep the overview and runtime exits closest to cost pressure and per-agent spend ranking.")
+                            ) {
+                                NavigationLink {
+                                    OverviewView()
+                                } label: {
+                                    MonitoringJumpRow(
+                                        title: String(localized: "Open Overview"),
+                                        detail: String(localized: "Return to the mobile triage snapshot when spend pressure needs broader on-call context."),
+                                        systemImage: "square.grid.2x2",
+                                        tone: .neutral
+                                    )
+                                }
+
+                                NavigationLink {
+                                    RuntimeView()
+                                } label: {
+                                    MonitoringJumpRow(
+                                        title: String(localized: "Open Runtime"),
+                                        detail: String(localized: "Switch to runtime when cost spikes line up with sessions, approvals, or hand activity."),
+                                        systemImage: "waveform.path.ecg",
+                                        tone: budgetPressureTone
+                                    )
+                                }
                             }
 
-                            NavigationLink {
-                                RuntimeView()
-                            } label: {
-                                MonitoringJumpRow(
-                                    title: String(localized: "Open Runtime"),
-                                    detail: String(localized: "Switch to runtime when cost spikes line up with sessions, approvals, or hand activity."),
-                                    systemImage: "waveform.path.ecg",
-                                    tone: budgetPressureTone
-                                )
-                            }
+                            MonitoringSurfaceGroupCard(
+                                title: String(localized: "Supporting Surfaces"),
+                                detail: String(localized: "Keep deeper diagnostics and routing checks behind the primary budget exits.")
+                            ) {
+                                NavigationLink {
+                                    DiagnosticsView()
+                                } label: {
+                                    MonitoringJumpRow(
+                                        title: String(localized: "Open Diagnostics"),
+                                        detail: String(localized: "Switch to health, metrics, and build detail when spend drift needs deeper runtime evidence."),
+                                        systemImage: "stethoscope",
+                                        tone: .neutral
+                                    )
+                                }
 
-                            NavigationLink {
-                                DiagnosticsView()
-                            } label: {
-                                MonitoringJumpRow(
-                                    title: String(localized: "Open Diagnostics"),
-                                    detail: String(localized: "Switch to health, metrics, and build detail when spend drift needs deeper runtime evidence."),
-                                    systemImage: "stethoscope",
-                                    tone: .neutral
-                                )
-                            }
-
-                            NavigationLink {
-                                IntegrationsView(initialScope: .attention)
-                            } label: {
-                                MonitoringJumpRow(
-                                    title: String(localized: "Open Integrations"),
-                                    detail: String(localized: "Switch to providers, channels, and model catalog when spend concentration hints at routing drift."),
-                                    systemImage: "square.3.layers.3d.down.forward",
-                                    tone: .neutral,
-                                    badgeText: topModelName,
-                                    badgeTone: .neutral
-                                )
+                                NavigationLink {
+                                    IntegrationsView(initialScope: .attention)
+                                } label: {
+                                    MonitoringJumpRow(
+                                        title: String(localized: "Open Integrations"),
+                                        detail: String(localized: "Switch to providers, channels, and model catalog when spend concentration hints at routing drift."),
+                                        systemImage: "square.3.layers.3d.down.forward",
+                                        tone: .neutral,
+                                        badgeText: topModelName,
+                                        badgeTone: .neutral
+                                    )
+                                }
                             }
                         } header: {
                             Text("Operator Surfaces")
