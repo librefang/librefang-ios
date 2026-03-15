@@ -30,6 +30,12 @@
             "state": "new",
             "value": "%1$@ · %2$@"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
         }
       }
     },
@@ -40,6 +46,12 @@
         "en": {
           "stringUnit": {
             "state": "new",
+            "value": "%1$@ · %2$@ · %3$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
             "value": "%1$@ · %2$@ · %3$@"
           }
         }
@@ -54,6 +66,12 @@
             "state": "new",
             "value": "%1$@ · %2$@/%3$@ · %4$@"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@/%3$@ · %4$@"
+          }
         }
       }
     },
@@ -65,6 +83,12 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$@ · %2$lld msgs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$lld 条消息"
           }
         }
       }
@@ -94,6 +118,12 @@
             "state": "new",
             "value": "%1$@ → %2$@"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ → %2$@"
+          }
         }
       }
     },
@@ -106,6 +136,12 @@
         "en": {
           "stringUnit": {
             "state": "new",
+            "value": "%1$@/%2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
             "value": "%1$@/%2$@"
           }
         }
@@ -121,6 +157,12 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$lld active, %2$lld degraded"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 个活跃，%2$lld 个降级"
           }
         }
       }
@@ -183,6 +225,12 @@
             "state": "new",
             "value": "%1$lld complete · %2$lld pending"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 已完成 · %2$lld 待处理"
+          }
         }
       }
     },
@@ -228,6 +276,12 @@
             "state": "new",
             "value": "%1$lld definitions, %2$lld recent runs cached from the server"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 个定义，%2$lld 条最近运行已从服务器缓存"
+          }
         }
       }
     },
@@ -241,6 +295,12 @@
             "state": "new",
             "value": "%1$lld enabled, %2$lld exhausted"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 个已启用，%2$lld 个已耗尽"
+          }
         }
       }
     },
@@ -252,6 +312,12 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$lld enabled, %2$lld paused"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 个已启用，%2$lld 个已暂停"
           }
         }
       }
@@ -265,6 +331,12 @@
             "state": "new",
             "value": "%1$lld enabled, %2$lld paused, %3$lld missing next run"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 个已启用，%2$lld 个已暂停，%3$lld 个缺少下一次运行"
+          }
         }
       }
     },
@@ -276,6 +348,12 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$lld exhausted triggers and %2$lld stalled cron jobs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 个触发器耗尽，%2$lld 个 cron 任务停滞"
           }
         }
       }
@@ -304,6 +382,12 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$lld failed, %2$lld still running"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 个失败，%2$lld 个仍在运行"
           }
         }
       }
@@ -345,6 +429,12 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$lld image attachment%2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 个图片附件"
           }
         }
       }
@@ -389,6 +479,12 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$lld local providers unreachable and %2$lld channels missing required fields"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 个本地 Provider 不可达，%2$lld 个渠道缺少必填字段"
           }
         }
       }
@@ -438,6 +534,12 @@
             "state": "new",
             "value": "%1$lld of %2$lld events visible"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可见 %1$lld / %2$lld 个事件"
+          }
         }
       }
     },
@@ -448,6 +550,12 @@
             "state": "new",
             "value": "%1$lld of %2$lld handoff focus areas are still active."
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%2$lld 个交接焦点中仍有 %1$lld 个处于活跃状态。"
+          }
         }
       }
     },
@@ -457,6 +565,12 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$lld of %2$lld latest handoff follow-up items are still open."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近一次交接的跟进项中仍有 %1$lld / %2$lld 项未完成。"
           }
         }
       }
@@ -470,6 +584,12 @@
             "state": "new",
             "value": "%1$lld of %2$lld latest local follow-up items are still pending."
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近一次本地跟进项中仍有 %1$lld / %2$lld 项待处理。"
+          }
         }
       }
     },
@@ -481,6 +601,12 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$lld of %2$lld local handoff follow-ups still need operator follow-through."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地交接跟进项中仍有 %1$lld / %2$lld 项需要操作员继续跟进。"
           }
         }
       }
@@ -501,6 +627,12 @@
             "state": "new",
             "value": "%1$lld panics and %2$lld restarts have been observed since startup."
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自启动以来已观察到 %1$lld 次 panic 和 %2$lld 次重启。"
+          }
         }
       }
     },
@@ -514,6 +646,12 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$lld pending · %2$lld done"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 待处理 · %2$lld 已完成"
           }
         }
       }
@@ -537,6 +675,12 @@
             "state": "new",
             "value": "%1$lld queued · %2$lld critical"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 项排队中 · %2$lld 项严重"
+          }
         }
       }
     },
@@ -549,6 +693,12 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$lld ready, %2$lld configured"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 个就绪，%2$lld 个已配置"
           }
         }
       }
@@ -589,6 +739,12 @@
             "state": "new",
             "value": "%1$lld sessions across the workspace, %2$lld need attention"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区共有 %1$lld 个会话，其中 %2$lld 个需要关注"
+          }
         }
       }
     },
@@ -615,6 +771,12 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$lld tool%2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 个工具"
           }
         }
       }
@@ -687,6 +849,12 @@
             "state": "new",
             "value": "%1$lld workflow failures and %2$lld stalled cron jobs"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld 个工作流失败，%2$lld 个 cron 任务停滞"
+          }
         }
       }
     },
@@ -708,6 +876,12 @@
             "state": "new",
             "value": "%1$lld. %2$@"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld. %2$@"
+          }
         }
       }
     },
@@ -718,6 +892,12 @@
         "en": {
           "stringUnit": {
             "state": "new",
+            "value": "%1$lld/%2$lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
             "value": "%1$lld/%2$lld"
           }
         }
@@ -732,6 +912,12 @@
             "state": "new",
             "value": "%1$lld/%2$lld active · %3$@ rolling tokens"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld/%2$lld 活跃 · %3$@ 滚动 Tokens"
+          }
         }
       }
     },
@@ -743,6 +929,12 @@
           "stringUnit": {
             "state": "new",
             "value": "%1$lld/%2$lld configured"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld/%2$lld 已配置"
           }
         }
       }
@@ -1558,6 +1750,12 @@
             "state": "new",
             "value": "Allow %1$@ to proceed with %2$@?"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许 %1$@ 继续执行 %2$@ 吗？"
+          }
         }
       }
     },
@@ -1948,6 +2146,12 @@
             "state": "new",
             "value": "Carryover: %1$@ · %2$@"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "遗留项：%1$@ · %2$@"
+          }
         }
       }
     },
@@ -2078,6 +2282,12 @@
             "state": "new",
             "value": "Check-in: %1$@ · %2$@"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复查：%1$@ · %2$@"
+          }
         }
       }
     },
@@ -2099,6 +2309,12 @@
           "stringUnit": {
             "state": "new",
             "value": "Checklist %1$@ · %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清单 %1$@ · %2$@"
           }
         }
       }
@@ -2687,6 +2903,12 @@
             "state": "new",
             "value": "Delete memory key \"%1$@\" from %2$@? This cannot be undone."
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要从 %2$@ 删除记忆键“%1$@”吗？此操作无法撤销。"
+          }
         }
       }
     },
@@ -2858,6 +3080,12 @@
           "stringUnit": {
             "state": "new",
             "value": "Drift: %1$@ · %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "漂移：%1$@ · %2$@"
           }
         }
       }
@@ -3095,6 +3323,12 @@
             "state": "new",
             "value": "Follow-ups: %1$lld pending · %2$lld done"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跟进项：%1$lld 待处理 · %2$lld 已完成"
+          }
         }
       }
     },
@@ -3311,6 +3545,12 @@
             "state": "new",
             "value": "HTTP %1$lld: %2$@"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP %1$lld：%2$@"
+          }
         }
       }
     },
@@ -3371,6 +3611,12 @@
           "stringUnit": {
             "state": "new",
             "value": "Incident handoff. %1$lld critical and %2$lld live alerts remain in play. Stay on the priority queue until conditions settle."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事故交接。当前仍有 %1$lld 项严重告警和 %2$lld 项实时告警。请继续留在优先级队列中，直到情况稳定。"
           }
         }
       }
@@ -3715,6 +3961,12 @@
           "stringUnit": {
             "state": "new",
             "value": "Latest gap %1$@. Average recent cadence %2$@."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近一次间隔为 %1$@。近期平均节奏为 %2$@。"
           }
         }
       }
@@ -4151,6 +4403,12 @@
           "stringUnit": {
             "state": "new",
             "value": "Make %1$@ the active session for %2$@?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要将 %1$@ 设为 %2$@ 的当前活跃会话吗？"
           }
         }
       }
@@ -5635,6 +5893,12 @@
             "state": "new",
             "value": "Queue: %1$lld · Critical: %2$lld · Live alerts: %3$lld"
           }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "队列：%1$lld · 严重：%2$lld · 实时告警：%3$lld"
+          }
         }
       }
     },
@@ -5846,6 +6110,12 @@
           "stringUnit": {
             "state": "new",
             "value": "Reject %1$@ for %2$@?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要为 %2$@ 拒绝 %1$@ 吗？"
           }
         }
       }
@@ -6084,6 +6354,12 @@
           "stringUnit": {
             "state": "new",
             "value": "Routine shift snapshot. Queue %1$lld, live alerts %2$lld. Continue normal monitoring."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "常规交接快照。队列 %1$lld，实时告警 %2$lld。继续常规监控。"
           }
         }
       }
@@ -6590,6 +6866,12 @@
           "stringUnit": {
             "state": "new",
             "value": "Showing 8 of %1$lld %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示 %2$@ 共 %1$lld 项中的 8 项"
           }
         }
       }
