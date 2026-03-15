@@ -287,6 +287,17 @@ struct StandbyDigestView: View {
         VStack(spacing: 12) {
             snapshotCard
             signalFactsCard
+            StandbySectionInventoryDeck(
+                sectionCount: standbySectionCount,
+                queueCount: priorityItems.count,
+                primaryCardCount: primaryItems.count,
+                watchCount: watchItems.count,
+                mutedAlertCount: mutedAlertCount,
+                pendingFollowUpCount: pendingFollowUpCount,
+                approvalCount: vm.pendingApprovalCount,
+                automationIssueCount: automationIssueCount,
+                integrationIssueCount: integrationIssueCount
+            )
         }
     }
 
@@ -576,18 +587,6 @@ struct StandbyDigestView: View {
                 queueCount: priorityItems.count,
                 criticalCount: criticalCount,
                 watchIssueCount: watchIssueCount,
-                mutedAlertCount: mutedAlertCount,
-                pendingFollowUpCount: pendingFollowUpCount,
-                approvalCount: vm.pendingApprovalCount,
-                automationIssueCount: automationIssueCount,
-                integrationIssueCount: integrationIssueCount
-            )
-
-            StandbySectionInventoryDeck(
-                sectionCount: standbySectionCount,
-                queueCount: priorityItems.count,
-                primaryCardCount: primaryItems.count,
-                watchCount: watchItems.count,
                 mutedAlertCount: mutedAlertCount,
                 pendingFollowUpCount: pendingFollowUpCount,
                 approvalCount: vm.pendingApprovalCount,

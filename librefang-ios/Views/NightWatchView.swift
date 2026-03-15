@@ -286,6 +286,17 @@ struct NightWatchView: View {
         VStack(spacing: 12) {
             snapshotCard
             signalFactsCard
+            NightWatchSectionInventoryDeck(
+                sectionCount: nightWatchSectionCount,
+                primaryQueueCount: primaryItems.count,
+                secondaryQueueCount: secondaryItems.count,
+                watchCount: activeWatchedItems.count,
+                pendingFollowUpCount: pendingFollowUpCount,
+                approvalCount: vm.pendingApprovalCount,
+                criticalCount: criticalCount,
+                automationIssueCount: automationIssueCount,
+                integrationIssueCount: integrationIssueCount
+            )
         }
     }
 
@@ -456,18 +467,6 @@ struct NightWatchView: View {
                 approvalCount: vm.pendingApprovalCount,
                 sessionCount: vm.sessionAttentionCount,
                 eventCount: vm.recentCriticalAuditCount,
-                automationIssueCount: automationIssueCount,
-                integrationIssueCount: integrationIssueCount
-            )
-
-            NightWatchSectionInventoryDeck(
-                sectionCount: nightWatchSectionCount,
-                primaryQueueCount: primaryItems.count,
-                secondaryQueueCount: secondaryItems.count,
-                watchCount: activeWatchedItems.count,
-                pendingFollowUpCount: pendingFollowUpCount,
-                approvalCount: vm.pendingApprovalCount,
-                criticalCount: criticalCount,
                 automationIssueCount: automationIssueCount,
                 integrationIssueCount: integrationIssueCount
             )
