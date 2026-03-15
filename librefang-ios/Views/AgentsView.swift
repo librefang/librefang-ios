@@ -111,6 +111,7 @@ struct AgentsView: View {
     private var agentRouteSupportCount: Int {
         3 + (vm.pendingApprovalCount > 0 ? 1 : 0)
     }
+    private var agentsSectionCount: Int { 2 }
 
     var body: some View {
         NavigationStack {
@@ -166,6 +167,22 @@ struct AgentsView: View {
                                         }
                                     }
                                 }
+
+                                AgentsSectionInventoryDeck(
+                                    sectionCount: agentsSectionCount,
+                                    visibleCount: filteredAgents.count,
+                                    totalCount: vm.agents.count,
+                                    runningCount: filteredRunningCount,
+                                    issueCount: filteredIssueCount,
+                                    approvalCount: filteredApprovalCount,
+                                    staleCount: filteredStaleCount,
+                                    watchlistCount: filteredWatchedCount,
+                                    authIssueCount: filteredAuthIssueCount,
+                                    sessionPressureCount: filteredSessionPressureCount,
+                                    hasSearchScope: !normalizedSearchText.isEmpty,
+                                    filterLabel: filterState.label,
+                                    filterTone: filterState == .attention ? .warning : .neutral
+                                )
 
                                 MonitoringSurfaceGroupCard(
                                     title: String(localized: "Routes"),
@@ -615,6 +632,115 @@ private struct AgentsRouteInventoryDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct AgentsSectionInventoryDeck: View {
+    let sectionCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let runningCount: Int
+    let issueCount: Int
+    let approvalCount: Int
+    let staleCount: Int
+    let watchlistCount: Int
+    let authIssueCount: Int
+    let sessionPressureCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(visibleCount) visible agents"),
+                        tone: visibleCount > 0 ? .positive : .neutral
+                    )
+                    if issueCount > 0 {
+                        PresentationToneBadge(
+                            text: issueCount == 1 ? String(localized: "1 fleet issue") : String(localized: "\(issueCount) fleet issues"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Section inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep fleet coverage, active pressure, and watchlist load visible before the route rail and agent rows take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: runningCount == 1 ? String(localized: "1 running") : String(localized: "\(runningCount) running"),
+                    tone: runningCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if watchlistCount > 0 {
+                    Label(
+                        watchlistCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchlistCount) watched agents"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if staleCount > 0 {
+                    Label(
+                        staleCount == 1 ? String(localized: "1 stale agent") : String(localized: "\(staleCount) stale agents"),
+                        systemImage: "clock.badge.exclamationmark"
+                    )
+                }
+                if authIssueCount > 0 {
+                    Label(
+                        authIssueCount == 1 ? String(localized: "1 auth issue") : String(localized: "\(authIssueCount) auth issues"),
+                        systemImage: "key.horizontal"
+                    )
+                }
+                if sessionPressureCount > 0 {
+                    Label(
+                        sessionPressureCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionPressureCount) session hotspots"),
+                        systemImage: "text.bubble"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+                Label(
+                    totalCount == 1 ? String(localized: "1 total agent") : String(localized: "\(totalCount) total agents"),
+                    systemImage: "person.3"
+                )
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        sectionCount == 1
+            ? String(localized: "1 fleet section is active below the controls deck.")
+            : String(localized: "\(sectionCount) fleet sections are active below the controls deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Fleet coverage, active pressure, and watchlist load stay summarized before the route rail and filtered agent rows take over.")
     }
 }
 
