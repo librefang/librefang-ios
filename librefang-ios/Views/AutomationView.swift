@@ -170,13 +170,92 @@ struct AutomationView: View {
                         visibleItemCount: visibleItemCount,
                         automationSnapshotSummary: automationSnapshotSummary
                     )
-                } header: {
-                    Text("Status Deck")
-                } footer: {
-                    Text("Keep scope, inventory size, and failure pressure in one compact automation digest before the grouped workflow sections.")
-                }
 
-                Section {
+                    MonitoringSurfaceGroupCard(
+                        title: String(localized: "Route Deck"),
+                        detail: String(localized: "Keep the next automation exits compact and visible above the grouped workflow lists.")
+                    ) {
+                        MonitoringShortcutRail(
+                            title: String(localized: "Primary Routes"),
+                            detail: String(localized: "Use these routes first when workflow or scheduler pressure needs broader context.")
+                        ) {
+                            NavigationLink {
+                                RuntimeView()
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Runtime"),
+                                    systemImage: "server.rack",
+                                    tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                                    badgeText: vm.automationPressureIssueCategoryCount > 0
+                                        ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
+                                        : nil
+                                )
+                            }
+                            .buttonStyle(.plain)
+
+                            NavigationLink {
+                                IncidentsView()
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Incidents"),
+                                    systemImage: "bell.badge",
+                                    tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                                    badgeText: vm.failedWorkflowRunCount > 0
+                                        ? (vm.failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(vm.failedWorkflowRunCount) failed runs"))
+                                        : nil
+                                )
+                            }
+                            .buttonStyle(.plain)
+
+                            NavigationLink {
+                                DiagnosticsView()
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Diagnostics"),
+                                    systemImage: "stethoscope",
+                                    tone: vm.diagnosticsSummaryTone,
+                                    badgeText: vm.diagnosticsConfigWarningCount > 0
+                                        ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
+                                        : nil
+                                )
+                            }
+                            .buttonStyle(.plain)
+
+                            NavigationLink {
+                                EventsView(api: deps.apiClient, initialScope: .critical)
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Events"),
+                                    systemImage: "text.justify.leading",
+                                    tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
+                                    badgeText: vm.recentCriticalAuditCount > 0
+                                        ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
+                                        : nil
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+
+                        MonitoringShortcutRail(
+                            title: String(localized: "Support Routes"),
+                            detail: String(localized: "Keep integration context behind the primary automation exits.")
+                        ) {
+                            NavigationLink {
+                                IntegrationsView(initialScope: .attention)
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Integrations"),
+                                    systemImage: "square.3.layers.3d.down.forward",
+                                    tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                                    badgeText: vm.integrationPressureIssueCategoryCount > 0
+                                        ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
+                                        : nil
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+
                     AutomationFilterCard(
                         scope: $scope,
                         searchText: searchText,
@@ -184,98 +263,9 @@ struct AutomationView: View {
                         totalCount: totalItemCount
                     )
                 } header: {
-                    Text("Filter")
-                }
-
-                Section {
-                    MonitoringSurfaceGroupCard(
-                        title: String(localized: "Primary Routes"),
-                        detail: String(localized: "Keep the next operator exits closest to workflow and scheduler pressure.")
-                    ) {
-                        NavigationLink {
-                            RuntimeView()
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Runtime"),
-                                detail: String(localized: "Switch back to the runtime digest with automation pressure folded into the main monitor."),
-                                systemImage: "server.rack",
-                                tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
-                                badgeText: vm.automationPressureIssueCategoryCount > 0
-                                    ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
-                                    : nil,
-                                badgeTone: .warning
-                            )
-                        }
-
-                        NavigationLink {
-                            IncidentsView()
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Incidents"),
-                                detail: String(localized: "Switch to the incident queue where automation pressure is ranked with alerts and approvals."),
-                                systemImage: "bell.badge",
-                                tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
-                                badgeText: vm.failedWorkflowRunCount > 0
-                                    ? (vm.failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(vm.failedWorkflowRunCount) failed runs"))
-                                    : nil,
-                                badgeTone: .critical
-                            )
-                        }
-
-                        NavigationLink {
-                            DiagnosticsView()
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Diagnostics"),
-                                detail: String(localized: "Switch to runtime health, build, config, and metrics when automation failures may be systemic."),
-                                systemImage: "stethoscope",
-                                tone: vm.diagnosticsSummaryTone,
-                                badgeText: vm.diagnosticsConfigWarningCount > 0
-                                    ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
-                                    : nil,
-                                badgeTone: .warning
-                            )
-                        }
-
-                        NavigationLink {
-                            EventsView(api: deps.apiClient, initialScope: .critical)
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Critical Events"),
-                                detail: String(localized: "Switch to the critical event feed if workflow failures correlate with audit activity."),
-                                systemImage: "text.justify.leading",
-                                tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
-                                badgeText: vm.recentCriticalAuditCount > 0
-                                    ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
-                                    : nil,
-                                badgeTone: .critical
-                            )
-                        }
-                    }
-
-                    MonitoringSurfaceGroupCard(
-                        title: String(localized: "Support Routes"),
-                        detail: String(localized: "Keep integration context behind the primary automation exits.")
-                    ) {
-                        NavigationLink {
-                            IntegrationsView(initialScope: .attention)
-                        } label: {
-                            MonitoringJumpRow(
-                                title: String(localized: "Integrations"),
-                                detail: String(localized: "Switch to providers, channels, and model drift when automation failures may be rooted in integration trouble."),
-                                systemImage: "square.3.layers.3d.down.forward",
-                                tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
-                                badgeText: vm.integrationPressureIssueCategoryCount > 0
-                                    ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) integration issues"))
-                                    : nil,
-                                badgeTone: .critical
-                            )
-                        }
-                    }
-                } header: {
-                    Text("Route Deck")
+                    Text("Operator Deck")
                 } footer: {
-                    Text("Use these routes when automation issues need incident, runtime, or event context beyond the current filtered list.")
+                    Text("Keep automation status, routes, and filters together before the grouped workflow sections.")
                 }
 
                 if hasAutomationData {
