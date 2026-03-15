@@ -165,6 +165,74 @@ struct IncidentsView: View {
         .filter { $0 }
         .count
     }
+    private var operatorPrimaryRouteCount: Int { 4 }
+    private var operatorSupportRouteCount: Int {
+        2 + (automationIssueCount > 0 ? 1 : 0) + (integrationIssueCount > 0 ? 1 : 0)
+    }
+    private var primaryQueueSectionCount: Int {
+        [
+            !visibleAlerts.isEmpty || !mutedAlerts.isEmpty,
+            handoffIssueCount > 0,
+            !visibleAlerts.isEmpty,
+            !vm.approvals.isEmpty,
+            !vm.sessionAttentionItems.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
+    private var supportQueueSectionCount: Int {
+        [
+            automationIssueCount > 0,
+            integrationIssueCount > 0,
+            !vm.attentionAgents.isEmpty,
+            !watchedDiagnosticRows.isEmpty,
+            !vm.criticalAuditEntries.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
+    private var approvalsHighRiskCount: Int {
+        vm.approvals.filter(\.isHighRiskOrAbove).count
+    }
+    private var approvalAgentCount: Int {
+        Set(vm.approvals.map(\.agentId)).count
+    }
+    private var attentionAgentAuthIssueCount: Int {
+        vm.attentionAgents.filter(\.hasAuthIssue).count
+    }
+    private var attentionAgentApprovalCount: Int {
+        vm.attentionAgents.filter { $0.pendingApprovals > 0 }.count
+    }
+    private var attentionAgentStaleCount: Int {
+        vm.attentionAgents.filter(\.isStale).count
+    }
+    private var watchedFailedAgentCount: Int {
+        watchedDiagnosticRows.filter { $0.summary.failedDeliveries > 0 }.count
+    }
+    private var watchedMissingIdentityAgentCount: Int {
+        watchedDiagnosticRows.filter { !$0.summary.missingIdentityFiles.isEmpty }.count
+    }
+    private var watchedFallbackAgentCount: Int {
+        watchedDiagnosticRows.filter { !$0.summary.unavailableFallbackModels.isEmpty }.count
+    }
+    private var watchedUnsettledAgentCount: Int {
+        watchedDiagnosticRows.filter { $0.summary.unsettledDeliveries > 0 }.count
+    }
+    private var unlabeledSessionCount: Int {
+        vm.sessionAttentionItems.filter { !$0.hasLabel }.count
+    }
+    private var duplicateSessionCount: Int {
+        vm.sessionAttentionItems.filter { $0.duplicateCount > 1 }.count
+    }
+    private var visibleSessionMessageCount: Int {
+        vm.sessionAttentionItems.prefix(5).reduce(0) { $0 + $1.session.messageCount }
+    }
+    private var criticalEventAgentCount: Int {
+        Set(vm.criticalAuditEntries.map(\.agentId)).count
+    }
+    private var criticalEventActionCount: Int {
+        Set(vm.criticalAuditEntries.map(\.action)).count
+    }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -309,6 +377,17 @@ struct IncidentsView: View {
                 handoffCount: handoffIssueCount
             )
 
+            IncidentRouteInventoryDeck(
+                primaryRouteCount: operatorPrimaryRouteCount,
+                supportRouteCount: operatorSupportRouteCount,
+                criticalCount: criticalAlertCount,
+                approvalCount: vm.pendingApprovalCount,
+                sessionCount: vm.sessionAttentionCount,
+                automationCount: automationIssueCount,
+                integrationCount: integrationIssueCount,
+                handoffCount: handoffIssueCount
+            )
+
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Routes"),
                 detail: String(localized: "Keep the most likely next drilldowns visible before the incident queue.")
@@ -427,6 +506,16 @@ struct IncidentsView: View {
                     }
                 }
             }
+
+            IncidentQueueInventoryDeck(
+                primarySectionCount: primaryQueueSectionCount,
+                supportSectionCount: supportQueueSectionCount,
+                activeAlertCount: visibleAlerts.count,
+                mutedAlertCount: mutedAlerts.count,
+                approvalCount: vm.pendingApprovalCount,
+                watchedDiagnosticsCount: watchedDiagnosticRows.count,
+                criticalEventCount: vm.recentCriticalAuditCount
+            )
 
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Queue"),
@@ -631,6 +720,13 @@ struct IncidentsView: View {
 
     private var automationSection: some View {
         Section {
+            IncidentAutomationInventoryDeck(
+                issueCategoryCount: automationIssueCount,
+                failedWorkflowRunCount: vm.failedWorkflowRunCount,
+                exhaustedTriggerCount: vm.exhaustedTriggerCount,
+                stalledCronJobCount: vm.stalledCronJobCount
+            )
+
             NavigationLink {
                 AutomationView()
             } label: {
@@ -646,6 +742,15 @@ struct IncidentsView: View {
 
     private var integrationsSection: some View {
         Section {
+            IncidentIntegrationsInventoryDeck(
+                issueCategoryCount: integrationIssueCount,
+                providerFailureCount: vm.unreachableLocalProviderCount,
+                channelGapCount: vm.channelRequiredFieldGapCount,
+                hasEmptyCatalog: vm.hasEmptyModelCatalog,
+                modelDriftCount: vm.agentsWithModelDiagnostics.count,
+                visibleDiagnosticCount: min(vm.agentsWithModelDiagnostics.count, 3)
+            )
+
             NavigationLink {
                 IntegrationsView(initialScope: .attention)
             } label: {
@@ -755,6 +860,13 @@ struct IncidentsView: View {
 
     private var approvalsSection: some View {
         Section {
+            IncidentApprovalsInventoryDeck(
+                visibleCount: min(vm.approvals.count, 4),
+                totalCount: vm.approvals.count,
+                highRiskCount: approvalsHighRiskCount,
+                agentCount: approvalAgentCount
+            )
+
             ForEach(vm.approvals.prefix(4)) { approval in
                 IncidentApprovalRow(
                     approval: approval,
@@ -807,6 +919,15 @@ struct IncidentsView: View {
 
     private var agentsSection: some View {
         Section {
+            IncidentAgentsInventoryDeck(
+                visibleCount: min(vm.attentionAgents.count, 5),
+                totalCount: vm.issueAgentCount,
+                authIssueCount: attentionAgentAuthIssueCount,
+                approvalCount: attentionAgentApprovalCount,
+                staleCount: attentionAgentStaleCount,
+                watchedDiagnosticsCount: watchedDiagnosticRows.count
+            )
+
             ForEach(vm.attentionAgents.prefix(5)) { item in
                 NavigationLink {
                     AgentDetailView(agent: item.agent)
@@ -843,6 +964,15 @@ struct IncidentsView: View {
 
     private var watchedDiagnosticsSection: some View {
         Section {
+            IncidentWatchedDiagnosticsInventoryDeck(
+                visibleCount: min(watchedDiagnosticRows.count, 5),
+                totalCount: watchedDiagnosticRows.count,
+                failedAgentCount: watchedFailedAgentCount,
+                missingIdentityAgentCount: watchedMissingIdentityAgentCount,
+                fallbackAgentCount: watchedFallbackAgentCount,
+                unsettledAgentCount: watchedUnsettledAgentCount
+            )
+
             ForEach(watchedDiagnosticRows.prefix(5), id: \.agent.id) { row in
                 NavigationLink {
                     watchedDiagnosticsDestination(agent: row.agent, summary: row.summary)
@@ -860,6 +990,14 @@ struct IncidentsView: View {
 
     private var sessionsSection: some View {
         Section {
+            IncidentSessionsInventoryDeck(
+                visibleCount: min(vm.sessionAttentionItems.count, 5),
+                totalCount: vm.sessionAttentionCount,
+                unlabeledCount: unlabeledSessionCount,
+                duplicateCount: duplicateSessionCount,
+                visibleMessageCount: visibleSessionMessageCount
+            )
+
             ForEach(vm.sessionAttentionItems.prefix(5)) { item in
                 if let sessionQuery = sessionQuery(for: item) {
                     NavigationLink {
@@ -911,6 +1049,13 @@ struct IncidentsView: View {
 
     private var criticalEventsSection: some View {
         Section {
+            IncidentEventsInventoryDeck(
+                visibleCount: min(vm.criticalAuditEntries.count, 5),
+                totalCount: vm.recentCriticalAuditCount,
+                agentCount: criticalEventAgentCount,
+                actionCount: criticalEventActionCount
+            )
+
             ForEach(vm.criticalAuditEntries.prefix(5)) { entry in
                 if let eventQuery = eventQuery(for: entry) {
                     NavigationLink {
@@ -1583,6 +1728,657 @@ private struct IncidentSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Alerts, approvals, sessions, events, automation, integrations, and handoff pressure stay grouped before the routes fan out.")
+    }
+}
+
+private struct IncidentRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let criticalCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let automationCount: Int
+    let integrationCount: Int
+    let handoffCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                        tone: .critical
+                    )
+                    PresentationToneBadge(
+                        text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        tone: .neutral
+                    )
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical route") : String(localized: "\(criticalCount) critical routes"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the fastest incident drilldowns separate from deeper runtime and infrastructure exits before the queue begins."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
+                    tone: .neutral
+                )
+            } facts: {
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval route") : String(localized: "\(approvalCount) approval routes"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if sessionCount > 0 {
+                    Label(
+                        sessionCount == 1 ? String(localized: "1 session route") : String(localized: "\(sessionCount) session routes"),
+                        systemImage: "rectangle.stack"
+                    )
+                }
+                if automationCount > 0 {
+                    Label(
+                        automationCount == 1 ? String(localized: "1 automation route") : String(localized: "\(automationCount) automation routes"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationCount > 0 {
+                    Label(
+                        integrationCount == 1 ? String(localized: "1 integration route") : String(localized: "\(integrationCount) integration routes"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+                if handoffCount > 0 {
+                    Label(
+                        handoffCount == 1 ? String(localized: "1 handoff route") : String(localized: "\(handoffCount) handoff routes"),
+                        systemImage: "text.badge.plus"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        String(localized: "Incident controls are grouping \(primaryRouteCount) primary routes and \(supportRouteCount) support routes before the queue.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Primary exits stay biased toward the next likely triage surfaces, while support exits keep deeper runtime context nearby.")
+    }
+}
+
+private struct IncidentQueueInventoryDeck: View {
+    let primarySectionCount: Int
+    let supportSectionCount: Int
+    let activeAlertCount: Int
+    let mutedAlertCount: Int
+    let approvalCount: Int
+    let watchedDiagnosticsCount: Int
+    let criticalEventCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: primarySectionCount == 1 ? String(localized: "1 primary bucket") : String(localized: "\(primarySectionCount) primary buckets"),
+                        tone: .warning
+                    )
+                    if supportSectionCount > 0 {
+                        PresentationToneBadge(
+                            text: supportSectionCount == 1 ? String(localized: "1 support bucket") : String(localized: "\(supportSectionCount) support buckets"),
+                            tone: .neutral
+                        )
+                    }
+                    if activeAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: activeAlertCount == 1 ? String(localized: "1 active alert bucket") : String(localized: "\(activeAlertCount) active alert buckets"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Queue inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the queue split to tell whether the next tap belongs in live operator buckets or slower infrastructure follow-up."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: supportSectionCount == 0
+                        ? String(localized: "Primary only")
+                        : String(localized: "\(primarySectionCount + supportSectionCount) buckets"),
+                    tone: supportSectionCount == 0 ? .warning : .neutral
+                )
+            } facts: {
+                if mutedAlertCount > 0 {
+                    Label(
+                        mutedAlertCount == 1 ? String(localized: "1 muted bucket") : String(localized: "\(mutedAlertCount) muted buckets"),
+                        systemImage: "bell.slash"
+                    )
+                }
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval bucket") : String(localized: "\(approvalCount) approval buckets"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if watchedDiagnosticsCount > 0 {
+                    Label(
+                        watchedDiagnosticsCount == 1 ? String(localized: "1 watched bucket") : String(localized: "\(watchedDiagnosticsCount) watched buckets"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if criticalEventCount > 0 {
+                    Label(
+                        criticalEventCount == 1 ? String(localized: "1 event bucket") : String(localized: "\(criticalEventCount) event buckets"),
+                        systemImage: "list.bullet.rectangle.portrait"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        supportSectionCount == 0
+            ? String(localized: "Incident queue is currently concentrated in the primary buckets.")
+            : String(localized: "Incident queue is split across \(primarySectionCount) primary and \(supportSectionCount) support buckets.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Primary buckets keep the operator loop near the top, while support buckets hold slower diagnostics and fleet follow-up.")
+    }
+}
+
+private struct IncidentAutomationInventoryDeck: View {
+    let issueCategoryCount: Int
+    let failedWorkflowRunCount: Int
+    let exhaustedTriggerCount: Int
+    let stalledCronJobCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: issueCategoryCount == 1 ? String(localized: "1 issue class") : String(localized: "\(issueCategoryCount) issue classes"),
+                        tone: issueCategoryCount > 0 ? .warning : .neutral
+                    )
+                    if failedWorkflowRunCount > 0 {
+                        PresentationToneBadge(
+                            text: failedWorkflowRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(failedWorkflowRunCount) failed runs"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Automation inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep workflow, trigger, and cron pressure readable before opening the dedicated automation monitor."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: issueCategoryCount == 0 ? String(localized: "Stable") : String(localized: "\(issueCategoryCount) issues"), tone: issueCategoryCount > 0 ? .warning : .positive)
+            } facts: {
+                if exhaustedTriggerCount > 0 {
+                    Label(
+                        exhaustedTriggerCount == 1 ? String(localized: "1 exhausted trigger") : String(localized: "\(exhaustedTriggerCount) exhausted triggers"),
+                        systemImage: "bolt.horizontal.circle"
+                    )
+                }
+                if stalledCronJobCount > 0 {
+                    Label(
+                        stalledCronJobCount == 1 ? String(localized: "1 stalled cron") : String(localized: "\(stalledCronJobCount) stalled cron jobs"),
+                        systemImage: "clock.badge.exclamationmark"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        issueCategoryCount == 0
+            ? String(localized: "Automation pressure is currently quiet in the incident queue.")
+            : String(localized: "Automation pressure spans \(issueCategoryCount) issue classes in the incident queue.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Workflow failures, exhausted triggers, and stalled cron jobs stay summarized here before the larger automation monitor opens.")
+    }
+}
+
+private struct IncidentIntegrationsInventoryDeck: View {
+    let issueCategoryCount: Int
+    let providerFailureCount: Int
+    let channelGapCount: Int
+    let hasEmptyCatalog: Bool
+    let modelDriftCount: Int
+    let visibleDiagnosticCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: issueCategoryCount == 1 ? String(localized: "1 issue class") : String(localized: "\(issueCategoryCount) issue classes"),
+                        tone: issueCategoryCount > 0 ? .critical : .neutral
+                    )
+                    if visibleDiagnosticCount > 0 {
+                        PresentationToneBadge(
+                            text: visibleDiagnosticCount == 1 ? String(localized: "1 drift agent visible") : String(localized: "\(visibleDiagnosticCount) drift agents visible"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Integration inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep provider, channel, catalog, and drift pressure visible before the integration monitor or per-agent drilldowns."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: issueCategoryCount == 0 ? String(localized: "Stable") : String(localized: "\(issueCategoryCount) issues"), tone: issueCategoryCount > 0 ? .critical : .positive)
+            } facts: {
+                if providerFailureCount > 0 {
+                    Label(
+                        providerFailureCount == 1 ? String(localized: "1 provider failure") : String(localized: "\(providerFailureCount) provider failures"),
+                        systemImage: "network.slash"
+                    )
+                }
+                if channelGapCount > 0 {
+                    Label(
+                        channelGapCount == 1 ? String(localized: "1 channel gap") : String(localized: "\(channelGapCount) channel gaps"),
+                        systemImage: "bubble.left.and.exclamationmark.bubble.right"
+                    )
+                }
+                if hasEmptyCatalog {
+                    Label(String(localized: "Catalog empty"), systemImage: "square.stack.3d.up.slash")
+                }
+                if modelDriftCount > 0 {
+                    Label(
+                        modelDriftCount == 1 ? String(localized: "1 drift agent") : String(localized: "\(modelDriftCount) drift agents"),
+                        systemImage: "triangle.2.circlepath"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        issueCategoryCount == 0
+            ? String(localized: "Integration pressure is currently quiet in the incident queue.")
+            : String(localized: "Integration pressure spans \(issueCategoryCount) issue classes in the incident queue.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Provider reachability, channel config gaps, catalog freshness, and drift stay compact before the larger integration drilldown.")
+    }
+}
+
+private struct IncidentApprovalsInventoryDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let highRiskCount: Int
+    let agentCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 approval visible") : String(localized: "\(visibleCount) approvals visible"),
+                        tone: totalCount > 0 ? .warning : .neutral
+                    )
+                    if highRiskCount > 0 {
+                        PresentationToneBadge(
+                            text: highRiskCount == 1 ? String(localized: "1 high risk") : String(localized: "\(highRiskCount) high risk"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Approval inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep risk spread and agent breadth visible before the compact approval rows or the full queue view."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: totalCount == 1 ? String(localized: "1 pending") : String(localized: "\(totalCount) pending"), tone: totalCount > 0 ? .warning : .neutral)
+            } facts: {
+                Label(
+                    agentCount == 1 ? String(localized: "1 agent involved") : String(localized: "\(agentCount) agents involved"),
+                    systemImage: "cpu"
+                )
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "The incident queue is showing the only pending approval.")
+                : String(localized: "The incident queue is showing all \(totalCount) pending approvals.")
+        }
+        return String(localized: "The incident queue is showing \(visibleCount) of \(totalCount) pending approvals.")
+    }
+
+    private var detailLine: String {
+        highRiskCount == 0
+            ? String(localized: "The compact approval slice is currently dominated by standard-risk actions.")
+            : String(localized: "\(highRiskCount) approvals are high risk or higher, so the compact slice stays biased toward faster response.")
+    }
+}
+
+private struct IncidentAgentsInventoryDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let authIssueCount: Int
+    let approvalCount: Int
+    let staleCount: Int
+    let watchedDiagnosticsCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 agent visible") : String(localized: "\(visibleCount) agents visible"),
+                        tone: totalCount > 0 ? .warning : .neutral
+                    )
+                    if authIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: authIssueCount == 1 ? String(localized: "1 auth issue") : String(localized: "\(authIssueCount) auth issues"),
+                            tone: .critical
+                        )
+                    }
+                    if staleCount > 0 {
+                        PresentationToneBadge(
+                            text: staleCount == 1 ? String(localized: "1 stale agent") : String(localized: "\(staleCount) stale agents"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Agent inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep auth, approval, and stale-agent pressure visible before the fleet list grows beyond the compact incident slice."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: totalCount == 1 ? String(localized: "1 fleet issue") : String(localized: "\(totalCount) fleet issues"), tone: totalCount > 0 ? .warning : .neutral)
+            } facts: {
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 agent with approvals") : String(localized: "\(approvalCount) agents with approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if watchedDiagnosticsCount > 0 {
+                    Label(
+                        watchedDiagnosticsCount == 1 ? String(localized: "1 watched diagnostic") : String(localized: "\(watchedDiagnosticsCount) watched diagnostics"),
+                        systemImage: "star.fill"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "The incidents list is showing the only agent that needs attention.")
+                : String(localized: "The incidents list is showing all \(totalCount) agents that need attention.")
+        }
+        return String(localized: "The incidents list is showing \(visibleCount) of \(totalCount) agents that need attention.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Watched diagnostics stay in their own bucket, so this slice focuses on the fleet-level attention list.")
+    }
+}
+
+private struct IncidentWatchedDiagnosticsInventoryDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let failedAgentCount: Int
+    let missingIdentityAgentCount: Int
+    let fallbackAgentCount: Int
+    let unsettledAgentCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 watched agent visible") : String(localized: "\(visibleCount) watched agents visible"),
+                        tone: totalCount > 0 ? .warning : .neutral
+                    )
+                    if failedAgentCount > 0 {
+                        PresentationToneBadge(
+                            text: failedAgentCount == 1 ? String(localized: "1 delivery failure") : String(localized: "\(failedAgentCount) delivery failures"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Watched diagnostics inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Pinned agents can stay visible here even when they would otherwise drop out of the normal fleet attention list."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: totalCount == 1 ? String(localized: "1 watched issue") : String(localized: "\(totalCount) watched issues"), tone: totalCount > 0 ? .warning : .neutral)
+            } facts: {
+                if missingIdentityAgentCount > 0 {
+                    Label(
+                        missingIdentityAgentCount == 1 ? String(localized: "1 identity gap") : String(localized: "\(missingIdentityAgentCount) identity gaps"),
+                        systemImage: "doc.badge.gearshape"
+                    )
+                }
+                if fallbackAgentCount > 0 {
+                    Label(
+                        fallbackAgentCount == 1 ? String(localized: "1 fallback drift") : String(localized: "\(fallbackAgentCount) fallback drifts"),
+                        systemImage: "square.stack.3d.up.slash"
+                    )
+                }
+                if unsettledAgentCount > 0 {
+                    Label(
+                        unsettledAgentCount == 1 ? String(localized: "1 unsettled delivery") : String(localized: "\(unsettledAgentCount) unsettled deliveries"),
+                        systemImage: "paperplane"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "The incident queue is showing the only watched diagnostic issue.")
+                : String(localized: "The incident queue is showing all \(totalCount) watched diagnostic issues.")
+        }
+        return String(localized: "The incident queue is showing \(visibleCount) of \(totalCount) watched diagnostic issues.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Delivery failures, identity gaps, and fallback drift stay grouped here before the watched-agent drilldowns.")
+    }
+}
+
+private struct IncidentSessionsInventoryDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let unlabeledCount: Int
+    let duplicateCount: Int
+    let visibleMessageCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 session visible") : String(localized: "\(visibleCount) sessions visible"),
+                        tone: totalCount > 0 ? .warning : .neutral
+                    )
+                    if visibleMessageCount > 0 {
+                        PresentationToneBadge(
+                            text: String(localized: "\(visibleMessageCount) visible msgs"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Session inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep message load, unlabeled sessions, and duplicate-agent pressure readable before the dedicated session monitor opens."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: totalCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(totalCount) hotspots"), tone: totalCount > 0 ? .warning : .neutral)
+            } facts: {
+                if unlabeledCount > 0 {
+                    Label(
+                        unlabeledCount == 1 ? String(localized: "1 unlabeled") : String(localized: "\(unlabeledCount) unlabeled"),
+                        systemImage: "tag.slash"
+                    )
+                }
+                if duplicateCount > 0 {
+                    Label(
+                        duplicateCount == 1 ? String(localized: "1 duplicate agent") : String(localized: "\(duplicateCount) duplicate agents"),
+                        systemImage: "person.2"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "The incidents list is showing the only session hotspot.")
+                : String(localized: "The incidents list is showing all \(totalCount) session hotspots.")
+        }
+        return String(localized: "The incidents list is showing \(visibleCount) of \(totalCount) session hotspots.")
+    }
+
+    private var detailLine: String {
+        String(localized: "The compact session slice stays focused on the hottest rows before you jump into the broader session monitor.")
+    }
+}
+
+private struct IncidentEventsInventoryDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let agentCount: Int
+    let actionCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 event visible") : String(localized: "\(visibleCount) events visible"),
+                        tone: totalCount > 0 ? .critical : .neutral
+                    )
+                    if actionCount > 0 {
+                        PresentationToneBadge(
+                            text: actionCount == 1 ? String(localized: "1 action") : String(localized: "\(actionCount) actions"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Critical-event inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep action spread and agent breadth visible before opening the deeper event feed."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: totalCount == 1 ? String(localized: "1 critical event") : String(localized: "\(totalCount) critical events"), tone: totalCount > 0 ? .critical : .neutral)
+            } facts: {
+                if agentCount > 0 {
+                    Label(
+                        agentCount == 1 ? String(localized: "1 agent involved") : String(localized: "\(agentCount) agents involved"),
+                        systemImage: "person.3"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == totalCount {
+            return totalCount == 1
+                ? String(localized: "The incidents list is showing the only critical event in view.")
+                : String(localized: "The incidents list is showing all \(totalCount) critical events in view.")
+        }
+        return String(localized: "The incidents list is showing \(visibleCount) of \(totalCount) critical events in view.")
+    }
+
+    private var detailLine: String {
+        String(localized: "The compact event slice stays focused on the newest critical trail before you open the full feed or diagnostics monitor.")
     }
 }
 
