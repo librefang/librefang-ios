@@ -204,7 +204,7 @@ struct SessionsView: View {
                 summary: vm.totalSessionCount == 1
                     ? String(localized: "1 session is visible in the current workspace snapshot.")
                     : String(localized: "\(vm.totalSessionCount) sessions are visible in the current workspace snapshot."),
-                detail: String(localized: "High-volume, unlabeled, and duplicated sessions stay visible before the longer list.")
+                detail: String(localized: "High-volume, unlabeled, and duplicated sessions stay visible before the list.")
             ) {
                 FlowLayout(spacing: 8) {
                     PresentationToneBadge(text: filter.label, tone: snapshotFilterTone)

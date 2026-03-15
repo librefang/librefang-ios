@@ -397,7 +397,7 @@ struct OnCallView: View {
                 ContentUnavailableView(
                     "Agent Unavailable",
                     systemImage: "cpu",
-                    description: Text("The watched agent is no longer available in the current monitoring snapshot.")
+                    description: Text("The watched agent is no longer available in the current snapshot.")
                 )
             }
         case .sessionsAttention:
@@ -484,7 +484,7 @@ private struct OnCallStatusDeckCard: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(String(localized: "On-call signal facts"))
                         .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep queue shape, acknowledgement state, and cross-surface pressure visible before working the deeper on-call sections."))
+                    Text(String(localized: "Keep queue shape, acknowledgement state, and cross-surface pressure visible before working deeper on-call sections."))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)

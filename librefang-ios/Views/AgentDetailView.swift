@@ -227,7 +227,7 @@ struct AgentDetailView: View {
         if sessionIssueCount > 0 {
             return String(localized: "Active session pressure stays visible before controls, inventory, and recent activity.")
         }
-        return String(localized: "Keep the active session label, message volume, and context window visible before deeper session controls.")
+        return String(localized: "Keep the active session label, message volume, and context window visible before session controls.")
     }
 
     private var sessionSnapshotDetail: String {
@@ -562,7 +562,7 @@ struct AgentDetailView: View {
         } header: {
             Text("Controls")
         } footer: {
-            Text("Keep the digest and next exits together before the longer diagnostics sections.")
+            Text("Keep the digest and next exits together before deeper diagnostics sections.")
         }
     }
 
@@ -1039,7 +1039,7 @@ struct AgentDetailView: View {
             } header: {
                 Text("Assignments & Profile")
             } footer: {
-                Text("Keep tool scope, skills, MCP assignment, and the active profile together before leaving the single-agent surface.")
+                Text("Keep tool scope, skills, MCP assignment, and the active profile together before leaving the agent surface.")
             }
         }
     }
@@ -1239,7 +1239,7 @@ struct AgentDetailView: View {
             Section("Cost (USD)") {
                 MonitoringSnapshotCard(
                     summary: budgetSnapshotSummary,
-                    detail: String(localized: "Use the global budget surface when this single-agent spend summary no longer has enough context.")
+                    detail: String(localized: "Use the global budget surface when the agent spend summary no longer has enough context.")
                 ) {
                     FlowLayout(spacing: 8) {
                         PresentationToneBadge(
@@ -1271,7 +1271,7 @@ struct AgentDetailView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(String(localized: "Token Pressure"))
                             .font(.subheadline.weight(.medium))
-                        Text(String(localized: "Keep the token budget and utilization visible before leaving the single-agent spend view."))
+                        Text(String(localized: "Keep the token budget and utilization visible before leaving the agent spend view."))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(2)

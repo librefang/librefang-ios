@@ -517,7 +517,7 @@ private struct OverviewStatusDeckCard: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(String(localized: "Overview signal facts"))
                         .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep connection, queue, and operator pressure visible before opening the longer overview cards."))
+                    Text(String(localized: "Keep connection, queue, and pressure visible before opening the overview cards."))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)

@@ -126,7 +126,7 @@ struct EventsView: View {
                     : (filteredEntries.count == 1
                         ? String(localized: "1 event is visible in the current event feed.")
                         : String(localized: "\(filteredEntries.count) events are visible in the current event feed.")),
-                detail: String(localized: "Critical audit pressure and transport state stay visible before the longer feed.")
+                detail: String(localized: "Critical audit pressure and transport state stay visible before the feed.")
             ) {
                 FlowLayout(spacing: 8) {
                     PresentationToneBadge(text: scope.label, tone: scopeTone)
@@ -159,7 +159,7 @@ struct EventsView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(String(localized: "Event feed facts"))
                         .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep severity scope, transport mode, and visible audit pressure readable before opening the full feed."))
+                    Text(String(localized: "Keep severity scope, transport mode, and audit pressure readable before opening the full feed."))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)

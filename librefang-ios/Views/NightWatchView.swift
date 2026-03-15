@@ -270,7 +270,7 @@ struct NightWatchView: View {
     private var signalFactsCard: some View {
         NightWatchSectionCard(
             title: String(localized: "Signal Facts"),
-            detail: String(localized: "Keep focus mode, queue size, and current operator pressure visible before opening deeper night-duty surfaces.")
+            detail: String(localized: "Keep focus mode, queue size, and current pressure visible before opening deeper night-duty surfaces.")
         ) {
             FlowLayout(spacing: 8) {
                 GlassCapsuleBadge(text: focusStore.mode.label, backgroundOpacity: 0.16)
@@ -410,7 +410,7 @@ struct NightWatchView: View {
     private var surfaceDeckCard: some View {
         NightWatchSectionCard(
             title: String(localized: "Controls"),
-            detail: String(localized: "Keep local display controls and the next night-duty drills in one compact deck.")
+            detail: String(localized: "Keep display controls and the next night-duty drills in one deck.")
         ) {
             NightWatchSurfaceGroupLabel(title: String(localized: "Display Controls"))
 
@@ -681,7 +681,7 @@ struct NightWatchView: View {
                 ContentUnavailableView(
                     "Agent Unavailable",
                     systemImage: "cpu",
-                    description: Text("This agent is no longer present in the current monitoring snapshot.")
+                    description: Text("This agent is no longer present in the current snapshot.")
                 )
             }
         case .sessionsAttention:

@@ -286,7 +286,7 @@ struct StandbyDigestView: View {
                 GlassCapsuleBadge(text: tone.label, backgroundOpacity: 0.14)
             }
 
-            Text(String(localized: "Keep standby tone, queue size, and operator pressure readable before opening deeper surfaces."))
+            Text(String(localized: "Keep standby tone, queue size, and pressure readable before opening deeper surfaces."))
                 .font(.caption)
                 .foregroundStyle(.white.opacity(0.72))
                 .fixedSize(horizontal: false, vertical: true)
@@ -531,7 +531,7 @@ struct StandbyDigestView: View {
     private var surfaceDeckCard: some View {
         StandbySurfaceSectionCard(
             title: String(localized: "Routes"),
-            detail: String(localized: "Keep the next standby drills in one compact deck.")
+            detail: String(localized: "Keep the next standby drills in one deck.")
         ) {
             StandbySurfaceGroupLabel(title: String(localized: "Primary"))
 
@@ -692,7 +692,7 @@ struct StandbyDigestView: View {
                 ContentUnavailableView(
                     "Agent Unavailable",
                     systemImage: "cpu",
-                    description: Text("This agent is no longer present in the current monitoring snapshot.")
+                    description: Text("This agent is no longer present in the current snapshot.")
                 )
             }
         case .sessionsAttention:

@@ -281,7 +281,7 @@ struct IncidentsView: View {
 
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Routes"),
-                detail: String(localized: "Keep the most likely next drilldowns visible before the long incident queue.")
+                detail: String(localized: "Keep the most likely next drilldowns visible before the incident queue.")
             ) {
                 MonitoringShortcutRail(
                     title: String(localized: "Primary"),
@@ -554,7 +554,7 @@ struct IncidentsView: View {
         } header: {
             Text("Controls")
         } footer: {
-            Text("Incident buckets, primary drilldowns, and queue jumps stay together before the longer grouped incident list.")
+            Text("Keep incident buckets, primary drilldowns, and queue jumps together before the grouped incident list.")
         }
     }
 

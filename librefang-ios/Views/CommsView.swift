@@ -184,7 +184,7 @@ struct CommsView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(String(localized: "Comms signal facts"))
                         .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep transport mode, topology depth, and event flow visible before opening longer comms sections."))
+                    Text(String(localized: "Keep transport mode, topology depth, and event flow visible before opening deeper comms sections."))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
