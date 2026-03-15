@@ -525,18 +525,10 @@ private struct BudgetValueRow<Content: View>: View {
     }
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Text(label)
-                Spacer(minLength: 8)
-                content
-                    .multilineTextAlignment(.trailing)
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(label)
-                content
-                    .multilineTextAlignment(.leading)
-            }
+        ResponsiveValueRow(horizontalSpacing: 12) {
+            Text(label)
+        } value: {
+            content
         }
     }
 }
@@ -551,18 +543,15 @@ private struct BudgetLimitRow: View {
         let utilizationStatus = StatusPresentation.budgetUtilizationStatus(for: pct) ?? .normal
 
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(label)
-                        .font(.subheadline)
-                    Spacer()
-                    spendSummary(utilizationStatus: utilizationStatus)
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(label)
-                        .font(.subheadline)
-                    spendSummary(utilizationStatus: utilizationStatus)
-                }
+            ResponsiveAccessoryRow(
+                horizontalAlignment: .firstTextBaseline,
+                horizontalSpacing: 8,
+                verticalSpacing: 4
+            ) {
+                Text(label)
+                    .font(.subheadline)
+            } accessory: {
+                spendSummary(utilizationStatus: utilizationStatus)
             }
             Gauge(value: min(pct, 1.0)) { EmptyView() }
                 .gaugeStyle(.linearCapacity)
@@ -612,27 +601,19 @@ private struct DailyUsageRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    titleLabel
-                    Spacer(minLength: 8)
-                    costLabel
-                }
-                VStack(alignment: .leading, spacing: 2) {
-                    titleLabel
-                    costLabel
-                }
+            ResponsiveAccessoryRow(
+                horizontalAlignment: .firstTextBaseline,
+                horizontalSpacing: 12,
+                verticalSpacing: 2
+            ) {
+                titleLabel
+            } accessory: {
+                costLabel
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    tokensLabel
-                    callsLabel
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    tokensLabel
-                    callsLabel
-                }
+            FlowLayout(spacing: 12) {
+                tokensLabel
+                callsLabel
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -675,16 +656,10 @@ private struct ModelCostRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 12) {
-                    summaryBlock
-                    Spacer(minLength: 8)
-                    costLabel
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    summaryBlock
-                    costLabel
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 4) {
+                summaryBlock
+            } accessory: {
+                costLabel
             }
 
             ZStack(alignment: .leading) {
@@ -697,15 +672,9 @@ private struct ModelCostRow: View {
                     .frame(width: max(12, CGFloat(model.totalCostUsd / maxCost) * 220), height: 8)
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    tokensLabel
-                    callsLabel
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    tokensLabel
-                    callsLabel
-                }
+            FlowLayout(spacing: 12) {
+                tokensLabel
+                callsLabel
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -784,16 +753,10 @@ private struct AgentCostRow: View {
     let item: AgentBudgetItem
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: 12) {
-                summaryBlock
-                Spacer(minLength: 8)
-                spendBlock(alignment: .trailing)
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                summaryBlock
-                spendBlock(alignment: .leading)
-            }
+        ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 6) {
+            summaryBlock
+        } accessory: {
+            spendBlock(alignment: .trailing)
         }
         .padding(.vertical, 2)
     }
@@ -883,24 +846,18 @@ private struct BudgetSnapshotCard: View {
                 }
 
                 if let topAgentName, let topAgentCost {
-                    ViewThatFits(in: .horizontal) {
-                        HStack(alignment: .firstTextBaseline, spacing: 12) {
-                            Text(String(localized: "Top agent today"))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            Spacer(minLength: 8)
-                            Text("\(topAgentName) · \(localizedUSDCurrency(topAgentCost))")
-                                .font(.caption.weight(.semibold))
-                        }
-
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(String(localized: "Top agent today"))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            Text("\(topAgentName) · \(localizedUSDCurrency(topAgentCost))")
-                                .font(.caption.weight(.semibold))
-                                .lineLimit(2)
-                        }
+                    ResponsiveAccessoryRow(
+                        horizontalAlignment: .firstTextBaseline,
+                        horizontalSpacing: 12,
+                        verticalSpacing: 4
+                    ) {
+                        Text(String(localized: "Top agent today"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } accessory: {
+                        Text("\(topAgentName) · \(localizedUSDCurrency(topAgentCost))")
+                            .font(.caption.weight(.semibold))
+                            .lineLimit(2)
                     }
                 }
             }

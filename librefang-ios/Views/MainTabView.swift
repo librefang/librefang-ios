@@ -689,16 +689,10 @@ private struct CriticalIncidentBanner: View {
     let mutedCount: Int
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) {
-                summaryLabel
-                Spacer(minLength: 8)
-                bannerBadges
-            }
-            VStack(alignment: .leading, spacing: 8) {
-                summaryLabel
-                bannerBadges
-            }
+        ResponsiveAccessoryRow(verticalSpacing: 8) {
+            summaryLabel
+        } accessory: {
+            bannerBadges
         }
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity)
@@ -718,15 +712,9 @@ private struct CriticalIncidentBanner: View {
     }
 
     private var bannerBadges: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) {
-                mutedBadge
-                GlassCapsuleBadge(text: String(localized: "On Call"), backgroundOpacity: 0.18)
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                mutedBadge
-                GlassCapsuleBadge(text: String(localized: "On Call"), backgroundOpacity: 0.18)
-            }
+        FlowLayout(spacing: 8) {
+            mutedBadge
+            GlassCapsuleBadge(text: String(localized: "On Call"), backgroundOpacity: 0.18)
         }
     }
 
@@ -747,16 +735,10 @@ private struct HandoffCheckInBanner: View {
     }
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) {
-                summaryLabel
-                Spacer(minLength: 8)
-                bannerBadges
-            }
-            VStack(alignment: .leading, spacing: 8) {
-                summaryLabel
-                bannerBadges
-            }
+        ResponsiveAccessoryRow(verticalSpacing: 8) {
+            summaryLabel
+        } accessory: {
+            bannerBadges
         }
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity)
@@ -776,17 +758,10 @@ private struct HandoffCheckInBanner: View {
     }
 
     private var bannerBadges: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) {
-                GlassCapsuleBadge(text: status.window.label)
-                pendingFollowUpBadge
-                GlassCapsuleBadge(text: String(localized: "Handoff"), backgroundOpacity: 0.18)
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                GlassCapsuleBadge(text: status.window.label)
-                pendingFollowUpBadge
-                GlassCapsuleBadge(text: String(localized: "Handoff"), backgroundOpacity: 0.18)
-            }
+        FlowLayout(spacing: 8) {
+            GlassCapsuleBadge(text: status.window.label)
+            pendingFollowUpBadge
+            GlassCapsuleBadge(text: String(localized: "Handoff"), backgroundOpacity: 0.18)
         }
     }
 
@@ -805,16 +780,10 @@ private struct AcknowledgedIncidentBanner: View {
     let mutedCount: Int
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) {
-                summaryLabel
-                Spacer(minLength: 8)
-                bannerBadges
-            }
-            VStack(alignment: .leading, spacing: 8) {
-                summaryLabel
-                bannerBadges
-            }
+        ResponsiveAccessoryRow(verticalSpacing: 8) {
+            summaryLabel
+        } accessory: {
+            bannerBadges
         }
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity)
@@ -834,15 +803,9 @@ private struct AcknowledgedIncidentBanner: View {
     }
 
     private var bannerBadges: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 8) {
-                mutedBadge
-                GlassCapsuleBadge(text: String(localized: "On Call"), backgroundOpacity: 0.18)
-            }
-            VStack(alignment: .leading, spacing: 6) {
-                mutedBadge
-                GlassCapsuleBadge(text: String(localized: "On Call"), backgroundOpacity: 0.18)
-            }
+        FlowLayout(spacing: 8) {
+            mutedBadge
+            GlassCapsuleBadge(text: String(localized: "On Call"), backgroundOpacity: 0.18)
         }
     }
 
@@ -862,17 +825,11 @@ private struct IncidentCueBanner: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 10) {
-                    cueSummary
-                    Spacer(minLength: 8)
-                    dismissButton
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    cueSummary
-                    dismissButton
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                cueSummary
+            } accessory: {
+                dismissButton
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             }
 
             ViewThatFits(in: .horizontal) {
@@ -948,17 +905,11 @@ private struct HandoffCueBanner: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top, spacing: 10) {
-                    cueSummary
-                    Spacer(minLength: 8)
-                    dismissButton
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    cueSummary
-                    dismissButton
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                cueSummary
+            } accessory: {
+                dismissButton
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             }
 
             Button(action: onOpen) {

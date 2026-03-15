@@ -1028,27 +1028,14 @@ private struct ProviderStatusRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    providerSummary
-                    Spacer()
-                    StatusPill(text: provider.localizedStatusLabel, color: provider.statusTone.color)
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    providerSummary
-                    StatusPill(text: provider.localizedStatusLabel, color: provider.statusTone.color)
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                providerSummary
+            } accessory: {
+                StatusPill(text: provider.localizedStatusLabel, color: provider.statusTone.color)
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    providerFacts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    providerFacts
-                }
+            FlowLayout(spacing: 12) {
+                providerFacts
             }
             .font(.caption)
         }
@@ -1101,14 +1088,8 @@ private struct SessionRow: View {
                 timestampLabel
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    metadataLabels
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    metadataLabels
-                }
+            FlowLayout(spacing: 12) {
+                metadataLabels
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -1149,29 +1130,15 @@ private struct MCPServerRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    Text(server.name)
-                        .font(.subheadline.weight(.medium))
-                    Spacer()
-                    StatusPill(text: server.connected ? String(localized: "Connected") : String(localized: "Offline"), color: server.connected ? .green : .orange)
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(server.name)
-                        .font(.subheadline.weight(.medium))
-                    StatusPill(text: server.connected ? String(localized: "Connected") : String(localized: "Offline"), color: server.connected ? .green : .orange)
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                Text(server.name)
+                    .font(.subheadline.weight(.medium))
+            } accessory: {
+                StatusPill(text: server.connected ? String(localized: "Connected") : String(localized: "Offline"), color: server.connected ? .green : .orange)
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    toolsFacts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    toolsFacts
-                }
+            FlowLayout(spacing: 12) {
+                toolsFacts
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -1198,32 +1165,19 @@ private struct ChannelStatusRow: View {
     let channel: ChannelStatus
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 12) {
-                channelSummary
-                Spacer()
-                channelStatus
-            }
-
-            VStack(alignment: .leading, spacing: 8) {
-                channelSummary
-                channelStatus
-            }
+        ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+            channelSummary
+        } accessory: {
+            channelStatus
         }
         .padding(.vertical, 2)
     }
 
     private var channelSummary: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 12) {
-                channelIcon
-                channelTextBlock
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                channelIcon
-                channelTextBlock
-            }
+        ResponsiveIconDetailRow(horizontalSpacing: 12, verticalSpacing: 6, spacerMinLength: 0) {
+            channelIcon
+        } detail: {
+            channelTextBlock
         }
     }
 
@@ -1264,27 +1218,14 @@ private struct HandInstanceRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    handSummary
-                    Spacer()
-                    StatusPill(text: statusText, color: instance.statusTone.color)
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    handSummary
-                    StatusPill(text: statusText, color: instance.statusTone.color)
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                handSummary
+            } accessory: {
+                StatusPill(text: statusText, color: instance.statusTone.color)
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    handFacts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    handFacts
-                }
+            FlowLayout(spacing: 12) {
+                handFacts
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -1326,32 +1267,19 @@ private struct HandDefinitionRow: View {
     let hand: HandDefinition
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 12) {
-                handSummary
-                Spacer()
-                readinessBadge
-            }
-
-            VStack(alignment: .leading, spacing: 8) {
-                handSummary
-                readinessBadge
-            }
+        ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+            handSummary
+        } accessory: {
+            readinessBadge
         }
         .padding(.vertical, 2)
     }
 
     private var handSummary: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 12) {
-                handIcon
-                handTextBlock
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                handIcon
-                handTextBlock
-            }
+        ResponsiveIconDetailRow(horizontalSpacing: 12, verticalSpacing: 6, spacerMinLength: 0) {
+            handIcon
+        } detail: {
+            handTextBlock
         }
     }
 
@@ -1386,7 +1314,7 @@ private struct ApprovalRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(approval.actionSummary)
                         .font(.subheadline.weight(.medium))
@@ -1394,7 +1322,7 @@ private struct ApprovalRow: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                Spacer()
+            } accessory: {
                 StatusPill(text: localizedRiskLevel, color: approval.riskTone.color)
             }
 
@@ -1405,7 +1333,7 @@ private struct ApprovalRow: View {
                     .lineLimit(3)
             }
 
-            HStack(spacing: 12) {
+            FlowLayout(spacing: 12) {
                 Label(approval.toolName, systemImage: "wrench.and.screwdriver")
                 Label(relativeRequestedAt, systemImage: "clock")
             }
@@ -1430,27 +1358,14 @@ private struct PeerRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    peerSummary
-                    Spacer()
-                    StatusPill(text: localizedStateLabel, color: peer.stateTone.color)
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    peerSummary
-                    StatusPill(text: localizedStateLabel, color: peer.stateTone.color)
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 6) {
+                peerSummary
+            } accessory: {
+                StatusPill(text: localizedStateLabel, color: peer.stateTone.color)
             }
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) {
-                    peerFacts
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    peerFacts
-                }
+            FlowLayout(spacing: 12) {
+                peerFacts
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -1493,17 +1408,10 @@ private struct AuditEventRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    titleLabel
-                    Spacer()
-                    timestampLabel
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    titleLabel
-                    timestampLabel
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 4) {
+                titleLabel
+            } accessory: {
+                timestampLabel
             }
             Text(entry.detail)
                 .font(.caption)
