@@ -371,23 +371,12 @@ private struct DiagnosticsMetricRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    Text(label)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(value)
-                        .fontWeight(.medium)
-                        .multilineTextAlignment(.trailing)
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(label)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(value)
-                        .fontWeight(.medium)
-                }
+            ResponsiveValueRow(horizontalSpacing: 10) {
+                Text(label)
+                    .foregroundStyle(.secondary)
+            } value: {
+                Text(value)
+                    .fontWeight(.medium)
             }
             Text(detail)
                 .font(.caption)
@@ -405,22 +394,13 @@ private struct DiagnosticsMetricListRow: View {
     let value: String
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
+        ResponsiveValueRow(horizontalSpacing: 10, verticalSpacing: 6) {
             HStack(spacing: 10) {
                 rankLabel
                 titleBlock
-                Spacer()
-                valueLabel
             }
-
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 10) {
-                    rankLabel
-                    titleBlock
-                }
-                valueLabel
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
+        } value: {
+            valueLabel
         }
         .padding(.vertical, 2)
     }
@@ -456,16 +436,15 @@ private struct DiagnosticsWarningRow: View {
     let warning: String
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: 10) {
-                warningIcon
-                warningText
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                warningIcon
-                warningText
-            }
+        ResponsiveValueRow(
+            horizontalAlignment: .top,
+            horizontalSpacing: 10,
+            verticalSpacing: 6,
+            horizontalTextAlignment: .leading
+        ) {
+            warningIcon
+        } value: {
+            warningText
         }
         .padding(.vertical, 2)
     }

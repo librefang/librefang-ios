@@ -877,38 +877,20 @@ private struct ConnectionCard: View {
     }
 
     var body: some View {
-        HStack {
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(connectionTone.color)
-                    .frame(width: 10, height: 10)
-                    .overlay {
-                        if health?.isHealthy == true && !isStale {
-                            Circle()
-                                .fill(.green.opacity(0.3))
-                                .frame(width: 20, height: 20)
-                        }
-                    }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(connectionText)
-                        .font(.subheadline.weight(.medium))
-                    if let version = health?.version {
-                        Text("Server v\(version)")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
+        MonitoringSnapshotCard(
+            summary: connectionText,
+            detail: health?.version.map { String(localized: "Server v\($0)") }
+        ) {
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(text: connectionText, tone: connectionTone)
+                if let date = lastRefresh {
+                    PresentationToneBadge(
+                        text: String(localized: "Updated \(date.formatted(.relative(presentation: .named)))"),
+                        tone: isStale ? .warning : .neutral
+                    )
                 }
-            }
-            Spacer()
-            if let date = lastRefresh {
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text("Updated")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                    Text(date, style: .relative)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                if health?.isHealthy == true && !isStale {
+                    PresentationToneBadge(text: String(localized: "Live"), tone: .positive)
                 }
             }
         }
@@ -939,57 +921,83 @@ private struct SystemSnapshotCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("System Snapshot")
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.secondary)
-
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(status.version)
-                        .font(.title3.weight(.bold))
-                    Text("Kernel \(status.localizedStatusLabel)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text(formatDuration(status.uptimeSeconds))
-                        .font(.headline.monospacedDigit())
-                    Text("uptime")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
+            MonitoringSnapshotCard(
+                summary: String(localized: "Kernel \(status.localizedStatusLabel) · \(formatDuration(status.uptimeSeconds)) uptime"),
+                detail: String(localized: "System version \(status.version) with mobile runtime, provider, session, and security context.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: status.localizedStatusLabel, tone: status.statusTone)
+                    PresentationToneBadge(
+                        text: status.networkEnabled ? String(localized: "Network enabled") : String(localized: "Network disabled"),
+                        tone: status.networkEnabled ? .positive : .warning
+                    )
+                    PresentationToneBadge(
+                        text: connectedProviders == 1 ? String(localized: "1 provider") : String(localized: "\(connectedProviders) providers"),
+                        tone: connectedProviders > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: sessionCount == 1 ? String(localized: "1 session") : String(localized: "\(sessionCount) sessions"),
+                        tone: sessionCount > 0 ? .neutral : .neutral
+                    )
+                    if let networkStatus {
+                        PresentationToneBadge(
+                            text: String(localized: "\(networkStatus.connectedPeers)/\(networkStatus.totalPeers) peers"),
+                            tone: networkStatus.connectedPeers > 0 ? .positive : .neutral
+                        )
+                    }
+                    if mcpConnectedServers > 0 || security != nil {
+                        PresentationToneBadge(
+                            text: mcpConnectedServers == 1 ? String(localized: "1 MCP server") : String(localized: "\(mcpConnectedServers) MCP servers"),
+                            tone: mcpConnectedServers > 0 ? .positive : .neutral
+                        )
+                    }
                 }
             }
 
-            Divider()
+            ResponsiveValueRow {
+                Text(String(localized: "Default Provider"))
+                    .foregroundStyle(.secondary)
+            } value: {
+                Text(status.defaultProvider)
+                    .fontWeight(.medium)
+            }
 
-            OverviewMetricRow(label: String(localized: "Default Provider"), value: status.defaultProvider)
-            OverviewMetricRow(label: String(localized: "Default Model"), value: status.defaultModel)
-            OverviewMetricRow(
-                label: String(localized: "Network"),
-                value: status.networkEnabled ? String(localized: "Enabled") : String(localized: "Disabled")
-            )
-            OverviewMetricRow(label: String(localized: "Configured Providers"), value: "\(connectedProviders)")
+            ResponsiveValueRow {
+                Text(String(localized: "Default Model"))
+                    .foregroundStyle(.secondary)
+            } value: {
+                Text(status.defaultModel)
+                    .fontWeight(.medium)
+            }
+
             if let networkStatus {
-                OverviewMetricRow(
-                    label: String(localized: "Connected Peers"),
-                    value: "\(networkStatus.connectedPeers)/\(networkStatus.totalPeers)"
-                )
+                ResponsiveValueRow {
+                    Text(String(localized: "Connected Peers"))
+                        .foregroundStyle(.secondary)
+                } value: {
+                    Text("\(networkStatus.connectedPeers)/\(networkStatus.totalPeers)")
+                        .fontWeight(.medium)
+                }
             }
-            OverviewMetricRow(label: String(localized: "Sessions"), value: "\(sessionCount)")
-            OverviewMetricRow(label: String(localized: "MCP Servers"), value: "\(mcpConnectedServers)")
 
             if let usageSummary {
-                OverviewMetricRow(
-                    label: String(localized: "Total Tokens"),
-                    value: (usageSummary.totalInputTokens + usageSummary.totalOutputTokens).formatted()
-                )
+                ResponsiveValueRow {
+                    Text(String(localized: "Total Tokens"))
+                        .foregroundStyle(.secondary)
+                } value: {
+                    Text((usageSummary.totalInputTokens + usageSummary.totalOutputTokens).formatted())
+                        .fontWeight(.medium)
+                }
             }
 
             if let security {
-                OverviewMetricRow(label: String(localized: "Security Features"), value: "\(security.totalFeatures)")
+                ResponsiveValueRow {
+                    Text(String(localized: "Security Features"))
+                        .foregroundStyle(.secondary)
+                } value: {
+                    Text("\(security.totalFeatures)")
+                        .fontWeight(.medium)
+                }
             }
         }
         .padding()
@@ -1034,9 +1042,17 @@ private struct ReadinessCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Readiness")
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.secondary)
+            MonitoringSnapshotCard(
+                summary: String(localized: "Readiness layers summarize provider, channel, hand, approval, peer, and tooling health."),
+                detail: String(localized: "This card keeps the main readiness layers readable on mobile before you open the deeper monitors.")
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: vm.providerReadinessStatus.summary, tone: vm.providerReadinessStatus.tone)
+                    PresentationToneBadge(text: vm.channelReadinessStatus.summary, tone: vm.channelReadinessStatus.tone)
+                    PresentationToneBadge(text: vm.handReadinessStatus.summary, tone: vm.handReadinessStatus.tone)
+                    PresentationToneBadge(text: vm.approvalBacklogStatus.summary, tone: vm.approvalBacklogStatus.tone)
+                }
+            }
 
             ReadinessRow(
                 title: String(localized: "Model Layer"),

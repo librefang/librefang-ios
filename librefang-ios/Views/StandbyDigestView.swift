@@ -226,17 +226,10 @@ struct StandbyDigestView: View {
 
     private var heroCard: some View {
         VStack(alignment: .leading, spacing: 18) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .top) {
-                    heroClock
-                    Spacer(minLength: 12)
-                    heroStatus
-                }
-
-                VStack(alignment: .leading, spacing: 12) {
-                    heroClock
-                    heroStatus
-                }
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 12, spacerMinLength: 12) {
+                heroClock
+            } accessory: {
+                heroStatus
             }
 
             Text(digestLine)
@@ -372,16 +365,10 @@ struct StandbyDigestView: View {
             .glassPanel(fillOpacity: 0.08, cornerRadius: 22)
         } else {
             VStack(alignment: .leading, spacing: 12) {
-                ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .firstTextBaseline, spacing: 12) {
-                        glanceTitle
-                        Spacer(minLength: 8)
-                        glanceCount
-                    }
-                    VStack(alignment: .leading, spacing: 6) {
-                        glanceTitle
-                        glanceCount
-                    }
+                ResponsiveAccessoryRow {
+                    glanceTitle
+                } accessory: {
+                    glanceCount
                 }
 
                 ForEach(primaryItems) { item in
@@ -414,31 +401,19 @@ struct StandbyDigestView: View {
 
     private var watchlistCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    watchlistTitle
-                    Spacer(minLength: 8)
-                    watchlistCount
-                }
-                VStack(alignment: .leading, spacing: 6) {
-                    watchlistTitle
-                    watchlistCount
-                }
+            ResponsiveAccessoryRow {
+                watchlistTitle
+            } accessory: {
+                watchlistCount
             }
 
             ForEach(watchItems) { item in
                 NavigationLink(value: OnCallRoute.agent(item.agent.id)) {
                     VStack(alignment: .leading, spacing: 5) {
-                        ViewThatFits(in: .horizontal) {
-                            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                                watchItemName(item)
-                                Spacer(minLength: 8)
-                                watchItemState(item)
-                            }
-                            VStack(alignment: .leading, spacing: 4) {
-                                watchItemName(item)
-                                watchItemState(item)
-                            }
+                        ResponsiveAccessoryRow(verticalSpacing: 4) {
+                            watchItemName(item)
+                        } accessory: {
+                            watchItemState(item)
                         }
 
                         Text(item.reasons.prefix(2).joined(separator: " · "))

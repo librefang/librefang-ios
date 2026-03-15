@@ -897,18 +897,10 @@ private struct RuntimeSystemRow<Content: View>: View {
     }
 
     var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Text(label)
-                Spacer(minLength: 8)
-                content
-                    .multilineTextAlignment(.trailing)
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(label)
-                content
-                    .multilineTextAlignment(.leading)
-            }
+        ResponsiveValueRow {
+            Text(label)
+        } value: {
+            content
         }
     }
 }
@@ -1016,23 +1008,12 @@ private struct RuntimeMetricRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    Text(label)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(value)
-                        .fontWeight(.medium)
-                        .multilineTextAlignment(.trailing)
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(label)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(value)
-                        .fontWeight(.medium)
-                }
+            ResponsiveValueRow(horizontalSpacing: 10) {
+                Text(label)
+                    .foregroundStyle(.secondary)
+            } value: {
+                Text(value)
+                    .fontWeight(.medium)
             }
             Text(detail)
                 .font(.caption)
@@ -1114,17 +1095,10 @@ private struct SessionRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            ViewThatFits(in: .horizontal) {
-                HStack {
-                    titleLabel
-                    Spacer()
-                    timestampLabel
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    titleLabel
-                    timestampLabel
-                }
+            ResponsiveAccessoryRow(horizontalSpacing: 8) {
+                titleLabel
+            } accessory: {
+                timestampLabel
             }
 
             ViewThatFits(in: .horizontal) {
