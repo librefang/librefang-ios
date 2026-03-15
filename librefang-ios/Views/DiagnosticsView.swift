@@ -42,8 +42,7 @@ struct DiagnosticsView: View {
                 if hasDiagnosticsData {
                     Section {
                         DiagnosticsStatusDeckCard(vm: vm, metrics: metrics)
-                        diagnosticsFocusSection(proxy)
-                        diagnosticsOperatorSurfaces
+                        diagnosticsRouteDeck(proxy)
                     } header: {
                         Text("Operator Deck")
                     } footer: {
@@ -236,12 +235,15 @@ struct DiagnosticsView: View {
     }
 
     @ViewBuilder
-    private func diagnosticsFocusSection(_ proxy: ScrollViewProxy) -> some View {
+    private func diagnosticsRouteDeck(_ proxy: ScrollViewProxy) -> some View {
         MonitoringSurfaceGroupCard(
-            title: String(localized: "Focus Areas"),
-            detail: String(localized: "Keep the longest diagnostic sections reachable as compact jump targets without scanning the full monitor.")
+            title: String(localized: "Route Deck"),
+            detail: String(localized: "Keep the longest diagnostic sections and neighboring operator surfaces in one compact deck.")
         ) {
-            FlowLayout(spacing: 8) {
+            MonitoringShortcutRail(
+                title: String(localized: "Focus Areas"),
+                detail: String(localized: "Keep the longest diagnostic sections reachable as compact jump targets without scanning the full monitor.")
+            ) {
                 if let healthDetail = vm.healthDetail {
                     Button {
                         jump(proxy, to: .health)
@@ -335,117 +337,109 @@ struct DiagnosticsView: View {
                     }
                 }
             }
-        }
-    }
 
-    private var diagnosticsOperatorSurfaces: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            MonitoringSnapshotCard(
-                summary: String(localized: "Primary Surfaces"),
+            MonitoringShortcutRail(
+                title: String(localized: "Primary Surfaces"),
                 detail: String(localized: "Keep the next diagnostic exits visible as compact shortcuts beside the deep-diagnostic digest.")
             ) {
-                FlowLayout(spacing: 8) {
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Runtime"),
-                            systemImage: "server.rack",
-                            tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
-                            badgeText: vm.runtimeAlertCount > 0
-                                ? (vm.runtimeAlertCount == 1 ? String(localized: "1 alert") : String(localized: "\(vm.runtimeAlertCount) alerts"))
-                                : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Incidents"),
-                            systemImage: "bell.badge",
-                            tone: vm.monitoringAlerts.contains { $0.severity == .critical } ? .critical : .neutral,
-                            badgeText: vm.monitoringAlerts.isEmpty
-                                ? nil
-                                : (vm.monitoringAlerts.count == 1 ? String(localized: "1 alert") : String(localized: "\(vm.monitoringAlerts.count) alerts"))
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        IntegrationsView(initialScope: .attention)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Integrations"),
-                            systemImage: "square.3.layers.3d.down.forward",
-                            tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
-                            badgeText: vm.integrationPressureIssueCategoryCount > 0
-                                ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
-                                : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        SessionsView(initialFilter: .attention)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Sessions"),
-                            systemImage: "text.bubble",
-                            tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
-                            badgeText: vm.sessionAttentionCount > 0
-                                ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
-                                : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        EventsView(api: deps.apiClient, initialScope: .critical)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Critical Events"),
-                            systemImage: "text.justify.leading",
-                            tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
-                            badgeText: vm.recentCriticalAuditCount > 0
-                                ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
-                                : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Runtime"),
+                        systemImage: "server.rack",
+                        tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
+                        badgeText: vm.runtimeAlertCount > 0
+                            ? (vm.runtimeAlertCount == 1 ? String(localized: "1 alert") : String(localized: "\(vm.runtimeAlertCount) alerts"))
+                            : nil
+                    )
                 }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    IncidentsView()
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Incidents"),
+                        systemImage: "bell.badge",
+                        tone: vm.monitoringAlerts.contains { $0.severity == .critical } ? .critical : .neutral,
+                        badgeText: vm.monitoringAlerts.isEmpty
+                            ? nil
+                            : (vm.monitoringAlerts.count == 1 ? String(localized: "1 alert") : String(localized: "\(vm.monitoringAlerts.count) alerts"))
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    IntegrationsView(initialScope: .attention)
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Integrations"),
+                        systemImage: "square.3.layers.3d.down.forward",
+                        tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
+                        badgeText: vm.integrationPressureIssueCategoryCount > 0
+                            ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
+                            : nil
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    SessionsView(initialFilter: .attention)
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Sessions"),
+                        systemImage: "text.bubble",
+                        tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
+                        badgeText: vm.sessionAttentionCount > 0
+                            ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
+                            : nil
+                    )
+                }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    EventsView(api: deps.apiClient, initialScope: .critical)
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Critical Events"),
+                        systemImage: "text.justify.leading",
+                        tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
+                        badgeText: vm.recentCriticalAuditCount > 0
+                            ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
+                            : nil
+                    )
+                }
+                .buttonStyle(.plain)
             }
 
-            MonitoringSnapshotCard(
-                summary: String(localized: "Supporting Surfaces"),
+            MonitoringShortcutRail(
+                title: String(localized: "Supporting Surfaces"),
                 detail: String(localized: "Keep workflow and comms drilldowns visible as secondary shortcuts instead of another long route stack.")
             ) {
-                FlowLayout(spacing: 8) {
-                    NavigationLink {
-                        AutomationView(initialScope: .attention)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Automation"),
-                            systemImage: "flowchart",
-                            tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
-                            badgeText: vm.automationPressureIssueCategoryCount > 0
-                                ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
-                                : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        CommsView(api: deps.apiClient)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Comms"),
-                            systemImage: "point.3.connected.trianglepath.dotted"
-                        )
-                    }
-                    .buttonStyle(.plain)
+                NavigationLink {
+                    AutomationView(initialScope: .attention)
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Automation"),
+                        systemImage: "flowchart",
+                        tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
+                        badgeText: vm.automationPressureIssueCategoryCount > 0
+                            ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
+                            : nil
+                    )
                 }
+                .buttonStyle(.plain)
+
+                NavigationLink {
+                    CommsView(api: deps.apiClient)
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Comms"),
+                        systemImage: "point.3.connected.trianglepath.dotted"
+                    )
+                }
+                .buttonStyle(.plain)
             }
         }
     }
