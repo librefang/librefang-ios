@@ -63,6 +63,17 @@ struct SessionsView: View {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    private var snapshotFilterTone: PresentationTone {
+        switch filter {
+        case .attention, .highVolume:
+            return .warning
+        case .unlabeled:
+            return .caution
+        case .all:
+            return .neutral
+        }
+    }
+
     var body: some View {
         List {
             Section {
@@ -78,7 +89,7 @@ struct SessionsView: View {
                     detail: String(localized: "High-volume, unlabeled, and duplicated sessions stay visible before the longer operator list.")
                 ) {
                     FlowLayout(spacing: 8) {
-                        PresentationToneBadge(text: filter.label, tone: filter == .attention || filter == .highVolume ? .warning : filter == .unlabeled ? .caution : .neutral)
+                        PresentationToneBadge(text: filter.label, tone: snapshotFilterTone)
                         if vm.sessionAttentionCount > 0 {
                             PresentationToneBadge(
                                 text: vm.sessionAttentionCount == 1 ? String(localized: "1 attention item") : String(localized: "\(vm.sessionAttentionCount) attention items"),

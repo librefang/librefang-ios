@@ -49,6 +49,14 @@ struct DiagnosticsView: View {
                     }
 
                     Section {
+                        diagnosticsSignalFactsCard
+                    } header: {
+                        Text("Signal Facts")
+                    } footer: {
+                        Text("Keep warning, supervisor, and metrics pressure visible before diving into the longer diagnostics sections.")
+                    }
+
+                    Section {
                         diagnosticsFocusSection(proxy)
                     } header: {
                         Text("Focus Areas")
@@ -249,6 +257,49 @@ struct DiagnosticsView: View {
         }
     }
 
+    private var diagnosticsSignalFactsCard: some View {
+        MonitoringFactsRow {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(String(localized: "Deep-diagnostic facts"))
+                    .font(.subheadline.weight(.medium))
+                Text(String(localized: "Use this compact digest to decide whether health, config, or metrics deserves the next tap."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        } accessory: {
+            PresentationToneBadge(
+                text: vm.healthDetail?.localizedStatusLabel ?? String(localized: "Unavailable"),
+                tone: vm.diagnosticsSummaryTone
+            )
+        } facts: {
+            Label(
+                vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"),
+                systemImage: "exclamationmark.triangle"
+            )
+            Label(
+                vm.supervisorPanicCount == 1 ? String(localized: "1 panic") : String(localized: "\(vm.supervisorPanicCount) panics"),
+                systemImage: "bolt.trianglebadge.exclamationmark"
+            )
+            Label(
+                vm.supervisorRestartCount == 1 ? String(localized: "1 restart") : String(localized: "\(vm.supervisorRestartCount) restarts"),
+                systemImage: "arrow.clockwise.circle"
+            )
+            Label(
+                metrics == nil
+                    ? String(localized: "Metrics unavailable")
+                    : String(localized: "\(metrics?.totalRollingTokens ?? 0) rolling tokens"),
+                systemImage: "number"
+            )
+            Label(
+                metrics == nil
+                    ? String(localized: "No tool-call metrics")
+                    : String(localized: "\(metrics?.totalRollingToolCalls ?? 0) tool calls"),
+                systemImage: "wrench.and.screwdriver"
+            )
+        }
+    }
+
     @ViewBuilder
     private func diagnosticsFocusSection(_ proxy: ScrollViewProxy) -> some View {
         if let healthDetail = vm.healthDetail {
@@ -358,6 +409,7 @@ struct DiagnosticsView: View {
                     )
                 }
                 .buttonStyle(.plain)
+            }
         }
     }
 
@@ -424,6 +476,17 @@ struct DiagnosticsView: View {
             }
 
             NavigationLink {
+                CommsView(api: deps.apiClient)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Comms"),
+                    detail: String(localized: "Switch to live comms when diagnostics need inter-agent traffic and coordination context."),
+                    systemImage: "point.3.connected.trianglepath.dotted",
+                    tone: .neutral
+                )
+            }
+
+            NavigationLink {
                 SessionsView(initialFilter: .attention)
             } label: {
                 MonitoringJumpRow(
@@ -437,9 +500,23 @@ struct DiagnosticsView: View {
                     badgeTone: .warning
                 )
             }
+
+            NavigationLink {
+                EventsView(api: deps.apiClient, initialScope: .critical)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Critical Events"),
+                    detail: String(localized: "Switch to the critical event feed when restarts or health drift need recent audit context."),
+                    systemImage: "text.justify.leading",
+                    tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
+                    badgeText: vm.recentCriticalAuditCount > 0
+                        ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
+                        : nil,
+                    badgeTone: .critical
+                )
+            }
         }
     }
-}
 
     private func jump(_ proxy: ScrollViewProxy, to anchor: DiagnosticsSectionAnchor) {
         withAnimation(.easeInOut(duration: 0.2)) {

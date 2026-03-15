@@ -13,7 +13,7 @@ struct ApprovalOperatorRow: View {
                 verticalSpacing: 8,
                 headerVerticalSpacing: 6,
                 factsFont: .caption2,
-                factsColor: .tertiary
+                factsColor: .secondary
             ) {
                 summaryBlock
             } accessory: {

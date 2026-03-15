@@ -1078,7 +1078,7 @@ private struct CronJobRow: View {
             verticalSpacing: 8,
             headerVerticalSpacing: 8,
             factsFont: .caption2,
-            factsColor: .tertiary
+            factsColor: .secondary
         ) {
             summaryContent
         } accessory: {

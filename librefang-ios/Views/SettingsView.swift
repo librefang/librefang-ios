@@ -111,7 +111,7 @@ struct SettingsView: View {
                         }
                     }
 
-                    Section("Control Center") {
+                    Section {
                         Button {
                             jump(proxy, to: .server)
                         } label: {
@@ -203,6 +203,8 @@ struct SettingsView: View {
                             )
                         }
                         .buttonStyle(.plain)
+                    } header: {
+                        Text("Control Center")
                     } footer: {
                         Text("These jump targets keep the longest settings groups reachable on a single-handed mobile layout.")
                     }

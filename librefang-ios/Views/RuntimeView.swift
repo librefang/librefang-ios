@@ -75,6 +75,7 @@ struct RuntimeView: View {
                     errorSection
                     scoreboardSection
                     runtimeSnapshotSection
+                    runtimeFactsSection
                     runtimeOperatorSurfacesSection
                     runtimeFocusSection(proxy)
                     systemSection
@@ -215,6 +216,51 @@ struct RuntimeView: View {
         }
     }
 
+    private var runtimeFactsSection: some View {
+        Section {
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Runtime facts"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep provider, channel, hand, network, and MCP pressure visible before opening deeper runtime sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: vm.status?.localizedStatusLabel ?? String(localized: "Unavailable"),
+                    tone: vm.status?.statusTone ?? .neutral
+                )
+            } facts: {
+                Label(
+                    vm.configuredProviderCount == 1 ? String(localized: "1 provider") : String(localized: "\(vm.configuredProviderCount) providers"),
+                    systemImage: "key.horizontal"
+                )
+                Label(
+                    vm.readyChannelCount == 1 ? String(localized: "1 ready channel") : String(localized: "\(vm.readyChannelCount) ready channels"),
+                    systemImage: "bubble.left.and.bubble.right"
+                )
+                Label(
+                    vm.activeHandCount == 1 ? String(localized: "1 active hand") : String(localized: "\(vm.activeHandCount) active hands"),
+                    systemImage: "hand.raised"
+                )
+                Label(
+                    vm.connectedMCPServerCount == 1 ? String(localized: "1 MCP server") : String(localized: "\(vm.connectedMCPServerCount) MCP servers"),
+                    systemImage: "shippingbox"
+                )
+                Label(
+                    (vm.networkStatus?.connectedPeers ?? 0) == 1
+                        ? String(localized: "1 connected peer")
+                        : String(localized: "\((vm.networkStatus?.connectedPeers ?? 0)) connected peers"),
+                    systemImage: "point.3.connected.trianglepath.dotted"
+                )
+            }
+        } footer: {
+            Text("This keeps the most important runtime subsystems visible before you open any single monitor.")
+        }
+    }
+
     private var runtimeOperatorSurfacesSection: some View {
         Section {
             NavigationLink {
@@ -304,6 +350,39 @@ struct RuntimeView: View {
                         ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
                         : nil,
                     badgeTone: .critical
+                )
+            }
+
+            NavigationLink {
+                CommsView(api: deps.apiClient)
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Comms"),
+                    detail: String(localized: "Switch to live inter-agent traffic and topology from the runtime hub."),
+                    systemImage: "point.3.connected.trianglepath.dotted",
+                    tone: .neutral
+                )
+            }
+
+            NavigationLink {
+                A2AAgentsView()
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open A2A Agents"),
+                    detail: String(localized: "Switch to external-agent inventory when runtime pressure involves A2A connectivity."),
+                    systemImage: "link.circle",
+                    tone: .neutral
+                )
+            }
+
+            NavigationLink {
+                SettingsView()
+            } label: {
+                MonitoringJumpRow(
+                    title: String(localized: "Open Settings"),
+                    detail: String(localized: "Switch to server, refresh, reminder, and on-call preferences without leaving mobile triage."),
+                    systemImage: "gearshape",
+                    tone: .neutral
                 )
             }
         } header: {

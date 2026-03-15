@@ -48,7 +48,7 @@ struct A2AAgentsView: View {
                         }
 
                         NavigationLink {
-                            CommsView()
+                            CommsView(api: deps.apiClient)
                         } label: {
                             MonitoringJumpRow(
                                 title: String(localized: "Open Comms"),

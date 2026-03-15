@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CommsView: View {
+    @Environment(\.dependencies) private var deps
     @Environment(\.scenePhase) private var scenePhase
     @State private var viewModel: CommsViewModel
     @State private var searchText = ""
@@ -45,6 +46,92 @@ struct CommsView: View {
             Section {
                 CommsScoreboard(viewModel: viewModel)
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+            }
+
+            Section {
+                MonitoringSnapshotCard(
+                    summary: filteredEvents.isEmpty
+                        ? String(localized: "Comms monitor is ready for live operator traffic.")
+                        : (filteredEvents.count == 1
+                            ? String(localized: "1 comms event is visible in the current mobile feed.")
+                            : String(localized: "\(filteredEvents.count) comms events are visible in the current mobile feed.")),
+                    detail: String(localized: "Use the snapshot to judge whether comms traffic, links, or event flow deserves the next drill-down.")
+                ) {
+                    FlowLayout(spacing: 8) {
+                        PresentationToneBadge(
+                            text: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                            tone: viewModel.isStreaming ? .positive : .warning
+                        )
+                        PresentationToneBadge(
+                            text: viewModel.nodeCount == 1 ? String(localized: "1 agent") : String(localized: "\(viewModel.nodeCount) agents"),
+                            tone: viewModel.nodeCount > 1 ? .positive : .neutral
+                        )
+                        PresentationToneBadge(
+                            text: viewModel.edgeCount == 1 ? String(localized: "1 link") : String(localized: "\(viewModel.edgeCount) links"),
+                            tone: viewModel.edgeCount > 0 ? .positive : .neutral
+                        )
+                        if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            PresentationToneBadge(
+                                text: filteredEvents.count == 1 ? String(localized: "1 visible result") : String(localized: "\(filteredEvents.count) visible results"),
+                                tone: .neutral
+                            )
+                        }
+                    }
+                }
+            } footer: {
+                Text("This compact digest keeps comms pressure visible before topology and event details.")
+            }
+
+            Section {
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Runtime"),
+                        detail: String(localized: "Switch to runtime when comms traffic needs provider, hand, or approval context."),
+                        systemImage: "server.rack",
+                        tone: .neutral
+                    )
+                }
+
+                NavigationLink {
+                    IncidentsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Incidents"),
+                        detail: String(localized: "Switch to incidents when communication failures line up with live alerts or approvals."),
+                        systemImage: "bell.badge",
+                        tone: filteredEvents.isEmpty ? .neutral : .warning,
+                        badgeText: filteredEvents.isEmpty ? nil : String(localized: "\(filteredEvents.count) events"),
+                        badgeTone: .warning
+                    )
+                }
+
+                NavigationLink {
+                    EventsView(api: deps.apiClient, initialScope: .critical)
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open Critical Events"),
+                        detail: String(localized: "Switch to audit events when comms traffic needs recent critical context."),
+                        systemImage: "text.justify.leading",
+                        tone: .neutral
+                    )
+                }
+
+                NavigationLink {
+                    A2AAgentsView()
+                } label: {
+                    MonitoringJumpRow(
+                        title: String(localized: "Open A2A Agents"),
+                        detail: String(localized: "Switch to the external-agent directory when the topology hints at cross-agent routing issues."),
+                        systemImage: "link.circle",
+                        tone: .neutral
+                    )
+                }
+            } header: {
+                Text("Operator Surfaces")
+            } footer: {
+                Text("Use these routes when comms traffic is only one part of the operator path.")
             }
 
             Section {
