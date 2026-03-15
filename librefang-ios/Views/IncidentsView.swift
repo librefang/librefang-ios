@@ -695,6 +695,11 @@ struct IncidentsView: View {
 
     private var activeAlertsSection: some View {
         Section {
+            ActiveAlertsInventoryDeck(
+                alerts: visibleAlerts,
+                mutedCount: mutedAlerts.count
+            )
+
             ForEach(visibleAlerts) { alert in
                 IncidentAlertRow(alert: alert, isMuted: false) {
                     incidentStateStore.toggleMute(for: alert)
@@ -1360,6 +1365,100 @@ private struct IncidentAlertRow: View {
             horizontalPadding: 6,
             verticalPadding: 2
         )
+    }
+}
+
+private struct ActiveAlertsInventoryDeck: View {
+    let alerts: [MonitoringAlertItem]
+    let mutedCount: Int
+
+    private var criticalCount: Int {
+        alerts.filter { $0.severity == .critical }.count
+    }
+
+    private var warningCount: Int {
+        alerts.filter { $0.severity == .warning }.count
+    }
+
+    private var infoCount: Int {
+        alerts.filter { $0.severity == .info }.count
+    }
+
+    private var symbolCount: Int {
+        Set(alerts.map(\.symbolName)).count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical visible") : String(localized: "\(criticalCount) critical visible"),
+                            tone: .critical
+                        )
+                    }
+                    if warningCount > 0 {
+                        PresentationToneBadge(
+                            text: warningCount == 1 ? String(localized: "1 warning visible") : String(localized: "\(warningCount) warnings visible"),
+                            tone: .warning
+                        )
+                    }
+                    if infoCount > 0 {
+                        PresentationToneBadge(
+                            text: infoCount == 1 ? String(localized: "1 info visible") : String(localized: "\(infoCount) info visible"),
+                            tone: .caution
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Alert inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the compact alert slice to gauge severity mix and muted spillover before opening each alert row."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: alerts.count == 1 ? String(localized: "1 active") : String(localized: "\(alerts.count) active"),
+                    tone: alerts.isEmpty ? .neutral : .critical
+                )
+            } facts: {
+                Label(
+                    symbolCount == 1 ? String(localized: "1 alert type") : String(localized: "\(symbolCount) alert types"),
+                    systemImage: "bell.badge"
+                )
+                if mutedCount > 0 {
+                    Label(
+                        mutedCount == 1 ? String(localized: "1 muted") : String(localized: "\(mutedCount) muted"),
+                        systemImage: "bell.slash"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if alerts.count == 1 {
+            return String(localized: "The incidents list is showing the only active alert.")
+        }
+        return String(localized: "The incidents list is showing all \(alerts.count) active alerts.")
+    }
+
+    private var detailLine: String {
+        if mutedCount > 0 {
+            return String(localized: "\(mutedCount) additional alerts are muted locally, so the active slice is not the full phone-level incident picture.")
+        }
+        return String(localized: "Active severity and alert type spread stay summarized here before the per-alert controls.")
     }
 }
 

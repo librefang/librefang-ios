@@ -259,6 +259,11 @@ struct OnCallView: View {
 
             if !priorityItems.isEmpty {
                 Section {
+                    OnCallPriorityInventoryDeck(
+                        items: priorityItems,
+                        visibleCount: min(priorityItems.count, 8)
+                    )
+
                     ForEach(priorityItems.prefix(8)) { item in
                         NavigationLink(value: item.route) {
                             OnCallPriorityRow(item: item)
@@ -1186,6 +1191,125 @@ private struct OnCallStatusCard: View {
             .foregroundStyle(.tertiary)
         }
         .padding(.vertical, 4)
+    }
+}
+
+private struct OnCallPriorityInventoryDeck: View {
+    let items: [OnCallPriorityItem]
+    let visibleCount: Int
+
+    private var criticalCount: Int {
+        items.filter { $0.severity == .critical }.count
+    }
+
+    private var warningCount: Int {
+        items.filter { $0.severity == .warning }.count
+    }
+
+    private var advisoryCount: Int {
+        items.filter { $0.severity == .advisory }.count
+    }
+
+    private var routeGroupCount: Int {
+        Set(items.map(routeGroupLabel(for:))).count
+    }
+
+    private var agentRouteCount: Int {
+        items.filter {
+            if case .agent = $0.route { return true }
+            return false
+        }.count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: detailLine,
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical visible") : String(localized: "\(criticalCount) critical visible"),
+                            tone: .critical
+                        )
+                    }
+                    if warningCount > 0 {
+                        PresentationToneBadge(
+                            text: warningCount == 1 ? String(localized: "1 warning visible") : String(localized: "\(warningCount) warnings visible"),
+                            tone: .warning
+                        )
+                    }
+                    if advisoryCount > 0 {
+                        PresentationToneBadge(
+                            text: advisoryCount == 1 ? String(localized: "1 advisory visible") : String(localized: "\(advisoryCount) advisories visible"),
+                            tone: .caution
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Queue inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use the compact queue slice to judge severity mix and destination spread before opening each on-call row."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == items.count
+                        ? String(localized: "Full queue")
+                        : String(localized: "\(visibleCount)/\(items.count) visible"),
+                    tone: visibleCount == items.count ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    items.count == 1 ? String(localized: "1 queued item") : String(localized: "\(items.count) queued items"),
+                    systemImage: "waveform.path.ecg"
+                )
+                Label(
+                    routeGroupCount == 1 ? String(localized: "1 route group") : String(localized: "\(routeGroupCount) route groups"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                if agentRouteCount > 0 {
+                    Label(
+                        agentRouteCount == 1 ? String(localized: "1 agent route") : String(localized: "\(agentRouteCount) agent routes"),
+                        systemImage: "person.crop.circle"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if visibleCount == items.count {
+            return items.count == 1
+                ? String(localized: "The on-call queue is showing the only active priority.")
+                : String(localized: "The on-call queue is showing all \(items.count) active priorities.")
+        }
+        return String(localized: "The on-call queue is showing \(visibleCount) of \(items.count) active priorities.")
+    }
+
+    private var detailLine: String {
+        String(localized: "Critical, warning, and advisory pressure stay summarized here before the ranked queue rows.")
+    }
+
+    private func routeGroupLabel(for item: OnCallPriorityItem) -> String {
+        switch item.route {
+        case .incidents: return "incidents"
+        case .approvals: return "approvals"
+        case .agent: return "agent"
+        case .sessionsAttention, .sessionsSearch: return "sessions"
+        case .eventsCritical, .eventsSearch: return "events"
+        case .automation: return "automation"
+        case .integrations, .integrationsAttention, .integrationsSearch: return "integrations"
+        case .handoffCenter: return "handoff"
+        }
     }
 }
 
