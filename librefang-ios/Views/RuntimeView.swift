@@ -127,7 +127,7 @@ struct RuntimeView: View {
         if let status = vm.status {
             Section("System") {
                 LabeledContent("Kernel") {
-                    StatusPill(text: status.status.capitalized, color: status.status == "running" ? .green : .red)
+                    StatusPill(text: localizedSystemStatus(status.status), color: systemStatusColor(status.status))
                 }
                 LabeledContent("Version", value: status.version)
                 LabeledContent("Uptime") {
@@ -148,7 +148,7 @@ struct RuntimeView: View {
                     }
                 }
                 LabeledContent("Network") {
-                    StatusPill(text: status.networkEnabled ? "Enabled" : "Disabled", color: status.networkEnabled ? .green : .orange)
+                    StatusPill(text: status.networkEnabled ? String(localized: "Enabled") : String(localized: "Disabled"), color: status.networkEnabled ? .green : .orange)
                 }
             }
         }
@@ -172,30 +172,32 @@ struct RuntimeView: View {
 
                 if let healthDetail = vm.healthDetail {
                     RuntimeMetricRow(
-                        label: "Health",
-                        value: healthDetail.status.capitalized,
-                        detail: "Database \(healthDetail.database.capitalized), \(healthDetail.configWarnings.count) config warnings"
+                        label: String(localized: "Health"),
+                        value: localizedSystemStatus(healthDetail.status),
+                        detail: String(
+                            localized: "Database \(localizedSystemStatus(healthDetail.database)), \(configWarningSummary(healthDetail.configWarnings.count))"
+                        )
                     )
                     RuntimeMetricRow(
-                        label: "Supervisor",
-                        value: "\(healthDetail.panicCount) panics / \(healthDetail.restartCount) restarts",
-                        detail: "Recovered kernel events since startup"
+                        label: String(localized: "Supervisor"),
+                        value: String(localized: "\(healthDetail.panicCount) panics / \(healthDetail.restartCount) restarts"),
+                        detail: String(localized: "Recovered kernel events since startup")
                     )
                 }
 
                 if let versionInfo = vm.versionInfo {
                     RuntimeMetricRow(
-                        label: "Build",
+                        label: String(localized: "Build"),
                         value: versionInfo.version,
-                        detail: "\(versionInfo.platform) / \(versionInfo.arch) · \(shortSHA(versionInfo.gitSHA))"
+                        detail: String(localized: "\(versionInfo.platform) / \(versionInfo.arch) · \(shortSHA(versionInfo.gitSHA))")
                     )
                 }
 
                 if let metrics = vm.metricsSnapshot {
                     RuntimeMetricRow(
-                        label: "Metrics",
-                        value: "\(metrics.activeAgents)/\(metrics.totalAgents) active",
-                        detail: "\(metrics.totalRollingTokens.formatted()) rolling tokens · \(metrics.totalRollingToolCalls.formatted()) tool calls"
+                        label: String(localized: "Metrics"),
+                        value: String(localized: "\(metrics.activeAgents)/\(metrics.totalAgents) active"),
+                        detail: String(localized: "\(metrics.totalRollingTokens.formatted()) rolling tokens · \(metrics.totalRollingToolCalls.formatted()) tool calls")
                     )
                 }
             } header: {
@@ -223,26 +225,26 @@ struct RuntimeView: View {
                 }
 
                 RuntimeMetricRow(
-                    label: "Providers",
+                    label: String(localized: "Providers"),
                     value: "\(vm.configuredProviderCount)/\(vm.providers.count)",
                     detail: vm.unreachableLocalProviderCount > 0
-                        ? "\(vm.unreachableLocalProviderCount) local unreachable"
-                        : "\(vm.reachableLocalProviderCount) local reachable"
+                        ? String(localized: "\(vm.unreachableLocalProviderCount) local unreachable")
+                        : String(localized: "\(vm.reachableLocalProviderCount) local reachable")
                 )
                 RuntimeMetricRow(
-                    label: "Channels",
+                    label: String(localized: "Channels"),
                     value: "\(vm.readyChannelCount)/\(vm.configuredChannelCount)",
                     detail: vm.channelRequiredFieldGapCount > 0
-                        ? "\(vm.channelRequiredFieldGapCount) channels missing \(vm.missingRequiredChannelFieldCount) required fields"
-                        : "Configured channels have required fields"
+                        ? String(localized: "\(vm.channelRequiredFieldGapCount) channels missing \(vm.missingRequiredChannelFieldCount) required fields")
+                        : String(localized: "Configured channels have required fields")
                 )
                 RuntimeMetricRow(
-                    label: "Catalog",
-                    value: "\(vm.availableCatalogModelCount)/\(vm.catalogModels.count) available",
-                    detail: vm.hasEmptyModelCatalog ? "No executable models in the current catalog" : "\(vm.modelAliasCount) aliases"
+                    label: String(localized: "Catalog"),
+                    value: String(localized: "\(vm.availableCatalogModelCount)/\(vm.catalogModels.count) available"),
+                    detail: vm.hasEmptyModelCatalog ? String(localized: "No executable models in the current catalog") : String(localized: "\(vm.modelAliasCount) aliases")
                 )
                 RuntimeMetricRow(
-                    label: "Catalog Sync",
+                    label: String(localized: "Catalog Sync"),
                     value: catalogSyncValue,
                     detail: catalogSyncDetail
                 )
@@ -275,9 +277,9 @@ struct RuntimeView: View {
                 }
                 if !vm.agentsWithModelDiagnostics.isEmpty {
                     RuntimeMetricRow(
-                        label: "Agent Drift",
+                        label: String(localized: "Agent Drift"),
                         value: "\(vm.agentsWithModelDiagnostics.count)",
-                        detail: "\(vm.unavailableModelAgentCount) unavailable, \(vm.agentsWithModelDiagnostics.count - vm.unavailableModelAgentCount) mismatched or unknown"
+                        detail: String(localized: "\(vm.unavailableModelAgentCount) unavailable, \(vm.agentsWithModelDiagnostics.count - vm.unavailableModelAgentCount) mismatched or unknown")
                     )
                 }
             } header: {
@@ -290,20 +292,20 @@ struct RuntimeView: View {
 
     private var catalogSyncValue: String {
         if vm.hasEmptyModelCatalog {
-            return "Empty"
+            return String(localized: "Empty")
         }
         if vm.isCatalogSyncStale {
-            return "Stale"
+            return String(localized: "Stale")
         }
         if vm.catalogLastSyncDate == nil {
-            return "Unknown"
+            return String(localized: "Unknown")
         }
-        return "Fresh"
+        return String(localized: "Fresh")
     }
 
     private var catalogSyncDetail: String {
         guard let catalogLastSyncDate = vm.catalogLastSyncDate else {
-            return vm.catalogModels.isEmpty ? "No catalog sync timestamp and no cached models" : "Sync timestamp unavailable"
+            return vm.catalogModels.isEmpty ? String(localized: "No catalog sync timestamp and no cached models") : String(localized: "Sync timestamp unavailable")
         }
         return RelativeDateTimeFormatter().localizedString(for: catalogLastSyncDate, relativeTo: Date())
     }
@@ -313,24 +315,24 @@ struct RuntimeView: View {
         if let usage = vm.usageSummary {
             Section("Usage") {
                 RuntimeMetricRow(
-                    label: "Tokens",
-                    value: "\(usage.totalInputTokens.formatted()) in / \(usage.totalOutputTokens.formatted()) out",
-                    detail: "\(vm.totalTokenCount.formatted()) total"
+                    label: String(localized: "Tokens"),
+                    value: String(localized: "\(usage.totalInputTokens.formatted()) in / \(usage.totalOutputTokens.formatted()) out"),
+                    detail: String(localized: "\(vm.totalTokenCount.formatted()) total")
                 )
                 RuntimeMetricRow(
-                    label: "Tool Calls",
+                    label: String(localized: "Tool Calls"),
                     value: usage.totalToolCalls.formatted(),
-                    detail: "\(usage.callCount.formatted()) LLM calls"
+                    detail: String(localized: "\(usage.callCount.formatted()) LLM calls")
                 )
                 RuntimeMetricRow(
-                    label: "Accumulated Cost",
+                    label: String(localized: "Accumulated Cost"),
                     value: currency(usage.totalCostUsd),
-                    detail: usage.totalCostUsd > 0 ? "All recorded sessions" : "No spend recorded"
+                    detail: usage.totalCostUsd > 0 ? String(localized: "All recorded sessions") : String(localized: "No spend recorded")
                 )
                 RuntimeMetricRow(
-                    label: "Sessions",
+                    label: String(localized: "Sessions"),
                     value: "\(vm.totalSessionCount)",
-                    detail: "\(vm.totalSessionMessages.formatted()) messages retained"
+                    detail: String(localized: "\(vm.totalSessionMessages.formatted()) messages retained")
                 )
             }
         }
@@ -353,25 +355,25 @@ struct RuntimeView: View {
                 }
 
                 RuntimeMetricRow(
-                    label: "Workflows",
+                    label: String(localized: "Workflows"),
                     value: "\(vm.workflowCount)",
-                    detail: "\(vm.failedWorkflowRunCount) failed runs, \(vm.runningWorkflowRunCount) in flight"
+                    detail: String(localized: "\(vm.failedWorkflowRunCount) failed runs, \(vm.runningWorkflowRunCount) in flight")
                 )
                 RuntimeMetricRow(
-                    label: "Triggers",
-                    value: "\(vm.enabledTriggerCount)/\(vm.triggers.count) enabled",
-                    detail: "\(vm.exhaustedTriggerCount) exhausted, \(vm.disabledTriggerCount) disabled"
+                    label: String(localized: "Triggers"),
+                    value: String(localized: "\(vm.enabledTriggerCount)/\(vm.triggers.count) enabled"),
+                    detail: String(localized: "\(vm.exhaustedTriggerCount) exhausted, \(vm.disabledTriggerCount) disabled")
                 )
                 RuntimeMetricRow(
-                    label: "Schedules",
-                    value: "\(vm.enabledScheduleCount)/\(vm.schedules.count) enabled",
-                    detail: "\(vm.pausedScheduleCount) paused, \(vm.enabledCronJobCount)/\(vm.cronJobs.count) cron enabled"
+                    label: String(localized: "Schedules"),
+                    value: String(localized: "\(vm.enabledScheduleCount)/\(vm.schedules.count) enabled"),
+                    detail: String(localized: "\(vm.pausedScheduleCount) paused, \(vm.enabledCronJobCount)/\(vm.cronJobs.count) cron enabled")
                 )
                 if vm.stalledCronJobCount > 0 {
                     RuntimeMetricRow(
-                        label: "Cron Health",
-                        value: "\(vm.stalledCronJobCount) missing next run",
-                        detail: "Enabled jobs without a next execution should be reviewed in the scheduler."
+                        label: String(localized: "Cron Health"),
+                        value: String(localized: "\(vm.stalledCronJobCount) missing next run"),
+                        detail: String(localized: "Enabled jobs without a next execution should be reviewed in the scheduler.")
                     )
                 }
             } header: {
@@ -431,14 +433,14 @@ struct RuntimeView: View {
         if !vm.mcpConfiguredServers.isEmpty || !vm.mcpConnectedServers.isEmpty || !vm.tools.isEmpty {
             Section("Tooling") {
                 RuntimeMetricRow(
-                    label: "MCP Servers",
-                    value: "\(vm.connectedMCPServerCount)/\(max(vm.configuredMCPServerCount, vm.mcpConnectedServers.count)) connected",
-                    detail: "\(vm.mcpToolCount) MCP tools available"
+                    label: String(localized: "MCP Servers"),
+                    value: String(localized: "\(vm.connectedMCPServerCount)/\(max(vm.configuredMCPServerCount, vm.mcpConnectedServers.count)) connected"),
+                    detail: String(localized: "\(vm.mcpToolCount) MCP tools available")
                 )
                 RuntimeMetricRow(
-                    label: "Tool Inventory",
+                    label: String(localized: "Tool Inventory"),
                     value: "\(vm.totalToolCount)",
-                    detail: "\(builtinToolCount) built-in + \(mcpBackedToolCount) MCP-backed"
+                    detail: String(localized: "\(builtinToolCount) built-in + \(mcpBackedToolCount) MCP-backed")
                 )
 
                 if !vm.mcpConnectedServers.isEmpty {
@@ -447,8 +449,8 @@ struct RuntimeView: View {
                     }
                 } else if !vm.mcpConfiguredServers.isEmpty {
                     RuntimeEmptyRow(
-                        title: "Configured but not connected",
-                        subtitle: "MCP servers are configured on disk but none are currently attached."
+                        title: String(localized: "Configured but not connected"),
+                        subtitle: String(localized: "MCP servers are configured on disk but none are currently attached.")
                     )
                 }
             }
@@ -461,8 +463,8 @@ struct RuntimeView: View {
             Section {
                 if configuredChannels.isEmpty {
                     RuntimeEmptyRow(
-                        title: "No channels configured",
-                        subtitle: "Desktop or web can finish setup. Mobile focuses on status tracking."
+                        title: String(localized: "No channels configured"),
+                        subtitle: String(localized: "Desktop or web can finish setup. Mobile focuses on status tracking.")
                     )
                 } else {
                     ForEach(configuredChannels.prefix(8)) { channel in
@@ -486,9 +488,9 @@ struct RuntimeView: View {
         if let a2a = vm.a2aAgents, a2a.total > 0 {
             Section("A2A Network") {
                 RuntimeMetricRow(
-                    label: "Connected Agents",
+                    label: String(localized: "Connected Agents"),
                     value: "\(a2a.total)",
-                    detail: "External agents discovered through A2A"
+                    detail: String(localized: "External agents discovered through A2A")
                 )
 
                 ForEach(a2a.agents.prefix(5)) { agent in
@@ -529,20 +531,20 @@ struct RuntimeView: View {
         if let network = vm.networkStatus {
             Section("OFP Network") {
                 RuntimeMetricRow(
-                    label: "Status",
-                    value: network.enabled ? "Enabled" : "Disabled",
-                    detail: network.enabled ? network.listenAddress : "Shared secret or network mode not configured"
+                    label: String(localized: "Status"),
+                    value: network.enabled ? String(localized: "Enabled") : String(localized: "Disabled"),
+                    detail: network.enabled ? network.listenAddress : String(localized: "Shared secret or network mode not configured")
                 )
                 RuntimeMetricRow(
-                    label: "Peers",
-                    value: "\(network.connectedPeers)/\(max(network.totalPeers, vm.peers.count)) connected",
-                    detail: network.nodeId.isEmpty ? "Local node inactive" : "Node \(shortNodeId(network.nodeId))"
+                    label: String(localized: "Peers"),
+                    value: String(localized: "\(network.connectedPeers)/\(max(network.totalPeers, vm.peers.count)) connected"),
+                    detail: network.nodeId.isEmpty ? String(localized: "Local node inactive") : String(localized: "Node \(shortNodeId(network.nodeId))")
                 )
 
                 if vm.peers.isEmpty {
                     RuntimeEmptyRow(
-                        title: "No peers discovered",
-                        subtitle: network.enabled ? "The wire network is enabled but no peers are currently visible." : "Enable peer networking on the server to surface node status."
+                        title: String(localized: "No peers discovered"),
+                        subtitle: network.enabled ? String(localized: "The wire network is enabled but no peers are currently visible.") : String(localized: "Enable peer networking on the server to surface node status.")
                     )
                 } else {
                     ForEach(vm.peers.prefix(5)) { peer in
@@ -559,8 +561,8 @@ struct RuntimeView: View {
             Section {
                 if vm.activeHands.isEmpty {
                     RuntimeEmptyRow(
-                        title: "No active hands",
-                        subtitle: "When autonomous hands are activated, their runtime status appears here."
+                        title: String(localized: "No active hands"),
+                        subtitle: String(localized: "When autonomous hands are activated, their runtime status appears here.")
                     )
                 } else {
                     ForEach(vm.activeHands) { instance in
@@ -617,8 +619,8 @@ struct RuntimeView: View {
             Section("Recent Audit") {
                 if vm.recentAudit.isEmpty {
                     RuntimeEmptyRow(
-                        title: "No recent audit events",
-                        subtitle: "Open the full event feed to refresh or inspect a larger time window."
+                        title: String(localized: "No recent audit events"),
+                        subtitle: String(localized: "Open the full event feed to refresh or inspect a larger time window.")
                     )
                 } else {
                     ForEach(vm.recentAudit.prefix(6)) { entry in
@@ -648,25 +650,25 @@ struct RuntimeView: View {
         if let security = vm.security {
             Section("Security") {
                 RuntimeMetricRow(
-                    label: "Protections",
+                    label: String(localized: "Protections"),
                     value: "\(security.totalFeatures)",
-                    detail: "Active defense layers"
+                    detail: String(localized: "Active defense layers")
                 )
                 RuntimeMetricRow(
-                    label: "Auth",
+                    label: String(localized: "Auth"),
                     value: security.configurable.auth.mode.replacingOccurrences(of: "_", with: " ").capitalized,
-                    detail: security.configurable.auth.apiKeySet ? "API key configured" : "No API key configured"
+                    detail: security.configurable.auth.apiKeySet ? String(localized: "API key configured") : String(localized: "No API key configured")
                 )
                 RuntimeMetricRow(
-                    label: "Audit Trail",
+                    label: String(localized: "Audit Trail"),
                     value: security.monitoring.auditTrail.algorithm,
-                    detail: "\(security.monitoring.auditTrail.entryCount.formatted()) entries"
+                    detail: String(localized: "\(security.monitoring.auditTrail.entryCount.formatted()) entries")
                 )
                 if let auditVerify = vm.auditVerify {
                     RuntimeMetricRow(
-                        label: "Audit Integrity",
-                        value: auditVerify.valid ? "Valid" : "Broken",
-                        detail: auditVerify.warning ?? auditVerify.error ?? "\(auditVerify.entries) entries verified"
+                        label: String(localized: "Audit Integrity"),
+                        value: auditVerify.valid ? String(localized: "Valid") : String(localized: "Broken"),
+                        detail: auditVerify.warning ?? auditVerify.error ?? String(localized: "\(auditVerify.entries) entries verified")
                     )
                 }
             }
@@ -740,12 +742,45 @@ struct RuntimeView: View {
         let minutes = (seconds % 3_600) / 60
 
         if days > 0 {
-            return "\(days)d \(hours)h"
+            return String(localized: "\(days)d \(hours)h")
         }
         if hours > 0 {
-            return "\(hours)h \(minutes)m"
+            return String(localized: "\(hours)h \(minutes)m")
         }
-        return "\(minutes)m"
+        return String(localized: "\(minutes)m")
+    }
+
+    private func localizedSystemStatus(_ status: String) -> String {
+        switch status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "ok", "healthy", "connected", "ready", "valid":
+            return String(localized: "Healthy")
+        case "warn", "warning", "degraded":
+            return String(localized: "Degraded")
+        case "error", "broken", "offline", "disconnected", "unhealthy", "invalid":
+            return String(localized: "Broken")
+        default:
+            return status.capitalized
+        }
+    }
+
+    private func systemStatusColor(_ status: String) -> Color {
+        switch status.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "ok", "healthy", "connected", "ready", "valid":
+            return .green
+        case "warn", "warning", "degraded":
+            return .orange
+        case "error", "broken", "offline", "disconnected", "unhealthy", "invalid":
+            return .red
+        default:
+            return .secondary
+        }
+    }
+
+    private func configWarningSummary(_ count: Int) -> String {
+        if count == 1 {
+            return String(localized: "1 config warning")
+        }
+        return String(localized: "\(count) config warnings")
     }
 
     private func shortNodeId(_ id: String) -> String {
@@ -899,7 +934,7 @@ private struct ProviderStatusRow: View {
                         .foregroundStyle(.secondary)
                 }
                 if provider.discoveredModels?.isEmpty == false {
-                    Label("\(provider.discoveredModels?.count ?? 0) discovered", systemImage: "sparkles")
+                    Label(discoveredModelsLabel, systemImage: "sparkles")
                         .foregroundStyle(.secondary)
                 }
             }
@@ -910,9 +945,9 @@ private struct ProviderStatusRow: View {
 
     private var statusText: String {
         if provider.isLocal == true {
-            return provider.reachable == true ? "Reachable" : "Unavailable"
+            return provider.reachable == true ? String(localized: "Reachable") : String(localized: "Unavailable")
         }
-        return provider.isConfigured ? "Configured" : "Missing"
+        return provider.isConfigured ? String(localized: "Configured") : String(localized: "Missing")
     }
 
     private var statusColor: Color {
@@ -920,6 +955,13 @@ private struct ProviderStatusRow: View {
             return provider.reachable == true ? .green : .orange
         }
         return provider.isConfigured ? .green : .secondary
+    }
+
+    private var discoveredModelsLabel: String {
+        let count = provider.discoveredModels?.count ?? 0
+        return count == 1
+            ? String(localized: "1 discovered")
+            : String(localized: "\(count) discovered")
     }
 }
 
@@ -967,11 +1009,11 @@ private struct MCPServerRow: View {
                 Text(server.name)
                     .font(.subheadline.weight(.medium))
                 Spacer()
-                StatusPill(text: server.connected ? "Connected" : "Offline", color: server.connected ? .green : .orange)
+                StatusPill(text: server.connected ? String(localized: "Connected") : String(localized: "Offline"), color: server.connected ? .green : .orange)
             }
 
             HStack(spacing: 12) {
-                Label("\(server.toolsCount) tools", systemImage: "wrench.and.screwdriver")
+                Label(toolsLabel, systemImage: "wrench.and.screwdriver")
                 if let topTool = server.tools.first?.name {
                     Label(topTool, systemImage: "hammer")
                 }
@@ -980,6 +1022,12 @@ private struct MCPServerRow: View {
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
+    }
+
+    private var toolsLabel: String {
+        server.toolsCount == 1
+            ? String(localized: "1 tool")
+            : String(localized: "\(server.toolsCount) tools")
     }
 }
 
@@ -1005,10 +1053,10 @@ private struct ChannelStatusRow: View {
 
             VStack(alignment: .trailing, spacing: 4) {
                 StatusPill(
-                    text: channel.hasToken ? "Ready" : "Needs Token",
+                    text: channel.hasToken ? String(localized: "Ready") : String(localized: "Needs Token"),
                     color: channel.hasToken ? .green : .orange
                 )
-                Text(channel.category.capitalized)
+                Text(localizedChannelCategory(channel.category))
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
@@ -1033,7 +1081,7 @@ private struct HandInstanceRow: View {
                     }
                 }
                 Spacer()
-                StatusPill(text: instance.status.capitalized, color: statusColor)
+                StatusPill(text: statusText, color: statusColor)
             }
 
             HStack(spacing: 12) {
@@ -1054,6 +1102,23 @@ private struct HandInstanceRow: View {
             .orange
         default:
             .secondary
+        }
+    }
+
+    private var statusText: String {
+        switch instance.status.lowercased() {
+        case "active", "running":
+            String(localized: "Running")
+        case "paused":
+            String(localized: "Paused")
+        case "degraded":
+            String(localized: "Degraded")
+        case "blocked":
+            String(localized: "Blocked")
+        case "idle":
+            String(localized: "Idle")
+        default:
+            instance.status
         }
     }
 
@@ -1084,7 +1149,7 @@ private struct HandDefinitionRow: View {
             Spacer()
 
             StatusPill(
-                text: hand.degraded ? "Degraded" : hand.requirementsMet ? "Ready" : "Blocked",
+                text: hand.degraded ? String(localized: "Degraded") : hand.requirementsMet ? String(localized: "Ready") : String(localized: "Blocked"),
                 color: hand.degraded ? .orange : hand.requirementsMet ? .green : .secondary
             )
         }
@@ -1106,7 +1171,7 @@ private struct ApprovalRow: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                StatusPill(text: approval.riskLevel.capitalized, color: riskColor)
+                StatusPill(text: localizedRiskLevel, color: riskColor)
             }
 
             if !approval.description.isEmpty {
@@ -1141,6 +1206,21 @@ private struct ApprovalRow: View {
         guard let date = approval.requestedAt.iso8601Date else { return approval.requestedAt }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
     }
+
+    private var localizedRiskLevel: String {
+        switch approval.riskLevel.lowercased() {
+        case "critical":
+            String(localized: "Critical")
+        case "high":
+            String(localized: "High")
+        case "medium":
+            String(localized: "Medium")
+        case "low":
+            String(localized: "Low")
+        default:
+            approval.riskLevel
+        }
+    }
 }
 
 private struct PeerRow: View {
@@ -1158,17 +1238,51 @@ private struct PeerRow: View {
                         .lineLimit(1)
                 }
                 Spacer()
-                StatusPill(text: peer.state.capitalized, color: peer.state.lowercased().contains("connected") ? .green : .orange)
+                StatusPill(text: localizedStateLabel, color: stateColor)
             }
 
             HStack(spacing: 12) {
-                Label("\(peer.agents.count) agents", systemImage: "cpu")
+                Label(agentsLabel, systemImage: "cpu")
                 Label(peer.protocolVersion, systemImage: "point.3.connected.trianglepath.dotted")
             }
             .font(.caption)
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
+    }
+
+    private var localizedStateLabel: String {
+        switch peer.state.lowercased() {
+        case "connected":
+            String(localized: "Connected")
+        case "connecting":
+            String(localized: "Connecting")
+        case "disconnected":
+            String(localized: "Disconnected")
+        case "offline":
+            String(localized: "Offline")
+        case "degraded":
+            String(localized: "Degraded")
+        default:
+            peer.state
+        }
+    }
+
+    private var stateColor: Color {
+        switch peer.state.lowercased() {
+        case "connected":
+            .green
+        case "connecting", "degraded":
+            .orange
+        default:
+            .orange
+        }
+    }
+
+    private var agentsLabel: String {
+        peer.agents.count == 1
+            ? String(localized: "1 agent")
+            : String(localized: "\(peer.agents.count) agents")
     }
 }
 
@@ -1241,6 +1355,23 @@ private struct StatusPill: View {
             .background(color.opacity(0.14))
             .foregroundStyle(color)
             .clipShape(Capsule())
+    }
+}
+
+private func localizedChannelCategory(_ value: String) -> String {
+    switch value.lowercased() {
+    case "chat":
+        String(localized: "Chat")
+    case "email":
+        String(localized: "Email")
+    case "push":
+        String(localized: "Push")
+    case "sms":
+        String(localized: "SMS")
+    case "webhook":
+        String(localized: "Webhook")
+    default:
+        value
     }
 }
 
