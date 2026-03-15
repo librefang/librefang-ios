@@ -177,7 +177,7 @@ struct SessionsView: View {
             }
 
             Section {
-                SessionSurfaceGroup(
+                MonitoringSurfaceGroupCard(
                     title: String(localized: "Primary Surfaces"),
                     detail: String(localized: "Keep the next queue and fleet exits closest to the session backlog list.")
                 ) {
@@ -242,7 +242,7 @@ struct SessionsView: View {
                     }
                 }
 
-                SessionSurfaceGroup(
+                MonitoringSurfaceGroupCard(
                     title: String(localized: "Supporting Surfaces"),
                     detail: String(localized: "Keep audit context separate from the primary session exits.")
                 ) {
@@ -628,27 +628,6 @@ enum SessionFilter: CaseIterable {
         case .unlabeled:
             "tag.slash"
         }
-    }
-}
-
-private struct SessionSurfaceGroup<Content: View>: View {
-    let title: String
-    let detail: String
-    let content: Content
-
-    init(title: String, detail: String, @ViewBuilder content: () -> Content) {
-        self.title = title
-        self.detail = detail
-        self.content = content()
-    }
-
-    var body: some View {
-        MonitoringSnapshotCard(summary: title, detail: detail) {
-            VStack(spacing: 10) {
-                content
-            }
-        }
-        .padding(.vertical, 4)
     }
 }
 

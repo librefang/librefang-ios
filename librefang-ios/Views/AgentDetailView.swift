@@ -493,7 +493,7 @@ struct AgentDetailView: View {
 
     private var operatorHubSection: some View {
         Section {
-            AgentSurfaceGroup(
+            MonitoringSurfaceGroupCard(
                 title: String(localized: "Primary Surfaces"),
                 detail: String(localized: "Keep the most likely next operator exits closest to the agent snapshot and live issues.")
             ) {
@@ -584,7 +584,7 @@ struct AgentDetailView: View {
                 }
             }
 
-            AgentSurfaceGroup(
+            MonitoringSurfaceGroupCard(
                 title: String(localized: "Supporting Surfaces"),
                 detail: String(localized: "Keep broader runtime, budget, and capability routes behind the primary agent exits.")
             ) {
@@ -721,27 +721,6 @@ struct AgentDetailView: View {
             Text("Operator Hub")
         } footer: {
             Text("These jump surfaces keep the highest-value diagnostics close to the top of the agent detail screen.")
-        }
-    }
-
-    private struct AgentSurfaceGroup<Content: View>: View {
-        let title: String
-        let detail: String
-        let content: Content
-
-        init(title: String, detail: String, @ViewBuilder content: () -> Content) {
-            self.title = title
-            self.detail = detail
-            self.content = content()
-        }
-
-        var body: some View {
-            MonitoringSnapshotCard(summary: title, detail: detail) {
-                VStack(spacing: 10) {
-                    content
-                }
-            }
-            .padding(.vertical, 4)
         }
     }
 

@@ -348,7 +348,7 @@ struct IntegrationsView: View {
                     }
 
                     Section {
-                        IntegrationSurfaceGroup(
+                        MonitoringSurfaceGroupCard(
                             title: String(localized: "Primary Surfaces"),
                             detail: String(localized: "Keep the next operator exits closest to provider, channel, and drift inventory.")
                         ) {
@@ -413,7 +413,7 @@ struct IntegrationsView: View {
                             }
                         }
 
-                        IntegrationSurfaceGroup(
+                        MonitoringSurfaceGroupCard(
                             title: String(localized: "Supporting Surfaces"),
                             detail: String(localized: "Keep slower spend, automation, and routing drilldowns behind the primary exits.")
                         ) {
@@ -691,27 +691,6 @@ struct IntegrationsView: View {
     private func jump(_ proxy: ScrollViewProxy, to anchor: IntegrationsSectionAnchor) {
         withAnimation(.easeInOut(duration: 0.2)) {
             proxy.scrollTo(anchor, anchor: .top)
-        }
-    }
-
-    private struct IntegrationSurfaceGroup<Content: View>: View {
-        let title: String
-        let detail: String
-        let content: Content
-
-        init(title: String, detail: String, @ViewBuilder content: () -> Content) {
-            self.title = title
-            self.detail = detail
-            self.content = content()
-        }
-
-        var body: some View {
-            MonitoringSnapshotCard(summary: title, detail: detail) {
-                VStack(spacing: 10) {
-                    content
-                }
-            }
-            .padding(.vertical, 4)
         }
     }
 

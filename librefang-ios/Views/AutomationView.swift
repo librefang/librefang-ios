@@ -269,7 +269,7 @@ struct AutomationView: View {
                 }
 
                 Section {
-                    AutomationSurfaceGroup(
+                    MonitoringSurfaceGroupCard(
                         title: String(localized: "Primary Surfaces"),
                         detail: String(localized: "Keep the next operator exits closest to workflow and scheduler pressure.")
                     ) {
@@ -334,7 +334,7 @@ struct AutomationView: View {
                         }
                     }
 
-                    AutomationSurfaceGroup(
+                    MonitoringSurfaceGroupCard(
                         title: String(localized: "Supporting Surfaces"),
                         detail: String(localized: "Keep integration context behind the primary automation exits.")
                     ) {
@@ -515,27 +515,6 @@ struct AutomationView: View {
     private func jump(_ proxy: ScrollViewProxy, to anchor: AutomationSectionAnchor) {
         withAnimation(.easeInOut(duration: 0.2)) {
             proxy.scrollTo(anchor, anchor: .top)
-        }
-    }
-
-    private struct AutomationSurfaceGroup<Content: View>: View {
-        let title: String
-        let detail: String
-        let content: Content
-
-        init(title: String, detail: String, @ViewBuilder content: () -> Content) {
-            self.title = title
-            self.detail = detail
-            self.content = content()
-        }
-
-        var body: some View {
-            MonitoringSnapshotCard(summary: title, detail: detail) {
-                VStack(spacing: 10) {
-                    content
-                }
-            }
-            .padding(.vertical, 4)
         }
     }
 
