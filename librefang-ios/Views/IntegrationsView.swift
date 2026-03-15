@@ -19,9 +19,26 @@ private enum IntegrationsModelFilter: String, CaseIterable, Identifiable {
     }
 }
 
+private enum IntegrationsScope: String, CaseIterable, Identifiable {
+    case attention
+    case all
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .attention:
+            "Attention"
+        case .all:
+            "All"
+        }
+    }
+}
+
 struct IntegrationsView: View {
     @Environment(\.dependencies) private var deps
     @State private var searchText = ""
+    @State private var scope: IntegrationsScope = .attention
     @State private var modelFilter: IntegrationsModelFilter = .available
     @State private var providerProbeResults: [String: IntegrationProbeResult] = [:]
     @State private var channelProbeResults: [String: IntegrationProbeResult] = [:]
@@ -37,6 +54,11 @@ struct IntegrationsView: View {
 
     private var filteredProviders: [ProviderStatus] {
         vm.providers
+            .filter { provider in
+                guard scope == .attention else { return true }
+                return (provider.isLocal == true && provider.reachable == false)
+                    || ((provider.error ?? "").isEmpty == false)
+            }
             .filter { provider in
                 guard !normalizedSearchText.isEmpty else { return true }
                 let haystack = [
@@ -62,6 +84,11 @@ struct IntegrationsView: View {
     private var filteredChannels: [ChannelStatus] {
         vm.channels
             .filter { channel in
+                guard scope == .attention else { return true }
+                let requiredFields = channel.fields?.filter(\.required) ?? []
+                return requiredFields.contains(where: { !$0.hasValue })
+            }
+            .filter { channel in
                 guard !normalizedSearchText.isEmpty else { return true }
                 let haystack = [
                     channel.displayName,
@@ -86,6 +113,9 @@ struct IntegrationsView: View {
     private var filteredModels: [CatalogModel] {
         vm.catalogModels
             .filter { model in
+                if scope == .attention {
+                    return !model.available
+                }
                 switch modelFilter {
                 case .available:
                     return model.available
@@ -119,7 +149,8 @@ struct IntegrationsView: View {
     }
 
     private var filteredAliases: [ModelAliasEntry] {
-        vm.modelAliases
+        guard scope == .all else { return [] }
+        return vm.modelAliases
             .filter { alias in
                 guard !normalizedSearchText.isEmpty else { return true }
                 return "\(alias.alias) \(alias.modelId)".lowercased().contains(normalizedSearchText)
@@ -163,7 +194,18 @@ struct IntegrationsView: View {
                     .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
             }
 
-            if !vm.catalogModels.isEmpty {
+            Section {
+                Picker("Scope", selection: $scope) {
+                    ForEach(IntegrationsScope.allCases) { scope in
+                        Text(scope.label).tag(scope)
+                    }
+                }
+                .pickerStyle(.segmented)
+            } footer: {
+                Text(scope == .attention ? "Attention mode shows only provider outages, channel field gaps, unavailable models, and agent drift." : "All mode shows the full provider, channel, model, and alias inventory.")
+            }
+
+            if !vm.catalogModels.isEmpty && scope == .all {
                 Section {
                     Picker("Models", selection: $modelFilter) {
                         ForEach(IntegrationsModelFilter.allCases) { filter in
