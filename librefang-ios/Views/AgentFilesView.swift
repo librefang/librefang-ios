@@ -236,13 +236,24 @@ private struct AgentFileDetailView: View {
             } else if let detail {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text(detail.name)
-                                .font(.headline)
-                            Spacer()
-                            Text(ByteCountFormatter.string(fromByteCount: Int64(detail.sizeBytes), countStyle: .file))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                        ViewThatFits(in: .horizontal) {
+                            HStack {
+                                Text(detail.name)
+                                    .font(.headline)
+                                    .lineLimit(2)
+                                Spacer()
+                                Text(ByteCountFormatter.string(fromByteCount: Int64(detail.sizeBytes), countStyle: .file))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(detail.name)
+                                    .font(.headline)
+                                Text(ByteCountFormatter.string(fromByteCount: Int64(detail.sizeBytes), countStyle: .file))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
 
                         Text(detail.content.isEmpty ? "File is empty." : detail.content)
@@ -320,31 +331,47 @@ private struct AgentWorkspaceFileRow: View {
             Image(systemName: file.exists ? "doc.text" : "doc")
                 .foregroundStyle(file.exists ? Color.blue : tone.color)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(file.name)
-                    .font(.subheadline.weight(.medium))
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    fileSummary
+                    Spacer(minLength: 8)
+                    presenceBadge
+                }
 
-                if file.exists {
-                    Text(ByteCountFormatter.string(fromByteCount: Int64(file.sizeBytes), countStyle: .file))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                } else {
-                    Text(String(localized: "Missing"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 6) {
+                    fileSummary
+                    presenceBadge
                 }
             }
-
-            Spacer()
-
-            Text(file.exists ? String(localized: "Present") : String(localized: "Missing"))
-                .font(.caption2.weight(.semibold))
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(tone.color.opacity(0.12))
-                .foregroundStyle(tone.color)
-                .clipShape(Capsule())
         }
         .padding(.vertical, 2)
+    }
+
+    private var fileSummary: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(file.name)
+                .font(.subheadline.weight(.medium))
+                .lineLimit(2)
+
+            if file.exists {
+                Text(ByteCountFormatter.string(fromByteCount: Int64(file.sizeBytes), countStyle: .file))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text(String(localized: "Missing"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var presenceBadge: some View {
+        Text(file.exists ? String(localized: "Present") : String(localized: "Missing"))
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(tone.color.opacity(0.12))
+            .foregroundStyle(tone.color)
+            .clipShape(Capsule())
     }
 }

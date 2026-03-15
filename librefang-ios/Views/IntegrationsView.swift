@@ -454,12 +454,8 @@ struct IntegrationsView: View {
 }
 
 private struct IntegrationsScoreboard: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let vm: DashboardViewModel
-
-    private let columns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
 
     private var providerStatus: MonitoringSummaryStatus {
         vm.providerReadinessStatus
@@ -487,6 +483,11 @@ private struct IntegrationsScoreboard: View {
 
     private var modelDriftStatus: MonitoringSummaryStatus {
         .countStatus(vm.agentsWithModelDiagnostics.count, activeTone: .warning)
+    }
+
+    private var columns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 3
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
     }
 
     var body: some View {
@@ -542,22 +543,30 @@ private struct IntegrationCatalogStatusCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Label("Catalog Freshness", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                IntegrationStatusChip(text: vm.catalogSyncStatusLabel, color: vm.catalogSyncTone.color)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    titleLabel
+                    Spacer()
+                    IntegrationStatusChip(text: vm.catalogSyncStatusLabel, color: vm.catalogSyncTone.color)
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    titleLabel
+                    IntegrationStatusChip(text: vm.catalogSyncStatusLabel, color: vm.catalogSyncTone.color)
+                }
             }
 
             Text(detailText)
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            HStack(spacing: 12) {
-                Label("\(vm.catalogModels.count) models", systemImage: "square.stack.3d.up")
-                Label("\(vm.modelAliasCount) aliases", systemImage: "arrow.left.arrow.right")
-                if let relativeSyncText {
-                    Label(relativeSyncText, systemImage: "clock")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    summaryFacts
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    summaryFacts
                 }
             }
             .font(.caption)
@@ -583,6 +592,20 @@ private struct IntegrationCatalogStatusCard: View {
         guard let catalogLastSyncDate = vm.catalogLastSyncDate else { return nil }
         return RelativeDateTimeFormatter().localizedString(for: catalogLastSyncDate, relativeTo: Date())
     }
+
+    private var titleLabel: some View {
+        Label("Catalog Freshness", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+            .font(.subheadline.weight(.medium))
+    }
+
+    @ViewBuilder
+    private var summaryFacts: some View {
+        Label("\(vm.catalogModels.count) models", systemImage: "square.stack.3d.up")
+        Label("\(vm.modelAliasCount) aliases", systemImage: "arrow.left.arrow.right")
+        if let relativeSyncText {
+            Label(relativeSyncText, systemImage: "clock")
+        }
+    }
 }
 
 private struct IntegrationProviderRow: View {
@@ -593,49 +616,26 @@ private struct IntegrationProviderRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(provider.displayName)
-                        .font(.subheadline.weight(.medium))
-                    Text(provider.id)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                    if let baseURL = provider.baseURL, !baseURL.isEmpty {
-                        Text(baseURL)
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                            .lineLimit(1)
-                    }
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    providerSummary
+                    Spacer()
+                    providerControls
                 }
-                Spacer()
-                VStack(alignment: .trailing, spacing: 6) {
-                    IntegrationStatusChip(text: provider.localizedStatusLabel, color: provider.statusTone.color)
-                    Button {
-                        onTest()
-                    } label: {
-                        if isTesting {
-                            ProgressView()
-                                .controlSize(.small)
-                        } else {
-                            Text("Test")
-                        }
-                    }
-                    .buttonStyle(.bordered)
-                    .font(.caption.weight(.semibold))
-                    .disabled(isTesting)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    providerSummary
+                    providerControls
                 }
             }
 
-            HStack(spacing: 12) {
-                Label("\(provider.modelCount)", systemImage: "square.stack.3d.up")
-                if provider.keyRequired {
-                    Label(provider.apiKeyEnv ?? String(localized: "API key"), systemImage: "key.horizontal")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    providerFacts
                 }
-                if let latencyMs = provider.latencyMs, provider.isLocal == true {
-                    Label("\(latencyMs) ms", systemImage: "speedometer")
-                }
-                if let discoveredModels = provider.discoveredModels, !discoveredModels.isEmpty {
-                    Label("\(discoveredModels.count) discovered", systemImage: "sparkles")
+
+                VStack(alignment: .leading, spacing: 4) {
+                    providerFacts
                 }
             }
             .font(.caption)
@@ -675,6 +675,58 @@ private struct IntegrationProviderRow: View {
             ? String(localized: "Last manual probe passed.")
             : String(localized: "Last manual probe failed.")
     }
+
+    private var providerSummary: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(provider.displayName)
+                .font(.subheadline.weight(.medium))
+            Text(provider.id)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .truncationMode(.middle)
+            if let baseURL = provider.baseURL, !baseURL.isEmpty {
+                Text(baseURL)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+        }
+    }
+
+    private var providerControls: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            IntegrationStatusChip(text: provider.localizedStatusLabel, color: provider.statusTone.color)
+            Button {
+                onTest()
+            } label: {
+                if isTesting {
+                    ProgressView()
+                        .controlSize(.small)
+                } else {
+                    Text("Test")
+                }
+            }
+            .buttonStyle(.bordered)
+            .font(.caption.weight(.semibold))
+            .disabled(isTesting)
+        }
+    }
+
+    @ViewBuilder
+    private var providerFacts: some View {
+        Label("\(provider.modelCount)", systemImage: "square.stack.3d.up")
+        if provider.keyRequired {
+            Label(provider.apiKeyEnv ?? String(localized: "API key"), systemImage: "key.horizontal")
+        }
+        if let latencyMs = provider.latencyMs, provider.isLocal == true {
+            Label("\(latencyMs) ms", systemImage: "speedometer")
+        }
+        if let discoveredModels = provider.discoveredModels, !discoveredModels.isEmpty {
+            Label("\(discoveredModels.count) discovered", systemImage: "sparkles")
+        }
+    }
 }
 
 private struct IntegrationChannelRow: View {
@@ -693,61 +745,26 @@ private struct IntegrationChannelRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 12) {
-                Text(channel.icon)
-                    .font(.title3)
-                    .frame(width: 28)
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(channel.displayName)
-                        .font(.subheadline.weight(.medium))
-                    Text(channel.description)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                    Text("\(channel.localizedCategoryLabel) · \(channel.localizedSetupTypeLabel) · \(channel.localizedDifficultyLabel)")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    channelSummary
+                    Spacer()
+                    channelControls
                 }
 
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 6) {
-                    IntegrationStatusChip(text: channel.localizedConfigurationLabel, color: channel.configurationTone.color)
-                    Button {
-                        onTest()
-                    } label: {
-                        if isTesting {
-                            ProgressView()
-                                .controlSize(.small)
-                        } else {
-                            Text("Test")
-                        }
-                    }
-                    .buttonStyle(.bordered)
-                    .font(.caption.weight(.semibold))
-                    .disabled(isTesting)
+                VStack(alignment: .leading, spacing: 8) {
+                    channelSummary
+                    channelControls
                 }
             }
 
-            HStack(spacing: 12) {
-                if !requiredFields.isEmpty {
-                    Label("\(requiredFields.count) req", systemImage: "checklist")
-                        .foregroundStyle(.secondary)
-                    Label("\(requiredFields.filter(\.hasValue).count) set", systemImage: "checkmark.circle")
-                        .foregroundStyle(missingRequiredFields.isEmpty ? Color.green : Color.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    channelFacts
                 }
-                if !missingRequiredFields.isEmpty {
-                    Label("\(missingRequiredFields.count) missing", systemImage: "exclamationmark.circle")
-                        .foregroundStyle(.orange)
-                }
-                if let setupSteps = channel.setupSteps {
-                    Label("\(setupSteps.count) steps", systemImage: "list.number")
-                        .foregroundStyle(.secondary)
-                }
-                if channel.quickSetup {
-                    Label("Quick", systemImage: "bolt")
-                        .foregroundStyle(.secondary)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    channelFacts
                 }
             }
             .font(.caption)
@@ -788,6 +805,67 @@ private struct IntegrationChannelRow: View {
             : ""
         return String(localized: "Missing required fields: \(preview.joined(separator: " • "))\(suffix)")
     }
+
+    private var channelSummary: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Text(channel.icon)
+                .font(.title3)
+                .frame(width: 28)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(channel.displayName)
+                    .font(.subheadline.weight(.medium))
+                Text(channel.description)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                Text("\(channel.localizedCategoryLabel) · \(channel.localizedSetupTypeLabel) · \(channel.localizedDifficultyLabel)")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+        }
+    }
+
+    private var channelControls: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            IntegrationStatusChip(text: channel.localizedConfigurationLabel, color: channel.configurationTone.color)
+            Button {
+                onTest()
+            } label: {
+                if isTesting {
+                    ProgressView()
+                        .controlSize(.small)
+                } else {
+                    Text("Test")
+                }
+            }
+            .buttonStyle(.bordered)
+            .font(.caption.weight(.semibold))
+            .disabled(isTesting)
+        }
+    }
+
+    @ViewBuilder
+    private var channelFacts: some View {
+        if !requiredFields.isEmpty {
+            Label("\(requiredFields.count) req", systemImage: "checklist")
+                .foregroundStyle(.secondary)
+            Label("\(requiredFields.filter(\.hasValue).count) set", systemImage: "checkmark.circle")
+                .foregroundStyle(missingRequiredFields.isEmpty ? Color.green : Color.secondary)
+        }
+        if !missingRequiredFields.isEmpty {
+            Label("\(missingRequiredFields.count) missing", systemImage: "exclamationmark.circle")
+                .foregroundStyle(.orange)
+        }
+        if let setupSteps = channel.setupSteps {
+            Label("\(setupSteps.count) steps", systemImage: "list.number")
+                .foregroundStyle(.secondary)
+        }
+        if channel.quickSetup {
+            Label("Quick", systemImage: "bolt")
+                .foregroundStyle(.secondary)
+        }
+    }
 }
 
 private struct IntegrationModelRow: View {
@@ -795,38 +873,39 @@ private struct IntegrationModelRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(model.displayName)
-                        .font(.subheadline.weight(.medium))
-                    Text(model.id)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    modelSummary
+                    Spacer()
+                    availabilityChip
                 }
-                Spacer()
-                IntegrationStatusChip(
-                    text: model.localizedAvailabilityLabel,
-                    color: model.availabilityTone.color
-                )
+
+                VStack(alignment: .leading, spacing: 8) {
+                    modelSummary
+                    availabilityChip
+                }
             }
 
-            HStack(spacing: 12) {
-                Label(model.provider, systemImage: "cloud")
-                Label(model.localizedTierLabel, systemImage: "square.3.layers.3d")
-                if let contextWindow = model.contextWindow {
-                    Label(contextWindow.formatted(), systemImage: "text.redaction")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    modelFacts
                 }
-                if let maxOutputTokens = model.maxOutputTokens {
-                    Label(maxOutputTokens.formatted(), systemImage: "arrow.up.right.square")
+
+                VStack(alignment: .leading, spacing: 4) {
+                    modelFacts
                 }
             }
             .font(.caption)
             .foregroundStyle(.secondary)
 
-            HStack(spacing: 8) {
-                capabilityTag(String(localized: "Tools"), isEnabled: model.supportsTools)
-                capabilityTag(String(localized: "Vision"), isEnabled: model.supportsVision)
-                capabilityTag(String(localized: "Streaming"), isEnabled: model.supportsStreaming)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    capabilityChips
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    capabilityChips
+                }
             }
 
             if model.inputCostPerM != nil || model.outputCostPerM != nil {
@@ -861,6 +940,44 @@ private struct IntegrationModelRow: View {
             .foregroundStyle(isEnabled ? .green : .secondary)
             .clipShape(Capsule())
     }
+
+    private var modelSummary: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(model.displayName)
+                .font(.subheadline.weight(.medium))
+            Text(model.id)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .truncationMode(.middle)
+        }
+    }
+
+    private var availabilityChip: some View {
+        IntegrationStatusChip(
+            text: model.localizedAvailabilityLabel,
+            color: model.availabilityTone.color
+        )
+    }
+
+    @ViewBuilder
+    private var modelFacts: some View {
+        Label(model.provider, systemImage: "cloud")
+        Label(model.localizedTierLabel, systemImage: "square.3.layers.3d")
+        if let contextWindow = model.contextWindow {
+            Label(contextWindow.formatted(), systemImage: "text.redaction")
+        }
+        if let maxOutputTokens = model.maxOutputTokens {
+            Label(maxOutputTokens.formatted(), systemImage: "arrow.up.right.square")
+        }
+    }
+
+    @ViewBuilder
+    private var capabilityChips: some View {
+        capabilityTag(String(localized: "Tools"), isEnabled: model.supportsTools)
+        capabilityTag(String(localized: "Vision"), isEnabled: model.supportsVision)
+        capabilityTag(String(localized: "Streaming"), isEnabled: model.supportsStreaming)
+    }
 }
 
 private struct IntegrationAliasRow: View {
@@ -884,35 +1001,57 @@ private struct IntegrationAgentModelRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(diagnostic.agent.name)
-                        .font(.subheadline.weight(.medium))
-                    Text(diagnostic.issueSummary)
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                    Text(diagnostic.detail)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 12) {
+                    diagnosticSummary
+                    Spacer()
+                    IntegrationStatusChip(text: diagnostic.localizedStatusLabel, color: diagnostic.statusTone.color)
                 }
-                Spacer()
-                IntegrationStatusChip(text: diagnostic.localizedStatusLabel, color: diagnostic.statusTone.color)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    diagnosticSummary
+                    IntegrationStatusChip(text: diagnostic.localizedStatusLabel, color: diagnostic.statusTone.color)
+                }
             }
 
-            HStack(spacing: 12) {
-                Label(diagnostic.requestedModel, systemImage: "cpu")
-                if let resolvedAlias = diagnostic.resolvedAlias {
-                    Label(resolvedAlias.alias, systemImage: "arrow.left.arrow.right")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    diagnosticFacts
                 }
-                if let resolvedModel = diagnostic.resolvedModel {
-                    Label(resolvedModel.provider, systemImage: "cloud")
+
+                VStack(alignment: .leading, spacing: 4) {
+                    diagnosticFacts
                 }
             }
             .font(.caption)
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
+    }
+
+    private var diagnosticSummary: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(diagnostic.agent.name)
+                .font(.subheadline.weight(.medium))
+            Text(diagnostic.issueSummary)
+                .font(.caption)
+                .foregroundStyle(.orange)
+            Text(diagnostic.detail)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+    }
+
+    @ViewBuilder
+    private var diagnosticFacts: some View {
+        Label(diagnostic.requestedModel, systemImage: "cpu")
+        if let resolvedAlias = diagnostic.resolvedAlias {
+            Label(resolvedAlias.alias, systemImage: "arrow.left.arrow.right")
+        }
+        if let resolvedModel = diagnostic.resolvedModel {
+            Label(resolvedModel.provider, systemImage: "cloud")
+        }
     }
 
 }

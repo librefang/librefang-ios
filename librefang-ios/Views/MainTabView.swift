@@ -115,46 +115,45 @@ struct MainTabView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            TabView(selection: $selectedTab) {
-                OverviewView()
-                    .tabItem {
-                        Label("Overview", systemImage: "gauge.open.with.lines.needle.33percent")
-                    }
-                    .tag(0)
+        TabView(selection: $selectedTab) {
+            OverviewView()
+                .tabItem {
+                    Label("Overview", systemImage: "gauge.open.with.lines.needle.33percent")
+                }
+                .tag(0)
 
-                AgentsView()
-                    .tabItem {
-                        Label("Agents", systemImage: "cpu")
-                    }
-                    .badge(vm.issueAgentCount > 0 ? vm.issueAgentCount : 0)
-                    .tag(1)
+            AgentsView()
+                .tabItem {
+                    Label("Agents", systemImage: "cpu")
+                }
+                .badge(vm.issueAgentCount > 0 ? vm.issueAgentCount : 0)
+                .tag(1)
 
-                RuntimeView()
-                    .tabItem {
-                        Label("Runtime", systemImage: "waveform.path.ecg")
-                    }
-                    .badge(runtimeAlertBadge)
-                    .tag(2)
+            RuntimeView()
+                .tabItem {
+                    Label("Runtime", systemImage: "waveform.path.ecg")
+                }
+                .badge(runtimeAlertBadge)
+                .tag(2)
 
-                BudgetView()
-                    .tabItem {
-                        Label("Budget", systemImage: "chart.bar")
-                    }
-                    .badge(budgetAlertBadge)
-                    .tag(3)
+            BudgetView()
+                .tabItem {
+                    Label("Budget", systemImage: "chart.bar")
+                }
+                .badge(budgetAlertBadge)
+                .tag(3)
 
-                SettingsView()
-                    .tabItem {
-                        Label("Settings", systemImage: "gearshape")
-                    }
-                    .tag(4)
-            }
-            .onChange(of: selectedTab) {
-                HapticManager.selection()
-            }
-
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape")
+                }
+                .tag(4)
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
             topOverlay
+        }
+        .onChange(of: selectedTab) {
+            HapticManager.selection()
         }
         .onAppear {
             deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
@@ -268,60 +267,69 @@ struct MainTabView: View {
 
     @ViewBuilder
     private var topOverlay: some View {
-        VStack(spacing: 8) {
-            if !deps.networkMonitor.isConnected {
-                OfflineBanner()
-            } else if visibleCriticalAlertCount > 0 {
-                Button {
-                    openPreferredSurface()
-                } label: {
-                    if isCurrentSnapshotAcknowledged {
-                        AcknowledgedIncidentBanner(count: visibleCriticalAlertCount, mutedCount: activeMutedAlertCount)
-                    } else {
-                        CriticalIncidentBanner(count: visibleCriticalAlertCount, mutedCount: activeMutedAlertCount)
+        if !deps.networkMonitor.isConnected
+            || visibleCriticalAlertCount > 0
+            || handoffBannerStatus != nil
+            || (incidentCue != nil && showsForegroundCues)
+            || (handoffCue != nil && showsForegroundCues) {
+            VStack(spacing: 8) {
+                if !deps.networkMonitor.isConnected {
+                    OfflineBanner()
+                } else if visibleCriticalAlertCount > 0 {
+                    Button {
+                        openPreferredSurface()
+                    } label: {
+                        if isCurrentSnapshotAcknowledged {
+                            AcknowledgedIncidentBanner(count: visibleCriticalAlertCount, mutedCount: activeMutedAlertCount)
+                        } else {
+                            CriticalIncidentBanner(count: visibleCriticalAlertCount, mutedCount: activeMutedAlertCount)
+                        }
                     }
+                    .buttonStyle(.plain)
+                } else if let handoffBannerStatus {
+                    Button {
+                        openHandoffCenter()
+                    } label: {
+                        HandoffCheckInBanner(
+                            status: handoffBannerStatus,
+                            pendingFollowUpCount: pendingLatestFollowUpCount
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-            } else if let handoffBannerStatus {
-                Button {
-                    openHandoffCenter()
-                } label: {
-                    HandoffCheckInBanner(
-                        status: handoffBannerStatus,
-                        pendingFollowUpCount: pendingLatestFollowUpCount
-                    )
-                }
-                .buttonStyle(.plain)
-            }
 
-            if let activeIncidentCue = incidentCue, showsForegroundCues {
-                IncidentCueBanner(
-                    cue: activeIncidentCue,
-                    onOpen: { openPreferredSurface() },
-                    onAcknowledge: {
-                        deps.incidentStateStore.acknowledgeCurrentSnapshot(alerts: vm.monitoringAlerts)
-                        incidentCue = nil
-                    },
-                    onDismiss: {
-                        incidentCue = nil
-                    }
-                )
-                .padding(.horizontal, 12)
-                .transition(.move(edge: .top).combined(with: .opacity))
-            } else if let handoffCue, showsForegroundCues {
-                HandoffCueBanner(
-                    cue: handoffCue,
-                    onOpen: { openHandoffCenter() },
-                    onDismiss: {
-                        self.handoffCue = nil
-                    }
-                )
-                .padding(.horizontal, 12)
-                .transition(.move(edge: .top).combined(with: .opacity))
+                if let activeIncidentCue = incidentCue, showsForegroundCues {
+                    IncidentCueBanner(
+                        cue: activeIncidentCue,
+                        onOpen: { openPreferredSurface() },
+                        onAcknowledge: {
+                            deps.incidentStateStore.acknowledgeCurrentSnapshot(alerts: vm.monitoringAlerts)
+                            incidentCue = nil
+                        },
+                        onDismiss: {
+                            incidentCue = nil
+                        }
+                    )
+                    .padding(.horizontal, 12)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                } else if let handoffCue, showsForegroundCues {
+                    HandoffCueBanner(
+                        cue: handoffCue,
+                        onOpen: { openHandoffCenter() },
+                        onDismiss: {
+                            self.handoffCue = nil
+                        }
+                    )
+                    .padding(.horizontal, 12)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
             }
+            .padding(.top, 4)
+            .padding(.bottom, 8)
+            .background(.bar)
+            .animation(.spring(response: 0.28, dampingFraction: 0.86), value: incidentCue?.id)
+            .animation(.spring(response: 0.28, dampingFraction: 0.86), value: handoffCue?.id)
         }
-        .animation(.spring(response: 0.28, dampingFraction: 0.86), value: incidentCue?.id)
-        .animation(.spring(response: 0.28, dampingFraction: 0.86), value: handoffCue?.id)
     }
 
     @ViewBuilder
@@ -408,14 +416,16 @@ struct MainTabView: View {
         guard queueChanged, queueIntensified else { return }
 
         let leadAlert = visibleCriticalAlerts.first
+        let fallbackLeadTitle = String(localized: "Critical queue changed")
+        let followUpPrompt = String(localized: "Open the on-call surface to inspect the latest pressure.")
         incidentCue = ActiveIncidentCue(
             id: newValue.signature,
             title: newValue.count == 1
-                ? (leadAlert?.title ?? "Critical incident changed")
-                : "\(newValue.count) critical incidents changed",
+                ? (leadAlert?.title ?? String(localized: "Critical incident changed"))
+                : String(localized: "\(newValue.count) critical incidents changed"),
             detail: newValue.count == 1
-                ? (leadAlert?.detail ?? "Open the on-call surface to review the new state.")
-                : "\(leadAlert?.title ?? "Critical queue changed") · Open the on-call surface to inspect the latest pressure."
+                ? (leadAlert?.detail ?? String(localized: "Open the on-call surface to review the new state."))
+                : [leadAlert?.title ?? fallbackLeadTitle, followUpPrompt].joined(separator: " · ")
         )
         HapticManager.notification(.error)
     }

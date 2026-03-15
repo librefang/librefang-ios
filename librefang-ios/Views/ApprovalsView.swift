@@ -177,12 +177,8 @@ struct ApprovalsView: View {
 }
 
 private struct ApprovalsScoreboard: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let vm: DashboardViewModel
-
-    private let columns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
 
     private var criticalStatus: MonitoringSummaryStatus {
         .countStatus(criticalCount, activeTone: .critical)
@@ -194,6 +190,11 @@ private struct ApprovalsScoreboard: View {
 
     private var agentStatus: MonitoringSummaryStatus {
         .countStatus(agentCount, activeTone: .warning)
+    }
+
+    private var columns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 3
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
     }
 
     var body: some View {

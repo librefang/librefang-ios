@@ -293,16 +293,26 @@ struct OnCallView: View {
         }
         .navigationTitle("On Call")
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: 14) {
-                    ShareLink(item: handoffText) {
-                        Image(systemName: "square.and.arrow.up")
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                ShareLink(item: handoffText) {
+                    Image(systemName: "square.and.arrow.up")
+                }
+
+                Menu {
+                    NavigationLink(value: OnCallRoute.incidents) {
+                        Label("Open Incidents Center", systemImage: "bell.badge")
+                    }
+
+                    NavigationLink {
+                        NightWatchView()
+                    } label: {
+                        Label("Open Night Watch", systemImage: "moon.stars")
                     }
 
                     NavigationLink {
                         StandbyDigestView()
                     } label: {
-                        Image(systemName: "rectangle.inset.filled")
+                        Label("Open Standby Digest", systemImage: "rectangle.inset.filled")
                     }
 
                     NavigationLink {
@@ -313,14 +323,10 @@ struct OnCallView: View {
                             liveAlertCount: visibleAlerts.count
                         )
                     } label: {
-                        Image(systemName: "text.badge.plus")
+                        Label("Open Handoff Center", systemImage: "text.badge.plus")
                     }
-
-                    NavigationLink {
-                        NightWatchView()
-                    } label: {
-                        Image(systemName: "moon.stars")
-                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
                 }
             }
         }
@@ -603,6 +609,8 @@ private struct OnCallHandoffStatusRow: View {
 }
 
 private struct OnCallScoreboard: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     let criticalCount: Int
     let liveAlertCount: Int
     let approvalCount: Int
@@ -610,11 +618,10 @@ private struct OnCallScoreboard: View {
     let sessionCount: Int
     let eventCount: Int
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
+    private var columns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 3
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
+    }
 
     private var criticalStatus: MonitoringSummaryStatus {
         .countStatus(criticalCount, activeTone: .critical)
@@ -719,15 +726,28 @@ private struct OnCallStatusCard: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            HStack(spacing: 12) {
-                Label(
-                    watchCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchCount) watched agents"),
-                    systemImage: "star.fill"
-                )
-                Label(
-                    mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
-                    systemImage: "bell.slash"
-                )
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    statusChip(
+                        text: watchCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchCount) watched agents"),
+                        systemImage: "star.fill"
+                    )
+                    statusChip(
+                        text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        systemImage: "bell.slash"
+                    )
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    statusChip(
+                        text: watchCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchCount) watched agents"),
+                        systemImage: "star.fill"
+                    )
+                    statusChip(
+                        text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        systemImage: "bell.slash"
+                    )
+                }
             }
             .font(.caption2)
             .foregroundStyle(.secondary)
@@ -745,6 +765,13 @@ private struct OnCallStatusCard: View {
             }
         }
         .padding(.vertical, 4)
+    }
+
+    @ViewBuilder
+    private func statusChip(text: String, systemImage: String) -> some View {
+        Label(text, systemImage: systemImage)
+            .lineLimit(1)
+            .minimumScaleFactor(0.85)
     }
 }
 

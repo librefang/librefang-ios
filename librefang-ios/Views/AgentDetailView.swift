@@ -202,21 +202,30 @@ struct AgentDetailView: View {
         .navigationTitle(agent.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                ShareLink(
-                    item: diagnosticsShareText,
-                    preview: SharePreview(
-                        String(localized: "\(agent.name) Diagnostics"),
-                        image: Image(systemName: "stethoscope")
-                    )
-                ) {
-                    Image(systemName: "square.and.arrow.up")
-                }
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    ShareLink(
+                        item: diagnosticsShareText,
+                        preview: SharePreview(
+                            String(localized: "\(agent.name) Diagnostics"),
+                            image: Image(systemName: "stethoscope")
+                        )
+                    ) {
+                        Label("Share Diagnostics", systemImage: "square.and.arrow.up")
+                    }
 
-                Button {
-                    deps.agentWatchlistStore.toggle(agent)
+                    Button {
+                        deps.agentWatchlistStore.toggle(agent)
+                    } label: {
+                        Label(
+                            isWatched
+                                ? String(localized: "Remove From Watchlist")
+                                : String(localized: "Add To Watchlist"),
+                            systemImage: isWatched ? "star.slash" : "star"
+                        )
+                    }
                 } label: {
-                    Image(systemName: isWatched ? "star.fill" : "star")
+                    Image(systemName: "ellipsis.circle")
                         .foregroundStyle(isWatched ? watchAccentColor : .primary)
                 }
             }
@@ -443,25 +452,42 @@ struct AgentDetailView: View {
 
     private var identitySection: some View {
         Section {
-            HStack(spacing: 16) {
-                Text(agent.identity?.emoji ?? "🤖")
-                    .font(.system(size: 48))
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 16) {
+                    identityEmoji
+                    identityText
+                    Spacer(minLength: 0)
+                }
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(agent.name)
-                        .font(.title2.weight(.bold))
-                    if isWatched {
-                        Label("Pinned on this iPhone", systemImage: "star.fill")
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(watchAccentColor)
-                    }
-                    Text(agent.id)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                        .lineLimit(1)
+                VStack(alignment: .leading, spacing: 10) {
+                    identityEmoji
+                    identityText
                 }
             }
             .listRowBackground(Color.clear)
+        }
+    }
+
+    private var identityEmoji: some View {
+        Text(agent.identity?.emoji ?? "🤖")
+            .font(.system(size: 48))
+    }
+
+    private var identityText: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(agent.name)
+                .font(.title2.weight(.bold))
+                .lineLimit(2)
+            if isWatched {
+                Label("Pinned on this iPhone", systemImage: "star.fill")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(watchAccentColor)
+            }
+            Text(agent.id)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+                .lineLimit(1)
+                .truncationMode(.middle)
         }
     }
 
@@ -562,21 +588,20 @@ struct AgentDetailView: View {
                     DetailRow(icon: "person", label: "Profile", value: profile)
                 }
                 if isLoadingProfile {
-                    LabeledContent("Tools") {
+                    AgentDetailValueRow("Tools") {
                         ProgressView()
                             .controlSize(.small)
                     }
                 } else if let agentProfileSummary {
-                    LabeledContent("Tools") {
+                    AgentDetailValueRow("Tools") {
                         Text(agentProfileSummary.tools.count.formatted())
                             .foregroundStyle(profileToolCountTone.color)
                             .monospacedDigit()
                     }
                     if !agentProfileSummary.tools.isEmpty {
-                        LabeledContent("Profile Tools") {
+                        AgentDetailValueRow("Profile Tools") {
                             Text(profileToolPreview(agentProfileSummary))
                                 .foregroundStyle(.secondary)
-                                .multilineTextAlignment(.trailing)
                         }
                     }
                 } else {
@@ -632,15 +657,13 @@ struct AgentDetailView: View {
                             valueColor: providerAlignmentStatus.tone.color
                         )
                     }
-                    LabeledContent("Capabilities") {
+                    AgentDetailValueRow("Capabilities") {
                         Text(capabilitySummary(for: resolvedCatalogModel))
                             .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.trailing)
                     }
-                    LabeledContent("Context") {
+                    AgentDetailValueRow("Context") {
                         Text(contextSummary(for: resolvedCatalogModel))
                             .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.trailing)
                     }
                 } else if requestedModelReference != nil {
                     DetailRow(
@@ -682,15 +705,14 @@ struct AgentDetailView: View {
                 }
 
                 if !agentDetailSnapshot.tags.isEmpty {
-                    LabeledContent("Tags") {
+                    AgentDetailValueRow("Tags") {
                         Text(agentDetailSnapshot.tags.joined(separator: ", "))
                             .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.trailing)
                     }
                 }
 
                 if !agentDetailSnapshot.fallbackModels.isEmpty {
-                    LabeledContent("Fallbacks") {
+                    AgentDetailValueRow("Fallbacks") {
                         Text("\(agentDetailSnapshot.fallbackModels.count)")
                             .monospacedDigit()
                     }
@@ -834,15 +856,15 @@ struct AgentDetailView: View {
 
     private func sessionSummarySection(_ snapshot: AgentSessionSnapshot) -> some View {
         Section("Session") {
-            LabeledContent("Label") {
+            AgentDetailValueRow("Label") {
                 Text((snapshot.label?.isEmpty == false ? snapshot.label : nil) ?? String(localized: "Current"))
                     .foregroundStyle(.secondary)
             }
-            LabeledContent("Messages") {
+            AgentDetailValueRow("Messages") {
                 Text(snapshot.messageCount.formatted())
                     .monospacedDigit()
             }
-            LabeledContent("Context Tokens") {
+            AgentDetailValueRow("Context Tokens") {
                 Text(snapshot.contextWindowTokens.formatted())
                     .monospacedDigit()
             }
@@ -917,11 +939,11 @@ struct AgentDetailView: View {
             }
         } else if !sessionItems.isEmpty {
             Section {
-                LabeledContent("Total Sessions") {
+                AgentDetailValueRow("Total Sessions") {
                     Text("\(sessionItems.count)")
                         .monospacedDigit()
                 }
-                LabeledContent("Attention") {
+                AgentDetailValueRow("Attention") {
                     Text("\(sessionItems.filter { $0.severity > 0 }.count)")
                         .foregroundStyle(sessionAttentionTone.color)
                 }
@@ -985,12 +1007,12 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             } else {
-                LabeledContent("Keys") {
+                AgentDetailValueRow("Keys") {
                     Text(agentMemory.count.formatted())
                         .monospacedDigit()
                 }
 
-                LabeledContent("Structured") {
+                AgentDetailValueRow("Structured") {
                     let structured = agentMemory.filter(\.isStructured).count
                     Text(structured.formatted())
                         .foregroundStyle(structuredMemoryTone.color)
@@ -1032,7 +1054,7 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             } else {
-                LabeledContent("Identity Files") {
+                AgentDetailValueRow("Identity Files") {
                     Text(workspaceIdentitySummary.progressLabel)
                         .foregroundStyle(workspaceIdentitySummary.tone.color)
                         .monospacedDigit()
@@ -1076,16 +1098,16 @@ struct AgentDetailView: View {
                 let failed = agentDeliveries.filter { $0.status == .failed }.count
                 let delivered = agentDeliveries.filter { $0.status == .delivered }.count
 
-                LabeledContent("Receipts") {
+                AgentDetailValueRow("Receipts") {
                     Text(agentDeliveries.count.formatted())
                         .monospacedDigit()
                 }
-                LabeledContent("Delivered") {
+                AgentDetailValueRow("Delivered") {
                     Text(delivered.formatted())
                         .foregroundStyle(deliveredReceiptTone.color)
                         .monospacedDigit()
                 }
-                LabeledContent("Failed") {
+                AgentDetailValueRow("Failed") {
                     Text(failed.formatted())
                         .foregroundStyle(failedReceiptTone.color)
                         .monospacedDigit()
@@ -1635,14 +1657,60 @@ private struct DetailRow: View {
     var valueColor: Color = .primary
 
     var body: some View {
-        LabeledContent {
-            Text(value)
-                .foregroundStyle(valueColor)
-        } label: {
-            Label {
+        ViewThatFits(in: .horizontal) {
+            LabeledContent {
+                valueLabel(alignment: .trailing, isTrailing: true)
+            } label: {
+                rowLabel
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                rowLabel
+                valueLabel(alignment: .leading, isTrailing: false)
+            }
+        }
+    }
+
+    private var rowLabel: some View {
+        Label {
+            Text(label)
+        } icon: {
+            Image(systemName: icon)
+        }
+    }
+
+    private func valueLabel(alignment: Alignment, isTrailing: Bool) -> some View {
+        Text(value)
+            .foregroundStyle(valueColor)
+            .multilineTextAlignment(isTrailing ? .trailing : .leading)
+            .frame(maxWidth: .infinity, alignment: alignment)
+    }
+}
+
+private struct AgentDetailValueRow<Value: View>: View {
+    let label: LocalizedStringResource
+    let value: Value
+
+    init(_ label: LocalizedStringResource, @ViewBuilder value: () -> Value) {
+        self.label = label
+        self.value = value()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            LabeledContent {
+                value
+                    .multilineTextAlignment(.trailing)
+            } label: {
                 Text(label)
-            } icon: {
-                Image(systemName: icon)
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(label)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                value
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
@@ -1658,15 +1726,29 @@ private struct BudgetPeriodRow: View {
         let utilizationStatus = StatusPresentation.budgetUtilizationStatus(for: period.pct) ?? .normal
 
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(label)
-                    .font(.subheadline)
-                Spacer()
-                Text(localizedUSDCurrency(period.spend, standardPrecision: 2, smallValuePrecision: 4))
-                    .font(.subheadline.monospacedDigit().weight(.medium))
-                Text("/ \(localizedUSDCurrency(period.limit))")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    Text(label)
+                        .font(.subheadline)
+                    Spacer()
+                    Text(localizedUSDCurrency(period.spend, standardPrecision: 2, smallValuePrecision: 4))
+                        .font(.subheadline.monospacedDigit().weight(.medium))
+                    Text("/ \(localizedUSDCurrency(period.limit))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(label)
+                        .font(.subheadline)
+                    HStack(spacing: 6) {
+                        Text(localizedUSDCurrency(period.spend, standardPrecision: 2, smallValuePrecision: 4))
+                            .font(.subheadline.monospacedDigit().weight(.medium))
+                        Text("/ \(localizedUSDCurrency(period.limit))")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
             ProgressView(value: min(period.pct, 1.0))
                 .tint(utilizationStatus.color())
@@ -1697,15 +1779,16 @@ private struct SessionPreviewRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(message.localizedRoleLabel)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(message.roleTintColor)
-                Spacer()
-                if let toolCount = message.tools?.count, toolCount > 0 {
-                    Text(toolSummaryLabel(toolCount))
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    roleLabel
+                    Spacer()
+                    toolSummary
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    roleLabel
+                    toolSummary
                 }
             }
 
@@ -1769,6 +1852,21 @@ private struct SessionPreviewRow: View {
             ? String(localized: "1 image attachment")
             : String(localized: "\(count) image attachments")
     }
+
+    private var roleLabel: some View {
+        Text(message.localizedRoleLabel)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(message.roleTintColor)
+    }
+
+    @ViewBuilder
+    private var toolSummary: some View {
+        if let toolCount = message.tools?.count, toolCount > 0 {
+            Text(toolSummaryLabel(toolCount))
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+    }
 }
 
 private struct AgentSessionInventoryRow: View {
@@ -1783,83 +1881,30 @@ private struct AgentSessionInventoryRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(displayTitle)
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                if isCurrentSession {
-                    Text("Current")
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(currentSessionTone.badgeBackgroundColor)
-                        .foregroundStyle(currentSessionTone.color)
-                        .clipShape(Capsule())
-                } else if let onSwitch {
-                    Button {
-                        onSwitch()
-                    } label: {
-                        if isBusy {
-                            ProgressView()
-                                .controlSize(.small)
-                        } else {
-                            Text("Switch")
-                        }
-                    }
-                    .buttonStyle(.bordered)
-                    .font(.caption.weight(.semibold))
-                    .disabled(isBusy)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 10) {
+                    titleLabel
+                    Spacer(minLength: 8)
+                    trailingControls
                 }
-                if onEditLabel != nil || onDelete != nil {
-                    Menu {
-                        if let onEditLabel {
-                            Button {
-                                onEditLabel()
-                            } label: {
-                                Label("Edit Label", systemImage: "tag")
-                            }
-                        }
-                        if let onDelete {
-                            Button(role: .destructive) {
-                                onDelete()
-                            } label: {
-                                Label("Delete Session", systemImage: "trash")
-                            }
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .disabled(isBusy)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    trailingControls
                 }
-                Text("\(item.session.messageCount) msgs")
-                    .font(.caption2.monospacedDigit())
-                    .foregroundStyle(item.messageCountTone.color)
             }
 
-            HStack(spacing: 8) {
-                if item.reasons.isEmpty {
-                    Text("No unusual session pressure")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                } else {
-                    ForEach(item.reasons.prefix(2), id: \.self) { reason in
-                        Text(reason)
-                            .font(.caption2.weight(.medium))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(item.tone.color.opacity(0.12))
-                            .foregroundStyle(item.tone.color)
-                            .clipShape(Capsule())
-                    }
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    reasonSummary
+                    Spacer()
+                    createdAtLabel
                 }
 
-                Spacer()
-
-                Text(relativeCreatedAt)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                VStack(alignment: .leading, spacing: 6) {
+                    reasonSummary
+                    createdAtLabel
+                }
             }
         }
         .padding(.vertical, 2)
@@ -1875,6 +1920,125 @@ private struct AgentSessionInventoryRow: View {
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
     }
 
+    private var titleLabel: some View {
+        Text(displayTitle)
+            .font(.subheadline.weight(.medium))
+            .lineLimit(2)
+    }
+
+    private var messageCountLabel: some View {
+        Text("\(item.session.messageCount) msgs")
+            .font(.caption2.monospacedDigit())
+            .foregroundStyle(item.messageCountTone.color)
+    }
+
+    private var currentBadge: some View {
+        Text("Current")
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(currentSessionTone.badgeBackgroundColor)
+            .foregroundStyle(currentSessionTone.color)
+            .clipShape(Capsule())
+    }
+
+    @ViewBuilder
+    private var switchButton: some View {
+        if let onSwitch {
+            Button {
+                onSwitch()
+            } label: {
+                if isBusy {
+                    ProgressView()
+                        .controlSize(.small)
+                } else {
+                    Text("Switch")
+                }
+            }
+            .buttonStyle(.bordered)
+            .font(.caption.weight(.semibold))
+            .disabled(isBusy)
+        }
+    }
+
+    @ViewBuilder
+    private var actionsMenu: some View {
+        if onEditLabel != nil || onDelete != nil {
+            Menu {
+                if let onEditLabel {
+                    Button {
+                        onEditLabel()
+                    } label: {
+                        Label("Edit Label", systemImage: "tag")
+                    }
+                }
+                if let onDelete {
+                    Button(role: .destructive) {
+                        onDelete()
+                    } label: {
+                        Label("Delete Session", systemImage: "trash")
+                    }
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+            }
+            .disabled(isBusy)
+        }
+    }
+
+    private var trailingControls: some View {
+        HStack(spacing: 8) {
+            if isCurrentSession {
+                currentBadge
+            } else {
+                switchButton
+            }
+            actionsMenu
+            messageCountLabel
+        }
+    }
+
+    @ViewBuilder
+    private var reasonSummary: some View {
+        if item.reasons.isEmpty {
+            Text("No unusual session pressure")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        } else {
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    ForEach(item.reasons.prefix(2), id: \.self) { reason in
+                        reasonChip(reason)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(item.reasons.prefix(2), id: \.self) { reason in
+                        reasonChip(reason)
+                    }
+                }
+            }
+        }
+    }
+
+    private var createdAtLabel: some View {
+        Text(relativeCreatedAt)
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
+    }
+
+    private func reasonChip(_ reason: String) -> some View {
+        Text(reason)
+            .font(.caption2.weight(.medium))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(item.tone.color.opacity(0.12))
+            .foregroundStyle(item.tone.color)
+            .clipShape(Capsule())
+    }
+
 }
 
 private struct AgentAuditRow: View {
@@ -1882,13 +2046,17 @@ private struct AgentAuditRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(entry.friendlyAction)
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                Text(relativeTimestamp)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    titleLabel
+                    Spacer()
+                    timestampLabel
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    timestampLabel
+                }
             }
 
             Text(entry.detail)
@@ -1908,6 +2076,17 @@ private struct AgentAuditRow: View {
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
     }
 
+    private var titleLabel: some View {
+        Text(entry.friendlyAction)
+            .font(.subheadline.weight(.medium))
+    }
+
+    private var timestampLabel: some View {
+        Text(relativeTimestamp)
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
+    }
+
 }
 
 private struct AgentMemorySummaryRow: View {
@@ -1915,19 +2094,16 @@ private struct AgentMemorySummaryRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(entry.key)
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                if let structureBadgeLabel = entry.structureBadgeLabel,
-                   let structureTone = entry.structureTone {
-                    Text(structureBadgeLabel)
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(structureTone.badgeBackgroundColor)
-                        .foregroundStyle(structureTone.color)
-                        .clipShape(Capsule())
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    keyLabel
+                    Spacer()
+                    structureBadge
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    keyLabel
+                    structureBadge
                 }
             }
 
@@ -1937,6 +2113,26 @@ private struct AgentMemorySummaryRow: View {
                 .lineLimit(2)
         }
         .padding(.vertical, 2)
+    }
+
+    private var keyLabel: some View {
+        Text(entry.key)
+            .font(.subheadline.weight(.medium))
+            .lineLimit(2)
+    }
+
+    @ViewBuilder
+    private var structureBadge: some View {
+        if let structureBadgeLabel = entry.structureBadgeLabel,
+           let structureTone = entry.structureTone {
+            Text(structureBadgeLabel)
+                .font(.caption2.weight(.semibold))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(structureTone.badgeBackgroundColor)
+                .foregroundStyle(structureTone.color)
+                .clipShape(Capsule())
+        }
     }
 }
 

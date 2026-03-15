@@ -60,15 +60,14 @@ struct SettingsView: View {
                 }
 
                 Section("Language") {
-                    LabeledContent("Current") {
+                    SettingsValueRow("Current") {
                         Text(currentLanguageLabel)
                             .foregroundStyle(.secondary)
                     }
 
-                    LabeledContent("Supported") {
+                    SettingsValueRow("Supported") {
                         Text(supportedLanguageLabels.joined(separator: " · "))
                             .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.trailing)
                     }
 
                     Button {
@@ -156,7 +155,7 @@ struct SettingsView: View {
                         set: { deps.onCallNotificationManager.isEnabled = $0 }
                     ))
 
-                    LabeledContent("Authorization") {
+                    SettingsValueRow("Authorization") {
                         Text(deps.onCallNotificationManager.authorizationLabel)
                             .foregroundStyle(deps.onCallNotificationManager.authorizationTone.color)
                     }
@@ -196,12 +195,12 @@ struct SettingsView: View {
                             }
                         }
 
-                        LabeledContent("Queued Reminder") {
+                        SettingsValueRow("Queued Reminder") {
                             Text(deps.onCallNotificationManager.pendingReminderLabel)
                                 .foregroundStyle(reminderArmStatus.color(positive: .secondary, neutral: tertiaryLabelColor))
                         }
 
-                        LabeledContent("Schedule Driver") {
+                        SettingsValueRow("Schedule Driver") {
                             Text(deps.onCallNotificationManager.pendingReminderSourceLabel)
                                 .foregroundStyle(reminderArmStatus.color(positive: .secondary, neutral: tertiaryLabelColor))
                         }
@@ -240,31 +239,31 @@ struct SettingsView: View {
                     if let latest = deps.onCallHandoffStore.latestEntry {
                         let followUpSummary = deps.onCallHandoffStore.latestFollowUpSummary
 
-                        LabeledContent("Last Saved") {
+                        SettingsValueRow("Last Saved") {
                             Text(latest.createdAt, format: .dateTime.month(.abbreviated).day().hour().minute())
                                 .foregroundStyle(.secondary)
                         }
-                        LabeledContent("Snapshot") {
+                        SettingsValueRow("Snapshot") {
                             Text("\(latest.queueCount) queued · \(latest.criticalCount) critical")
                                 .foregroundStyle(snapshotCriticalStatus(for: latest).color(positive: .secondary))
                         }
-                        LabeledContent("Checklist") {
+                        SettingsValueRow("Checklist") {
                             Text(latest.checklist.progressLabel)
                                 .foregroundStyle(latest.checklist.tone.color)
                         }
-                        LabeledContent("Type") {
+                        SettingsValueRow("Type") {
                             Text(latest.kind.label)
                                 .foregroundStyle(latest.kind.tintColor)
                         }
-                        LabeledContent("Focus") {
+                        SettingsValueRow("Focus") {
                             Text(latest.focusAreas.summaryLabel)
                                 .foregroundStyle(handoffFocusStatus(for: latest).color(positive: .primary))
                         }
-                        LabeledContent("Follow-ups") {
+                        SettingsValueRow("Follow-ups") {
                             Text(followUpSummary.settingsLabel)
                                 .foregroundStyle(followUpSummary.tone.color)
                         }
-                        LabeledContent("Check-in") {
+                        SettingsValueRow("Check-in") {
                             if let checkInStatus = deps.onCallHandoffStore.latestCheckInStatus {
                                 Text(checkInStatus.state.label)
                                     .foregroundStyle(checkInStatus.state.tone.color)
@@ -278,7 +277,7 @@ struct SettingsView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
-                        LabeledContent("Draft Readiness") {
+                        SettingsValueRow("Draft Readiness") {
                             Text(draftHandoffReadiness.state.label)
                                 .foregroundStyle(draftHandoffReadiness.state.tone.color)
                         }
@@ -290,7 +289,7 @@ struct SettingsView: View {
                             criticalCount: currentCriticalCount,
                             liveAlertCount: visibleAlertCount
                         ) {
-                            LabeledContent("Drift") {
+                            SettingsValueRow("Drift") {
                                 Text(drift.state.label)
                                     .foregroundStyle(drift.state.tone.color)
                             }
@@ -299,7 +298,7 @@ struct SettingsView: View {
                                 .foregroundStyle(.secondary)
                         }
                         if let carryover = handoffCarryoverStatus {
-                            LabeledContent("Carryover") {
+                            SettingsValueRow("Carryover") {
                                 Text(carryover.state.label)
                                     .foregroundStyle(carryover.state.tone.color)
                             }
@@ -307,11 +306,11 @@ struct SettingsView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
-                        LabeledContent("Freshness") {
+                        SettingsValueRow("Freshness") {
                             Text(deps.onCallHandoffStore.freshnessLabel)
                                 .foregroundStyle(deps.onCallHandoffStore.freshnessState.tone.color)
                         }
-                        LabeledContent("Cadence") {
+                        SettingsValueRow("Cadence") {
                             Text(deps.onCallHandoffStore.cadenceState.label)
                                 .foregroundStyle(deps.onCallHandoffStore.cadenceState.tone.color)
                         }
@@ -334,72 +333,78 @@ struct SettingsView: View {
                 }
 
                 Section("Monitoring") {
-                    LabeledContent("Agents") {
+                    SettingsValueRow("Agents") {
                         Text(deps.dashboardViewModel.agentAttentionStatus.summary)
                             .foregroundStyle(deps.dashboardViewModel.agentAttentionStatus.tone.color)
                     }
-                    LabeledContent("Providers") {
+                    SettingsValueRow("Providers") {
                         Text(deps.dashboardViewModel.providerReadinessStatus.summary)
                             .foregroundStyle(deps.dashboardViewModel.providerReadinessStatus.tone.color)
                     }
-                    LabeledContent("Channels") {
+                    SettingsValueRow("Channels") {
                         Text(deps.dashboardViewModel.channelReadinessStatus.summary)
                             .foregroundStyle(deps.dashboardViewModel.channelReadinessStatus.tone.color)
                     }
-                    LabeledContent("Hands") {
+                    SettingsValueRow("Hands") {
                         Text(deps.dashboardViewModel.handReadinessStatus.summary)
                             .foregroundStyle(deps.dashboardViewModel.handReadinessStatus.tone.color)
                     }
-                    LabeledContent("Approvals") {
+                    SettingsValueRow("Approvals") {
                         Text(deps.dashboardViewModel.approvalBacklogStatus.summary)
                             .foregroundStyle(deps.dashboardViewModel.approvalBacklogStatus.tone.color)
                     }
-                    LabeledContent("Peers") {
+                    SettingsValueRow("Peers") {
                         Text(deps.dashboardViewModel.peerConnectivityStatus.summary)
                             .foregroundStyle(deps.dashboardViewModel.peerConnectivityStatus.tone.color)
                     }
-                    LabeledContent("MCP") {
+                    SettingsValueRow("MCP") {
                         Text(deps.dashboardViewModel.mcpConnectivityStatus.summary)
                             .foregroundStyle(deps.dashboardViewModel.mcpConnectivityStatus.tone.color)
                     }
-                    LabeledContent("Sessions") {
+                    SettingsValueRow("Sessions") {
                         Text("\(deps.dashboardViewModel.totalSessionCount)")
                             .foregroundStyle(.secondary)
                     }
-                    LabeledContent("Watchlist") {
+                    SettingsValueRow("Watchlist") {
                         Text("\(deps.agentWatchlistStore.watchedAgentIDs.count)")
                             .foregroundStyle(watchlistStatus.color(positive: .secondary, neutral: tertiaryLabelColor))
                     }
-                    LabeledContent("On Call Queue") {
+                    SettingsValueRow("On Call Queue") {
                         Text("\(onCallQueueCount)")
                             .foregroundStyle(onCallQueueStatus.color(positive: .secondary))
                     }
-                    LabeledContent("Muted Alerts") {
+                    SettingsValueRow("Muted Alerts") {
                         Text("\(activeMutedAlertCount)")
                             .foregroundStyle(mutedAlertStatus.color(positive: .secondary, neutral: tertiaryLabelColor))
                     }
-                    LabeledContent("Incident Snapshot") {
+                    SettingsValueRow("Incident Snapshot") {
                         Text(snapshotStatus.settingsLabel)
                             .foregroundStyle(snapshotStatus.tone.color)
                     }
-                    LabeledContent("Audit") {
+                    SettingsValueRow("Audit") {
                         Text(deps.dashboardViewModel.auditIntegrityStatus.summary)
                             .foregroundStyle(deps.dashboardViewModel.auditIntegrityStatus.tone.color)
                     }
-                    LabeledContent("Security") {
+                    SettingsValueRow("Security") {
                         Text("\(deps.dashboardViewModel.securityFeatureCount) features")
                             .foregroundStyle(.secondary)
                     }
                 }
 
                 Section("About") {
-                    LabeledContent("App", value: "LibreFang iOS")
+                    SettingsValueRow("App") {
+                        Text("LibreFang iOS")
+                    }
                     if let health = deps.dashboardViewModel.health {
-                        LabeledContent("Server Version", value: health.version)
-                        LabeledContent("Server Status", value: health.localizedStatusLabel)
+                        SettingsValueRow("Server Version") {
+                            Text(health.version)
+                        }
+                        SettingsValueRow("Server Status") {
+                            Text(health.localizedStatusLabel)
+                        }
                     }
                     if let refresh = deps.dashboardViewModel.lastRefresh {
-                        LabeledContent("Last Refresh") {
+                        SettingsValueRow("Last Refresh") {
                             Text(refresh, style: .relative)
                                 .foregroundStyle(.secondary)
                         }
@@ -565,6 +570,38 @@ struct SettingsView: View {
         MonitoringSummaryStatus.presenceStatus(isPresent: entry.checkInWindow != .none)
     }
 
+}
+
+private struct SettingsValueRow<Value: View>: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    let title: LocalizedStringKey
+    let value: Value
+
+    init(_ title: LocalizedStringKey, @ViewBuilder value: () -> Value) {
+        self.title = title
+        self.value = value()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(title)
+                Spacer(minLength: 12)
+                value
+                    .multilineTextAlignment(.trailing)
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                value
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, horizontalSizeClass == .compact ? 2 : 0)
+    }
 }
 
 // MARK: - Helpers

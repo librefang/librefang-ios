@@ -438,12 +438,8 @@ enum SessionFilter: CaseIterable {
 }
 
 private struct SessionScoreboard: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let vm: DashboardViewModel
-
-    private let columns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
 
     private var attentionStatus: MonitoringSummaryStatus {
         .countStatus(vm.sessionAttentionCount, activeTone: .warning)
@@ -455,6 +451,11 @@ private struct SessionScoreboard: View {
 
     private var unlabeledStatus: MonitoringSummaryStatus {
         .countStatus(vm.unlabeledSessionCount, activeTone: .caution)
+    }
+
+    private var columns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 4
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
     }
 
     var body: some View {
@@ -494,40 +495,26 @@ private struct SessionMonitorRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(displayTitle)
-                        .font(.subheadline.weight(.medium))
-                    Text(item.agent?.name ?? item.session.agentId)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    summaryBlock
+                    Spacer()
+                    trailingBlock
                 }
-                Spacer()
-                if isBusy {
-                    ProgressView()
-                        .controlSize(.small)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    summaryBlock
+                    trailingBlock
                 }
-                Text(relativeCreatedAt)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
             }
 
-            HStack(spacing: 8) {
-                Label("\(item.session.messageCount)", systemImage: "bubble.left.and.bubble.right")
-                    .font(.caption)
-                    .foregroundStyle(item.messageCountTone.color)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    sessionFacts
+                }
 
-                if !item.reasons.isEmpty {
-                    ForEach(item.reasons.prefix(2), id: \.self) { reason in
-                        Text(reason)
-                            .font(.caption2.weight(.medium))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(item.tone.color.opacity(0.12))
-                            .foregroundStyle(item.tone.color)
-                            .clipShape(Capsule())
-                    }
+                VStack(alignment: .leading, spacing: 4) {
+                    sessionFacts
                 }
             }
         }
@@ -542,6 +529,50 @@ private struct SessionMonitorRow: View {
     private var relativeCreatedAt: String {
         guard let date = item.session.createdAt.sessionISO8601Date else { return item.session.createdAt }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+    }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(displayTitle)
+                .font(.subheadline.weight(.medium))
+                .lineLimit(2)
+            Text(item.agent?.name ?? item.session.agentId)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .truncationMode(.middle)
+        }
+    }
+
+    private var trailingBlock: some View {
+        HStack(spacing: 8) {
+            if isBusy {
+                ProgressView()
+                    .controlSize(.small)
+            }
+            Text(relativeCreatedAt)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+    }
+
+    @ViewBuilder
+    private var sessionFacts: some View {
+        Label("\(item.session.messageCount)", systemImage: "bubble.left.and.bubble.right")
+            .font(.caption)
+            .foregroundStyle(item.messageCountTone.color)
+
+        if !item.reasons.isEmpty {
+            ForEach(item.reasons.prefix(2), id: \.self) { reason in
+                Text(reason)
+                    .font(.caption2.weight(.medium))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(item.tone.color.opacity(0.12))
+                    .foregroundStyle(item.tone.color)
+                    .clipShape(Capsule())
+            }
+        }
     }
 }
 

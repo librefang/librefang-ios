@@ -664,55 +664,61 @@ struct RuntimeView: View {
 
     @ToolbarContentBuilder
     private var runtimeToolbar: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            HStack(spacing: 14) {
-                NavigationLink {
-                    IncidentsView()
-                } label: {
-                    Image(systemName: "bell.badge")
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            NavigationLink {
+                IncidentsView()
+            } label: {
+                Image(systemName: "bell.badge")
+            }
+
+            Menu {
+                Section("Actions") {
+                    NavigationLink {
+                        ApprovalsView()
+                    } label: {
+                        Label("Open Approvals", systemImage: "checkmark.shield")
+                    }
+
+                    NavigationLink {
+                        SessionsView(initialFilter: .attention)
+                    } label: {
+                        Label("Open Session Monitor", systemImage: "rectangle.stack")
+                    }
+
+                    NavigationLink {
+                        EventsView(api: deps.apiClient, initialScope: .critical)
+                    } label: {
+                        Label("Open Event Feed", systemImage: "list.bullet.rectangle.portrait")
+                    }
                 }
 
-                NavigationLink {
-                    ApprovalsView()
-                } label: {
-                    Image(systemName: "checkmark.shield")
-                }
+                Section("Diagnostics") {
+                    NavigationLink {
+                        CommsView(api: deps.apiClient)
+                    } label: {
+                        Label("Open Comms", systemImage: "arrow.left.arrow.right.circle")
+                    }
 
-                NavigationLink {
-                    SessionsView(initialFilter: .attention)
-                } label: {
-                    Image(systemName: "rectangle.stack")
-                }
+                    NavigationLink {
+                        AutomationView()
+                    } label: {
+                        Label("Open Automation", systemImage: "flowchart")
+                    }
 
-                NavigationLink {
-                    EventsView(api: deps.apiClient, initialScope: .critical)
-                } label: {
-                    Image(systemName: "list.bullet.rectangle.portrait")
-                }
+                    NavigationLink {
+                        IntegrationsView()
+                    } label: {
+                        Label("Open Integrations", systemImage: "square.3.layers.3d.down.forward")
+                    }
 
-                NavigationLink {
-                    CommsView(api: deps.apiClient)
-                } label: {
-                    Image(systemName: "arrow.left.arrow.right.circle")
+                    NavigationLink {
+                        DiagnosticsView()
+                    } label: {
+                        Label("Open Diagnostics", systemImage: "stethoscope")
+                    }
                 }
-
-                NavigationLink {
-                    AutomationView()
-                } label: {
-                    Image(systemName: "flowchart")
-                }
-
-                NavigationLink {
-                    IntegrationsView()
-                } label: {
-                    Image(systemName: "square.3.layers.3d.down.forward")
-                }
-
-                NavigationLink {
-                    DiagnosticsView()
-                } label: {
-                    Image(systemName: "stethoscope")
-                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
             }
         }
     }
@@ -790,12 +796,8 @@ struct RuntimeView: View {
 }
 
 private struct RuntimeScoreboard: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let vm: DashboardViewModel
-
-    private let columns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
 
     private var agentStatus: MonitoringSummaryStatus {
         vm.runningAgentStatus
@@ -827,6 +829,11 @@ private struct RuntimeScoreboard: View {
 
     private var securityStatus: MonitoringSummaryStatus {
         .countStatus(vm.securityFeatureCount, activeTone: .positive)
+    }
+
+    private var columns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 4
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
     }
 
     var body: some View {
@@ -891,13 +898,23 @@ private struct RuntimeMetricRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
-            HStack {
-                Text(label)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(value)
-                    .fontWeight(.medium)
-                    .multilineTextAlignment(.trailing)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    Text(label)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(value)
+                        .fontWeight(.medium)
+                        .multilineTextAlignment(.trailing)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(label)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(value)
+                        .fontWeight(.medium)
+                }
             }
             Text(detail)
                 .font(.caption)
@@ -912,28 +929,26 @@ private struct ProviderStatusRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(provider.displayName)
-                        .font(.subheadline.weight(.medium))
-                    Text(provider.id)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    providerSummary
+                    Spacer()
+                    StatusPill(text: provider.localizedStatusLabel, color: provider.statusTone.color)
                 }
-                Spacer()
-                StatusPill(text: provider.localizedStatusLabel, color: provider.statusTone.color)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    providerSummary
+                    StatusPill(text: provider.localizedStatusLabel, color: provider.statusTone.color)
+                }
             }
 
-            HStack(spacing: 12) {
-                Label("\(provider.modelCount)", systemImage: "square.stack.3d.up")
-                    .foregroundStyle(.secondary)
-                if let latencyMs = provider.latencyMs, provider.isLocal == true {
-                    Label("\(latencyMs) ms", systemImage: "speedometer")
-                        .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    providerFacts
                 }
-                if provider.discoveredModels?.isEmpty == false {
-                    Label(discoveredModelsLabel, systemImage: "sparkles")
-                        .foregroundStyle(.secondary)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    providerFacts
                 }
             }
             .font(.caption)
@@ -947,6 +962,32 @@ private struct ProviderStatusRow: View {
             ? String(localized: "1 discovered")
             : String(localized: "\(count) discovered")
     }
+
+    private var providerSummary: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(provider.displayName)
+                .font(.subheadline.weight(.medium))
+            Text(provider.id)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .truncationMode(.middle)
+        }
+    }
+
+    @ViewBuilder
+    private var providerFacts: some View {
+        Label("\(provider.modelCount)", systemImage: "square.stack.3d.up")
+            .foregroundStyle(.secondary)
+        if let latencyMs = provider.latencyMs, provider.isLocal == true {
+            Label("\(latencyMs) ms", systemImage: "speedometer")
+                .foregroundStyle(.secondary)
+        }
+        if provider.discoveredModels?.isEmpty == false {
+            Label(discoveredModelsLabel, systemImage: "sparkles")
+                .foregroundStyle(.secondary)
+        }
+    }
 }
 
 private struct SessionRow: View {
@@ -955,18 +996,27 @@ private struct SessionRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text((session.label?.isEmpty == false ? session.label : nil) ?? shortSessionId)
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                Text(relativeCreatedAt)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    titleLabel
+                    Spacer()
+                    timestampLabel
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    timestampLabel
+                }
             }
 
-            HStack(spacing: 12) {
-                Label(agentName ?? session.agentId, systemImage: "cpu")
-                Label("\(session.messageCount)", systemImage: "bubble.left.and.bubble.right")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    metadataLabels
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    metadataLabels
+                }
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -982,6 +1032,24 @@ private struct SessionRow: View {
         guard let date = session.createdAt.iso8601Date else { return session.createdAt }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
     }
+
+    private var titleLabel: some View {
+        Text((session.label?.isEmpty == false ? session.label : nil) ?? shortSessionId)
+            .font(.subheadline.weight(.medium))
+            .lineLimit(2)
+    }
+
+    private var timestampLabel: some View {
+        Text(relativeCreatedAt)
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
+    }
+
+    @ViewBuilder
+    private var metadataLabels: some View {
+        Label(agentName ?? session.agentId, systemImage: "cpu")
+        Label("\(session.messageCount)", systemImage: "bubble.left.and.bubble.right")
+    }
 }
 
 private struct MCPServerRow: View {
@@ -989,17 +1057,28 @@ private struct MCPServerRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(server.name)
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                StatusPill(text: server.connected ? String(localized: "Connected") : String(localized: "Offline"), color: server.connected ? .green : .orange)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    Text(server.name)
+                        .font(.subheadline.weight(.medium))
+                    Spacer()
+                    StatusPill(text: server.connected ? String(localized: "Connected") : String(localized: "Offline"), color: server.connected ? .green : .orange)
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(server.name)
+                        .font(.subheadline.weight(.medium))
+                    StatusPill(text: server.connected ? String(localized: "Connected") : String(localized: "Offline"), color: server.connected ? .green : .orange)
+                }
             }
 
-            HStack(spacing: 12) {
-                Label(toolsLabel, systemImage: "wrench.and.screwdriver")
-                if let topTool = server.tools.first?.name {
-                    Label(topTool, systemImage: "hammer")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    toolsFacts
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    toolsFacts
                 }
             }
             .font(.caption)
@@ -1013,12 +1092,36 @@ private struct MCPServerRow: View {
             ? String(localized: "1 tool")
             : String(localized: "\(server.toolsCount) tools")
     }
+
+    @ViewBuilder
+    private var toolsFacts: some View {
+        Label(toolsLabel, systemImage: "wrench.and.screwdriver")
+        if let topTool = server.tools.first?.name {
+            Label(topTool, systemImage: "hammer")
+        }
+    }
 }
 
 private struct ChannelStatusRow: View {
     let channel: ChannelStatus
 
     var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 12) {
+                channelSummary
+                Spacer()
+                channelStatus
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                channelSummary
+                channelStatus
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var channelSummary: some View {
         HStack(spacing: 12) {
             Text(channel.icon)
                 .font(.title3)
@@ -1032,20 +1135,19 @@ private struct ChannelStatusRow: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
-
-            Spacer()
-
-            VStack(alignment: .trailing, spacing: 4) {
-                StatusPill(
-                    text: channel.localizedConfigurationLabel,
-                    color: channel.configurationTone.color
-                )
-                Text(channel.localizedCategoryLabel)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
         }
-        .padding(.vertical, 2)
+    }
+
+    private var channelStatus: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            StatusPill(
+                text: channel.localizedConfigurationLabel,
+                color: channel.configurationTone.color
+            )
+            Text(channel.localizedCategoryLabel)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
     }
 }
 

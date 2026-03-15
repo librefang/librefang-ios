@@ -506,74 +506,54 @@ private struct NightWatchHeroCard: View {
     let isAcknowledged: Bool
     let onAcknowledge: () -> Void
     let onClearAcknowledgement: () -> Void
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Night Watch")
-                        .font(.title2.weight(.bold))
-                        .foregroundStyle(.white)
-                    Text(summary)
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.76))
-                        .fixedSize(horizontal: false, vertical: true)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top) {
+                    headerSummary
+                    Spacer(minLength: 12)
+                    headerStatus
                 }
-                Spacer()
-                VStack(alignment: .trailing, spacing: 8) {
-                    Text(tone.label)
-                        .font(.caption.weight(.semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(.white.opacity(0.14))
-                        .clipShape(Capsule())
-                    Text(focusModeLabel)
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.74))
+
+                VStack(alignment: .leading, spacing: 10) {
+                    headerSummary
+                    headerStatus
                 }
             }
 
-            HStack(spacing: 10) {
+            LazyVGrid(columns: countColumns, alignment: .leading, spacing: 10) {
                 NightWatchCountPill(value: queueCount, label: String(localized: "Queued"))
                 NightWatchCountPill(value: criticalCount, label: String(localized: "Critical"))
                 NightWatchCountPill(value: watchCount, label: String(localized: "Watched"))
             }
 
-            HStack(spacing: 10) {
-                if isAcknowledged {
-                    Button(action: onClearAcknowledgement) {
-                        Text(String(localized: "Clear Ack"))
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) {
+                    if let acknowledgementAction {
+                        acknowledgementAction
                     }
-                        .buttonStyle(NightWatchPrimaryButtonStyle(fill: .white.opacity(0.16)))
-                } else if queueCount > 0 {
-                    Button(action: onAcknowledge) {
-                        Text(String(localized: "Acknowledge Snapshot"))
-                    }
-                        .buttonStyle(NightWatchPrimaryButtonStyle(fill: .white.opacity(0.16)))
+                    fullQueueButton
                 }
 
-                NavigationLink {
-                    OnCallView()
-                } label: {
-                    Text(String(localized: "Full Queue"))
+                VStack(spacing: 10) {
+                    if let acknowledgementAction {
+                        acknowledgementAction
+                    }
+                    fullQueueButton
                 }
-                .buttonStyle(NightWatchPrimaryButtonStyle(fill: .white.opacity(0.10)))
             }
 
-            HStack(spacing: 12) {
-                if let acknowledgedAt, isAcknowledged {
-                    Label {
-                        Text(String(localized: "Acknowledged \(acknowledgedAt.formatted(.relative(presentation: .named)))"))
-                    } icon: {
-                        Image(systemName: "checkmark.seal")
-                    }
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    acknowledgementFootnote
+                    refreshFootnote
                 }
-                if let lastRefresh {
-                    Label {
-                        Text(String(localized: "Refreshed \(lastRefresh.formatted(.relative(presentation: .named)))"))
-                    } icon: {
-                        Image(systemName: "clock")
-                    }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    acknowledgementFootnote
+                    refreshFootnote
                 }
             }
             .font(.caption2)
@@ -586,6 +566,94 @@ private struct NightWatchHeroCard: View {
                 .stroke(.white.opacity(0.08), lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 20))
+    }
+
+    private var headerSummary: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Night Watch")
+                .font(.title2.weight(.bold))
+                .foregroundStyle(.white)
+            Text(summary)
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.76))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var headerStatus: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(tone.label)
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(.white.opacity(0.14))
+                .clipShape(Capsule())
+            Text(focusModeLabel)
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.white.opacity(0.74))
+        }
+        .frame(maxWidth: .infinity, alignment: horizontalSizeClass == .compact ? .leading : .trailing)
+    }
+
+    private var countColumns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 3
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
+    }
+
+    private var acknowledgementAction: AnyView? {
+        if isAcknowledged {
+            return AnyView(
+                Button(action: onClearAcknowledgement) {
+                    Text(String(localized: "Clear Ack"))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(NightWatchPrimaryButtonStyle(fill: .white.opacity(0.16)))
+            )
+        }
+
+        if queueCount > 0 {
+            return AnyView(
+                Button(action: onAcknowledge) {
+                    Text(String(localized: "Acknowledge Snapshot"))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(NightWatchPrimaryButtonStyle(fill: .white.opacity(0.16)))
+            )
+        }
+
+        return nil
+    }
+
+    private var fullQueueButton: some View {
+        NavigationLink {
+            OnCallView()
+        } label: {
+            Text(String(localized: "Full Queue"))
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(NightWatchPrimaryButtonStyle(fill: .white.opacity(0.10)))
+    }
+
+    @ViewBuilder
+    private var acknowledgementFootnote: some View {
+        if let acknowledgedAt, isAcknowledged {
+            Label {
+                Text(String(localized: "Acknowledged \(acknowledgedAt.formatted(.relative(presentation: .named)))"))
+            } icon: {
+                Image(systemName: "checkmark.seal")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var refreshFootnote: some View {
+        if let lastRefresh {
+            Label {
+                Text(String(localized: "Refreshed \(lastRefresh.formatted(.relative(presentation: .named)))"))
+            } icon: {
+                Image(systemName: "clock")
+            }
+        }
     }
 }
 
@@ -703,19 +771,17 @@ private struct NightWatchPriorityCard: View {
                 .frame(width: 20)
 
             VStack(alignment: .leading, spacing: 6) {
-                HStack(alignment: .center) {
-                    Text(item.title)
-                        .font(emphasis == .primary ? .headline.weight(.semibold) : .subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .lineLimit(2)
-                    Spacer(minLength: 8)
-                    Text(item.severity.label)
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(item.severity.tone.color.opacity(0.18))
-                        .foregroundStyle(item.severity.tone.color)
-                        .clipShape(Capsule())
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .center) {
+                        titleLabel
+                        Spacer(minLength: 8)
+                        severityBadge
+                    }
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        titleLabel
+                        severityBadge
+                    }
                 }
 
                 Text(item.detail)
@@ -723,19 +789,15 @@ private struct NightWatchPriorityCard: View {
                     .foregroundStyle(.white.opacity(0.78))
                     .fixedSize(horizontal: false, vertical: true)
 
-                HStack(spacing: 8) {
-                    Text(item.footnote)
-                        .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.58))
-                        .lineLimit(2)
-                    if isWatched {
-                        Label {
-                            Text(String(localized: "Watched"))
-                        } icon: {
-                            Image(systemName: "star.fill")
-                        }
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.yellow)
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 8) {
+                        footnoteLabel
+                        watchedBadge
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        footnoteLabel
+                        watchedBadge
                     }
                 }
             }
@@ -744,6 +806,43 @@ private struct NightWatchPriorityCard: View {
         .padding(14)
         .background(.white.opacity(emphasis == .primary ? 0.09 : 0.06))
         .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    private var titleLabel: some View {
+        Text(item.title)
+            .font(emphasis == .primary ? .headline.weight(.semibold) : .subheadline.weight(.semibold))
+            .foregroundStyle(.white)
+            .lineLimit(2)
+    }
+
+    private var severityBadge: some View {
+        Text(item.severity.label)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(item.severity.tone.color.opacity(0.18))
+            .foregroundStyle(item.severity.tone.color)
+            .clipShape(Capsule())
+    }
+
+    private var footnoteLabel: some View {
+        Text(item.footnote)
+            .font(.caption2)
+            .foregroundStyle(.white.opacity(0.58))
+            .lineLimit(2)
+    }
+
+    @ViewBuilder
+    private var watchedBadge: some View {
+        if isWatched {
+            Label {
+                Text(String(localized: "Watched"))
+            } icon: {
+                Image(systemName: "star.fill")
+            }
+            .font(.caption2.weight(.medium))
+            .foregroundStyle(.yellow)
+        }
     }
 }
 
@@ -757,18 +856,17 @@ private struct NightWatchWatchlistRow: View {
                 .frame(width: 18)
 
             VStack(alignment: .leading, spacing: 5) {
-                HStack {
-                    Text(item.agent.name)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                    Spacer()
-                    Text(item.severity >= 10 ? String(localized: "Critical") : String(localized: "Watch"))
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(item.tone.color.opacity(0.16))
-                        .foregroundStyle(item.tone.color)
-                        .clipShape(Capsule())
+                ViewThatFits(in: .horizontal) {
+                    HStack {
+                        agentName
+                        Spacer(minLength: 8)
+                        statusBadge
+                    }
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        agentName
+                        statusBadge
+                    }
                 }
 
                 Text(item.reasons.prefix(2).joined(separator: " • "))
@@ -781,6 +879,23 @@ private struct NightWatchWatchlistRow: View {
         .padding(14)
         .background(.white.opacity(0.07))
         .clipShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    private var agentName: some View {
+        Text(item.agent.name)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.white)
+            .lineLimit(2)
+    }
+
+    private var statusBadge: some View {
+        Text(item.severity >= 10 ? String(localized: "Critical") : String(localized: "Watch"))
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(item.tone.color.opacity(0.16))
+            .foregroundStyle(item.tone.color)
+            .clipShape(Capsule())
     }
 }
 
@@ -885,6 +1000,7 @@ private struct NightWatchCountPill: View {
         .foregroundStyle(.white)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(.white.opacity(0.10))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }

@@ -492,6 +492,7 @@ struct IncidentsView: View {
 }
 
 private struct IncidentScoreboard: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let criticalCount: Int
     let warningCount: Int
     let mutedCount: Int
@@ -501,12 +502,6 @@ private struct IncidentScoreboard: View {
     let automationCount: Int
     let integrationCount: Int
     let handoffCount: Int
-
-    private let columns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
 
     private var criticalStatus: MonitoringSummaryStatus {
         .countStatus(criticalCount, activeTone: .critical)
@@ -538,6 +533,11 @@ private struct IncidentScoreboard: View {
 
     private var handoffStatus: MonitoringSummaryStatus {
         .countStatus(handoffCount, activeTone: .warning)
+    }
+
+    private var columns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 3
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
     }
 
     var body: some View {
@@ -608,27 +608,21 @@ private struct IncidentAlertRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Label(alert.title, systemImage: alert.symbolName)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(color)
-                Spacer()
-                Button(action: onToggleMute) {
-                    Image(systemName: isMuted ? "bell" : "bell.slash")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .padding(6)
-                        .background(.secondary.opacity(0.12))
-                        .clipShape(Circle())
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    titleLabel
+                    Spacer()
+                    controlsRow
                 }
-                .buttonStyle(.plain)
-                Text(severityLabel)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(color.opacity(0.12))
-                    .foregroundStyle(color)
-                    .clipShape(Capsule())
+
+                VStack(alignment: .leading, spacing: 8) {
+                    titleLabel
+                    HStack {
+                        severityBadge
+                        Spacer()
+                        muteButton
+                    }
+                }
             }
 
             Text(alert.detail)
@@ -644,6 +638,41 @@ private struct IncidentAlertRow: View {
 
     private var severityLabel: String {
         alert.severity.localizedLabel
+    }
+
+    private var titleLabel: some View {
+        Label(alert.title, systemImage: alert.symbolName)
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(color)
+    }
+
+    private var controlsRow: some View {
+        HStack(spacing: 8) {
+            muteButton
+            severityBadge
+        }
+    }
+
+    private var muteButton: some View {
+        Button(action: onToggleMute) {
+            Image(systemName: isMuted ? "bell" : "bell.slash")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .padding(6)
+                .background(.secondary.opacity(0.12))
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var severityBadge: some View {
+        Text(severityLabel)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(color.opacity(0.12))
+            .foregroundStyle(color)
+            .clipShape(Capsule())
     }
 }
 
@@ -666,17 +695,17 @@ private struct IncidentOperatorCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Label("Mobile Operator State", systemImage: "person.crop.rectangle.badge.exclamationmark")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Text(snapshotState.operatorLabel)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(snapshotState.tone.color.opacity(0.12))
-                    .foregroundStyle(snapshotState.tone.color)
-                    .clipShape(Capsule())
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    operatorTitle
+                    Spacer()
+                    operatorBadge
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    operatorTitle
+                    operatorBadge
+                }
             }
 
             Text(statusDetail)
@@ -689,24 +718,25 @@ private struct IncidentOperatorCard: View {
                     .foregroundStyle(.secondary)
             }
 
-            HStack(spacing: 10) {
-                if activeAlertCount > 0 {
-                    Button(isAcknowledged ? String(localized: "Reset Ack") : String(localized: "Acknowledge Snapshot")) {
-                        if isAcknowledged {
-                            onClearAcknowledgement()
-                        } else {
-                            onAcknowledge()
-                        }
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) {
+                    if activeAlertCount > 0 {
+                        acknowledgeButton
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(snapshotState.tone.color)
+
+                    if mutedAlertCount > 0 {
+                        unmuteButton
+                    }
                 }
 
-                if mutedAlertCount > 0 {
-                    Button("Unmute All") {
-                        onUnmuteAll()
+                VStack(alignment: .leading, spacing: 10) {
+                    if activeAlertCount > 0 {
+                        acknowledgeButton
                     }
-                    .buttonStyle(.bordered)
+
+                    if mutedAlertCount > 0 {
+                        unmuteButton
+                    }
                 }
             }
         }
@@ -729,6 +759,40 @@ private struct IncidentOperatorCard: View {
         }
 
         return String(localized: "Acknowledge the current alert snapshot after review, or mute noisy alert classes locally if they are already understood.")
+    }
+
+    private var operatorTitle: some View {
+        Label("Mobile Operator State", systemImage: "person.crop.rectangle.badge.exclamationmark")
+            .font(.subheadline.weight(.semibold))
+    }
+
+    private var operatorBadge: some View {
+        Text(snapshotState.operatorLabel)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(snapshotState.tone.color.opacity(0.12))
+            .foregroundStyle(snapshotState.tone.color)
+            .clipShape(Capsule())
+    }
+
+    private var acknowledgeButton: some View {
+        Button(isAcknowledged ? String(localized: "Reset Ack") : String(localized: "Acknowledge Snapshot")) {
+            if isAcknowledged {
+                onClearAcknowledgement()
+            } else {
+                onAcknowledge()
+            }
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(snapshotState.tone.color)
+    }
+
+    private var unmuteButton: some View {
+        Button("Unmute All") {
+            onUnmuteAll()
+        }
+        .buttonStyle(.bordered)
     }
 }
 
@@ -768,27 +832,16 @@ private struct IncidentShiftCoverageCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Label("Local Handoff Pressure", systemImage: "person.crop.rectangle.badge.clock")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                if let checkInStatus {
-                    Text(checkInStatus.state.label)
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(checkInColor.opacity(0.12))
-                        .foregroundStyle(checkInColor)
-                        .clipShape(Capsule())
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    headerTitle
+                    Spacer()
+                    headerBadges
                 }
-                if readiness.state != .ready {
-                    Text(readiness.state.label)
-                        .font(.caption2.weight(.semibold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(readinessColor.opacity(0.12))
-                        .foregroundStyle(readinessColor)
-                        .clipShape(Capsule())
+
+                VStack(alignment: .leading, spacing: 8) {
+                    headerTitle
+                    headerBadges
                 }
             }
 
@@ -862,6 +915,32 @@ private struct IncidentShiftCoverageCard: View {
         }
         .padding(.vertical, 4)
     }
+
+    private var headerTitle: some View {
+        Label("Local Handoff Pressure", systemImage: "person.crop.rectangle.badge.clock")
+            .font(.subheadline.weight(.semibold))
+    }
+
+    private var headerBadges: some View {
+        HStack(spacing: 8) {
+            if let checkInStatus {
+                badge(text: checkInStatus.state.label, color: checkInColor)
+            }
+            if readiness.state != .ready {
+                badge(text: readiness.state.label, color: readinessColor)
+            }
+        }
+    }
+
+    private func badge(text: String, color: Color) -> some View {
+        Text(text)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(color.opacity(0.12))
+            .foregroundStyle(color)
+            .clipShape(Capsule())
+    }
 }
 
 private struct IncidentAutomationCard: View {
@@ -869,17 +948,17 @@ private struct IncidentAutomationCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Label("Automation Pressure", systemImage: "flowchart")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Text(vm.automationPressureSummaryLabel)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(vm.automationPressureTone.color.opacity(0.12))
-                    .foregroundStyle(vm.automationPressureTone.color)
-                    .clipShape(Capsule())
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    headerTitle
+                    Spacer()
+                    headerBadge
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    headerTitle
+                    headerBadge
+                }
             }
 
             if vm.failedWorkflowRunCount > 0 {
@@ -932,6 +1011,21 @@ private struct IncidentAutomationCard: View {
         .padding(.vertical, 4)
     }
 
+    private var headerTitle: some View {
+        Label("Automation Pressure", systemImage: "flowchart")
+            .font(.subheadline.weight(.semibold))
+    }
+
+    private var headerBadge: some View {
+        Text(vm.automationPressureSummaryLabel)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(vm.automationPressureTone.color.opacity(0.12))
+            .foregroundStyle(vm.automationPressureTone.color)
+            .clipShape(Capsule())
+    }
+
     @ViewBuilder
     private func automationIssueRow(icon: String, color: Color, title: String, detail: String) -> some View {
         HStack(alignment: .top, spacing: 10) {
@@ -960,17 +1054,17 @@ private struct IncidentIntegrationsCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Label("Integration Pressure", systemImage: "square.3.layers.3d.down.forward")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Text(vm.integrationPressureSummaryLabel)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(vm.integrationPressureTone.color.opacity(0.12))
-                    .foregroundStyle(vm.integrationPressureTone.color)
-                    .clipShape(Capsule())
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    headerTitle
+                    Spacer()
+                    headerBadge
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    headerTitle
+                    headerBadge
+                }
             }
 
             if vm.unreachableLocalProviderCount > 0 {
@@ -1058,6 +1152,21 @@ private struct IncidentIntegrationsCard: View {
         return String(localized: "Last synced \(RelativeDateTimeFormatter().localizedString(for: catalogLastSyncDate, relativeTo: Date()))")
     }
 
+    private var headerTitle: some View {
+        Label("Integration Pressure", systemImage: "square.3.layers.3d.down.forward")
+            .font(.subheadline.weight(.semibold))
+    }
+
+    private var headerBadge: some View {
+        Text(vm.integrationPressureSummaryLabel)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(vm.integrationPressureTone.color.opacity(0.12))
+            .foregroundStyle(vm.integrationPressureTone.color)
+            .clipShape(Capsule())
+    }
+
     @ViewBuilder
     private func integrationIssueRow(icon: String, color: Color, title: String, detail: String) -> some View {
         HStack(alignment: .top, spacing: 10) {
@@ -1098,13 +1207,17 @@ private struct IncidentAgentRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(item.agent.name)
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                Text(item.agent.stateLabel)
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(item.agent.stateTone.color)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    titleLabel
+                    Spacer()
+                    stateLabel
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    stateLabel
+                }
             }
 
             Text(item.reasons.prefix(3).joined(separator: " • "))
@@ -1114,6 +1227,17 @@ private struct IncidentAgentRow: View {
         }
         .padding(.vertical, 2)
     }
+
+    private var titleLabel: some View {
+        Text(item.agent.name)
+            .font(.subheadline.weight(.medium))
+    }
+
+    private var stateLabel: some View {
+        Text(item.agent.stateLabel)
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(item.agent.stateTone.color)
+    }
 }
 
 private struct IncidentIntegrationAgentRow: View {
@@ -1121,13 +1245,17 @@ private struct IncidentIntegrationAgentRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(diagnostic.agent.name)
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                Text(diagnostic.localizedStatusLabel)
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(diagnostic.statusTone.color)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    titleLabel
+                    Spacer()
+                    statusLabel
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    statusLabel
+                }
             }
 
             Text(diagnostic.detail)
@@ -1135,19 +1263,41 @@ private struct IncidentIntegrationAgentRow: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
 
-            HStack(spacing: 12) {
-                Label(diagnostic.requestedModel, systemImage: "cpu")
-                if let resolvedAlias = diagnostic.resolvedAlias {
-                    Label(resolvedAlias.alias, systemImage: "arrow.left.arrow.right")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    metadataLabels
                 }
-                if let resolvedModel = diagnostic.resolvedModel {
-                    Label(resolvedModel.provider, systemImage: "cloud")
+
+                VStack(alignment: .leading, spacing: 4) {
+                    metadataLabels
                 }
             }
             .font(.caption2)
             .foregroundStyle(.secondary)
         }
         .padding(.vertical, 2)
+    }
+
+    private var titleLabel: some View {
+        Text(diagnostic.agent.name)
+            .font(.subheadline.weight(.medium))
+    }
+
+    private var statusLabel: some View {
+        Text(diagnostic.localizedStatusLabel)
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(diagnostic.statusTone.color)
+    }
+
+    @ViewBuilder
+    private var metadataLabels: some View {
+        Label(diagnostic.requestedModel, systemImage: "cpu")
+        if let resolvedAlias = diagnostic.resolvedAlias {
+            Label(resolvedAlias.alias, systemImage: "arrow.left.arrow.right")
+        }
+        if let resolvedModel = diagnostic.resolvedModel {
+            Label(resolvedModel.provider, systemImage: "cloud")
+        }
     }
 }
 
@@ -1157,18 +1307,17 @@ private struct IncidentWatchedDiagnosticRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .center, spacing: 8) {
-                Text(agent.identity?.emoji ?? "🤖")
-                    .font(.body)
-                Text(agent.name)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.primary)
-                Image(systemName: "star.fill")
-                    .font(.caption2)
-                    .foregroundStyle(.yellow)
-                Spacer()
-                let statusBadge = watchedAgentDiagnosticStatusBadge(summary: summary)
-                statusChip(label: statusBadge.text, color: statusBadge.tone.color)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .center, spacing: 8) {
+                    agentHeader
+                    Spacer()
+                    statusBadge
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    agentHeader
+                    statusBadge
+                }
             }
 
             Text(summary.summaryLine)
@@ -1180,30 +1329,13 @@ private struct IncidentWatchedDiagnosticRow: View {
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
 
-            HStack(spacing: 8) {
-                if summary.unsettledDeliveries > 0 {
-                    issuePill(
-                        text: summary.unsettledDeliveries == 1
-                            ? String(localized: "1 unsettled")
-                            : String(localized: "\(summary.unsettledDeliveries) unsettled"),
-                        color: .orange
-                    )
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    issuePills
                 }
-                if !summary.missingIdentityFiles.isEmpty {
-                    issuePill(
-                        text: summary.missingIdentityFiles.count == 1
-                            ? String(localized: "1 file missing")
-                            : String(localized: "\(summary.missingIdentityFiles.count) files missing"),
-                        color: .orange
-                    )
-                }
-                if !summary.unavailableFallbackModels.isEmpty {
-                    issuePill(
-                        text: summary.unavailableFallbackModels.count == 1
-                            ? String(localized: "1 fallback")
-                            : String(localized: "\(summary.unavailableFallbackModels.count) fallbacks"),
-                        color: .orange
-                    )
+
+                VStack(alignment: .leading, spacing: 6) {
+                    issuePills
                 }
             }
         }
@@ -1242,6 +1374,52 @@ private struct IncidentWatchedDiagnosticRow: View {
         }
         return String(localized: "Tap to inspect operator diagnostics for this pinned agent.")
     }
+
+    private var agentHeader: some View {
+        HStack(spacing: 8) {
+            Text(agent.identity?.emoji ?? "🤖")
+                .font(.body)
+            Text(agent.name)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.primary)
+            Image(systemName: "star.fill")
+                .font(.caption2)
+                .foregroundStyle(.yellow)
+        }
+    }
+
+    private var statusBadge: some View {
+        let badge = watchedAgentDiagnosticStatusBadge(summary: summary)
+        return statusChip(label: badge.text, color: badge.tone.color)
+    }
+
+    @ViewBuilder
+    private var issuePills: some View {
+        if summary.unsettledDeliveries > 0 {
+            issuePill(
+                text: summary.unsettledDeliveries == 1
+                    ? String(localized: "1 unsettled")
+                    : String(localized: "\(summary.unsettledDeliveries) unsettled"),
+                color: .orange
+            )
+        }
+        if !summary.missingIdentityFiles.isEmpty {
+            issuePill(
+                text: summary.missingIdentityFiles.count == 1
+                    ? String(localized: "1 file missing")
+                    : String(localized: "\(summary.missingIdentityFiles.count) files missing"),
+                color: .orange
+            )
+        }
+        if !summary.unavailableFallbackModels.isEmpty {
+            issuePill(
+                text: summary.unavailableFallbackModels.count == 1
+                    ? String(localized: "1 fallback")
+                    : String(localized: "\(summary.unavailableFallbackModels.count) fallbacks"),
+                color: .orange
+            )
+        }
+    }
 }
 
 private struct IncidentSessionRow: View {
@@ -1249,13 +1427,17 @@ private struct IncidentSessionRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(displayTitle)
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                Text(String(localized: "\(item.session.messageCount) msgs"))
-                    .font(.caption2.monospacedDigit())
-                    .foregroundStyle(item.messageCountTone.color)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    titleLabel
+                    Spacer()
+                    messageCountLabel
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    messageCountLabel
+                }
             }
 
             Text(item.agent?.name ?? item.session.agentId)
@@ -1274,6 +1456,17 @@ private struct IncidentSessionRow: View {
         let label = (item.session.label ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         return label.isEmpty ? String(item.session.sessionId.prefix(8)) : label
     }
+
+    private var titleLabel: some View {
+        Text(displayTitle)
+            .font(.subheadline.weight(.medium))
+    }
+
+    private var messageCountLabel: some View {
+        Text(String(localized: "\(item.session.messageCount) msgs"))
+            .font(.caption2.monospacedDigit())
+            .foregroundStyle(item.messageCountTone.color)
+    }
 }
 
 private struct IncidentEventRow: View {
@@ -1282,13 +1475,17 @@ private struct IncidentEventRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(entry.friendlyAction)
-                    .font(.subheadline.weight(.medium))
-                Spacer()
-                Text(agentName ?? shortAgentId)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    titleLabel
+                    Spacer()
+                    agentLabel
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    titleLabel
+                    agentLabel
+                }
             }
 
             Text(entry.detail)
@@ -1305,5 +1502,16 @@ private struct IncidentEventRow: View {
 
     private var shortAgentId: String {
         entry.agentId.isEmpty ? "-" : String(entry.agentId.prefix(8))
+    }
+
+    private var titleLabel: some View {
+        Text(entry.friendlyAction)
+            .font(.subheadline.weight(.medium))
+    }
+
+    private var agentLabel: some View {
+        Text(agentName ?? shortAgentId)
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
     }
 }

@@ -51,6 +51,7 @@ private enum StandbyTone {
 
 struct StandbyDigestView: View {
     @Environment(\.dependencies) private var deps
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
     private var incidentStateStore: IncidentStateStore { deps.incidentStateStore }
@@ -159,17 +160,36 @@ struct StandbyDigestView: View {
         .navigationTitle("Standby")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                NavigationLink {
-                    NightWatchView()
-                } label: {
-                    Image(systemName: "moon.stars")
-                }
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    NavigationLink {
+                        NightWatchView()
+                    } label: {
+                        Label("Night Watch", systemImage: "moon.stars")
+                    }
 
-                NavigationLink {
-                    OnCallView()
+                    NavigationLink {
+                        OnCallView()
+                    } label: {
+                        Label("Full On Call Queue", systemImage: "waveform.path.ecg")
+                    }
+
+                    NavigationLink(value: OnCallRoute.incidents) {
+                        Label("Incidents Center", systemImage: "bell.badge")
+                    }
+
+                    NavigationLink {
+                        HandoffCenterView(
+                            summary: handoffText,
+                            queueCount: priorityItems.count,
+                            criticalCount: criticalCount,
+                            liveAlertCount: visibleAlerts.count
+                        )
+                    } label: {
+                        Label("Handoff Center", systemImage: "text.badge.plus")
+                    }
                 } label: {
-                    Image(systemName: "waveform.path.ecg")
+                    Image(systemName: "ellipsis.circle")
                 }
             }
         }
@@ -190,33 +210,16 @@ struct StandbyDigestView: View {
 
     private var heroCard: some View {
         VStack(alignment: .leading, spacing: 18) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(Date(), style: .time)
-                        .font(.system(size: 52, weight: .medium, design: .rounded))
-                        .foregroundStyle(.white)
-
-                    Text(Date(), format: .dateTime.weekday(.wide).month(.abbreviated).day())
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.76))
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top) {
+                    heroClock
+                    Spacer(minLength: 12)
+                    heroStatus
                 }
 
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 8) {
-                    Text(tone.label)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(.white.opacity(0.14))
-                        .clipShape(Capsule())
-
-                    if let lastRefresh = vm.lastRefresh {
-                        Text(lastRefresh, style: .relative)
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.white.opacity(0.72))
-                    }
+                VStack(alignment: .leading, spacing: 12) {
+                    heroClock
+                    heroStatus
                 }
             }
 
@@ -225,38 +228,25 @@ struct StandbyDigestView: View {
                 .foregroundStyle(.white)
                 .lineLimit(3)
 
-            HStack(spacing: 10) {
+            LazyVGrid(columns: standbyCountColumns, alignment: .leading, spacing: 10) {
                 StandbyCountPill(value: criticalCount, label: String(localized: "Critical"))
                 StandbyCountPill(value: priorityItems.count, label: String(localized: "Queued"))
                 StandbyCountPill(value: watchItems.count, label: String(localized: "Watched"))
-                Spacer()
             }
 
-            HStack(spacing: 10) {
-                Button {
-                    incidentStateStore.acknowledgeCurrentSnapshot(alerts: vm.monitoringAlerts)
-                } label: {
-                    Label {
-                        Text(String(localized: "Acknowledge"))
-                    } icon: {
-                        Image(systemName: "checkmark.seal")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) {
+                    acknowledgeButton
+                    if isAcknowledged {
+                        clearAcknowledgementButton
                     }
-                        .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(StandbyActionButtonStyle(fill: .white.opacity(0.12)))
 
-                if isAcknowledged {
-                    Button {
-                        incidentStateStore.clearAcknowledgement()
-                    } label: {
-                        Label {
-                            Text(String(localized: "Clear Ack"))
-                        } icon: {
-                            Image(systemName: "arrow.uturn.backward.circle")
-                        }
-                            .frame(maxWidth: .infinity)
+                VStack(spacing: 10) {
+                    acknowledgeButton
+                    if isAcknowledged {
+                        clearAcknowledgementButton
                     }
-                    .buttonStyle(StandbyActionButtonStyle(fill: .white.opacity(0.16)))
                 }
             }
         }
@@ -267,6 +257,72 @@ struct StandbyDigestView: View {
             RoundedRectangle(cornerRadius: 26, style: .continuous)
                 .strokeBorder(.white.opacity(0.08))
         )
+    }
+
+    private var heroClock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(Date(), style: .time)
+                .font(.system(size: 52, weight: .medium, design: .rounded))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+
+            Text(Date(), format: .dateTime.weekday(.wide).month(.abbreviated).day())
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.white.opacity(0.76))
+        }
+    }
+
+    private var heroStatus: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(tone.label)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(.white.opacity(0.14))
+                .clipShape(Capsule())
+
+            if let lastRefresh = vm.lastRefresh {
+                Text(lastRefresh, style: .relative)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.72))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: horizontalSizeClass == .compact ? .leading : .trailing)
+    }
+
+    private var standbyCountColumns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 3
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
+    }
+
+    private var acknowledgeButton: some View {
+        Button {
+            incidentStateStore.acknowledgeCurrentSnapshot(alerts: vm.monitoringAlerts)
+        } label: {
+            Label {
+                Text(String(localized: "Acknowledge"))
+            } icon: {
+                Image(systemName: "checkmark.seal")
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(StandbyActionButtonStyle(fill: .white.opacity(0.12)))
+    }
+
+    private var clearAcknowledgementButton: some View {
+        Button {
+            incidentStateStore.clearAcknowledgement()
+        } label: {
+            Label {
+                Text(String(localized: "Clear Ack"))
+            } icon: {
+                Image(systemName: "arrow.uturn.backward.circle")
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(StandbyActionButtonStyle(fill: .white.opacity(0.16)))
     }
 
     @ViewBuilder
@@ -592,6 +648,7 @@ private struct StandbyCountPill: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(.white.opacity(0.10))
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }

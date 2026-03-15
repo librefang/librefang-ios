@@ -232,13 +232,9 @@ struct DiagnosticsView: View {
 }
 
 private struct DiagnosticsScoreboard: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let vm: DashboardViewModel
     let metrics: PrometheusMetricsSnapshot?
-
-    private let columns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
 
     private var warningStatus: MonitoringSummaryStatus {
         .countStatus(vm.diagnosticsConfigWarningCount, activeTone: .warning)
@@ -250,6 +246,11 @@ private struct DiagnosticsScoreboard: View {
 
     private var restartStatus: MonitoringSummaryStatus {
         .countStatus(vm.supervisorRestartCount, activeTone: .warning)
+    }
+
+    private var columns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 3
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
     }
 
     var body: some View {
@@ -302,13 +303,23 @@ private struct DiagnosticsMetricRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
-            HStack {
-                Text(label)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(value)
-                    .fontWeight(.medium)
-                    .multilineTextAlignment(.trailing)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    Text(label)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(value)
+                        .fontWeight(.medium)
+                        .multilineTextAlignment(.trailing)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(label)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(value)
+                        .fontWeight(.medium)
+                }
             }
             Text(detail)
                 .font(.caption)
@@ -326,26 +337,46 @@ private struct DiagnosticsMetricListRow: View {
     let value: String
 
     var body: some View {
-        HStack(spacing: 10) {
-            Text("#\(rank)")
-                .font(.caption2.weight(.bold))
-                .foregroundStyle(.tertiary)
-                .frame(width: 24)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.subheadline.weight(.medium))
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                rankLabel
+                titleBlock
+                Spacer()
+                valueLabel
             }
 
-            Spacer()
-
-            Text(value)
-                .font(.subheadline.monospacedDigit())
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 10) {
+                    rankLabel
+                    titleBlock
+                }
+                valueLabel
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
         .padding(.vertical, 2)
+    }
+
+    private var rankLabel: some View {
+        Text("#\(rank)")
+            .font(.caption2.weight(.bold))
+            .foregroundStyle(.tertiary)
+            .frame(width: 24)
+    }
+
+    private var titleBlock: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.subheadline.weight(.medium))
+            Text(subtitle)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+    }
+
+    private var valueLabel: some View {
+        Text(value)
+            .font(.subheadline.monospacedDigit())
     }
 }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct OverviewView: View {
     @Environment(\.dependencies) private var deps
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
     private var visibleMonitoringAlerts: [MonitoringAlertItem] {
@@ -95,11 +96,10 @@ struct OverviewView: View {
             criticalAuditCount: vm.recentCriticalAuditCount
         )
     }
-    private let summaryColumns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
+    private var summaryColumns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 3
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
+    }
 
     var body: some View {
         NavigationStack {
@@ -286,60 +286,66 @@ struct OverviewView: View {
             }
             .navigationTitle("LibreFang")
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 14) {
-                        NavigationLink {
-                            StandbyDigestView()
-                        } label: {
-                            Image(systemName: "rectangle.inset.filled")
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    NavigationLink {
+                        IncidentsView()
+                    } label: {
+                        Image(systemName: "bell.badge")
+                    }
+
+                    Menu {
+                        Section("On Call") {
+                            NavigationLink {
+                                NightWatchView()
+                            } label: {
+                                Label("Open Night Watch", systemImage: "moon.stars")
+                            }
+
+                            NavigationLink {
+                                StandbyDigestView()
+                            } label: {
+                                Label("Open Standby Digest", systemImage: "rectangle.inset.filled")
+                            }
+
+                            NavigationLink {
+                                HandoffCenterView(
+                                    summary: handoffText,
+                                    queueCount: onCallPriorityItems.count,
+                                    criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                                    liveAlertCount: visibleMonitoringAlerts.count
+                                )
+                            } label: {
+                                Label("Open Handoff Center", systemImage: "text.badge.plus")
+                            }
                         }
 
-                        NavigationLink {
-                            NightWatchView()
-                        } label: {
-                            Image(systemName: "moon.stars")
-                        }
+                        Section("Monitoring") {
+                            NavigationLink {
+                                ApprovalsView()
+                            } label: {
+                                Label("Open Approvals", systemImage: "checkmark.shield")
+                            }
 
-                        NavigationLink {
-                            IncidentsView()
-                        } label: {
-                            Image(systemName: "bell.badge")
-                        }
+                            NavigationLink {
+                                AutomationView()
+                            } label: {
+                                Label("Open Automation", systemImage: "flowchart")
+                            }
 
-                        NavigationLink {
-                            ApprovalsView()
-                        } label: {
-                            Image(systemName: "checkmark.shield")
-                        }
+                            NavigationLink {
+                                DiagnosticsView()
+                            } label: {
+                                Label("Open Diagnostics", systemImage: "stethoscope")
+                            }
 
-                        NavigationLink {
-                            AutomationView()
-                        } label: {
-                            Image(systemName: "flowchart")
+                            NavigationLink {
+                                IntegrationsView()
+                            } label: {
+                                Label("Open Integrations", systemImage: "square.3.layers.3d.down.forward")
+                            }
                         }
-
-                        NavigationLink {
-                            DiagnosticsView()
-                        } label: {
-                            Image(systemName: "stethoscope")
-                        }
-
-                        NavigationLink {
-                            IntegrationsView()
-                        } label: {
-                            Image(systemName: "square.3.layers.3d.down.forward")
-                        }
-
-                        NavigationLink {
-                            HandoffCenterView(
-                                summary: handoffText,
-                                queueCount: onCallPriorityItems.count,
-                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                                liveAlertCount: visibleMonitoringAlerts.count
-                            )
-                        } label: {
-                            Image(systemName: "text.badge.plus")
-                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
                     }
                 }
             }
@@ -453,6 +459,8 @@ private struct AlertsCard: View {
 }
 
 private struct RecentHandoffCard: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
     let entry: OnCallHandoffEntry
     let gapLabel: String?
     let checkInStatus: HandoffCheckInStatus?
@@ -460,6 +468,11 @@ private struct RecentHandoffCard: View {
     let carryover: HandoffCarryoverStatus?
     let pendingFollowUpCount: Int
     let completedFollowUpCount: Int
+
+    private var badgeColumns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 4
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -490,15 +503,18 @@ private struct RecentHandoffCard: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
 
-                Text(entry.createdAt, style: .relative)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+            Text(entry.createdAt, style: .relative)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
 
-            HStack(spacing: 10) {
+            LazyVGrid(columns: badgeColumns, spacing: 10) {
                 HandoffBadge(value: entry.queueCount, label: String(localized: "Queued"))
                 HandoffBadge(value: entry.criticalCount, label: String(localized: "Critical"))
                 HandoffBadge(value: entry.liveAlertCount, label: String(localized: "Live"))
                 HandoffBadge(value: entry.checklist.completedCount, label: String(localized: "Checks"))
+            }
+
+            HStack {
                 Spacer()
                 Text(String(localized: "Open"))
                     .font(.caption2.weight(.medium))

@@ -406,12 +406,8 @@ struct AutomationView: View {
 }
 
 private struct AutomationScoreboard: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let vm: DashboardViewModel
-
-    private let columns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
 
     private var issueCount: Int {
         vm.failedWorkflowRunCount
@@ -452,6 +448,11 @@ private struct AutomationScoreboard: View {
 
     private var issueStatus: MonitoringSummaryStatus {
         MonitoringSummaryStatus(summary: "\(issueCount)", tone: vm.automationPressureTone)
+    }
+
+    private var columns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 3
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
     }
 
     var body: some View {
@@ -504,35 +505,16 @@ private struct WorkflowDefinitionRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(workflow.name)
-                        .font(.subheadline.weight(.medium))
-                    if !workflow.description.isEmpty {
-                        Text(workflow.description)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                    }
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    summaryBlock
+                    Spacer()
+                    statusBlock
                 }
-                Spacer()
-                VStack(alignment: .trailing, spacing: 4) {
-                    MonitoringPill(text: String(localized: "\(workflow.steps) steps"), tone: .neutral)
-                    if failedRuns > 0 {
-                        MonitoringPill(
-                            text: failedRuns == 1
-                                ? String(localized: "1 failed run")
-                                : String(localized: "\(failedRuns) failed"),
-                            tone: .critical
-                        )
-                    } else if runningRuns > 0 {
-                        MonitoringPill(
-                            text: runningRuns == 1
-                                ? String(localized: "1 running")
-                                : String(localized: "\(runningRuns) running"),
-                            tone: .warning
-                        )
-                    }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    summaryBlock
+                    statusBlock
                 }
             }
 
@@ -547,6 +529,40 @@ private struct WorkflowDefinitionRow: View {
         guard let date = value.automationISO8601Date else { return value }
         return String(localized: "Created \(RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date()))")
     }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(workflow.name)
+                .font(.subheadline.weight(.medium))
+            if !workflow.description.isEmpty {
+                Text(workflow.description)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+        }
+    }
+
+    private var statusBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            MonitoringPill(text: String(localized: "\(workflow.steps) steps"), tone: .neutral)
+            if failedRuns > 0 {
+                MonitoringPill(
+                    text: failedRuns == 1
+                        ? String(localized: "1 failed run")
+                        : String(localized: "\(failedRuns) failed"),
+                    tone: .critical
+                )
+            } else if runningRuns > 0 {
+                MonitoringPill(
+                    text: runningRuns == 1
+                        ? String(localized: "1 running")
+                        : String(localized: "\(runningRuns) running"),
+                    tone: .warning
+                )
+            }
+        }
+    }
 }
 
 private struct WorkflowRunRow: View {
@@ -554,22 +570,26 @@ private struct WorkflowRunRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(run.workflowName)
-                        .font(.subheadline.weight(.medium))
-                    Text("Started \(relativeText(from: run.startedAt))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    summaryBlock
+                    Spacer()
+                    MonitoringPill(text: run.state.label, tone: tone)
                 }
-                Spacer()
-                MonitoringPill(text: run.state.label, tone: tone)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    summaryBlock
+                    MonitoringPill(text: run.state.label, tone: tone)
+                }
             }
 
-            HStack(spacing: 12) {
-                Label("\(run.stepsCompleted) steps", systemImage: "list.number")
-                if let completedAt = run.completedAt {
-                    Label(relativeText(from: completedAt), systemImage: "clock")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    facts
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    facts
                 }
             }
             .font(.caption)
@@ -593,6 +613,24 @@ private struct WorkflowRunRow: View {
         guard let date = value.automationISO8601Date else { return value }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
     }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(run.workflowName)
+                .font(.subheadline.weight(.medium))
+            Text("Started \(relativeText(from: run.startedAt))")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder
+    private var facts: some View {
+        Label("\(run.stepsCompleted) steps", systemImage: "list.number")
+        if let completedAt = run.completedAt {
+            Label(relativeText(from: completedAt), systemImage: "clock")
+        }
+    }
 }
 
 private struct TriggerRow: View {
@@ -601,24 +639,26 @@ private struct TriggerRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(trigger.patternSummary)
-                        .font(.subheadline.weight(.medium))
-                    Text(agentName ?? trigger.agentId)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    summaryBlock
+                    Spacer()
+                    MonitoringPill(text: statusLabel, tone: tone)
                 }
-                Spacer()
-                MonitoringPill(text: statusLabel, tone: tone)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    summaryBlock
+                    MonitoringPill(text: statusLabel, tone: tone)
+                }
             }
 
-            HStack(spacing: 12) {
-                Label("\(trigger.fireCount) fires", systemImage: "bolt.circle")
-                if trigger.maxFires > 0 {
-                    Label("\(trigger.maxFires) max", systemImage: "gauge.with.dots.needle.67percent")
-                } else {
-                    Label("Unlimited", systemImage: "infinity")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    facts
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    facts
                 }
             }
             .font(.caption)
@@ -649,6 +689,27 @@ private struct TriggerRow: View {
         }
         return trigger.enabled ? .good : .neutral
     }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(trigger.patternSummary)
+                .font(.subheadline.weight(.medium))
+            Text(agentName ?? trigger.agentId)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+    }
+
+    @ViewBuilder
+    private var facts: some View {
+        Label("\(trigger.fireCount) fires", systemImage: "bolt.circle")
+        if trigger.maxFires > 0 {
+            Label("\(trigger.maxFires) max", systemImage: "gauge.with.dots.needle.67percent")
+        } else {
+            Label("Unlimited", systemImage: "infinity")
+        }
+    }
 }
 
 private struct ScheduleRow: View {
@@ -657,26 +718,37 @@ private struct ScheduleRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(schedule.name)
-                        .font(.subheadline.weight(.medium))
-                    Text(agentName ?? schedule.agentId)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    summaryBlock
+                    Spacer()
+                    MonitoringPill(
+                        text: schedule.enabled
+                            ? String(localized: "Enabled")
+                            : String(localized: "Paused"),
+                        tone: schedule.enabled ? .good : .warning
+                    )
                 }
-                Spacer()
-                MonitoringPill(
-                    text: schedule.enabled
-                        ? String(localized: "Enabled")
-                        : String(localized: "Paused"),
-                    tone: schedule.enabled ? .good : .warning
-                )
+
+                VStack(alignment: .leading, spacing: 8) {
+                    summaryBlock
+                    MonitoringPill(
+                        text: schedule.enabled
+                            ? String(localized: "Enabled")
+                            : String(localized: "Paused"),
+                        tone: schedule.enabled ? .good : .warning
+                    )
+                }
             }
 
-            HStack(spacing: 12) {
-                Label(schedule.cron, systemImage: "calendar")
-                Label("\(schedule.runCount) runs", systemImage: "clock.arrow.circlepath")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    facts
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    facts
+                }
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -701,6 +773,23 @@ private struct ScheduleRow: View {
         guard let date = value.automationISO8601Date else { return value }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
     }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(schedule.name)
+                .font(.subheadline.weight(.medium))
+            Text(agentName ?? schedule.agentId)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+    }
+
+    @ViewBuilder
+    private var facts: some View {
+        Label(schedule.cron, systemImage: "calendar")
+        Label("\(schedule.runCount) runs", systemImage: "clock.arrow.circlepath")
+    }
 }
 
 private struct CronJobRow: View {
@@ -712,16 +801,17 @@ private struct CronJobRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(job.name)
-                        .font(.subheadline.weight(.medium))
-                    Text(agentName ?? job.agentId)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    summaryBlock
+                    Spacer()
+                    MonitoringPill(text: statusLabel, tone: tone)
                 }
-                Spacer()
-                MonitoringPill(text: statusLabel, tone: tone)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    summaryBlock
+                    MonitoringPill(text: statusLabel, tone: tone)
+                }
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -732,14 +822,13 @@ private struct CronJobRow: View {
             .font(.caption)
             .foregroundStyle(.secondary)
 
-            HStack(spacing: 12) {
-                if let nextRun = job.nextRun {
-                    Label("Next \(relativeText(from: nextRun))", systemImage: "clock.badge")
-                } else if job.enabled {
-                    Label("No next run", systemImage: "clock.badge.exclamationmark")
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    timingFacts
                 }
-                if let lastRun = job.lastRun {
-                    Label("Last \(relativeText(from: lastRun))", systemImage: "clock.arrow.circlepath")
+
+                VStack(alignment: .leading, spacing: 4) {
+                    timingFacts
                 }
             }
             .font(.caption2)
@@ -767,6 +856,29 @@ private struct CronJobRow: View {
     private func relativeText(from value: String) -> String {
         guard let date = value.automationISO8601Date else { return value }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+    }
+
+    private var summaryBlock: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(job.name)
+                .font(.subheadline.weight(.medium))
+            Text(agentName ?? job.agentId)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+    }
+
+    @ViewBuilder
+    private var timingFacts: some View {
+        if let nextRun = job.nextRun {
+            Label("Next \(relativeText(from: nextRun))", systemImage: "clock.badge")
+        } else if job.enabled {
+            Label("No next run", systemImage: "clock.badge.exclamationmark")
+        }
+        if let lastRun = job.lastRun {
+            Label("Last \(relativeText(from: lastRun))", systemImage: "clock.arrow.circlepath")
+        }
     }
 }
 

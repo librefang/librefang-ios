@@ -133,12 +133,8 @@ struct CommsView: View {
 }
 
 private struct CommsScoreboard: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let viewModel: CommsViewModel
-
-    private let columns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10)
-    ]
 
     private var agentStatus: MonitoringSummaryStatus {
         MonitoringSummaryStatus(
@@ -160,6 +156,11 @@ private struct CommsScoreboard: View {
             summary: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
             tone: viewModel.isStreaming ? .positive : .warning
         )
+    }
+
+    private var columns: [GridItem] {
+        let count = horizontalSizeClass == .compact ? 2 : 4
+        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
     }
 
     var body: some View {
@@ -204,13 +205,17 @@ private struct CommsEventRow: View {
                     .frame(width: 18)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text(event.kind.label)
-                            .font(.subheadline.weight(.medium))
-                        Spacer()
-                        Text(relativeTimestamp)
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
+                    ViewThatFits(in: .horizontal) {
+                        HStack {
+                            titleLabel
+                            Spacer()
+                            timestampLabel
+                        }
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            titleLabel
+                            timestampLabel
+                        }
                     }
 
                     Text("\(sourceLabel) → \(targetLabel)")
@@ -257,6 +262,17 @@ private struct CommsEventRow: View {
     private var relativeTimestamp: String {
         guard let date = event.timestamp.eventsISO8601Date else { return event.timestamp }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+    }
+
+    private var titleLabel: some View {
+        Text(event.kind.label)
+            .font(.subheadline.weight(.medium))
+    }
+
+    private var timestampLabel: some View {
+        Text(relativeTimestamp)
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
     }
 
     private func shortID(_ id: String) -> String {

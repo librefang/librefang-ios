@@ -246,35 +246,34 @@ private struct DeliveryReceiptRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(receipt.localizedChannelLabel)
-                    .font(.subheadline.weight(.semibold))
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline) {
+                    channelLabel
+                    Spacer()
+                    statusBadge
+                }
 
-                Spacer()
-
-                Text(receipt.status.label)
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(receipt.status.tone.color.opacity(0.12))
-                    .foregroundStyle(receipt.status.tone.color)
-                    .clipShape(Capsule())
+                VStack(alignment: .leading, spacing: 6) {
+                    channelLabel
+                    statusBadge
+                }
             }
 
             Text(receipt.recipient)
                 .font(.caption)
                 .foregroundStyle(.secondary)
-                .lineLimit(1)
+                .lineLimit(2)
 
-            HStack(spacing: 8) {
-                Text(relativeTimestamp)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    timestampLabel
+                    messageIDLabel
+                }
 
-                Text(receipt.messageId)
-                    .font(.caption2.monospaced())
-                    .foregroundStyle(.tertiary)
-                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 3) {
+                    timestampLabel
+                    messageIDLabel
+                }
             }
 
             if let error = receipt.error, !error.isEmpty {
@@ -290,6 +289,36 @@ private struct DeliveryReceiptRow: View {
     private var relativeTimestamp: String {
         guard let date = receipt.timestamp.agentSessionISO8601Date else { return receipt.timestamp }
         return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+    }
+
+    private var channelLabel: some View {
+        Text(receipt.localizedChannelLabel)
+            .font(.subheadline.weight(.semibold))
+            .lineLimit(2)
+    }
+
+    private var statusBadge: some View {
+        Text(receipt.status.label)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(receipt.status.tone.color.opacity(0.12))
+            .foregroundStyle(receipt.status.tone.color)
+            .clipShape(Capsule())
+    }
+
+    private var timestampLabel: some View {
+        Text(relativeTimestamp)
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
+    }
+
+    private var messageIDLabel: some View {
+        Text(receipt.messageId)
+            .font(.caption2.monospaced())
+            .foregroundStyle(.tertiary)
+            .lineLimit(1)
+            .truncationMode(.middle)
     }
 }
 
