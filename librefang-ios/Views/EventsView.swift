@@ -1307,12 +1307,6 @@ private struct EventRow: View {
                     outcomeBadge
                 }
 
-                if !entry.detail.isEmpty {
-                    Text(entry.detail)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(3)
-                }
             }
         }
         .padding(.vertical, 2)

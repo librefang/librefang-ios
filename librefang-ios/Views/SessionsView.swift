@@ -1742,7 +1742,7 @@ private struct SessionMonitorRow: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(displayTitle)
                 .font(.subheadline.weight(.medium))
-                .lineLimit(2)
+                .lineLimit(1)
             Text(item.agent?.name ?? item.session.agentId)
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -1770,7 +1770,7 @@ private struct SessionMonitorRow: View {
             .foregroundStyle(item.messageCountTone.color)
 
         if !item.reasons.isEmpty {
-            ForEach(item.reasons.prefix(2), id: \.self) { reason in
+            ForEach(item.reasons.prefix(1), id: \.self) { reason in
                 PresentationToneBadge(
                     text: reason,
                     tone: item.tone,

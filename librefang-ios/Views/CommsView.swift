@@ -1426,12 +1426,6 @@ private struct CommsEventRow: View {
                         targetLabelView
                     }
 
-                    if !event.detail.isEmpty {
-                        Text(event.detail)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(3)
-                    }
                 }
             }
         }
