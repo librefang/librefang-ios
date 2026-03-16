@@ -3361,6 +3361,12 @@
             "state": "translated",
             "value": "智能体详情"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェント詳細"
+          }
         }
       }
     },
@@ -6446,6 +6452,12 @@
             "state": "translated",
             "value": "过滤后的事件"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "絞り込みイベント"
+          }
         }
       }
     },
@@ -6456,6 +6468,12 @@
             "state": "translated",
             "value": "过滤后的集成"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "絞り込み統合"
+          }
         }
       }
     },
@@ -6465,6 +6483,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "过滤后的会话"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "絞り込みセッション"
           }
         }
       }
@@ -6701,6 +6725,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "交接中心"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎセンター"
           }
         }
       }
@@ -7425,6 +7455,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "集成关注项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合の注目項目"
           }
         }
       }
@@ -12730,6 +12766,12 @@
             "state": "translated",
             "value": "会话监控"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションモニター"
+          }
         }
       }
     },
@@ -13281,6 +13323,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "待命摘要"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機ダイジェスト"
           }
         }
       }
@@ -55373,6 +55421,582 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(visibleJumpItems.count)件の直接ジャンプ（+\\(hiddenJumpCount)）"
+          }
+        }
+      }
+    },
+    "1 active lane": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个活跃通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のアクティブレーン"
+          }
+        }
+      }
+    },
+    "Keep live triage, watch drag, and follow-through pressure readable before moving from the overlay into deeper route groups.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从覆盖层进入更深的路由组之前，先让实时分诊、watch 拖拽和后续跟进压力保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイからより深いルートグループへ移る前に、ライブトリアージ、ウォッチの引きずり、フォロースルー負荷を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Overlay workstream coverage is currently anchored by live triage pressure.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "覆盖层工作流覆盖当前由实时分诊压力主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイのワークストリームカバレッジは現在、ライブトリアージ負荷が軸です。"
+          }
+        }
+      }
+    },
+    "Overlay workstream coverage is currently anchored by offline recovery.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "覆盖层工作流覆盖当前由离线恢复主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイのワークストリームカバレッジは現在、オフライン復旧が軸です。"
+          }
+        }
+      }
+    },
+    "Overlay workstream coverage is currently anchored by watch drag and follow-through work.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "覆盖层工作流覆盖当前由 watch 拖拽和后续跟进工作主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイのワークストリームカバレッジは現在、ウォッチの引きずりとフォロースルー作業が軸です。"
+          }
+        }
+      }
+    },
+    "Overlay workstream coverage is currently centered on the preferred surface and live tab context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "覆盖层工作流覆盖当前集中在首选界面和实时标签上下文。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイのワークストリームカバレッジは現在、優先サーフェスとライブタブ文脈を中心にしています。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether the overlay is currently led by live triage, follow-through drag, or offline recovery before opening the route groups.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开路由组之前查看当前覆盖层是由实时分诊、后续拖拽还是离线恢复主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、ルートグループを開く前に、現在のオーバーレイがライブトリアージ、フォロースルーの引きずり、またはオフライン復旧のどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "\\(activeLaneCount) active lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activeLaneCount) 个活跃通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activeLaneCount)件のアクティブレーン"
+          }
+        }
+      }
+    },
+    "Approval workstream coverage is currently anchored by critical approval requests.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批工作流覆盖当前由关键审批请求主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認ワークストリームのカバレッジは現在、重要な承認リクエストが軸です。"
+          }
+        }
+      }
+    },
+    "Approval workstream coverage is currently anchored by the filtered review slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批工作流覆盖当前由筛选后的复核切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認ワークストリームのカバレッジは現在、フィルター済みのレビュー切片が軸です。"
+          }
+        }
+      }
+    },
+    "Approval workstream coverage is currently anchored by the high-risk queue slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批工作流覆盖当前由高风险队列切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認ワークストリームのカバレッジは現在、高リスクキューの切片が軸です。"
+          }
+        }
+      }
+    },
+    "Approval workstream coverage is currently light across the visible queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批工作流覆盖当前在可见队列中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認ワークストリームのカバレッジは現在、表示中キュー全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Approval workstream coverage is currently spread across multiple agent and tool lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批工作流覆盖当前分布在多个 agent 和工具通道上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認ワークストリームのカバレッジは現在、複数の agent とツールのレーンに広がっています。"
+          }
+        }
+      }
+    },
+    "Keep approval risk, agent spread, and tool mix readable before moving through the queue rows and route rail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入队列行和路由栏之前，先让审批风险、agent 分布和工具组合保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キュー行とルートレールへ進む前に、承認リスク、agent の広がり、ツール構成を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether approval review is currently led by critical risk, broader queue breadth, or a scoped search slice before the full queue opens.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在完整队列展开前查看当前审批复核是由关键风险、更广的队列广度还是限定搜索切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、完全なキューが開く前に、現在の承認レビューが重要リスク、より広いキューの広がり、または絞り込み検索切片のどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "Comms workstream coverage is currently anchored by lifecycle churn.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信工作流覆盖当前由生命周期波动主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "comms ワークストリームのカバレッジは現在、ライフサイクルの変動が軸です。"
+          }
+        }
+      }
+    },
+    "Comms workstream coverage is currently anchored by task-flow traffic.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信工作流覆盖当前由任务流量主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "comms ワークストリームのカバレッジは現在、タスクフローのトラフィックが軸です。"
+          }
+        }
+      }
+    },
+    "Comms workstream coverage is currently anchored by the filtered traffic slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信工作流覆盖当前由筛选后的流量切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "comms ワークストリームのカバレッジは現在、フィルター済みトラフィック切片が軸です。"
+          }
+        }
+      }
+    },
+    "Comms workstream coverage is currently leaning on polling transport.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信工作流覆盖当前偏向轮询传输。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "comms ワークストリームのカバレッジは現在、ポーリング転送に寄っています。"
+          }
+        }
+      }
+    },
+    "Comms workstream coverage is currently light across visible topology and traffic.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信工作流覆盖当前在可见拓扑和流量中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "comms ワークストリームのカバレッジは現在、表示中トポロジーとトラフィック全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Keep transport mode, task traffic, and lifecycle churn readable before moving through topology and traffic rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入拓扑和流量行之前，先让传输模式、任务流量和生命周期波动保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トポロジーとトラフィック行へ進む前に、転送モード、タスクトラフィック、ライフサイクル変動を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether comms review is currently led by task traffic, lifecycle churn, or a scoped transport slice before topology rows open.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在拓扑行展开前查看当前通信复核是由任务流量、生命周期波动还是限定传输切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、トポロジー行が開く前に、現在の comms レビューがタスクトラフィック、ライフサイクル変動、または絞り込み転送切片のどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "Event workstream coverage is currently anchored by lower-noise feed traffic.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件工作流覆盖当前由低噪声事件流量主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントワークストリームのカバレッジは現在、低ノイズのフィードトラフィックが軸です。"
+          }
+        }
+      }
+    },
+    "Event workstream coverage is currently anchored by the filtered event slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件工作流覆盖当前由筛选后的事件切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントワークストリームのカバレッジは現在、フィルター済みイベント切片が軸です。"
+          }
+        }
+      }
+    },
+    "Event workstream coverage is currently anchored by the warning event lane.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件工作流覆盖当前由告警事件通道主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントワークストリームのカバレッジは現在、警告イベントのレーンが軸です。"
+          }
+        }
+      }
+    },
+    "Event workstream coverage is currently anchored by visible critical events.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件工作流覆盖当前由可见的关键事件主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントワークストリームのカバレッジは現在、表示中の重大イベントが軸です。"
+          }
+        }
+      }
+    },
+    "Event workstream coverage is currently light across the visible feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件工作流覆盖当前在可见事件流中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントワークストリームのカバレッジは現在、表示中フィード全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Keep severity pressure, transport mode, and lower-noise feed traffic readable before moving through the full event stream.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入完整事件流之前，先让严重级别压力、传输模式和低噪声事件流量保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全なイベントストリームへ進む前に、深刻度の負荷、転送モード、低ノイズのフィードトラフィックを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether event review is currently led by severity pressure, lower-noise traffic, or a scoped feed slice before the full stream opens.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在完整事件流展开前查看当前事件复核是由严重级别压力、低噪声流量还是限定 feed 切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、完全なストリームが開く前に、現在のイベントレビューが深刻度の負荷、低ノイズトラフィック、または絞り込みフィード切片のどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "Keep hotspot pressure, label hygiene, and duplicate-agent spread readable before moving through the session backlog.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入会话积压列表之前，先让热点压力、标签整洁度和重复 agent 分布保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションバックログへ進む前に、ホットスポット負荷、ラベルの整頓状態、重複 agent の広がりを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Session workstream coverage is currently anchored by duplicate-agent backlog lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话工作流覆盖当前由重复 agent 的积压通道主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションワークストリームのカバレッジは現在、重複 agent のバックログレーンが軸です。"
+          }
+        }
+      }
+    },
+    "Session workstream coverage is currently anchored by hotspot and high-volume backlog pressure.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话工作流覆盖当前由热点和高容量积压压力主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションワークストリームのカバレッジは現在、ホットスポットと高ボリュームのバックログ負荷が軸です。"
+          }
+        }
+      }
+    },
+    "Session workstream coverage is currently anchored by label hygiene work.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话工作流覆盖当前由标签整洁治理主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションワークストリームのカバレッジは現在、ラベル整備作業が軸です。"
+          }
+        }
+      }
+    },
+    "Session workstream coverage is currently anchored by the filtered backlog slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话工作流覆盖当前由筛选后的积压切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションワークストリームのカバレッジは現在、フィルター済みバックログ切片が軸です。"
+          }
+        }
+      }
+    },
+    "Session workstream coverage is currently light across the visible backlog.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话工作流覆盖当前在可见积压中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションワークストリームのカバレッジは現在、表示中バックログ全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether session review is currently led by hotspots, label hygiene, or a filtered backlog slice before the full queue opens.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在完整队列展开前查看当前会话复核是由热点、标签整洁度还是筛选后的积压切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、完全なキューが開く前に、現在のセッションレビューがホットスポット、ラベル整備、またはフィルター済みバックログ切片のどれに主導されているかを確認します。"
           }
         }
       }
