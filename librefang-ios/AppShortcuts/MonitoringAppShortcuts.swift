@@ -19,6 +19,30 @@ struct OpenOnCallIntent: MonitoringLaunchIntent {
     static var description = IntentDescription("Open the live on-call queue in LibreFang.")
 }
 
+struct OpenAgentsIntent: MonitoringLaunchIntent {
+    static let target: AppShortcutLaunchTarget = .surface(.agents)
+    static var title: LocalizedStringResource = "Open Agents"
+    static var description = IntentDescription("Open the agent fleet monitor in LibreFang.")
+}
+
+struct OpenRuntimeIntent: MonitoringLaunchIntent {
+    static let target: AppShortcutLaunchTarget = .surface(.runtime)
+    static var title: LocalizedStringResource = "Open Runtime"
+    static var description = IntentDescription("Open the live runtime operator deck in LibreFang.")
+}
+
+struct OpenBudgetIntent: MonitoringLaunchIntent {
+    static let target: AppShortcutLaunchTarget = .surface(.budget)
+    static var title: LocalizedStringResource = "Open Budget"
+    static var description = IntentDescription("Open the budget, spend, and model usage monitor in LibreFang.")
+}
+
+struct OpenSettingsIntent: MonitoringLaunchIntent {
+    static let target: AppShortcutLaunchTarget = .surface(.settings)
+    static var title: LocalizedStringResource = "Open Settings"
+    static var description = IntentDescription("Open the monitoring settings and device controls in LibreFang.")
+}
+
 struct OpenIncidentsIntent: MonitoringLaunchIntent {
     static let target: AppShortcutLaunchTarget = .surface(.incidents)
     static var title: LocalizedStringResource = "Open Incidents"
@@ -93,6 +117,42 @@ struct LibreFangAppShortcuts: AppShortcutsProvider {
             systemImageName: "waveform.path.ecg"
         )
         AppShortcut(
+            intent: OpenAgentsIntent(),
+            phrases: [
+                "Open Agents in \(.applicationName)",
+                "Show the agent fleet in \(.applicationName)"
+            ],
+            shortTitle: "Agents",
+            systemImageName: "person.3.sequence"
+        )
+        AppShortcut(
+            intent: OpenRuntimeIntent(),
+            phrases: [
+                "Open Runtime in \(.applicationName)",
+                "Show runtime in \(.applicationName)"
+            ],
+            shortTitle: "Runtime",
+            systemImageName: "bolt.shield"
+        )
+        AppShortcut(
+            intent: OpenBudgetIntent(),
+            phrases: [
+                "Open Budget in \(.applicationName)",
+                "Show budget in \(.applicationName)"
+            ],
+            shortTitle: "Budget",
+            systemImageName: "chart.line.uptrend.xyaxis"
+        )
+        AppShortcut(
+            intent: OpenSettingsIntent(),
+            phrases: [
+                "Open Settings in \(.applicationName)",
+                "Show monitoring settings in \(.applicationName)"
+            ],
+            shortTitle: "Settings",
+            systemImageName: "gearshape"
+        )
+        AppShortcut(
             intent: OpenIncidentsIntent(),
             phrases: [
                 "Open Incidents in \(.applicationName)",
@@ -129,49 +189,13 @@ struct LibreFangAppShortcuts: AppShortcutsProvider {
             systemImageName: "moon.stars"
         )
         AppShortcut(
-            intent: OpenAutomationIntent(),
+            intent: OpenStandbyDigestIntent(),
             phrases: [
-                "Open Automation in \(.applicationName)",
-                "Show workflows in \(.applicationName)"
+                "Open Standby Digest in \(.applicationName)",
+                "Show standby digest in \(.applicationName)"
             ],
-            shortTitle: "Automation",
-            systemImageName: "flowchart"
-        )
-        AppShortcut(
-            intent: OpenDiagnosticsIntent(),
-            phrases: [
-                "Open Diagnostics in \(.applicationName)",
-                "Show runtime diagnostics in \(.applicationName)"
-            ],
-            shortTitle: "Diagnostics",
-            systemImageName: "stethoscope"
-        )
-        AppShortcut(
-            intent: OpenIntegrationsIntent(),
-            phrases: [
-                "Open Integrations in \(.applicationName)",
-                "Show providers and models in \(.applicationName)"
-            ],
-            shortTitle: "Integrations",
-            systemImageName: "square.3.layers.3d.down.forward"
-        )
-        AppShortcut(
-            intent: OpenSessionMonitorIntent(),
-            phrases: [
-                "Open Session Monitor in \(.applicationName)",
-                "Show session pressure in \(.applicationName)"
-            ],
-            shortTitle: "Sessions",
-            systemImageName: "rectangle.stack"
-        )
-        AppShortcut(
-            intent: OpenCriticalEventsIntent(),
-            phrases: [
-                "Open Critical Events in \(.applicationName)",
-                "Show critical events in \(.applicationName)"
-            ],
-            shortTitle: "Events",
-            systemImageName: "list.bullet.rectangle"
+            shortTitle: "Standby",
+            systemImageName: "rectangle.compress.vertical"
         )
     }
 }
