@@ -172,6 +172,31 @@ struct OverviewView: View {
         .filter { $0 }
         .count
     }
+    private var overviewSectionPreviewTitles: [String] {
+        var sections: [String] = []
+        if vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil {
+            sections.append(String(localized: "Diagnostics"))
+        }
+        if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
+            sections.append(String(localized: "Integrations"))
+        }
+        if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
+            sections.append(String(localized: "Automation"))
+        }
+        if !watchedAttentionItems.isEmpty {
+            sections.append(String(localized: "Watchlist"))
+        }
+        if !vm.sessionAttentionItems.isEmpty {
+            sections.append(String(localized: "Sessions"))
+        }
+        if !vm.recentAudit.isEmpty {
+            sections.append(String(localized: "Recent Events"))
+        }
+        if !vm.agents.isEmpty {
+            sections.append(String(localized: "Fleet"))
+        }
+        return sections
+    }
 
     var body: some View {
         NavigationStack {
@@ -335,6 +360,13 @@ struct OverviewView: View {
                             automationIssueCount: vm.automationPressureIssueCategoryCount,
                             integrationIssueCount: vm.integrationPressureIssueCategoryCount
                         )
+                        if !overviewSectionPreviewTitles.isEmpty {
+                            MonitoringSectionPreviewDeck(
+                                title: String(localized: "Section Preview"),
+                                detail: String(localized: "Keep the next overview stacks visible before the platform, signal, and fleet cards spread out."),
+                                sectionTitles: overviewSectionPreviewTitles
+                            )
+                        }
                         OverviewWorkstreamCoverageDeck(
                             platformCardCount: platformCardCount,
                             signalCardCount: signalCardCount,

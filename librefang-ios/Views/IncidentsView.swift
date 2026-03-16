@@ -218,6 +218,37 @@ struct IncidentsView: View {
     private var watchedUnsettledAgentCount: Int {
         watchedDiagnosticRows.filter { $0.summary.unsettledDeliveries > 0 }.count
     }
+    private var incidentSectionPreviewTitles: [String] {
+        var sections: [String] = []
+        if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
+            sections.append(String(localized: "Operator State"))
+        }
+        if handoffIssueCount > 0 {
+            sections.append(String(localized: "Shift Coverage"))
+        }
+        if automationIssueCount > 0 {
+            sections.append(String(localized: "Automation"))
+        }
+        if integrationIssueCount > 0 {
+            sections.append(String(localized: "Integrations"))
+        }
+        if !visibleAlerts.isEmpty {
+            sections.append(String(localized: "Active Alerts"))
+        }
+        if !vm.approvals.isEmpty {
+            sections.append(String(localized: "Approvals"))
+        }
+        if !vm.attentionAgents.isEmpty || !watchedDiagnosticRows.isEmpty {
+            sections.append(String(localized: "Agents"))
+        }
+        if !vm.sessionAttentionItems.isEmpty {
+            sections.append(String(localized: "Sessions"))
+        }
+        if !vm.criticalAuditEntries.isEmpty {
+            sections.append(String(localized: "Critical Events"))
+        }
+        return sections
+    }
     private var unlabeledSessionCount: Int {
         vm.sessionAttentionItems.filter { !$0.hasLabel }.count
     }
@@ -376,6 +407,13 @@ struct IncidentsView: View {
                 integrationCount: integrationIssueCount,
                 handoffCount: handoffIssueCount
             )
+            if !incidentSectionPreviewTitles.isEmpty {
+                MonitoringSectionPreviewDeck(
+                    title: String(localized: "Section Preview"),
+                    detail: String(localized: "Keep the next incident buckets visible before the alert, queue, and support stacks begin."),
+                    sectionTitles: incidentSectionPreviewTitles
+                )
+            }
 
             IncidentPressureCoverageDeck(
                 criticalCount: criticalAlertCount,

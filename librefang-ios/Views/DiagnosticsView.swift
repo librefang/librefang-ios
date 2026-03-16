@@ -62,6 +62,31 @@ struct DiagnosticsView: View {
         .filter { $0 }
         .count
     }
+    private var diagnosticsSectionPreviewTitles: [String] {
+        var sections: [String] = []
+        if vm.healthDetail != nil {
+            sections.append(String(localized: "Health"))
+        }
+        if !(vm.healthDetail?.configWarnings.isEmpty ?? true) {
+            sections.append(String(localized: "Warnings"))
+        }
+        if vm.versionInfo != nil {
+            sections.append(String(localized: "Build"))
+        }
+        if vm.configSummary != nil {
+            sections.append(String(localized: "Config"))
+        }
+        if metrics != nil {
+            sections.append(String(localized: "Metrics"))
+        }
+        if !(metrics?.tokenLeaders.isEmpty ?? true) {
+            sections.append(String(localized: "Token Leaders"))
+        }
+        if !(metrics?.toolCallLeaders.isEmpty ?? true) {
+            sections.append(String(localized: "Tool Leaders"))
+        }
+        return sections
+    }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -107,6 +132,13 @@ struct DiagnosticsView: View {
                             hasBuild: vm.versionInfo != nil,
                             hasConfig: vm.configSummary != nil
                         )
+                        if !diagnosticsSectionPreviewTitles.isEmpty {
+                            MonitoringSectionPreviewDeck(
+                                title: String(localized: "Section Preview"),
+                                detail: String(localized: "Keep the next diagnostics feeds visible before the deep health, config, and metrics stacks open up."),
+                                sectionTitles: diagnosticsSectionPreviewTitles
+                            )
+                        }
                         DiagnosticsPressureCoverageDeck(
                             warningCount: vm.diagnosticsConfigWarningCount,
                             panicCount: vm.supervisorPanicCount,

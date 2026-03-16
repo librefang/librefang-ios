@@ -125,6 +125,34 @@ struct RuntimeView: View {
         .filter { $0 }
         .count
     }
+    private var runtimeSectionPreviewTitles: [String] {
+        var sections: [String] = []
+        if vm.status != nil {
+            sections.append(String(localized: "System"))
+        }
+        if vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || vm.metricsSnapshot != nil {
+            sections.append(String(localized: "Diagnostics"))
+        }
+        if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
+            sections.append(String(localized: "Integrations"))
+        }
+        if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
+            sections.append(String(localized: "Automation"))
+        }
+        if !vm.sessions.isEmpty {
+            sections.append(String(localized: "Sessions"))
+        }
+        if !vm.approvals.isEmpty {
+            sections.append(String(localized: "Approvals"))
+        }
+        if !vm.recentAudit.isEmpty {
+            sections.append(String(localized: "Audit"))
+        }
+        if vm.security != nil {
+            sections.append(String(localized: "Security"))
+        }
+        return sections
+    }
 
     var body: some View {
         NavigationStack {
@@ -272,6 +300,13 @@ struct RuntimeView: View {
                 hasSecurity: vm.security != nil,
                 hasNetwork: vm.networkStatus != nil
             )
+            if !runtimeSectionPreviewTitles.isEmpty {
+                MonitoringSectionPreviewDeck(
+                    title: String(localized: "Section Preview"),
+                    detail: String(localized: "Keep the next runtime sections visible before the deeper feeds and queue stacks open up."),
+                    sectionTitles: runtimeSectionPreviewTitles
+                )
+            }
             RuntimeWorkstreamCoverageDeck(
                 sectionCount: runtimeSectionCount,
                 supportFeedCount: runtimeSupportFeedCount,
