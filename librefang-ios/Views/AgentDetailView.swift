@@ -790,201 +790,106 @@ struct AgentDetailView: View {
     }
 
     private var agentOperatorSurfaceDeckCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Primary"),
-                detail: String(localized: "Keep the most likely next operator exits visible as compact shortcuts right below the agent digest.")
-            ) {
-                FlowLayout(spacing: 8) {
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Incidents"),
-                            systemImage: "bell.badge",
-                            tone: monitoringSurfaceIssueCount > 0 ? .warning : .neutral,
-                            badgeText: monitoringSurfaceIssueCount == 0 ? nil : String(localized: "\(monitoringSurfaceIssueCount) issues")
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        SessionsView(initialSearchText: agent.id, initialFilter: .all)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Sessions"),
-                            systemImage: "rectangle.stack",
-                            tone: sessionAttentionTone,
-                            badgeText: currentSessionBadgeText ?? (sessionIssueCount == 0 ? nil : String(localized: "\(sessionIssueCount) issues"))
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        AgentDeliveriesView(agent: agent, initialReceipts: agentDeliveries)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Receipts"),
-                            systemImage: "paperplane",
-                            tone: failedDeliveryCount > 0 ? .critical : deliveredReceiptTone,
-                            badgeText: agentDeliveries.isEmpty
-                                ? String(localized: "No receipts")
-                                : String(localized: "\(agentDeliveries.count) receipts")
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        AgentFilesView(agent: agent, initialFiles: agentFiles)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Workspace"),
-                            systemImage: "doc.text.magnifyingglass",
-                            tone: workspaceIdentitySummary.tone,
-                            badgeText: workspaceIdentitySummary.progressLabel
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        AgentMemoryView(agent: agent, initialEntries: agentMemory) { updatedEntries in
-                            agentMemory = updatedEntries
-                            isLoadingMemory = false
-                        }
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Memory"),
-                            systemImage: "internaldrive",
-                            tone: structuredMemoryTone,
-                            badgeText: agentMemory.isEmpty ? String(localized: "Empty") : String(localized: "\(agentMemory.count) keys")
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
+        FlowLayout(spacing: 8) {
+            NavigationLink {
+                IncidentsView()
+            } label: {
+                MonitoringSurfaceShortcutChip(
+                    title: String(localized: "Incidents"),
+                    systemImage: "bell.badge",
+                    tone: monitoringSurfaceIssueCount > 0 ? .warning : .neutral,
+                    badgeText: monitoringSurfaceIssueCount == 0 ? nil : String(localized: "\(monitoringSurfaceIssueCount) issues")
+                )
             }
+            .buttonStyle(.plain)
 
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Support"),
-                detail: String(localized: "Keep broader runtime, budget, and capability routes visible as a secondary shortcut rail.")
-            ) {
-                FlowLayout(spacing: 8) {
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Runtime"),
-                            systemImage: "server.rack"
-                        )
-                    }
-                    .buttonStyle(.plain)
+            NavigationLink {
+                SessionsView(initialSearchText: agent.id, initialFilter: .all)
+            } label: {
+                MonitoringSurfaceShortcutChip(
+                    title: String(localized: "Sessions"),
+                    systemImage: "rectangle.stack",
+                    tone: sessionAttentionTone,
+                    badgeText: currentSessionBadgeText ?? (sessionIssueCount == 0 ? nil : String(localized: "\(sessionIssueCount) issues"))
+                )
+            }
+            .buttonStyle(.plain)
 
-                    NavigationLink {
-                        DiagnosticsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Diagnostics"),
-                            systemImage: "stethoscope",
-                            tone: deps.dashboardViewModel.diagnosticsSummaryTone,
-                            badgeText: diagnosticsWarningCount > 0
-                                ? (diagnosticsWarningCount == 1
-                                    ? String(localized: "1 warning")
-                                    : String(localized: "\(diagnosticsWarningCount) warnings"))
-                                : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
+            NavigationLink {
+                AgentDeliveriesView(agent: agent, initialReceipts: agentDeliveries)
+            } label: {
+                MonitoringSurfaceShortcutChip(
+                    title: String(localized: "Receipts"),
+                    systemImage: "paperplane",
+                    tone: failedDeliveryCount > 0 ? .critical : deliveredReceiptTone,
+                    badgeText: agentDeliveries.isEmpty
+                        ? String(localized: "No receipts")
+                        : String(localized: "\(agentDeliveries.count) receipts")
+                )
+            }
+            .buttonStyle(.plain)
 
-                    NavigationLink {
-                        IntegrationsView(initialSearchText: integrationSearchText, initialScope: .attention)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Integrations"),
-                            systemImage: "square.3.layers.3d.down.forward",
-                            tone: modelDiagnostic?.statusTone ?? .neutral,
-                            badgeText: requestedModelReference
-                        )
-                    }
-                    .buttonStyle(.plain)
+            NavigationLink {
+                AgentFilesView(agent: agent, initialFiles: agentFiles)
+            } label: {
+                MonitoringSurfaceShortcutChip(
+                    title: String(localized: "Workspace"),
+                    systemImage: "doc.text.magnifyingglass",
+                    tone: workspaceIdentitySummary.tone,
+                    badgeText: workspaceIdentitySummary.progressLabel
+                )
+            }
+            .buttonStyle(.plain)
 
-                    NavigationLink {
-                        BudgetView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Budget"),
-                            systemImage: "chart.bar",
-                            tone: agentBudgetTone
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    if !agentApprovals.isEmpty {
-                        NavigationLink {
-                            ApprovalsView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Approvals"),
-                                systemImage: "checkmark.shield",
-                                tone: .critical,
-                                badgeText: agentApprovals.count == 1 ? String(localized: "1 approval") : String(localized: "\(agentApprovals.count) approvals")
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    NavigationLink {
-                        EventsView(api: deps.apiClient, initialSearchText: agent.id)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Audit Feed"),
-                            systemImage: "list.bullet.rectangle.portrait",
-                            badgeText: agentRecentEvents.isEmpty ? nil : String(localized: "\(agentRecentEvents.count) loaded")
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        AgentCapabilitiesView(
-                            agent: agent,
-                            initialToolFilters: agentToolFilters,
-                            initialSkills: agentSkills,
-                            initialMCPServers: agentMCPServers
-                        )
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Capabilities"),
-                            systemImage: "slider.horizontal.3",
-                            tone: agentToolFilters?.scopeTone ?? .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    if let profile = agent.profile {
-                        NavigationLink {
-                            ToolProfilesView(selectedProfileName: profile)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Tool Profile"),
-                                systemImage: "person.crop.rectangle.stack",
-                                tone: profileToolCountTone,
-                                badgeText: profileBadgeText
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if agent.isRunning {
-                        Button {
-                            showChat = true
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Live Chat"),
-                                systemImage: "bubble.left.and.bubble.right.fill",
-                                tone: .positive
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
+            NavigationLink {
+                AgentMemoryView(agent: agent, initialEntries: agentMemory) { updatedEntries in
+                    agentMemory = updatedEntries
+                    isLoadingMemory = false
                 }
+            } label: {
+                MonitoringSurfaceShortcutChip(
+                    title: String(localized: "Memory"),
+                    systemImage: "internaldrive",
+                    tone: structuredMemoryTone,
+                    badgeText: agentMemory.isEmpty ? String(localized: "Empty") : String(localized: "\(agentMemory.count) keys")
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                IntegrationsView(initialSearchText: integrationSearchText, initialScope: .attention)
+            } label: {
+                MonitoringSurfaceShortcutChip(
+                    title: String(localized: "Integrations"),
+                    systemImage: "square.3.layers.3d.down.forward",
+                    tone: modelDiagnostic?.statusTone ?? .neutral,
+                    badgeText: requestedModelReference
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                EventsView(api: deps.apiClient, initialSearchText: agent.id)
+            } label: {
+                MonitoringSurfaceShortcutChip(
+                    title: String(localized: "Audit Feed"),
+                    systemImage: "list.bullet.rectangle.portrait",
+                    badgeText: agentRecentEvents.isEmpty ? nil : String(localized: "\(agentRecentEvents.count) loaded")
+                )
+            }
+            .buttonStyle(.plain)
+
+            if agent.isRunning {
+                Button {
+                    showChat = true
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Live Chat"),
+                        systemImage: "bubble.left.and.bubble.right.fill",
+                        tone: .positive
+                    )
+                }
+                .buttonStyle(.plain)
             }
         }
     }

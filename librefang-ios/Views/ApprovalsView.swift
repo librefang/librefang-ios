@@ -120,68 +120,6 @@ struct ApprovalsView: View {
                         filterTone: filterTone,
                         hasSearchScope: !trimmedSearchText.isEmpty
                     )
-                    MonitoringSurfaceGroupCard(
-                        title: String(localized: "Shortcuts"),
-                        detail: String(localized: "Keep the next operator screens close to the approval queue.")
-                    ) {
-                        MonitoringShortcutRail(
-                            title: String(localized: "Primary"),
-                            detail: String(localized: "Use the main operator routes first when approval pressure needs broader queue context.")
-                        ) {
-                            NavigationLink {
-                                IncidentsView()
-                            } label: {
-                                MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "Incidents"),
-                                    systemImage: "bell.badge",
-                                    tone: criticalApprovalCount > 0 ? .critical : .neutral,
-                                    badgeText: criticalApprovalCount > 0 ? "\(criticalApprovalCount)" : nil
-                                )
-                            }
-                            .buttonStyle(.plain)
-
-                            NavigationLink {
-                                OnCallView()
-                            } label: {
-                                MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "On Call"),
-                                    systemImage: "waveform.path.ecg",
-                                    tone: vm.pendingApprovalCount > 0 ? .warning : .neutral,
-                                    badgeText: vm.pendingApprovalCount > 0 ? "\(vm.pendingApprovalCount)" : nil
-                                )
-                            }
-                            .buttonStyle(.plain)
-
-                            NavigationLink {
-                                RuntimeView()
-                            } label: {
-                                MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "Runtime"),
-                                    systemImage: "server.rack",
-                                    tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
-                                    badgeText: vm.runtimeAlertCount > 0 ? "\(vm.runtimeAlertCount)" : nil
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-
-                        MonitoringShortcutRail(
-                            title: String(localized: "Support"),
-                            detail: String(localized: "Use fleet context when approval requests cluster around the same agents.")
-                        ) {
-                            NavigationLink {
-                                AgentsView()
-                            } label: {
-                                MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "Agents"),
-                                    systemImage: "person.3",
-                                    tone: .neutral,
-                                    badgeText: approvalAgentCount > 0 ? "\(approvalAgentCount)" : nil
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
 
                     ApprovalsFilterCard(
                         filter: $filter,
@@ -192,7 +130,7 @@ struct ApprovalsView: View {
                 } header: {
                     Text("Summary")
                 } footer: {
-                    Text("Keep one approvals summary, the main exits, and the filter bar above the queue.")
+                    Text("Keep one approvals summary and the filter bar above the queue.")
                 }
 
                 if filteredApprovals.isEmpty && !vm.isLoading {

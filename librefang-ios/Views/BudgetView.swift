@@ -402,7 +402,7 @@ struct BudgetView: View {
     }
 
     @ViewBuilder
-    private func budgetOperatorDeckSection(_ proxy: ScrollViewProxy) -> some View {
+    private func budgetOperatorDeckSection(_ _: ScrollViewProxy) -> some View {
         Section {
             BudgetStatusDeckCard(
                 trendDays: vm.usageDaily.count,
@@ -424,149 +424,10 @@ struct BudgetView: View {
                     projectedMonthlyCost: projectedMonthlyCost(usageSummary)
                 )
             }
-
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Shortcuts"),
-                detail: String(localized: "Jump to the long charts and rankings without stacking more summary cards.")
-            ) {
-                MonitoringShortcutRail(
-                    title: String(localized: "Primary Areas"),
-                    detail: budgetFocusSummary
-                ) {
-                    Button {
-                        jump(proxy, to: .limits)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Limits"),
-                            systemImage: "gauge.medium",
-                            tone: .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    Button {
-                        jump(proxy, to: .signals)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Cost Signals"),
-                            systemImage: "chart.line.uptrend.xyaxis",
-                            tone: .warning
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    if !vm.usageDaily.isEmpty {
-                        Button {
-                            jump(proxy, to: .trend)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Trend"),
-                                systemImage: "chart.xyaxis.line",
-                                tone: .neutral,
-                                badgeText: "\(vm.usageDaily.count)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-
-                MonitoringShortcutRail(
-                    title: String(localized: "Supporting Areas"),
-                    detail: String(localized: "Keep the model and per-agent rankings behind the primary spend summary.")
-                ) {
-                    if !sortedModels.isEmpty {
-                        Button {
-                            jump(proxy, to: .models)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Models"),
-                                systemImage: "square.stack.3d.up",
-                                tone: .neutral,
-                                badgeText: "\(sortedModels.count)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if !sortedAgents.isEmpty {
-                        Button {
-                            jump(proxy, to: .agents)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Agents"),
-                                systemImage: "person.3",
-                                tone: .neutral,
-                                badgeText: "\(sortedAgents.count)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Routes"),
-                detail: String(localized: "Keep budget triage connected to the broader mobile monitoring path.")
-            ) {
-                MonitoringShortcutRail(
-                    title: String(localized: "Primary"),
-                    detail: String(localized: "Use the overview and runtime exits first when cost pressure needs broader context.")
-                ) {
-                    NavigationLink {
-                        OverviewView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Overview"),
-                            systemImage: "square.grid.2x2",
-                            tone: .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Runtime"),
-                            systemImage: "waveform.path.ecg",
-                            tone: budgetPressureTone
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                MonitoringShortcutRail(
-                    title: String(localized: "Support"),
-                    detail: String(localized: "Use deeper diagnostics and routing checks when spend concentration hints at runtime drift.")
-                ) {
-                    NavigationLink {
-                        DiagnosticsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Diagnostics"),
-                            systemImage: "stethoscope",
-                            tone: .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        IntegrationsView(initialScope: .attention)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Integrations"),
-                            systemImage: "square.3.layers.3d.down.forward",
-                            tone: .neutral,
-                            badgeText: topModelName
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
         } header: {
             Text("Controls")
         } footer: {
-            Text("Keep summary, jumps, and exits together before the longer cost lists.")
+            Text("Keep summary and signals together before the longer cost lists.")
         }
     }
 }
