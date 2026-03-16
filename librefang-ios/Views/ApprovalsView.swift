@@ -1,9 +1,5 @@
 import SwiftUI
 
-private enum ApprovalsSectionAnchor: Hashable {
-    case approvals
-}
-
 private enum ApprovalRiskFilter: String, CaseIterable, Identifiable {
     case all
     case critical
@@ -94,131 +90,91 @@ struct ApprovalsView: View {
     private var visibleToolCount: Int {
         Set(filteredApprovals.map(\.toolName)).count
     }
-    private var approvalsSectionCount: Int { 1 }
-    private var approvalsPrimaryRouteCount: Int { 3 }
-    private var approvalsSupportRouteCount: Int { 1 }
-    private var approvalsSectionPreviewTitles: [String] {
-        [String(localized: "Approvals")]
-    }
-
     var body: some View {
-        ScrollViewReader { proxy in
-            List {
-                Section {
-                    ApprovalsScoreboard(vm: vm)
-                        .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-                }
+        List {
+            Section {
+                ApprovalsScoreboard(vm: vm)
+                    .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+            }
 
-                Section {
-                    ApprovalsStatusDeckCard(
-                        pendingApprovalCount: vm.pendingApprovalCount,
-                        criticalApprovalCount: criticalApprovalCount,
-                        highRiskApprovalCount: highRiskApprovalCount,
-                        approvalAgentCount: approvalAgentCount,
-                        visibleApprovalCount: filteredApprovals.count,
-                        filterLabel: filter.label,
-                        filterTone: filterTone,
-                        hasSearchScope: !trimmedSearchText.isEmpty
+            Section {
+                ApprovalsFilterCard(
+                    filter: $filter,
+                    searchText: searchText,
+                    visibleCount: filteredApprovals.count,
+                    totalCount: vm.approvals.count
+                )
+            } header: {
+                Text("Filters")
+            } footer: {
+                Text("Keep the filter bar above the queue.")
+            }
+
+            if filteredApprovals.isEmpty && !vm.isLoading {
+                Section("Approvals") {
+                    ContentUnavailableView(
+                        searchText.isEmpty ? String(localized: "No Pending Approvals") : String(localized: "No Search Results"),
+                        systemImage: "checkmark.shield",
+                        description: Text(searchText.isEmpty ? String(localized: "The current dashboard snapshot has no unresolved approval gates.") : String(localized: "Try a different agent, tool, or action query."))
                     )
-
-                    ApprovalsFilterCard(
-                        filter: $filter,
-                        searchText: searchText,
-                        visibleCount: filteredApprovals.count,
-                        totalCount: vm.approvals.count
-                    )
-                } header: {
-                    Text("Summary")
-                } footer: {
-                    Text("Keep one approvals summary and the filter bar above the queue.")
                 }
-
-                if filteredApprovals.isEmpty && !vm.isLoading {
-                    Section("Approvals") {
-                        ContentUnavailableView(
-                            searchText.isEmpty ? String(localized: "No Pending Approvals") : String(localized: "No Search Results"),
-                            systemImage: "checkmark.shield",
-                            description: Text(searchText.isEmpty ? String(localized: "The current dashboard snapshot has no unresolved approval gates.") : String(localized: "Try a different agent, tool, or action query."))
+            } else {
+                Section {
+                    ForEach(filteredApprovals) { approval in
+                        ApprovalOperatorRow(
+                            approval: approval,
+                            isBusy: actionInFlightID == approval.id,
+                            onApprove: {
+                                pendingAction = .approve(approval)
+                            },
+                            onReject: {
+                                pendingAction = .reject(approval)
+                            }
                         )
                     }
-                    .id(ApprovalsSectionAnchor.approvals)
-                } else {
-                    Section {
-                        ForEach(filteredApprovals) { approval in
-                            ApprovalOperatorRow(
-                                approval: approval,
-                                isBusy: actionInFlightID == approval.id,
-                                onApprove: {
-                                    pendingAction = .approve(approval)
-                                },
-                                onReject: {
-                                    pendingAction = .reject(approval)
-                                }
-                            )
-                        }
-                    } header: {
-                        Text("Approvals")
-                    } footer: {
-                        Text("Resolve requests from mobile after confirmation. The queue refreshes from the server after each decision.")
-                    }
-                    .id(ApprovalsSectionAnchor.approvals)
+                } header: {
+                    Text("Approvals")
+                } footer: {
+                    Text("Resolve requests from mobile after confirmation. The queue refreshes from the server after each decision.")
                 }
             }
-            .navigationTitle(String(localized: "Approvals"))
-            .searchable(text: $searchText, prompt: Text(String(localized: "Search agent, tool, or action")))
-            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
-            .refreshable {
+        }
+        .navigationTitle(String(localized: "Approvals"))
+        .searchable(text: $searchText, prompt: Text(String(localized: "Search agent, tool, or action")))
+        .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
+        .refreshable {
+            await vm.refresh()
+        }
+        .overlay {
+            if vm.isLoading && vm.approvals.isEmpty {
+                ProgressView(String(localized: "Loading approvals..."))
+            }
+        }
+        .task {
+            if vm.approvals.isEmpty {
                 await vm.refresh()
             }
-            .overlay {
-                if vm.isLoading && vm.approvals.isEmpty {
-                    ProgressView(String(localized: "Loading approvals..."))
-                }
-            }
-            .task {
-                if vm.approvals.isEmpty {
-                    await vm.refresh()
-                }
-            }
-            .confirmationDialog(
-                pendingAction?.title ?? "",
-                isPresented: actionConfirmationPresented,
-                titleVisibility: .visible,
-                presenting: pendingAction
-            ) { action in
-                Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
-                    Task { await performAction(action) }
-                }
-                Button(String(localized: "Cancel"), role: .cancel) {}
-            } message: { action in
-                Text(action.message)
-            }
-            .alert(item: $operatorNotice) { notice in
-                Alert(
-                    title: Text(notice.title),
-                    message: Text(notice.message),
-                    dismissButton: .default(Text("OK"))
-                )
-            }
         }
-    }
-
-    private func jump(_ proxy: ScrollViewProxy, to anchor: ApprovalsSectionAnchor) {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            proxy.scrollTo(anchor, anchor: .top)
-        }
-    }
-
-    private func approvalsSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
-        [
-            MonitoringSectionJumpItem(
-                title: String(localized: "Approvals"),
-                systemImage: "checkmark.shield",
-                tone: criticalApprovalCount > 0 ? .critical : filterTone
-            ) {
-                jump(proxy, to: .approvals)
+        .confirmationDialog(
+            pendingAction?.title ?? "",
+            isPresented: actionConfirmationPresented,
+            titleVisibility: .visible,
+            presenting: pendingAction
+        ) { action in
+            Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
+                Task { await performAction(action) }
             }
-        ]
+            Button(String(localized: "Cancel"), role: .cancel) {}
+        } message: { action in
+            Text(action.message)
+        }
+        .alert(item: $operatorNotice) { notice in
+            Alert(
+                title: Text(notice.title),
+                message: Text(notice.message),
+                dismissButton: .default(Text("OK"))
+            )
+        }
     }
 
     private var actionConfirmationPresented: Binding<Bool> {
