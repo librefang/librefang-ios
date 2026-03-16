@@ -247,6 +247,17 @@ struct AutomationView: View {
                         scopeLabel: scope.label,
                         hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                     )
+                    AutomationScopeCoverageDeck(
+                        visibleItemCount: visibleItemCount,
+                        workflowCount: filteredWorkflows.count,
+                        runCount: filteredWorkflowRuns.count,
+                        triggerCount: filteredTriggers.count,
+                        scheduleCount: filteredSchedules.count,
+                        cronCount: filteredCronJobs.count,
+                        scopeLabel: scope.label,
+                        hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                        isScopeFiltered: scope != .all
+                    )
                     AutomationRouteInventoryDeck(
                         primaryRouteCount: 4,
                         supportRouteCount: 1,
@@ -1426,6 +1437,95 @@ private struct AutomationFocusCoverageDeck: View {
             return String(localized: "Automation focus coverage is currently anchored by the filtered automation slice.")
         }
         return String(localized: "Automation focus coverage is currently balanced across workflow, trigger, and schedule lanes.")
+    }
+}
+
+private struct AutomationScopeCoverageDeck: View {
+    let visibleItemCount: Int
+    let workflowCount: Int
+    let runCount: Int
+    let triggerCount: Int
+    let scheduleCount: Int
+    let cronCount: Int
+    let scopeLabel: String
+    let hasSearchScope: Bool
+    let isScopeFiltered: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep scope, search state, and visible automation families readable before grouped workflow and scheduler lists."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: .neutral)
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                    PresentationToneBadge(
+                        text: visibleItemCount == 1 ? String(localized: "1 visible item") : String(localized: "\(visibleItemCount) visible items"),
+                        tone: visibleItemCount > 0 ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Scope coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the active automation slice, search state, and family breadth readable before grouped runs, triggers, schedules, and cron lists take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: scopeLabel, tone: .neutral)
+            } facts: {
+                if workflowCount > 0 {
+                    Label(
+                        workflowCount == 1 ? String(localized: "1 workflow") : String(localized: "\(workflowCount) workflows"),
+                        systemImage: "square.stack.3d.down.forward"
+                    )
+                }
+                if runCount > 0 {
+                    Label(
+                        runCount == 1 ? String(localized: "1 run") : String(localized: "\(runCount) runs"),
+                        systemImage: "play.rectangle.on.rectangle"
+                    )
+                }
+                if triggerCount > 0 {
+                    Label(
+                        triggerCount == 1 ? String(localized: "1 trigger") : String(localized: "\(triggerCount) triggers"),
+                        systemImage: "bolt.badge.clock"
+                    )
+                }
+                if scheduleCount + cronCount > 0 {
+                    Label(
+                        scheduleCount + cronCount == 1
+                            ? String(localized: "1 scheduler entry")
+                            : String(localized: "\(scheduleCount + cronCount) scheduler entries"),
+                        systemImage: "calendar"
+                    )
+                }
+                if isScopeFiltered {
+                    Label(String(localized: "Scope filtered"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Automation scope coverage is currently anchored by the active search slice.")
+        }
+        if isScopeFiltered {
+            return String(localized: "Automation scope coverage is currently narrowed to the active automation filter.")
+        }
+        return String(localized: "Automation scope coverage is currently balanced across the visible workflow and scheduler families.")
     }
 }
 

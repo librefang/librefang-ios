@@ -394,6 +394,19 @@ struct IntegrationsView: View {
                             modelFilterLabel: modelFilter.label,
                             hasSearchScope: !normalizedSearchText.isEmpty
                         )
+                        IntegrationsScopeCoverageDeck(
+                            visibleResultCount: visibleResultCount,
+                            providerCount: filteredProviders.count,
+                            channelCount: filteredChannels.count,
+                            modelCount: filteredModels.count,
+                            aliasCount: filteredAliases.count,
+                            driftCount: filteredAgentDiagnostics.count,
+                            scopeLabel: scope.label,
+                            modelFilterLabel: modelFilter.label,
+                            hasSearchScope: !normalizedSearchText.isEmpty,
+                            isAttentionScoped: scope == .attention,
+                            isModelFiltered: scope == .all && modelFilter != .all
+                        )
                     } header: {
                         Text("Inventory")
                     } footer: {
@@ -1350,6 +1363,104 @@ private struct IntegrationsFocusCoverageDeck: View {
             return String(localized: "Integration focus coverage is currently anchored by the filtered integration slice.")
         }
         return String(localized: "Integration focus coverage is currently balanced across the visible inventory lanes.")
+    }
+}
+
+private struct IntegrationsScopeCoverageDeck: View {
+    let visibleResultCount: Int
+    let providerCount: Int
+    let channelCount: Int
+    let modelCount: Int
+    let aliasCount: Int
+    let driftCount: Int
+    let scopeLabel: String
+    let modelFilterLabel: String
+    let hasSearchScope: Bool
+    let isAttentionScoped: Bool
+    let isModelFiltered: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep integration scope, model filter state, and visible inventory breadth readable before the provider, channel, model, alias, and drift sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: .neutral)
+                    PresentationToneBadge(text: modelFilterLabel, tone: .neutral)
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Scope coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the active integration slice, model filter, and visible inventory breadth readable before moving into provider, channel, model, alias, and drift detail."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleResultCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleResultCount) visible results"),
+                    tone: visibleResultCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if providerCount > 0 {
+                    Label(
+                        providerCount == 1 ? String(localized: "1 provider") : String(localized: "\(providerCount) providers"),
+                        systemImage: "key.horizontal"
+                    )
+                }
+                if channelCount > 0 {
+                    Label(
+                        channelCount == 1 ? String(localized: "1 channel") : String(localized: "\(channelCount) channels"),
+                        systemImage: "bubble.left.and.bubble.right"
+                    )
+                }
+                if modelCount > 0 {
+                    Label(
+                        modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
+                        systemImage: "square.stack.3d.up"
+                    )
+                }
+                if aliasCount > 0 {
+                    Label(
+                        aliasCount == 1 ? String(localized: "1 alias") : String(localized: "\(aliasCount) aliases"),
+                        systemImage: "arrow.triangle.branch"
+                    )
+                }
+                if driftCount > 0 {
+                    Label(
+                        driftCount == 1 ? String(localized: "1 drift case") : String(localized: "\(driftCount) drift cases"),
+                        systemImage: "person.crop.rectangle.stack"
+                    )
+                }
+                if isAttentionScoped || isModelFiltered {
+                    Label(String(localized: "Scope filtered"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Integration scope coverage is currently anchored by the active search slice.")
+        }
+        if isAttentionScoped {
+            return String(localized: "Integration scope coverage is currently narrowed to attention-heavy provider, channel, model, and drift slices.")
+        }
+        if isModelFiltered {
+            return String(localized: "Integration scope coverage is currently narrowed by the active model filter.")
+        }
+        return String(localized: "Integration scope coverage is currently balanced across the visible inventory lanes.")
     }
 }
 
