@@ -182,6 +182,7 @@ struct RuntimeView: View {
                 .toolbar {
                     runtimeToolbar
                 }
+                .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
                 .refreshable {
                     await vm.refresh()
                 }

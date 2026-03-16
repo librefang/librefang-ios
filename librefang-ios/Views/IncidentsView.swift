@@ -271,6 +271,7 @@ struct IncidentsView: View {
                 incidentSections(proxy)
             }
             .navigationTitle("Incidents")
+            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .refreshable {
                 await vm.refresh()
             }

@@ -1,12 +1,12 @@
 import SwiftUI
 
 struct MainTabView: View {
+    private static let maxPendingShortcutAge: TimeInterval = 10
+
     @Environment(\.dependencies) private var deps
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedTab = 0
     @State private var handledPendingShortcutToken: String?
-    @State private var topOverlayInteractionRevision = 0
-    @State private var isTopOverlayInteractive = true
     @State private var presentedTarget: AppShortcutLaunchTarget?
     @State private var incidentCue: ActiveIncidentCue?
     @State private var hasObservedCriticalState = false
@@ -238,9 +238,6 @@ struct MainTabView: View {
             .onChange(of: selectedTab) {
                 HapticManager.selection()
             }
-            .onChange(of: vm.isLoading) { _, isLoading in
-                updateTopOverlayInteractivity(for: isLoading)
-            }
     }
 
     private var tabContainer: some View {
@@ -429,7 +426,10 @@ struct MainTabView: View {
             .padding(.top, 4)
             .padding(.bottom, 8)
             .background(.bar)
-            .allowsHitTesting(isTopOverlayInteractive)
+            .monitoringRefreshInteractionGate(
+                isRefreshing: vm.isLoading,
+                restoreDelay: 0.7
+            )
             .animation(.spring(response: 0.28, dampingFraction: 0.86), value: incidentCue?.id)
             .animation(.spring(response: 0.28, dampingFraction: 0.86), value: handoffCue?.id)
         }
@@ -642,6 +642,17 @@ struct MainTabView: View {
 
         handledPendingShortcutToken = pendingToken
 
+        guard let queuedAt = deps.appShortcutLaunchStore.pendingQueuedAt else {
+            deps.appShortcutLaunchStore.discardPendingTarget()
+            return
+        }
+
+        let age = Date().timeIntervalSince(queuedAt)
+        guard age <= Self.maxPendingShortcutAge else {
+            deps.appShortcutLaunchStore.discardPendingTarget()
+            return
+        }
+
         guard let target = deps.appShortcutLaunchStore.consumePendingTarget() else { return }
         guard presentedTarget?.id != target.id else { return }
         openRoute(target)
@@ -651,7 +662,6 @@ struct MainTabView: View {
         deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
         deps.appShortcutLaunchStore.refreshFromDefaults()
         handlePendingAppShortcutIfNeeded()
-        updateTopOverlayInteractivity(for: vm.isLoading)
         Task { await deps.onCallNotificationManager.refreshAuthorizationStatus() }
         Task { await refreshWatchedAgentDiagnostics() }
     }
@@ -678,24 +688,6 @@ struct MainTabView: View {
             }
         default:
             break
-        }
-    }
-
-    private func updateTopOverlayInteractivity(for isLoading: Bool) {
-        topOverlayInteractionRevision += 1
-        let revision = topOverlayInteractionRevision
-
-        guard !isLoading else {
-            isTopOverlayInteractive = false
-            return
-        }
-
-        Task {
-            try? await Task.sleep(nanoseconds: 700_000_000)
-            await MainActor.run {
-                guard topOverlayInteractionRevision == revision, !vm.isLoading else { return }
-                isTopOverlayInteractive = true
-            }
         }
     }
 

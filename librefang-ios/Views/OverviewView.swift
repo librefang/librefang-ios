@@ -211,345 +211,356 @@ struct OverviewView: View {
                             })
                         }
 
-                        ConnectionCard(health: vm.health, lastRefresh: vm.lastRefresh, isStale: vm.isDataStale)
-
-                        if !visibleMonitoringAlerts.isEmpty || activeMutedAlertCount > 0 {
-                            NavigationLink {
-                                IncidentsView()
-                            } label: {
-                                AlertsCard(
-                                    alerts: visibleMonitoringAlerts,
-                                    mutedCount: activeMutedAlertCount,
-                                    snapshotAcknowledged: isCurrentSnapshotAcknowledged
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-
-                        NavigationLink {
-                            preferredSurfaceView
-                        } label: {
-                            OnCallDigestCard(
-                                queueCount: onCallPriorityItems.count,
-                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                                watchCount: watchedAttentionItems.count,
-                                summary: onCallDigestLine
+                        VStack(spacing: 14) {
+                            ConnectionCard(
+                                health: vm.health,
+                                lastRefresh: vm.lastRefresh,
+                                isStale: vm.isDataStale,
+                                errorMessage: vm.error
                             )
-                        }
-                        .buttonStyle(.plain)
 
-                        if let latestHandoff = deps.onCallHandoffStore.latestEntry {
+                            if !visibleMonitoringAlerts.isEmpty || activeMutedAlertCount > 0 {
+                                NavigationLink {
+                                    IncidentsView()
+                                } label: {
+                                    AlertsCard(
+                                        alerts: visibleMonitoringAlerts,
+                                        mutedCount: activeMutedAlertCount,
+                                        snapshotAcknowledged: isCurrentSnapshotAcknowledged
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+
                             NavigationLink {
-                                HandoffCenterView(
-                                    summary: handoffText,
+                                preferredSurfaceView
+                            } label: {
+                                OnCallDigestCard(
                                     queueCount: onCallPriorityItems.count,
                                     criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                                    liveAlertCount: visibleMonitoringAlerts.count
-                                )
-                            } label: {
-                                RecentHandoffCard(
-                                    entry: latestHandoff,
-                                    gapLabel: latestHandoffGapLabel,
-                                    checkInStatus: deps.onCallHandoffStore.latestCheckInStatus,
-                                    drift: latestHandoffDrift,
-                                    carryover: latestHandoffCarryover,
-                                    pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
-                                    completedFollowUpCount: deps.onCallHandoffStore.completedLatestFollowUpCount
+                                    watchCount: watchedAttentionItems.count,
+                                    summary: onCallDigestLine
                                 )
                             }
                             .buttonStyle(.plain)
-                        }
 
-                        OverviewStatusDeckCard(
-                            queueCount: onCallPriorityItems.count,
-                            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                            approvalCount: vm.pendingApprovalCount,
-                            sessionCount: vm.sessionAttentionCount,
-                            watchIssueCount: overviewWatchIssueCount,
-                            automationIssueCount: vm.automationPressureIssueCategoryCount,
-                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                            isDataStale: vm.isDataStale,
-                            isLoopbackServer: isLoopbackServer,
-                            providerCount: vm.configuredProviderCount,
-                            channelCount: vm.readyChannelCount,
-                            handoffStateLabel: deps.onCallHandoffStore.freshnessLabel,
-                            handoffTone: deps.onCallHandoffStore.freshnessState.tone
-                        )
-
-                        OverviewPressureCoverageDeck(
-                            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                            liveAlertCount: visibleMonitoringAlerts.count,
-                            approvalCount: vm.pendingApprovalCount,
-                            sessionCount: vm.sessionAttentionCount,
-                            watchIssueCount: overviewWatchIssueCount,
-                            mutedAlertCount: activeMutedAlertCount,
-                            pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
-                            diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                            automationIssueCount: vm.automationPressureIssueCategoryCount,
-                            integrationIssueCount: vm.integrationPressureIssueCategoryCount
-                        )
-
-                        OverviewSupportCoverageDeck(
-                            mutedAlertCount: activeMutedAlertCount,
-                            pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
-                            diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                            automationIssueCount: vm.automationPressureIssueCategoryCount,
-                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                            isDataStale: vm.isDataStale,
-                            providerCount: vm.configuredProviderCount,
-                            channelCount: vm.readyChannelCount
-                        )
-
-                        OverviewEntryDeckCard(
-                            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                            approvalCount: vm.pendingApprovalCount,
-                            sessionCount: vm.sessionAttentionCount,
-                            automationIssueCount: vm.automationPressureIssueCategoryCount,
-                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                            diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                            budgetDailyCost: vm.budget?.dailySpend,
-                            handoffText: handoffText,
-                            queueCount: onCallPriorityItems.count,
-                            liveAlertCount: visibleMonitoringAlerts.count,
-                            watchIssueCount: overviewWatchIssueCount,
-                            auditCount: vm.recentAudit.count,
-                            agentCount: vm.attentionAgents.isEmpty ? vm.agents.count : vm.attentionAgents.count,
-                            showsDiagnostics: vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil,
-                            showsIntegrations: !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty,
-                            showsAutomation: vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty,
-                            showsWatchlist: !watchedAttentionItems.isEmpty,
-                            showsSessions: !vm.sessionAttentionItems.isEmpty,
-                            showsAudit: !vm.recentAudit.isEmpty,
-                            showsAgents: !vm.agents.isEmpty
-                        ) { anchor in
-                            jump(proxy, to: anchor)
-                        }
-
-                        OverviewActionReadinessDeck(
-                            primaryRouteCount: 4,
-                            supportRouteCount: 4,
-                            jumpCount: overviewJumpCount,
-                            sectionCount: overviewSectionCount,
-                            platformCardCount: platformCardCount,
-                            signalCardCount: signalCardCount,
-                            fleetCardCount: fleetCardCount,
-                            queueCount: onCallPriorityItems.count,
-                            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                            isDataStale: vm.isDataStale
-                        )
-                        OverviewFocusCoverageDeck(
-                            platformCardCount: platformCardCount,
-                            signalCardCount: signalCardCount,
-                            fleetCardCount: fleetCardCount,
-                            queueCount: onCallPriorityItems.count,
-                            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                            watchIssueCount: overviewWatchIssueCount,
-                            automationIssueCount: vm.automationPressureIssueCategoryCount,
-                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                            isDataStale: vm.isDataStale
-                        )
-
-                        OverviewSectionInventoryDeck(
-                            sectionCount: overviewSectionCount,
-                            platformCardCount: platformCardCount,
-                            signalCardCount: signalCardCount,
-                            fleetCardCount: fleetCardCount,
-                            approvalCount: vm.pendingApprovalCount,
-                            sessionCount: vm.sessionAttentionCount,
-                            watchIssueCount: overviewWatchIssueCount,
-                            automationIssueCount: vm.automationPressureIssueCategoryCount,
-                            integrationIssueCount: vm.integrationPressureIssueCategoryCount
-                        )
-                        if !overviewSectionPreviewTitles.isEmpty {
-                            MonitoringSectionPreviewDeck(
-                                title: String(localized: "Section Preview"),
-                                detail: String(localized: "Keep the next overview stacks visible before the platform, signal, and fleet cards spread out."),
-                                sectionTitles: overviewSectionPreviewTitles,
-                                tone: visibleMonitoringAlerts.contains { $0.severity == .critical } ? .critical : ((vm.runtimeAlertCount > 0 || vm.isDataStale) ? .warning : .neutral),
-                                maxVisibleSections: 5,
-                                jumpItems: overviewSectionPreviewJumpItems(proxy)
-                            )
-                        }
-                        OverviewWorkstreamCoverageDeck(
-                            platformCardCount: platformCardCount,
-                            signalCardCount: signalCardCount,
-                            fleetCardCount: fleetCardCount,
-                            queueCount: onCallPriorityItems.count,
-                            watchIssueCount: overviewWatchIssueCount,
-                            automationIssueCount: vm.automationPressureIssueCategoryCount,
-                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                            isDataStale: vm.isDataStale
-                        )
-
-                        LazyVGrid(columns: summaryColumns, spacing: 8) {
-                            StatBadge(
-                                value: "\(vm.runningCount)",
-                                label: "Running",
-                                icon: "play.circle.fill",
-                                color: vm.runningAgentStatus.color(positive: .green)
-                            )
-                            StatBadge(
-                                value: formatCost(vm.budget?.dailySpend),
-                                label: "Today",
-                                icon: "dollarsign.circle",
-                                color: StatusPresentation.budgetUtilizationStatus(for: vm.budget?.dailyPct)?.color() ?? .primary
-                            )
-                            StatBadge(
-                                value: "\(vm.pendingApprovalCount)",
-                                label: "Approvals",
-                                icon: "exclamationmark.shield",
-                                color: vm.approvalBacklogStatus.color(positive: .green)
-                            )
-                            StatBadge(
-                                value: "\(vm.configuredProviderCount)",
-                                label: "Providers",
-                                icon: "key.horizontal",
-                                color: vm.providerReadinessStatus.color(positive: .blue)
-                            )
-                            StatBadge(
-                                value: "\(vm.readyChannelCount)",
-                                label: "Channels",
-                                icon: "bubble.left.and.bubble.right",
-                                color: vm.channelReadinessStatus.color(positive: .teal)
-                            )
-                            StatBadge(
-                                value: "\(vm.activeHandCount)",
-                                label: "Hands",
-                                icon: "hand.raised",
-                                color: vm.handReadinessStatus.color(positive: .indigo)
-                            )
-                        }
-
-                        OverviewPlatformInventoryDeck(
-                            cardCount: platformCardCount,
-                            diagnosticsVisible: vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil,
-                            diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                            automationIssueCount: vm.automationPressureIssueCategoryCount,
-                            providerCount: vm.configuredProviderCount,
-                            readyChannelCount: vm.readyChannelCount,
-                            runningCount: vm.runningCount,
-                            includesSystemSnapshot: vm.status != nil
-                        )
-
-                        if let status = vm.status {
-                            SystemSnapshotCard(
-                                status: status,
-                                security: vm.security,
-                                usageSummary: vm.usageSummary,
-                                connectedProviders: vm.configuredProviderCount,
-                                networkStatus: vm.networkStatus,
-                                sessionCount: vm.totalSessionCount,
-                                mcpConnectedServers: vm.connectedMCPServerCount
-                            )
-                        }
-
-                        if vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil {
-                            NavigationLink {
-                                DiagnosticsView()
-                            } label: {
-                                DiagnosticsOverviewCard(vm: vm)
+                            if let latestHandoff = deps.onCallHandoffStore.latestEntry {
+                                NavigationLink {
+                                    HandoffCenterView(
+                                        summary: handoffText,
+                                        queueCount: onCallPriorityItems.count,
+                                        criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                                        liveAlertCount: visibleMonitoringAlerts.count
+                                    )
+                                } label: {
+                                    RecentHandoffCard(
+                                        entry: latestHandoff,
+                                        gapLabel: latestHandoffGapLabel,
+                                        checkInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+                                        drift: latestHandoffDrift,
+                                        carryover: latestHandoffCarryover,
+                                        pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
+                                        completedFollowUpCount: deps.onCallHandoffStore.completedLatestFollowUpCount
+                                    )
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
-                            .id(OverviewSectionAnchor.diagnostics)
-                        }
 
-                        if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
-                            NavigationLink {
-                                IntegrationsView()
-                            } label: {
-                                IntegrationsOverviewCard(vm: vm)
+                            OverviewStatusDeckCard(
+                                queueCount: onCallPriorityItems.count,
+                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                                approvalCount: vm.pendingApprovalCount,
+                                sessionCount: vm.sessionAttentionCount,
+                                watchIssueCount: overviewWatchIssueCount,
+                                automationIssueCount: vm.automationPressureIssueCategoryCount,
+                                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                                isDataStale: vm.isDataStale,
+                                isLoopbackServer: isLoopbackServer,
+                                providerCount: vm.configuredProviderCount,
+                                channelCount: vm.readyChannelCount,
+                                handoffStateLabel: deps.onCallHandoffStore.freshnessLabel,
+                                handoffTone: deps.onCallHandoffStore.freshnessState.tone
+                            )
+
+                            OverviewPressureCoverageDeck(
+                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                                liveAlertCount: visibleMonitoringAlerts.count,
+                                approvalCount: vm.pendingApprovalCount,
+                                sessionCount: vm.sessionAttentionCount,
+                                watchIssueCount: overviewWatchIssueCount,
+                                mutedAlertCount: activeMutedAlertCount,
+                                pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
+                                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                                automationIssueCount: vm.automationPressureIssueCategoryCount,
+                                integrationIssueCount: vm.integrationPressureIssueCategoryCount
+                            )
+
+                            OverviewSupportCoverageDeck(
+                                mutedAlertCount: activeMutedAlertCount,
+                                pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
+                                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                                automationIssueCount: vm.automationPressureIssueCategoryCount,
+                                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                                isDataStale: vm.isDataStale,
+                                providerCount: vm.configuredProviderCount,
+                                channelCount: vm.readyChannelCount
+                            )
+
+                            OverviewEntryDeckCard(
+                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                                approvalCount: vm.pendingApprovalCount,
+                                sessionCount: vm.sessionAttentionCount,
+                                automationIssueCount: vm.automationPressureIssueCategoryCount,
+                                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                                budgetDailyCost: vm.budget?.dailySpend,
+                                handoffText: handoffText,
+                                queueCount: onCallPriorityItems.count,
+                                liveAlertCount: visibleMonitoringAlerts.count,
+                                watchIssueCount: overviewWatchIssueCount,
+                                auditCount: vm.recentAudit.count,
+                                agentCount: vm.attentionAgents.isEmpty ? vm.agents.count : vm.attentionAgents.count,
+                                showsDiagnostics: vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil,
+                                showsIntegrations: !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty,
+                                showsAutomation: vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty,
+                                showsWatchlist: !watchedAttentionItems.isEmpty,
+                                showsSessions: !vm.sessionAttentionItems.isEmpty,
+                                showsAudit: !vm.recentAudit.isEmpty,
+                                showsAgents: !vm.agents.isEmpty
+                            ) { anchor in
+                                jump(proxy, to: anchor)
                             }
-                            .buttonStyle(.plain)
-                            .id(OverviewSectionAnchor.integrations)
-                        }
 
-                        OverviewSignalInventoryDeck(
-                            cardCount: signalCardCount,
-                            approvalCount: vm.pendingApprovalCount,
-                            activeHandCount: vm.activeHandCount,
-                            readyChannelCount: vm.readyChannelCount,
-                            hasUsageCard: vm.usageSummary != nil,
-                            hasBudgetCard: vm.budget != nil,
-                            topSpenderCount: vm.budgetAgents?.agents.count ?? 0,
-                            liveSignalCount: vm.activeHands.count + vm.approvals.count,
-                            dailySpend: vm.budget?.dailySpend
-                        )
+                            OverviewActionReadinessDeck(
+                                primaryRouteCount: 4,
+                                supportRouteCount: 4,
+                                jumpCount: overviewJumpCount,
+                                sectionCount: overviewSectionCount,
+                                platformCardCount: platformCardCount,
+                                signalCardCount: signalCardCount,
+                                fleetCardCount: fleetCardCount,
+                                queueCount: onCallPriorityItems.count,
+                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                                isDataStale: vm.isDataStale
+                            )
+                            OverviewFocusCoverageDeck(
+                                platformCardCount: platformCardCount,
+                                signalCardCount: signalCardCount,
+                                fleetCardCount: fleetCardCount,
+                                queueCount: onCallPriorityItems.count,
+                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                                watchIssueCount: overviewWatchIssueCount,
+                                automationIssueCount: vm.automationPressureIssueCategoryCount,
+                                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                                isDataStale: vm.isDataStale
+                            )
 
-                        ReadinessCard(vm: vm)
-
-                        if let usageSummary = vm.usageSummary {
-                            UsageSnapshotCard(usageSummary: usageSummary)
-                        }
-
-                        if let budget = vm.budget {
-                            BudgetGaugesCard(budget: budget)
-                        }
-
-                        if let ranking = vm.budgetAgents, !ranking.agents.isEmpty {
-                            TopSpendersCard(agents: ranking.agents)
-                        }
-
-                        if !vm.activeHands.isEmpty || !vm.approvals.isEmpty {
-                            LiveSignalsCard(activeHands: vm.activeHands, approvals: vm.approvals, hands: vm.hands)
-                        }
-
-                        if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
-                            NavigationLink {
-                                AutomationView()
-                            } label: {
-                                AutomationOverviewCard(vm: vm)
+                            OverviewSectionInventoryDeck(
+                                sectionCount: overviewSectionCount,
+                                platformCardCount: platformCardCount,
+                                signalCardCount: signalCardCount,
+                                fleetCardCount: fleetCardCount,
+                                approvalCount: vm.pendingApprovalCount,
+                                sessionCount: vm.sessionAttentionCount,
+                                watchIssueCount: overviewWatchIssueCount,
+                                automationIssueCount: vm.automationPressureIssueCategoryCount,
+                                integrationIssueCount: vm.integrationPressureIssueCategoryCount
+                            )
+                            if !overviewSectionPreviewTitles.isEmpty {
+                                MonitoringSectionPreviewDeck(
+                                    title: String(localized: "Section Preview"),
+                                    detail: String(localized: "Keep the next overview stacks visible before the platform, signal, and fleet cards spread out."),
+                                    sectionTitles: overviewSectionPreviewTitles,
+                                    tone: visibleMonitoringAlerts.contains { $0.severity == .critical } ? .critical : ((vm.runtimeAlertCount > 0 || vm.isDataStale) ? .warning : .neutral),
+                                    maxVisibleSections: 5,
+                                    jumpItems: overviewSectionPreviewJumpItems(proxy)
+                                )
                             }
-                            .buttonStyle(.plain)
-                            .id(OverviewSectionAnchor.automation)
-                        }
+                            OverviewWorkstreamCoverageDeck(
+                                platformCardCount: platformCardCount,
+                                signalCardCount: signalCardCount,
+                                fleetCardCount: fleetCardCount,
+                                queueCount: onCallPriorityItems.count,
+                                watchIssueCount: overviewWatchIssueCount,
+                                automationIssueCount: vm.automationPressureIssueCategoryCount,
+                                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                                isDataStale: vm.isDataStale
+                            )
 
-                        OverviewFleetInventoryDeck(
-                            cardCount: fleetCardCount,
-                            watchIssueCount: overviewWatchIssueCount,
-                            sessionCount: vm.sessionAttentionCount,
-                            attentionAgentCount: vm.attentionAgents.count,
-                            auditCount: vm.recentAudit.count,
-                            a2aCount: vm.a2aAgents?.total ?? 0,
-                            agentCount: vm.agents.count
+                            LazyVGrid(columns: summaryColumns, spacing: 8) {
+                                StatBadge(
+                                    value: "\(vm.runningCount)",
+                                    label: "Running",
+                                    icon: "play.circle.fill",
+                                    color: vm.runningAgentStatus.color(positive: .green)
+                                )
+                                StatBadge(
+                                    value: formatCost(vm.budget?.dailySpend),
+                                    label: "Today",
+                                    icon: "dollarsign.circle",
+                                    color: StatusPresentation.budgetUtilizationStatus(for: vm.budget?.dailyPct)?.color() ?? .primary
+                                )
+                                StatBadge(
+                                    value: "\(vm.pendingApprovalCount)",
+                                    label: "Approvals",
+                                    icon: "exclamationmark.shield",
+                                    color: vm.approvalBacklogStatus.color(positive: .green)
+                                )
+                                StatBadge(
+                                    value: "\(vm.configuredProviderCount)",
+                                    label: "Providers",
+                                    icon: "key.horizontal",
+                                    color: vm.providerReadinessStatus.color(positive: .blue)
+                                )
+                                StatBadge(
+                                    value: "\(vm.readyChannelCount)",
+                                    label: "Channels",
+                                    icon: "bubble.left.and.bubble.right",
+                                    color: vm.channelReadinessStatus.color(positive: .teal)
+                                )
+                                StatBadge(
+                                    value: "\(vm.activeHandCount)",
+                                    label: "Hands",
+                                    icon: "hand.raised",
+                                    color: vm.handReadinessStatus.color(positive: .indigo)
+                                )
+                            }
+
+                            OverviewPlatformInventoryDeck(
+                                cardCount: platformCardCount,
+                                diagnosticsVisible: vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil,
+                                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                                automationIssueCount: vm.automationPressureIssueCategoryCount,
+                                providerCount: vm.configuredProviderCount,
+                                readyChannelCount: vm.readyChannelCount,
+                                runningCount: vm.runningCount,
+                                includesSystemSnapshot: vm.status != nil
+                            )
+
+                            if let status = vm.status {
+                                SystemSnapshotCard(
+                                    status: status,
+                                    security: vm.security,
+                                    usageSummary: vm.usageSummary,
+                                    connectedProviders: vm.configuredProviderCount,
+                                    networkStatus: vm.networkStatus,
+                                    sessionCount: vm.totalSessionCount,
+                                    mcpConnectedServers: vm.connectedMCPServerCount
+                                )
+                            }
+
+                            if vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil {
+                                NavigationLink {
+                                    DiagnosticsView()
+                                } label: {
+                                    DiagnosticsOverviewCard(vm: vm)
+                                }
+                                .buttonStyle(.plain)
+                                .id(OverviewSectionAnchor.diagnostics)
+                            }
+
+                            if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
+                                NavigationLink {
+                                    IntegrationsView()
+                                } label: {
+                                    IntegrationsOverviewCard(vm: vm)
+                                }
+                                .buttonStyle(.plain)
+                                .id(OverviewSectionAnchor.integrations)
+                            }
+
+                            OverviewSignalInventoryDeck(
+                                cardCount: signalCardCount,
+                                approvalCount: vm.pendingApprovalCount,
+                                activeHandCount: vm.activeHandCount,
+                                readyChannelCount: vm.readyChannelCount,
+                                hasUsageCard: vm.usageSummary != nil,
+                                hasBudgetCard: vm.budget != nil,
+                                topSpenderCount: vm.budgetAgents?.agents.count ?? 0,
+                                liveSignalCount: vm.activeHands.count + vm.approvals.count,
+                                dailySpend: vm.budget?.dailySpend
+                            )
+
+                            ReadinessCard(vm: vm)
+
+                            if let usageSummary = vm.usageSummary {
+                                UsageSnapshotCard(usageSummary: usageSummary)
+                            }
+
+                            if let budget = vm.budget {
+                                BudgetGaugesCard(budget: budget)
+                            }
+
+                            if let ranking = vm.budgetAgents, !ranking.agents.isEmpty {
+                                TopSpendersCard(agents: ranking.agents)
+                            }
+
+                            if !vm.activeHands.isEmpty || !vm.approvals.isEmpty {
+                                LiveSignalsCard(activeHands: vm.activeHands, approvals: vm.approvals, hands: vm.hands)
+                            }
+
+                            if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
+                                NavigationLink {
+                                    AutomationView()
+                                } label: {
+                                    AutomationOverviewCard(vm: vm)
+                                }
+                                .buttonStyle(.plain)
+                                .id(OverviewSectionAnchor.automation)
+                            }
+
+                            OverviewFleetInventoryDeck(
+                                cardCount: fleetCardCount,
+                                watchIssueCount: overviewWatchIssueCount,
+                                sessionCount: vm.sessionAttentionCount,
+                                attentionAgentCount: vm.attentionAgents.count,
+                                auditCount: vm.recentAudit.count,
+                                a2aCount: vm.a2aAgents?.total ?? 0,
+                                agentCount: vm.agents.count
+                            )
+
+                            OverviewQueueInventoryDeck(
+                                cardCount: overviewQueueCardCount,
+                                watchIssueCount: overviewWatchIssueCount,
+                                sessionCount: vm.sessionAttentionCount,
+                                attentionAgentCount: vm.attentionAgents.count,
+                                auditCount: vm.recentAudit.count,
+                                liveAlertCount: visibleMonitoringAlerts.count
+                            )
+
+                            if !watchedAttentionItems.isEmpty {
+                                WatchlistCard(items: watchedAttentionItems, diagnostics: watchedDiagnostics)
+                                    .id(OverviewSectionAnchor.watchlist)
+                            }
+
+                            if !vm.sessionAttentionItems.isEmpty {
+                                SessionWatchlistCard(items: vm.sessionAttentionItems)
+                                    .id(OverviewSectionAnchor.sessions)
+                            }
+
+                            if !vm.attentionAgents.isEmpty {
+                                AttentionAgentsCard(items: vm.attentionAgents)
+                            }
+
+                            if !vm.recentAudit.isEmpty {
+                                AuditFeedCard(entries: vm.recentAudit)
+                                    .id(OverviewSectionAnchor.audit)
+                            }
+
+                            if let a2a = vm.a2aAgents, a2a.total > 0 {
+                                A2ASummaryCard(count: a2a.total)
+                            }
+
+                            if !vm.agents.isEmpty {
+                                AgentPreviewCard(agents: vm.attentionAgents.isEmpty ? vm.agents : vm.attentionAgents.map(\.agent))
+                                    .id(OverviewSectionAnchor.agents)
+                            }
+                        }
+                        .monitoringRefreshInteractionGate(
+                            isRefreshing: vm.isLoading,
+                            restoreDelay: 0.9
                         )
-
-                        OverviewQueueInventoryDeck(
-                            cardCount: overviewQueueCardCount,
-                            watchIssueCount: overviewWatchIssueCount,
-                            sessionCount: vm.sessionAttentionCount,
-                            attentionAgentCount: vm.attentionAgents.count,
-                            auditCount: vm.recentAudit.count,
-                            liveAlertCount: visibleMonitoringAlerts.count
-                        )
-
-                        if !watchedAttentionItems.isEmpty {
-                            WatchlistCard(items: watchedAttentionItems, diagnostics: watchedDiagnostics)
-                                .id(OverviewSectionAnchor.watchlist)
-                        }
-
-                        if !vm.sessionAttentionItems.isEmpty {
-                            SessionWatchlistCard(items: vm.sessionAttentionItems)
-                                .id(OverviewSectionAnchor.sessions)
-                        }
-
-                        if !vm.attentionAgents.isEmpty {
-                            AttentionAgentsCard(items: vm.attentionAgents)
-                        }
-
-                        if !vm.recentAudit.isEmpty {
-                            AuditFeedCard(entries: vm.recentAudit)
-                                .id(OverviewSectionAnchor.audit)
-                        }
-
-                        if let a2a = vm.a2aAgents, a2a.total > 0 {
-                            A2ASummaryCard(count: a2a.total)
-                        }
-
-                        if !vm.agents.isEmpty {
-                            AgentPreviewCard(agents: vm.attentionAgents.isEmpty ? vm.agents : vm.attentionAgents.map(\.agent))
-                                .id(OverviewSectionAnchor.agents)
-                        }
                     }
                     .padding()
                 }
@@ -2437,13 +2448,28 @@ private struct ConnectionCard: View {
     let health: HealthStatus?
     let lastRefresh: Date?
     let isStale: Bool
+    let errorMessage: String?
 
     private var connectionTone: PresentationTone {
-        guard let health else { return .critical }
+        guard let health else { return errorMessage == nil ? .warning : .critical }
         if health.isHealthy && isStale {
             return .warning
         }
         return health.statusTone
+    }
+
+    private var inventoryBadgeText: String {
+        guard health != nil else {
+            return errorMessage == nil ? String(localized: "Connecting") : String(localized: "Disconnected")
+        }
+        return isStale ? String(localized: "Stale") : String(localized: "Fresh")
+    }
+
+    private var inventoryBadgeTone: PresentationTone {
+        guard health != nil else {
+            return errorMessage == nil ? .warning : .critical
+        }
+        return isStale ? .warning : .positive
     }
 
     var body: some View {
@@ -2478,8 +2504,8 @@ private struct ConnectionCard: View {
                 }
             } accessory: {
                 PresentationToneBadge(
-                    text: isStale ? String(localized: "Stale") : String(localized: "Fresh"),
-                    tone: isStale ? .warning : .positive
+                    text: inventoryBadgeText,
+                    tone: inventoryBadgeTone
                 )
             } facts: {
                 if let health {
@@ -2499,7 +2525,10 @@ private struct ConnectionCard: View {
     }
 
     private var connectionText: String {
-        if health?.isHealthy != true {
+        guard let health else {
+            return errorMessage == nil ? String(localized: "Connecting") : String(localized: "Disconnected")
+        }
+        if !health.isHealthy {
             return String(localized: "Disconnected")
         }
         if isStale {

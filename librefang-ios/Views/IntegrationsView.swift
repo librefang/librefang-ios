@@ -767,6 +767,7 @@ struct IntegrationsView: View {
             }
             .navigationTitle("Integrations")
             .searchable(text: $searchText, prompt: "Search provider, channel, model, alias, agent")
+            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .refreshable {
                 await vm.refresh()
             }

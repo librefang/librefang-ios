@@ -385,6 +385,7 @@ struct DiagnosticsView: View {
                 }
             }
             .navigationTitle("Diagnostics")
+            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .refreshable {
                 await vm.refresh()
             }

@@ -86,23 +86,23 @@ final class DashboardViewModel {
         await withTaskGroup(of: Void.self) { group in
             group.addTask { @MainActor in
                 do { self.health = try await self.api.health() }
-                catch { self.error = self.error ?? error.localizedDescription }
+                catch { self.storeRefreshErrorIfNeeded(error) }
             }
             group.addTask { @MainActor in
                 do { self.status = try await self.api.status() }
-                catch { self.error = self.error ?? error.localizedDescription }
+                catch { self.storeRefreshErrorIfNeeded(error) }
             }
             group.addTask { @MainActor in
                 do { self.agents = try await self.api.agents() }
-                catch { self.error = self.error ?? error.localizedDescription }
+                catch { self.storeRefreshErrorIfNeeded(error) }
             }
             group.addTask { @MainActor in
                 do { self.budget = try await self.api.budget() }
-                catch { self.error = self.error ?? error.localizedDescription }
+                catch { self.storeRefreshErrorIfNeeded(error) }
             }
             group.addTask { @MainActor in
                 do { self.budgetAgents = try await self.api.budgetAgents() }
-                catch { self.error = self.error ?? error.localizedDescription }
+                catch { self.storeRefreshErrorIfNeeded(error) }
             }
             group.addTask { @MainActor in
                 do { self.a2aAgents = try await self.api.a2aAgents() }
@@ -249,6 +249,34 @@ final class DashboardViewModel {
         config.save()
         await api.updateConfig(config)
         await refresh()
+    }
+
+    @MainActor
+    private func storeRefreshErrorIfNeeded(_ error: Error) {
+        guard !isCancelledRefreshError(error) else { return }
+        self.error = self.error ?? error.localizedDescription
+    }
+
+    private func isCancelledRefreshError(_ error: Error) -> Bool {
+        if error is CancellationError {
+            return true
+        }
+
+        if let urlError = error as? URLError, urlError.code == .cancelled {
+            return true
+        }
+
+        if let apiError = error as? APIError {
+            switch apiError {
+            case .networkError(let underlying):
+                return isCancelledRefreshError(underlying)
+            default:
+                return false
+            }
+        }
+
+        let nsError = error as NSError
+        return nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled
     }
 
     // MARK: - Computed

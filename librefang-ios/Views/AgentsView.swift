@@ -470,6 +470,7 @@ struct AgentsView: View {
             }
             .navigationTitle("Agents")
             .searchable(text: $searchText, prompt: "Search agents...")
+            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Menu {
