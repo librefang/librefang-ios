@@ -301,12 +301,6 @@ struct OnCallView: View {
                     }
 
                     NavigationLink {
-                        StandbyDigestView()
-                    } label: {
-                        Label("Standby", systemImage: "rectangle.inset.filled")
-                    }
-
-                    NavigationLink {
                         HandoffCenterView(
                             summary: handoffText,
                             queueCount: priorityItems.count,

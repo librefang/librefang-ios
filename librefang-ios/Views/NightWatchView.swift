@@ -728,12 +728,6 @@ struct NightWatchView: View {
                 Image(systemName: "slider.horizontal.3")
             }
 
-            NavigationLink {
-                StandbyDigestView()
-            } label: {
-                Image(systemName: "rectangle.inset.filled")
-            }
-
             NavigationLink(value: OnCallRoute.incidents) {
                 Image(systemName: "bell.badge")
             }

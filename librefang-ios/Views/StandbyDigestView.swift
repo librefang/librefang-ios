@@ -210,12 +210,6 @@ struct StandbyDigestView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         NavigationLink {
-                            NightWatchView()
-                        } label: {
-                            Label("Night Watch", systemImage: "moon.stars")
-                        }
-
-                        NavigationLink {
                             OnCallView()
                         } label: {
                             Label("On Call", systemImage: "waveform.path.ecg")
