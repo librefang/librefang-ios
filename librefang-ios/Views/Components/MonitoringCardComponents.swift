@@ -235,6 +235,52 @@ struct MonitoringSurfaceGroupCard<Content: View>: View {
     }
 }
 
+struct MonitoringSectionPreviewDeck: View {
+    let title: String
+    let detail: String
+    let sectionTitles: [String]
+    let tone: PresentationTone
+    let maxVisibleSections: Int
+
+    init(
+        title: String,
+        detail: String,
+        sectionTitles: [String],
+        tone: PresentationTone = .neutral,
+        maxVisibleSections: Int = 4
+    ) {
+        self.title = title
+        self.detail = detail
+        self.sectionTitles = sectionTitles
+        self.tone = tone
+        self.maxVisibleSections = maxVisibleSections
+    }
+
+    var body: some View {
+        MonitoringSnapshotCard(
+            summary: title,
+            detail: detail,
+            verticalPadding: 4
+        ) {
+            FlowLayout(spacing: 8) {
+                ForEach(Array(sectionTitles.prefix(maxVisibleSections)), id: \.self) { sectionTitle in
+                    PresentationToneBadge(text: sectionTitle, tone: tone)
+                }
+                if hiddenSectionCount > 0 {
+                    PresentationToneBadge(
+                        text: hiddenSectionCount == 1 ? String(localized: "1 more") : String(localized: "\(hiddenSectionCount) more"),
+                        tone: .neutral
+                    )
+                }
+            }
+        }
+    }
+
+    private var hiddenSectionCount: Int {
+        max(sectionTitles.count - maxVisibleSections, 0)
+    }
+}
+
 struct MonitoringShortcutRail<Content: View>: View {
     let title: String
     let detail: String?

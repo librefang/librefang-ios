@@ -5,6 +5,8 @@ struct MainTabView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedTab = 0
     @State private var handledPendingShortcutToken: String?
+    @State private var topOverlayInteractionRevision = 0
+    @State private var isTopOverlayInteractive = true
     @State private var presentedTarget: AppShortcutLaunchTarget?
     @State private var incidentCue: ActiveIncidentCue?
     @State private var hasObservedCriticalState = false
@@ -159,6 +161,89 @@ struct MainTabView: View {
     }
 
     var body: some View {
+        presentedMainContent
+    }
+
+    private var presentedMainContent: some View {
+        mainContent
+            .sheet(item: $presentedTarget) { target in
+                NavigationStack {
+                    monitoringRouteView(for: target)
+                }
+            }
+    }
+
+    private var mainContent: some View {
+        taskManagedContent
+    }
+
+    private var taskManagedContent: some View {
+        lifecycleManagedContent
+            .task(id: incidentCue?.id) {
+                guard let cueID = incidentCue?.id else { return }
+                try? await Task.sleep(nanoseconds: 8_000_000_000)
+                guard incidentCue?.id == cueID else { return }
+                incidentCue = nil
+            }
+            .task(id: handoffCue?.id) {
+                guard let cueID = handoffCue?.id else { return }
+                try? await Task.sleep(nanoseconds: 8_000_000_000)
+                guard handoffCue?.id == cueID else { return }
+                handoffCue = nil
+            }
+    }
+
+    private var lifecycleManagedContent: some View {
+        chromeContent
+            .onAppear {
+                handleMainViewAppear()
+            }
+            .onChange(of: criticalTrackingState) { oldValue, newValue in
+                handleCriticalTrackingChange(from: oldValue, to: newValue)
+            }
+            .onChange(of: handoffCheckInTrackingState) { oldValue, newValue in
+                handleHandoffCheckInChange(from: oldValue, to: newValue)
+            }
+            .onChange(of: isCurrentSnapshotAcknowledged) { _, isAcknowledged in
+                if isAcknowledged {
+                    incidentCue = nil
+                }
+            }
+            .onChange(of: showsForegroundCues) { _, isEnabled in
+                if !isEnabled {
+                    incidentCue = nil
+                    handoffCue = nil
+                }
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                handleScenePhaseChange(newPhase)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .appShortcutLaunchQueued)) { _ in
+                deps.appShortcutLaunchStore.refreshFromDefaults()
+                handlePendingAppShortcutIfNeeded()
+            }
+            .onChange(of: vm.lastRefresh) { _, _ in
+                Task { await refreshWatchedAgentDiagnostics() }
+            }
+            .onChange(of: deps.agentWatchlistStore.watchedAgentIDs) { _, _ in
+                Task { await refreshWatchedAgentDiagnostics() }
+            }
+    }
+
+    private var chromeContent: some View {
+        tabContainer
+            .safeAreaInset(edge: .top, spacing: 0) {
+                topOverlay
+            }
+            .onChange(of: selectedTab) {
+                HapticManager.selection()
+            }
+            .onChange(of: vm.isLoading) { _, isLoading in
+                updateTopOverlayInteractivity(for: isLoading)
+            }
+    }
+
+    private var tabContainer: some View {
         TabView(selection: $selectedTab) {
             OverviewView()
                 .tabItem {
@@ -192,87 +277,6 @@ struct MainTabView: View {
                     Label("Settings", systemImage: "gearshape")
                 }
                 .tag(4)
-        }
-        .safeAreaInset(edge: .top, spacing: 0) {
-            topOverlay
-        }
-        .onChange(of: selectedTab) {
-            HapticManager.selection()
-        }
-        .onAppear {
-            deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
-            deps.appShortcutLaunchStore.refreshFromDefaults()
-            handlePendingAppShortcutIfNeeded()
-            Task { await deps.onCallNotificationManager.refreshAuthorizationStatus() }
-            Task { await refreshWatchedAgentDiagnostics() }
-        }
-        .onChange(of: criticalTrackingState) { oldValue, newValue in
-            handleCriticalTrackingChange(from: oldValue, to: newValue)
-        }
-        .onChange(of: handoffCheckInTrackingState) { oldValue, newValue in
-            handleHandoffCheckInChange(from: oldValue, to: newValue)
-        }
-        .onChange(of: isCurrentSnapshotAcknowledged) { _, isAcknowledged in
-            if isAcknowledged {
-                incidentCue = nil
-            }
-        }
-        .onChange(of: showsForegroundCues) { _, isEnabled in
-            if !isEnabled {
-                incidentCue = nil
-                handoffCue = nil
-            }
-        }
-        .onChange(of: scenePhase) { _, newPhase in
-            switch newPhase {
-            case .active:
-                deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
-                Task {
-                    await deps.dashboardViewModel.refresh()
-                    await deps.onCallNotificationManager.refreshAuthorizationStatus()
-                    await deps.onCallNotificationManager.cancelPendingReminder()
-                    await MainActor.run {
-                        deps.appShortcutLaunchStore.refreshFromDefaults()
-                        handlePendingAppShortcutIfNeeded()
-                    }
-                }
-            case .background:
-                deps.dashboardViewModel.stopAutoRefresh()
-                incidentCue = nil
-                handoffCue = nil
-                Task {
-                    await deps.onCallNotificationManager.armStandbyReminder(snapshot: reminderSnapshot)
-                }
-            default:
-                break
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .appShortcutLaunchQueued)) { _ in
-            deps.appShortcutLaunchStore.refreshFromDefaults()
-            handlePendingAppShortcutIfNeeded()
-        }
-        .onChange(of: vm.lastRefresh) { _, _ in
-            Task { await refreshWatchedAgentDiagnostics() }
-        }
-        .onChange(of: deps.agentWatchlistStore.watchedAgentIDs) { _, _ in
-            Task { await refreshWatchedAgentDiagnostics() }
-        }
-        .task(id: incidentCue?.id) {
-            guard let cueID = incidentCue?.id else { return }
-            try? await Task.sleep(nanoseconds: 8_000_000_000)
-            guard incidentCue?.id == cueID else { return }
-            incidentCue = nil
-        }
-        .task(id: handoffCue?.id) {
-            guard let cueID = handoffCue?.id else { return }
-            try? await Task.sleep(nanoseconds: 8_000_000_000)
-            guard handoffCue?.id == cueID else { return }
-            handoffCue = nil
-        }
-        .sheet(item: $presentedTarget) { target in
-            NavigationStack {
-                monitoringRouteView(for: target)
-            }
         }
     }
 
@@ -425,7 +429,7 @@ struct MainTabView: View {
             .padding(.top, 4)
             .padding(.bottom, 8)
             .background(.bar)
-            .allowsHitTesting(!vm.isLoading)
+            .allowsHitTesting(isTopOverlayInteractive)
             .animation(.spring(response: 0.28, dampingFraction: 0.86), value: incidentCue?.id)
             .animation(.spring(response: 0.28, dampingFraction: 0.86), value: handoffCue?.id)
         }
@@ -641,6 +645,58 @@ struct MainTabView: View {
         guard let target = deps.appShortcutLaunchStore.consumePendingTarget() else { return }
         guard presentedTarget?.id != target.id else { return }
         openRoute(target)
+    }
+
+    private func handleMainViewAppear() {
+        deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
+        deps.appShortcutLaunchStore.refreshFromDefaults()
+        handlePendingAppShortcutIfNeeded()
+        updateTopOverlayInteractivity(for: vm.isLoading)
+        Task { await deps.onCallNotificationManager.refreshAuthorizationStatus() }
+        Task { await refreshWatchedAgentDiagnostics() }
+    }
+
+    private func handleScenePhaseChange(_ newPhase: ScenePhase) {
+        switch newPhase {
+        case .active:
+            deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
+            Task {
+                await deps.dashboardViewModel.refresh()
+                await deps.onCallNotificationManager.refreshAuthorizationStatus()
+                await deps.onCallNotificationManager.cancelPendingReminder()
+                await MainActor.run {
+                    deps.appShortcutLaunchStore.refreshFromDefaults()
+                    handlePendingAppShortcutIfNeeded()
+                }
+            }
+        case .background:
+            deps.dashboardViewModel.stopAutoRefresh()
+            incidentCue = nil
+            handoffCue = nil
+            Task {
+                await deps.onCallNotificationManager.armStandbyReminder(snapshot: reminderSnapshot)
+            }
+        default:
+            break
+        }
+    }
+
+    private func updateTopOverlayInteractivity(for isLoading: Bool) {
+        topOverlayInteractionRevision += 1
+        let revision = topOverlayInteractionRevision
+
+        guard !isLoading else {
+            isTopOverlayInteractive = false
+            return
+        }
+
+        Task {
+            try? await Task.sleep(nanoseconds: 700_000_000)
+            await MainActor.run {
+                guard topOverlayInteractionRevision == revision, !vm.isLoading else { return }
+                isTopOverlayInteractive = true
+            }
+        }
     }
 
     private var overlayQuickActions: [OperatorOverlayQuickAction] {
