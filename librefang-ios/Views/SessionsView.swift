@@ -113,29 +113,11 @@ struct SessionsView: View {
 
                 Section {
                     sessionsStatusDeckCard
-                    sessionsSectionInventoryDeck
-                    if !sessionsSectionPreviewTitles.isEmpty {
-                        MonitoringSectionPreviewDeck(
-                            title: String(localized: "Section Preview"),
-                            detail: String(localized: "Keep the next session inventory visible before the backlog rows expand into full operator detail."),
-                            sectionTitles: sessionsSectionPreviewTitles,
-                            tone: snapshotFilterTone,
-                            maxVisibleSections: 5,
-                            jumpItems: sessionsSectionPreviewJumpItems(proxy)
-                        )
-                    }
-                    sessionsPressureCoverageDeck
-                    sessionsSupportCoverageDeck
-                    sessionsActionReadinessDeck
-                    sessionsFocusCoverageDeck
-                    sessionsWorkstreamCoverageDeck
-                    sessionsScopeCoverageDeck
-                    sessionsQueueCoverageDeck
                     sessionsControlDeckCard
                 } header: {
-                    Text(String(localized: "Controls"))
+                    Text(String(localized: "Summary"))
                 } footer: {
-                    Text(String(localized: "Backlog pressure, routes, and filters stay together before the list."))
+                    Text(String(localized: "Keep filters and shortcuts close, then move straight into the backlog."))
                 }
 
                 if filteredItems.isEmpty && !vm.isLoading {
@@ -149,18 +131,6 @@ struct SessionsView: View {
                     .id(SessionsSectionAnchor.sessions)
                 } else {
                     Section("Sessions") {
-                        SessionListInventoryDeck(
-                            visibleCount: filteredItems.count,
-                            totalCount: vm.sessionAttentionItems.count,
-                            attentionCount: visibleAttentionCount,
-                            highVolumeCount: visibleHighVolumeCount,
-                            unlabeledCount: visibleUnlabeledCount,
-                            duplicateAgentCount: visibleDuplicateAgentCount,
-                            searchText: searchText,
-                            filter: filter
-                        )
-                        .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
-
                         ForEach(filteredItems) { item in
                             sessionRow(for: item)
                         }
@@ -373,20 +343,9 @@ struct SessionsView: View {
 
     private var sessionsControlDeckCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            SessionsRouteInventoryDeck(
-                primaryRouteCount: sessionsPrimaryRouteCount,
-                supportRouteCount: sessionsSupportRouteCount,
-                visibleCount: filteredItems.count,
-                totalCount: vm.sessions.count,
-                attentionCount: visibleAttentionCount,
-                highVolumeCount: visibleHighVolumeCount,
-                hasSearchScope: !normalizedSearchText.isEmpty,
-                filterLabel: filter.label
-            )
-
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Routes"),
-                detail: String(localized: "Jump straight to the next queue, fleet, or audit surface without another long route stack.")
+                title: String(localized: "Shortcuts"),
+                detail: String(localized: "Keep nearby surfaces and filters visible without stacking more cards above the list.")
             ) {
                 MonitoringShortcutRail(
                     title: String(localized: "Primary"),

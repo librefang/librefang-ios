@@ -310,81 +310,6 @@ struct StandbyDigestView: View {
         VStack(spacing: 12) {
             snapshotCard
             signalFactsCard
-            StandbySectionInventoryDeck(
-                sectionCount: standbySectionCount,
-                queueCount: priorityItems.count,
-                primaryCardCount: primaryItems.count,
-                watchCount: watchItems.count,
-                mutedAlertCount: mutedAlertCount,
-                pendingFollowUpCount: pendingFollowUpCount,
-                approvalCount: vm.pendingApprovalCount,
-                automationIssueCount: automationIssueCount,
-                integrationIssueCount: integrationIssueCount
-            )
-            if !standbySectionPreviewTitles.isEmpty {
-                MonitoringSectionPreviewDeck(
-                    title: String(localized: "Section Preview"),
-                    detail: String(localized: "Keep the next standby stacks visible before the glance, watchlist, and route cards open up."),
-                    sectionTitles: standbySectionPreviewTitles,
-                    tone: criticalCount > 0 ? .critical : ((warningQueueCount > 0 || pendingFollowUpCount > 0) ? .warning : .neutral),
-                    maxVisibleSections: 5,
-                    jumpItems: standbySectionPreviewJumpItems(proxy)
-                )
-            }
-            StandbySupportPressureDeck(
-                mutedAlertCount: mutedAlertCount,
-                pendingFollowUpCount: pendingFollowUpCount,
-                approvalCount: vm.pendingApprovalCount,
-                automationIssueCount: automationIssueCount,
-                integrationIssueCount: integrationIssueCount,
-                checkInStatus: checkInStatus
-            )
-            StandbySupportCoverageDeck(
-                totalWatchedCount: watchedAttentionItems.count,
-                activeWatchCount: activeWatchItems.count,
-                liveAlertCount: visibleAlerts.count,
-                pendingFollowUpCount: pendingFollowUpCount,
-                toneLabel: tone.label,
-                checkInStatus: checkInStatus
-            )
-            StandbyActionReadinessDeck(
-                queueCount: priorityItems.count,
-                criticalCount: criticalCount,
-                mutedAlertCount: mutedAlertCount,
-                isAcknowledged: isAcknowledged,
-                pendingFollowUpCount: pendingFollowUpCount,
-                approvalCount: vm.pendingApprovalCount,
-                checkInStatus: checkInStatus
-            )
-            StandbyFocusCoverageDeck(
-                queueCount: priorityItems.count,
-                primaryCardCount: primaryItems.count,
-                watchCount: watchItems.count,
-                criticalCount: criticalCount,
-                mutedAlertCount: mutedAlertCount,
-                pendingFollowUpCount: pendingFollowUpCount,
-                automationIssueCount: automationIssueCount,
-                integrationIssueCount: integrationIssueCount,
-                toneLabel: tone.label,
-                checkInStatus: checkInStatus
-            )
-            StandbyWorkstreamCoverageDeck(
-                primaryCardCount: primaryItems.count,
-                watchCount: watchItems.count,
-                mutedAlertCount: mutedAlertCount,
-                pendingFollowUpCount: pendingFollowUpCount,
-                approvalCount: vm.pendingApprovalCount,
-                automationIssueCount: automationIssueCount,
-                integrationIssueCount: integrationIssueCount
-            )
-            StandbyQueueCoverageDeck(
-                criticalCount: criticalCount,
-                warningCount: warningQueueCount,
-                advisoryCount: advisoryQueueCount,
-                approvalCount: vm.pendingApprovalCount,
-                watchIssueCount: watchIssueCount,
-                pendingFollowUpCount: pendingFollowUpCount
-            )
         }
     }
 
@@ -719,22 +644,9 @@ struct StandbyDigestView: View {
 
     private var surfaceDeckCard: some View {
         StandbySurfaceSectionCard(
-            title: String(localized: "Routes"),
+            title: String(localized: "Shortcuts"),
             detail: String(localized: "Keep the next standby drills in one deck.")
         ) {
-            StandbyRouteInventoryDeck(
-                primaryRouteCount: 6,
-                supportRouteCount: 6,
-                queueCount: priorityItems.count,
-                criticalCount: criticalCount,
-                watchIssueCount: watchIssueCount,
-                mutedAlertCount: mutedAlertCount,
-                pendingFollowUpCount: pendingFollowUpCount,
-                approvalCount: vm.pendingApprovalCount,
-                automationIssueCount: automationIssueCount,
-                integrationIssueCount: integrationIssueCount
-            )
-
             StandbySurfaceGroupLabel(title: String(localized: "Primary"))
 
             FlowLayout(spacing: 8) {

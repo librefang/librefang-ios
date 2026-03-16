@@ -114,29 +114,11 @@ struct EventsView: View {
     private func eventsControlsSection(_ proxy: ScrollViewProxy) -> some View {
         Section {
             eventsStatusDeckCard
-            eventsSectionInventoryDeck
-            if !eventsSectionPreviewTitles.isEmpty {
-                MonitoringSectionPreviewDeck(
-                    title: String(localized: "Section Preview"),
-                    detail: String(localized: "Keep the next event feed visible before the audit rows spread into the full mobile stream."),
-                    sectionTitles: eventsSectionPreviewTitles,
-                    tone: scopeTone,
-                    maxVisibleSections: 5,
-                    jumpItems: eventsSectionPreviewJumpItems(proxy)
-                )
-            }
-            eventsPressureCoverageDeck
-            eventsSupportCoverageDeck
-            eventsActionReadinessDeck
-            eventsFocusCoverageDeck
-            eventsWorkstreamCoverageDeck
-            eventsScopeCoverageDeck
-            eventsFeedCoverageDeck
             eventsControlDeckCard
         } header: {
-            Text("Controls")
+            Text(String(localized: "Summary"))
         } footer: {
-            Text("Event pressure, routes, and filters stay together before the feed.")
+            Text(String(localized: "Keep scope and shortcuts tight, then go straight into the feed."))
         }
     }
 
@@ -153,15 +135,6 @@ struct EventsView: View {
             .id(EventsSectionAnchor.feed)
         } else {
             Section {
-                EventFeedInventoryDeck(
-                    visibleCount: filteredEntries.count,
-                    totalCount: viewModel.entries.count,
-                    criticalCount: filteredEntries.filter { $0.severity == .critical }.count,
-                    isStreaming: viewModel.isStreaming,
-                    searchText: searchText
-                )
-                .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
-
                 ForEach(filteredEntries) { entry in
                     EventRow(entry: entry, agentName: agentName(for: entry.agentId))
                 }
@@ -280,21 +253,9 @@ struct EventsView: View {
 
     private var eventsControlDeckCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            EventsRouteInventoryDeck(
-                primaryRouteCount: eventsPrimaryRouteCount,
-                supportRouteCount: eventsSupportRouteCount,
-                visibleCount: filteredEntries.count,
-                totalCount: viewModel.entries.count,
-                criticalCount: viewModel.criticalCount,
-                warningCount: viewModel.warningCount,
-                hasSearchScope: !trimmedSearchText.isEmpty,
-                scopeLabel: scope.label,
-                scopeTone: scopeTone
-            )
-
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Routes"),
-                detail: String(localized: "Jump straight to incidents, runtime, sessions, diagnostics, or comms without another long route stack.")
+                title: String(localized: "Shortcuts"),
+                detail: String(localized: "Keep nearby drilldowns and scope controls visible without stacking more preview cards above the feed.")
             ) {
                 MonitoringShortcutRail(
                     title: String(localized: "Primary"),

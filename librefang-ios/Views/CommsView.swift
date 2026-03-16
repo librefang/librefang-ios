@@ -68,40 +68,14 @@ struct CommsView: View {
 
                 Section {
                     commsStatusDeckCard
-                    commsSectionInventoryDeck
-                    if !commsSectionPreviewTitles.isEmpty {
-                        MonitoringSectionPreviewDeck(
-                            title: String(localized: "Section Preview"),
-                            detail: String(localized: "Keep the next comms topology and traffic stacks visible before the transport rows open up."),
-                            sectionTitles: commsSectionPreviewTitles,
-                            tone: viewModel.isStreaming ? .positive : .neutral,
-                            maxVisibleSections: 5,
-                            jumpItems: commsSectionPreviewJumpItems(proxy)
-                        )
-                    }
-                    commsPressureCoverageDeck
-                    commsSupportCoverageDeck
-                    commsActionReadinessDeck
-                    commsFocusCoverageDeck
-                    commsWorkstreamCoverageDeck
-                    commsScopeCoverageDeck
-                    commsTrafficCoverageDeck
                     commsControlDeckCard
                 } header: {
-                    Text("Controls")
+                    Text(String(localized: "Summary"))
                 } footer: {
-                    Text("Comms pressure, routes, and filters stay together before topology and traffic.")
+                    Text(String(localized: "Keep shortcuts and filters close, then move straight into topology and traffic."))
                 }
 
                 Section {
-                    if let topology = viewModel.topology {
-                        CommsTopologyInventoryDeck(
-                            topology: topology,
-                            visibleEdges: visibleEdges
-                        )
-                        .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
-                    }
-
                     CommsSummaryRow(label: "Agents") {
                         Text("\(viewModel.nodeCount)")
                             .monospacedDigit()
@@ -144,15 +118,6 @@ struct CommsView: View {
                     .id(CommsSectionAnchor.traffic)
                 } else {
                     Section {
-                        CommsTrafficInventoryDeck(
-                            visibleCount: filteredEvents.count,
-                            totalCount: viewModel.events.count,
-                            activeLinks: visibleEdges.count,
-                            isStreaming: viewModel.isStreaming,
-                            searchText: searchText
-                        )
-                        .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
-
                         ForEach(filteredEvents) { event in
                             CommsEventRow(event: event)
                         }
@@ -308,19 +273,9 @@ struct CommsView: View {
 
     private var commsControlDeckCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            CommsRouteInventoryDeck(
-                primaryRouteCount: commsPrimaryRouteCount,
-                supportRouteCount: commsSupportRouteCount,
-                visibleEventCount: filteredEvents.count,
-                totalEventCount: viewModel.events.count,
-                nodeCount: viewModel.nodeCount,
-                edgeCount: viewModel.edgeCount,
-                hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            )
-
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Routes"),
-                detail: String(localized: "Jump straight to runtime, incidents, audit, or external-agent inventory without another long route stack.")
+                title: String(localized: "Shortcuts"),
+                detail: String(localized: "Keep nearby comms drilldowns and runtime exits visible without another stack of preview cards.")
             ) {
                 MonitoringShortcutRail(
                     title: String(localized: "Primary"),

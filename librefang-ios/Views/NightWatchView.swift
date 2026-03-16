@@ -319,83 +319,6 @@ struct NightWatchView: View {
         VStack(spacing: 12) {
             snapshotCard
             signalFactsCard
-            NightWatchSectionInventoryDeck(
-                sectionCount: nightWatchSectionCount,
-                primaryQueueCount: primaryItems.count,
-                secondaryQueueCount: secondaryItems.count,
-                watchCount: activeWatchedItems.count,
-                pendingFollowUpCount: pendingFollowUpCount,
-                approvalCount: vm.pendingApprovalCount,
-                criticalCount: criticalCount,
-                automationIssueCount: automationIssueCount,
-                integrationIssueCount: integrationIssueCount
-            )
-            if !nightWatchSectionPreviewTitles.isEmpty {
-                MonitoringSectionPreviewDeck(
-                    title: String(localized: "Section Preview"),
-                    detail: String(localized: "Keep the next night-watch stacks visible before the primary queue, secondary queue, and watchlist cards expand."),
-                    sectionTitles: nightWatchSectionPreviewTitles,
-                    tone: criticalCount > 0 ? .critical : ((warningCount > 0 || watchIssueCount > 0) ? .warning : .neutral),
-                    maxVisibleSections: 5,
-                    jumpItems: nightWatchSectionPreviewJumpItems(proxy)
-                )
-            }
-            NightWatchSupportPressureDeck(
-                mutedAlertCount: mutedAlertCount,
-                pendingFollowUpCount: pendingFollowUpCount,
-                approvalCount: vm.pendingApprovalCount,
-                automationIssueCount: automationIssueCount,
-                integrationIssueCount: integrationIssueCount,
-                checkInStatus: checkInStatus
-            )
-            NightWatchSupportCoverageDeck(
-                totalWatchedCount: watchedAgents.count,
-                activeWatchCount: activeWatchedItems.count,
-                watchedQueueCount: watchedQueueCount,
-                focusModeLabel: focusStore.mode.label,
-                preferredSurfaceLabel: focusStore.preferredSurface.label,
-                showsMutedSummary: focusStore.showsMutedSummary,
-                checkInStatus: checkInStatus
-            )
-            NightWatchActionReadinessDeck(
-                queueCount: priorityItems.count,
-                criticalCount: criticalCount,
-                isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
-                pendingFollowUpCount: pendingFollowUpCount,
-                approvalCount: vm.pendingApprovalCount,
-                focusModeLabel: focusStore.mode.label,
-                checkInStatus: checkInStatus
-            )
-            NightWatchFocusCoverageDeck(
-                queueCount: priorityItems.count,
-                primaryQueueCount: primaryItems.count,
-                secondaryQueueCount: secondaryItems.count,
-                criticalCount: criticalCount,
-                watchIssueCount: watchIssueCount,
-                pendingFollowUpCount: pendingFollowUpCount,
-                automationIssueCount: automationIssueCount,
-                integrationIssueCount: integrationIssueCount,
-                focusModeLabel: focusStore.mode.label,
-                checkInStatus: checkInStatus
-            )
-            NightWatchWorkstreamCoverageDeck(
-                primaryQueueCount: primaryItems.count,
-                secondaryQueueCount: secondaryItems.count,
-                watchCount: activeWatchedItems.count,
-                mutedAlertCount: mutedAlertCount,
-                pendingFollowUpCount: pendingFollowUpCount,
-                approvalCount: vm.pendingApprovalCount,
-                automationIssueCount: automationIssueCount,
-                integrationIssueCount: integrationIssueCount
-            )
-            NightWatchQueueCoverageDeck(
-                criticalCount: criticalCount,
-                warningCount: warningCount,
-                advisoryCount: advisoryCount,
-                approvalCount: vm.pendingApprovalCount,
-                watchIssueCount: watchIssueCount,
-                pendingFollowUpCount: pendingFollowUpCount
-            )
         }
     }
 
@@ -624,18 +547,6 @@ struct NightWatchView: View {
             title: String(localized: "Controls"),
             detail: String(localized: "Keep display controls and the next night-duty drills in one deck.")
         ) {
-            NightWatchRouteInventoryCard(
-                primaryRouteCount: 5,
-                supportRouteCount: 8,
-                queueCount: priorityItems.count,
-                criticalCount: criticalCount,
-                approvalCount: vm.pendingApprovalCount,
-                sessionCount: vm.sessionAttentionCount,
-                eventCount: vm.recentCriticalAuditCount,
-                automationIssueCount: automationIssueCount,
-                integrationIssueCount: integrationIssueCount
-            )
-
             NightWatchSurfaceGroupLabel(title: String(localized: "Display Controls"))
 
             NightWatchControlMenuRow(

@@ -187,113 +187,10 @@ struct AgentsView: View {
                                     }
                                 }
 
-                                AgentsSectionInventoryDeck(
-                                    sectionCount: agentsSectionCount,
-                                    visibleCount: filteredAgents.count,
-                                    totalCount: vm.agents.count,
-                                    runningCount: filteredRunningCount,
-                                    issueCount: filteredIssueCount,
-                                    approvalCount: filteredApprovalCount,
-                                    staleCount: filteredStaleCount,
-                                    watchlistCount: filteredWatchedCount,
-                                    authIssueCount: filteredAuthIssueCount,
-                                    sessionPressureCount: filteredSessionPressureCount,
-                                    hasSearchScope: !normalizedSearchText.isEmpty,
-                                    filterLabel: filterState.label,
-                                    filterTone: filterState == .attention ? .warning : .neutral
-                                )
-
-                                if !agentsSectionPreviewTitles.isEmpty {
-                                    MonitoringSectionPreviewDeck(
-                                        title: String(localized: "Section Preview"),
-                                        detail: String(localized: "Keep the next fleet slice visible before the compact route rail gives way to the longer agent list."),
-                                        sectionTitles: agentsSectionPreviewTitles,
-                                        tone: filteredIssueCount > 0 ? .warning : .neutral,
-                                        maxVisibleSections: 5,
-                                        jumpItems: agentsSectionPreviewJumpItems(proxy)
-                                    )
-                                }
-
-                                AgentsPressureCoverageDeck(
-                                    issueCount: filteredIssueCount,
-                                    approvalCount: filteredApprovalCount,
-                                    staleCount: filteredStaleCount,
-                                    watchlistCount: filteredWatchedCount,
-                                    authIssueCount: filteredAuthIssueCount,
-                                    modelIssueCount: filteredModelIssueCount,
-                                    sessionPressureCount: filteredSessionPressureCount,
-                                    runningCount: filteredRunningCount,
-                                    visibleCount: filteredAgents.count
-                                )
-
-                                AgentsSupportCoverageDeck(
-                                    totalCount: vm.agents.count,
-                                    runningCount: filteredRunningCount,
-                                    watchlistCount: filteredWatchedCount,
-                                    authIssueCount: filteredAuthIssueCount,
-                                    modelIssueCount: filteredModelIssueCount,
-                                    sessionPressureCount: filteredSessionPressureCount,
-                                    hasSearchScope: !normalizedSearchText.isEmpty,
-                                    filterLabel: filterState.label,
-                                    filterTone: filterState == .attention ? .warning : .neutral
-                                )
-                                AgentsWorkstreamCoverageDeck(
-                                    visibleCount: filteredAgents.count,
-                                    totalCount: vm.agents.count,
-                                    issueCount: filteredIssueCount,
-                                    staleCount: filteredStaleCount,
-                                    watchlistCount: filteredWatchedCount,
-                                    authIssueCount: filteredAuthIssueCount,
-                                    modelIssueCount: filteredModelIssueCount,
-                                    sessionPressureCount: filteredSessionPressureCount,
-                                    hasSearchScope: !normalizedSearchText.isEmpty,
-                                    filterLabel: filterState.label,
-                                    filterTone: filterState == .attention ? .warning : .neutral
-                                )
-
-                                AgentsFocusCoverageDeck(
-                                    visibleCount: filteredAgents.count,
-                                    totalCount: vm.agents.count,
-                                    runningCount: filteredRunningCount,
-                                    issueCount: filteredIssueCount,
-                                    staleCount: filteredStaleCount,
-                                    watchlistCount: filteredWatchedCount,
-                                    authIssueCount: filteredAuthIssueCount,
-                                    modelIssueCount: filteredModelIssueCount,
-                                    sessionPressureCount: filteredSessionPressureCount,
-                                    hasSearchScope: !normalizedSearchText.isEmpty,
-                                    filterLabel: filterState.label,
-                                    filterTone: filterState == .attention ? .warning : .neutral
-                                )
-
-                                AgentsActionReadinessDeck(
-                                    primaryRouteCount: agentRoutePrimaryCount,
-                                    supportRouteCount: agentRouteSupportCount,
-                                    visibleCount: filteredAgents.count,
-                                    totalCount: vm.agents.count,
-                                    runningCount: filteredRunningCount,
-                                    issueCount: filteredIssueCount,
-                                    approvalCount: filteredApprovalCount,
-                                    watchlistCount: filteredWatchedCount,
-                                    sessionPressureCount: filteredSessionPressureCount,
-                                    hasSearchScope: !normalizedSearchText.isEmpty,
-                                    filterLabel: filterState.label,
-                                    filterTone: filterState == .attention ? .warning : .neutral
-                                )
-
                                 MonitoringSurfaceGroupCard(
-                                    title: String(localized: "Routes"),
-                                    detail: String(localized: "Keep the broader operator queues one tap away from the compact fleet filter.")
+                                    title: String(localized: "Shortcuts"),
+                                    detail: String(localized: "Keep fleet shortcuts close, then move straight into the list.")
                                 ) {
-                                    AgentsRouteInventoryDeck(
-                                        primaryRouteCount: agentRoutePrimaryCount,
-                                        supportRouteCount: agentRouteSupportCount,
-                                        issueCount: filteredIssueCount,
-                                        watchlistCount: filteredWatchedCount,
-                                        runtimeAlertCount: vm.runtimeAlertCount,
-                                        hasSearchScope: !normalizedSearchText.isEmpty
-                                    )
-
                                     MonitoringShortcutRail(
                                         title: String(localized: "Primary"),
                                         detail: String(localized: "Use these routes when fleet review needs broader incident or runtime context.")
@@ -409,22 +306,6 @@ struct AgentsView: View {
                             }
 
                             Section {
-                                AgentsFleetInventoryDeck(
-                                    visibleCount: filteredAgents.count,
-                                    totalCount: vm.agents.count,
-                                    runningCount: filteredRunningCount,
-                                    issueCount: filteredIssueCount,
-                                    approvalCount: filteredApprovalCount,
-                                    staleCount: filteredStaleCount,
-                                    watchlistCount: watchedAgents.count,
-                                    visibleWatchlistCount: filteredWatchedCount,
-                                    authIssueCount: filteredAuthIssueCount,
-                                    modelIssueCount: filteredModelIssueCount,
-                                    sessionPressureCount: filteredSessionPressureCount,
-                                    hasSearchScope: !normalizedSearchText.isEmpty,
-                                    filterLabel: filterState.label
-                                )
-
                                 AgentFleetSummaryCard(
                                     runningCount: filteredRunningCount,
                                     issueCount: filteredIssueCount,
