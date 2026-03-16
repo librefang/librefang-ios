@@ -385,6 +385,16 @@ struct BudgetView: View {
                 topAgentName: topAgentBudgetItem?.name
             )
 
+            BudgetPressureCoverageDeck(
+                dailySpend: vm.budget?.dailySpend,
+                projectedMonthlyCost: vm.usageSummary.flatMap(projectedMonthlyCost),
+                trendDays: vm.usageDaily.count,
+                modelCount: sortedModels.count,
+                agentCount: sortedAgents.count,
+                hasUsageSignals: vm.usageSummary != nil,
+                alertThreshold: vm.budget?.alertThreshold
+            )
+
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Focus Rail"),
                 detail: String(localized: "Keep the longest budget charts and rankings reachable from the compact mobile view.")
@@ -1831,6 +1841,76 @@ private struct BudgetSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Budget guardrails, cost signals, trend coverage, and rankings stay grouped before the route rails take over.")
+    }
+}
+
+private struct BudgetPressureCoverageDeck: View {
+    let dailySpend: Double?
+    let projectedMonthlyCost: Double?
+    let trendDays: Int
+    let modelCount: Int
+    let agentCount: Int
+    let hasUsageSignals: Bool
+    let alertThreshold: Double?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Pressure coverage keeps spend, projection, and ranking breadth readable before the long budget sections begin."),
+                detail: String(localized: "Use this deck to judge whether current budget pressure comes from daily burn, weak signal coverage, or broad model and agent spread."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if let dailySpend {
+                        PresentationToneBadge(
+                            text: localizedUSDCurrency(dailySpend),
+                            tone: dailySpend > 0 ? .warning : .neutral
+                        )
+                    }
+                    if let projectedMonthlyCost {
+                        PresentationToneBadge(
+                            text: localizedUSDCurrency(projectedMonthlyCost),
+                            tone: projectedMonthlyCost > 0 ? .warning : .neutral
+                        )
+                    }
+                    if let alertThreshold {
+                        PresentationToneBadge(
+                            text: String(localized: "\(Int(alertThreshold * 100))% alert"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep usage-signal coverage and ranking breadth readable before diving into limits, trend charts, and spend distributions."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: hasUsageSignals ? String(localized: "Signals ready") : String(localized: "Signals pending"),
+                    tone: hasUsageSignals ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
+                    systemImage: "chart.xyaxis.line"
+                )
+                Label(
+                    modelCount == 1 ? String(localized: "1 ranked model") : String(localized: "\(modelCount) ranked models"),
+                    systemImage: "chart.pie"
+                )
+                Label(
+                    agentCount == 1 ? String(localized: "1 ranked agent") : String(localized: "\(agentCount) ranked agents"),
+                    systemImage: "person.3"
+                )
+            }
+        }
     }
 }
 

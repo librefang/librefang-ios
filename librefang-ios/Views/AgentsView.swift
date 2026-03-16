@@ -184,6 +184,18 @@ struct AgentsView: View {
                                     filterTone: filterState == .attention ? .warning : .neutral
                                 )
 
+                                AgentsPressureCoverageDeck(
+                                    issueCount: filteredIssueCount,
+                                    approvalCount: filteredApprovalCount,
+                                    staleCount: filteredStaleCount,
+                                    watchlistCount: filteredWatchedCount,
+                                    authIssueCount: filteredAuthIssueCount,
+                                    modelIssueCount: filteredModelIssueCount,
+                                    sessionPressureCount: filteredSessionPressureCount,
+                                    runningCount: filteredRunningCount,
+                                    visibleCount: filteredAgents.count
+                                )
+
                                 MonitoringSurfaceGroupCard(
                                     title: String(localized: "Routes"),
                                     detail: String(localized: "Keep the broader operator queues one tap away from the compact fleet filter.")
@@ -741,6 +753,95 @@ private struct AgentsSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Fleet coverage, active pressure, and watchlist load stay summarized before the route rail and filtered agent rows take over.")
+    }
+}
+
+private struct AgentsPressureCoverageDeck: View {
+    let issueCount: Int
+    let approvalCount: Int
+    let staleCount: Int
+    let watchlistCount: Int
+    let authIssueCount: Int
+    let modelIssueCount: Int
+    let sessionPressureCount: Int
+    let runningCount: Int
+    let visibleCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Pressure coverage keeps the fleet’s sharpest issue categories readable before the filtered agent rows begin."),
+                detail: String(localized: "Use this deck to judge whether current fleet drag is coming from auth, model drift, session pressure, stale agents, or raw approval volume."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if issueCount > 0 {
+                        PresentationToneBadge(
+                            text: issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
+                            tone: .warning
+                        )
+                    }
+                    if approvalCount > 0 {
+                        PresentationToneBadge(
+                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                            tone: .critical
+                        )
+                    }
+                    if authIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: authIssueCount == 1 ? String(localized: "1 auth issue") : String(localized: "\(authIssueCount) auth issues"),
+                            tone: .warning
+                        )
+                    }
+                    if sessionPressureCount > 0 {
+                        PresentationToneBadge(
+                            text: sessionPressureCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionPressureCount) session hotspots"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep running coverage, stale agents, model drift, and watchlist pressure readable before opening individual agent cards."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: runningCount == 1 ? String(localized: "1 running agent") : String(localized: "\(runningCount) running agents"),
+                    tone: runningCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    visibleCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(visibleCount) visible agents"),
+                    systemImage: "person.3"
+                )
+                if staleCount > 0 {
+                    Label(
+                        staleCount == 1 ? String(localized: "1 stale agent") : String(localized: "\(staleCount) stale agents"),
+                        systemImage: "clock.badge.exclamationmark"
+                    )
+                }
+                if modelIssueCount > 0 {
+                    Label(
+                        modelIssueCount == 1 ? String(localized: "1 model issue") : String(localized: "\(modelIssueCount) model issues"),
+                        systemImage: "square.stack.3d.up.slash"
+                    )
+                }
+                if watchlistCount > 0 {
+                    Label(
+                        watchlistCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchlistCount) watched agents"),
+                        systemImage: "star"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

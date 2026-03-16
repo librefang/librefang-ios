@@ -82,6 +82,17 @@ struct SettingsView: View {
                             languageLabel: currentLanguageLabel
                         )
 
+                        SettingsPressureCoverageDeck(
+                            onCallQueueCount: onCallQueueCount,
+                            currentCriticalCount: currentCriticalCount,
+                            visibleAlertCount: visibleAlertCount,
+                            hasQueuedReminder: deps.onCallNotificationManager.pendingReminderDate != nil,
+                            notificationLabel: deps.onCallNotificationManager.authorizationLabel,
+                            notificationTone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning,
+                            refreshIntervalLabel: "\(Int(refreshInterval))s",
+                            languageLabel: currentLanguageLabel
+                        )
+
                         MonitoringSurfaceGroupCard(
                             title: String(localized: "Routes"),
                             detail: String(localized: "Keep the highest-value monitoring exits together before the longer device-control form.")
@@ -1349,6 +1360,68 @@ private struct SettingsSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Server, language, refresh, on-call, reminder, handoff, monitoring, and about sections stay summarized before the deeper form.")
+    }
+}
+
+private struct SettingsPressureCoverageDeck: View {
+    let onCallQueueCount: Int
+    let currentCriticalCount: Int
+    let visibleAlertCount: Int
+    let hasQueuedReminder: Bool
+    let notificationLabel: String
+    let notificationTone: PresentationTone
+    let refreshIntervalLabel: String
+    let languageLabel: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Pressure coverage keeps on-call state, reminders, and device readiness readable before the longer settings form."),
+                detail: String(localized: "Use this deck to judge whether the phone is currently burdened by queue pressure, critical alerts, or reminder state rather than static configuration."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if onCallQueueCount > 0 {
+                        PresentationToneBadge(
+                            text: onCallQueueCount == 1 ? String(localized: "1 on-call item") : String(localized: "\(onCallQueueCount) on-call items"),
+                            tone: .warning
+                        )
+                    }
+                    if currentCriticalCount > 0 {
+                        PresentationToneBadge(
+                            text: currentCriticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(currentCriticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    PresentationToneBadge(text: notificationLabel, tone: notificationTone)
+                    if hasQueuedReminder {
+                        PresentationToneBadge(text: String(localized: "Reminder queued"), tone: .caution)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep mobile readiness, queue pressure, and reminder state readable before opening the full settings form."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: refreshIntervalLabel, tone: .neutral)
+            } facts: {
+                Label(languageLabel, systemImage: "globe")
+                Label(
+                    visibleAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(visibleAlertCount) live alerts"),
+                    systemImage: "bell.badge"
+                )
+                if hasQueuedReminder {
+                    Label(String(localized: "Reminder queued"), systemImage: "bell.badge.fill")
+                }
+            }
+        }
     }
 }
 
