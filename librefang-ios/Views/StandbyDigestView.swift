@@ -132,6 +132,17 @@ struct StandbyDigestView: View {
         .filter { $0 }
         .count
     }
+    private var standbySectionPreviewTitles: [String] {
+        var sections: [String] = [String(localized: "Hero")]
+        if !primaryItems.isEmpty {
+            sections.append(String(localized: "At a Glance"))
+        }
+        if !watchItems.isEmpty {
+            sections.append(String(localized: "Pinned Watchlist"))
+        }
+        sections.append(String(localized: "Surfaces"))
+        return sections
+    }
 
     private var isAcknowledged: Bool {
         incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
@@ -298,6 +309,13 @@ struct StandbyDigestView: View {
                 automationIssueCount: automationIssueCount,
                 integrationIssueCount: integrationIssueCount
             )
+            if !standbySectionPreviewTitles.isEmpty {
+                MonitoringSectionPreviewDeck(
+                    title: String(localized: "Section Preview"),
+                    detail: String(localized: "Keep the next standby stacks visible before the glance, watchlist, and route cards open up."),
+                    sectionTitles: standbySectionPreviewTitles
+                )
+            }
             StandbySupportPressureDeck(
                 mutedAlertCount: mutedAlertCount,
                 pendingFollowUpCount: pendingFollowUpCount,

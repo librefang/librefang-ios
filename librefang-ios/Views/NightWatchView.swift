@@ -161,6 +161,20 @@ struct NightWatchView: View {
         .filter { $0 }
         .count
     }
+    private var nightWatchSectionPreviewTitles: [String] {
+        var sections: [String] = [String(localized: "Hero")]
+        if !primaryItems.isEmpty {
+            sections.append(String(localized: "Primary Queue"))
+        }
+        if !secondaryItems.isEmpty {
+            sections.append(String(localized: "Secondary Queue"))
+        }
+        if !activeWatchedItems.isEmpty {
+            sections.append(String(localized: "Watchlist"))
+        }
+        sections.append(String(localized: "Surfaces"))
+        return sections
+    }
 
     private var tone: NightWatchTone {
         if primaryItems.contains(where: { $0.severity == .critical }) {
@@ -297,6 +311,13 @@ struct NightWatchView: View {
                 automationIssueCount: automationIssueCount,
                 integrationIssueCount: integrationIssueCount
             )
+            if !nightWatchSectionPreviewTitles.isEmpty {
+                MonitoringSectionPreviewDeck(
+                    title: String(localized: "Section Preview"),
+                    detail: String(localized: "Keep the next night-watch stacks visible before the primary queue, secondary queue, and watchlist cards expand."),
+                    sectionTitles: nightWatchSectionPreviewTitles
+                )
+            }
             NightWatchSupportPressureDeck(
                 mutedAlertCount: mutedAlertCount,
                 pendingFollowUpCount: pendingFollowUpCount,

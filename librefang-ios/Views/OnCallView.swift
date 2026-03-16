@@ -229,6 +229,17 @@ struct OnCallView: View {
         .filter { $0 }
         .count
     }
+    private var onCallSectionPreviewTitles: [String] {
+        var sections: [String] = [String(localized: "Shift Status")]
+        if !priorityItems.isEmpty {
+            sections.append(String(localized: "Priority Queue"))
+        }
+        if !watchedAttentionItems.isEmpty {
+            sections.append(String(localized: "Watchlist"))
+        }
+        sections.append(String(localized: "Surfaces"))
+        return sections
+    }
 
     var body: some View {
         List {
@@ -292,6 +303,13 @@ struct OnCallView: View {
                     automationIssueCount: automationIssueCount,
                     integrationIssueCount: integrationIssueCount
                 )
+                if !onCallSectionPreviewTitles.isEmpty {
+                    MonitoringSectionPreviewDeck(
+                        title: String(localized: "Section Preview"),
+                        detail: String(localized: "Keep the next on-call stacks visible before the live queue, watchlist, and surface exits open up."),
+                        sectionTitles: onCallSectionPreviewTitles
+                    )
+                }
                 OnCallSupportPressureDeck(
                     mutedAlertCount: mutedAlertCount,
                     pendingFollowUpCount: pendingFollowUpCount,

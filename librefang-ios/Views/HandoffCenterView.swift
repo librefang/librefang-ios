@@ -188,6 +188,16 @@ struct HandoffCenterView: View {
         .filter { $0 }
         .count
     }
+    private var handoffSectionPreviewTitles: [String] {
+        var sections: [String] = [String(localized: "Draft")]
+        if !timelineItems.isEmpty {
+            sections.append(String(localized: "Timeline"))
+        }
+        if !filteredEntries.isEmpty {
+            sections.append(String(localized: "History"))
+        }
+        return sections
+    }
     private var isHistorySearchScoped: Bool {
         !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
@@ -475,6 +485,13 @@ struct HandoffCenterView: View {
                     queueCount: queueCount,
                     criticalCount: criticalCount
                 )
+                if !handoffSectionPreviewTitles.isEmpty {
+                    MonitoringSectionPreviewDeck(
+                        title: String(localized: "Section Preview"),
+                        detail: String(localized: "Keep the next handoff stacks visible before the draft, timeline, and history sections open up."),
+                        sectionTitles: handoffSectionPreviewTitles
+                    )
+                }
                 HandoffPressureCoverageDeck(
                     queueCount: queueCount,
                     criticalCount: criticalCount,
