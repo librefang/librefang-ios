@@ -57,6 +57,7 @@ struct CommsView: View {
                 commsSectionInventoryDeck
                 commsPressureCoverageDeck
                 commsSupportCoverageDeck
+                commsActionReadinessDeck
                 commsTrafficCoverageDeck
                 commsControlDeckCard
             } header: {
@@ -371,6 +372,21 @@ struct CommsView: View {
             nodeCount: viewModel.nodeCount,
             edgeCount: viewModel.edgeCount,
             spawnEventCount: viewModel.spawnEventCount,
+            isStreaming: viewModel.isStreaming,
+            hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        )
+    }
+
+    private var commsActionReadinessDeck: some View {
+        CommsActionReadinessDeck(
+            primaryRouteCount: commsPrimaryRouteCount,
+            supportRouteCount: commsSupportRouteCount,
+            sectionCount: commsSectionCount,
+            visibleEventCount: filteredEvents.count,
+            totalEventCount: viewModel.events.count,
+            nodeCount: viewModel.nodeCount,
+            edgeCount: viewModel.edgeCount,
+            taskEventCount: viewModel.taskEventCount,
             isStreaming: viewModel.isStreaming,
             hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         )
@@ -709,6 +725,94 @@ private struct CommsTrafficCoverageDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct CommsActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let sectionCount: Int
+    let visibleEventCount: Int
+    let totalEventCount: Int
+    let nodeCount: Int
+    let edgeCount: Int
+    let taskEventCount: Int
+    let isStreaming: Bool
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to confirm route breadth, traffic slice readiness, and topology coverage before opening the topology and traffic rows."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: String(localized: "\(primaryRouteCount + supportRouteCount) routes"),
+                        tone: .neutral
+                    )
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 section") : String(localized: "\(sectionCount) sections"),
+                        tone: sectionCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: isStreaming ? String(localized: "Live transport") : String(localized: "Polling transport"),
+                        tone: isStreaming ? .positive : .warning
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep route breadth, topology depth, and visible traffic coverage readable before drilling into topology edges and comms events."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleEventCount == totalEventCount
+                        ? (visibleEventCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleEventCount) visible events"))
+                        : String(localized: "\(visibleEventCount) of \(totalEventCount) visible"),
+                    tone: visibleEventCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    nodeCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(nodeCount) visible agents"),
+                    systemImage: "cpu"
+                )
+                Label(
+                    edgeCount == 1 ? String(localized: "1 live link") : String(localized: "\(edgeCount) live links"),
+                    systemImage: "point.3.connected.trianglepath.dotted"
+                )
+                if taskEventCount > 0 {
+                    Label(
+                        taskEventCount == 1 ? String(localized: "1 task-flow event") : String(localized: "\(taskEventCount) task-flow events"),
+                        systemImage: "checklist"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Comms action readiness is currently narrowed by a search-scoped traffic slice.")
+        }
+        if taskEventCount > 0 {
+            return String(localized: "Comms action readiness is currently anchored by task-flow traffic before deeper drilldown.")
+        }
+        if !isStreaming {
+            return String(localized: "Comms action readiness is currently leaning on polling transport.")
+        }
+        return String(localized: "Comms action readiness is currently clear enough for route pivots and deeper traffic review.")
     }
 }
 

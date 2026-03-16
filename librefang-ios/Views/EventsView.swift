@@ -107,6 +107,7 @@ struct EventsView: View {
             eventsSectionInventoryDeck
             eventsPressureCoverageDeck
             eventsSupportCoverageDeck
+            eventsActionReadinessDeck
             eventsFeedCoverageDeck
             eventsControlDeckCard
         } header: {
@@ -382,6 +383,20 @@ struct EventsView: View {
             scopeLabel: scope.label,
             scopeTone: scopeTone,
             showsScopeBadge: scope != .all
+        )
+    }
+
+    private var eventsActionReadinessDeck: some View {
+        EventsActionReadinessDeck(
+            primaryRouteCount: eventsPrimaryRouteCount,
+            supportRouteCount: eventsSupportRouteCount,
+            visibleCount: filteredEntries.count,
+            criticalCount: filteredEntries.filter { $0.severity == .critical }.count,
+            warningCount: filteredEntries.filter { $0.severity == .warning }.count,
+            isStreaming: viewModel.isStreaming,
+            hasSearchScope: !trimmedSearchText.isEmpty,
+            scopeLabel: scope.label,
+            scopeTone: scopeTone
         )
     }
 }
@@ -706,6 +721,96 @@ private struct EventsFeedCoverageDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct EventsActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleCount: Int
+    let criticalCount: Int
+    let warningCount: Int
+    let isStreaming: Bool
+    let hasSearchScope: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+
+    private var totalRouteCount: Int {
+        primaryRouteCount + supportRouteCount
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check route breadth, transport mode, and active event scope before opening the event route rail."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    PresentationToneBadge(
+                        text: isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                        tone: isStreaming ? .positive : .warning
+                    )
+                    PresentationToneBadge(
+                        text: totalRouteCount == 1 ? String(localized: "1 route ready") : String(localized: "\(totalRouteCount) routes ready"),
+                        tone: totalRouteCount > 0 ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep transport mode, scope, and route breadth visible before leaving the event feed for the surrounding monitor surfaces."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleCount) visible events"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                if supportRouteCount > 0 {
+                    Label(
+                        supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        systemImage: "square.grid.2x2"
+                    )
+                }
+                if criticalCount > 0 {
+                    Label(
+                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if warningCount > 0 {
+                    Label(
+                        warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if criticalCount > 0 || warningCount > 0 {
+            return String(localized: "Event action readiness is currently anchored by the visible severity mix and next monitor exits.")
+        }
+        if hasSearchScope {
+            return String(localized: "Event action readiness is currently anchored by the active search scope and filtered event slice.")
+        }
+        return String(localized: "Event action readiness is currently centered on transport state and grouped operator routes.")
     }
 }
 

@@ -139,6 +139,16 @@ struct ApprovalsView: View {
                     filterLabel: filter.label,
                     filterTone: filterTone
                 )
+                ApprovalsActionReadinessDeck(
+                    primaryRouteCount: approvalsPrimaryRouteCount,
+                    supportRouteCount: approvalsSupportRouteCount,
+                    visibleApprovalCount: filteredApprovals.count,
+                    criticalApprovalCount: criticalApprovalCount,
+                    approvalAgentCount: approvalAgentCount,
+                    hasSearchScope: !trimmedSearchText.isEmpty,
+                    filterLabel: filter.label,
+                    filterTone: filterTone
+                )
                 ApprovalsRouteInventoryDeck(
                     primaryRouteCount: approvalsPrimaryRouteCount,
                     supportRouteCount: approvalsSupportRouteCount,
@@ -821,6 +831,91 @@ private struct ApprovalsQueueInventoryDeck: View {
     private var latestRequestLabel: String? {
         guard let date = approvals.compactMap(\.requestedAt.approvalRequestedDate).max() else { return nil }
         return String(localized: "Latest \(RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date()))")
+    }
+}
+
+private struct ApprovalsActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleApprovalCount: Int
+    let criticalApprovalCount: Int
+    let approvalAgentCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    private var totalRouteCount: Int {
+        primaryRouteCount + supportRouteCount
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check route breadth, filter scope, and visible approval coverage before moving into the approval route rail."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    PresentationToneBadge(
+                        text: totalRouteCount == 1 ? String(localized: "1 route ready") : String(localized: "\(totalRouteCount) routes ready"),
+                        tone: totalRouteCount > 0 ? .positive : .neutral
+                    )
+                    if criticalApprovalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep route breadth, filter scope, and visible approval spread readable before leaving the approval queue for broader operator context."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleApprovalCount == 1 ? String(localized: "1 visible approval") : String(localized: "\(visibleApprovalCount) visible approvals"),
+                    tone: visibleApprovalCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                if supportRouteCount > 0 {
+                    Label(
+                        supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        systemImage: "square.grid.2x2"
+                    )
+                }
+                if approvalAgentCount > 0 {
+                    Label(
+                        approvalAgentCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(approvalAgentCount) visible agents"),
+                        systemImage: "person.2"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if criticalApprovalCount > 0 {
+            return String(localized: "Approval action readiness is currently anchored by critical approval requests.")
+        }
+        if hasSearchScope {
+            return String(localized: "Approval action readiness is currently anchored by the active search scope and filtered review slice.")
+        }
+        return String(localized: "Approval action readiness is currently centered on grouped operator exits and visible queue coverage.")
     }
 }
 
