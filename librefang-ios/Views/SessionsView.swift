@@ -106,6 +106,7 @@ struct SessionsView: View {
             Section {
                 sessionsStatusDeckCard
                 sessionsSectionInventoryDeck
+                sessionsPressureCoverageDeck
                 sessionsQueueCoverageDeck
                 sessionsControlDeckCard
             } header: {
@@ -444,6 +445,28 @@ struct SessionsView: View {
         )
     }
 
+    private var sessionsPressureCoverageDeck: some View {
+        SessionsPressureCoverageDeck(
+            attentionCount: visibleAttentionCount,
+            highVolumeCount: visibleHighVolumeCount,
+            unlabeledCount: visibleUnlabeledCount,
+            duplicateAgentCount: visibleDuplicateAgentCount,
+            visibleCount: filteredItems.count,
+            totalCount: vm.sessions.count,
+            hasSearchScope: !normalizedSearchText.isEmpty,
+            filterLabel: filter.label,
+            filterTone: snapshotFilterTone,
+            showsFilterBadge: {
+                switch filter {
+                case .all:
+                    false
+                default:
+                    true
+                }
+            }()
+        )
+    }
+
     private var sessionsQueueCoverageDeck: some View {
         SessionsQueueCoverageDeck(
             attentionCount: visibleAttentionCount,
@@ -613,6 +636,113 @@ private struct SessionsSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Hotspot counts, label hygiene, and duplicate-agent pressure stay summarized before the session list takes over the page.")
+    }
+}
+
+private struct SessionsPressureCoverageDeck: View {
+    let attentionCount: Int
+    let highVolumeCount: Int
+    let unlabeledCount: Int
+    let duplicateAgentCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+    let showsFilterBadge: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this pressure slice to separate hotspot churn, label hygiene gaps, and scoped session work before the queue rows begin."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if attentionCount > 0 {
+                        PresentationToneBadge(
+                            text: attentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(attentionCount) hotspots"),
+                            tone: .warning
+                        )
+                    }
+                    if highVolumeCount > 0 {
+                        PresentationToneBadge(
+                            text: highVolumeCount == 1 ? String(localized: "1 high-volume") : String(localized: "\(highVolumeCount) high-volume"),
+                            tone: .warning
+                        )
+                    }
+                    if unlabeledCount > 0 {
+                        PresentationToneBadge(
+                            text: unlabeledCount == 1 ? String(localized: "1 unlabeled") : String(localized: "\(unlabeledCount) unlabeled"),
+                            tone: .caution
+                        )
+                    }
+                    if showsFilterBadge {
+                        PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep visible session breadth, duplicate-agent churn, and scoped backlog pressure readable before drilling into the session queue."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible session") : String(localized: "\(visibleCount) visible sessions"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: attentionCount > 0 || highVolumeCount > 0 ? .warning : .positive
+                )
+            } facts: {
+                Label(
+                    totalCount == 1 ? String(localized: "1 total session") : String(localized: "\(totalCount) total sessions"),
+                    systemImage: "rectangle.stack"
+                )
+                if duplicateAgentCount > 0 {
+                    Label(
+                        duplicateAgentCount == 1 ? String(localized: "1 multi-session agent") : String(localized: "\(duplicateAgentCount) multi-session agents"),
+                        systemImage: "person.3"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if attentionCount > 0 {
+            return attentionCount == 1
+                ? String(localized: "Session pressure is currently anchored by 1 hotspot.")
+                : String(localized: "Session pressure is currently anchored by \(attentionCount) hotspots.")
+        }
+        if highVolumeCount > 0 {
+            return highVolumeCount == 1
+                ? String(localized: "Session pressure is currently concentrated in 1 high-volume session.")
+                : String(localized: "Session pressure is currently concentrated in \(highVolumeCount) high-volume sessions.")
+        }
+        if unlabeledCount > 0 {
+            return unlabeledCount == 1
+                ? String(localized: "Session pressure is currently concentrated in 1 unlabeled session.")
+                : String(localized: "Session pressure is currently concentrated in \(unlabeledCount) unlabeled sessions.")
+        }
+        if duplicateAgentCount > 0 {
+            return duplicateAgentCount == 1
+                ? String(localized: "Session pressure is currently concentrated in 1 multi-session agent.")
+                : String(localized: "Session pressure is currently concentrated in \(duplicateAgentCount) multi-session agents.")
+        }
+        if hasSearchScope || showsFilterBadge {
+            return String(localized: "Session pressure is currently narrowed by the active backlog filter or search scope.")
+        }
+        return String(localized: "Session pressure is currently spread across the visible session backlog.")
     }
 }
 

@@ -55,6 +55,7 @@ struct CommsView: View {
             Section {
                 commsStatusDeckCard
                 commsSectionInventoryDeck
+                commsPressureCoverageDeck
                 commsTrafficCoverageDeck
                 commsControlDeckCard
             } header: {
@@ -337,6 +338,19 @@ struct CommsView: View {
         )
     }
 
+    private var commsPressureCoverageDeck: some View {
+        CommsPressureCoverageDeck(
+            visibleEventCount: filteredEvents.count,
+            totalEventCount: viewModel.events.count,
+            nodeCount: viewModel.nodeCount,
+            edgeCount: viewModel.edgeCount,
+            taskEventCount: viewModel.taskEventCount,
+            spawnEventCount: viewModel.spawnEventCount,
+            isStreaming: viewModel.isStreaming,
+            hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        )
+    }
+
     private var commsTrafficCoverageDeck: some View {
         CommsTrafficCoverageDeck(
             visibleEventCount: filteredEvents.count,
@@ -431,6 +445,109 @@ private struct CommsSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Topology depth, traffic volume, and transport state stay summarized before the comms topology and traffic rows take over.")
+    }
+}
+
+private struct CommsPressureCoverageDeck: View {
+    let visibleEventCount: Int
+    let totalEventCount: Int
+    let nodeCount: Int
+    let edgeCount: Int
+    let taskEventCount: Int
+    let spawnEventCount: Int
+    let isStreaming: Bool
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this pressure slice to separate task flow, lifecycle churn, and scoped traffic from the broader topology before the comms feed opens."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if taskEventCount > 0 {
+                        PresentationToneBadge(
+                            text: taskEventCount == 1 ? String(localized: "1 task-flow event") : String(localized: "\(taskEventCount) task-flow events"),
+                            tone: .warning
+                        )
+                    }
+                    if spawnEventCount > 0 {
+                        PresentationToneBadge(
+                            text: spawnEventCount == 1 ? String(localized: "1 lifecycle event") : String(localized: "\(spawnEventCount) lifecycle events"),
+                            tone: .neutral
+                        )
+                    }
+                    if edgeCount > max(nodeCount, 1) {
+                        PresentationToneBadge(
+                            text: String(localized: "Dense topology"),
+                            tone: .warning
+                        )
+                    }
+                    if hasSearchScope {
+                        PresentationToneBadge(
+                            text: String(localized: "Scoped traffic"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep transport mode, topology density, and lifecycle churn readable before drilling into the topology and traffic rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleEventCount == totalEventCount
+                        ? (visibleEventCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleEventCount) visible events"))
+                        : String(localized: "\(visibleEventCount) of \(totalEventCount) visible"),
+                    tone: hasSearchScope ? .warning : (visibleEventCount > 0 ? .positive : .neutral)
+                )
+            } facts: {
+                Label(
+                    nodeCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(nodeCount) visible agents"),
+                    systemImage: "cpu"
+                )
+                Label(
+                    edgeCount == 1 ? String(localized: "1 live link") : String(localized: "\(edgeCount) live links"),
+                    systemImage: "point.3.connected.trianglepath.dotted"
+                )
+                Label(
+                    isStreaming ? String(localized: "Live transport") : String(localized: "Polling transport"),
+                    systemImage: "dot.radiowaves.left.and.right"
+                )
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if taskEventCount > 0 && taskEventCount >= max(spawnEventCount, 1) {
+            return taskEventCount == 1
+                ? String(localized: "Comms pressure is currently anchored by 1 task-flow event.")
+                : String(localized: "Comms pressure is currently anchored by \(taskEventCount) task-flow events.")
+        }
+        if spawnEventCount > 0 && spawnEventCount >= max(taskEventCount, 1) {
+            return spawnEventCount == 1
+                ? String(localized: "Comms pressure is currently anchored by 1 lifecycle event.")
+                : String(localized: "Comms pressure is currently anchored by \(spawnEventCount) lifecycle events.")
+        }
+        if hasSearchScope {
+            return String(localized: "Comms pressure is currently narrowed by a search-scoped traffic slice.")
+        }
+        if edgeCount > max(nodeCount, 1) {
+            return String(localized: "Comms pressure is currently concentrated in a dense live topology.")
+        }
+        return String(localized: "Comms pressure is currently spread across transport mode, topology depth, and live traffic breadth.")
     }
 }
 

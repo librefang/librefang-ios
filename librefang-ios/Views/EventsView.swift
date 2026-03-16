@@ -105,6 +105,7 @@ struct EventsView: View {
         Section {
             eventsStatusDeckCard
             eventsSectionInventoryDeck
+            eventsPressureCoverageDeck
             eventsFeedCoverageDeck
             eventsControlDeckCard
         } header: {
@@ -343,6 +344,21 @@ struct EventsView: View {
         )
     }
 
+    private var eventsPressureCoverageDeck: some View {
+        EventsPressureCoverageDeck(
+            visibleCount: filteredEntries.count,
+            totalCount: viewModel.entries.count,
+            criticalCount: filteredEntries.filter { $0.severity == .critical }.count,
+            warningCount: filteredEntries.filter { $0.severity == .warning }.count,
+            infoCount: filteredEntries.filter { $0.severity == .info }.count,
+            isStreaming: viewModel.isStreaming,
+            hasSearchScope: !trimmedSearchText.isEmpty,
+            scopeLabel: scope.label,
+            scopeTone: scopeTone,
+            showsScopeBadge: scope != .all
+        )
+    }
+
     private var eventsFeedCoverageDeck: some View {
         EventsFeedCoverageDeck(
             visibleCount: filteredEntries.count,
@@ -438,6 +454,100 @@ private struct EventsSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Severity mix, result volume, and transport mode stay summarized before the event feed takes over the page.")
+    }
+}
+
+private struct EventsPressureCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let criticalCount: Int
+    let warningCount: Int
+    let infoCount: Int
+    let isStreaming: Bool
+    let hasSearchScope: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+    let showsScopeBadge: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this pressure slice to separate critical audit drag from scoped warnings and lower-noise feed traffic before the event rows begin."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if warningCount > 0 {
+                        PresentationToneBadge(
+                            text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                            tone: .warning
+                        )
+                    }
+                    if showsScopeBadge {
+                        PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    }
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep severity pressure, transport mode, and visible slice breadth readable before drilling into the audit feed."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleCount) visible events"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: criticalCount > 0 ? .critical : (warningCount > 0 ? .warning : .positive)
+                )
+            } facts: {
+                Label(
+                    isStreaming ? String(localized: "Live transport") : String(localized: "Polling transport"),
+                    systemImage: "dot.radiowaves.left.and.right"
+                )
+                if infoCount > 0 {
+                    Label(
+                        infoCount == 1 ? String(localized: "1 info") : String(localized: "\(infoCount) info"),
+                        systemImage: "info.circle"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if criticalCount > 0 {
+            return criticalCount == 1
+                ? String(localized: "Event pressure is currently anchored by 1 critical audit event.")
+                : String(localized: "Event pressure is currently anchored by \(criticalCount) critical audit events.")
+        }
+        if warningCount > 0 && warningCount >= max(infoCount, 1) {
+            return warningCount == 1
+                ? String(localized: "Event pressure is currently concentrated in 1 warning event.")
+                : String(localized: "Event pressure is currently concentrated in \(warningCount) warning events.")
+        }
+        if hasSearchScope || showsScopeBadge {
+            return String(localized: "Event pressure is currently narrowed by the active severity or search scope.")
+        }
+        return String(localized: "Event pressure is currently spread across lower-noise feed traffic and background audit flow.")
     }
 }
 
