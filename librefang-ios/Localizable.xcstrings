@@ -3193,6 +3193,12 @@
             "state": "translated",
             "value": "代理文件"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントファイル"
+          }
         }
       }
     },
@@ -4988,6 +4994,12 @@
             "state": "translated",
             "value": "上下文 tokens"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンテキストトークン"
+          }
         }
       }
     },
@@ -5616,6 +5628,12 @@
             "state": "translated",
             "value": "投递"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信"
+          }
         }
       }
     },
@@ -5649,6 +5667,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "投递摘要"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信サマリー"
           }
         }
       }
@@ -5976,6 +6000,12 @@
             "state": "translated",
             "value": "失败"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失敗"
+          }
         }
       }
     },
@@ -6045,6 +6075,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "文件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイル"
           }
         }
       }
@@ -6559,6 +6595,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "高流量"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高ボリューム"
           }
         }
       }
@@ -7441,6 +7483,12 @@
             "state": "translated",
             "value": "LibreFang 只暴露白名单中的身份文件，这些文件决定了代理的行为方式和自我描述。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang は、エージェントの振る舞いと自己記述を形作るホワイトリスト済み ID ファイルのみを公開します。"
+          }
         }
       }
     },
@@ -7709,6 +7757,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在加载对话…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会話を読み込み中…"
           }
         }
       }
@@ -8100,6 +8154,12 @@
             "state": "translated",
             "value": "记忆"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メモリ"
+          }
         }
       }
     },
@@ -8261,6 +8321,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "缺失"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "欠落"
           }
         }
       }
@@ -8904,6 +8970,12 @@
             "state": "translated",
             "value": "没有投递回执"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信レシートがありません"
+          }
         }
       }
     },
@@ -9113,6 +9185,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "没有匹配的回执"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一致するレシートがありません"
           }
         }
       }
@@ -10290,6 +10368,12 @@
             "state": "translated",
             "value": "存在"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "存在"
+          }
         }
       }
     },
@@ -10717,6 +10801,12 @@
             "state": "translated",
             "value": "回执"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "レシート"
+          }
         }
       }
     },
@@ -10728,6 +10818,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "这些回执来自 LibreFang 的出站渠道投递跟踪器，用于确认代理是否真正把消息送到了外部世界。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "これらのレシートは LibreFang の送信チャネル配信トラッカーから取得され、エージェントが実際に外部へ到達したかを確認するのに役立ちます。"
           }
         }
       }
@@ -11725,6 +11821,12 @@
             "state": "translated",
             "value": "搜索接收方、渠道或状态"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "宛先、チャネル、または状態を検索"
+          }
         }
       }
     },
@@ -11784,6 +11886,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "搜索工作区文件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースファイルを検索"
           }
         }
       }
@@ -13195,6 +13303,12 @@
             "state": "translated",
             "value": "这个代理最近没有出站投递回执。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このエージェントには最近の送信配信レシートがありません。"
+          }
         }
       }
     },
@@ -13820,6 +13934,12 @@
             "state": "translated",
             "value": "请尝试使用不同的接收方、渠道或状态进行搜索。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "別の宛先、チャネル、または状態で検索してください。"
+          }
         }
       }
     },
@@ -13971,6 +14091,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "未完成"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未解決"
           }
         }
       }
@@ -14595,6 +14721,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "工作区身份"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペース ID"
           }
         }
       }
@@ -15868,6 +16000,12 @@
             "state": "translated",
             "value": "1 个失败"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の失敗"
+          }
         }
       }
     },
@@ -16727,6 +16865,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "文件为空。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルは空です。"
           }
         }
       }
@@ -18196,6 +18340,12 @@
             "state": "translated",
             "value": "智能体：\\(agent.name)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェント: \\(agent.name)"
+          }
         }
       }
     },
@@ -18720,6 +18870,12 @@
             "state": "translated",
             "value": "LibreFang 工作区身份快照"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang ワークスペース ID スナップショット"
+          }
         }
       }
     },
@@ -18729,6 +18885,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "范围：\\(scope.label)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "範囲: \\(scope.label)"
           }
         }
       }
@@ -18740,6 +18902,12 @@
             "state": "translated",
             "value": "可见文件：\\(filteredFiles.count)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "表示中ファイル: \\(filteredFiles.count)"
+          }
         }
       }
     },
@@ -18749,6 +18917,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "存在：\\(existingCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "存在: \\(existingCount)"
           }
         }
       }
@@ -18760,12 +18934,24 @@
             "state": "translated",
             "value": "缺失：\\(missingCount)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "欠落: \\(missingCount)"
+          }
         }
       }
     },
     "Present · \\(file.name) · \\(size)": {
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "存在 · \\(file.name) · \\(size)"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "存在 · \\(file.name) · \\(size)"
@@ -18780,6 +18966,12 @@
             "state": "translated",
             "value": "缺失 · \\(file.name)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "欠落 · \\(file.name)"
+          }
         }
       }
     },
@@ -18789,6 +18981,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(agent.name) 工作区身份"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agent.name) のワークスペース ID"
           }
         }
       }
@@ -18800,6 +18998,12 @@
             "state": "translated",
             "value": "LibreFang 工作区身份文件"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang ワークスペース ID ファイル"
+          }
         }
       }
     },
@@ -18809,6 +19013,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "文件：\\(detail.name)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイル: \\(detail.name)"
           }
         }
       }
@@ -18820,6 +19030,12 @@
             "state": "translated",
             "value": "大小：\\(ByteCountFormatter.string(fromByteCount: Int64(detail.sizeBytes), countStyle: .file))"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サイズ: \\(ByteCountFormatter.string(fromByteCount: Int64(detail.sizeBytes), countStyle: .file))"
+          }
         }
       }
     },
@@ -18829,6 +19045,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LibreFang 投递快照"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang 配信スナップショット"
           }
         }
       }
@@ -18840,6 +19062,12 @@
             "state": "translated",
             "value": "可见回执：\\(filteredReceipts.count)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "表示中レシート: \\(filteredReceipts.count)"
+          }
         }
       }
     },
@@ -18849,6 +19077,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "已送达：\\(deliveredCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信済み: \\(deliveredCount)"
           }
         }
       }
@@ -18860,6 +19094,12 @@
             "state": "translated",
             "value": "失败：\\(failedCount)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失敗: \\(failedCount)"
+          }
         }
       }
     },
@@ -18870,6 +19110,12 @@
             "state": "translated",
             "value": "未完成：\\(unsettledCount)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未解決: \\(unsettledCount)"
+          }
         }
       }
     },
@@ -18879,6 +19125,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(agent.name) 投递"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agent.name) の配信"
           }
         }
       }
@@ -19772,6 +20024,12 @@
             "state": "translated",
             "value": "\\(agent.name) \\(detail.name)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agent.name) \\(detail.name)"
+          }
         }
       }
     },
@@ -20261,6 +20519,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "当前会话"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のセッション"
           }
         }
       }
@@ -22577,6 +22841,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(viewModel.messageCount) 条消息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(viewModel.messageCount)件のメッセージ"
           }
         }
       }
@@ -49847,6 +50117,3078 @@
           "stringUnit": {
             "state": "translated",
             "value": "このデッキで、フリート、ランタイム、または統合の文脈へ切り替える前に、選択中プロファイル補助、表示中カタログの幅、絞り込み検索を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "1 delivered": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已送达项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の配信済み"
+          }
+        }
+      }
+    },
+    "1 delivered receipt": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已送达回执"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の配信済みレシート"
+          }
+        }
+      }
+    },
+    "1 failed receipt": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个失败回执"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の失敗レシート"
+          }
+        }
+      }
+    },
+    "1 failure": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个失败项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の失敗"
+          }
+        }
+      }
+    },
+    "1 receipt": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个回执"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のレシート"
+          }
+        }
+      }
+    },
+    "1 receipt matches the current delivery filter.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个回执匹配当前投递筛选。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在の配信フィルターに一致するレシートは 1 件です。"
+          }
+        }
+      }
+    },
+    "1 receipt matches the current delivery search.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个回执匹配当前投递搜索。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在の配信検索に一致するレシートは 1 件です。"
+          }
+        }
+      }
+    },
+    "1 recipient": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个收件人"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の宛先"
+          }
+        }
+      }
+    },
+    "1 unsettled receipt": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个未结清回执"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の未解決レシート"
+          }
+        }
+      }
+    },
+    "1 visible receipt": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见回执"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中レシート"
+          }
+        }
+      }
+    },
+    "Active Delivery Slice": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活跃投递切片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクティブ配信スライス"
+          }
+        }
+      }
+    },
+    "Delivery failures and unsettled sends stay visible before the full receipt log.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在完整回执日志之前，投递失败和未结清发送会保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全なレシートログの前に、配信失敗と未解決の送信が見えるまま保たれます。"
+          }
+        }
+      }
+    },
+    "Delivery focus coverage is currently anchored by failed outbound receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递焦点覆盖当前由失败的外发回执主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信のフォーカス範囲は現在、失敗した送信レシートが軸です。"
+          }
+        }
+      }
+    },
+    "Delivery focus coverage is currently anchored by the filtered receipt slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递焦点覆盖当前由筛选后的回执切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信のフォーカス範囲は現在、フィルター済みのレシートスライスが軸です。"
+          }
+        }
+      }
+    },
+    "Delivery focus coverage is currently anchored by unsettled outbound receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递焦点覆盖当前由未结清的外发回执主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信のフォーカス範囲は現在、未解決の送信レシートが軸です。"
+          }
+        }
+      }
+    },
+    "Delivery focus coverage is currently balanced across recent outbound receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递焦点覆盖当前在最近的外发回执之间保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信のフォーカス範囲は現在、最近の送信レシート全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Delivery pressure is currently anchored by failed outbound receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递压力当前由失败的外发回执主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信負荷は現在、失敗した送信レシートが軸です。"
+          }
+        }
+      }
+    },
+    "Delivery pressure is currently concentrated in unsettled outbound receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递压力当前集中在未结清的外发回执上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信負荷は現在、未解決の送信レシートに集中しています。"
+          }
+        }
+      }
+    },
+    "Delivery pressure is currently low and mostly reflects confirmed outbound receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递压力当前较低，主要反映已确认的外发回执。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信負荷は現在低く、主に確認済みの送信レシートを反映しています。"
+          }
+        }
+      }
+    },
+    "Delivery routes stay compact before the surrounding incident and runtime drilldowns.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递路由会在周边事件与运行时下钻前保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信ルートは、周辺のインシデントとランタイムのドリルダウンに入る前はコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Delivery routes stay compact while the receipt log is scoped.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当回执日志受范围限制时，投递路由会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "レシートログが絞り込まれている間、配信ルートはコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Delivery support coverage is currently anchored by delivered outbound receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递辅助覆盖当前由已送达的外发回执主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信の補助カバレッジは現在、配信済みの送信レシートが軸です。"
+          }
+        }
+      }
+    },
+    "Delivery support coverage is currently anchored by failed outbound receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递辅助覆盖当前由失败的外发回执主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信の補助カバレッジは現在、失敗した送信レシートが軸です。"
+          }
+        }
+      }
+    },
+    "Delivery support coverage is currently anchored by unsettled outbound receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递辅助覆盖当前由未结清的外发回执主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信の補助カバレッジは現在、未解決の送信レシートが軸です。"
+          }
+        }
+      }
+    },
+    "Delivery support coverage is currently light across the visible receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递辅助覆盖当前在可见回执中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信の補助カバレッジは現在、表示中のレシート全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Delivery support coverage is currently narrowed to the filtered receipt slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递辅助覆盖当前收窄到筛选后的回执切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信の補助カバレッジは現在、フィルター済みのレシートスライスに狭まっています。"
+          }
+        }
+      }
+    },
+    "Delivery workstream coverage is currently anchored by delivered outbound receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递工作流覆盖当前由已送达的外发回执主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信ワークストリームのカバレッジは現在、配信済みの送信レシートが軸です。"
+          }
+        }
+      }
+    },
+    "Delivery workstream coverage is currently anchored by failed outbound receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递工作流覆盖当前由失败的外发回执主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信ワークストリームのカバレッジは現在、失敗した送信レシートが軸です。"
+          }
+        }
+      }
+    },
+    "Delivery workstream coverage is currently anchored by unsettled outbound receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递工作流覆盖当前由未结清的外发回执主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信ワークストリームのカバレッジは現在、未解決の送信レシートが軸です。"
+          }
+        }
+      }
+    },
+    "Delivery workstream coverage is currently light across the visible receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递工作流覆盖当前在可见回执中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信ワークストリームのカバレッジは現在、表示中のレシート全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Filter active": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "筛选激活"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィルター有効"
+          }
+        }
+      }
+    },
+    "Keep broader runtime context behind the primary delivery path.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让更广的运行时上下文位于主要投递路径之后。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より広いランタイム文脈は主要な配信経路の後ろに置きます。"
+          }
+        }
+      }
+    },
+    "Keep delivered, failed, and unsettled receipt support readable before moving into incidents, events, or runtime context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到事件、审计或运行时上下文前，先让已送达、失败和未结清的回执辅助保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント、イベント、またはランタイムの文脈へ移る前に、配信済み、失敗、未解決のレシート補助を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep delivery failure, settlement lag, and freshness readable before the outbound receipt rows take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在外发回执行接管前，先让投递失败、结算滞后和新鲜度保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送信レシート行が前面に出る前に、配信失敗、解決の遅れ、鮮度を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep failed, unsettled, and delivered receipt lanes readable before moving through the full outbound receipt log.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在浏览完整外发回执日志前，先让失败、未结清和已送达的回执通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全な送信レシートログをたどる前に、失敗、未解決、配信済みのレシートレーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep nearby agent, incident, audit, and runtime exits closest to delivery failures and unsettled receipts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让附近的代理、事件、审计和运行时出口最靠近投递失败与未结清回执。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "近くのエージェント、インシデント、監査、ランタイムの出口を、配信失敗と未解決レシートの近くに置きます。"
+          }
+        }
+      }
+    },
+    "Keep summary, routes, and receipt coverage visible before drilling into the full outbound delivery log.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入完整外发投递日志前，先让摘要、路由和回执覆盖保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全な送信配信ログへ掘り下げる前に、要約、ルート、レシートカバレッジを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the active scope, channel spread, dominant delivery lane, and latest receipt timing visible while scanning delivery history.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在扫描投递历史时，先让激活范围、通道分布、主投递通道和最新回执时间保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信履歴を確認する間、アクティブな範囲、チャネル分布、主要な配信レーン、最新レシート時刻を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the agent, current scope, and freshest receipt timing available while filtering receipt history.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在筛选回执历史时，保持代理、当前范围和最新回执时间可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "レシート履歴を絞り込む間、エージェント、現在の範囲、最新レシート時刻を見えるままにします。"
+          }
+        }
+      }
+    },
+    "Keep the dominant delivery lane readable before moving from compact delivery decks into receipt rows and adjacent incident routes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从紧凑投递卡片切换到回执行和相邻事件路由前，先让主投递通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトな配信デッキからレシート行と隣接するインシデントルートへ移る前に、主要な配信レーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the next receipt stack visible before delivery rows expand into the full outbound log.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在投递行展开为完整外发日志前，先让下一组回执堆栈保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信行が完全な送信ログへ広がる前に、次のレシートスタックを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep visible receipt size and unsettled delivery pressure readable before pivoting into agent, incident, events, or runtime context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到代理、事件、审计或运行时上下文前，先让可见回执规模和未结清投递压力保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェント、インシデント、イベント、またはランタイムの文脈へ切り替える前に、表示中レシートの規模と未解決配信負荷を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Receipt Facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回执概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "レシート要点"
+          }
+        }
+      }
+    },
+    "Recent outbound receipts stay summarized before the longer delivery log.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在更长的投递日志之前，最近的外发回执会保持摘要显示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より長い配信ログの前で、最近の送信レシートは要約表示されたままです。"
+          }
+        }
+      }
+    },
+    "Scoped inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "限定范围清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "絞り込みインベントリ"
+          }
+        }
+      }
+    },
+    "Section coverage stays visible before routes and the longer receipt log.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在路由和更长的回执日志之前，分区覆盖会保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートとより長いレシートログの前で、セクションカバレッジは見えるまま保たれます。"
+          }
+        }
+      }
+    },
+    "Section coverage stays visible while delivery receipts are still loading.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当投递回执仍在加载时，分区覆盖会保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信レシートの読み込み中も、セクションカバレッジは見えるまま保たれます。"
+          }
+        }
+      }
+    },
+    "The active delivery slice stays compact before the full receipt list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在完整回执列表之前，激活的投递切片会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクティブな配信スライスは完全なレシート一覧の前でコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "The filtered delivery slice stays compact before the full receipt list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在完整回执列表之前，筛选后的投递切片会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィルター済みの配信スライスは完全なレシート一覧の前でコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "This surface keeps outbound delivery state visible before any receipts load.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个界面会在任何回执加载前让外发投递状态保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この画面は、レシートが 1 件も読み込まれる前に送信配信状態を見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Use nearby incident and audit surfaces first.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "优先使用附近的事件与审计界面。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まず近くのインシデントと監査の画面を使ってください。"
+          }
+        }
+      }
+    },
+    "Use section coverage to confirm how much delivery context is ready before leaving receipt inspection.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用分区覆盖确认离开回执检查前已有多少投递上下文准备就绪。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セクションカバレッジを使って、レシート確認を離れる前にどれだけの配信文脈が準備できているか確認します。"
+          }
+        }
+      }
+    },
+    "Use section coverage to confirm the active receipt scope before pivoting into nearby incident or runtime surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用分区覆盖确认激活的回执范围后，再切换到附近的事件或运行时界面。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "近くのインシデントまたはランタイム画面へ切り替える前に、セクションカバレッジでアクティブなレシート範囲を確認します。"
+          }
+        }
+      }
+    },
+    "Use the deck to gauge channel spread, recent failures, and unsettled sends before opening each receipt row.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开每个回执行前判断通道分布、近期失败和未结清发送。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、各レシート行を開く前にチャネル分布、最近の失敗、未解決送信を見極めます。"
+          }
+        }
+      }
+    },
+    "Use the route deck when delivery receipts need incident, audit, or runtime context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当投递回执需要事件、审计或运行时上下文时，使用路由卡片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信レシートにインシデント、監査、またはランタイムの文脈が必要な場合は、ルートデッキを使います。"
+          }
+        }
+      }
+    },
+    "Use the route inventory to gauge the visible receipt slice before leaving delivery inspection.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用路由清单，在离开投递检查前判断可见回执切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートインベントリを使って、配信確認を離れる前に表示中のレシートスライスを見極めます。"
+          }
+        }
+      }
+    },
+    "Use these routes when delivery receipts need incident, event, or runtime context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当投递回执需要事件、审计或运行时上下文时，使用这些路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信レシートにインシデント、イベント、またはランタイムの文脈が必要な場合は、これらのルートを使います。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep delivery confirmation, failure support, and the freshest receipt timing readable before leaving the outbound receipt log.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在离开外发回执日志前，让投递确认、失败辅助和最新回执时间保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、送信レシートログを離れる前に、配信確認、失敗補助、最新レシート時刻を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant delivery lane visible before opening route rails and the full receipt log.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开路由栏和完整回执日志前，让主投递通道保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、ルートレールと完全なレシートログを開く前に、主要な配信レーンを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether delivery review is currently led by failed receipts, unsettled receipts, or confirmed outbound traffic before the log opens.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在日志展开前查看当前投递审查是由失败回执、未结清回执还是已确认的外发流量主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、ログが開く前に現在の配信確認が失敗レシート、未解決レシート、または確認済み送信トラフィックのどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "Use this deck to separate confirmed delivery, failed sends, unsettled receipts, and scoped receipt slices before opening the full log.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开完整日志前区分已确认投递、失败发送、未结清回执和限定范围的回执切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、完全なログを開く前に確認済み配信、失敗送信、未解決レシート、絞り込みレシートスライスを切り分けます。"
+          }
+        }
+      }
+    },
+    "\\(deliveredCount) delivered": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(deliveredCount) 个已送达项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(deliveredCount)件の配信済み"
+          }
+        }
+      }
+    },
+    "\\(deliveredCount) delivered receipts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(deliveredCount) 个已送达回执"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(deliveredCount)件の配信済みレシート"
+          }
+        }
+      }
+    },
+    "\\(failedCount) failed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedCount) 个失败项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedCount)件の失敗"
+          }
+        }
+      }
+    },
+    "\\(failedCount) failed receipts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedCount) 个失败回执"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedCount)件の失敗レシート"
+          }
+        }
+      }
+    },
+    "\\(failedCount) failures": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedCount) 个失败项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedCount)件の失敗"
+          }
+        }
+      }
+    },
+    "\\(filteredReceipts.count) receipts match the current delivery filter.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredReceipts.count) 个回执匹配当前投递筛选。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在の配信フィルターに一致するレシートは \\(filteredReceipts.count) 件です。"
+          }
+        }
+      }
+    },
+    "\\(filteredReceipts.count) visible receipts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredReceipts.count) 个可见回执"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredReceipts.count)件の表示中レシート"
+          }
+        }
+      }
+    },
+    "\\(receipts.count) of \\(totalReceipts) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可见 \\(receipts.count) / \\(totalReceipts)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalReceipts)件中\\(receipts.count)件を表示"
+          }
+        }
+      }
+    },
+    "\\(receipts.count) receipts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(receipts.count) 个回执"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(receipts.count)件のレシート"
+          }
+        }
+      }
+    },
+    "\\(receipts.count) receipts match the current delivery search.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(receipts.count) 个回执匹配当前投递搜索。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在の配信検索に一致するレシートは \\(receipts.count) 件です。"
+          }
+        }
+      }
+    },
+    "\\(receipts.count) visible receipts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(receipts.count) 个可见回执"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(receipts.count)件の表示中レシート"
+          }
+        }
+      }
+    },
+    "\\(recipientCount) recipients": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(recipientCount) 个收件人"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(recipientCount)件の宛先"
+          }
+        }
+      }
+    },
+    "\\(unsettledCount) unsettled": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unsettledCount) 个未结清项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unsettledCount)件の未解決"
+          }
+        }
+      }
+    },
+    "\\(unsettledCount) unsettled receipts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unsettledCount) 个未结清回执"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unsettledCount)件の未解決レシート"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) visible receipts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 个可见回执"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount)件の表示中レシート"
+          }
+        }
+      }
+    },
+    "1 file matches the current workspace filter.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个文件匹配当前工作区筛选。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のワークスペースフィルターに一致するファイルは 1 件です。"
+          }
+        }
+      }
+    },
+    "1 file matches the current workspace search.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个文件匹配当前工作区搜索。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のワークスペース検索に一致するファイルは 1 件です。"
+          }
+        }
+      }
+    },
+    "1 missing": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个缺失项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の欠落"
+          }
+        }
+      }
+    },
+    "1 missing file": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个缺失文件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の欠落ファイル"
+          }
+        }
+      }
+    },
+    "1 present": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个存在项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の存在"
+          }
+        }
+      }
+    },
+    "1 present file": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个现有文件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の存在ファイル"
+          }
+        }
+      }
+    },
+    "1 visible file": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见文件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中ファイル"
+          }
+        }
+      }
+    },
+    "Active Workspace Slice": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活跃工作区切片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクティブなワークスペーススライス"
+          }
+        }
+      }
+    },
+    "Identity intact": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "身份完整"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID は正常です"
+          }
+        }
+      }
+    },
+    "Keep identity drift and scope pressure readable before the workspace file rows take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在工作区文件行接管前，先让身份漂移和范围压力保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースファイル行が前面に出る前に、ID ドリフトとスコープ負荷を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep missing identity files, present workspace files, and scoped inspection state readable before moving into the file rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入文件行前，先让缺失身份文件、现有工作区文件和限定检查状态保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイル行へ入る前に、欠落している ID ファイル、存在するワークスペースファイル、絞り込み確認状態を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep nearby agent, memory, session, and delivery exits closest to workspace identity inspection.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让附近的代理、记忆、会话和投递出口最靠近工作区身份检查。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "近くのエージェント、メモリ、セッション、配信の出口をワークスペース ID 確認の近くに置きます。"
+          }
+        }
+      }
+    },
+    "Keep outbound delivery context behind the primary workspace routes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让外发投递上下文位于主要工作区路由之后。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送信配信の文脈は主要なワークスペースルートの後ろに置きます。"
+          }
+        }
+      }
+    },
+    "Keep present identity files, missing-file drift, and scoped workspace support readable before moving into adjacent agent surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到相邻代理界面前，先让现有身份文件、缺失文件漂移和限定工作区辅助保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隣接するエージェント画面へ移る前に、存在する ID ファイル、欠落ファイルのドリフト、絞り込みワークスペース補助を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep summary, routes, and file coverage readable before drilling into specific workspace identity files.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入具体工作区身份文件前，先让摘要、路由和文件覆盖保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "特定のワークスペース ID ファイルへ掘り下げる前に、要約、ルート、ファイルカバレッジを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the active scope, visible file footprint, and the heaviest identity file visible while scanning workspace identity.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在扫描工作区身份时，先让激活范围、可见文件规模和最大的身份文件保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペース ID を確認する間、アクティブな範囲、表示中ファイル規模、もっとも大きい ID ファイルを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the current scope, visible result count, and agent identity nearby while checking file presence.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在检查文件存在性时，保持当前范围、可见结果数和代理身份可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルの存在を確認する間、現在の範囲、表示中結果数、エージェント ID を見えるままにします。"
+          }
+        }
+      }
+    },
+    "Keep the dominant workspace-identity lane readable before moving from compact identity decks into file rows and adjacent agent surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从紧凑身份卡片切换到文件行和相邻代理界面前，先让主工作区身份通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトな ID デッキからファイル行と隣接するエージェント画面へ移る前に、主要なワークスペース ID レーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the next workspace file stack visible before identity rows expand into the full file list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在身份行展开为完整文件列表前，先让下一组工作区文件堆栈保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID 行が完全なファイル一覧へ広がる前に、次のワークスペースファイルスタックを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the visible workspace slice and identity drift readable before pivoting into agent, memory, session, or delivery context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到代理、记忆、会话或投递上下文前，先让可见工作区切片和身份漂移保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェント、メモリ、セッション、または配信の文脈へ切り替える前に、表示中のワークスペーススライスと ID ドリフトを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Section coverage stays visible before routes and individual identity files.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在路由和单个身份文件之前，分区覆盖会保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートと個別の ID ファイルの前で、セクションカバレッジは見えるまま保たれます。"
+          }
+        }
+      }
+    },
+    "Section coverage stays visible while workspace identity is still loading.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当工作区身份仍在加载时，分区覆盖会保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペース ID の読み込み中も、セクションカバレッジは見えるまま保たれます。"
+          }
+        }
+      }
+    },
+    "The active workspace identity slice stays compact before the full file list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在完整文件列表之前，激活的工作区身份切片会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクティブなワークスペース ID スライスは完全なファイル一覧の前でコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "The filtered workspace identity slice stays compact before the full file list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在完整文件列表之前，筛选后的工作区身份切片会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィルター済みのワークスペース ID スライスは完全なファイル一覧の前でコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "This surface keeps workspace identity visible before any files load.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个界面会在任何文件加载前让工作区身份保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この画面は、ファイルが 1 件も読み込まれる前にワークスペース ID を見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Use nearby agent, memory, and session surfaces first.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "优先使用附近的代理、记忆和会话界面。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まず近くのエージェント、メモリ、セッションの画面を使ってください。"
+          }
+        }
+      }
+    },
+    "Use section coverage to confirm how much identity context is ready before leaving file inspection.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用分区覆盖确认离开文件检查前已有多少身份上下文准备就绪。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セクションカバレッジを使って、ファイル確認を離れる前にどれだけの ID 文脈が準備できているか確認します。"
+          }
+        }
+      }
+    },
+    "Use section coverage to confirm the active workspace scope before pivoting into related agent surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用分区覆盖确认激活的工作区范围后，再切换到相关代理界面。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "関連するエージェント画面へ切り替える前に、セクションカバレッジでアクティブなワークスペース範囲を確認します。"
+          }
+        }
+      }
+    },
+    "Use the deck to gauge missing files, visible footprint, and the largest present file before opening each workspace row.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开每个工作区行前判断缺失文件、可见规模和最大的现有文件。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、各ワークスペース行を開く前に欠落ファイル、表示中の規模、最大の存在ファイルを見極めます。"
+          }
+        }
+      }
+    },
+    "Use the route deck when identity files need memory, session, or delivery context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当身份文件需要记忆、会话或投递上下文时，使用路由卡片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID ファイルにメモリ、セッション、または配信の文脈が必要な場合は、ルートデッキを使います。"
+          }
+        }
+      }
+    },
+    "Use the route inventory to gauge the visible workspace slice before leaving file inspection.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用路由清单，在离开文件检查前判断可见工作区切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートインベントリを使って、ファイル確認を離れる前に表示中のワークスペーススライスを見極めます。"
+          }
+        }
+      }
+    },
+    "Use these routes when identity files need memory, delivery, or session context rather than isolated file checks.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当身份文件需要记忆、投递或会话上下文，而不是孤立文件检查时，使用这些路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID ファイルに単独のファイル確認ではなく、メモリ、配信、またはセッションの文脈が必要な場合は、これらのルートを使います。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant workspace-identity lane visible before opening route rails and the full file inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开路由栏和完整文件清单前，让主工作区身份通道保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、ルートレールと完全なファイルインベントリを開く前に、主要なワークスペース ID レーンを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep workspace identity support, visible scope, and missing-file context readable before leaving the compact file monitor.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在离开紧凑文件监视器前，让工作区身份辅助、可见范围和缺失文件上下文保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、コンパクトなファイルモニターを離れる前に、ワークスペース ID 補助、表示中範囲、欠落ファイル文脈を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether workspace identity review is currently led by missing files, present files, or scoped inspection before the full inventory opens.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在完整清单展开前查看当前工作区身份审查是由缺失文件、现有文件还是限定检查主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、完全なインベントリが開く前に、現在のワークスペース ID 確認が欠落ファイル、存在ファイル、または絞り込み確認のどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "Use this deck to separate identity-file drift from simple scope filtering before opening individual workspace files.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开单个工作区文件前区分身份文件漂移与简单范围筛选。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、個別のワークスペースファイルを開く前に、ID ファイルのドリフトと単純な範囲フィルターを切り分けます。"
+          }
+        }
+      }
+    },
+    "Workspace Facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペース要点"
+          }
+        }
+      }
+    },
+    "Workspace focus coverage is currently anchored by missing identity files.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区焦点覆盖当前由缺失身份文件主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースのフォーカス範囲は現在、欠落している ID ファイルが軸です。"
+          }
+        }
+      }
+    },
+    "Workspace focus coverage is currently anchored by the filtered identity slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区焦点覆盖当前由筛选后的身份切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースのフォーカス範囲は現在、フィルター済みの ID スライスが軸です。"
+          }
+        }
+      }
+    },
+    "Workspace focus coverage is currently balanced across the visible identity files.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区焦点覆盖当前在可见身份文件之间保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースのフォーカス範囲は現在、表示中の ID ファイル全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Workspace identity drift stays visible before the full file inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在完整文件清单之前，工作区身份漂移会保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全なファイルインベントリの前で、ワークスペース ID ドリフトは見えるまま保たれます。"
+          }
+        }
+      }
+    },
+    "Workspace identity stays summarized before the per-file inspection list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在逐文件检查列表之前，工作区身份会保持摘要显示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイルごとの確認一覧の前で、ワークスペース ID は要約表示されたままです。"
+          }
+        }
+      }
+    },
+    "Workspace pressure is currently anchored by missing identity files.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区压力当前由缺失身份文件主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペース負荷は現在、欠落している ID ファイルが軸です。"
+          }
+        }
+      }
+    },
+    "Workspace pressure is currently concentrated in a scoped file slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区压力当前集中在限定范围的文件切片上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペース負荷は現在、絞り込まれたファイルスライスに集中しています。"
+          }
+        }
+      }
+    },
+    "Workspace pressure is currently low and mostly reflects present identity files.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区压力当前较低，主要反映现有身份文件。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペース負荷は現在低く、主に存在する ID ファイルを反映しています。"
+          }
+        }
+      }
+    },
+    "Workspace support coverage is currently anchored by missing identity files.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区辅助覆盖当前由缺失身份文件主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースの補助カバレッジは現在、欠落している ID ファイルが軸です。"
+          }
+        }
+      }
+    },
+    "Workspace support coverage is currently anchored by present identity files.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区辅助覆盖当前由现有身份文件主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースの補助カバレッジは現在、存在する ID ファイルが軸です。"
+          }
+        }
+      }
+    },
+    "Workspace support coverage is currently light across the visible inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区辅助覆盖当前在可见清单中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースの補助カバレッジは現在、表示中のインベントリ全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Workspace support coverage is currently narrowed to the filtered identity slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区辅助覆盖当前收窄到筛选后的身份切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースの補助カバレッジは現在、フィルター済みの ID スライスに狭まっています。"
+          }
+        }
+      }
+    },
+    "Workspace workstream coverage is currently anchored by a filtered identity slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区工作流覆盖当前由筛选后的身份切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースのワークストリームカバレッジは現在、フィルター済みの ID スライスが軸です。"
+          }
+        }
+      }
+    },
+    "Workspace workstream coverage is currently anchored by missing identity files.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区工作流覆盖当前由缺失身份文件主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースのワークストリームカバレッジは現在、欠落している ID ファイルが軸です。"
+          }
+        }
+      }
+    },
+    "Workspace workstream coverage is currently anchored by present identity files.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区工作流覆盖当前由现有身份文件主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースのワークストリームカバレッジは現在、存在する ID ファイルが軸です。"
+          }
+        }
+      }
+    },
+    "Workspace workstream coverage is currently light across the visible inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区工作流覆盖当前在可见清单中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースのワークストリームカバレッジは現在、表示中のインベントリ全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Workspace-file routes stay compact before the surrounding memory and session drilldowns.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区文件路由会在周边记忆与会话下钻前保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースファイルのルートは、周辺のメモリとセッションのドリルダウンに入る前はコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Workspace-file routes stay compact while the identity inventory is scoped.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当身份清单受范围限制时，工作区文件路由会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID インベントリが絞り込まれている間、ワークスペースファイルのルートはコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "\\(existingCount) present": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(existingCount) 个现有项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(existingCount)件の存在"
+          }
+        }
+      }
+    },
+    "\\(existingCount) present files": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(existingCount) 个现有文件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(existingCount)件の存在ファイル"
+          }
+        }
+      }
+    },
+    "\\(existingCount)/\\(files.count) present": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已存在 \\(existingCount)/\\(files.count)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(existingCount)/\\(files.count)件が存在"
+          }
+        }
+      }
+    },
+    "\\(files.count) files match the current workspace search.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(files.count) 个文件匹配当前工作区搜索。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のワークスペース検索に一致するファイルは \\(files.count) 件です。"
+          }
+        }
+      }
+    },
+    "\\(files.count) of \\(totalFiles) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可见 \\(files.count) / \\(totalFiles)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalFiles)件中\\(files.count)件を表示"
+          }
+        }
+      }
+    },
+    "\\(files.count) visible files": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(files.count) 个可见文件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(files.count)件の表示中ファイル"
+          }
+        }
+      }
+    },
+    "\\(filteredFiles.count) files match the current workspace filter.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredFiles.count) 个文件匹配当前工作区筛选。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のワークスペースフィルターに一致するファイルは \\(filteredFiles.count) 件です。"
+          }
+        }
+      }
+    },
+    "\\(filteredFiles.count) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredFiles.count) 可见"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredFiles.count)件を表示"
+          }
+        }
+      }
+    },
+    "\\(filteredFiles.count) visible files": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredFiles.count) 个可见文件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredFiles.count)件の表示中ファイル"
+          }
+        }
+      }
+    },
+    "\\(missingCount) missing": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingCount) 个缺失项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingCount)件の欠落"
+          }
+        }
+      }
+    },
+    "\\(missingCount) missing files": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingCount) 个缺失文件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingCount)件の欠落ファイル"
+          }
+        }
+      }
+    },
+    "\\(presentFiles.count) present": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(presentFiles.count) 个现有项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(presentFiles.count)件の存在"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) visible files": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 个可见文件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount)件の表示中ファイル"
+          }
+        }
+      }
+    },
+    "1 loaded": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已加载项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の読み込み済み"
+          }
+        }
+      }
+    },
+    "1 loaded locally": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个本地已加载项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のローカル読み込み済み"
+          }
+        }
+      }
+    },
+    "1 message": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条消息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のメッセージ"
+          }
+        }
+      }
+    },
+    "1 older message hidden": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条较旧消息被隐藏"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の古いメッセージが隠れています"
+          }
+        }
+      }
+    },
+    "1 total message": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条总消息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の総メッセージ"
+          }
+        }
+      }
+    },
+    "Agent is replying over the live session.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理正在通过实时会话回复。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントはライブセッション上で返信しています。"
+          }
+        }
+      }
+    },
+    "Agent is replying through fallback request and response.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理正在通过回退请求与响应回复。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントはフォールバックのリクエストとレスポンス経由で返信しています。"
+          }
+        }
+      }
+    },
+    "Chat pressure is currently anchored by a fallback reply.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聊天压力当前由回退回复主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャット負荷は現在、フォールバック返信が軸です。"
+          }
+        }
+      }
+    },
+    "Chat pressure is currently anchored by a retryable session error.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聊天压力当前由可重试的会话错误主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャット負荷は現在、再試行可能なセッションエラーが軸です。"
+          }
+        }
+      }
+    },
+    "Chat pressure is currently anchored by history loading.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聊天压力当前由历史加载主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャット負荷は現在、履歴の読み込みが軸です。"
+          }
+        }
+      }
+    },
+    "Chat pressure is currently concentrated in 1 older message that is still offscreen.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聊天压力当前集中在 1 条仍在屏幕外的较旧消息上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャット負荷は現在、まだ画面外にある 1 件の古いメッセージに集中しています。"
+          }
+        }
+      }
+    },
+    "Chat pressure is currently concentrated in \\(historyLagCount) older messages that are still offscreen.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聊天压力当前集中在 \\(historyLagCount) 条仍在屏幕外的较旧消息上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャット負荷は現在、まだ画面外にある \\(historyLagCount) 件の古いメッセージに集中しています。"
+          }
+        }
+      }
+    },
+    "Chat pressure is currently concentrated in a high-volume conversation.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聊天压力当前集中在高消息量对话中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャット負荷は現在、メッセージ量の多い会話に集中しています。"
+          }
+        }
+      }
+    },
+    "Chat pressure is currently low and mostly reflects active context usage.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聊天压力当前较低，主要反映上下文使用情况。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャット負荷は現在低く、主にアクティブなコンテキスト使用を反映しています。"
+          }
+        }
+      }
+    },
+    "Chat pressure is currently low and mostly reflects the live session state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聊天压力当前较低，主要反映实时会话状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャット負荷は現在低く、主にライブセッション状態を反映しています。"
+          }
+        }
+      }
+    },
+    "Chat routes stay compact around the current live session.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聊天路由会围绕当前实时会话保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャットルートは現在のライブセッション周辺でコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Chat routes stay compact while older session history is still offscreen.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当较旧会话历史仍在屏幕外时，聊天路由会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "古いセッション履歴がまだ画面外にある間、チャットルートはコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Chat routes stay compact while retry pressure is active.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当重试压力处于激活状态时，聊天路由会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再試行負荷が有効な間、チャットルートはコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Chat routes stay compact while transport is running in fallback mode.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当传输以回退模式运行时，聊天路由会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "転送がフォールバックモードで動作している間、チャットルートはコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Fast exits": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快速出口"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高速出口"
+          }
+        }
+      }
+    },
+    "History loading": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "历史加载中"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "履歴を読み込み中"
+          }
+        }
+      }
+    },
+    "Jump straight to the agent, session backlog, or durable memory without leaving the active conversation.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无需离开当前对话，即可直接跳到代理、会话积压或持久记忆。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクティブな会話を離れずに、エージェント、セッションバックログ、または永続メモリへ直接移動します。"
+          }
+        }
+      }
+    },
+    "Keep the most common agent, session, memory, workspace, and delivery drilldowns one tap away while staying in the current chat.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在当前聊天中，保持最常用的代理、会话、记忆、工作区和投递下钻都只需一跳。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のチャットに留まりながら、もっとも一般的なエージェント、セッション、メモリ、ワークスペース、配信のドリルダウンを 1 タップ先に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep transport mode, reply state, context load, and history coverage visible while the agent is still in session.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在代理仍处于会话中时，保持传输模式、回复状态、上下文负载和历史覆盖可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントがまだセッション中の間、転送モード、返信状態、コンテキスト負荷、履歴カバレッジを見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Keep workspace identity and outbound receipts close when the reply needs deeper operator verification.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当回复需要更深入的操作员验证时，让工作区身份和外发回执保持靠近。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返信により深いオペレーター確認が必要な場合、ワークスペース ID と送信レシートを近くに保ちます。"
+          }
+        }
+      }
+    },
+    "Loading recent conversation and session context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在加载最近的对话和会话上下文。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近の会話とセッション文脈を読み込んでいます。"
+          }
+        }
+      }
+    },
+    "Messages use fallback request and response until realtime reconnects.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在实时重新连接之前，消息会使用回退请求与响应。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リアルタイム接続が復帰するまで、メッセージはフォールバックのリクエストとレスポンスを使います。"
+          }
+        }
+      }
+    },
+    "Named session": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命名会话"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名前付きセッション"
+          }
+        }
+      }
+    },
+    "Needs retry": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要重试"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再試行が必要"
+          }
+        }
+      }
+    },
+    "Realtime replies stay attached to this session.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实时回复会继续附着在这个会话上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リアルタイム返信はこのセッションに紐づいたままです。"
+          }
+        }
+      }
+    },
+    "Reply state, context usage, and loaded history stay visible while the agent is typing.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当代理正在输入时，回复状态、上下文使用和已加载历史会保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントが入力中の間、返信状態、コンテキスト使用、読み込み済み履歴は見えるまま保たれます。"
+          }
+        }
+      }
+    },
+    "Replying": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回复中"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返信中"
+          }
+        }
+      }
+    },
+    "Retry state": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试状态"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再試行状態"
+          }
+        }
+      }
+    },
+    "Send a message to \\(viewModel.agent.name)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "向 \\(viewModel.agent.name) 发送消息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(viewModel.agent.name) にメッセージを送る"
+          }
+        }
+      }
+    },
+    "Session pressure stays readable before you scroll into the conversation.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在滚动进入对话前，会话压力会保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会話へスクロールする前に、セッション負荷を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Session pressure stays visible so you can retry without losing context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话压力会保持可见，这样你可以在不丢失上下文的情况下重试。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッション負荷は見えるまま保たれ、文脈を失わずに再試行できます。"
+          }
+        }
+      }
+    },
+    "The banner stays compact while recent history loads.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当最近历史加载时，横幅会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近の履歴を読み込んでいる間、バナーはコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Use this pressure slice to keep reply state, history lag, fallback transport, and context usage readable before scrolling through the conversation.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此压力切片，在滚动浏览对话前让回复状态、历史滞后、回退传输和上下文使用保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この負荷スライスで、会話をスクロールする前に返信状態、履歴遅延、フォールバック転送、コンテキスト使用を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "\\(contextWindowTokens.formatted()) context": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(contextWindowTokens.formatted()) 个上下文"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(contextWindowTokens.formatted())件のコンテキスト"
+          }
+        }
+      }
+    },
+    "\\(contextWindowTokens.formatted()) context tokens": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(contextWindowTokens.formatted()) 个上下文 token"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(contextWindowTokens.formatted())件のコンテキストトークン"
+          }
+        }
+      }
+    },
+    "\\(contextWindowTokens.formatted()) ctx": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(contextWindowTokens.formatted()) 上下文"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(contextWindowTokens.formatted()) ctx"
+          }
+        }
+      }
+    },
+    "\\(historyLagCount) older messages hidden": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(historyLagCount) 条较旧消息被隐藏"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(historyLagCount)件の古いメッセージが隠れています"
+          }
+        }
+      }
+    },
+    "\\(loadedMessageCount) loaded": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已加载 \\(loadedMessageCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(loadedMessageCount)件を読み込み済み"
+          }
+        }
+      }
+    },
+    "\\(loadedMessageCount) loaded locally": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地已加载 \\(loadedMessageCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(loadedMessageCount)件をローカル読み込み済み"
+          }
+        }
+      }
+    },
+    "\\(messageCount) messages": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(messageCount) 条消息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(messageCount)件のメッセージ"
+          }
+        }
+      }
+    },
+    "\\(messageCount) msgs": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(messageCount) 条消息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(messageCount)件の msgs"
+          }
+        }
+      }
+    },
+    "\\(messageCount) total messages": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "总共 \\(messageCount) 条消息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "総メッセージ \\(messageCount) 件"
+          }
+        }
+      }
+    },
+    "\\(tokens)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(tokens)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(tokens)"
           }
         }
       }

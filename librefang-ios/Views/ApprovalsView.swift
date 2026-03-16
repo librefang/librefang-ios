@@ -130,7 +130,8 @@ struct ApprovalsView: View {
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next approval stack visible before the queue opens into full review rows."),
                         sectionTitles: approvalsSectionPreviewTitles,
-                        tone: filterTone
+                        tone: filterTone,
+                        maxVisibleSections: 5
                     )
                 }
                 ApprovalsPressureCoverageDeck(

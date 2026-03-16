@@ -176,7 +176,8 @@ struct AgentFilesView: View {
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next workspace file stack visible before identity rows expand into the full file list."),
                         sectionTitles: agentFilesSectionPreviewTitles,
-                        tone: missingStatus.tone
+                        tone: missingStatus.tone,
+                        maxVisibleSections: 5
                     )
                 }
 

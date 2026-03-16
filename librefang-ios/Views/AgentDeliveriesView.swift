@@ -213,7 +213,8 @@ struct AgentDeliveriesView: View {
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next receipt stack visible before delivery rows expand into the full outbound log."),
                         sectionTitles: agentDeliveriesSectionPreviewTitles,
-                        tone: failedCount > 0 ? .critical : (unsettledCount > 0 ? .warning : .positive)
+                        tone: failedCount > 0 ? .critical : (unsettledCount > 0 ? .warning : .positive),
+                        maxVisibleSections: 5
                     )
                 }
 

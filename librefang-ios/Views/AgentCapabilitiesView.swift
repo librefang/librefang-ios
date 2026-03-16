@@ -123,7 +123,8 @@ struct AgentCapabilitiesView: View {
                             title: String(localized: "Section Preview"),
                             detail: String(localized: "Keep the next capability stacks visible before tool filters, skills, and MCP server sections open up."),
                             sectionTitles: capabilitiesSectionPreviewTitles,
-                            tone: loadedCapabilityFeedCount > 0 ? .positive : .neutral
+                            tone: loadedCapabilityFeedCount > 0 ? .positive : .neutral,
+                            maxVisibleSections: 5
                         )
                     }
 

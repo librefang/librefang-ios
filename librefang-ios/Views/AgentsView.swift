@@ -203,7 +203,8 @@ struct AgentsView: View {
                                         title: String(localized: "Section Preview"),
                                         detail: String(localized: "Keep the next fleet slice visible before the compact route rail gives way to the longer agent list."),
                                         sectionTitles: agentsSectionPreviewTitles,
-                                        tone: filteredIssueCount > 0 ? .warning : .neutral
+                                        tone: filteredIssueCount > 0 ? .warning : .neutral,
+                                        maxVisibleSections: 5
                                     )
                                 }
 

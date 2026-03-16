@@ -61,7 +61,8 @@ struct A2AAgentsView: View {
                                 title: String(localized: "Section Preview"),
                                 detail: String(localized: "Keep the next external-agent stack visible before the directory opens into full agent rows."),
                                 sectionTitles: a2aSectionPreviewTitles,
-                                tone: visibleStreamingCount > 0 ? .positive : .neutral
+                                tone: visibleStreamingCount > 0 ? .positive : .neutral,
+                                maxVisibleSections: 5
                             )
                         }
 

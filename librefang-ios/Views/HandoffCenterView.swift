@@ -287,7 +287,8 @@ struct HandoffCenterView: View {
                         title: String(localized: "Draft Preview"),
                         detail: String(localized: "Keep the next draft stacks visible before the note, checklist, and follow-up editors open up."),
                         sectionTitles: handoffDraftSectionPreviewTitles,
-                        tone: pendingLatestFollowUpCount > 0 ? .warning : .neutral
+                        tone: pendingLatestFollowUpCount > 0 ? .warning : .neutral,
+                        maxVisibleSections: 5
                     )
                 }
 
@@ -506,7 +507,8 @@ struct HandoffCenterView: View {
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next handoff stacks visible before the draft, timeline, and history sections open up."),
                         sectionTitles: handoffSectionPreviewTitles,
-                        tone: pendingLatestFollowUpCount > 0 ? .warning : .neutral
+                        tone: pendingLatestFollowUpCount > 0 ? .warning : .neutral,
+                        maxVisibleSections: 5
                     )
                 }
                 HandoffPressureCoverageDeck(

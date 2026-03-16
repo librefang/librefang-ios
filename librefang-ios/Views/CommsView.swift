@@ -68,7 +68,8 @@ struct CommsView: View {
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next comms topology and traffic stacks visible before the transport rows open up."),
                         sectionTitles: commsSectionPreviewTitles,
-                        tone: viewModel.isStreaming ? .positive : .neutral
+                        tone: viewModel.isStreaming ? .positive : .neutral,
+                        maxVisibleSections: 5
                     )
                 }
                 commsPressureCoverageDeck

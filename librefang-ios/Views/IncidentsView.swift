@@ -412,7 +412,8 @@ struct IncidentsView: View {
                     title: String(localized: "Section Preview"),
                     detail: String(localized: "Keep the next incident buckets visible before the alert, queue, and support stacks begin."),
                     sectionTitles: incidentSectionPreviewTitles,
-                    tone: criticalAlertCount > 0 ? .critical : .warning
+                    tone: criticalAlertCount > 0 ? .critical : .warning,
+                    maxVisibleSections: 5
                 )
             }
 

@@ -75,7 +75,8 @@ struct ToolProfilesView: View {
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next tool-profile stacks visible before the current profile and full profile list open up."),
                         sectionTitles: toolProfilesSectionPreviewTitles,
-                        tone: selectedProfile != nil ? .positive : .neutral
+                        tone: selectedProfile != nil ? .positive : .neutral,
+                        maxVisibleSections: 5
                     )
                 }
 

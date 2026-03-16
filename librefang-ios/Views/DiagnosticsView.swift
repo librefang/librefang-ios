@@ -137,7 +137,8 @@ struct DiagnosticsView: View {
                                 title: String(localized: "Section Preview"),
                                 detail: String(localized: "Keep the next diagnostics feeds visible before the deep health, config, and metrics stacks open up."),
                                 sectionTitles: diagnosticsSectionPreviewTitles,
-                                tone: vm.supervisorPanicCount > 0 ? .critical : ((vm.diagnosticsConfigWarningCount > 0 || vm.supervisorRestartCount > 0) ? .warning : .neutral)
+                                tone: vm.supervisorPanicCount > 0 ? .critical : ((vm.diagnosticsConfigWarningCount > 0 || vm.supervisorRestartCount > 0) ? .warning : .neutral),
+                                maxVisibleSections: 5
                             )
                         }
                         DiagnosticsPressureCoverageDeck(

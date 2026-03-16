@@ -114,7 +114,8 @@ struct SessionsView: View {
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next session inventory visible before the backlog rows expand into full operator detail."),
                         sectionTitles: sessionsSectionPreviewTitles,
-                        tone: snapshotFilterTone
+                        tone: snapshotFilterTone,
+                        maxVisibleSections: 5
                     )
                 }
                 sessionsPressureCoverageDeck

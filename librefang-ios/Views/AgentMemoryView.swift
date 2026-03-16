@@ -268,7 +268,8 @@ struct AgentMemoryView: View {
                     title: String(localized: "Section Preview"),
                     detail: String(localized: "Keep the next memory stack visible before the key list opens into raw entry rows."),
                     sectionTitles: agentMemorySectionPreviewTitles,
-                    tone: structuredEntryCount > 0 ? .warning : .neutral
+                    tone: structuredEntryCount > 0 ? .warning : .neutral,
+                    maxVisibleSections: 5
                 )
             }
 
