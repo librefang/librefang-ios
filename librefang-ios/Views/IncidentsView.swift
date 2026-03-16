@@ -457,7 +457,7 @@ struct IncidentsView: View {
                             tone: handoffReadiness.state.tone,
                             badgeText: handoffIssueCount > 0 ? "\(handoffIssueCount)" : nil
                         )
-                    }
+                    }
                     .buttonStyle(.plain)
                 }
 
