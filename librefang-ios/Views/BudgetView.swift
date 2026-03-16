@@ -6,7 +6,7 @@ struct BudgetView: View {
     @State private var sortOrder: BudgetSort = .costDesc
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
-    private var visibleAgents: [AgentBudgetItem] { Array(sortedAgents.prefix(10)) }
+    private var visibleAgents: [AgentBudgetItem] { Array(sortedAgents.prefix(8)) }
 
     private var sortedAgents: [AgentBudgetItem] {
         guard let agents = vm.budgetAgents?.agents else { return [] }
@@ -75,25 +75,6 @@ struct BudgetView: View {
                     }
                 }
 
-                if let usageSummary = vm.usageSummary {
-                    Section("Cost Signals") {
-                        BudgetValueRow(label: "Total Recorded Cost") {
-                            Text(formatCost(usageSummary.totalCostUsd))
-                                .monospacedDigit()
-                        }
-                        BudgetValueRow(label: "Avg Cost / Call") {
-                            Text(formatCost(averageCostPerCall(usageSummary)))
-                                .monospacedDigit()
-                        }
-                        if let projected = projectedMonthlyCost(usageSummary) {
-                            BudgetValueRow(label: "Projected 30-Day Cost") {
-                                Text(formatCost(projected))
-                                    .monospacedDigit()
-                            }
-                        }
-                    }
-                }
-
                 if !vm.usageDaily.isEmpty {
                     Section {
                         DailyCostTrendChart(days: vm.usageDaily)
@@ -102,24 +83,11 @@ struct BudgetView: View {
                     } header: {
                         Text("7-Day Cost Trend")
                     }
-
-                    Section("Daily Breakdown") {
-                        ForEach(vm.usageDaily.reversed()) { day in
-                            DailyUsageRow(day: day)
-                        }
-                    }
                 }
 
                 if !sortedModels.isEmpty {
                     Section {
-                        CostDistributionCard(models: sortedModels)
-                            .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
-                    } header: {
-                        Text("Model Cost Distribution")
-                    }
-
-                    Section {
-                        ForEach(sortedModels.prefix(8)) { model in
+                        ForEach(sortedModels.prefix(6)) { model in
                             ModelCostRow(model: model, maxCost: max(vm.highestModelCost, 0.01))
                         }
                     } header: {
@@ -145,7 +113,7 @@ struct BudgetView: View {
                     ContentUnavailableView(
                         "No Budget Data",
                         systemImage: "chart.bar",
-                        description: Text("Pull to refresh or check server connection.")
+                        description: Text("Pull to refresh.")
                     )
                 }
             }

@@ -259,15 +259,7 @@ struct HandoffCenterView: View {
                             get: { handoffStore.draftNote },
                             set: { handoffStore.draftNote = $0 }
                         ),
-                        kind: handoffStore.draftKind,
-                        suggestedTemplateNote: suggestedTemplateNote,
-                        onUseSuggestedNote: {
-                            handoffStore.useSuggestedDraftNote(
-                                queueCount: queueCount,
-                                criticalCount: criticalCount,
-                                liveAlertCount: liveAlertCount
-                            )
-                        }
+                        kind: handoffStore.draftKind
                     )
                     .id(HandoffSectionAnchor.draftNote)
                 } header: {
@@ -288,25 +280,6 @@ struct HandoffCenterView: View {
                             toggle: { handoffStore.toggleDraftFocusArea($0) }
                         )
 
-                        Button {
-                            handoffStore.setDraftFocusAreas(suggestedFocusAreas)
-                        } label: {
-                            Label("Use Suggested Focus", systemImage: "scope")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.bordered)
-                        .disabled(suggestedFocusAreas.isEmpty)
-
-                        if !suggestedFocusAreas.isEmpty {
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 8) {
-                                    ForEach(HandoffFocusArea.allCases.filter { suggestedFocusAreas.contains($0) }) { area in
-                                        HandoffFocusAreaBadge(area: area)
-                                    }
-                                }
-                            }
-                        }
-
                         HandoffFollowUpComposer(
                             items: handoffStore.draftFollowUpItems,
                             draftText: $draftFollowUpText,
@@ -319,15 +292,6 @@ struct HandoffCenterView: View {
                             }
                         )
                         .id(HandoffSectionAnchor.draftFollowUps)
-
-                        Button {
-                            handoffStore.appendDraftFollowUps(suggestedFollowUps)
-                        } label: {
-                            Label("Use Suggested Follow-ups", systemImage: "checklist.unchecked")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.bordered)
-                        .disabled(suggestedFollowUps.isEmpty)
 
                         HandoffDraftActionsCard(
                             readiness: draftReadiness,
@@ -364,7 +328,7 @@ struct HandoffCenterView: View {
                         ContentUnavailableView(
                             "No Saved Handoffs",
                             systemImage: "text.badge.plus",
-                            description: Text("Save a snapshot to keep local handoff history.")
+                            description: Text("Save a snapshot to keep handoffs.")
                         )
                     } header: {
                         Text("Recent Handoffs")
@@ -390,12 +354,6 @@ struct HandoffCenterView: View {
                                 HandoffEntryCard(entry: entry)
                             }
                             .onDelete(perform: deleteFilteredEntries)
-
-                            Button(role: .destructive) {
-                                handoffStore.clearAll()
-                            } label: {
-                                Text("Clear History")
-                            }
                         }
                     } header: {
                         Text("Recent Handoffs")
@@ -857,8 +815,6 @@ private struct HandoffDraftSectionInventoryDeck: View {
 private struct HandoffNoteComposerCard: View {
     @Binding var note: String
     let kind: HandoffSnapshotKind
-    let suggestedTemplateNote: String
-    let onUseSuggestedNote: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -866,9 +822,6 @@ private struct HandoffNoteComposerCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Operator note")
                         .font(.subheadline.weight(.semibold))
-                    Text(String(localized: "Lead with a concise shift summary, then let the checklist and follow-ups carry the operational detail."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
             } accessory: {
                 HandoffKindBadge(kind: kind)
@@ -880,20 +833,6 @@ private struct HandoffNoteComposerCard: View {
                 .padding(10)
                 .background(.secondary.opacity(0.08))
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text(suggestedTemplateNote)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
-                Button(action: onUseSuggestedNote) {
-                    Label("Use Suggested Note", systemImage: "wand.and.stars")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-            }
-            .padding(12)
-            .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
         }
         .padding(.vertical, 4)
     }
@@ -2649,11 +2588,7 @@ private struct HandoffFollowUpComposer: View {
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
 
-            if items.isEmpty {
-                Text("Capture concrete next-shift follow-ups when runtime pressure is still active.")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            } else {
+            if !items.isEmpty {
                 ForEach(Array(items.enumerated()), id: \.offset) { index, item in
                     HStack(alignment: .top, spacing: 10) {
                         Text("\(index + 1).")
