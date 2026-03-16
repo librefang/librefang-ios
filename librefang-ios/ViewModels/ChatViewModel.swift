@@ -66,6 +66,22 @@ final class ChatViewModel {
         ChatConnectionState(isRealtimeConnected: isRealtimeConnected)
     }
 
+    var loadedMessageCount: Int {
+        messages.count
+    }
+
+    var historyLagCount: Int {
+        max(messageCount - loadedMessageCount, 0)
+    }
+
+    var hasNamedSession: Bool {
+        !(sessionLabel?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+    }
+
+    var isHighVolumeSession: Bool {
+        messageCount >= 40
+    }
+
     func activate() async {
         guard !hasActivated else { return }
         hasActivated = true
