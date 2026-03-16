@@ -160,6 +160,11 @@ struct AgentDetailView: View {
     private var sessionIssueCount: Int {
         sessionItems.filter { $0.severity > 0 }.count
     }
+    private var sessionControlActionCount: Int {
+        5 + (currentSessionInfo == nil ? 0 : 1)
+    }
+    private var destructiveSessionActionCount: Int { 2 }
+    private var visibleSessionInventoryCount: Int { min(sessionItems.count, 4) }
 
     private var diagnosticsSnapshotSummary: String {
         if failedDeliveryCount > 0 || missingWorkspaceFileCount > 0 {
@@ -1409,6 +1414,16 @@ struct AgentDetailView: View {
 
     private var sessionControlsSection: some View {
         Section {
+            AgentSessionControlsInventoryDeck(
+                actionCount: sessionControlActionCount,
+                destructiveActionCount: destructiveSessionActionCount,
+                sessionCount: sessionItems.count,
+                visibleSessionCount: visibleSessionInventoryCount,
+                issueCount: sessionIssueCount,
+                hasCurrentSession: currentSessionInfo != nil,
+                isBusy: hasActiveSessionOperation || isCreatingSession
+            )
+
             Button {
                 showCreateSessionSheet = true
             } label: {
@@ -2583,6 +2598,79 @@ private struct AgentSessionInventoryRow: View {
         )
     }
 
+}
+
+private struct AgentSessionControlsInventoryDeck: View {
+    let actionCount: Int
+    let destructiveActionCount: Int
+    let sessionCount: Int
+    let visibleSessionCount: Int
+    let issueCount: Int
+    let hasCurrentSession: Bool
+    let isBusy: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Keep action breadth, current-session context, and visible inventory load readable before the session-control buttons take over."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: actionCount == 1 ? String(localized: "1 action") : String(localized: "\(actionCount) actions"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: hasCurrentSession ? String(localized: "Current session loaded") : String(localized: "No current session"),
+                        tone: hasCurrentSession ? .positive : .neutral
+                    )
+                    if issueCount > 0 {
+                        PresentationToneBadge(
+                            text: issueCount == 1 ? String(localized: "1 session issue") : String(localized: "\(issueCount) session issues"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Session-control coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use this slice to confirm whether the visible controls are centered on normal relabel or lookup work versus destructive recovery actions."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: isBusy ? String(localized: "Action running") : String(localized: "Idle"),
+                    tone: isBusy ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    destructiveActionCount == 1 ? String(localized: "1 destructive action") : String(localized: "\(destructiveActionCount) destructive actions"),
+                    systemImage: "exclamationmark.triangle"
+                )
+                if sessionCount > 0 {
+                    Label(
+                        visibleSessionCount == sessionCount
+                            ? (sessionCount == 1 ? String(localized: "1 visible session") : String(localized: "\(sessionCount) visible sessions"))
+                            : String(localized: "\(visibleSessionCount) of \(sessionCount) sessions visible"),
+                        systemImage: "rectangle.stack"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        hasCurrentSession
+            ? String(localized: "Session controls currently expose \(actionCount) actions around the active session.")
+            : String(localized: "Session controls currently expose \(actionCount) agent-level actions before a current session is resolved.")
+    }
 }
 
 private struct AgentAuditRow: View {

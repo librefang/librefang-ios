@@ -751,7 +751,7 @@ private struct HandoffDraftContextCard: View {
 
 private struct HandoffDraftSectionInventoryDeck: View {
     let readiness: HandoffReadinessStatus
-    let kind: OnCallHandoffKind
+    let kind: HandoffSnapshotKind
     let note: String
     let focusCount: Int
     let followUpCount: Int

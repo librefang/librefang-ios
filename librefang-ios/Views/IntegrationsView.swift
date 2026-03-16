@@ -234,6 +234,36 @@ struct IntegrationsView: View {
         .filter { $0 }
         .count
     }
+    private var configuredProviderCount: Int {
+        filteredProviders.filter(\.isConfigured).count
+    }
+    private var localProviderCount: Int {
+        filteredProviders.filter { $0.isLocal == true }.count
+    }
+    private var unreachableFilteredProviderCount: Int {
+        filteredProviders.filter { $0.isLocal == true && $0.reachable == false }.count
+    }
+    private var discoveredProviderModelCount: Int {
+        filteredProviders.reduce(0) { $0 + ($1.discoveredModels?.count ?? 0) }
+    }
+    private var readyChannelCount: Int {
+        filteredChannels.filter { $0.configured && $0.hasToken }.count
+    }
+    private var missingCredentialChannelCount: Int {
+        filteredChannels.filter { channel in
+            let requiredFields = channel.fields?.filter(\.required) ?? []
+            return requiredFields.contains(where: { !$0.hasValue })
+        }
+        .count
+    }
+    private var quickSetupChannelCount: Int {
+        filteredChannels.filter(\.quickSetup).count
+    }
+    private var missingRequiredFieldCount: Int {
+        filteredChannels.reduce(0) { partialResult, channel in
+            partialResult + (channel.fields?.filter(\.required).filter { !$0.hasValue }.count ?? 0)
+        }
+    }
 
     private var scopeSummaryLine: String {
         scope == .attention
@@ -467,6 +497,15 @@ struct IntegrationsView: View {
                         IntegrationProvidersSnapshotCard(
                             providers: filteredProviders
                         )
+                        IntegrationsProviderSectionInventoryDeck(
+                            visibleCount: filteredProviders.count,
+                            configuredCount: configuredProviderCount,
+                            localCount: localProviderCount,
+                            unreachableLocalCount: unreachableFilteredProviderCount,
+                            discoveredModelCount: discoveredProviderModelCount,
+                            isTesting: providerProbeInFlightID != nil,
+                            hasSearchScope: !normalizedSearchText.isEmpty
+                        )
 
                         ForEach(filteredProviders) { provider in
                             IntegrationProviderRow(
@@ -490,6 +529,15 @@ struct IntegrationsView: View {
                     Section {
                         IntegrationChannelsSnapshotCard(
                             channels: filteredChannels
+                        )
+                        IntegrationsChannelSectionInventoryDeck(
+                            visibleCount: filteredChannels.count,
+                            readyCount: readyChannelCount,
+                            missingCredentialCount: missingCredentialChannelCount,
+                            missingRequiredFieldCount: missingRequiredFieldCount,
+                            quickSetupCount: quickSetupChannelCount,
+                            isTesting: channelProbeInFlightID != nil,
+                            hasSearchScope: !normalizedSearchText.isEmpty
                         )
 
                         ForEach(filteredChannels) { channel in
@@ -1355,6 +1403,82 @@ private struct IntegrationProvidersSnapshotCard: View {
     }
 }
 
+private struct IntegrationsProviderSectionInventoryDeck: View {
+    let visibleCount: Int
+    let configuredCount: Int
+    let localCount: Int
+    let unreachableLocalCount: Int
+    let discoveredModelCount: Int
+    let isTesting: Bool
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Keep provider coverage, local reachability, and live probe state visible before the longer provider rows take over."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 visible provider") : String(localized: "\(visibleCount) visible providers"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: configuredCount == 1 ? String(localized: "1 configured") : String(localized: "\(configuredCount) configured"),
+                        tone: configuredCount > 0 ? .positive : .neutral
+                    )
+                    if unreachableLocalCount > 0 {
+                        PresentationToneBadge(
+                            text: unreachableLocalCount == 1 ? String(localized: "1 local outage") : String(localized: "\(unreachableLocalCount) local outages"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Provider section coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use this slice to see whether the visible provider section is mostly configured inventory, local outage follow-up, or discovery detail."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: isTesting ? String(localized: "Probe running") : String(localized: "Idle"),
+                    tone: isTesting ? .warning : .neutral
+                )
+            } facts: {
+                if localCount > 0 {
+                    Label(
+                        localCount == 1 ? String(localized: "1 local provider") : String(localized: "\(localCount) local providers"),
+                        systemImage: "network"
+                    )
+                }
+                if discoveredModelCount > 0 {
+                    Label(
+                        discoveredModelCount == 1 ? String(localized: "1 discovered model") : String(localized: "\(discoveredModelCount) discovered models"),
+                        systemImage: "sparkles"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        unreachableLocalCount > 0
+            ? String(localized: "Provider coverage is currently anchored by \(unreachableLocalCount) local outages inside the visible section.")
+            : String(localized: "Provider coverage currently spans \(configuredCount) configured providers in the visible section.")
+    }
+}
+
 private struct IntegrationChannelRow: View {
     let channel: ChannelStatus
     let probeResult: IntegrationProbeResult?
@@ -1571,6 +1695,82 @@ private struct IntegrationChannelsSnapshotCard: View {
                 }
             }
         }
+    }
+}
+
+private struct IntegrationsChannelSectionInventoryDeck: View {
+    let visibleCount: Int
+    let readyCount: Int
+    let missingCredentialCount: Int
+    let missingRequiredFieldCount: Int
+    let quickSetupCount: Int
+    let isTesting: Bool
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Keep credential gaps, quick-setup surface area, and probe activity visible before dropping into the full channel list."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 visible channel") : String(localized: "\(visibleCount) visible channels"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: readyCount == 1 ? String(localized: "1 ready") : String(localized: "\(readyCount) ready"),
+                        tone: readyCount > 0 ? .positive : .neutral
+                    )
+                    if missingCredentialCount > 0 {
+                        PresentationToneBadge(
+                            text: missingCredentialCount == 1 ? String(localized: "1 credential gap") : String(localized: "\(missingCredentialCount) credential gaps"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Channel section coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Use this slice to tell whether the visible channel section is mostly ready routes, missing fields, or quick-setup follow-up."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: isTesting ? String(localized: "Probe running") : String(localized: "Idle"),
+                    tone: isTesting ? .warning : .neutral
+                )
+            } facts: {
+                if missingRequiredFieldCount > 0 {
+                    Label(
+                        missingRequiredFieldCount == 1 ? String(localized: "1 missing field") : String(localized: "\(missingRequiredFieldCount) missing fields"),
+                        systemImage: "exclamationmark.circle"
+                    )
+                }
+                if quickSetupCount > 0 {
+                    Label(
+                        quickSetupCount == 1 ? String(localized: "1 quick-setup channel") : String(localized: "\(quickSetupCount) quick-setup channels"),
+                        systemImage: "bolt"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        missingCredentialCount > 0
+            ? String(localized: "Channel coverage is currently anchored by \(missingCredentialCount) visible credential gaps.")
+            : String(localized: "Channel coverage currently spans \(readyCount) ready channels in the visible section.")
     }
 }
 
