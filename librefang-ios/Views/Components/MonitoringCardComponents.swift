@@ -281,7 +281,7 @@ struct MonitoringSectionPreviewDeck: View {
                     PresentationToneBadge(text: sectionCountLabel, tone: tone)
                 } facts: {
                     if let firstVisibleSectionTitle {
-                        Label(firstVisibleSectionTitle, systemImage: "arrow.turn.down.right")
+                        Label(String(localized: "Starts with \(firstVisibleSectionTitle)"), systemImage: "arrow.turn.down.right")
                     }
                     if hiddenSectionCount > 0 {
                         Label(
@@ -291,9 +291,26 @@ struct MonitoringSectionPreviewDeck: View {
                     }
                 }
 
-                FlowLayout(spacing: 8) {
-                    ForEach(Array(sectionTitles.prefix(maxVisibleSections)), id: \.self) { sectionTitle in
-                        PresentationToneBadge(text: sectionTitle, tone: tone)
+                if let firstVisibleSectionTitle {
+                    MonitoringJumpRow(
+                        title: firstVisibleSectionTitle,
+                        detail: leadSectionDetail,
+                        systemImage: "arrowshape.turn.up.forward.fill",
+                        tone: tone,
+                        badgeText: String(localized: "First"),
+                        badgeTone: tone
+                    )
+                }
+
+                if !remainingVisibleSections.isEmpty {
+                    FlowLayout(spacing: 8) {
+                        ForEach(Array(remainingVisibleSections.enumerated()), id: \.offset) { index, sectionTitle in
+                            MonitoringSequenceBadge(
+                                index: index + 2,
+                                title: sectionTitle,
+                                tone: tone
+                            )
+                        }
                     }
                 }
                 if hiddenSectionCount > 0 {
@@ -307,7 +324,11 @@ struct MonitoringSectionPreviewDeck: View {
     }
 
     private var firstVisibleSectionTitle: String? {
-        sectionTitles.first
+        visibleSectionTitles.first
+    }
+
+    private var remainingVisibleSections: [String] {
+        Array(visibleSectionTitles.dropFirst())
     }
 
     private var sectionCountLabel: String {
@@ -316,8 +337,47 @@ struct MonitoringSectionPreviewDeck: View {
             : String(localized: "\(sectionTitles.count) sections")
     }
 
+    private var visibleSectionTitles: [String] {
+        Array(sectionTitles.prefix(maxVisibleSections))
+    }
+
+    private var leadSectionDetail: String {
+        if remainingVisibleSections.isEmpty {
+            return hiddenSectionCount > 0
+                ? String(localized: "Additional sections stay collapsed behind this first upcoming stack.")
+                : String(localized: "This is the next stack the screen will open into.")
+        }
+        return String(localized: "Then \(remainingVisibleSections.count) more visible sections follow in sequence.")
+    }
+
     private var hiddenSectionCount: Int {
         max(sectionTitles.count - maxVisibleSections, 0)
+    }
+}
+
+private struct MonitoringSequenceBadge: View {
+    let index: Int
+    let title: String
+    let tone: PresentationTone
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text("\(index)")
+                .font(.caption2.weight(.semibold))
+                .monospacedDigit()
+                .foregroundStyle(tone.color)
+            Text(title)
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(tone.color.opacity(0.10), in: Capsule())
+        .overlay(
+            Capsule()
+                .strokeBorder(tone.color.opacity(0.18))
+        )
     }
 }
 
