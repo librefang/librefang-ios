@@ -208,6 +208,21 @@ struct AgentsView: View {
                                     filterTone: filterState == .attention ? .warning : .neutral
                                 )
 
+                                AgentsFocusCoverageDeck(
+                                    visibleCount: filteredAgents.count,
+                                    totalCount: vm.agents.count,
+                                    runningCount: filteredRunningCount,
+                                    issueCount: filteredIssueCount,
+                                    staleCount: filteredStaleCount,
+                                    watchlistCount: filteredWatchedCount,
+                                    authIssueCount: filteredAuthIssueCount,
+                                    modelIssueCount: filteredModelIssueCount,
+                                    sessionPressureCount: filteredSessionPressureCount,
+                                    hasSearchScope: !normalizedSearchText.isEmpty,
+                                    filterLabel: filterState.label,
+                                    filterTone: filterState == .attention ? .warning : .neutral
+                                )
+
                                 AgentsActionReadinessDeck(
                                     primaryRouteCount: agentRoutePrimaryCount,
                                     supportRouteCount: agentRouteSupportCount,
@@ -1050,6 +1065,113 @@ private struct AgentsActionReadinessDeck: View {
             return String(localized: "Agent action readiness is currently centered on fleet pressure before deeper drilldown.")
         }
         return String(localized: "Agent action readiness is currently clear enough for route pivots and detail drilldown.")
+    }
+}
+
+private struct AgentsFocusCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let runningCount: Int
+    let issueCount: Int
+    let staleCount: Int
+    let watchlistCount: Int
+    let authIssueCount: Int
+    let modelIssueCount: Int
+    let sessionPressureCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant fleet-review lane readable before opening individual agent rows or leaving the fleet list."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(visibleCount) visible agents"),
+                        tone: visibleCount > 0 ? .positive : .neutral
+                    )
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant fleet slice readable before moving from the compact operator deck into individual agents and adjacent monitoring routes."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: runningCount == 1 ? String(localized: "1 running") : String(localized: "\(runningCount) running"),
+                    tone: runningCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    totalCount == 1 ? String(localized: "1 total agent") : String(localized: "\(totalCount) total agents"),
+                    systemImage: "person.3"
+                )
+                if issueCount > 0 {
+                    Label(
+                        issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if staleCount > 0 {
+                    Label(
+                        staleCount == 1 ? String(localized: "1 stale agent") : String(localized: "\(staleCount) stale agents"),
+                        systemImage: "clock.badge.exclamationmark"
+                    )
+                }
+                if watchlistCount > 0 {
+                    Label(
+                        watchlistCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchlistCount) watched agents"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if authIssueCount > 0 {
+                    Label(
+                        authIssueCount == 1 ? String(localized: "1 auth issue") : String(localized: "\(authIssueCount) auth issues"),
+                        systemImage: "key.horizontal"
+                    )
+                }
+                if modelIssueCount > 0 {
+                    Label(
+                        modelIssueCount == 1 ? String(localized: "1 model issue") : String(localized: "\(modelIssueCount) model issues"),
+                        systemImage: "square.stack.3d.up.slash"
+                    )
+                }
+                if sessionPressureCount > 0 {
+                    Label(
+                        sessionPressureCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionPressureCount) session hotspots"),
+                        systemImage: "text.bubble"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Fleet focus coverage is currently narrowed to a search-scoped slice of the agent list.")
+        }
+        if issueCount > 0 || staleCount > 0 || sessionPressureCount > 0 {
+            return String(localized: "Fleet focus coverage is currently anchored by issue-heavy and stale fleet lanes.")
+        }
+        if watchlistCount > 0 || authIssueCount > 0 || modelIssueCount > 0 {
+            return String(localized: "Fleet focus coverage is currently anchored by watched agents and slower configuration drift.")
+        }
+        return String(localized: "Fleet focus coverage is currently balanced across the visible running fleet slice.")
     }
 }
 

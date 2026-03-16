@@ -249,6 +249,18 @@ struct RuntimeView: View {
                 hasSecurity: vm.security != nil,
                 hasNetwork: vm.networkStatus != nil
             )
+            RuntimeFocusCoverageDeck(
+                sectionCount: runtimeSectionCount,
+                supportFeedCount: runtimeSupportFeedCount,
+                queueCardCount: runtimeQueueCardCount,
+                runtimeAlertCount: vm.runtimeAlertCount,
+                approvalCount: vm.pendingApprovalCount,
+                hotspotCount: vm.sessionAttentionCount,
+                criticalAuditCount: vm.recentCriticalAuditCount,
+                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                hasSecurity: vm.security != nil,
+                hasNetwork: vm.networkStatus != nil
+            )
             RuntimeSectionInventoryDeck(
                 sectionCount: runtimeSectionCount,
                 supportFeedCount: runtimeSupportFeedCount,
@@ -1839,6 +1851,103 @@ private struct RuntimeActionReadinessDeck: View {
             return String(localized: "Runtime action readiness is currently anchored by approvals and diagnostics follow-up.")
         }
         return String(localized: "Runtime action readiness is currently clear enough for deep section jumps and queue review.")
+    }
+}
+
+private struct RuntimeFocusCoverageDeck: View {
+    let sectionCount: Int
+    let supportFeedCount: Int
+    let queueCardCount: Int
+    let runtimeAlertCount: Int
+    let approvalCount: Int
+    let hotspotCount: Int
+    let criticalAuditCount: Int
+    let diagnosticsWarningCount: Int
+    let hasSecurity: Bool
+    let hasNetwork: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant runtime lane readable before moving from the top decks into deeper feeds and queue cards."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 section lane") : String(localized: "\(sectionCount) section lanes"),
+                        tone: sectionCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: supportFeedCount == 1 ? String(localized: "1 support feed") : String(localized: "\(supportFeedCount) support feeds"),
+                        tone: supportFeedCount > 0 ? .neutral : .positive
+                    )
+                    if runtimeAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: runtimeAlertCount == 1 ? String(localized: "1 runtime alert") : String(localized: "\(runtimeAlertCount) runtime alerts"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant runtime lane readable before moving from compact status decks into deeper feeds, queues, and route groups."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: queueCardCount == 1 ? String(localized: "1 queue card") : String(localized: "\(queueCardCount) queue cards"),
+                    tone: queueCardCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if hotspotCount > 0 {
+                    Label(
+                        hotspotCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(hotspotCount) hotspots"),
+                        systemImage: "text.bubble"
+                    )
+                }
+                if criticalAuditCount > 0 {
+                    Label(
+                        criticalAuditCount == 1 ? String(localized: "1 critical audit") : String(localized: "\(criticalAuditCount) critical audits"),
+                        systemImage: "text.badge.exclamationmark"
+                    )
+                }
+                if diagnosticsWarningCount > 0 {
+                    Label(
+                        diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
+                        systemImage: "stethoscope"
+                    )
+                }
+                if hasSecurity {
+                    Label(String(localized: "Security feed"), systemImage: "lock.shield")
+                }
+                if hasNetwork {
+                    Label(String(localized: "Network feed"), systemImage: "point.3.connected.trianglepath.dotted")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if runtimeAlertCount > 0 || approvalCount > 0 || hotspotCount > 0 {
+            return String(localized: "Runtime focus coverage is currently anchored by live queue pressure.")
+        }
+        if diagnosticsWarningCount > 0 || criticalAuditCount > 0 {
+            return String(localized: "Runtime focus coverage is currently anchored by diagnostics and audit drag.")
+        }
+        return String(localized: "Runtime focus coverage is currently balanced across deep feeds and grouped runtime lanes.")
     }
 }
 

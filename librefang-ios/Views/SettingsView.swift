@@ -104,6 +104,18 @@ struct SettingsView: View {
                             languageLabel: currentLanguageLabel
                         )
 
+                        SettingsFocusCoverageDeck(
+                            onCallQueueCount: onCallQueueCount,
+                            currentCriticalCount: currentCriticalCount,
+                            visibleAlertCount: visibleAlertCount,
+                            hasQueuedReminder: deps.onCallNotificationManager.pendingReminderDate != nil,
+                            notificationLabel: deps.onCallNotificationManager.authorizationLabel,
+                            notificationTone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning,
+                            refreshIntervalLabel: "\(Int(refreshInterval))s",
+                            languageLabel: currentLanguageLabel,
+                            sectionCount: settingsSectionCount
+                        )
+
                         SettingsActionReadinessDeck(
                             primaryRouteCount: primaryRouteCount,
                             supportRouteCount: supportRouteCount,
@@ -1597,6 +1609,87 @@ private struct SettingsActionReadinessDeck: View {
             return String(localized: "Settings action readiness is currently centered on on-call queue state and reminder follow-through.")
         }
         return String(localized: "Settings action readiness is currently clear enough for route pivots and deeper settings review.")
+    }
+}
+
+private struct SettingsFocusCoverageDeck: View {
+    let onCallQueueCount: Int
+    let currentCriticalCount: Int
+    let visibleAlertCount: Int
+    let hasQueuedReminder: Bool
+    let notificationLabel: String
+    let notificationTone: PresentationTone
+    let refreshIntervalLabel: String
+    let languageLabel: String
+    let sectionCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant device-facing settings lane readable before opening the longer server, reminder, and monitoring form."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: notificationLabel, tone: notificationTone)
+                    PresentationToneBadge(text: refreshIntervalLabel, tone: .neutral)
+                    PresentationToneBadge(text: languageLabel, tone: .neutral)
+                    if hasQueuedReminder {
+                        PresentationToneBadge(text: String(localized: "Reminder queued"), tone: .caution)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant settings lane readable before moving from compact device readiness decks into the full control form."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: sectionCount == 1 ? String(localized: "1 section") : String(localized: "\(sectionCount) sections"),
+                    tone: sectionCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if onCallQueueCount > 0 {
+                    Label(
+                        onCallQueueCount == 1 ? String(localized: "1 on-call item") : String(localized: "\(onCallQueueCount) on-call items"),
+                        systemImage: "waveform.path.ecg"
+                    )
+                }
+                if currentCriticalCount > 0 {
+                    Label(
+                        currentCriticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(currentCriticalCount) critical"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if visibleAlertCount > 0 {
+                    Label(
+                        visibleAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(visibleAlertCount) live alerts"),
+                        systemImage: "bell.badge"
+                    )
+                }
+                if hasQueuedReminder {
+                    Label(String(localized: "Reminder queued"), systemImage: "bell.badge.fill")
+                }
+                Label(languageLabel, systemImage: "globe")
+                Label(String(localized: "Refresh \(refreshIntervalLabel)"), systemImage: "arrow.clockwise")
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if currentCriticalCount > 0 || visibleAlertCount > 0 {
+            return String(localized: "Settings focus coverage is currently anchored by live alert pressure reaching the device layer.")
+        }
+        if onCallQueueCount > 0 || hasQueuedReminder {
+            return String(localized: "Settings focus coverage is currently anchored by on-call follow-through and reminder state.")
+        }
+        return String(localized: "Settings focus coverage is currently centered on notification, refresh, and language readiness.")
     }
 }
 
