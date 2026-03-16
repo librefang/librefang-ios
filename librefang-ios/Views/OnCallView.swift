@@ -329,6 +329,16 @@ struct OnCallView: View {
                     integrationIssueCount: integrationIssueCount,
                     checkInStatus: handoffStore.latestCheckInStatus
                 )
+                OnCallWorkstreamCoverageDeck(
+                    queueCount: priorityItems.count,
+                    watchItemCount: watchedAttentionItems.count,
+                    mutedAlertCount: mutedAlertCount,
+                    pendingFollowUpCount: pendingFollowUpCount,
+                    approvalCount: vm.pendingApprovalCount,
+                    eventCount: vm.recentCriticalAuditCount,
+                    automationIssueCount: automationIssueCount,
+                    integrationIssueCount: integrationIssueCount
+                )
 
                 OnCallQueueCoverageDeck(
                     criticalCount: criticalCount,
@@ -1000,6 +1010,112 @@ private struct OnCallQueueCoverageDeck: View {
                 )
             }
         }
+    }
+}
+
+private struct OnCallWorkstreamCoverageDeck: View {
+    let queueCount: Int
+    let watchItemCount: Int
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let approvalCount: Int
+    let eventCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether the on-call screen is currently led by the live queue, watched diagnostics, or slower support work before entering the rows below."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if queueCount > 0 {
+                        PresentationToneBadge(
+                            text: queueCount == 1 ? String(localized: "1 queue item") : String(localized: "\(queueCount) queue items"),
+                            tone: .warning
+                        )
+                    }
+                    if watchItemCount > 0 {
+                        PresentationToneBadge(
+                            text: watchItemCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchItemCount) watched agents"),
+                            tone: .caution
+                        )
+                    }
+                    if supportCount > 0 {
+                        PresentationToneBadge(
+                            text: supportCount == 1 ? String(localized: "1 support lane") : String(localized: "\(supportCount) support lanes"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep live queue work, watched diagnostics, and slower support drag readable before moving into the priority list and watch rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: queueCount == 1 ? String(localized: "1 live queue item") : String(localized: "\(queueCount) live queue items"),
+                    tone: queueCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if watchItemCount > 0 {
+                    Label(
+                        watchItemCount == 1 ? String(localized: "1 watch row") : String(localized: "\(watchItemCount) watch rows"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if eventCount > 0 {
+                    Label(
+                        eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if mutedAlertCount > 0 {
+                    Label(
+                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        systemImage: "bell.slash"
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    Label(
+                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                        systemImage: "arrow.triangle.2.circlepath"
+                    )
+                }
+            }
+        }
+    }
+
+    private var supportCount: Int {
+        mutedAlertCount + pendingFollowUpCount + approvalCount + eventCount + automationIssueCount + integrationIssueCount
+    }
+
+    private var summaryLine: String {
+        if queueCount >= max(watchItemCount, supportCount) && queueCount > 0 {
+            return String(localized: "On-call workstream coverage is currently anchored by the live queue.")
+        }
+        if watchItemCount >= supportCount && watchItemCount > 0 {
+            return String(localized: "On-call workstream coverage is currently anchored by watched-agent follow-through.")
+        }
+        if supportCount > 0 {
+            return String(localized: "On-call workstream coverage is currently anchored by slower support lanes behind the live queue.")
+        }
+        return String(localized: "On-call workstream coverage is currently light across the visible lanes.")
     }
 }
 

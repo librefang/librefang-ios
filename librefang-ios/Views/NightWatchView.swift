@@ -335,6 +335,16 @@ struct NightWatchView: View {
                 focusModeLabel: focusStore.mode.label,
                 checkInStatus: checkInStatus
             )
+            NightWatchWorkstreamCoverageDeck(
+                primaryQueueCount: primaryItems.count,
+                secondaryQueueCount: secondaryItems.count,
+                watchCount: activeWatchedItems.count,
+                mutedAlertCount: mutedAlertCount,
+                pendingFollowUpCount: pendingFollowUpCount,
+                approvalCount: vm.pendingApprovalCount,
+                automationIssueCount: automationIssueCount,
+                integrationIssueCount: integrationIssueCount
+            )
             NightWatchQueueCoverageDeck(
                 criticalCount: criticalCount,
                 warningCount: warningCount,
@@ -1577,6 +1587,55 @@ private struct NightWatchQueueCoverageDeck: View {
                 }
             }
         }
+    }
+}
+
+private struct NightWatchWorkstreamCoverageDeck: View {
+    let primaryQueueCount: Int
+    let secondaryQueueCount: Int
+    let watchCount: Int
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let approvalCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+
+    var body: some View {
+        NightWatchSectionCard(
+            title: String(localized: "Workstream Coverage"),
+            detail: String(localized: "Keep the primary queue, secondary queue, watchlist, and slower support lanes readable before the night-duty cards expand.")
+        ) {
+            FlowLayout(spacing: 8) {
+                if primaryQueueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: primaryQueueCount == 1 ? String(localized: "1 primary item") : String(localized: "\(primaryQueueCount) primary items"),
+                        backgroundOpacity: 0.18
+                    )
+                }
+                if secondaryQueueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: secondaryQueueCount == 1 ? String(localized: "1 secondary item") : String(localized: "\(secondaryQueueCount) secondary items"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if watchCount > 0 {
+                    GlassCapsuleBadge(
+                        text: watchCount == 1 ? String(localized: "1 watch row") : String(localized: "\(watchCount) watch rows"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if supportCount > 0 {
+                    GlassCapsuleBadge(
+                        text: supportCount == 1 ? String(localized: "1 support lane") : String(localized: "\(supportCount) support lanes"),
+                        backgroundOpacity: 0.10
+                    )
+                }
+            }
+        }
+    }
+
+    private var supportCount: Int {
+        mutedAlertCount + pendingFollowUpCount + approvalCount + automationIssueCount + integrationIssueCount
     }
 }
 

@@ -335,6 +335,15 @@ struct StandbyDigestView: View {
                 toneLabel: tone.label,
                 checkInStatus: checkInStatus
             )
+            StandbyWorkstreamCoverageDeck(
+                primaryCardCount: primaryItems.count,
+                watchCount: watchItems.count,
+                mutedAlertCount: mutedAlertCount,
+                pendingFollowUpCount: pendingFollowUpCount,
+                approvalCount: vm.pendingApprovalCount,
+                automationIssueCount: automationIssueCount,
+                integrationIssueCount: integrationIssueCount
+            )
             StandbyQueueCoverageDeck(
                 criticalCount: criticalCount,
                 warningCount: warningQueueCount,
@@ -1613,6 +1622,65 @@ private struct StandbyQueueCoverageDeck: View {
                 }
             }
         }
+    }
+}
+
+private struct StandbyWorkstreamCoverageDeck: View {
+    let primaryCardCount: Int
+    let watchCount: Int
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let approvalCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ResponsiveAccessoryRow {
+                Label {
+                    Text(String(localized: "Workstream Coverage"))
+                } icon: {
+                    Image(systemName: "rectangle.3.group")
+                }
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.white)
+            } accessory: {
+                GlassCapsuleBadge(
+                    text: supportCount == 0 ? String(localized: "Snapshot led") : String(localized: "Mixed lanes"),
+                    backgroundOpacity: 0.14
+                )
+            }
+
+            Text(String(localized: "Keep the main glance cards, watched rows, and slower support lanes readable before the standby routes and deeper drills take over."))
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.72))
+                .fixedSize(horizontal: false, vertical: true)
+
+            FlowLayout(spacing: 8) {
+                if primaryCardCount > 0 {
+                    GlassCapsuleBadge(
+                        text: primaryCardCount == 1 ? String(localized: "1 main card") : String(localized: "\(primaryCardCount) main cards"),
+                        backgroundOpacity: 0.18
+                    )
+                }
+                if watchCount > 0 {
+                    GlassCapsuleBadge(
+                        text: watchCount == 1 ? String(localized: "1 watch row") : String(localized: "\(watchCount) watch rows"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if supportCount > 0 {
+                    GlassCapsuleBadge(
+                        text: supportCount == 1 ? String(localized: "1 support lane") : String(localized: "\(supportCount) support lanes"),
+                        backgroundOpacity: 0.10
+                    )
+                }
+            }
+        }
+    }
+
+    private var supportCount: Int {
+        mutedAlertCount + pendingFollowUpCount + approvalCount + automationIssueCount + integrationIssueCount
     }
 }
 
