@@ -139,8 +139,6 @@ struct EventsView: View {
                 }
             } header: {
                 Text("Feed")
-            } footer: {
-                eventsFeedFooter
             }
             .id(EventsSectionAnchor.feed)
         }
@@ -162,16 +160,6 @@ struct EventsView: View {
                 jump(proxy, to: .feed)
             }
         ]
-    }
-
-    @ViewBuilder
-    private var eventsFeedFooter: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("\(filteredEntries.count) of \(viewModel.entries.count) events visible")
-            if let tipHash = viewModel.tipHash, !tipHash.isEmpty {
-                Text("Tip \(String(tipHash.prefix(16)))...")
-            }
-        }
     }
 
     private var eventsStatusDeckCard: some View {

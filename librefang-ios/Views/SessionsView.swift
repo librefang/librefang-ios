@@ -178,14 +178,8 @@ struct SessionsView: View {
                             TextField(String(localized: "Optional label"), text: $sessionLabelDraft)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
-
-                            Text(String(localized: "Clear the field to remove the label. Labels make on-call session lookup much faster."))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
                         } header: {
                             Text(String(localized: "Session Label"))
-                        } footer: {
-                            Text(displayTitle(for: session))
                         }
                     }
                     .navigationTitle(String(localized: "Edit Label"))

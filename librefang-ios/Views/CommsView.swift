@@ -91,10 +91,6 @@ struct CommsView: View {
                     }
                 } header: {
                     Text("Topology")
-                } footer: {
-                    if let topology = viewModel.topology, topology.edges.count > visibleEdges.count {
-                        Text("Showing \(visibleEdges.count) of \(topology.edges.count) active links")
-                    }
                 }
                 .id(CommsSectionAnchor.topology)
 
@@ -114,8 +110,6 @@ struct CommsView: View {
                         }
                     } header: {
                         Text("Traffic")
-                    } footer: {
-                        Text("\(filteredEvents.count) of \(viewModel.events.count) events visible")
                     }
                     .id(CommsSectionAnchor.traffic)
                 }
