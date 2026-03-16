@@ -388,6 +388,16 @@ struct IncidentsView: View {
                 integrationCount: integrationIssueCount
             )
 
+            IncidentSupportCoverageDeck(
+                mutedAlertCount: mutedAlerts.count,
+                handoffCount: handoffIssueCount,
+                watchedDiagnosticCount: watchedDiagnosticRows.count,
+                criticalAuditCount: vm.recentCriticalAuditCount,
+                automationCount: automationIssueCount,
+                integrationCount: integrationIssueCount,
+                isAcknowledged: isCurrentSnapshotAcknowledged
+            )
+
             IncidentRouteInventoryDeck(
                 primaryRouteCount: operatorPrimaryRouteCount,
                 supportRouteCount: operatorSupportRouteCount,
@@ -1819,6 +1829,94 @@ private struct IncidentPressureCoverageDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct IncidentSupportCoverageDeck: View {
+    let mutedAlertCount: Int
+    let handoffCount: Int
+    let watchedDiagnosticCount: Int
+    let criticalAuditCount: Int
+    let automationCount: Int
+    let integrationCount: Int
+    let isAcknowledged: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep muted drag, watched diagnostics, audit pressure, and slower platform follow-up readable before the incident routes and queue buckets begin."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: isAcknowledged ? String(localized: "Snapshot acknowledged") : String(localized: "Snapshot live"),
+                        tone: isAcknowledged ? .positive : .warning
+                    )
+                    if mutedAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                            tone: .neutral
+                        )
+                    }
+                    if handoffCount > 0 {
+                        PresentationToneBadge(
+                            text: handoffCount == 1 ? String(localized: "1 handoff issue") : String(localized: "\(handoffCount) handoff issues"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep handoff drag, watched diagnostics, audit pressure, and slower automation or integration load visible before the incident buckets take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: criticalAuditCount == 1 ? String(localized: "1 critical audit") : String(localized: "\(criticalAuditCount) critical audits"),
+                    tone: criticalAuditCount > 0 ? .critical : .neutral
+                )
+            } facts: {
+                if watchedDiagnosticCount > 0 {
+                    Label(
+                        watchedDiagnosticCount == 1 ? String(localized: "1 watched diagnostic issue") : String(localized: "\(watchedDiagnosticCount) watched diagnostic issues"),
+                        systemImage: "star.circle"
+                    )
+                }
+                if automationCount > 0 {
+                    Label(
+                        automationCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationCount > 0 {
+                    Label(
+                        integrationCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if criticalAuditCount > 0 || integrationCount > 0 {
+            return String(localized: "Incident support coverage is currently anchored by critical audit or integration drag beyond the live alert buckets.")
+        }
+        if mutedAlertCount > 0 || handoffCount > 0 || watchedDiagnosticCount > 0 {
+            return String(localized: "Incident support coverage is currently anchored by muted alert drag, handoff load, and watched diagnostics.")
+        }
+        if isAcknowledged {
+            return String(localized: "Incident support coverage is currently light, and the active snapshot is acknowledged.")
+        }
+        return String(localized: "Incident support coverage is currently light and mostly reflects slower automation and audit context.")
     }
 }
 

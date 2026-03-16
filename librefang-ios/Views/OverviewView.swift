@@ -251,6 +251,17 @@ struct OverviewView: View {
                             integrationIssueCount: vm.integrationPressureIssueCategoryCount
                         )
 
+                        OverviewSupportCoverageDeck(
+                            mutedAlertCount: activeMutedAlertCount,
+                            pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
+                            diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                            automationIssueCount: vm.automationPressureIssueCategoryCount,
+                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                            isDataStale: vm.isDataStale,
+                            providerCount: vm.configuredProviderCount,
+                            channelCount: vm.readyChannelCount
+                        )
+
                         OverviewEntryDeckCard(
                             criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
                             approvalCount: vm.pendingApprovalCount,
@@ -1114,6 +1125,96 @@ private struct OverviewPressureCoverageDeck: View {
                 : String(localized: "Overview pressure currently includes \(liveAlertCount) live alerts in the mobile snapshot.")
         }
         return String(localized: "Overview pressure is currently driven by follow-up, diagnostics, and lower-severity operator load.")
+    }
+}
+
+private struct OverviewSupportCoverageDeck: View {
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let diagnosticsWarningCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let isDataStale: Bool
+    let providerCount: Int
+    let channelCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep stale data, muted drag, slower handoff work, and platform readiness readable before the overview spreads into platform and fleet cards."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: isDataStale ? String(localized: "Data stale") : String(localized: "Data live"),
+                        tone: isDataStale ? .warning : .positive
+                    )
+                    PresentationToneBadge(
+                        text: providerCount == 1 ? String(localized: "1 provider ready") : String(localized: "\(providerCount) providers ready"),
+                        tone: providerCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: channelCount == 1 ? String(localized: "1 channel ready") : String(localized: "\(channelCount) channels ready"),
+                        tone: channelCount > 0 ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep muted alerts, follow-up load, diagnostics noise, and provider or channel readiness visible before the broader overview cards fan out."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
+                    tone: diagnosticsWarningCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if mutedAlertCount > 0 {
+                    Label(
+                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        systemImage: "bell.slash"
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    Label(
+                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                        systemImage: "arrow.triangle.2.circlepath"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if isDataStale {
+            return String(localized: "Overview support coverage is currently anchored by stale monitoring data.")
+        }
+        if diagnosticsWarningCount > 0 || automationIssueCount > 0 || integrationIssueCount > 0 {
+            return String(localized: "Overview support coverage is currently anchored by slower diagnostics and platform drift.")
+        }
+        if mutedAlertCount > 0 || pendingFollowUpCount > 0 {
+            return String(localized: "Overview support coverage is currently anchored by muted alert drag and handoff follow-up.")
+        }
+        return String(localized: "Overview support coverage is currently light and mostly reflects provider and channel readiness.")
     }
 }
 

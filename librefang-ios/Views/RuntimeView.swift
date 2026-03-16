@@ -227,6 +227,15 @@ struct RuntimeView: View {
                 automationIssueCount: vm.automationPressureIssueCategoryCount,
                 integrationIssueCount: vm.integrationPressureIssueCategoryCount
             )
+            RuntimeSupportCoverageDeck(
+                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                providerIssueCount: vm.unreachableLocalProviderCount,
+                degradedHandCount: vm.degradedHandCount,
+                automationIssueCount: vm.automationPressureIssueCategoryCount,
+                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                hasNetwork: vm.networkStatus != nil,
+                hasSecurity: vm.security != nil
+            )
             RuntimeSectionInventoryDeck(
                 sectionCount: runtimeSectionCount,
                 supportFeedCount: runtimeSupportFeedCount,
@@ -1646,6 +1655,91 @@ private struct RuntimePressureCoverageDeck: View {
             return String(localized: "Runtime pressure is currently concentrated in approvals, hot sessions, and recent critical audit activity.")
         }
         return String(localized: "Runtime pressure is currently concentrated in slower diagnostics, provider, hand, and systems follow-up.")
+    }
+}
+
+private struct RuntimeSupportCoverageDeck: View {
+    let diagnosticsWarningCount: Int
+    let providerIssueCount: Int
+    let degradedHandCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let hasNetwork: Bool
+    let hasSecurity: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep slower provider, hand, diagnostics, and deep feed readiness visible before the runtime sections fan out."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: hasNetwork ? String(localized: "Network visible") : String(localized: "Network pending"),
+                        tone: hasNetwork ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: hasSecurity ? String(localized: "Security visible") : String(localized: "Security pending"),
+                        tone: hasSecurity ? .positive : .neutral
+                    )
+                    if providerIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: providerIssueCount == 1 ? String(localized: "1 provider issue") : String(localized: "\(providerIssueCount) provider issues"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep diagnostics drag, degraded hands, provider reachability, and automation or integration drift visible before the long runtime feeds begin."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
+                    tone: diagnosticsWarningCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if degradedHandCount > 0 {
+                    Label(
+                        degradedHandCount == 1 ? String(localized: "1 degraded hand") : String(localized: "\(degradedHandCount) degraded hands"),
+                        systemImage: "hand.raised"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if diagnosticsWarningCount > 0 || providerIssueCount > 0 || degradedHandCount > 0 {
+            return String(localized: "Runtime support coverage is currently anchored by diagnostics, provider, or hand degradation.")
+        }
+        if automationIssueCount > 0 || integrationIssueCount > 0 {
+            return String(localized: "Runtime support coverage is currently anchored by downstream automation and integration drag.")
+        }
+        if !hasNetwork || !hasSecurity {
+            return String(localized: "Runtime support coverage is currently waiting on one or more deep support feeds.")
+        }
+        return String(localized: "Runtime support coverage is currently light and mostly reflects feed readiness.")
     }
 }
 
