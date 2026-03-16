@@ -364,132 +364,14 @@ struct IntegrationsView: View {
 
                 if hasAnyContent {
                     Section {
-                        IntegrationsSectionInventoryDeck(
-                            sectionCount: integrationsSectionCount,
-                            visibleResultCount: visibleResultCount,
-                            providerCount: filteredProviders.count,
-                            channelCount: filteredChannels.count,
-                            modelCount: filteredModels.count,
-                            aliasCount: filteredAliases.count,
-                            driftCount: filteredAgentDiagnostics.count,
-                            providerAttentionCount: providerAttentionCount,
-                            channelAttentionCount: channelAttentionCount,
-                            modelAttentionCount: modelAttentionCount
-                        )
-                        if !integrationsSectionPreviewTitles.isEmpty {
-                            MonitoringSectionPreviewDeck(
-                                title: String(localized: "Section Preview"),
-                                detail: String(localized: "Keep the next integration stacks visible before providers, channels, models, and drift sections open up."),
-                                sectionTitles: integrationsSectionPreviewTitles,
-                                tone: (providerAttentionCount > 0 || channelAttentionCount > 0 || modelAttentionCount > 0 || driftAttentionCount > 0) ? .warning : .neutral,
-                                maxVisibleSections: 5,
-                                jumpItems: integrationsSectionPreviewJumpItems(proxy)
-                            )
-                        }
-                        IntegrationsPressureCoverageDeck(
-                            providerAttentionCount: providerAttentionCount,
-                            channelAttentionCount: channelAttentionCount,
-                            modelAttentionCount: modelAttentionCount,
-                            driftAttentionCount: driftAttentionCount,
-                            visibleResultCount: visibleResultCount,
-                            scopeLabel: scope.label,
-                            modelFilterLabel: modelFilter.label,
-                            hasSearchScope: !normalizedSearchText.isEmpty
-                        )
-                        IntegrationsSupportCoverageDeck(
-                            visibleResultCount: visibleResultCount,
-                            providerCount: filteredProviders.count,
-                            channelCount: filteredChannels.count,
-                            modelCount: filteredModels.count,
-                            aliasCount: filteredAliases.count,
-                            driftCount: filteredAgentDiagnostics.count,
-                            scopeLabel: scope.label,
-                            modelFilterLabel: modelFilter.label,
-                            hasSearchScope: !normalizedSearchText.isEmpty
-                        )
-                        IntegrationsWorkstreamCoverageDeck(
-                            visibleResultCount: visibleResultCount,
-                            providerCount: filteredProviders.count,
-                            channelCount: filteredChannels.count,
-                            modelCount: filteredModels.count,
-                            aliasCount: filteredAliases.count,
-                            driftCount: filteredAgentDiagnostics.count,
-                            providerAttentionCount: providerAttentionCount,
-                            channelAttentionCount: channelAttentionCount,
-                            modelAttentionCount: modelAttentionCount,
-                            driftAttentionCount: driftAttentionCount,
-                            scopeLabel: scope.label,
-                            modelFilterLabel: modelFilter.label,
-                            hasSearchScope: !normalizedSearchText.isEmpty
-                        )
-                        IntegrationsActionReadinessDeck(
-                            primaryRouteCount: 4,
-                            supportRouteCount: 3,
-                            jumpCount: integrationsJumpCount,
-                            visibleResultCount: visibleResultCount,
-                            providerCount: filteredProviders.count,
-                            channelCount: filteredChannels.count,
-                            modelCount: filteredModels.count,
-                            driftCount: filteredAgentDiagnostics.count,
-                            scopeLabel: scope.label,
-                            modelFilterLabel: modelFilter.label,
-                            hasSearchScope: !normalizedSearchText.isEmpty
-                        )
-                        IntegrationsFocusCoverageDeck(
-                            visibleResultCount: visibleResultCount,
-                            providerCount: filteredProviders.count,
-                            channelCount: filteredChannels.count,
-                            modelCount: filteredModels.count,
-                            driftCount: filteredAgentDiagnostics.count,
-                            providerAttentionCount: providerAttentionCount,
-                            channelAttentionCount: channelAttentionCount,
-                            modelAttentionCount: modelAttentionCount,
-                            driftAttentionCount: driftAttentionCount,
-                            scopeLabel: scope.label,
-                            modelFilterLabel: modelFilter.label,
-                            hasSearchScope: !normalizedSearchText.isEmpty
-                        )
-                        IntegrationsScopeCoverageDeck(
-                            visibleResultCount: visibleResultCount,
-                            providerCount: filteredProviders.count,
-                            channelCount: filteredChannels.count,
-                            modelCount: filteredModels.count,
-                            aliasCount: filteredAliases.count,
-                            driftCount: filteredAgentDiagnostics.count,
-                            scopeLabel: scope.label,
-                            modelFilterLabel: modelFilter.label,
-                            hasSearchScope: !normalizedSearchText.isEmpty,
-                            isAttentionScoped: scope == .attention,
-                            isModelFiltered: scope == .all && modelFilter != .all
-                        )
-                    } header: {
-                        Text("Inventory")
-                    } footer: {
-                        Text("Keep section coverage visible before jumping around the integration inventory.")
-                    }
-
-                    Section {
                         integrationsFocusSection(proxy)
-                    } header: {
-                        Text("Jumps")
-                    } footer: {
-                        Text("Use these jumps to move through integrations without scrolling the full inventory.")
                     }
 
                     Section {
                         MonitoringSurfaceGroupCard(
-                            title: String(localized: "Routes"),
+                            title: String(localized: "Shortcuts"),
                             detail: String(localized: "Keep the next operator exits compact and visible above the provider, channel, and drift inventory.")
                         ) {
-                            IntegrationsRouteInventoryDeck(
-                                primaryRouteCount: 4,
-                                supportRouteCount: 3,
-                                jumpCount: integrationsJumpCount,
-                                providerAttentionCount: providerAttentionCount,
-                                channelAttentionCount: channelAttentionCount,
-                                driftAttentionCount: driftAttentionCount
-                            )
-
                             MonitoringShortcutRail(
                                 title: String(localized: "Primary"),
                                 detail: String(localized: "Use these routes first when provider, channel, or drift diagnostics need broader context.")

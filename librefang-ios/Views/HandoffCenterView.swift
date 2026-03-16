@@ -285,27 +285,6 @@ struct HandoffCenterView: View {
                     .id(HandoffSectionAnchor.controls)
 
                 Section {
-                    HandoffDraftSectionInventoryDeck(
-                        readiness: draftReadiness,
-                        kind: handoffStore.draftKind,
-                        note: handoffStore.draftNote,
-                        focusCount: handoffStore.draftFocusAreas.items.count,
-                        followUpCount: handoffStore.draftFollowUpItems.count,
-                        suggestedFocusCount: suggestedFocusAreas.count,
-                        suggestedFollowUpCount: suggestedFollowUps.count,
-                        checkInWindow: handoffStore.draftCheckInWindow
-                    )
-                    if !handoffDraftSectionPreviewTitles.isEmpty {
-                        MonitoringSectionPreviewDeck(
-                            title: String(localized: "Draft Preview"),
-                            detail: String(localized: "Keep the next draft stacks visible before the note, checklist, and follow-up editors open up."),
-                            sectionTitles: handoffDraftSectionPreviewTitles,
-                            tone: pendingLatestFollowUpCount > 0 ? .warning : .neutral,
-                            maxVisibleSections: 5,
-                            jumpItems: handoffDraftSectionPreviewJumpItems(proxy)
-                        )
-                    }
-
                     HandoffDraftContextCard(
                         kind: Binding(
                             get: { handoffStore.draftKind },
@@ -514,97 +493,12 @@ struct HandoffCenterView: View {
         Section {
             VStack(alignment: .leading, spacing: 12) {
                 handoffSignalFactsCard
-                HandoffSectionInventoryDeck(
-                    sectionCount: handoffSectionCount,
-                    timelineCount: timelineItems.count,
-                    historyCount: filteredEntries.count,
-                    focusCount: handoffStore.draftFocusAreas.items.count,
-                    followUpCount: handoffStore.draftFollowUpItems.count,
-                    pendingFollowUpCount: pendingLatestFollowUpCount,
-                    readiness: draftReadiness,
-                    queueCount: queueCount,
-                    criticalCount: criticalCount
-                )
-                if !handoffSectionPreviewTitles.isEmpty {
-                    MonitoringSectionPreviewDeck(
-                        title: String(localized: "Section Preview"),
-                        detail: String(localized: "Keep the next handoff stacks visible before the draft, timeline, and history sections open up."),
-                        sectionTitles: handoffSectionPreviewTitles,
-                        tone: pendingLatestFollowUpCount > 0 ? .warning : .neutral,
-                        maxVisibleSections: 5,
-                        jumpItems: handoffSectionPreviewJumpItems(proxy)
-                    )
-                }
-                HandoffPressureCoverageDeck(
-                    queueCount: queueCount,
-                    criticalCount: criticalCount,
-                    liveAlertCount: liveAlertCount,
-                    pendingApprovalCount: vm.pendingApprovalCount,
-                    watchlistIssueCount: watchlistIssueCount,
-                    sessionAttentionCount: vm.sessionAttentionCount,
-                    criticalAuditCount: vm.recentCriticalAuditCount,
-                    pendingFollowUpCount: pendingLatestFollowUpCount,
-                    draftReadiness: draftReadiness
-                )
-                HandoffSupportCoverageDeck(
-                    historyFilterLabel: historyFilter.label,
-                    filteredHistoryCount: filteredEntries.count,
-                    isSearchScoped: isHistorySearchScoped,
-                    timelineGapWarningCount: timelineGapWarningCount,
-                    uncoveredChecklistCount: uncoveredChecklistCount,
-                    completedFollowUpCount: completedLatestFollowUpCount,
-                    watchlistIssueCount: watchlistIssueCount,
-                    diagnosticsWarningCount: vm.diagnosticsConfigWarningCount
-                )
-                HandoffWorkstreamCoverageDeck(
-                    queueCount: queueCount,
-                    criticalCount: criticalCount,
-                    timelineCount: timelineItems.count,
-                    historyCount: filteredEntries.count,
-                    focusCount: handoffStore.draftFocusAreas.items.count,
-                    followUpCount: handoffStore.draftFollowUpItems.count,
-                    suggestedFocusCount: suggestedFocusAreas.count,
-                    suggestedFollowUpCount: suggestedFollowUps.count,
-                    pendingFollowUpCount: pendingLatestFollowUpCount,
-                    readiness: draftReadiness
-                )
-                HandoffRouteInventoryDeck(
-                    queueCount: queueCount,
-                    criticalCount: criticalCount,
-                    liveAlertCount: liveAlertCount,
-                    pendingApprovalCount: vm.pendingApprovalCount,
-                    diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                    primaryRouteCount: 4,
-                    supportRouteCount: 3
-                )
-                HandoffActionReadinessDeck(
-                    readiness: draftReadiness,
-                    hasNote: !handoffStore.draftNote.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                    focusCount: handoffStore.draftFocusAreas.items.count,
-                    followUpCount: handoffStore.draftFollowUpItems.count,
-                    suggestedFocusCount: suggestedFocusAreas.count,
-                    suggestedFollowUpCount: suggestedFollowUps.count,
-                    hasCheckIn: handoffStore.draftCheckInWindow != .none,
-                    canShare: !currentShareText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                )
-                HandoffFocusCoverageDeck(
-                    queueCount: queueCount,
-                    criticalCount: criticalCount,
-                    pendingApprovalCount: vm.pendingApprovalCount,
-                    watchlistIssueCount: watchlistIssueCount,
-                    sessionAttentionCount: vm.sessionAttentionCount,
-                    criticalAuditCount: vm.recentCriticalAuditCount,
-                    focusCount: handoffStore.draftFocusAreas.items.count,
-                    followUpCount: handoffStore.draftFollowUpItems.count,
-                    pendingFollowUpCount: pendingLatestFollowUpCount,
-                    hasCheckIn: handoffStore.draftCheckInWindow != .none
-                )
                 handoffSurfaceDeckCard
             }
         } header: {
-            Text("Controls")
+            Text(String(localized: "Summary"))
         } footer: {
-            Text("Keep live pressure, draft readiness, and next routes together before editing.")
+            Text(String(localized: "Keep live pressure and next shortcuts together before editing."))
         }
     }
 
