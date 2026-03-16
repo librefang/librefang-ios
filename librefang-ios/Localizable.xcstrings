@@ -1961,6 +1961,12 @@
             "state": "translated",
             "value": "1 个代理"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 エージェント"
+          }
         }
       }
     },
@@ -2041,6 +2047,12 @@
             "state": "translated",
             "value": "1 个审批"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 承認"
+          }
         }
       }
     },
@@ -2072,6 +2084,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 张卡片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 カード"
           }
         }
       }
@@ -2106,6 +2124,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个已配置渠道缺少必填字段"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 つの設定済みチャネルで必須項目が不足しています"
           }
         }
       }
@@ -2192,6 +2216,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个定时任务缺少下一次运行"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 つの cron ジョブで次回実行がありません"
           }
         }
       }
@@ -2333,6 +2363,12 @@
             "state": "translated",
             "value": "1 个问题"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の問題"
+          }
         }
       }
     },
@@ -2389,6 +2425,12 @@
             "state": "translated",
             "value": "1 条已静默告警"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ミュート済みアラート"
+          }
         }
       }
     },
@@ -2425,6 +2467,12 @@
             "state": "translated",
             "value": "1 个已固定"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件ピン留め"
+          }
         }
       }
     },
@@ -2436,6 +2484,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 项排队中"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件キュー中"
           }
         }
       }
@@ -2510,6 +2564,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个触发器已耗尽"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 つのトリガーが使い切られました"
           }
         }
       }
@@ -2604,6 +2664,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个工作流运行失败"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件のワークフロー実行が失敗しました"
           }
         }
       }
@@ -2807,6 +2873,12 @@
             "state": "translated",
             "value": "已确认"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認済み"
+          }
         }
       }
     },
@@ -2866,6 +2938,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "活跃执行手"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクティブハンド"
           }
         }
       }
@@ -3049,6 +3127,12 @@
             "state": "translated",
             "value": "代理模型漂移"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントモデルドリフト"
+          }
         }
       }
     },
@@ -3195,6 +3279,12 @@
             "state": "translated",
             "value": "别名"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エイリアス"
+          }
         }
       }
     },
@@ -3244,6 +3334,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "当前所有告警卡片都已在这台 iPhone 上静默。打开事故页查看或取消静默。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone では現在のアラートカードがすべてミュートされています。Incidents を開いて確認またはミュート解除してください。"
           }
         }
       }
@@ -3467,6 +3563,12 @@
             "state": "translated",
             "value": "审批"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認"
+          }
         }
       }
     },
@@ -3579,6 +3681,12 @@
             "state": "translated",
             "value": "关注"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要注意"
+          }
         }
       }
     },
@@ -3598,6 +3706,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "审计"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監査"
           }
         }
       }
@@ -3698,6 +3812,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "自动化"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動化"
           }
         }
       }
@@ -4059,6 +4179,12 @@
             "state": "translated",
             "value": "目录新鲜度"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カタログ鮮度"
+          }
         }
       }
     },
@@ -4107,6 +4233,12 @@
             "state": "translated",
             "value": "目录同步"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カタログ同期"
+          }
         }
       }
     },
@@ -4139,6 +4271,12 @@
             "state": "translated",
             "value": "除非服务器收到明确的目标渠道或聊天 ID，否则渠道诊断只会执行凭证校验。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サーバーが特定の対象チャネルまたは chat ID を受け取らない限り、チャネル診断は認証情報の検証のみを実行します。"
+          }
         }
       }
     },
@@ -4150,6 +4288,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "渠道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャネル"
           }
         }
       }
@@ -4337,6 +4481,12 @@
             "state": "translated",
             "value": "清除"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クリア"
+          }
         }
       }
     },
@@ -4437,6 +4587,12 @@
       "isCommentAutoGenerated": true,
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "通信"
@@ -4588,6 +4744,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在连接 LibreFang"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang に接続中"
           }
         }
       }
@@ -5318,6 +5480,12 @@
             "state": "translated",
             "value": "诊断"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "診断"
+          }
         }
       }
     },
@@ -5848,6 +6016,12 @@
             "state": "translated",
             "value": "新鲜"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新"
+          }
         }
       }
     },
@@ -5917,6 +6091,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "交接"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎ"
           }
         }
       }
@@ -6248,6 +6428,12 @@
             "state": "translated",
             "value": "空闲"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機中"
+          }
         }
       }
     },
@@ -6349,6 +6535,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "事故"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント"
           }
         }
       }
@@ -6538,6 +6730,12 @@
             "state": "translated",
             "value": "集成"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連携"
+          }
         }
       }
     },
@@ -6705,6 +6903,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "最近交接"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前回の引き継ぎ"
           }
         }
       }
@@ -6991,6 +7195,12 @@
             "state": "translated",
             "value": "LibreFang 会在启动时同步模型目录，之后每 24 小时在后台同步一次。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang は起動時にモデルカタログを同期し、その後は 24 時間ごとにバックグラウンドで同期します。"
+          }
         }
       }
     },
@@ -7081,6 +7291,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "实时"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブ"
           }
         }
       }
@@ -7856,6 +8072,12 @@
             "state": "translated",
             "value": "模型筛选"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデルフィルタ"
+          }
         }
       }
     },
@@ -7880,6 +8102,12 @@
             "state": "translated",
             "value": "模型"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデル"
+          }
         }
       }
     },
@@ -7889,6 +8117,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "监控"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視"
           }
         }
       }
@@ -8009,6 +8243,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "需要复查"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要確認"
           }
         }
       }
@@ -8145,6 +8385,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "夜间值守"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ナイトウォッチ"
           }
         }
       }
@@ -8698,6 +8944,12 @@
             "state": "translated",
             "value": "当前未运行"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在は実行中ではありません"
+          }
         }
       }
     },
@@ -8814,6 +9066,12 @@
             "state": "translated",
             "value": "好"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
         }
       }
     },
@@ -8825,6 +9083,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "值班"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコール"
           }
         }
       }
@@ -9474,6 +9738,12 @@
             "state": "translated",
             "value": "待审批"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保留中の承認"
+          }
         }
       }
     },
@@ -9702,6 +9972,12 @@
             "state": "translated",
             "value": "提供方"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ"
+          }
         }
       }
     },
@@ -9736,6 +10012,12 @@
             "state": "translated",
             "value": "从最新移动端快照看，提供方、渠道和模型目录状态一致。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ、チャネル、モデルカタログは最新のモバイルスナップショットと整合しています。"
+          }
         }
       }
     },
@@ -9745,6 +10027,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "请在服务器暴露提供方、渠道和模型清单后下拉刷新。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サーバーがプロバイダ、チャネル、モデルの一覧を公開した後にプルして更新してください。"
           }
         }
       }
@@ -9873,6 +10161,12 @@
             "state": "translated",
             "value": "快速"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クイック"
+          }
         }
       }
     },
@@ -9918,6 +10212,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "就绪度"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "準備状況"
           }
         }
       }
@@ -10222,6 +10522,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "远程提供方会展示认证就绪状态。本地提供方还会展示探测可达性、延迟和已发现模型。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リモートプロバイダは認証準備状況を表示します。ローカルプロバイダはさらにプローブ到達性、レイテンシ、発見モデルも表示します。"
           }
         }
       }
@@ -10623,6 +10929,12 @@
             "state": "translated",
             "value": "运行正常"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正常稼働"
+          }
         }
       }
     },
@@ -10634,6 +10946,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "运行时"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ランタイム"
           }
         }
       }
@@ -10866,6 +11184,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "搜索提供方、渠道、模型、别名、智能体"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ、チャネル、モデル、エイリアス、エージェントを検索"
           }
         }
       }
@@ -11232,6 +11556,12 @@
             "state": "translated",
             "value": "会话"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッション"
+          }
         }
       }
     },
@@ -11504,6 +11834,12 @@
             "state": "translated",
             "value": "快照"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スナップショット"
+          }
         }
       }
     },
@@ -11616,6 +11952,12 @@
             "state": "translated",
             "value": "陈旧"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "古い"
+          }
         }
       }
     },
@@ -11627,6 +11969,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "待命"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スタンバイ"
           }
         }
       }
@@ -12035,6 +12383,12 @@
             "state": "translated",
             "value": "测试"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "テスト"
+          }
         }
       }
     },
@@ -12066,6 +12420,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "该目录来自 LibreFang 的模型注册表，包含已发现的本地模型和别名。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このカタログは、発見されたローカルモデルとエイリアスを含む LibreFang のモデルレジストリから取得されます。"
           }
         }
       }
@@ -12511,6 +12871,12 @@
             "state": "translated",
             "value": "工具"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツール"
+          }
         }
       }
     },
@@ -12648,6 +13014,12 @@
             "state": "translated",
             "value": "触发器"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トリガー"
+          }
         }
       }
     },
@@ -12740,6 +13112,12 @@
             "state": "translated",
             "value": "请尝试不同的提供方、渠道、模型或别名查询。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "別のプロバイダ、チャネル、モデル、またはエイリアスで検索してください。"
+          }
         }
       }
     },
@@ -12797,6 +13175,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "不可用"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "利用不可"
           }
         }
       }
@@ -13050,6 +13434,12 @@
             "state": "translated",
             "value": "请在智能体标签页中编辑这个关注列表"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このウォッチリストは Agents タブで編集してください"
+          }
         }
       }
     },
@@ -13202,6 +13592,12 @@
             "state": "translated",
             "value": "警告"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "警告"
+          }
         }
       }
     },
@@ -13277,6 +13673,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "关注列表"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウォッチリスト"
           }
         }
       }
@@ -13378,6 +13780,12 @@
             "state": "translated",
             "value": "工作流运行、触发器、调度和定时任务已可见，当前没有活跃的调度压力。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークフロー実行、トリガー、スケジュール、cron ジョブは表示されていますが、現在スケジューラ負荷はありません。"
+          }
         }
       }
     },
@@ -13389,6 +13797,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "工作流"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークフロー"
           }
         }
       }
@@ -13478,6 +13892,12 @@
             "state": "translated",
             "value": "焦点：\\(entry.focusAreas.summaryLabel)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォーカス: \\(entry.focusAreas.summaryLabel)"
+          }
         }
       }
     },
@@ -13498,6 +13918,12 @@
             "state": "translated",
             "value": "复查：\\(checkInStatus.state.label) · \\(checkInStatus.dueLabel)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チェックイン: \\(checkInStatus.state.label) · \\(checkInStatus.dueLabel)"
+          }
         }
       }
     },
@@ -13507,6 +13933,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "复查：\\(entry.checkInWindow.dueLabel(from: entry.createdAt))"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チェックイン: \\(entry.checkInWindow.dueLabel(from: entry.createdAt))"
           }
         }
       }
@@ -13518,6 +13950,12 @@
             "state": "translated",
             "value": "漂移：\\(drift.state.label) · \\(drift.compactSummary)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ドリフト: \\(drift.state.label) · \\(drift.compactSummary)"
+          }
         }
       }
     },
@@ -13527,6 +13965,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "遗留项：\\(carryover.state.label) · \\(carryover.summary)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "繰り越し: \\(carryover.state.label) · \\(carryover.summary)"
           }
         }
       }
@@ -13538,6 +13982,12 @@
             "state": "translated",
             "value": "与上次交接的间隔：\\(gapLabel)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "前回引き継ぎからのギャップ: \\(gapLabel)"
+          }
         }
       }
     },
@@ -13547,6 +13997,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "已连接（陈旧）"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接続済み（古い）"
           }
         }
       }
@@ -13708,6 +14164,12 @@
             "state": "translated",
             "value": "输入"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入力"
+          }
         }
       }
     },
@@ -13717,6 +14179,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "输出"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出力"
           }
         }
       }
@@ -13728,6 +14196,12 @@
             "state": "translated",
             "value": "\\(issueCount) 个问题"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueCount) 件の問題"
+          }
         }
       }
     },
@@ -13737,6 +14211,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "活跃任务"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクティブジョブ"
           }
         }
       }
@@ -13748,6 +14228,12 @@
             "state": "translated",
             "value": "\\(vm.failedWorkflowRunCount) 个工作流运行失败"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.failedWorkflowRunCount) 件のワークフロー実行が失敗しました"
+          }
         }
       }
     },
@@ -13757,6 +14243,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(vm.exhaustedTriggerCount) 个触发器已耗尽"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.exhaustedTriggerCount) 件のトリガーが使い切られました"
           }
         }
       }
@@ -13768,6 +14260,12 @@
             "state": "translated",
             "value": "\\(vm.stalledCronJobCount) 个定时任务缺少下一次运行"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.stalledCronJobCount) 件の cron ジョブで次回実行がありません"
+          }
         }
       }
     },
@@ -13778,6 +14276,12 @@
             "state": "translated",
             "value": "数据库"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "データベース"
+          }
         }
       }
     },
@@ -13787,6 +14291,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "监督器"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スーパーバイザ"
           }
         }
       }
@@ -13818,6 +14328,12 @@
             "state": "translated",
             "value": "1 个本地提供方探测失败"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 つのローカルプロバイダプローブに失敗しました"
+          }
         }
       }
     },
@@ -13827,6 +14343,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(vm.unreachableLocalProviderCount) 个本地提供方探测失败"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.unreachableLocalProviderCount) 件のローカルプロバイダプローブに失敗しました"
           }
         }
       }
@@ -13838,6 +14360,12 @@
             "state": "translated",
             "value": "\\(vm.channelRequiredFieldGapCount) 个已配置渠道缺少必填字段"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.channelRequiredFieldGapCount) 件の設定済みチャネルで必須項目が不足しています"
+          }
         }
       }
     },
@@ -13847,6 +14375,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "缺少 1 个必填字段"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の必須項目不足"
           }
         }
       }
@@ -13858,6 +14392,12 @@
             "state": "translated",
             "value": "缺少 \\(vm.missingRequiredChannelFieldCount) 个必填字段"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.missingRequiredChannelFieldCount) 件の必須項目不足"
+          }
         }
       }
     },
@@ -13867,6 +14407,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "当前目录没有可用模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のカタログには利用可能なモデルがありません"
           }
         }
       }
@@ -13878,6 +14424,12 @@
             "state": "translated",
             "value": "\\(vm.configuredProviderCount) 个已配置提供方当前没有产出可执行模型"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.configuredProviderCount) 件の設定済みプロバイダが実行可能モデルを返していません"
+          }
         }
       }
     },
@@ -13887,6 +14439,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "目录同步时间戳缺失"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カタログ同期のタイムスタンプがありません"
           }
         }
       }
@@ -13898,6 +14456,12 @@
             "state": "translated",
             "value": "目录同步已过期"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カタログ同期が古くなっています"
+          }
         }
       }
     },
@@ -13907,6 +14471,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个代理解析到了漂移的目录模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 エージェントがドリフトしたカタログモデルに解決されます"
           }
         }
       }
@@ -13918,6 +14488,12 @@
             "state": "translated",
             "value": "\\(vm.agentsWithModelDiagnostics.count) 个代理解析到了漂移的目录模型"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.agentsWithModelDiagnostics.count) エージェントがドリフトしたカタログモデルに解決されます"
+          }
         }
       }
     },
@@ -13927,6 +14503,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "服务器未上报同步时间戳，且目录为空。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サーバーは同期時刻を報告しておらず、カタログは空です。"
           }
         }
       }
@@ -13938,6 +14520,12 @@
             "state": "translated",
             "value": "服务器未上报目录同步时间戳。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サーバーはカタログ同期時刻を報告していません。"
+          }
         }
       }
     },
@@ -13948,6 +14536,12 @@
             "state": "translated",
             "value": "\\(items.count) 个已固定"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(items.count) 件ピン留め"
+          }
         }
       }
     },
@@ -13957,6 +14551,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "需要关注"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要対応"
           }
         }
       }
@@ -13977,6 +14577,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(item.pendingApprovals) 个审批"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(item.pendingApprovals) 承認"
           }
         }
       }
@@ -14007,6 +14613,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(queueCount) 项排队中"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(queueCount) 件キュー中"
           }
         }
       }
@@ -14047,6 +14659,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(mutedAlertCount) 条已静默告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mutedAlertCount) 件のミュート済みアラート"
           }
         }
       }
@@ -14528,6 +15146,12 @@
             "state": "translated",
             "value": "空"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "空"
+          }
         }
       }
     },
@@ -14968,12 +15592,24 @@
             "state": "translated",
             "value": "接近预算上限（\\(Int(maxPct * 100))%）"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "予算上限に接近中 (\\(Int(maxPct * 100))%)"
+          }
         }
       }
     },
     "\\(Int(pct * 100))%": {
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(Int(pct * 100))%"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "\\(Int(pct * 100))%"
@@ -15008,6 +15644,12 @@
             "state": "translated",
             "value": "\\(days) 天 \\(hours) 小时"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(days)日 \\(hours)時間"
+          }
         }
       }
     },
@@ -15018,6 +15660,12 @@
             "state": "translated",
             "value": "\\(hours) 小时 \\(minutes) 分钟"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(hours)時間 \\(minutes)分"
+          }
         }
       }
     },
@@ -15027,6 +15675,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(minutes) 分钟"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(minutes)分"
           }
         }
       }
@@ -15098,6 +15752,12 @@
             "state": "translated",
             "value": "最近同步于 \\(RelativeDateTimeFormatter().localizedString(for: catalogLastSyncDate, relativeTo: Date()))"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最終同期: \\(RelativeDateTimeFormatter().localizedString(for: catalogLastSyncDate, relativeTo: Date()))"
+          }
         }
       }
     },
@@ -15107,6 +15767,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(item.session.messageCount) 条消息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(item.session.messageCount) 件のメッセージ"
           }
         }
       }
@@ -15118,6 +15784,12 @@
             "state": "translated",
             "value": "\\(count) 个外部代理"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(count) 外部エージェント"
+          }
         }
       }
     },
@@ -15128,6 +15800,12 @@
             "state": "translated",
             "value": "共 \\(agents.count) 个"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合計 \\(agents.count)"
+          }
         }
       }
     },
@@ -15137,6 +15815,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "还有 \\(agents.count - 4) 个"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "さらに +\\(agents.count - 4) 件"
           }
         }
       }
@@ -15198,6 +15882,12 @@
             "state": "translated",
             "value": "\\(provider.modelCount)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(provider.modelCount)"
+          }
         }
       }
     },
@@ -15207,6 +15897,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(latencyMs) 毫秒"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(latencyMs) ms"
           }
         }
       }
@@ -15377,6 +16073,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(vm.modelAliasCount) 个别名"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.modelAliasCount) エイリアス"
           }
         }
       }
@@ -15778,6 +16480,12 @@
             "state": "translated",
             "value": "连接中"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接続中"
+          }
         }
       }
     },
@@ -16157,6 +16865,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "可用"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "利用可能"
           }
         }
       }
@@ -16968,6 +17682,12 @@
             "state": "translated",
             "value": "筛选后显示 \\(filteredModels.count) 个目录模型中的 40 个"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィルタ後のカタログモデル 40 件 / \\(filteredModels.count) 件を表示中です。"
+          }
         }
       }
     },
@@ -16977,6 +17697,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "筛选后可见 \\(filteredModels.count) 个模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィルタ後に \\(filteredModels.count) 件のモデルが表示されています。"
           }
         }
       }
@@ -16988,6 +17714,12 @@
             "state": "translated",
             "value": "筛选后显示 \\(filteredAliases.count) 个别名中的 20 个"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィルタ後のエイリアス 20 件 / \\(filteredAliases.count) 件を表示中です。"
+          }
         }
       }
     },
@@ -16997,6 +17729,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "显示存在目录漂移的 \\(filteredAgentDiagnostics.count) 个代理中的 20 个"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カタログドリフトのあるエージェント 20 件 / \\(filteredAgentDiagnostics.count) 件を表示中です。"
           }
         }
       }
@@ -17058,6 +17796,12 @@
             "state": "translated",
             "value": "\\(vm.catalogModels.count) 个模型"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.catalogModels.count) モデル"
+          }
         }
       }
     },
@@ -17067,6 +17811,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "发现 \\(discoveredModels.count) 个"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(discoveredModels.count) 件発見"
           }
         }
       }
@@ -17078,6 +17828,12 @@
             "state": "translated",
             "value": "\\(requiredFields.count) 个必填"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(requiredFields.count) 必須"
+          }
         }
       }
     },
@@ -17087,6 +17843,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "已填写 \\(requiredFields.filter(\\.hasValue).count) 个"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(requiredFields.filter(\\.hasValue).count) 設定済み"
           }
         }
       }
@@ -17098,6 +17860,12 @@
             "state": "translated",
             "value": "缺失 \\(missingRequiredFields.count) 个"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingRequiredFields.count) 件不足"
+          }
         }
       }
     },
@@ -17107,6 +17875,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(setupSteps.count) 个步骤"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(setupSteps.count) ステップ"
           }
         }
       }
@@ -17118,6 +17892,12 @@
             "state": "translated",
             "value": "\\(provider.displayName) 测试"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(provider.displayName) テスト"
+          }
         }
       }
     },
@@ -17127,6 +17907,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(channel.displayName) 测试"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channel.displayName) テスト"
           }
         }
       }
@@ -17138,6 +17924,12 @@
             "state": "translated",
             "value": "探测在 \\(latencyMs) 毫秒内通过。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(latencyMs) ms でプローブに成功しました。"
+          }
         }
       }
     },
@@ -17147,6 +17939,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "探测在 \\(latencyMs) 毫秒后失败。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(latencyMs) ms 後にプローブは失敗しました。"
           }
         }
       }
@@ -17158,6 +17956,12 @@
             "state": "translated",
             "value": "探测通过。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プローブに成功しました。"
+          }
         }
       }
     },
@@ -17167,6 +17971,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "探测失败。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プローブに失敗しました。"
           }
         }
       }
@@ -17178,6 +17988,12 @@
             "state": "translated",
             "value": "模型目录最近同步于 \\(relative)。如果新加的模型没有出现，请检查提供方中心的新鲜度。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデルカタログは最後に \\(relative) に同期されました。新しく追加したモデルがない場合はプロバイダハブの鮮度を確認してください。"
+          }
         }
       }
     },
@@ -17187,6 +18003,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "模型目录最近同步于 \\(relative)。当前别名和提供方认证信息均来自该快照。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデルカタログは最後に \\(relative) に同期されました。現在のエイリアスとプロバイダ認証情報はそのスナップショットから補完されています。"
           }
         }
       }
@@ -17198,6 +18020,12 @@
             "state": "translated",
             "value": "该服务器未上报目录同步时间戳，且当前没有暴露任何目录模型。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このサーバーはカタログ同期時刻を報告しておらず、現在はカタログモデルを公開していません。"
+          }
         }
       }
     },
@@ -17208,6 +18036,12 @@
             "state": "translated",
             "value": "该服务器未上报目录同步时间戳，但当前缓存的目录仍可用。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このサーバーはカタログ同期時刻を報告しませんでしたが、現在のキャッシュ済みカタログは利用可能です。"
+          }
         }
       }
     },
@@ -17217,6 +18051,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "API 密钥"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API キー"
           }
         }
       }
@@ -17237,6 +18077,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "上次手动探测：\\(latencyMs) 毫秒"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最後の手動プローブ: \\(latencyMs) ms"
           }
         }
       }
@@ -17388,6 +18234,12 @@
             "state": "translated",
             "value": "上次手动探测在 \\(latencyMs) 毫秒后失败"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最後の手動プローブは \\(latencyMs) ms で失敗しました"
+          }
         }
       }
     },
@@ -17398,6 +18250,12 @@
             "state": "translated",
             "value": "上次手动探测通过。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最後の手動プローブは成功しました。"
+          }
         }
       }
     },
@@ -17407,6 +18265,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "上次手动探测失败。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最後の手動プローブは失敗しました。"
           }
         }
       }
@@ -17428,6 +18292,12 @@
             "state": "translated",
             "value": "凭证探测通过。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "認証情報プローブに成功しました。"
+          }
         }
       }
     },
@@ -17437,6 +18307,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "凭证探测失败。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "認証情報プローブに失敗しました。"
           }
         }
       }
@@ -17448,6 +18324,12 @@
             "state": "translated",
             "value": "另有 \\(missingRequiredFields.count - preview.count) 项"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "さらに +\\(missingRequiredFields.count - preview.count) 件"
+          }
         }
       }
     },
@@ -17457,6 +18339,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "缺少必填字段：\\(preview.joined(separator: \" • \"))\\(suffix)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不足している必須項目: \\(preview.joined(separator: \" • \"))\\(suffix)"
           }
         }
       }
@@ -17468,6 +18356,12 @@
             "state": "translated",
             "value": "视觉"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ビジョン"
+          }
         }
       }
     },
@@ -17477,6 +18371,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "流式"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ストリーミング"
           }
         }
       }
@@ -17488,6 +18388,12 @@
             "state": "translated",
             "value": "输入不可用"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入力 n/a"
+          }
         }
       }
     },
@@ -17498,12 +18404,24 @@
             "state": "translated",
             "value": "输出不可用"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出力 n/a"
+          }
         }
       }
     },
     "\\(channel.localizedCategoryLabel) · \\(channel.localizedSetupTypeLabel) · \\(channel.localizedDifficultyLabel)": {
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channel.localizedCategoryLabel) · \\(channel.localizedSetupTypeLabel) · \\(channel.localizedDifficultyLabel)"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "\\(channel.localizedCategoryLabel) · \\(channel.localizedSetupTypeLabel) · \\(channel.localizedDifficultyLabel)"
@@ -17534,6 +18452,12 @@
     "\\(input) · \\(output)": {
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(input) · \\(output)"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "\\(input) · \\(output)"
@@ -18707,6 +19631,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个提供方就绪"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 プロバイダ準備完了"
           }
         }
       }
@@ -19918,6 +20848,12 @@
             "state": "translated",
             "value": "跟进项：\\(followUpSummary.settingsLabel)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォローアップ: \\(followUpSummary.settingsLabel)"
+          }
         }
       }
     },
@@ -20657,6 +21593,2966 @@
           "stringUnit": {
             "state": "translated",
             "value": "/ \\(localizedUSDCurrency(limit))"
+          }
+        }
+      }
+    },
+    "1 alias": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个别名"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 エイリアス"
+          }
+        }
+      }
+    },
+    "1 alias visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见别名"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 表示エイリアス"
+          }
+        }
+      }
+    },
+    "1 available": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 项可用"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 利用可能"
+          }
+        }
+      }
+    },
+    "1 channel": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个渠道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 チャネル"
+          }
+        }
+      }
+    },
+    "1 channel gap": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个渠道缺口"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 チャネル不備"
+          }
+        }
+      }
+    },
+    "1 channel visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见渠道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 表示チャネル"
+          }
+        }
+      }
+    },
+    "1 configured": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 项已配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 設定済み"
+          }
+        }
+      }
+    },
+    "1 credential gap": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个凭据缺口"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 認証情報不足"
+          }
+        }
+      }
+    },
+    "1 discovered model": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已发现模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 発見モデル"
+          }
+        }
+      }
+    },
+    "1 drift": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 项漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ドリフト"
+          }
+        }
+      }
+    },
+    "1 drift case": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个漂移案例"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ドリフト事象"
+          }
+        }
+      }
+    },
+    "1 drifted": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 项已漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ドリフト済み"
+          }
+        }
+      }
+    },
+    "1 drifted agent": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个漂移代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ドリフトしたエージェント"
+          }
+        }
+      }
+    },
+    "1 integration route or jump is grouped in this deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此卡片中汇总了 1 条集成路由或跳转。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキには 1 件の統合ルートまたはジャンプがまとめられています。"
+          }
+        }
+      }
+    },
+    "1 integration section is active below the snapshot.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快照下方当前有 1 个活动集成分区。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スナップショットの下には現在 1 つの統合セクションが表示されています。"
+          }
+        }
+      }
+    },
+    "1 jump": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个跳转"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ジャンプ"
+          }
+        }
+      }
+    },
+    "1 live section": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个活动分区"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 アクティブセクション"
+          }
+        }
+      }
+    },
+    "1 local": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 项本地"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ローカル"
+          }
+        }
+      }
+    },
+    "1 local down": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个本地下线"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ローカル停止"
+          }
+        }
+      }
+    },
+    "1 local outage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个本地故障"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ローカル障害"
+          }
+        }
+      }
+    },
+    "1 local provider": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个本地提供方"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ローカルプロバイダ"
+          }
+        }
+      }
+    },
+    "1 mismatch": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个不匹配"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 不一致"
+          }
+        }
+      }
+    },
+    "1 missing field": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个缺失字段"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 未設定項目"
+          }
+        }
+      }
+    },
+    "1 model": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 モデル"
+          }
+        }
+      }
+    },
+    "1 model visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 表示モデル"
+          }
+        }
+      }
+    },
+    "1 primary route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条主路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 プライマリルート"
+          }
+        }
+      }
+    },
+    "1 provider": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个提供方"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 プロバイダ"
+          }
+        }
+      }
+    },
+    "1 provider issue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个提供方问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 プロバイダ問題"
+          }
+        }
+      }
+    },
+    "1 provider visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见提供方"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 表示プロバイダ"
+          }
+        }
+      }
+    },
+    "1 quick setup": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个快速设置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 クイックセットアップ"
+          }
+        }
+      }
+    },
+    "1 quick-setup channel": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个快速设置渠道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 クイックセットアップチャネル"
+          }
+        }
+      }
+    },
+    "1 ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 项已就绪"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 準備完了"
+          }
+        }
+      }
+    },
+    "1 setup step": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个设置步骤"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 設定ステップ"
+          }
+        }
+      }
+    },
+    "1 support route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条支持路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 サポートルート"
+          }
+        }
+      }
+    },
+    "1 target model": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个目标模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 対象モデル"
+          }
+        }
+      }
+    },
+    "1 tool-ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个支持工具的模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ツール対応"
+          }
+        }
+      }
+    },
+    "1 unavailable": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 项不可用"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 利用不可"
+          }
+        }
+      }
+    },
+    "1 unavailable model": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个不可用模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 利用不可モデル"
+          }
+        }
+      }
+    },
+    "1 unknown": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 项未知"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 不明"
+          }
+        }
+      }
+    },
+    "1 visible channel": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见渠道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 表示チャネル"
+          }
+        }
+      }
+    },
+    "1 visible provider": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见提供方"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 表示プロバイダ"
+          }
+        }
+      }
+    },
+    "1 visible result": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条可见结果"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 表示結果"
+          }
+        }
+      }
+    },
+    "1 warning": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条警告"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 警告"
+          }
+        }
+      }
+    },
+    "Action readiness": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "行动就绪度"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクション準備度"
+          }
+        }
+      }
+    },
+    "Agent drift stays visible before the longer mismatch list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理漂移会在更长的不匹配列表前保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントドリフトは長い不一致リストを開く前にも見える状態を保ちます。"
+          }
+        }
+      }
+    },
+    "Alias coverage stays visible before the longer alias map.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "别名覆盖会在更长的别名映射前保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エイリアスのカバレッジは長いエイリアスマップの前でも見える状態を保ちます。"
+          }
+        }
+      }
+    },
+    "Alias facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "别名概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エイリアス概要"
+          }
+        }
+      }
+    },
+    "All mode keeps the full provider, channel, model, and alias inventory visible on mobile.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部模式会在移动端显示完整的提供方、渠道、模型和别名清单。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All モードではモバイルでもプロバイダ、チャネル、モデル、エイリアスの全一覧を表示します。"
+          }
+        }
+      }
+    },
+    "Attention mode focuses on outages, field gaps, unavailable models, and agent drift.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关注模式聚焦故障、字段缺口、不可用模型和代理漂移。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attention モードは障害、項目不足、利用不可モデル、エージェントドリフトに集中します。"
+          }
+        }
+      }
+    },
+    "Channel Readiness": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "渠道就绪度"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャネル準備状況"
+          }
+        }
+      }
+    },
+    "Channel coverage currently spans \\(readyCount) ready channels in the visible section.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前可见分区包含 \\(readyCount) 个已就绪渠道。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "表示中のセクションでは現在 \\(readyCount) 件の準備完了チャネルがあります。"
+          }
+        }
+      }
+    },
+    "Channel coverage is currently anchored by \\(missingCredentialCount) visible credential gaps.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前渠道压力主要来自 \\(missingCredentialCount) 个可见凭据缺口。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のチャネル負荷は \\(missingCredentialCount) 件の表示中の認証情報不足に集中しています。"
+          }
+        }
+      }
+    },
+    "Channel facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "渠道概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャネル概要"
+          }
+        }
+      }
+    },
+    "Channel readiness stays visible before the longer channel setup inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "渠道就绪度会在更长的渠道设置清单前保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャネル準備状況は長いチャネル設定一覧の前でも見える状態を保ちます。"
+          }
+        }
+      }
+    },
+    "Channel section coverage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "渠道分区覆盖"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャネルセクションカバレッジ"
+          }
+        }
+      }
+    },
+    "Controls": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "控制项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コントロール"
+          }
+        }
+      }
+    },
+    "Drift facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "漂移概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ドリフト概要"
+          }
+        }
+      }
+    },
+    "Integration action readiness is currently anchored by model or provider drift that is ready for deeper drilldown.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成行动就绪度当前主要受模型或提供方漂移影响，适合继续深入排查。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合アクション準備度は現在、さらに掘り下げ可能なモデルまたはプロバイダのドリフトに左右されています。"
+          }
+        }
+      }
+    },
+    "Integration action readiness is currently clear enough for route jumps and inventory review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前已足够清晰，可直接进入路由跳转和清单检查。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在は十分に明確で、ルートジャンプと一覧確認に進めます。"
+          }
+        }
+      }
+    },
+    "Integration action readiness is currently narrowed by an active search scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前受活动搜索范围限制。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在は有効な検索範囲によって絞り込まれています。"
+          }
+        }
+      }
+    },
+    "Integration pressure is currently anchored by provider reachability or agent model drift.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成压力当前主要来自提供方可达性或代理模型漂移。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連携圧力は現在、プロバイダ到達性またはエージェントモデルドリフトに集中しています。"
+          }
+        }
+      }
+    },
+    "Integration pressure is currently concentrated in channel setup gaps and catalog availability.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成压力当前集中在渠道设置缺口和目录可用性。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連携圧力は現在、チャネル設定ギャップとカタログ可用性に集中しています。"
+          }
+        }
+      }
+    },
+    "Integration pressure is currently low and mostly reflects scope, search, and catalog breadth.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成压力当前较低，主要反映范围、搜索和目录广度。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連携圧力は現在低く、主にスコープ、検索、カタログの広さを反映しています。"
+          }
+        }
+      }
+    },
+    "Inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インベントリ"
+          }
+        }
+      }
+    },
+    "Jump to agents whose requested model or provider no longer aligns with the live catalog.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳转到请求模型或提供方已与实时目录不再一致的代理。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要求モデルまたはプロバイダがライブカタログと一致しなくなったエージェントに移動します。"
+          }
+        }
+      }
+    },
+    "Jump to model availability, pricing, and capability coverage.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳转到模型可用性、价格和能力覆盖。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデルの可用性、価格、機能カバレッジに移動します。"
+          }
+        }
+      }
+    },
+    "Jump to provider outages, auth readiness, and manual probe status.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳转到提供方故障、认证准备度和手动探测状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ障害、認証準備状況、手動プローブ状態に移動します。"
+          }
+        }
+      }
+    },
+    "Jump to required field gaps and manual channel validation.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳转到必填字段缺口和手动渠道验证。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "必須項目の不足と手動チャネル検証に移動します。"
+          }
+        }
+      }
+    },
+    "Jump to the alias map that resolves requested model names into catalog models.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳转到将请求模型名解析到目录模型的别名映射。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要求モデル名をカタログモデルに解決するエイリアスマップに移動します。"
+          }
+        }
+      }
+    },
+    "Jumps": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳转"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ジャンプ"
+          }
+        }
+      }
+    },
+    "Keep alias count and target coverage visible before scrolling the longer alias mapping list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在滚动更长的别名映射列表前，保持别名数量和目标覆盖可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "長いエイリアスマッピング一覧を開く前に、エイリアス数と対象カバレッジを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep auth readiness, local reachability, and discovered model depth visible before the longer provider list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在查看更长的提供方列表前，保持认证准备度、本地可达性和已发现模型深度可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "長いプロバイダ一覧を開く前に、認証準備状況、ローカル到達性、発見モデル数を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep availability, provider spread, and tool-capable catalog depth visible before scanning the model list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在浏览模型列表前，保持可用性、提供方分布和工具能力目录深度可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデル一覧を見る前に、可用性、プロバイダ分布、ツール対応カタログ深度を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep credential gaps, quick-setup surface area, and probe activity visible before dropping into the full channel list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入完整渠道列表前，保持凭据缺口、快速设置范围和探测活动可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全なチャネル一覧に入る前に、認証情報不足、クイックセットアップ範囲、プローブ活動を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep provider coverage, local reachability, and live probe state visible before the longer provider rows take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在更长的提供方行展开前，保持提供方覆盖、本地可达性和实时探测状态可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "長いプロバイダ行が続く前に、プロバイダカバレッジ、ローカル到達性、ライブプローブ状態を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep provider, channel, catalog, and agent-drift counts visible before diving into the inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入清单前，保持提供方、渠道、目录和代理漂移计数可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一覧に入る前に、プロバイダ、チャネル、カタログ、エージェントドリフト件数を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep provider, channel, model, alias, and drift coverage visible before the jump rail and operator routes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在跳转轨和运维路由之前，保持提供方、渠道、模型、别名和漂移覆盖可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ジャンプレールとオペレータールートの前に、プロバイダ、チャネル、モデル、エイリアス、ドリフトのカバレッジを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep readiness, setup depth, and missing field pressure visible before opening each channel row.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开各渠道行前，保持就绪度、设置深度和缺失字段压力可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "各チャネル行を開く前に、準備状況、設定深度、必須項目不足を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep route breadth, jump coverage, and integration inventory depth visible before drilling into provider, channel, model, and drift details.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入提供方、渠道、模型和漂移细节前，保持路由广度、跳转覆盖和集成清单深度可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ、チャネル、モデル、ドリフト詳細に入る前に、ルートの広さ、ジャンプカバレッジ、統合一覧の深さを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep scope, attention filters, and highest-signal integration counts in one compact digest.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将范围、关注过滤器和高信号集成计数集中在一个紧凑摘要中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スコープ、注目フィルタ、高シグナルの統合件数を 1 つのコンパクトな要約にまとめます。"
+          }
+        }
+      }
+    },
+    "Keep search scope, inventory breadth, and the loudest provider, channel, catalog, and drift buckets readable before opening routes and jumps.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开路由和跳转前，保持搜索范围、清单广度以及最显著的提供方、渠道、目录和漂移压力可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートとジャンプを開く前に、検索範囲、一覧の広さ、主要なプロバイダ、チャネル、カタログ、ドリフトの圧力を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep section coverage visible before jumping around the integration inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在集成清单中跳转前，保持分区覆盖可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合一覧内を移動する前に、セクションカバレッジを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep slower spend, automation, and routing drilldowns behind the primary exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将较慢的支出、自动化和路由下钻放在主出口之后。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低速な支出、自動化、ルーティングの深掘りは主要導線の後ろに置きます。"
+          }
+        }
+      }
+    },
+    "Keep the next operator exits compact and visible above the provider, channel, and drift inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将下一个运维出口保持紧凑并显示在提供方、渠道和漂移清单上方。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次のオペレータ導線をコンパクトに保ち、プロバイダ、チャネル、ドリフト一覧の上に表示します。"
+          }
+        }
+      }
+    },
+    "Keep unknown models, unavailable catalog entries, and provider mismatch spread visible before opening affected agents.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开受影响代理前，保持未知模型、不可用目录条目和提供方不匹配分布可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "影響を受けるエージェントを開く前に、未知モデル、利用不可カタログ項目、プロバイダ不一致の広がりを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Model Catalog": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "模型目录"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデルカタログ"
+          }
+        }
+      }
+    },
+    "Model availability stays visible before the longer catalog inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "模型可用性会在更长的目录清单前保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデル可用性は長いカタログ一覧の前でも見える状態を保ちます。"
+          }
+        }
+      }
+    },
+    "Model facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "模型概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデル概要"
+          }
+        }
+      }
+    },
+    "Model filter keeps the catalog focused without hiding the broader provider and channel diagnostics.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "模型过滤器可保持目录聚焦，同时不隐藏更广泛的提供方和渠道诊断。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデルフィルタは、より広いプロバイダ/チャネル診断を隠さずにカタログを絞り込みます。"
+          }
+        }
+      }
+    },
+    "No agent model drift is visible in the current integration scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前集成范围内没有代理模型漂移。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在の統合範囲ではエージェントモデルドリフトはありません。"
+          }
+        }
+      }
+    },
+    "No catalog models are visible for the current model filter.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前模型过滤条件下没有可见目录模型。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のモデルフィルタでは表示できるカタログモデルがありません。"
+          }
+        }
+      }
+    },
+    "No catalog models match the current filter.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有目录模型匹配当前过滤条件。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のフィルタに一致するカタログモデルはありません。"
+          }
+        }
+      }
+    },
+    "No channels are visible in the current integration scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前集成范围内没有可见渠道。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在の統合範囲では表示中のチャネルがありません。"
+          }
+        }
+      }
+    },
+    "No providers are visible in the current integration scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前集成范围内没有可见提供方。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在の統合範囲では表示中のプロバイダがありません。"
+          }
+        }
+      }
+    },
+    "Operator snapshot": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "运维快照"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オペレータースナップショット"
+          }
+        }
+      }
+    },
+    "Pressure coverage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "压力概览"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "圧力カバレッジ"
+          }
+        }
+      }
+    },
+    "Primary": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プライマリ"
+          }
+        }
+      }
+    },
+    "Provider Health": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提供方健康度"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ健全性"
+          }
+        }
+      }
+    },
+    "Provider coverage currently spans \\(configuredCount) configured providers in the visible section.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前可见分区包含 \\(configuredCount) 个已配置提供方。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "表示中のセクションでは現在 \\(configuredCount) 件の設定済みプロバイダがあります。"
+          }
+        }
+      }
+    },
+    "Provider coverage is currently anchored by \\(unreachableLocalCount) local outages inside the visible section.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前提供方压力主要来自可见分区中的 \\(unreachableLocalCount) 个本地故障。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のプロバイダ負荷は表示中セクションの \\(unreachableLocalCount) 件のローカル障害に集中しています。"
+          }
+        }
+      }
+    },
+    "Provider facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提供方概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ概要"
+          }
+        }
+      }
+    },
+    "Provider readiness stays visible before the detailed provider inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提供方就绪度会在详细提供方清单前保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ準備状況は詳細なプロバイダ一覧の前でも見える状態を保ちます。"
+          }
+        }
+      }
+    },
+    "Provider section coverage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提供方分区覆盖"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダセクションカバレッジ"
+          }
+        }
+      }
+    },
+    "Providers, channels, models, aliases, and drift stay summarized before the jump rail and deeper operator routes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提供方、渠道、模型、别名和漂移会在跳转轨和更深的运维路由前保持汇总。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ、チャネル、モデル、エイリアス、ドリフトはジャンプレールと深いオペレータールートの前で要約表示されます。"
+          }
+        }
+      }
+    },
+    "Routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルート"
+          }
+        }
+      }
+    },
+    "Routes and section jumps stay summarized here before provider, channel, model, and drift inventories.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "路由和分区跳转会先在这里汇总，再进入提供方、渠道、模型和漂移清单。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートとセクションジャンプは、プロバイダ、チャネル、モデル、ドリフト一覧の前にここで要約表示されます。"
+          }
+        }
+      }
+    },
+    "Search active": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索已启用"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "検索有効"
+          }
+        }
+      }
+    },
+    "Search providers, channels, models, aliases, or agent drift from one place.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在一处搜索提供方、渠道、模型、别名或代理漂移。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 か所でプロバイダ、チャネル、モデル、エイリアス、エージェントドリフトを検索します。"
+          }
+        }
+      }
+    },
+    "Search scoped": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索范围已收窄"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "検索範囲適用中"
+          }
+        }
+      }
+    },
+    "Section inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分区清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セクション内訳"
+          }
+        }
+      }
+    },
+    "Support": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "支持"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サポート"
+          }
+        }
+      }
+    },
+    "Use the compact summary to see local outages, configured providers, and discovery depth before opening individual provider rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开单个提供方行前，使用紧凑摘要查看本地故障、已配置提供方和发现深度。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "各プロバイダ行を開く前に、コンパクトな概要でローカル障害、設定済みプロバイダ、発見深度を確認します。"
+          }
+        }
+      }
+    },
+    "Use the summary to see how many agents are unknown, unavailable, or provider-mismatched before opening the drift inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开漂移清单前，使用摘要查看有多少代理处于未知、不可用或提供方不匹配状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ドリフト一覧を開く前に、未知、利用不可、またはプロバイダ不一致のエージェント数を要約で確認します。"
+          }
+        }
+      }
+    },
+    "Use the summary to see how many alias entries point into the catalog before opening the alias list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开别名列表前，使用摘要查看有多少别名条目指向目录。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エイリアス一覧を開く前に、何件のエイリアスがカタログを指しているか要約で確認します。"
+          }
+        }
+      }
+    },
+    "Use the summary to see provider spread, available models, and tool-capable coverage before opening the model rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开模型行前，使用摘要查看提供方分布、可用模型和工具能力覆盖。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデル行を開く前に、要約でプロバイダ分布、利用可能モデル、ツール対応カバレッジを確認します。"
+          }
+        }
+      }
+    },
+    "Use the summary to see ready channels, missing fields, and setup weight before opening per-channel diagnostics.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开逐渠道诊断前，使用摘要查看就绪渠道、缺失字段和设置负载。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャネルごとの診断を開く前に、要約で準備完了チャネル、不足項目、設定負荷を確認します。"
+          }
+        }
+      }
+    },
+    "Use these jumps to move through integrations without scrolling the full inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用这些跳转在不滚动完整清单的情况下浏览集成。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "これらのジャンプで統合一覧全体をスクロールせずに移動できます。"
+          }
+        }
+      }
+    },
+    "Use these routes first when provider, channel, or drift diagnostics need broader context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当提供方、渠道或漂移诊断需要更广上下文时，优先使用这些路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ、チャネル、ドリフト診断により広い文脈が必要な場合は、まずこれらのルートを使います。"
+          }
+        }
+      }
+    },
+    "Use these routes when provider, channel, model, or drift diagnostics need runtime, incident, or fleet context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当提供方、渠道、模型或漂移诊断需要运行时、事件或编队上下文时，使用这些路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ、チャネル、モデル、ドリフト診断にランタイム、インシデント、フリートの文脈が必要な場合にこれらのルートを使います。"
+          }
+        }
+      }
+    },
+    "Use this deck to check whether route jumps, model filtering, and integration inventory breadth are ready before opening the provider, channel, model, and drift sections.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用这个卡片检查路由跳转、模型过滤和集成清单广度是否已准备好，再打开提供方、渠道、模型和漂移分区。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、ルートジャンプ、モデルフィルタ、統合一覧の広さが整っているか確認してから、プロバイダ、チャネル、モデル、ドリフトの各セクションを開きます。"
+          }
+        }
+      }
+    },
+    "Use this deck to tell whether integration drag is mostly provider reachability, channel setup gaps, catalog availability, or agent model drift before opening the inventory below.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用这个卡片判断集成阻力主要来自提供方可达性、渠道设置缺口、目录可用性还是代理模型漂移，再打开下方清单。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、統合の重さがプロバイダ到達性、チャネル設定ギャップ、カタログ可用性、エージェントモデルドリフトのどれに由来するか判断してから下の一覧を開きます。"
+          }
+        }
+      }
+    },
+    "Use this slice to see whether the visible provider section is mostly configured inventory, local outage follow-up, or discovery detail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用这一块查看可见提供方分区主要是已配置清单、本地故障跟进还是发现细节。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このスライスで、表示中のプロバイダセクションが主に設定済み在庫、ローカル障害フォロー、発見詳細のどれかを確認できます。"
+          }
+        }
+      }
+    },
+    "Use this slice to tell whether the visible channel section is mostly ready routes, missing fields, or quick-setup follow-up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用这一块判断可见渠道分区主要是就绪路由、缺失字段还是快速设置跟进。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このスライスで、表示中のチャネルセクションが主に準備完了ルート、不足項目、クイックセットアップフォローのどれかを確認できます。"
+          }
+        }
+      }
+    },
+    "\\(affectedProviderCount) providers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(affectedProviderCount) 个提供方"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(affectedProviderCount) プロバイダ"
+          }
+        }
+      }
+    },
+    "\\(aliasCount) aliases": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(aliasCount) 个别名"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(aliasCount) エイリアス"
+          }
+        }
+      }
+    },
+    "\\(aliases.count) aliases": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(aliases.count) 个别名"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(aliases.count) エイリアス"
+          }
+        }
+      }
+    },
+    "\\(aliases.count) aliases visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(aliases.count) 个可见别名"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(aliases.count) 件の表示エイリアス"
+          }
+        }
+      }
+    },
+    "\\(availableCount) available": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(availableCount) 项可用"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(availableCount) 利用可能"
+          }
+        }
+      }
+    },
+    "\\(channelAttentionCount) channel gaps": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channelAttentionCount) 个渠道缺口"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channelAttentionCount) 件のチャネル不備"
+          }
+        }
+      }
+    },
+    "\\(channelCount) channels": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channelCount) 个渠道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channelCount) チャネル"
+          }
+        }
+      }
+    },
+    "\\(channels.count) channels": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channels.count) 个渠道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channels.count) チャネル"
+          }
+        }
+      }
+    },
+    "\\(channels.count) channels visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channels.count) 个可见渠道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channels.count) 件の表示チャネル"
+          }
+        }
+      }
+    },
+    "\\(configuredCount) configured": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(configuredCount) 项已配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(configuredCount) 設定済み"
+          }
+        }
+      }
+    },
+    "\\(diagnostics.count) drifted agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(diagnostics.count) 个漂移代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(diagnostics.count) ドリフトしたエージェント"
+          }
+        }
+      }
+    },
+    "\\(discoveredModelCount) discovered models": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(discoveredModelCount) 个已发现模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(discoveredModelCount) 発見モデル"
+          }
+        }
+      }
+    },
+    "\\(driftAttentionCount) drift": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(driftAttentionCount) 项漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(driftAttentionCount) ドリフト"
+          }
+        }
+      }
+    },
+    "\\(driftAttentionCount) drift cases": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(driftAttentionCount) 个漂移案例"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(driftAttentionCount) ドリフト事象"
+          }
+        }
+      }
+    },
+    "\\(driftAttentionCount) drifted": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(driftAttentionCount) 项已漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(driftAttentionCount) ドリフト済み"
+          }
+        }
+      }
+    },
+    "\\(driftAttentionCount) drifted agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(driftAttentionCount) 个漂移代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(driftAttentionCount) ドリフトしたエージェント"
+          }
+        }
+      }
+    },
+    "\\(driftCount) drift cases": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(driftCount) 个漂移案例"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(driftCount) ドリフト事象"
+          }
+        }
+      }
+    },
+    "\\(filteredAgentDiagnostics.count) agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredAgentDiagnostics.count) 个代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredAgentDiagnostics.count) エージェント"
+          }
+        }
+      }
+    },
+    "\\(filteredAliases.count) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredAliases.count) 项可见"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredAliases.count) 件表示"
+          }
+        }
+      }
+    },
+    "\\(filteredChannels.count) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredChannels.count) 项可见"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredChannels.count) 件表示"
+          }
+        }
+      }
+    },
+    "\\(filteredModels.count) catalog models visible in \\(modelFilter.label.lowercased()) mode.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 \\(modelFilter.label.lowercased()) 模式下可见 \\(filteredModels.count) 个目录模型。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(modelFilter.label.lowercased()) モードでは \\(filteredModels.count) 件のカタログモデルが表示されています。"
+          }
+        }
+      }
+    },
+    "\\(filteredModels.count) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredModels.count) 项可见"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredModels.count) 件表示"
+          }
+        }
+      }
+    },
+    "\\(filteredProviders.count) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredProviders.count) 项可见"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredProviders.count) 件表示"
+          }
+        }
+      }
+    },
+    "\\(jumpCount) jumps": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(jumpCount) 个跳转"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(jumpCount) ジャンプ"
+          }
+        }
+      }
+    },
+    "\\(localCount) local": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(localCount) 项本地"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(localCount) ローカル"
+          }
+        }
+      }
+    },
+    "\\(localCount) local providers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(localCount) 个本地提供方"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(localCount) ローカルプロバイダ"
+          }
+        }
+      }
+    },
+    "\\(mismatchCount) mismatches": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mismatchCount) 个不匹配"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mismatchCount) 不一致"
+          }
+        }
+      }
+    },
+    "\\(missingCredentialCount) credential gaps": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingCredentialCount) 个凭据缺口"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingCredentialCount) 件の認証情報不足"
+          }
+        }
+      }
+    },
+    "\\(missingRequiredCount) missing fields": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingRequiredCount) 个缺失字段"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingRequiredCount) 件の不足項目"
+          }
+        }
+      }
+    },
+    "\\(missingRequiredFieldCount) missing fields": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingRequiredFieldCount) 个缺失字段"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingRequiredFieldCount) 件の不足項目"
+          }
+        }
+      }
+    },
+    "\\(modelAttentionCount) unavailable models": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(modelAttentionCount) 个不可用模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(modelAttentionCount) 利用不可モデル"
+          }
+        }
+      }
+    },
+    "\\(modelCount) models": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(modelCount) 个模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(modelCount) モデル"
+          }
+        }
+      }
+    },
+    "\\(models.count) models": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(models.count) 个模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(models.count) モデル"
+          }
+        }
+      }
+    },
+    "\\(models.count) models visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(models.count) 个可见模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(models.count) 件の表示モデル"
+          }
+        }
+      }
+    },
+    "\\(primaryRouteCount + supportRouteCount + jumpCount) actions": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryRouteCount + supportRouteCount + jumpCount) 个操作"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryRouteCount + supportRouteCount + jumpCount) アクション"
+          }
+        }
+      }
+    },
+    "\\(primaryRouteCount) primary routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryRouteCount) 条主路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryRouteCount) プライマリルート"
+          }
+        }
+      }
+    },
+    "\\(providerAttentionCount) provider issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(providerAttentionCount) 个提供方问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(providerAttentionCount) 件のプロバイダ問題"
+          }
+        }
+      }
+    },
+    "\\(providerCount) providers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(providerCount) 个提供方"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(providerCount) プロバイダ"
+          }
+        }
+      }
+    },
+    "\\(providers.count) providers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(providers.count) 个提供方"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(providers.count) プロバイダ"
+          }
+        }
+      }
+    },
+    "\\(providers.count) providers visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(providers.count) 个可见提供方"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(providers.count) 件の表示プロバイダ"
+          }
+        }
+      }
+    },
+    "\\(quickSetupCount) quick setups": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(quickSetupCount) 个快速设置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(quickSetupCount) クイックセットアップ"
+          }
+        }
+      }
+    },
+    "\\(quickSetupCount) quick-setup channels": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(quickSetupCount) 个快速设置渠道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(quickSetupCount) クイックセットアップチャネル"
+          }
+        }
+      }
+    },
+    "\\(readyCount) ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(readyCount) 项已就绪"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(readyCount) 準備完了"
+          }
+        }
+      }
+    },
+    "\\(sectionCount) integration sections are active below the snapshot.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快照下方当前有 \\(sectionCount) 个活动集成分区。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スナップショットの下には現在 \\(sectionCount) 件の統合セクションが表示されています。"
+          }
+        }
+      }
+    },
+    "\\(sectionCount) live sections": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sectionCount) 个活动分区"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sectionCount) アクティブセクション"
+          }
+        }
+      }
+    },
+    "\\(setupStepCount) setup steps": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(setupStepCount) 个设置步骤"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(setupStepCount) 設定ステップ"
+          }
+        }
+      }
+    },
+    "\\(supportRouteCount) support routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportRouteCount) 条支持路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportRouteCount) サポートルート"
+          }
+        }
+      }
+    },
+    "\\(targetCount) target models": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(targetCount) 个目标模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(targetCount) 対象モデル"
+          }
+        }
+      }
+    },
+    "\\(toolReadyCount) tool-ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(toolReadyCount) 个支持工具的模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(toolReadyCount) ツール対応"
+          }
+        }
+      }
+    },
+    "\\(totalRoutes) integration routes and jumps are grouped in this deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此卡片中汇总了 \\(totalRoutes) 条集成路由和跳转。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキには \\(totalRoutes) 件の統合ルートとジャンプがまとめられています。"
+          }
+        }
+      }
+    },
+    "\\(unavailableCount) unavailable": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unavailableCount) 项不可用"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unavailableCount) 利用不可"
+          }
+        }
+      }
+    },
+    "\\(unknownCount) unknown": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unknownCount) 项未知"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unknownCount) 不明"
+          }
+        }
+      }
+    },
+    "\\(unreachableLocalCount) local down": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unreachableLocalCount) 个本地下线"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unreachableLocalCount) ローカル停止"
+          }
+        }
+      }
+    },
+    "\\(unreachableLocalCount) local outages": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unreachableLocalCount) 个本地故障"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unreachableLocalCount) ローカル障害"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) visible channels": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 个可见渠道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 件の表示チャネル"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) visible providers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 个可见提供方"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 件の表示プロバイダ"
+          }
+        }
+      }
+    },
+    "\\(visibleResultCount) integration results visible for \\\"\\(searchText)\\\".": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“\\(searchText)” 可见 \\(visibleResultCount) 条集成结果。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「\\(searchText)」に一致する統合結果が \\(visibleResultCount) 件表示されています。"
+          }
+        }
+      }
+    },
+    "\\(visibleResultCount) visible results": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleResultCount) 条可见结果"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleResultCount) 件の表示結果"
+          }
+        }
+      }
+    },
+    "\\(vm.automationPressureIssueCategoryCount) issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.automationPressureIssueCategoryCount) 个问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.automationPressureIssueCategoryCount) 件の問題"
+          }
+        }
+      }
+    },
+    "\\(vm.diagnosticsConfigWarningCount) warnings": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.diagnosticsConfigWarningCount) 条警告"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.diagnosticsConfigWarningCount) 件の警告"
+          }
+        }
+      }
+    },
+    "\\(vm.integrationPressureIssueCategoryCount) issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.integrationPressureIssueCategoryCount) 个问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.integrationPressureIssueCategoryCount) 件の問題"
+          }
+        }
+      }
+    },
+    "Probe running": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "探测进行中"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プローブ実行中"
           }
         }
       }
