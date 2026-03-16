@@ -7806,6 +7806,12 @@
             "state": "translated",
             "value": "最新交接"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新の引き継ぎ"
+          }
         }
       }
     },
@@ -9628,6 +9634,12 @@
             "state": "translated",
             "value": "当前这台设备上没有正在浮现的实时优先事项。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデバイスでは現在、ライブ優先項目は表示されていません。"
+          }
         }
       }
     },
@@ -10656,6 +10668,12 @@
             "state": "translated",
             "value": "操作快照"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オペレータースナップショット"
+          }
         }
       }
     },
@@ -10900,6 +10918,12 @@
             "state": "translated",
             "value": "已固定关注，当前未运行"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視用に固定済み、現在は実行されていません"
+          }
         }
       }
     },
@@ -10909,6 +10933,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "已固定到这台 iPhone，可在代理列表或代理详情页编辑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone 上でローカル固定されています。agent 一覧または agent 詳細ページから編集してください。"
           }
         }
       }
@@ -10965,6 +10995,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "优先级队列"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "優先キュー"
           }
         }
       }
@@ -11494,6 +11530,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "最近事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近のイベント"
           }
         }
       }
@@ -12958,6 +13000,12 @@
             "state": "translated",
             "value": "值班状态"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "シフト状態"
+          }
         }
       }
     },
@@ -13215,6 +13263,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "已按实时告警、审批、关注代理、严重事件和会话热点排序，便于快速排查。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブアラート、承認、ウォッチ対象エージェント、重大イベント、セッションホットスポットを使って、すばやくトリアージできる順に並べています。"
           }
         }
       }
@@ -16284,6 +16338,12 @@
             "state": "translated",
             "value": "最近刷新于 \\(lastRefresh, style: .relative)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最終更新 \\(lastRefresh, style: .relative)"
+          }
         }
       }
     },
@@ -16329,6 +16389,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(watchCount) 个关注代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchCount)件のウォッチ対象エージェント"
           }
         }
       }
@@ -20686,6 +20752,12 @@
             "state": "translated",
             "value": "清单 \\(latestEntry.checklist.progressLabel) · \\(latestEntry.createdAt.formatted(date: .omitted, time: .shortened))"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チェックリスト \\(latestEntry.checklist.progressLabel) · \\(latestEntry.createdAt.formatted(date: .omitted, time: .shortened))"
+          }
         }
       }
     },
@@ -20695,6 +20767,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(completedFollowUpCount) 已完成 · \\(pendingFollowUpCount) 待处理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(completedFollowUpCount) 件完了 · \\(pendingFollowUpCount) 件保留"
           }
         }
       }
@@ -55997,6 +56075,1834 @@
           "stringUnit": {
             "state": "translated",
             "value": "このデッキで、完全なキューが開く前に、現在のセッションレビューがホットスポット、ラベル整備、またはフィルター済みバックログ切片のどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "Connection inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接概览"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接続インベントリ"
+          }
+        }
+      }
+    },
+    "Loopback host": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回环地址"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ループバックホスト"
+          }
+        }
+      }
+    },
+    "No health snapshot": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有健康快照"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ヘルススナップショットなし"
+          }
+        }
+      }
+    },
+    "Use your Mac LAN IP on a physical iPhone": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在真机 iPhone 上请使用你 Mac 的局域网 IP"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "実機の iPhone では Mac の LAN IP を使用してください"
+          }
+        }
+      }
+    },
+    "Keep the target server and loopback hint visible while the first snapshot is loading.": {
+      "comment": "Detail text for the startup connection card.",
+      "isCommentAutoGenerated": true,
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在首个快照加载期间，让目标服务器和回环地址提示保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最初のスナップショットを読み込む間、対象サーバーとループバックのヒントを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep connection health, refresh age, and server version visible before opening deeper cards.": {
+      "comment": "Detail text for the homepage connection card.",
+      "isCommentAutoGenerated": true,
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开更深层卡片之前，让连接健康状态、刷新时间和服务器版本保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より深いカードを開く前に、接続状態、更新からの経過時間、サーバーバージョンを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "1 advisory visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条可见提示"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中アドバイザリ"
+          }
+        }
+      }
+    },
+    "1 agent route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条 agent 路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のエージェントルート"
+          }
+        }
+      }
+    },
+    "1 agent under drag": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个拖累中的 agent"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のエージェントが滞留中"
+          }
+        }
+      }
+    },
+    "1 failed delivery": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 次投递失败"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の配信失敗"
+          }
+        }
+      }
+    },
+    "1 handoff follow-up is still open in the current deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前卡片中仍有 1 个交接跟进项未完成。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のデッキで 1 件の引き継ぎフォローアップが未完了です。"
+          }
+        }
+      }
+    },
+    "1 issue visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中問題"
+          }
+        }
+      }
+    },
+    "1 live alert route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条实时告警路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のライブアラートルート"
+          }
+        }
+      }
+    },
+    "1 live queue item": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个实时队列项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のライブキュー項目"
+          }
+        }
+      }
+    },
+    "1 on-call section is active below the controls deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "控制卡片下方有 1 个 on-call 分区处于激活状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コントロールデッキの下で 1 つのオンコールセクションがアクティブです。"
+          }
+        }
+      }
+    },
+    "1 paused": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已暂停项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の一時停止"
+          }
+        }
+      }
+    },
+    "1 paused agent": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已暂停的 agent"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の一時停止中エージェント"
+          }
+        }
+      }
+    },
+    "1 paused watch": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已暂停的 watch"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の一時停止中ウォッチ"
+          }
+        }
+      }
+    },
+    "1 route group": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 组路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のルートグループ"
+          }
+        }
+      }
+    },
+    "Ack available": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可确认"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認可能"
+          }
+        }
+      }
+    },
+    "Ack idle": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无需确认"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認待ちなし"
+          }
+        }
+      }
+    },
+    "Critical, warning, and advisory pressure stay summarized here before the ranked queue rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "严重、警告和提示级压力会先在这里保持摘要，再进入排序后的队列行。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重大・警告・アドバイザリの負荷は、順位付きキュー行へ進む前にここで要約されたままです。"
+          }
+        }
+      }
+    },
+    "Full watchlist": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完整关注列表"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フルウォッチリスト"
+          }
+        }
+      }
+    },
+    "Issue-heavy watched agents and diagnostic drift stay summarized here before the pinned rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "问题较多的关注 agent 和诊断漂移会先在这里保持摘要，再进入固定行。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "問題の多いウォッチ対象エージェントと診断ドリフトは、固定行へ進む前にここで要約されたままです。"
+          }
+        }
+      }
+    },
+    "Keep acknowledge state, follow-up load, and next-route readiness visible before moving from triage into action.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从分诊进入操作前，保持确认状态、跟进负载和下一路由就绪度可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トリアージからアクションへ移る前に、確認状態、フォローアップ負荷、次のルートの準備状況を見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Keep approvals, watch pressure, and follow-up drag visible before opening the full priority queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开完整优先队列前，保持审批、watch 压力和跟进滞留可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全な優先キューを開く前に、承認、ウォッチ負荷、フォローアップの滞留を見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Keep follow-ups, check-ins, approvals, audit churn, and platform drift visible before the live queue rows take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在实时队列行接管前，保持跟进、复查、审批、审计波动和平台漂移可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブキュー行が前面に出る前に、フォローアップ、チェックイン、承認、監査の変動、プラットフォームドリフトを見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Keep live queue work, watched diagnostics, and slower support drag readable before moving into the priority list and watch rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入优先列表和 watch 行前，保持实时队列工作、关注诊断和较慢的辅助滞留可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "優先リストとウォッチ行へ進む前に、ライブキュー作業、ウォッチ対象の診断、より遅い補助の滞留を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep queue coverage, watch pressure, and supporting issue buckets visible before the route deck and live rows begin.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在路由卡片和实时行开始前，保持队列覆盖、watch 压力和辅助问题桶可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートデッキとライブ行が始まる前に、キューのカバレッジ、ウォッチ負荷、補助的な問題バケットを見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Keep queue shape, acknowledgement state, and cross-surface pressure visible before working deeper on-call sections.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入更深的 on-call 分区前，保持队列形态、确认状态和跨界面压力可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より深いオンコールセクションへ進む前に、キュー形状、確認状態、クロスサーフェスの負荷を見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Keep queue-first routes, slower systemic drilldowns, and export actions in one compact surface deck above the fold.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在首屏的一个紧凑界面卡片中保留队列优先路由、较慢的系统下钻和导出操作。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キュー優先ルート、より遅いシステム系ドリルダウン、エクスポート操作を、ファーストビュー上部の 1 つのコンパクトなサーフェスデッキにまとめて保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the dominant on-call focus readable before moving from the summary decks into the ranked queue rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从摘要卡片进入排序队列行之前，保持主导的 on-call 焦点可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要約デッキから順位付きキュー行へ移る前に、主要なオンコールの焦点を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the next on-call stacks visible before the live queue, watchlist, and surface exits open up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在实时队列、关注列表和界面出口展开前，保持下一组 on-call 堆栈可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブキュー、ウォッチリスト、サーフェス出口が開く前に、次のオンコールスタックを見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Keep watched-agent breadth, delivery failures, identity gaps, and fallback drift visible before the live queue and lower watchlist rows take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在实时队列和下方关注列表行接管前，保持关注 agent 广度、投递失败、身份缺口和回退漂移可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブキューと下部ウォッチリスト行が前面に出る前に、ウォッチ対象エージェントの広がり、配信失敗、ID ギャップ、フォールバックドリフトを見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Keep watched-agent pressure, diagnostics drift, and paused coverage visible before opening the pinned agents.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开固定 agent 前，保持关注 agent 压力、诊断漂移和暂停覆盖可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "固定されたエージェントを開く前に、ウォッチ対象エージェントの負荷、診断ドリフト、一時停止のカバレッジを見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Latest Snapshot": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新快照"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新スナップショット"
+          }
+        }
+      }
+    },
+    "Live queue state, acknowledgement, freshness, cadence, and follow-up pressure stay together before the route deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在路由卡片之前，实时队列状态、确认、时效性、节奏和跟进压力会保持聚合显示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートデッキの前で、ライブキュー状態、確認、鮮度、ペース、フォローアップ負荷はまとまったまま保たれます。"
+          }
+        }
+      }
+    },
+    "On-call action readiness is currently anchored by a live snapshot that still needs acknowledgement.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 行动就绪度当前由仍需确认的实时快照主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールアクションの準備状況は現在、まだ確認が必要なライブスナップショットが軸です。"
+          }
+        }
+      }
+    },
+    "On-call action readiness is currently anchored by follow-up and approval work after triage.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 行动就绪度当前由分诊后的跟进和审批工作主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールアクションの準備状況は現在、トリアージ後のフォローアップと承認作業が軸です。"
+          }
+        }
+      }
+    },
+    "On-call action readiness is currently light, with routes and acknowledgement controls ready for use.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 行动就绪度当前较轻，路由和确认控件已可直接使用。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールアクションの準備状況は現在軽く、ルートと確認コントロールは使用可能です。"
+          }
+        }
+      }
+    },
+    "On-call focus coverage is currently anchored by handoff follow-through and muted-alert drag.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 焦点覆盖当前由交接跟进和静音告警滞留主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールのフォーカスカバレッジは現在、引き継ぎのフォロースルーとミュートアラートの滞留が軸です。"
+          }
+        }
+      }
+    },
+    "On-call focus coverage is currently anchored by the live alert queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 焦点覆盖当前由实时告警队列主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールのフォーカスカバレッジは現在、ライブアラートキューが軸です。"
+          }
+        }
+      }
+    },
+    "On-call focus coverage is currently anchored by watched diagnostics and slower platform drift.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 焦点覆盖当前由关注诊断和较慢的平台漂移主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールのフォーカスカバレッジは現在、ウォッチ対象の診断とより遅いプラットフォームドリフトが軸です。"
+          }
+        }
+      }
+    },
+    "On-call focus coverage is currently balanced across the grouped queue surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 焦点覆盖当前在分组队列界面间保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールのフォーカスカバレッジは現在、グループ化されたキュー画面全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "On-call signal facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 信号概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコール信号の要点"
+          }
+        }
+      }
+    },
+    "On-call support coverage is currently anchored by identity, fallback, or paused-agent drift.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 辅助覆盖当前由身份、回退或暂停 agent 漂移主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールの補助カバレッジは現在、ID、フォールバック、または一時停止エージェントのドリフトが軸です。"
+          }
+        }
+      }
+    },
+    "On-call support coverage is currently anchored by watched-agent diagnostics and delivery drag.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 辅助覆盖当前由关注 agent 诊断和投递滞留主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールの補助カバレッジは現在、ウォッチ対象エージェントの診断と配信滞留が軸です。"
+          }
+        }
+      }
+    },
+    "On-call support coverage is currently centered on the local watched fleet.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 辅助覆盖当前集中在本地关注的 fleet 上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールの補助カバレッジは現在、ローカルで監視している fleet を中心にしています。"
+          }
+        }
+      }
+    },
+    "On-call support coverage is currently light and mostly reflects background watch readiness.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 辅助覆盖当前较轻，主要反映后台 watch 就绪度。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールの補助カバレッジは現在軽く、主にバックグラウンドのウォッチ準備状況を反映しています。"
+          }
+        }
+      }
+    },
+    "On-call workstream coverage is currently anchored by slower support lanes behind the live queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 工作流覆盖当前由实时队列之后较慢的辅助通道主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールのワークストリームカバレッジは現在、ライブキューの後ろにあるより遅い補助レーンが軸です。"
+          }
+        }
+      }
+    },
+    "On-call workstream coverage is currently anchored by the live queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 工作流覆盖当前由实时队列主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールのワークストリームカバレッジは現在、ライブキューが軸です。"
+          }
+        }
+      }
+    },
+    "On-call workstream coverage is currently anchored by watched-agent follow-through.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 工作流覆盖当前由关注 agent 的后续跟进主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールのワークストリームカバレッジは現在、ウォッチ対象エージェントのフォロースルーが軸です。"
+          }
+        }
+      }
+    },
+    "On-call workstream coverage is currently light across the visible lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-call 工作流覆盖当前在可见通道中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールのワークストリームカバレッジは現在、表示中レーン全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Operator snapshot and latest handoff context now stay in one compact deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "操作员快照和最新交接上下文现在会保留在一个紧凑卡片中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オペレータースナップショットと最新の引き継ぎ文脈は、現在 1 つのコンパクトなデッキにまとまっています。"
+          }
+        }
+      }
+    },
+    "Primary exits and slower systemic drilldowns stay below the live queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主出口和较慢的系统级下钻会保留在实时队列下方。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主要な出口とより遅いシステム系ドリルダウンは、ライブキューの下に保たれます。"
+          }
+        }
+      }
+    },
+    "Queue Snapshot": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "队列快照"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キュースナップショット"
+          }
+        }
+      }
+    },
+    "Queue coverage keeps severity mix readable before the live on-call rows begin.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在实时 on-call 行开始前，队列覆盖会让严重级别混合情况保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブのオンコール行が始まる前に、キューカバレッジは深刻度の構成を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Queue shape, ack state, and handoff readiness stay together before queue work.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入队列处理前，队列形态、确认状态和交接就绪度会保持聚合显示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キュー処理へ進む前に、キュー形状、確認状態、引き継ぎ準備状況はまとまったまま保たれます。"
+          }
+        }
+      }
+    },
+    "Queue work, watchlist pressure, and supporting issue buckets stay summarized before the route deck and live rows take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在路由卡片和实时行接管前，队列工作、关注列表压力和辅助问题桶会保持摘要显示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートデッキとライブ行が前面に出る前に、キュー作業、ウォッチリスト負荷、補助的な問題バケットは要約表示されたままです。"
+          }
+        }
+      }
+    },
+    "Queue-first routes stay ahead of slower systemic drilldowns and export actions.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "队列优先路由会保持在较慢的系统下钻和导出操作之前。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キュー優先ルートは、より遅いシステム系ドリルダウンやエクスポート操作より前に保たれます。"
+          }
+        }
+      }
+    },
+    "Support pressure": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "辅助压力"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サポート負荷"
+          }
+        }
+      }
+    },
+    "Support pressure is currently anchored by handoff follow-up and check-in state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "辅助压力当前由交接跟进和复查状态主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サポート負荷は現在、引き継ぎフォローアップとチェックイン状態が軸です。"
+          }
+        }
+      }
+    },
+    "Support pressure is currently concentrated in audit, automation, and integration drift.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "辅助压力当前集中在审计、自动化和集成漂移上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サポート負荷は現在、監査、自動化、統合ドリフトに集中しています。"
+          }
+        }
+      }
+    },
+    "Support pressure is currently low and mostly reflects muted alerts and queue readiness.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "辅助压力当前较低，主要反映静音告警和队列就绪度。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サポート負荷は現在低く、主にミュートアラートとキュー準備状況を反映しています。"
+          }
+        }
+      }
+    },
+    "The on-call queue is showing \\(visibleCount) of \\(items.count) active priorities.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前 on-call 队列显示 \\(items.count) 个活跃优先项中的 \\(visibleCount) 个。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールキューは、\\(items.count) 件のアクティブな優先項目のうち \\(visibleCount) 件を表示しています。"
+          }
+        }
+      }
+    },
+    "The on-call queue is showing all \\(items.count) active priorities.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前 on-call 队列显示全部 \\(items.count) 个活跃优先项。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールキューは、\\(items.count) 件のアクティブな優先項目をすべて表示しています。"
+          }
+        }
+      }
+    },
+    "The on-call queue is showing the only active priority.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前 on-call 队列显示唯一的活跃优先项。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールキューは、唯一のアクティブな優先項目を表示しています。"
+          }
+        }
+      }
+    },
+    "The route deck keeps \\(primaryRouteCount) primary exits and \\(supportRouteCount) support drills grouped above the fold.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "路由卡片会把 \\(primaryRouteCount) 个主出口和 \\(supportRouteCount) 个辅助下钻分组保留在首屏。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートデッキは、\\(primaryRouteCount) 件の主要出口と \\(supportRouteCount) 件の補助ドリルをファーストビュー上部でまとめたまま保ちます。"
+          }
+        }
+      }
+    },
+    "The watched agent is no longer available in the current snapshot.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前快照中该关注 agent 已不再可用。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のスナップショットでは、このウォッチ対象エージェントは利用できなくなっています。"
+          }
+        }
+      }
+    },
+    "The watchlist is showing \\(visibleCount) of \\(watchedCount) pinned agents.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前关注列表显示 \\(watchedCount) 个已固定 agent 中的 \\(visibleCount) 个。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウォッチリストは、\\(watchedCount) 件の固定エージェントのうち \\(visibleCount) 件を表示しています。"
+          }
+        }
+      }
+    },
+    "The watchlist is showing all \\(watchedCount) pinned agents.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前关注列表显示全部 \\(watchedCount) 个已固定 agent。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウォッチリストは、\\(watchedCount) 件の固定エージェントをすべて表示しています。"
+          }
+        }
+      }
+    },
+    "The watchlist is showing the only pinned agent.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前关注列表显示唯一一个已固定的 agent。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウォッチリストは、唯一の固定エージェントを表示しています。"
+          }
+        }
+      }
+    },
+    "Use the compact queue slice to judge severity mix and destination spread before opening each on-call row.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用紧凑队列切片，在打开每个 on-call 行前判断严重级别混合和目标分布。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなキュー切片を使って、各オンコール行を開く前に深刻度の構成と遷移先の広がりを判断します。"
+          }
+        }
+      }
+    },
+    "Use the compact surface inventory to judge whether the next move should stay queue-first or jump into slower runtime and platform drills.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用紧凑界面清单判断下一步应继续以队列优先，还是跳转到较慢的 runtime 和平台下钻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなサーフェスインベントリを使って、次の操作をキュー優先のまま進めるか、より遅い runtime とプラットフォームのドリルへ飛ぶか判断します。"
+          }
+        }
+      }
+    },
+    "Use this deck to check whether acknowledge, handoff, and broader drilldowns are ready before opening the ranked queue rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开排序队列行前检查确认、交接和更广泛的下钻是否已就绪。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、順位付きキュー行を開く前に、確認、引き継ぎ、より広いドリルダウンの準備が整っているか確認します。"
+          }
+        }
+      }
+    },
+    "Use this deck to gauge whether the queue is dominated by criticals, warnings, watch pressure, or handoff follow-ups.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片判断当前队列是由严重项、警告、watch 压力还是交接跟进主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、現在のキューが重大項目、警告、ウォッチ負荷、または引き継ぎフォローアップのどれに主導されているかを見極めます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep watched-fleet breadth, delivery drag, identity gaps, fallback drift, and paused agents readable before the readiness deck and live queue rows begin.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在就绪卡片和实时队列行开始前，让关注 fleet 广度、投递滞留、身份缺口、回退漂移和暂停 agent 保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、準備状況デッキとライブキュー行が始まる前に、ウォッチ対象 fleet の広がり、配信滞留、ID ギャップ、フォールバックドリフト、一時停止エージェントを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether the current on-call focus is dominated by live queue drag, watched-agent follow-through, or slower handoff and platform drift.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片查看当前 on-call 焦点是由实时队列滞留、关注 agent 跟进还是较慢的交接和平台漂移主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、現在のオンコールの焦点がライブキューの滞留、ウォッチ対象エージェントのフォロースルー、またはより遅い引き継ぎとプラットフォームドリフトのどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether the on-call screen is currently led by the live queue, watched diagnostics, or slower support work before entering the rows below.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在进入下方行之前查看当前 on-call 界面是由实时队列、关注诊断还是较慢的辅助工作主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、下の行へ入る前に、現在のオンコール画面がライブキュー、ウォッチ対象の診断、またはより遅い補助作業のどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "Use this deck to surface slower shift pressure like muted alerts, check-ins, audit churn, and automation or integration drift before opening the queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开队列前呈现较慢的值班压力，例如静音告警、复查、审计波动以及自动化或集成漂移。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、キューを開く前に、ミュートアラート、チェックイン、監査の変動、自動化や統合ドリフトのような、より遅いシフト負荷を表に出します。"
+          }
+        }
+      }
+    },
+    "Watchlist inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关注列表清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウォッチリスト一覧"
+          }
+        }
+      }
+    },
+    "\\(advisoryCount) advisories visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(advisoryCount) 条可见提示"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(advisoryCount)件の表示中アドバイザリ"
+          }
+        }
+      }
+    },
+    "\\(agentRouteCount) agent routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agentRouteCount) 条 agent 路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agentRouteCount)件のエージェントルート"
+          }
+        }
+      }
+    },
+    "\\(approvalCount) approvals waiting": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalCount) 项审批待处理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalCount)件の承認待ち"
+          }
+        }
+      }
+    },
+    "\\(approvalCount) waiting": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalCount) 项待处理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalCount)件待機中"
+          }
+        }
+      }
+    },
+    "\\(automationIssueCount) issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(automationIssueCount) 个问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(automationIssueCount)件の問題"
+          }
+        }
+      }
+    },
+    "\\(criticalCount)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalCount)"
+          }
+        }
+      }
+    },
+    "\\(failedDeliveryCount) delivery failures": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedDeliveryCount) 次投递失败"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedDeliveryCount)件の配信失敗"
+          }
+        }
+      }
+    },
+    "\\(failedDeliveryCount) failed deliveries": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedDeliveryCount) 次失败投递"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedDeliveryCount)件の失敗した配信"
+          }
+        }
+      }
+    },
+    "\\(fallbackDriftCount) fallback drift": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(fallbackDriftCount) 个回退漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(fallbackDriftCount)件のフォールバックドリフト"
+          }
+        }
+      }
+    },
+    "\\(fallbackDriftCount) fallback drifts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(fallbackDriftCount) 个回退漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(fallbackDriftCount)件のフォールバックドリフト"
+          }
+        }
+      }
+    },
+    "\\(issueAgentCount) agents under drag": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueAgentCount) 个拖累中的 agent"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueAgentCount)件のエージェントが滞留中"
+          }
+        }
+      }
+    },
+    "\\(issueAgentCount) watched issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueAgentCount) 个关注问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueAgentCount)件のウォッチ対象問題"
+          }
+        }
+      }
+    },
+    "\\(issueCount) issues visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueCount) 个可见问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueCount)件の表示中問題"
+          }
+        }
+      }
+    },
+    "\\(issueCount) operator issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueCount) 个操作问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueCount)件のオペレーター問題"
+          }
+        }
+      }
+    },
+    "\\(items.count) queued items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(items.count) 个排队项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(items.count)件のキュー項目"
+          }
+        }
+      }
+    },
+    "\\(liveAlertCount) alerts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(liveAlertCount) 条告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(liveAlertCount)件のアラート"
+          }
+        }
+      }
+    },
+    "\\(liveAlertCount) live alert routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(liveAlertCount) 条实时告警路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(liveAlertCount)件のライブアラートルート"
+          }
+        }
+      }
+    },
+    "\\(missingIdentityCount) identity gaps": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingIdentityCount) 个身份缺口"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingIdentityCount)件の ID ギャップ"
+          }
+        }
+      }
+    },
+    "\\(pausedCount) paused": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pausedCount) 个已暂停项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pausedCount)件の一時停止"
+          }
+        }
+      }
+    },
+    "\\(pausedCount) paused agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pausedCount) 个已暂停的 agent"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pausedCount)件の一時停止中エージェント"
+          }
+        }
+      }
+    },
+    "\\(pausedCount) paused watches": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pausedCount) 个已暂停的 watch"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pausedCount)件の一時停止中ウォッチ"
+          }
+        }
+      }
+    },
+    "\\(pendingFollowUpCount) handoff follow-ups are still open in the current deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前卡片中仍有 \\(pendingFollowUpCount) 个交接跟进项未完成。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のデッキで \\(pendingFollowUpCount) 件の引き継ぎフォローアップが未完了です。"
+          }
+        }
+      }
+    },
+    "\\(queueCount) live queue items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(queueCount) 个实时队列项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(queueCount)件のライブキュー項目"
+          }
+        }
+      }
+    },
+    "\\(queueCount) queue items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(queueCount) 个队列项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(queueCount)件のキュー項目"
+          }
+        }
+      }
+    },
+    "\\(routeGroupCount) route groups": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(routeGroupCount) 组路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(routeGroupCount)件のルートグループ"
+          }
+        }
+      }
+    },
+    "\\(sectionCount) on-call sections are active below the controls deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "控制卡片下方有 \\(sectionCount) 个 on-call 分区处于激活状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コントロールデッキの下で \\(sectionCount) 件のオンコールセクションがアクティブです。"
+          }
+        }
+      }
+    },
+    "\\(visibleCount)/\\(items.count) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示 \\(visibleCount)/\\(items.count)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(items.count)件中\\(visibleCount)件を表示"
+          }
+        }
+      }
+    },
+    "\\(visibleCount)/\\(watchedCount) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示 \\(visibleCount)/\\(watchedCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchedCount)件中\\(visibleCount)件を表示"
+          }
+        }
+      }
+    },
+    "\\(watchCount)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchCount)"
+          }
+        }
+      }
+    },
+    "\\(watchItemCount) watch items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchItemCount) 个 watch 项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchItemCount)件のウォッチ項目"
+          }
+        }
+      }
+    },
+    "\\(watchItemCount) watch rows": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchItemCount) 个 watch 行"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchItemCount)件のウォッチ行"
+          }
+        }
+      }
+    },
+    "\\(watchItemCount) watched agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchItemCount) 个关注 agent"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchItemCount)件のウォッチ対象エージェント"
+          }
+        }
+      }
+    },
+    "\\(watchedCount) watched agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchedCount) 个关注 agent"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchedCount)件のウォッチ対象エージェント"
           }
         }
       }
