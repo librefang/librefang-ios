@@ -310,17 +310,6 @@ struct HandoffCenterView: View {
 
                 Section {
                     VStack(alignment: .leading, spacing: 14) {
-                        HandoffActionDeckInventoryCard(
-                            kind: handoffStore.draftKind,
-                            readiness: draftReadiness,
-                            checklist: handoffStore.draftChecklist,
-                            focusAreas: handoffStore.draftFocusAreas,
-                            followUpCount: handoffStore.draftFollowUpItems.count,
-                            suggestedFocusCount: suggestedFocusAreas.count,
-                            suggestedFollowUpCount: suggestedFollowUps.count,
-                            checkInWindow: handoffStore.draftCheckInWindow
-                        )
-
                         HandoffChecklistComposer(
                             checklist: handoffStore.draftChecklist,
                             toggle: { handoffStore.toggleDraftChecklist($0) }

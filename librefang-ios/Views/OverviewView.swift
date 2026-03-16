@@ -118,14 +118,6 @@ struct OverviewView: View {
     private var shouldShowAttentionAgentsCard: Bool {
         vm.issueAgentCount > 0
     }
-    private var shouldShowOverviewShortcutStrip: Bool {
-        vm.pendingApprovalCount > 0
-            || vm.runtimeAlertCount > 0
-            || shouldShowRecentHandoffCard
-            || vm.diagnosticsConfigWarningCount > 0
-            || vm.supervisorPanicCount > 0
-    }
-
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -193,10 +185,6 @@ struct OverviewView: View {
                         .buttonStyle(.plain)
                     }
 
-                    if shouldShowOverviewShortcutStrip {
-                        overviewShortcutStrip
-                    }
-
                     if let status = vm.status {
                         SystemSnapshotCard(
                             status: status,
@@ -209,39 +197,8 @@ struct OverviewView: View {
                         )
                     }
 
-                    if !vm.activeHands.isEmpty || !vm.approvals.isEmpty {
-                        LiveSignalsCard(activeHands: vm.activeHands, approvals: vm.approvals, hands: vm.hands)
-                    }
-
                     if let budget = vm.budget {
                         BudgetGaugesCard(budget: budget)
-                    }
-
-                    if vm.diagnosticsConfigWarningCount > 0 || vm.supervisorPanicCount > 0 || vm.supervisorRestartCount > 0 {
-                        NavigationLink {
-                            DiagnosticsView()
-                        } label: {
-                            DiagnosticsOverviewCard(vm: vm)
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if vm.integrationPressureIssueCategoryCount > 0 {
-                        NavigationLink {
-                            IntegrationsView()
-                        } label: {
-                            IntegrationsOverviewCard(vm: vm)
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if vm.automationPressureIssueCategoryCount > 0 {
-                        NavigationLink {
-                            AutomationView()
-                        } label: {
-                            AutomationOverviewCard(vm: vm)
-                        }
-                        .buttonStyle(.plain)
                     }
 
                     if shouldShowWatchlistCard {
@@ -254,9 +211,6 @@ struct OverviewView: View {
                         AgentPreviewCard(agents: vm.agents)
                     }
 
-                    if vm.recentCriticalAuditCount > 0 {
-                        AuditFeedCard(entries: vm.recentAudit)
-                    }
                 }
                 .padding()
                 .monitoringRefreshInteractionGate(
@@ -332,74 +286,6 @@ struct OverviewView: View {
     private func formatCost(_ value: Double?) -> String {
         guard let value else { return "--" }
         return localizedUSDCurrency(value)
-    }
-
-    @ViewBuilder
-    private var overviewShortcutStrip: some View {
-        FlowLayout(spacing: 8) {
-            if vm.pendingApprovalCount > 0 {
-                NavigationLink {
-                    ApprovalsView()
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Approvals"),
-                        systemImage: "checkmark.shield",
-                        tone: .warning,
-                        badgeText: "\(vm.pendingApprovalCount)"
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-
-            if vm.runtimeAlertCount > 0 {
-                NavigationLink {
-                    RuntimeView()
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Runtime"),
-                        systemImage: "server.rack",
-                        tone: .warning,
-                        badgeText: "\(vm.runtimeAlertCount)"
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-
-            if shouldShowRecentHandoffCard {
-                NavigationLink {
-                    HandoffCenterView(
-                        summary: handoffText,
-                        queueCount: onCallPriorityItems.count,
-                        criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                        liveAlertCount: visibleMonitoringAlerts.count
-                    )
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Handoff"),
-                        systemImage: "text.badge.plus",
-                        tone: deps.onCallHandoffStore.freshnessState.tone,
-                        badgeText: deps.onCallHandoffStore.pendingLatestFollowUpCount > 0
-                            ? "\(deps.onCallHandoffStore.pendingLatestFollowUpCount)"
-                            : nil
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-
-            if vm.diagnosticsConfigWarningCount > 0 || vm.supervisorPanicCount > 0 {
-                NavigationLink {
-                    DiagnosticsView()
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Diagnostics"),
-                        systemImage: "stethoscope",
-                        tone: vm.diagnosticsSummaryTone,
-                        badgeText: vm.diagnosticsConfigWarningCount > 0 ? "\(vm.diagnosticsConfigWarningCount)" : nil
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-        }
     }
 
     @ViewBuilder
