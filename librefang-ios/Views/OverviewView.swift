@@ -133,18 +133,6 @@ struct OverviewView: View {
                     }
                     .buttonStyle(.plain)
 
-                    if let status = vm.status {
-                        SystemSnapshotCard(
-                            status: status,
-                            security: vm.security,
-                            usageSummary: vm.usageSummary,
-                            connectedProviders: vm.configuredProviderCount,
-                            networkStatus: vm.networkStatus,
-                            sessionCount: vm.totalSessionCount,
-                            mcpConnectedServers: vm.connectedMCPServerCount
-                        )
-                    }
-
                     if shouldShowWatchlistCard {
                         WatchlistCard(items: watchedAttentionItems, diagnostics: watchedDiagnostics)
                     } else if shouldShowSessionWatchlistCard {
@@ -170,12 +158,6 @@ struct OverviewView: View {
                     }
 
                     Menu {
-                        NavigationLink {
-                            NightWatchView()
-                        } label: {
-                            Label("Night Watch", systemImage: "moon.stars")
-                        }
-
                         NavigationLink {
                             RuntimeView()
                         } label: {
@@ -277,7 +259,7 @@ private struct AlertsCard: View {
             }
 
             if alerts.isEmpty {
-                Text(String(localized: "All current alert cards are muted on this iPhone. Open incidents to review or unmute them."))
+                Text(String(localized: "Open incidents to review muted alerts."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {

@@ -99,11 +99,11 @@ struct StandbyDigestView: View {
     }
 
     private var primaryItems: [OnCallPriorityItem] {
-        Array(priorityItems.prefix(3))
+        Array(priorityItems.prefix(2))
     }
 
     private var watchItems: [AgentAttentionItem] {
-        Array(watchedAttentionItems.filter { $0.severity > 0 }.prefix(2))
+        Array(watchedAttentionItems.filter { $0.severity > 0 }.prefix(1))
     }
     private var activeWatchItems: [AgentAttentionItem] {
         watchedAttentionItems.filter { $0.severity > 0 }
@@ -262,7 +262,7 @@ struct StandbyDigestView: View {
             Text(digestLine)
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(.white)
-                .lineLimit(3)
+                .lineLimit(2)
 
             LazyVGrid(columns: standbyCountColumns, alignment: .leading, spacing: 10) {
                 StandbyCountPill(value: criticalCount, label: String(localized: "Critical"))

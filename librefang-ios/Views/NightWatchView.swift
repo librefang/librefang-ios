@@ -122,7 +122,7 @@ struct NightWatchView: View {
     }
 
     private var primaryItems: [OnCallPriorityItem] {
-        Array(priorityItems.prefix(5))
+        Array(priorityItems.prefix(4))
     }
     private var activeWatchedItems: [AgentAttentionItem] {
         watchedAttentionItems.filter { $0.severity > 0 }
@@ -218,9 +218,9 @@ struct NightWatchView: View {
         case .balanced:
             String(localized: "Balanced triage keeps live alerts, approvals, watchlist issues, and session hotspots together.")
         case .criticalOnly:
-            String(localized: "Critical-only mode suppresses lower-severity noise so the top screen stays quiet until something truly urgent lands.")
+            String(localized: "Critical-only mode suppresses lower-severity noise.")
         case .watchlistFirst:
-            String(localized: "Watchlist-first mode promotes pinned agents above the rest of the queue.")
+            String(localized: "Watchlist-first mode promotes pinned agents.")
         }
     }
 

@@ -23,7 +23,7 @@ struct OnCallDigestCard: View {
             Text(summary)
                 .font(.caption)
                 .foregroundStyle(.secondary)
-                .lineLimit(3)
+                .lineLimit(2)
 
             FlowLayout(spacing: 8) {
                 PresentationToneBadge(
@@ -215,7 +215,7 @@ struct OnCallView: View {
 
             if !priorityItems.isEmpty {
                 Section {
-                    ForEach(priorityItems.prefix(6)) { item in
+                    ForEach(priorityItems.prefix(5)) { item in
                         NavigationLink(value: item.route) {
                             OnCallPriorityRow(item: item)
                         }
@@ -227,8 +227,8 @@ struct OnCallView: View {
 
             if !activeWatchedAttentionItems.isEmpty {
                 Section {
-                    ForEach(activeWatchedAttentionItems.prefix(4)) { item in
-                        NavigationLink {
+                    ForEach(activeWatchedAttentionItems.prefix(3)) { item in
+                        NavigationLink(value: item.route) {
                             watchedDiagnosticsDestination(for: item)
                         } label: {
                             WatchedAgentRow(
@@ -253,7 +253,7 @@ struct OnCallView: View {
                     ContentUnavailableView(
                         "Calm State",
                         systemImage: "checkmark.shield",
-                        description: Text("No live priorities are currently surfacing.")
+                        description: Text("No live priorities right now.")
                     )
                 }
             }
