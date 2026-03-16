@@ -234,6 +234,19 @@ struct AutomationView: View {
                         scopeLabel: scope.label,
                         hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                     )
+                    AutomationFocusCoverageDeck(
+                        visibleItemCount: visibleItemCount,
+                        workflowCount: filteredWorkflows.count,
+                        runCount: filteredWorkflowRuns.count,
+                        triggerCount: filteredTriggers.count,
+                        scheduleCount: filteredSchedules.count,
+                        cronCount: filteredCronJobs.count,
+                        failedRunCount: vm.failedWorkflowRunCount,
+                        exhaustedTriggerCount: vm.exhaustedTriggerCount,
+                        stalledCronCount: vm.stalledCronJobCount,
+                        scopeLabel: scope.label,
+                        hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    )
                     AutomationRouteInventoryDeck(
                         primaryRouteCount: 4,
                         supportRouteCount: 1,
@@ -1309,6 +1322,110 @@ private struct AutomationActionReadinessDeck: View {
             return String(localized: "Automation action readiness is currently anchored by failed runs that are ready for deeper drilldown.")
         }
         return String(localized: "Automation action readiness is currently clear enough for route jumps and grouped automation review.")
+    }
+}
+
+private struct AutomationFocusCoverageDeck: View {
+    let visibleItemCount: Int
+    let workflowCount: Int
+    let runCount: Int
+    let triggerCount: Int
+    let scheduleCount: Int
+    let cronCount: Int
+    let failedRunCount: Int
+    let exhaustedTriggerCount: Int
+    let stalledCronCount: Int
+    let scopeLabel: String
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant automation lane visible before opening grouped workflow, trigger, and schedule sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: .neutral)
+                    PresentationToneBadge(
+                        text: visibleItemCount == 1 ? String(localized: "1 visible item") : String(localized: "\(visibleItemCount) visible items"),
+                        tone: visibleItemCount > 0 ? .positive : .neutral
+                    )
+                    if failedRunCount > 0 {
+                        PresentationToneBadge(
+                            text: failedRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(failedRunCount) failed runs"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant automation lane readable before moving from the compact decks into workflow, trigger, and scheduler detail."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: workflowCount == 1 ? String(localized: "1 workflow lane") : String(localized: "\(workflowCount) workflow lanes"),
+                    tone: workflowCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if runCount > 0 {
+                    Label(
+                        runCount == 1 ? String(localized: "1 run lane") : String(localized: "\(runCount) run lanes"),
+                        systemImage: "play.rectangle"
+                    )
+                }
+                if triggerCount > 0 {
+                    Label(
+                        triggerCount == 1 ? String(localized: "1 trigger lane") : String(localized: "\(triggerCount) trigger lanes"),
+                        systemImage: "bolt"
+                    )
+                }
+                if scheduleCount > 0 {
+                    Label(
+                        scheduleCount == 1 ? String(localized: "1 schedule lane") : String(localized: "\(scheduleCount) schedule lanes"),
+                        systemImage: "calendar"
+                    )
+                }
+                if cronCount > 0 {
+                    Label(
+                        cronCount == 1 ? String(localized: "1 cron lane") : String(localized: "\(cronCount) cron lanes"),
+                        systemImage: "clock.arrow.circlepath"
+                    )
+                }
+                if exhaustedTriggerCount > 0 {
+                    Label(
+                        exhaustedTriggerCount == 1 ? String(localized: "1 exhausted trigger") : String(localized: "\(exhaustedTriggerCount) exhausted triggers"),
+                        systemImage: "bolt.slash"
+                    )
+                }
+                if stalledCronCount > 0 {
+                    Label(
+                        stalledCronCount == 1 ? String(localized: "1 stalled cron") : String(localized: "\(stalledCronCount) stalled crons"),
+                        systemImage: "hourglass"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if failedRunCount > 0 || exhaustedTriggerCount > 0 || stalledCronCount > 0 {
+            return String(localized: "Automation focus coverage is currently anchored by failed or stalled automation lanes.")
+        }
+        if hasSearchScope {
+            return String(localized: "Automation focus coverage is currently anchored by the filtered automation slice.")
+        }
+        return String(localized: "Automation focus coverage is currently balanced across workflow, trigger, and schedule lanes.")
     }
 }
 

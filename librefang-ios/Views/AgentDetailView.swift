@@ -632,6 +632,18 @@ struct AgentDetailView: View {
                     hasCurrentSession: currentSessionInfo != nil,
                     canShare: !diagnosticsShareText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 )
+                AgentFocusCoverageDeck(
+                    issueCount: monitoringSurfaceIssueCount,
+                    approvalCount: agentApprovals.count,
+                    sessionCount: agentSessions.count,
+                    memoryCount: agentMemory.count,
+                    fileCount: agentFiles.count,
+                    deliveryCount: agentDeliveries.count,
+                    auditCount: agentRecentEvents.count,
+                    hasBudget: budgetDetail != nil,
+                    hasModelResolution: hasModelResolution,
+                    hasCapabilities: hasCapabilityCoverage
+                )
                 AgentRouteInventoryDeck(
                     primaryRouteCount: agentPrimaryRouteCount,
                     supportRouteCount: agentSupportRouteCount,
@@ -2631,6 +2643,104 @@ private struct AgentActionReadinessDeck: View {
             return String(localized: "Agent action readiness is currently clear enough for session controls, sharing, and deeper route pivots.")
         }
         return String(localized: "Agent action readiness is currently light and mostly reflects broader route availability.")
+    }
+}
+
+private struct AgentFocusCoverageDeck: View {
+    let issueCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let memoryCount: Int
+    let fileCount: Int
+    let deliveryCount: Int
+    let auditCount: Int
+    let hasBudget: Bool
+    let hasModelResolution: Bool
+    let hasCapabilities: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant agent diagnostics lane visible before opening the deeper session, memory, delivery, file, and audit sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if issueCount > 0 {
+                        PresentationToneBadge(
+                            text: issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
+                            tone: .warning
+                        )
+                    }
+                    if approvalCount > 0 {
+                        PresentationToneBadge(
+                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                            tone: .warning
+                        )
+                    }
+                    if hasModelResolution {
+                        PresentationToneBadge(text: String(localized: "Model ready"), tone: .positive)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant diagnostics lane readable before moving from compact decks into the detailed agent operator sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: sessionCount == 1 ? String(localized: "1 session lane") : String(localized: "\(sessionCount) session lanes"),
+                    tone: sessionCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if memoryCount > 0 {
+                    Label(
+                        memoryCount == 1 ? String(localized: "1 memory lane") : String(localized: "\(memoryCount) memory lanes"),
+                        systemImage: "externaldrive"
+                    )
+                }
+                if fileCount > 0 {
+                    Label(
+                        fileCount == 1 ? String(localized: "1 file lane") : String(localized: "\(fileCount) file lanes"),
+                        systemImage: "doc.text"
+                    )
+                }
+                if deliveryCount > 0 {
+                    Label(
+                        deliveryCount == 1 ? String(localized: "1 delivery lane") : String(localized: "\(deliveryCount) delivery lanes"),
+                        systemImage: "tray.and.arrow.up"
+                    )
+                }
+                if auditCount > 0 {
+                    Label(
+                        auditCount == 1 ? String(localized: "1 audit lane") : String(localized: "\(auditCount) audit lanes"),
+                        systemImage: "text.badge.exclamationmark"
+                    )
+                }
+                if hasBudget {
+                    Label(String(localized: "Budget lane"), systemImage: "chart.bar")
+                }
+                if hasCapabilities {
+                    Label(String(localized: "Capability lane"), systemImage: "sparkles")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if issueCount > 0 || approvalCount > 0 || auditCount > 0 {
+            return String(localized: "Agent focus coverage is currently anchored by surfaced issues, approvals, and recent audit drag.")
+        }
+        if sessionCount > 0 || deliveryCount > 0 || memoryCount > 0 {
+            return String(localized: "Agent focus coverage is currently anchored by active session, delivery, and memory lanes.")
+        }
+        return String(localized: "Agent focus coverage is currently balanced across the deeper agent diagnostics lanes.")
     }
 }
 

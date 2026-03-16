@@ -415,6 +415,16 @@ struct BudgetView: View {
                 modelCount: sortedModels.count,
                 agentCount: sortedAgents.count
             )
+            BudgetFocusCoverageDeck(
+                trendDays: vm.usageDaily.count,
+                modelCount: sortedModels.count,
+                agentCount: sortedAgents.count,
+                hasBudgetGuardrails: vm.budget != nil,
+                hasUsageSignals: vm.usageSummary != nil,
+                sortOrderLabel: sortOrder.label,
+                totalCalls: trendTotalCalls,
+                totalTokens: trendTotalTokens
+            )
 
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Focus Rail"),
@@ -2088,6 +2098,89 @@ private struct BudgetActionReadinessDeck: View {
             return String(localized: "Budget action readiness is currently centered on analysis because spend limits are not loaded.")
         }
         return String(localized: "Budget action readiness is currently clear enough for chart review, sorting, and route jumps.")
+    }
+}
+
+private struct BudgetFocusCoverageDeck: View {
+    let trendDays: Int
+    let modelCount: Int
+    let agentCount: Int
+    let hasBudgetGuardrails: Bool
+    let hasUsageSignals: Bool
+    let sortOrderLabel: String
+    let totalCalls: Int
+    let totalTokens: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant budget lane visible before opening trends, rankings, and lower chart sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: sortOrderLabel, tone: .neutral)
+                    PresentationToneBadge(
+                        text: trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
+                        tone: trendDays > 0 ? .positive : .neutral
+                    )
+                    if hasBudgetGuardrails {
+                        PresentationToneBadge(text: String(localized: "Guardrails ready"), tone: .positive)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant budget lane readable before moving from the top decks into charts, models, and agent spend lists."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: hasUsageSignals ? String(localized: "Signals ready") : String(localized: "Signals pending"),
+                    tone: hasUsageSignals ? .positive : .neutral
+                )
+            } facts: {
+                if modelCount > 0 {
+                    Label(
+                        modelCount == 1 ? String(localized: "1 model lane") : String(localized: "\(modelCount) model lanes"),
+                        systemImage: "square.stack.3d.up"
+                    )
+                }
+                if agentCount > 0 {
+                    Label(
+                        agentCount == 1 ? String(localized: "1 agent lane") : String(localized: "\(agentCount) agent lanes"),
+                        systemImage: "person.2"
+                    )
+                }
+                if totalCalls > 0 {
+                    Label(
+                        totalCalls == 1 ? String(localized: "1 call tracked") : String(localized: "\(totalCalls) calls tracked"),
+                        systemImage: "phone.arrow.up.right"
+                    )
+                }
+                if totalTokens > 0 {
+                    Label(
+                        String(localized: "\(totalTokens.formatted()) tokens tracked"),
+                        systemImage: "number"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if hasBudgetGuardrails && hasUsageSignals {
+            return String(localized: "Budget focus coverage is currently anchored by guardrails, usage signals, and ranked spend lanes.")
+        }
+        if hasUsageSignals {
+            return String(localized: "Budget focus coverage is currently anchored by usage trends and ranked spend lanes.")
+        }
+        return String(localized: "Budget focus coverage is currently light and mostly reflects layout readiness for lower charts and rankings.")
     }
 }
 

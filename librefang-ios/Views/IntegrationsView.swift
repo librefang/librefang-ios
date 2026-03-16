@@ -380,6 +380,20 @@ struct IntegrationsView: View {
                             modelFilterLabel: modelFilter.label,
                             hasSearchScope: !normalizedSearchText.isEmpty
                         )
+                        IntegrationsFocusCoverageDeck(
+                            visibleResultCount: visibleResultCount,
+                            providerCount: filteredProviders.count,
+                            channelCount: filteredChannels.count,
+                            modelCount: filteredModels.count,
+                            driftCount: filteredAgentDiagnostics.count,
+                            providerAttentionCount: providerAttentionCount,
+                            channelAttentionCount: channelAttentionCount,
+                            modelAttentionCount: modelAttentionCount,
+                            driftAttentionCount: driftAttentionCount,
+                            scopeLabel: scope.label,
+                            modelFilterLabel: modelFilter.label,
+                            hasSearchScope: !normalizedSearchText.isEmpty
+                        )
                     } header: {
                         Text("Inventory")
                     } footer: {
@@ -1246,6 +1260,96 @@ private struct IntegrationsActionReadinessDeck: View {
             return String(localized: "Integration action readiness is currently anchored by model or provider drift that is ready for deeper drilldown.")
         }
         return String(localized: "Integration action readiness is currently clear enough for route jumps and inventory review.")
+    }
+}
+
+private struct IntegrationsFocusCoverageDeck: View {
+    let visibleResultCount: Int
+    let providerCount: Int
+    let channelCount: Int
+    let modelCount: Int
+    let driftCount: Int
+    let providerAttentionCount: Int
+    let channelAttentionCount: Int
+    let modelAttentionCount: Int
+    let driftAttentionCount: Int
+    let scopeLabel: String
+    let modelFilterLabel: String
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant integration lane visible before opening provider, channel, model, and drift inventory sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: .neutral)
+                    PresentationToneBadge(text: modelFilterLabel, tone: .neutral)
+                    PresentationToneBadge(
+                        text: visibleResultCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleResultCount) visible results"),
+                        tone: visibleResultCount > 0 ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant integration lane readable before moving from the compact decks into provider, channel, model, and drift detail."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: providerAttentionCount + channelAttentionCount + modelAttentionCount + driftAttentionCount == 1
+                        ? String(localized: "1 attention lane")
+                        : String(localized: "\((providerAttentionCount + channelAttentionCount + modelAttentionCount + driftAttentionCount).formatted()) attention lanes"),
+                    tone: (providerAttentionCount + channelAttentionCount + modelAttentionCount + driftAttentionCount) > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if providerCount > 0 {
+                    Label(
+                        providerCount == 1 ? String(localized: "1 provider lane") : String(localized: "\(providerCount) provider lanes"),
+                        systemImage: "key.horizontal"
+                    )
+                }
+                if channelCount > 0 {
+                    Label(
+                        channelCount == 1 ? String(localized: "1 channel lane") : String(localized: "\(channelCount) channel lanes"),
+                        systemImage: "bubble.left.and.bubble.right"
+                    )
+                }
+                if modelCount > 0 {
+                    Label(
+                        modelCount == 1 ? String(localized: "1 model lane") : String(localized: "\(modelCount) model lanes"),
+                        systemImage: "square.stack.3d.up"
+                    )
+                }
+                if driftCount > 0 {
+                    Label(
+                        driftCount == 1 ? String(localized: "1 drift lane") : String(localized: "\(driftCount) drift lanes"),
+                        systemImage: "arrow.triangle.branch"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if providerAttentionCount > 0 || channelAttentionCount > 0 || modelAttentionCount > 0 || driftAttentionCount > 0 {
+            return String(localized: "Integration focus coverage is currently anchored by attention-heavy provider, channel, model, or drift lanes.")
+        }
+        if hasSearchScope {
+            return String(localized: "Integration focus coverage is currently anchored by the filtered integration slice.")
+        }
+        return String(localized: "Integration focus coverage is currently balanced across the visible inventory lanes.")
     }
 }
 

@@ -380,6 +380,17 @@ struct DiagnosticsView: View {
                 warningCount: vm.diagnosticsConfigWarningCount,
                 panicCount: vm.supervisorPanicCount
             )
+            DiagnosticsFocusCoverageDeck(
+                loadedFeedCount: loadedFeedCount,
+                leaderboardCount: leaderboardCount,
+                warningCount: vm.diagnosticsConfigWarningCount,
+                panicCount: vm.supervisorPanicCount,
+                restartCount: vm.supervisorRestartCount,
+                hasHealth: vm.healthDetail != nil,
+                hasBuild: vm.versionInfo != nil,
+                hasConfig: vm.configSummary != nil,
+                hasMetrics: metrics != nil
+            )
 
             MonitoringShortcutRail(
                 title: String(localized: "Jumps"),
@@ -1233,6 +1244,95 @@ private struct DiagnosticsActionReadinessDeck: View {
             return String(localized: "Diagnostics action readiness is currently anchored by warning or recovery pressure.")
         }
         return String(localized: "Diagnostics action readiness is currently clear enough for deep section jumps and broader route pivots.")
+    }
+}
+
+private struct DiagnosticsFocusCoverageDeck: View {
+    let loadedFeedCount: Int
+    let leaderboardCount: Int
+    let warningCount: Int
+    let panicCount: Int
+    let restartCount: Int
+    let hasHealth: Bool
+    let hasBuild: Bool
+    let hasConfig: Bool
+    let hasMetrics: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant diagnostics lane visible before opening health, build, config, metrics, and leaderboard sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: loadedFeedCount == 1 ? String(localized: "1 feed ready") : String(localized: "\(loadedFeedCount) feeds ready"),
+                        tone: loadedFeedCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: leaderboardCount == 1 ? String(localized: "1 leaderboard") : String(localized: "\(leaderboardCount) leaderboards"),
+                        tone: leaderboardCount > 0 ? .neutral : .positive
+                    )
+                    if warningCount > 0 {
+                        PresentationToneBadge(
+                            text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant diagnostics lane readable before moving from compact route decks into deep health, config, and metrics sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: panicCount + restartCount == 1
+                        ? String(localized: "1 recovery signal")
+                        : String(localized: "\((panicCount + restartCount).formatted()) recovery signals"),
+                    tone: (panicCount + restartCount) > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if hasHealth {
+                    Label(String(localized: "Health lane"), systemImage: "stethoscope")
+                }
+                if hasBuild {
+                    Label(String(localized: "Build lane"), systemImage: "shippingbox")
+                }
+                if hasConfig {
+                    Label(String(localized: "Config lane"), systemImage: "gearshape.2")
+                }
+                if hasMetrics {
+                    Label(String(localized: "Metrics lane"), systemImage: "chart.bar")
+                }
+                if panicCount > 0 {
+                    Label(
+                        panicCount == 1 ? String(localized: "1 panic") : String(localized: "\(panicCount) panics"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if restartCount > 0 {
+                    Label(
+                        restartCount == 1 ? String(localized: "1 restart") : String(localized: "\(restartCount) restarts"),
+                        systemImage: "arrow.clockwise"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if warningCount > 0 || panicCount > 0 || restartCount > 0 {
+            return String(localized: "Diagnostics focus coverage is currently anchored by warning and recovery lanes.")
+        }
+        return String(localized: "Diagnostics focus coverage is currently balanced across health, build, config, metrics, and leaderboard lanes.")
     }
 }
 
