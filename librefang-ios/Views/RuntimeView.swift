@@ -2684,15 +2684,9 @@ private struct ChannelStatusRow: View {
     }
 
     private var channelTextBlock: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(channel.displayName)
-                .font(.subheadline.weight(.medium))
-                .lineLimit(2)
-            Text(channel.description)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-        }
+        Text(channel.displayName)
+            .font(.subheadline.weight(.medium))
+            .lineLimit(2)
     }
 
     private var channelStatus: some View {
@@ -2780,15 +2774,9 @@ private struct HandDefinitionRow: View {
     }
 
     private var handTextBlock: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(hand.name)
-                .font(.subheadline.weight(.medium))
-                .lineLimit(2)
-            Text(hand.description)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-        }
+        Text(hand.name)
+            .font(.subheadline.weight(.medium))
+            .lineLimit(2)
     }
 
     private var readinessBadge: some View {
@@ -2814,13 +2802,6 @@ private struct ApprovalRow: View {
                 }
             } accessory: {
                 StatusPill(text: localizedRiskLevel, color: approval.riskTone.color)
-            }
-
-            if !approval.description.isEmpty {
-                Text(approval.description)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(3)
             }
 
             FlowLayout(spacing: 12) {
@@ -2897,10 +2878,6 @@ private struct AuditEventRow: View {
             } accessory: {
                 timestampLabel
             }
-            Text(entry.detail)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
             Text(entry.outcome)
                 .font(.caption2.weight(.semibold))
                 .foregroundStyle(entry.severity.tone.color)

@@ -1197,16 +1197,6 @@ struct AgentDetailView: View {
     private var configSnapshotSection: some View {
         if let agentDetailSnapshot, hasConfigSnapshotContent(agentDetailSnapshot) {
             Section {
-                if !agentDetailSnapshot.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Description")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(agentDetailSnapshot.description)
-                    }
-                    .padding(.vertical, 2)
-                }
-
                 if !agentDetailSnapshot.tags.isEmpty {
                     AgentDetailValueRow("Tags") {
                         Text(agentDetailSnapshot.tags.joined(separator: ", "))
@@ -1231,19 +1221,9 @@ struct AgentDetailView: View {
                                     : String(localized: "Catalog unavailable"))
                                     .font(.caption)
                                     .foregroundStyle(match.availabilityTone.color)
-                            } else {
-                                Text("No catalog match")
-                                    .font(.caption)
-                                    .foregroundStyle(PresentationTone.warning.color)
                             }
                         }
                         .padding(.vertical, 2)
-                    }
-
-                    if agentDetailSnapshot.fallbackModels.count > 3 {
-                        Text("Showing 3 of \(agentDetailSnapshot.fallbackModels.count) fallback models")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                     }
                 }
 
@@ -1264,8 +1244,6 @@ struct AgentDetailView: View {
                 }
             } header: {
                 Text("Config Snapshot")
-            } footer: {
-                Text("This is the read-only manifest snapshot from LibreFang. Use it to compare runtime behavior against fallback routing and capability grants.")
             }
         } else if isLoadingAgentSnapshot {
             Section("Config Snapshot") {
@@ -1694,10 +1672,10 @@ struct AgentDetailView: View {
                 }
 
                 if agentDeliveries.isEmpty {
-                    Text("No recent delivery receipts.")
+                    Text("No delivery receipts.")
                         .foregroundStyle(.secondary)
                 } else {
-                    ForEach(agentDeliveries.prefix(3)) { receipt in
+                    ForEach(agentDeliveries.prefix(2)) { receipt in
                         AgentDeliverySummaryRow(receipt: receipt)
                     }
                 }
