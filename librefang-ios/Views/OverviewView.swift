@@ -364,7 +364,8 @@ struct OverviewView: View {
                             MonitoringSectionPreviewDeck(
                                 title: String(localized: "Section Preview"),
                                 detail: String(localized: "Keep the next overview stacks visible before the platform, signal, and fleet cards spread out."),
-                                sectionTitles: overviewSectionPreviewTitles
+                                sectionTitles: overviewSectionPreviewTitles,
+                                maxVisibleSections: 5
                             )
                         }
                         OverviewWorkstreamCoverageDeck(

@@ -262,9 +262,39 @@ struct MonitoringSectionPreviewDeck: View {
             detail: detail,
             verticalPadding: 4
         ) {
-            FlowLayout(spacing: 8) {
-                ForEach(Array(sectionTitles.prefix(maxVisibleSections)), id: \.self) { sectionTitle in
-                    PresentationToneBadge(text: sectionTitle, tone: tone)
+            VStack(alignment: .leading, spacing: 10) {
+                MonitoringFactsRow(
+                    verticalSpacing: 6,
+                    headerVerticalSpacing: 4,
+                    factsSpacing: 8,
+                    factsFont: .caption2
+                ) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(String(localized: "Upcoming sections"))
+                            .font(.caption.weight(.semibold))
+                        Text(String(localized: "Preview the next monitoring stacks before the longer lists and cards take over the screen."))
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                } accessory: {
+                    PresentationToneBadge(text: sectionCountLabel, tone: tone)
+                } facts: {
+                    if let firstVisibleSectionTitle {
+                        Label(firstVisibleSectionTitle, systemImage: "arrow.turn.down.right")
+                    }
+                    if hiddenSectionCount > 0 {
+                        Label(
+                            hiddenSectionCount == 1 ? String(localized: "1 more section") : String(localized: "\(hiddenSectionCount) more sections"),
+                            systemImage: "ellipsis.rectangle"
+                        )
+                    }
+                }
+
+                FlowLayout(spacing: 8) {
+                    ForEach(Array(sectionTitles.prefix(maxVisibleSections)), id: \.self) { sectionTitle in
+                        PresentationToneBadge(text: sectionTitle, tone: tone)
+                    }
                 }
                 if hiddenSectionCount > 0 {
                     PresentationToneBadge(
@@ -274,6 +304,16 @@ struct MonitoringSectionPreviewDeck: View {
                 }
             }
         }
+    }
+
+    private var firstVisibleSectionTitle: String? {
+        sectionTitles.first
+    }
+
+    private var sectionCountLabel: String {
+        sectionTitles.count == 1
+            ? String(localized: "1 section")
+            : String(localized: "\(sectionTitles.count) sections")
     }
 
     private var hiddenSectionCount: Int {

@@ -626,7 +626,8 @@ struct AgentDetailView: View {
                     MonitoringSectionPreviewDeck(
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next agent stacks visible before runtime, session, diagnostics, and local action sections open up."),
-                        sectionTitles: agentSectionPreviewTitles
+                        sectionTitles: agentSectionPreviewTitles,
+                        maxVisibleSections: 5
                     )
                 }
                 AgentPressureCoverageDeck(

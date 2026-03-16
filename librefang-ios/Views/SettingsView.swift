@@ -98,7 +98,8 @@ struct SettingsView: View {
                             MonitoringSectionPreviewDeck(
                                 title: String(localized: "Section Preview"),
                                 detail: String(localized: "Keep the next device settings groups visible before the longer server, reminder, and monitoring forms open up."),
-                                sectionTitles: settingsSectionPreviewTitles
+                                sectionTitles: settingsSectionPreviewTitles,
+                                maxVisibleSections: 5
                             )
                         }
 

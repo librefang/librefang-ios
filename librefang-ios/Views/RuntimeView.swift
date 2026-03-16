@@ -304,7 +304,8 @@ struct RuntimeView: View {
                 MonitoringSectionPreviewDeck(
                     title: String(localized: "Section Preview"),
                     detail: String(localized: "Keep the next runtime sections visible before the deeper feeds and queue stacks open up."),
-                    sectionTitles: runtimeSectionPreviewTitles
+                    sectionTitles: runtimeSectionPreviewTitles,
+                    maxVisibleSections: 5
                 )
             }
             RuntimeWorkstreamCoverageDeck(
