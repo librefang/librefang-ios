@@ -54,6 +54,14 @@ struct A2AAgentsView: View {
                             hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                         )
 
+                        A2APressureCoverageDeck(
+                            visibleAgentCount: filteredAgents.count,
+                            hostCount: visibleHostCount,
+                            streamingCount: visibleStreamingCount,
+                            pushCount: filteredAgents.filter { $0.capabilities?.pushNotifications == true }.count,
+                            hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        )
+
                         A2ARouteInventoryDeck(
                             primaryRouteCount: a2aPrimaryRouteCount,
                             supportRouteCount: a2aSupportRouteCount,
@@ -240,6 +248,79 @@ private struct A2ASectionInventoryDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct A2APressureCoverageDeck: View {
+    let visibleAgentCount: Int
+    let hostCount: Int
+    let streamingCount: Int
+    let pushCount: Int
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to separate endpoint spread, streaming readiness, and push capability before opening the external-agent directory rows."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if hostCount > 0 {
+                        PresentationToneBadge(
+                            text: hostCount == 1 ? String(localized: "1 endpoint host") : String(localized: "\(hostCount) endpoint hosts"),
+                            tone: .positive
+                        )
+                    }
+                    if streamingCount > 0 {
+                        PresentationToneBadge(
+                            text: streamingCount == 1 ? String(localized: "1 stream-ready agent") : String(localized: "\(streamingCount) stream-ready agents"),
+                            tone: .positive
+                        )
+                    }
+                    if pushCount > 0 {
+                        PresentationToneBadge(
+                            text: pushCount == 1 ? String(localized: "1 push-ready agent") : String(localized: "\(pushCount) push-ready agents"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep directory breadth and capability spread readable before the external-agent rows and route rails take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleAgentCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(visibleAgentCount) visible agents"),
+                    tone: .positive
+                )
+            } facts: {
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+                if hostCount > 1 {
+                    Label(String(localized: "Multi-host directory"), systemImage: "network")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "A2A directory pressure is currently concentrated in a search-scoped external-agent slice.")
+        }
+        if hostCount > 1 {
+            return String(localized: "A2A directory pressure is currently spread across multiple endpoint hosts.")
+        }
+        return String(localized: "A2A directory pressure is currently low and mostly reflects capability readiness.")
     }
 }
 

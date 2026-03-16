@@ -57,6 +57,18 @@ struct AgentCapabilitiesView: View {
     private var capabilitiesSectionCount: Int {
         hasLoadedAnything ? (2 + loadedCapabilityFeedCount) : 1
     }
+    private var toolRestrictionCount: Int {
+        (toolFilters?.toolAllowlist.count ?? 0) + (toolFilters?.toolBlocklist.count ?? 0)
+    }
+    private var assignedSkillCount: Int {
+        skills?.assigned.count ?? 0
+    }
+    private var assignedServerCount: Int {
+        mcpServers?.assigned.count ?? 0
+    }
+    private var configuredAvailableServerCount: Int {
+        mcpServers?.available.filter { configuredMCPServerNames.contains($0) }.count ?? 0
+    }
 
     var body: some View {
         List {
@@ -91,6 +103,16 @@ struct AgentCapabilitiesView: View {
                         hasToolFilters: toolFilters != nil,
                         hasSkills: skills != nil,
                         hasMCPServers: mcpServers != nil,
+                        isRefreshingOnly: isRefreshing && hasLoadedAnything
+                    )
+
+                    CapabilitiesPressureCoverageDeck(
+                        loadedFeedCount: loadedCapabilityFeedCount,
+                        toolRestrictionCount: toolRestrictionCount,
+                        assignedSkillCount: assignedSkillCount,
+                        assignedServerCount: assignedServerCount,
+                        configuredAvailableServerCount: configuredAvailableServerCount,
+                        hasProfileRoute: agent.profile?.isEmpty == false,
                         isRefreshingOnly: isRefreshing && hasLoadedAnything
                     )
 
@@ -512,6 +534,87 @@ private struct CapabilitiesSectionInventoryDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct CapabilitiesPressureCoverageDeck: View {
+    let loadedFeedCount: Int
+    let toolRestrictionCount: Int
+    let assignedSkillCount: Int
+    let assignedServerCount: Int
+    let configuredAvailableServerCount: Int
+    let hasProfileRoute: Bool
+    let isRefreshingOnly: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to separate tool restrictions, assigned skills, and MCP server scope before opening the capability feeds below."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if toolRestrictionCount > 0 {
+                        PresentationToneBadge(
+                            text: toolRestrictionCount == 1 ? String(localized: "1 tool rule") : String(localized: "\(toolRestrictionCount) tool rules"),
+                            tone: .warning
+                        )
+                    }
+                    if assignedSkillCount > 0 {
+                        PresentationToneBadge(
+                            text: assignedSkillCount == 1 ? String(localized: "1 assigned skill") : String(localized: "\(assignedSkillCount) assigned skills"),
+                            tone: .positive
+                        )
+                    }
+                    if assignedServerCount > 0 {
+                        PresentationToneBadge(
+                            text: assignedServerCount == 1 ? String(localized: "1 assigned server") : String(localized: "\(assignedServerCount) assigned servers"),
+                            tone: .positive
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep restrictions, assigned capability scope, and MCP server coverage readable before the capability feeds take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: loadedFeedCount == 1 ? String(localized: "1 live feed") : String(localized: "\(loadedFeedCount) live feeds"),
+                    tone: loadedFeedCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if configuredAvailableServerCount > 0 {
+                    Label(
+                        configuredAvailableServerCount == 1 ? String(localized: "1 configured server") : String(localized: "\(configuredAvailableServerCount) configured servers"),
+                        systemImage: "shippingbox"
+                    )
+                }
+                if hasProfileRoute {
+                    Label(String(localized: "Profile linked"), systemImage: "person.crop.rectangle.stack")
+                }
+                if isRefreshingOnly {
+                    Label(String(localized: "Refresh in progress"), systemImage: "arrow.clockwise")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if toolRestrictionCount > 0 || assignedServerCount > 0 {
+            return String(localized: "Capability pressure is currently anchored by tool restrictions or explicit server scope.")
+        }
+        if assignedSkillCount > 0 {
+            return String(localized: "Capability pressure is currently concentrated in assigned skill scope.")
+        }
+        return String(localized: "Capability pressure is currently low and mostly reflects feed readiness.")
     }
 }
 

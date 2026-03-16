@@ -34,6 +34,12 @@ struct ToolProfilesView: View {
     private var toolProfilesSectionCount: Int {
         3 + ((selectedProfile != nil || ((selectedProfileName?.isEmpty == false) && !isLoading && loadError == nil)) ? 1 : 0)
     }
+    private var selectedToolCount: Int {
+        selectedProfile?.tools.count ?? 0
+    }
+    private var densestVisibleToolCount: Int {
+        filteredProfiles.map { $0.tools.count }.max() ?? 0
+    }
 
     var body: some View {
         List {
@@ -55,6 +61,14 @@ struct ToolProfilesView: View {
                     hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                     isLoading: isLoading && profiles.isEmpty && loadError == nil,
                     hasLoadError: loadError != nil
+                )
+
+                ToolProfilesPressureCoverageDeck(
+                    visibleProfileCount: filteredProfiles.count,
+                    selectedToolCount: selectedToolCount,
+                    densestVisibleToolCount: densestVisibleToolCount,
+                    hasSelectedProfile: selectedProfile != nil,
+                    hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 )
 
                 ToolProfilesRouteInventoryDeck(
@@ -403,6 +417,76 @@ private struct ToolProfilesSectionInventoryDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct ToolProfilesPressureCoverageDeck: View {
+    let visibleProfileCount: Int
+    let selectedToolCount: Int
+    let densestVisibleToolCount: Int
+    let hasSelectedProfile: Bool
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to separate selected-profile focus from broad tool-density pressure before opening the catalog below."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if hasSelectedProfile {
+                        PresentationToneBadge(
+                            text: selectedToolCount == 1 ? String(localized: "1 selected tool") : String(localized: "\(selectedToolCount) selected tools"),
+                            tone: selectedToolCount > 0 ? .positive : .neutral
+                        )
+                    }
+                    if densestVisibleToolCount > 0 {
+                        PresentationToneBadge(
+                            text: densestVisibleToolCount == 1 ? String(localized: "1 tool in top profile") : String(localized: "\(densestVisibleToolCount) tools in top profile"),
+                            tone: densestVisibleToolCount > 12 ? .warning : .neutral
+                        )
+                    }
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep selected-profile focus and catalog tool density readable before drilling into bundled tool sets."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleProfileCount == 1 ? String(localized: "1 visible profile") : String(localized: "\(visibleProfileCount) visible profiles"),
+                    tone: .positive
+                )
+            } facts: {
+                if hasSelectedProfile {
+                    Label(String(localized: "Selected profile"), systemImage: "checkmark.circle")
+                }
+                if densestVisibleToolCount > 12 {
+                    Label(String(localized: "Dense catalog"), systemImage: "square.stack.3d.up")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if hasSelectedProfile {
+            return String(localized: "Tool-profile pressure is currently anchored by the selected profile and its bundled tools.")
+        }
+        if hasSearchScope {
+            return String(localized: "Tool-profile pressure is currently concentrated in a search-scoped catalog slice.")
+        }
+        return String(localized: "Tool-profile pressure is currently low and mostly reflects catalog tool density.")
     }
 }
 
