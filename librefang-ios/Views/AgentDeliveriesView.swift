@@ -1,5 +1,9 @@
 import SwiftUI
 
+private enum AgentDeliveriesSectionAnchor: Hashable {
+    case receipts
+}
+
 struct AgentDeliveriesView: View {
     let agent: Agent
     let initialReceipts: [DeliveryReceipt]
@@ -138,7 +142,8 @@ struct AgentDeliveriesView: View {
     }
 
     var body: some View {
-        List {
+        ScrollViewReader { proxy in
+            List {
             Section {
                 MonitoringSnapshotCard(
                     summary: summarySnapshotText,
@@ -214,7 +219,8 @@ struct AgentDeliveriesView: View {
                         detail: String(localized: "Keep the next receipt stack visible before delivery rows expand into the full outbound log."),
                         sectionTitles: agentDeliveriesSectionPreviewTitles,
                         tone: failedCount > 0 ? .critical : (unsettledCount > 0 ? .warning : .positive),
-                        maxVisibleSections: 5
+                        maxVisibleSections: 5,
+                        jumpItems: agentDeliveriesSectionPreviewJumpItems(proxy)
                     )
                 }
 
@@ -362,6 +368,7 @@ struct AgentDeliveriesView: View {
                         description: Text(loadError)
                     )
                 }
+                .id(AgentDeliveriesSectionAnchor.receipts)
             } else if filteredReceipts.isEmpty, !isLoading {
                 Section("Receipts") {
                     ContentUnavailableView(
@@ -370,6 +377,7 @@ struct AgentDeliveriesView: View {
                         description: Text(receipts.isEmpty ? String(localized: "This agent has no recent outbound delivery receipts.") : String(localized: "Try a different recipient, channel, or status search."))
                     )
                 }
+                .id(AgentDeliveriesSectionAnchor.receipts)
             } else {
                 Section("Receipts") {
                     DeliveryReceiptsInventoryDeck(
@@ -383,51 +391,71 @@ struct AgentDeliveriesView: View {
                         DeliveryReceiptRow(receipt: receipt)
                     }
                 }
+                .id(AgentDeliveriesSectionAnchor.receipts)
             }
-        }
-        .navigationTitle("Deliveries")
-        .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, prompt: "Search recipient, channel, or status")
-        .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                if !filteredReceipts.isEmpty {
-                    ShareLink(
-                        item: exportText,
-                        preview: SharePreview(
-                            String(localized: "\(agent.name) Deliveries"),
-                            image: Image(systemName: "paperplane")
-                        )
-                    ) {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                }
-
-                Menu {
-                    Picker("Scope", selection: $scope) {
-                        ForEach(DeliveryScope.allCases, id: \.self) { option in
-                            Label(option.label, systemImage: option.icon)
-                                .tag(option)
+            }
+            .navigationTitle("Deliveries")
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, prompt: "Search recipient, channel, or status")
+            .toolbar {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    if !filteredReceipts.isEmpty {
+                        ShareLink(
+                            item: exportText,
+                            preview: SharePreview(
+                                String(localized: "\(agent.name) Deliveries"),
+                                image: Image(systemName: "paperplane")
+                            )
+                        ) {
+                            Image(systemName: "square.and.arrow.up")
                         }
                     }
-                } label: {
-                    Image(systemName: scope == .all ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+
+                    Menu {
+                        Picker("Scope", selection: $scope) {
+                            ForEach(DeliveryScope.allCases, id: \.self) { option in
+                                Label(option.label, systemImage: option.icon)
+                                    .tag(option)
+                            }
+                        }
+                    } label: {
+                        Image(systemName: scope == .all ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+                    }
+                }
+            }
+            .monitoringRefreshInteractionGate(isRefreshing: isLoading)
+            .refreshable {
+                await loadReceipts()
+            }
+            .overlay {
+                if isLoading && receipts.isEmpty {
+                    ProgressView("Loading deliveries...")
+                }
+            }
+            .task {
+                if receipts.isEmpty {
+                    await loadReceipts()
                 }
             }
         }
-        .monitoringRefreshInteractionGate(isRefreshing: isLoading)
-        .refreshable {
-            await loadReceipts()
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: AgentDeliveriesSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
         }
-        .overlay {
-            if isLoading && receipts.isEmpty {
-                ProgressView("Loading deliveries...")
+    }
+
+    private func agentDeliveriesSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        [
+            MonitoringSectionJumpItem(
+                title: String(localized: "Receipts"),
+                systemImage: "paperplane",
+                tone: failedCount > 0 ? .critical : (unsettledCount > 0 ? .warning : .positive)
+            ) {
+                jump(proxy, to: .receipts)
             }
-        }
-        .task {
-            if receipts.isEmpty {
-                await loadReceipts()
-            }
-        }
+        ]
     }
 
     @MainActor

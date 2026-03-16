@@ -1,5 +1,9 @@
 import SwiftUI
 
+private enum AgentFilesSectionAnchor: Hashable {
+    case files
+}
+
 struct AgentFilesView: View {
     let agent: Agent
     let initialFiles: [AgentWorkspaceFileSummary]
@@ -107,7 +111,8 @@ struct AgentFilesView: View {
     }
 
     var body: some View {
-        List {
+        ScrollViewReader { proxy in
+            List {
             Section {
                 MonitoringSnapshotCard(
                     summary: summarySnapshotText,
@@ -177,7 +182,8 @@ struct AgentFilesView: View {
                         detail: String(localized: "Keep the next workspace file stack visible before identity rows expand into the full file list."),
                         sectionTitles: agentFilesSectionPreviewTitles,
                         tone: missingStatus.tone,
-                        maxVisibleSections: 5
+                        maxVisibleSections: 5,
+                        jumpItems: agentFilesSectionPreviewJumpItems(proxy)
                     )
                 }
 
@@ -312,6 +318,7 @@ struct AgentFilesView: View {
                         description: Text(loadError)
                     )
                 }
+                .id(AgentFilesSectionAnchor.files)
             } else {
                 Section("Files") {
                     AgentFilesInventoryDeck(
@@ -333,51 +340,71 @@ struct AgentFilesView: View {
                         }
                     }
                 }
+                .id(AgentFilesSectionAnchor.files)
             }
-        }
-        .navigationTitle("Agent Files")
-        .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, prompt: "Search workspace files")
-        .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                if !filteredFiles.isEmpty {
-                    ShareLink(
-                        item: exportText,
-                        preview: SharePreview(
-                            String(localized: "\(agent.name) Workspace Identity"),
-                            image: Image(systemName: "doc.text")
-                        )
-                    ) {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                }
-
-                Menu {
-                    Picker("Scope", selection: $scope) {
-                        ForEach(AgentFileScope.allCases, id: \.self) { option in
-                            Label(option.label, systemImage: option.icon)
-                                .tag(option)
+            }
+            .navigationTitle("Agent Files")
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, prompt: "Search workspace files")
+            .toolbar {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    if !filteredFiles.isEmpty {
+                        ShareLink(
+                            item: exportText,
+                            preview: SharePreview(
+                                String(localized: "\(agent.name) Workspace Identity"),
+                                image: Image(systemName: "doc.text")
+                            )
+                        ) {
+                            Image(systemName: "square.and.arrow.up")
                         }
                     }
-                } label: {
-                    Image(systemName: scope == .all ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+
+                    Menu {
+                        Picker("Scope", selection: $scope) {
+                            ForEach(AgentFileScope.allCases, id: \.self) { option in
+                                Label(option.label, systemImage: option.icon)
+                                    .tag(option)
+                            }
+                        }
+                    } label: {
+                        Image(systemName: scope == .all ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+                    }
+                }
+            }
+            .monitoringRefreshInteractionGate(isRefreshing: isLoading)
+            .refreshable {
+                await loadFiles()
+            }
+            .overlay {
+                if isLoading && files.isEmpty {
+                    ProgressView("Loading files...")
+                }
+            }
+            .task {
+                if files.isEmpty {
+                    await loadFiles()
                 }
             }
         }
-        .monitoringRefreshInteractionGate(isRefreshing: isLoading)
-        .refreshable {
-            await loadFiles()
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: AgentFilesSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
         }
-        .overlay {
-            if isLoading && files.isEmpty {
-                ProgressView("Loading files...")
+    }
+
+    private func agentFilesSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        [
+            MonitoringSectionJumpItem(
+                title: String(localized: "Files"),
+                systemImage: "doc.text",
+                tone: missingStatus.tone
+            ) {
+                jump(proxy, to: .files)
             }
-        }
-        .task {
-            if files.isEmpty {
-                await loadFiles()
-            }
-        }
+        ]
     }
 
     @MainActor

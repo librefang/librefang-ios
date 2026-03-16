@@ -1,5 +1,10 @@
 import SwiftUI
 
+private enum ToolProfilesSectionAnchor: Hashable {
+    case currentProfile
+    case allProfiles
+}
+
 struct ToolProfilesView: View {
     let selectedProfileName: String?
 
@@ -50,7 +55,8 @@ struct ToolProfilesView: View {
     }
 
     var body: some View {
-        List {
+        ScrollViewReader { proxy in
+            List {
             Section {
                 ToolProfilesSnapshotCard(
                     totalProfiles: profiles.count,
@@ -76,7 +82,8 @@ struct ToolProfilesView: View {
                         detail: String(localized: "Keep the next tool-profile stacks visible before the current profile and full profile list open up."),
                         sectionTitles: toolProfilesSectionPreviewTitles,
                         tone: selectedProfile != nil ? .positive : .neutral,
-                        maxVisibleSections: 5
+                        maxVisibleSections: 5,
+                        jumpItems: toolProfilesSectionPreviewJumpItems(proxy)
                     )
                 }
 
@@ -210,6 +217,7 @@ struct ToolProfilesView: View {
                 } footer: {
                     Text("Tool profiles are server-defined bundles. They explain what an agent can and cannot call even when the rest of the runtime looks healthy.")
                 }
+                .id(ToolProfilesSectionAnchor.currentProfile)
             } else if let selectedProfileName, !selectedProfileName.isEmpty, !isLoading, loadError == nil {
                 Section {
                     ContentUnavailableView(
@@ -220,6 +228,7 @@ struct ToolProfilesView: View {
                 } header: {
                     Text("Current Profile")
                 }
+                .id(ToolProfilesSectionAnchor.currentProfile)
             }
 
             if let loadError {
@@ -230,6 +239,7 @@ struct ToolProfilesView: View {
                         description: Text(loadError)
                     )
                 }
+                .id(ToolProfilesSectionAnchor.allProfiles)
             } else if profiles.isEmpty {
                 Section("All Profiles") {
                     ContentUnavailableView(
@@ -238,6 +248,7 @@ struct ToolProfilesView: View {
                         description: Text(String(localized: "LibreFang did not return any tool profile summaries."))
                     )
                 }
+                .id(ToolProfilesSectionAnchor.allProfiles)
             } else if filteredProfiles.isEmpty {
                 Section("All Profiles") {
                     ContentUnavailableView(
@@ -246,6 +257,7 @@ struct ToolProfilesView: View {
                         description: Text(String(localized: "Try a different profile or tool search."))
                     )
                 }
+                .id(ToolProfilesSectionAnchor.allProfiles)
             } else {
                 Section("All Profiles") {
                     ToolProfilesCatalogDeck(
@@ -262,25 +274,58 @@ struct ToolProfilesView: View {
                         .padding(.vertical, 2)
                     }
                 }
+                .id(ToolProfilesSectionAnchor.allProfiles)
             }
-        }
-        .navigationTitle("Tool Profiles")
-        .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, prompt: "Search profile or tool")
-        .monitoringRefreshInteractionGate(isRefreshing: isLoading)
-        .refreshable {
-            await loadProfiles()
-        }
-        .overlay {
-            if isLoading && profiles.isEmpty {
-                ProgressView("Loading profiles...")
             }
-        }
-        .task {
-            if profiles.isEmpty {
+            .navigationTitle("Tool Profiles")
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, prompt: "Search profile or tool")
+            .monitoringRefreshInteractionGate(isRefreshing: isLoading)
+            .refreshable {
                 await loadProfiles()
             }
+            .overlay {
+                if isLoading && profiles.isEmpty {
+                    ProgressView("Loading profiles...")
+                }
+            }
+            .task {
+                if profiles.isEmpty {
+                    await loadProfiles()
+                }
+            }
         }
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: ToolProfilesSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
+        }
+    }
+
+    private func toolProfilesSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = []
+        if selectedProfile != nil || ((selectedProfileName?.isEmpty == false) && !isLoading && loadError == nil) {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Current Profile"),
+                    systemImage: "checkmark.circle",
+                    tone: selectedProfile != nil ? .positive : .warning
+                ) {
+                    jump(proxy, to: .currentProfile)
+                }
+            )
+        }
+        items.append(
+            MonitoringSectionJumpItem(
+                title: String(localized: "Profiles"),
+                systemImage: "person.crop.rectangle.stack",
+                tone: .neutral
+            ) {
+                jump(proxy, to: .allProfiles)
+            }
+        )
+        return items
     }
 
     @ViewBuilder
