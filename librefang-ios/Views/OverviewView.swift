@@ -238,6 +238,19 @@ struct OverviewView: View {
                             handoffTone: deps.onCallHandoffStore.freshnessState.tone
                         )
 
+                        OverviewPressureCoverageDeck(
+                            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                            liveAlertCount: visibleMonitoringAlerts.count,
+                            approvalCount: vm.pendingApprovalCount,
+                            sessionCount: vm.sessionAttentionCount,
+                            watchIssueCount: overviewWatchIssueCount,
+                            mutedAlertCount: activeMutedAlertCount,
+                            pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
+                            diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                            automationIssueCount: vm.automationPressureIssueCategoryCount,
+                            integrationIssueCount: vm.integrationPressureIssueCategoryCount
+                        )
+
                         OverviewEntryDeckCard(
                             criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
                             approvalCount: vm.pendingApprovalCount,
@@ -990,6 +1003,117 @@ private struct OverviewEntryDeckCard: View {
             )
         }
         .buttonStyle(.plain)
+    }
+}
+
+private struct OverviewPressureCoverageDeck: View {
+    let criticalCount: Int
+    let liveAlertCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let watchIssueCount: Int
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let diagnosticsWarningCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this pressure slice to separate live alert drag from slower follow-up, diagnostics, and systems work before opening the lower overview decks."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if approvalCount > 0 {
+                        PresentationToneBadge(
+                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                            tone: .warning
+                        )
+                    }
+                    if sessionCount > 0 {
+                        PresentationToneBadge(
+                            text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                            tone: .warning
+                        )
+                    }
+                    if watchIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep muted drag, handoff follow-up, diagnostics noise, and slower systems pressure visible before the overview fans out into platform and fleet cards."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
+                    tone: criticalCount > 0 ? .critical : (liveAlertCount > 0 ? .warning : .neutral)
+                )
+            } facts: {
+                if mutedAlertCount > 0 {
+                    Label(
+                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        systemImage: "bell.slash"
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    Label(
+                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                        systemImage: "arrow.triangle.2.circlepath"
+                    )
+                }
+                if diagnosticsWarningCount > 0 {
+                    Label(
+                        diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
+                        systemImage: "stethoscope"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if criticalCount > 0 {
+            return criticalCount == 1
+                ? String(localized: "Overview pressure is currently anchored by 1 critical incident.")
+                : String(localized: "Overview pressure is currently anchored by \(criticalCount) critical incidents.")
+        }
+        if liveAlertCount > 0 {
+            return liveAlertCount == 1
+                ? String(localized: "Overview pressure currently includes 1 live alert in the mobile snapshot.")
+                : String(localized: "Overview pressure currently includes \(liveAlertCount) live alerts in the mobile snapshot.")
+        }
+        return String(localized: "Overview pressure is currently driven by follow-up, diagnostics, and lower-severity operator load.")
     }
 }
 

@@ -216,6 +216,17 @@ struct RuntimeView: View {
     private func runtimeOperatorDeckSection(_ proxy: ScrollViewProxy) -> some View {
         Section {
             RuntimeStatusDeckCard(vm: vm, runtimeSnapshotSummary: runtimeSnapshotSummary)
+            RuntimePressureCoverageDeck(
+                runtimeAlertCount: vm.runtimeAlertCount,
+                approvalCount: vm.pendingApprovalCount,
+                hotspotCount: vm.sessionAttentionCount,
+                criticalAuditCount: vm.recentCriticalAuditCount,
+                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                providerIssueCount: vm.unreachableLocalProviderCount,
+                degradedHandCount: vm.degradedHandCount,
+                automationIssueCount: vm.automationPressureIssueCategoryCount,
+                integrationIssueCount: vm.integrationPressureIssueCategoryCount
+            )
             RuntimeSectionInventoryDeck(
                 sectionCount: runtimeSectionCount,
                 supportFeedCount: runtimeSupportFeedCount,
@@ -1533,6 +1544,108 @@ private struct RuntimeRouteInventoryDeck: View {
             return String(localized: "Primary and support routes stay grouped before the longer runtime sections load.")
         }
         return String(localized: "Primary routes, support surfaces, and long-section jumps stay grouped in one compact runtime deck.")
+    }
+}
+
+private struct RuntimePressureCoverageDeck: View {
+    let runtimeAlertCount: Int
+    let approvalCount: Int
+    let hotspotCount: Int
+    let criticalAuditCount: Int
+    let diagnosticsWarningCount: Int
+    let providerIssueCount: Int
+    let degradedHandCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this pressure slice to separate immediate runtime alerts from slower diagnostics, provider, hand, and queue follow-up before the runtime feeds fan out."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if runtimeAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: runtimeAlertCount == 1 ? String(localized: "1 runtime alert") : String(localized: "\(runtimeAlertCount) runtime alerts"),
+                            tone: .critical
+                        )
+                    }
+                    if approvalCount > 0 {
+                        PresentationToneBadge(
+                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                            tone: .warning
+                        )
+                    }
+                    if hotspotCount > 0 {
+                        PresentationToneBadge(
+                            text: hotspotCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(hotspotCount) hotspots"),
+                            tone: .warning
+                        )
+                    }
+                    if criticalAuditCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalAuditCount == 1 ? String(localized: "1 critical audit") : String(localized: "\(criticalAuditCount) critical audits"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep diagnostics noise, provider reachability, degraded hands, and slower queue drag visible before diving into the long runtime sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
+                    tone: diagnosticsWarningCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if providerIssueCount > 0 {
+                    Label(
+                        providerIssueCount == 1 ? String(localized: "1 provider issue") : String(localized: "\(providerIssueCount) provider issues"),
+                        systemImage: "key.horizontal"
+                    )
+                }
+                if degradedHandCount > 0 {
+                    Label(
+                        degradedHandCount == 1 ? String(localized: "1 degraded hand") : String(localized: "\(degradedHandCount) degraded hands"),
+                        systemImage: "hand.raised"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if runtimeAlertCount > 0 {
+            return runtimeAlertCount == 1
+                ? String(localized: "Runtime pressure is currently anchored by 1 active runtime alert.")
+                : String(localized: "Runtime pressure is currently anchored by \(runtimeAlertCount) active runtime alerts.")
+        }
+        if approvalCount > 0 || hotspotCount > 0 || criticalAuditCount > 0 {
+            return String(localized: "Runtime pressure is currently concentrated in approvals, hot sessions, and recent critical audit activity.")
+        }
+        return String(localized: "Runtime pressure is currently concentrated in slower diagnostics, provider, hand, and systems follow-up.")
     }
 }
 
