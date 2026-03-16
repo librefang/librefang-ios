@@ -171,6 +171,16 @@ struct ApprovalsView: View {
                     filterLabel: filter.label,
                     filterTone: filterTone
                 )
+                ApprovalsWorkstreamCoverageDeck(
+                    visibleApprovalCount: filteredApprovals.count,
+                    criticalApprovalCount: criticalApprovalCount,
+                    highRiskApprovalCount: highRiskApprovalCount,
+                    approvalAgentCount: approvalAgentCount,
+                    toolCount: visibleToolCount,
+                    hasSearchScope: !trimmedSearchText.isEmpty,
+                    filterLabel: filter.label,
+                    filterTone: filterTone
+                )
                 ApprovalsScopeCoverageDeck(
                     visibleApprovalCount: filteredApprovals.count,
                     totalApprovalCount: vm.approvals.count,
@@ -1025,6 +1035,94 @@ private struct ApprovalsFocusCoverageDeck: View {
             return String(localized: "Approval focus coverage is currently anchored by the filtered approval slice.")
         }
         return String(localized: "Approval focus coverage is currently balanced across the visible approval lanes.")
+    }
+}
+
+private struct ApprovalsWorkstreamCoverageDeck: View {
+    let visibleApprovalCount: Int
+    let criticalApprovalCount: Int
+    let highRiskApprovalCount: Int
+    let approvalAgentCount: Int
+    let toolCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether approval review is currently led by critical risk, broader queue breadth, or a scoped search slice before the full queue opens."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    PresentationToneBadge(
+                        text: visibleApprovalCount == 1 ? String(localized: "1 visible approval") : String(localized: "\(visibleApprovalCount) visible approvals"),
+                        tone: visibleApprovalCount > 0 ? .positive : .neutral
+                    )
+                    if criticalApprovalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"),
+                            tone: .critical
+                        )
+                    } else if highRiskApprovalCount > 0 {
+                        PresentationToneBadge(
+                            text: highRiskApprovalCount == 1 ? String(localized: "1 high risk") : String(localized: "\(highRiskApprovalCount) high risk"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep approval risk, agent spread, and tool mix readable before moving through the queue rows and route rail."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: approvalAgentCount == 1 ? String(localized: "1 agent lane") : String(localized: "\(approvalAgentCount) agent lanes"),
+                    tone: approvalAgentCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if toolCount > 0 {
+                    Label(
+                        toolCount == 1 ? String(localized: "1 tool lane") : String(localized: "\(toolCount) tool lanes"),
+                        systemImage: "wrench.and.screwdriver"
+                    )
+                }
+                if highRiskApprovalCount > criticalApprovalCount {
+                    Label(
+                        highRiskApprovalCount == 1 ? String(localized: "1 high-risk request") : String(localized: "\(highRiskApprovalCount) high-risk requests"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if criticalApprovalCount > 0 {
+            return String(localized: "Approval workstream coverage is currently anchored by critical approval requests.")
+        }
+        if highRiskApprovalCount > 0 {
+            return String(localized: "Approval workstream coverage is currently anchored by the high-risk queue slice.")
+        }
+        if hasSearchScope {
+            return String(localized: "Approval workstream coverage is currently anchored by the filtered review slice.")
+        }
+        if approvalAgentCount > 1 || toolCount > 1 {
+            return String(localized: "Approval workstream coverage is currently spread across multiple agent and tool lanes.")
+        }
+        return String(localized: "Approval workstream coverage is currently light across the visible queue.")
     }
 }
 

@@ -76,6 +76,7 @@ struct CommsView: View {
                 commsSupportCoverageDeck
                 commsActionReadinessDeck
                 commsFocusCoverageDeck
+                commsWorkstreamCoverageDeck
                 commsScopeCoverageDeck
                 commsTrafficCoverageDeck
                 commsControlDeckCard
@@ -414,6 +415,19 @@ struct CommsView: View {
     private var commsFocusCoverageDeck: some View {
         CommsFocusCoverageDeck(
             visibleEventCount: filteredEvents.count,
+            nodeCount: viewModel.nodeCount,
+            edgeCount: viewModel.edgeCount,
+            taskEventCount: viewModel.taskEventCount,
+            spawnEventCount: viewModel.spawnEventCount,
+            isStreaming: viewModel.isStreaming,
+            hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        )
+    }
+
+    private var commsWorkstreamCoverageDeck: some View {
+        CommsWorkstreamCoverageDeck(
+            visibleEventCount: filteredEvents.count,
+            totalEventCount: viewModel.events.count,
             nodeCount: viewModel.nodeCount,
             edgeCount: viewModel.edgeCount,
             taskEventCount: viewModel.taskEventCount,
@@ -935,6 +949,94 @@ private struct CommsFocusCoverageDeck: View {
             return String(localized: "Comms focus coverage is currently anchored by the filtered traffic slice.")
         }
         return String(localized: "Comms focus coverage is currently balanced across visible topology and traffic lanes.")
+    }
+}
+
+private struct CommsWorkstreamCoverageDeck: View {
+    let visibleEventCount: Int
+    let totalEventCount: Int
+    let nodeCount: Int
+    let edgeCount: Int
+    let taskEventCount: Int
+    let spawnEventCount: Int
+    let isStreaming: Bool
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether comms review is currently led by task traffic, lifecycle churn, or a scoped transport slice before topology rows open."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                        tone: isStreaming ? .positive : .warning
+                    )
+                    if taskEventCount > 0 {
+                        PresentationToneBadge(
+                            text: taskEventCount == 1 ? String(localized: "1 task-flow event") : String(localized: "\(taskEventCount) task-flow events"),
+                            tone: .warning
+                        )
+                    }
+                    if spawnEventCount > 0 {
+                        PresentationToneBadge(
+                            text: spawnEventCount == 1 ? String(localized: "1 lifecycle event") : String(localized: "\(spawnEventCount) lifecycle events"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep transport mode, task traffic, and lifecycle churn readable before moving through topology and traffic rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleEventCount == totalEventCount
+                        ? (visibleEventCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleEventCount) visible events"))
+                        : String(localized: "\(visibleEventCount) of \(totalEventCount) visible"),
+                    tone: visibleEventCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    nodeCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(nodeCount) visible agents"),
+                    systemImage: "cpu"
+                )
+                if edgeCount > 0 {
+                    Label(
+                        edgeCount == 1 ? String(localized: "1 live link") : String(localized: "\(edgeCount) live links"),
+                        systemImage: "point.3.connected.trianglepath.dotted"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if taskEventCount > 0 {
+            return String(localized: "Comms workstream coverage is currently anchored by task-flow traffic.")
+        }
+        if spawnEventCount > 0 {
+            return String(localized: "Comms workstream coverage is currently anchored by lifecycle churn.")
+        }
+        if hasSearchScope {
+            return String(localized: "Comms workstream coverage is currently anchored by the filtered traffic slice.")
+        }
+        if !isStreaming {
+            return String(localized: "Comms workstream coverage is currently leaning on polling transport.")
+        }
+        return String(localized: "Comms workstream coverage is currently light across visible topology and traffic.")
     }
 }
 
