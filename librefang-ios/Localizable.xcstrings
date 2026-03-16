@@ -1995,6 +1995,12 @@
             "state": "translated",
             "value": "1 个智能体使用不可用模型"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のエージェントが利用不可モデルを使用しています"
+          }
         }
       }
     },
@@ -2004,6 +2010,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个智能体仍存在模型漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のエージェントにまだモデルドリフトがあります"
           }
         }
       }
@@ -2016,6 +2028,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个告警已在本机静音；关注列表和会话仍然活跃"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のアラートはローカルでミュート中ですが、ウォッチリストとセッションはアクティブのままです"
           }
         }
       }
@@ -2069,6 +2087,12 @@
             "state": "translated",
             "value": "1 个审批仍在等待处理"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の承認がまだ待機中です"
+          }
         }
       }
     },
@@ -2078,6 +2102,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个审批等待中"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の承認待ち"
           }
         }
       }
@@ -2108,6 +2138,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个渠道缺少必填字段"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のチャネルで必須項目が不足しています"
           }
         }
       }
@@ -2153,6 +2189,12 @@
             "state": "translated",
             "value": "1 个已配置渠道缺少必填字段"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の設定済みチャネルで必須項目が不足しています"
+          }
         }
       }
     },
@@ -2178,6 +2220,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "还剩 1 个关键事件跟进项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の重大イベントフォローアップが残っています"
           }
         }
       }
@@ -2227,6 +2275,12 @@
             "state": "translated",
             "value": "1 个严重项仍需处理"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の重大項目にまだ確認が必要です"
+          }
         }
       }
     },
@@ -2236,6 +2290,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个定时任务缺少下一次运行时间"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の cron ジョブに次回実行がありません"
           }
         }
       }
@@ -2289,6 +2349,12 @@
             "state": "translated",
             "value": "1 个执行手已降级"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のハンドが劣化"
+          }
         }
       }
     },
@@ -2301,6 +2367,12 @@
             "state": "translated",
             "value": "1 个交接跟进项仍未完成"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の引き継ぎフォローアップがまだ未完了です"
+          }
         }
       }
     },
@@ -2310,6 +2382,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "本地复查截止后仍有 1 个交接跟进项未完成"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ローカルチェックインの期限後も 1 件の引き継ぎフォローアップが未完了です"
           }
         }
       }
@@ -2323,6 +2401,12 @@
             "state": "translated",
             "value": "下一次本地复查前仍有 1 个交接跟进项未完成"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次のローカルチェックイン前も 1 件の引き継ぎフォローアップが未完了です"
+          }
         }
       }
     },
@@ -2332,6 +2416,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "复查前有 1 个交接跟进项未完成"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チェックイン前に 1 件の引き継ぎフォローアップが未完了です"
           }
         }
       }
@@ -2344,6 +2434,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个交接跟进项已逾期"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の引き継ぎフォローアップが期限超過です"
           }
         }
       }
@@ -2387,6 +2483,12 @@
             "state": "translated",
             "value": "1 个图片附件"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の画像添付"
+          }
         }
       }
     },
@@ -2429,6 +2531,12 @@
             "state": "translated",
             "value": "1 个实时告警仍在活动"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のライブアラートがまだアクティブです"
+          }
         }
       }
     },
@@ -2439,6 +2547,12 @@
             "state": "translated",
             "value": "1 个本地提供方无法连接"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のローカルプロバイダに到達できません"
+          }
         }
       }
     },
@@ -2448,6 +2562,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个本地提供方无法连接"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のローカルプロバイダに到達できません"
           }
         }
       }
@@ -2496,6 +2616,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个操作问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のオペレーター問題"
           }
         }
       }
@@ -2557,6 +2683,12 @@
             "state": "translated",
             "value": "缺少 1 个渠道必填字段"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の必須チャネル項目が不足しています"
+          }
         }
       }
     },
@@ -2566,6 +2698,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个运行中的智能体看起来已陈旧"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の稼働中 agent が古い状態に見えます"
           }
         }
       }
@@ -2577,6 +2715,12 @@
             "state": "translated",
             "value": "还剩 1 个会话热点"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のセッションホットスポットが残っています"
+          }
         }
       }
     },
@@ -2587,6 +2731,12 @@
             "state": "translated",
             "value": "1 个会话需要复核"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のセッションに確認が必要です"
+          }
         }
       }
     },
@@ -2596,6 +2746,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个监督器事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の supervisor イベント"
           }
         }
       }
@@ -2624,6 +2780,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个触发器已耗尽"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のトリガーが枯渇しています"
           }
         }
       }
@@ -2655,6 +2817,12 @@
             "state": "translated",
             "value": "1 个已关注的智能体存在投递失败"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の監視対象エージェントで配信失敗があります"
+          }
         }
       }
     },
@@ -2667,6 +2835,12 @@
             "state": "translated",
             "value": "1 个已关注的智能体缺少身份文件"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の監視対象エージェントで ID ファイルが不足しています"
+          }
         }
       }
     },
@@ -2678,6 +2852,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个已关注的智能体需要复核"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の監視対象エージェントに確認が必要です"
           }
         }
       }
@@ -2708,6 +2888,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个工作流失败需要复核"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のワークフロー失敗を確認する必要があります"
           }
         }
       }
@@ -3101,6 +3287,12 @@
             "state": "translated",
             "value": "提示"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "注意喚起"
+          }
         }
       }
     },
@@ -3140,6 +3332,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "智能体已完成，但没有文本回复。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントはテキスト返信なしで完了しました。"
           }
         }
       }
@@ -3325,6 +3523,12 @@
             "state": "translated",
             "value": "智能体正在运行，但当前没有任何已配置渠道具备有效 token。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントは稼働中ですが、現在有効なトークンを持つ設定済みチャネルはありません。"
+          }
         }
       }
     },
@@ -3334,6 +3538,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "可能已有智能体，但模型层尚未就绪。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントは存在する可能性がありますが、モデルレイヤーの準備ができていません。"
           }
         }
       }
@@ -3509,6 +3719,12 @@
             "state": "translated",
             "value": "最新快照中的全部本地提供方都已不可用"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新スナップショットではすべてのローカルプロバイダが停止しています"
+          }
         }
       }
     },
@@ -3630,6 +3846,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "审批被阻塞"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認でブロック中"
           }
         }
       }
@@ -3779,6 +4001,12 @@
             "state": "translated",
             "value": "至少有一个自治执行手仍在活动，但状态并不完全健康。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "少なくとも 1 つの自律ハンドは稼働中ですが、完全に健全ではありません。"
+          }
         }
       }
     },
@@ -3788,6 +4016,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "至少一个本地模型端点探测失败。请检查提供方诊断中的连通性和延迟。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "少なくとも 1 つのローカルモデルエンドポイントのプローブに失敗しました。到達性とレイテンシは provider diagnostics で確認してください。"
           }
         }
       }
@@ -3867,6 +4101,12 @@
             "state": "translated",
             "value": "审计链校验失败"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監査チェーンの検証に失敗しました"
+          }
         }
       }
     },
@@ -3906,6 +4146,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "认证异常"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "認証の問題"
           }
         }
       }
@@ -3961,6 +4207,12 @@
             "state": "translated",
             "value": "自动化清单当前空闲"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動化インベントリはアイドル状態です"
+          }
         }
       }
     },
@@ -3971,6 +4223,12 @@
             "state": "translated",
             "value": "自动化监控"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動化モニター"
+          }
         }
       }
     },
@@ -3980,6 +4238,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "自动化流水线最近以失败状态停止，需要复核。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動化パイプラインが最近失敗状態で停止しており、確認が必要です。"
           }
         }
       }
@@ -4034,6 +4298,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "等待复核"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認待ち"
           }
         }
       }
@@ -4136,6 +4406,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "已达到预算阈值"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "予算しきい値に到達"
           }
         }
       }
@@ -4312,6 +4588,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "目录 / 提供方中心"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カタログ / プロバイダハブ"
           }
         }
       }
@@ -4897,6 +5179,12 @@
             "state": "translated",
             "value": "已配置的投递渠道缺少必需的密钥或配置字段。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定済み配信チャネルで必須のシークレットまたは設定項目が不足しています。"
+          }
         }
       }
     },
@@ -5286,6 +5574,12 @@
             "state": "translated",
             "value": "严重值班压力仍然活跃"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重大なオンコール負荷が引き続きアクティブです"
+          }
         }
       }
     },
@@ -5297,6 +5591,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "仅严重项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重大項目のみ"
           }
         }
       }
@@ -5493,6 +5793,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "深度健康诊断报告运行时数据库不可用或不健康。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "詳細ヘルス診断では、ランタイムデータベースが利用不可または不健全と報告されています。"
           }
         }
       }
@@ -5902,6 +6208,12 @@
             "state": "translated",
             "value": "存在已启用的定时任务，但调度器中没有下一次执行时间。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有効な cron ジョブが存在しますが、スケジューラ上に次回実行時刻がありません。"
+          }
         }
       }
     },
@@ -5911,6 +6223,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "存在已启用的调度器条目，但没有下一次执行时间戳。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有効なスケジューラエントリが存在しますが、次回実行時刻がありません。"
           }
         }
       }
@@ -5934,6 +6252,12 @@
             "state": "translated",
             "value": "事件驱动自动化已达到最大触发次数，后续不会再唤醒智能体。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベント駆動の自動化は最大発火回数に達し、今後はエージェントを起動しません。"
+          }
         }
       }
     },
@@ -5943,6 +6267,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "事件驱动唤醒已达到最大触发次数并停止分发。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベント駆動の起動は最大発火回数に達し、ディスパッチを停止しました。"
           }
         }
       }
@@ -5971,6 +6301,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "已配置扩展服务，但当前没有任何已连接实例。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拡張サーバーは設定されていますが、現在接続中のものはありません。"
           }
         }
       }
@@ -6308,6 +6644,12 @@
             "state": "translated",
             "value": "完整队列"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フルキュー"
+          }
         }
       }
     },
@@ -6370,6 +6712,12 @@
             "state": "translated",
             "value": "交接检查"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎチェックイン"
+          }
         }
       }
     },
@@ -6399,6 +6747,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "交接复查即将到期"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎチェックインの期限が近づいています"
           }
         }
       }
@@ -6430,6 +6784,12 @@
             "state": "translated",
             "value": "交接复查即将到期"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎチェックインの期限が近づいています"
+          }
         }
       }
     },
@@ -6439,6 +6799,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "交接复查已逾期"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎチェックインが期限超過です"
           }
         }
       }
@@ -6469,6 +6835,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "交接复查已逾期"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎチェックインが期限超過です"
           }
         }
       }
@@ -6524,6 +6896,12 @@
             "state": "translated",
             "value": "交接跟进项即将到期"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎフォローアップの期限が近づいています"
+          }
         }
       }
     },
@@ -6535,6 +6913,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "交接跟进项已逾期"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎフォローアップが期限超過です"
           }
         }
       }
@@ -6647,6 +7031,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "高流量、无标签或重复的会话正在工作区中堆积。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高ボリューム、未ラベル、または重複したセッションがワークスペースに蓄積しています。"
           }
         }
       }
@@ -6788,6 +7178,12 @@
             "state": "translated",
             "value": "30 分钟以上无活动"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 分以上非アクティブ"
+          }
         }
       }
     },
@@ -6864,6 +7260,12 @@
             "state": "translated",
             "value": "在提醒中包含关注列表中的智能体、会话压力和关键事件跟进项。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーにウォッチリストエージェント、セッション負荷、重大イベントフォローアップを含めます。"
+          }
         }
       }
     },
@@ -6875,6 +7277,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "信息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "情報"
           }
         }
       }
@@ -7118,6 +7526,12 @@
             "state": "translated",
             "value": "跳转"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ジャンプ"
+          }
         }
       }
     },
@@ -7161,6 +7575,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "内核数据库已降级"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カーネルデータベースが劣化"
           }
         }
       }
@@ -7391,6 +7811,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "最近本地交接跟进情况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新のローカル引き継ぎフォロー状況"
           }
         }
       }
@@ -7643,6 +8069,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "实时告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブアラート"
           }
         }
       }
@@ -7942,6 +8374,12 @@
             "state": "translated",
             "value": "本地交接复查已逾期，且仍有未完成的跟进项"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未完了フォローアップがあり、ローカル引き継ぎチェックインは期限超過です"
+          }
         }
       }
     },
@@ -7965,6 +8403,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "本地交接检查点即将到期"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ローカル引き継ぎチェックポイントの期限が近づいています"
           }
         }
       }
@@ -7993,6 +8437,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "本地提供方探测失败"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ローカルプロバイダのプローブが失敗しています"
           }
         }
       }
@@ -8113,6 +8563,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "MCP 已断开"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MCP 切断"
           }
         }
       }
@@ -8412,6 +8868,12 @@
             "state": "translated",
             "value": "模型目录 / 提供方不匹配"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデルカタログ / プロバイダ不一致"
+          }
         }
       }
     },
@@ -8422,6 +8884,12 @@
             "state": "translated",
             "value": "模型目录没有可用模型"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデルカタログに利用可能なモデルがありません"
+          }
         }
       }
     },
@@ -8431,6 +8899,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "模型目录没有可用模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデルカタログに利用可能なモデルがありません"
           }
         }
       }
@@ -8520,6 +8994,12 @@
             "state": "translated",
             "value": "监控告警"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視アラート"
+          }
         }
       }
     },
@@ -8529,6 +9009,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "监控数据已过时"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視データが古くなっています"
           }
         }
       }
@@ -8890,6 +9376,12 @@
             "state": "translated",
             "value": "目录中没有可用模型"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カタログに利用可能なモデルがありません"
+          }
         }
       }
     },
@@ -9066,6 +9558,12 @@
             "state": "translated",
             "value": "当前没有实时告警。这台 iPhone 上的监控处于平静状态。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブアラートはありません。この iPhone の監視は現在落ち着いた状態です。"
+          }
         }
       }
     },
@@ -9216,6 +9714,12 @@
             "state": "translated",
             "value": "没有消息内容"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メッセージ内容なし"
+          }
         }
       }
     },
@@ -9256,6 +9760,12 @@
             "state": "translated",
             "value": "未配置提供方"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ未設定"
+          }
         }
       }
     },
@@ -9265,6 +9775,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "没有就绪的投递渠道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信可能なチャネルがありません"
           }
         }
       }
@@ -9424,6 +9940,12 @@
             "state": "translated",
             "value": "未就绪"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未準備"
+          }
         }
       }
     },
@@ -9522,6 +10044,12 @@
             "state": "translated",
             "value": "OFP 网络已启用，但当前没有已连接的对等节点。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OFP ネットワークは有効ですが、現在接続中のピアはありません。"
+          }
         }
       }
     },
@@ -9605,6 +10133,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "仅当值班队列里仍有严重项时提醒。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールキューに重大項目が残っている場合のみ通知します。"
           }
         }
       }
@@ -9829,6 +10363,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "打开 LibreFang 以查看值班队列。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang を開いてオンコールキューを確認します。"
           }
         }
       }
@@ -10204,6 +10744,12 @@
             "state": "translated",
             "value": "对等网络空闲"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピアネットワークはアイドル状態です"
+          }
         }
       }
     },
@@ -10512,6 +11058,12 @@
             "state": "translated",
             "value": "提供方已配置，但 LibreFang 当前暴露的可执行目录模型为 0。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダは設定されていますが、LibreFang は現在実行可能なカタログモデルを 0 件しか公開していません。"
+          }
         }
       }
     },
@@ -10521,6 +11073,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "提供方已配置，但模型目录当前没有可供智能体执行的可用模型。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダは設定されていますが、モデルカタログには現在エージェント実行可能なモデルがありません。"
           }
         }
       }
@@ -10847,6 +11405,12 @@
             "state": "translated",
             "value": "最近活动包含失败、拒绝或已终止的智能体，需要复核。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近のアクティビティには、確認すべき失敗、拒否、または終了したエージェントが含まれます。"
+          }
         }
       }
     },
@@ -11072,6 +11636,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "针对活跃监控告警和审批积压提醒，但忽略仅关注列表噪音。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクティブな監視アラートと承認バックログは通知しますが、ウォッチリストだけのノイズはスキップします。"
           }
         }
       }
@@ -11377,6 +11947,12 @@
             "state": "translated",
             "value": "复核本地模型端点和提供方探测结果。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ローカルモデルのエンドポイントとプロバイダプローブを確認してください。"
+          }
         }
       }
     },
@@ -11398,6 +11974,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "在集成诊断中复核提供方和模型目录漂移。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "integrations diagnostics でプロバイダとモデルカタログのドリフトを確認してください。"
           }
         }
       }
@@ -11560,6 +12142,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "运行时校验发现了应在诊断页中复核的配置告警。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ランタイム検証で、diagnostics で確認すべき設定警告が見つかりました。"
           }
         }
       }
@@ -11954,6 +12542,12 @@
             "state": "translated",
             "value": "敏感智能体操作因等待值班员审核而被阻塞。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "機密性の高いエージェント操作は、オペレーターの確認待ちでブロックされています。"
+          }
         }
       }
     },
@@ -11989,6 +12583,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "服务器已断开"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サーバー切断"
           }
         }
       }
@@ -12139,6 +12739,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "会话压力"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッション負荷"
           }
         }
       }
@@ -12520,6 +13126,12 @@
             "state": "translated",
             "value": "部分智能体指向不可用、未知或提供方不匹配的目录模型。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一部のエージェントは、利用不可、不明、またはプロバイダ不一致のカタログモデルを参照しています。"
+          }
         }
       }
     },
@@ -12529,6 +13141,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "部分已配置投递渠道缺少必需的密钥或配置字段。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一部の設定済み配信チャネルでは、必須のシークレットまたは設定項目が不足しています。"
           }
         }
       }
@@ -13095,6 +13713,12 @@
             "state": "translated",
             "value": "应用无法确认当前 LibreFang 状态。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アプリは現在の LibreFang の状態を確認できません。"
+          }
         }
       }
     },
@@ -13171,6 +13795,12 @@
             "state": "translated",
             "value": "仪表盘已超过两分钟未刷新。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ダッシュボードは 2 分以上更新されていません。"
+          }
         }
       }
     },
@@ -13180,6 +13810,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "取证链无法校验。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォレンジックチェーンを検証できませんでした。"
           }
         }
       }
@@ -13240,6 +13876,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "这些智能体正在运行，但至少 30 分钟未上报活动。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "これらのエージェントは稼働中ですが、少なくとも 30 分間アクティビティを報告していません。"
           }
         }
       }
@@ -13810,6 +14452,12 @@
             "state": "translated",
             "value": "已存在触发器、调度或定时任务，但目前它们都被禁用了。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トリガー、スケジュール、または cron ジョブは存在しますが、現在はすべて無効です。"
+          }
         }
       }
     },
@@ -14001,6 +14649,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "未知"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不明"
           }
         }
       }
@@ -14368,6 +15022,12 @@
             "state": "translated",
             "value": "已验证"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "検証済み"
+          }
         }
       }
     },
@@ -14394,6 +15054,12 @@
             "state": "translated",
             "value": "超高流量"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "非常に高ボリューム"
+          }
         }
       }
     },
@@ -14404,12 +15070,24 @@
             "state": "translated",
             "value": "警告"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "警告"
+          }
         }
       }
     },
     "Warning": {
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "警告"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "警告"
@@ -14486,6 +15164,12 @@
             "state": "translated",
             "value": "已关注智能体诊断"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視対象エージェント診断"
+          }
         }
       }
     },
@@ -14497,6 +15181,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "已关注智能体会话压力"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視対象エージェントのセッション負荷"
           }
         }
       }
@@ -14982,6 +15672,12 @@
             "state": "translated",
             "value": "未配置渠道"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャネル未設定"
+          }
         }
       }
     },
@@ -15018,6 +15714,12 @@
             "state": "translated",
             "value": "没有审批积压"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認バックログなし"
+          }
         }
       }
     },
@@ -15038,6 +15740,12 @@
             "state": "translated",
             "value": "未发现对等连接"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピアリンクは見つかっていません"
+          }
         }
       }
     },
@@ -15047,6 +15755,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "未配置 MCP 扩展服务器"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MCP 拡張サーバーは未設定です"
           }
         }
       }
@@ -15217,6 +15931,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "健康"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "健全"
           }
         }
       }
@@ -15467,6 +16187,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(summary.issueCount) 个操作问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(summary.issueCount) 件のオペレーター問題"
           }
         }
       }
@@ -15990,6 +16716,12 @@
             "state": "translated",
             "value": "不匹配"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不一致"
+          }
         }
       }
     },
@@ -16016,6 +16748,12 @@
             "state": "translated",
             "value": "\\(summary.failedDeliveries) 个失败"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(summary.failedDeliveries) 件の失敗"
+          }
         }
       }
     },
@@ -16041,6 +16779,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(summary.unavailableFallbackModels.count) 个回退漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(summary.unavailableFallbackModels.count) 件のフォールバックドリフト"
           }
         }
       }
@@ -17181,6 +17925,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(summary.issueCount) 个问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(summary.issueCount) 件の問題"
           }
         }
       }
@@ -18719,6 +19469,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(images.count) 个图片附件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(images.count) 件の画像添付"
           }
         }
       }
@@ -20350,6 +21106,12 @@
             "state": "translated",
             "value": "1 个已关注的智能体存在后备模型漂移"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の監視対象エージェントでフォールバックドリフトがあります"
+          }
         }
       }
     },
@@ -20500,6 +21262,12 @@
             "state": "translated",
             "value": "目录模型不可用"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カタログモデルは利用不可です"
+          }
         }
       }
     },
@@ -20555,6 +21323,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "投递失败"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信失敗"
           }
         }
       }
@@ -20635,6 +21409,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "后备模型漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォールバックドリフト"
           }
         }
       }
@@ -20721,6 +21501,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "身份文件缺失"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID ファイル不足"
           }
         }
       }
@@ -20902,6 +21688,12 @@
             "state": "translated",
             "value": "移动端链接："
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モバイルリンク:"
+          }
         }
       }
     },
@@ -20911,6 +21703,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "目录中缺少模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カタログにモデルがありません"
           }
         }
       }
@@ -21052,6 +21850,12 @@
             "state": "translated",
             "value": "值班问题"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オペレーター問題"
+          }
         }
       }
     },
@@ -21118,6 +21922,12 @@
             "state": "translated",
             "value": "优先级队列："
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "優先キュー:"
+          }
         }
       }
     },
@@ -21137,6 +21947,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "提供方漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダドリフト"
           }
         }
       }
@@ -21207,6 +22023,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "这台 iPhone 上的快照已确认"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone でスナップショット確認済み"
           }
         }
       }
@@ -21348,6 +22170,12 @@
             "state": "translated",
             "value": "未完成投递"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未解決の配信"
+          }
         }
       }
     },
@@ -21444,6 +22272,12 @@
             "state": "translated",
             "value": "1 项操作待处理"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のアクション待ち"
+          }
         }
       }
     },
@@ -21454,6 +22288,12 @@
             "state": "translated",
             "value": "1 个通道正在投递"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のチャネルが配信可能です"
+          }
         }
       }
     },
@@ -21463,6 +22303,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个需要关注"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件が要対応です"
           }
         }
       }
@@ -21490,6 +22336,12 @@
             "state": "translated",
             "value": "\\(resolvedModel.displayName) 已存在于目录中，但当前无法执行。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(resolvedModel.displayName) はカタログには存在しますが、現在は実行に利用できません。"
+          }
         }
       }
     },
@@ -21499,6 +22351,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Agent 期望使用 \\(agentProvider)，但目录将 \\(requestedModel) 解析为 \\(resolvedModel.provider)。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントは \\(agentProvider) を想定していますが、カタログでは \\(requestedModel) が \\(resolvedModel.provider) に解決されます。"
           }
         }
       }
@@ -21510,6 +22368,12 @@
             "state": "translated",
             "value": "LibreFang 无法从当前模型目录或别名映射解析 \\(requestedModel)。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang は現在のモデルカタログまたはエイリアスマップから \\(requestedModel) を解決できません。"
+          }
         }
       }
     },
@@ -21519,6 +22383,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(failedAgents) 个关注中的 agent 存在投递失败"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedAgents) 件の監視対象エージェントで配信失敗があります"
           }
         }
       }
@@ -21530,6 +22400,12 @@
             "state": "translated",
             "value": "\\(missingFileAgents) 个关注中的 agent 缺少身份文件"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingFileAgents) 件の監視対象エージェントで ID ファイルが不足しています"
+          }
         }
       }
     },
@@ -21539,6 +22415,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(fallbackAgents) 个关注中的 agent 存在回退漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(fallbackAgents) 件の監視対象エージェントでフォールバックドリフトがあります"
           }
         }
       }
@@ -21550,6 +22432,12 @@
             "state": "translated",
             "value": "\\(issueAgents.count) 个关注中的 agent 存在值班问题"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueAgents.count) 件の監視対象エージェントでオペレーター問題があります"
+          }
         }
       }
     },
@@ -21559,6 +22447,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LibreFang 值班交接 · \\(timestamp)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang オンコール引き継ぎ · \\(timestamp)"
           }
         }
       }
@@ -21570,6 +22464,12 @@
             "state": "translated",
             "value": "实时告警：\\(visibleAlerts.count)（其中 \\(criticalCount) 个严重）"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブアラート: \\(visibleAlerts.count) 件 (\\(criticalCount) 件が重大)"
+          }
         }
       }
     },
@@ -21579,6 +22479,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "审批：\\(pendingApprovalCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認: \\(pendingApprovalCount)"
           }
         }
       }
@@ -21590,6 +22496,12 @@
             "state": "translated",
             "value": "关注列表问题：\\(watchIssueCount)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウォッチリストの問題: \\(watchIssueCount)"
+          }
         }
       }
     },
@@ -21599,6 +22511,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "会话热点：\\(sessionAttentionCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションホットスポット: \\(sessionAttentionCount)"
           }
         }
       }
@@ -21610,6 +22528,12 @@
             "state": "translated",
             "value": "严重审计事件：\\(recentCriticalAuditCount)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重大監査イベント: \\(recentCriticalAuditCount)"
+          }
         }
       }
     },
@@ -21619,6 +22543,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "交接复查：\\(handoffCheckInStatus.state.label) · \\(handoffCheckInStatus.dueLabel)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎチェックイン: \\(handoffCheckInStatus.state.label) · \\(handoffCheckInStatus.dueLabel)"
           }
         }
       }
@@ -21630,6 +22560,12 @@
             "state": "translated",
             "value": "交接跟进：\\(pendingCount) 项待处理 · \\(completedCount) 项已完成"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎフォローアップ: \\(pendingCount) 件未完了 · \\(completedCount) 件完了"
+          }
         }
       }
     },
@@ -21639,6 +22575,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "本地静默：\\(mutedAlertCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ローカルでミュート: \\(mutedAlertCount)"
           }
         }
       }
@@ -21650,6 +22592,12 @@
             "state": "translated",
             "value": "上次刷新：\\(RelativeDateTimeFormatter().localizedString(for: lastRefresh, relativeTo: Date()))"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最終更新: \\(RelativeDateTimeFormatter().localizedString(for: lastRefresh, relativeTo: Date()))"
+          }
         }
       }
     },
@@ -21659,6 +22607,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "- \\(item.title)：\\(item.detail)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "- \\(item.title): \\(item.detail)"
           }
         }
       }
@@ -21670,6 +22624,12 @@
             "state": "translated",
             "value": "- \\(target.label)：\\(target.deepLinkURL.absoluteString)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "- \\(target.label): \\(target.deepLinkURL.absoluteString)"
+          }
         }
       }
     },
@@ -21679,6 +22639,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "- 核心焦点（\\(leadItem.title)）：\\(leadTarget.deepLinkURL.absoluteString)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "- 重点項目 (\\(leadItem.title)): \\(leadTarget.deepLinkURL.absoluteString)"
           }
         }
       }
@@ -21690,6 +22656,12 @@
             "state": "translated",
             "value": "Agent 已完成，但没有文本回复（\\(tokensSummary) 令牌）。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントはテキスト返信なしで完了しました（\\(tokensSummary) トークン）。"
+          }
         }
       }
     },
@@ -21699,6 +22671,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "仍有 \\(criticalCount) 个严重项目待审查"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalCount) 件の重大項目にまだ確認が必要です"
           }
         }
       }
@@ -21710,6 +22688,12 @@
             "state": "translated",
             "value": "仍有 \\(priorityItems.count) 个值班项目在队列中"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(priorityItems.count) 件のオンコール項目がまだキューにあります"
+          }
         }
       }
     },
@@ -21719,6 +22703,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "仍有 \\(criticalCount) 项严重压力处于活跃状态"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalCount) 件の重大負荷が引き続きアクティブです"
           }
         }
       }
@@ -21730,6 +22720,12 @@
             "state": "translated",
             "value": "仍有 \\(liveAlertCount) 条实时告警处于活跃状态"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(liveAlertCount) 件のライブアラートがまだアクティブです"
+          }
         }
       }
     },
@@ -21739,6 +22735,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "仍有 \\(pendingFollowUpCount) 项交接跟进未完成"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingFollowUpCount) 件の引き継ぎフォローアップがまだ未完了です"
           }
         }
       }
@@ -21750,6 +22752,12 @@
             "state": "translated",
             "value": "\\(watchIssueCount) 个关注中的 agent 需要复查"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchIssueCount) 件の監視対象エージェントに確認が必要です"
+          }
         }
       }
     },
@@ -21759,6 +22767,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "仍有 \\(sessionAttentionCount) 个会话热点"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sessionAttentionCount) 件のセッションホットスポットが残っています"
           }
         }
       }
@@ -21770,6 +22784,12 @@
             "state": "translated",
             "value": "仍有 \\(recentCriticalAuditCount) 项严重事件后续待处理"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(recentCriticalAuditCount) 件の重大イベントフォローアップが残っています"
+          }
         }
       }
     },
@@ -21779,6 +22799,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "仍有 \\(pendingApprovalCount) 项审批在等待处理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingApprovalCount) 件の承認がまだ待機中です"
           }
         }
       }
@@ -21790,6 +22816,12 @@
             "state": "translated",
             "value": "\\(issueAgentCount) 个需要关注"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueAgentCount) 件が要対応です"
+          }
         }
       }
     },
@@ -21799,6 +22831,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(configuredProviderCount) 个提供方就绪"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(configuredProviderCount) 件のプロバイダが利用可能です"
           }
         }
       }
@@ -21810,6 +22848,12 @@
             "state": "translated",
             "value": "\\(readyChannelCount) 个通道正在投递"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(readyChannelCount) 件のチャネルが配信可能です"
+          }
         }
       }
     },
@@ -21819,6 +22863,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(activeHandCount) 个活跃，\\(degradedHandCount) 个降级"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activeHandCount) 稼働中、\\(degradedHandCount) 劣化"
           }
         }
       }
@@ -21830,6 +22880,12 @@
             "state": "translated",
             "value": "\\(pendingApprovalCount) 项操作待处理"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingApprovalCount) 件のアクション待ち"
+          }
         }
       }
     },
@@ -21839,6 +22895,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(connectedPeerCount)/\\(totalPeerCount) 个对等链路活跃"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクティブなピアリンク \\(connectedPeerCount)/\\(totalPeerCount)"
           }
         }
       }
@@ -21850,6 +22912,12 @@
             "state": "translated",
             "value": "\\(connectedMCPServerCount)/\\(configuredMCPServerCount) 个 MCP 服务器在线"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンラインの MCP サーバー \\(connectedMCPServerCount)/\\(configuredMCPServerCount)"
+          }
         }
       }
     },
@@ -21859,6 +22927,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(automationOverviewIssueCount) 个问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(automationOverviewIssueCount) 件の問題"
           }
         }
       }
@@ -21870,6 +22944,12 @@
             "state": "translated",
             "value": "\\(automationPressureIssueCategoryCount) 个问题"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(automationPressureIssueCategoryCount) 件の問題"
+          }
         }
       }
     },
@@ -21879,6 +22959,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(integrationsOverviewIssueCount) 个问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(integrationsOverviewIssueCount) 件の問題"
           }
         }
       }
@@ -21890,6 +22976,12 @@
             "state": "translated",
             "value": "\\(integrationPressureIssueCategoryCount) 个问题"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(integrationPressureIssueCategoryCount) 件の問題"
+          }
         }
       }
     },
@@ -21899,6 +22991,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "当前支出已达到配置上限的 \\(Int(maxPct * 100))%。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在の支出は設定上限の \\(Int(maxPct * 100))% に達しています。"
           }
         }
       }
@@ -21910,6 +23008,12 @@
             "state": "translated",
             "value": "\\(pendingApprovalCount) 项审批待处理"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingApprovalCount) 件の承認待ち"
+          }
         }
       }
     },
@@ -21919,6 +23023,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(degradedHandCount) 个执行手已降级"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(degradedHandCount) 件のハンドが劣化"
           }
         }
       }
@@ -21930,6 +23040,12 @@
             "state": "translated",
             "value": "\\(recentCriticalAuditCount) 个严重审计事件"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(recentCriticalAuditCount) 件の重大監査イベント"
+          }
         }
       }
     },
@@ -21939,6 +23055,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(sessionAttentionCount) 个会话需要复查"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sessionAttentionCount) 件のセッションに確認が必要です"
           }
         }
       }
@@ -21950,6 +23072,12 @@
             "state": "translated",
             "value": "\\(diagnosticsConfigWarningCount) 个配置告警"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(diagnosticsConfigWarningCount) 件の設定警告"
+          }
         }
       }
     },
@@ -21959,6 +23087,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(supervisorEvents) 个监督事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supervisorEvents) 件の supervisor イベント"
           }
         }
       }
@@ -21970,6 +23104,12 @@
             "state": "translated",
             "value": "自启动以来，已观察到 \\(supervisorPanicCount) 次崩溃和 \\(supervisorRestartCount) 次重启。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "起動以降、\\(supervisorPanicCount) 件の panic と \\(supervisorRestartCount) 件の restart が観測されています。"
+          }
         }
       }
     },
@@ -21979,6 +23119,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(staleRunningAgentCount) 个运行中的 agent 看起来已陈旧"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(staleRunningAgentCount) 件の稼働中 agent が古い状態に見えます"
           }
         }
       }
@@ -21990,6 +23136,12 @@
             "state": "translated",
             "value": "\\(failedWorkflowRunCount) 个工作流运行失败"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedWorkflowRunCount) 件のワークフロー実行が失敗"
+          }
         }
       }
     },
@@ -21999,6 +23151,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(exhaustedTriggerCount) 个触发器已耗尽"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(exhaustedTriggerCount) 件のトリガーが枯渇"
           }
         }
       }
@@ -22010,6 +23168,12 @@
             "state": "translated",
             "value": "\\(stalledCronJobCount) 个 cron 作业缺少下一次运行"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(stalledCronJobCount) 件の cron ジョブに次回実行がありません"
+          }
         }
       }
     },
@@ -22019,6 +23183,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(unreachableLocalProviderCount) 个本地提供方不可达"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unreachableLocalProviderCount) 件のローカルプロバイダに到達できません"
           }
         }
       }
@@ -22030,6 +23200,12 @@
             "state": "translated",
             "value": "\\(channelRequiredFieldGapCount) 个已配置通道缺少必填字段"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channelRequiredFieldGapCount) 件の設定済みチャネルで必須項目が不足しています"
+          }
         }
       }
     },
@@ -22039,6 +23215,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(agentsWithModelDiagnostics.count) 个 agent 存在模型漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agentsWithModelDiagnostics.count) 件のエージェントにモデルドリフトがあります"
           }
         }
       }
@@ -22050,6 +23232,12 @@
             "state": "translated",
             "value": "\\(approvals) 项审批被阻塞"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvals) 件の承認がブロック中です"
+          }
         }
       }
     },
@@ -22059,6 +23247,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "单个 agent 上有 \\(duplicateCount) 个会话"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 つのエージェント上に \\(duplicateCount) セッション"
           }
         }
       }
@@ -22070,6 +23264,12 @@
             "state": "translated",
             "value": "审批请求于 \\(requested)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認リクエスト \\(requested)"
+          }
         }
       }
     },
@@ -22079,6 +23279,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "关注中的 agent · \\(lead)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視対象エージェント · \\(lead)"
           }
         }
       }
@@ -22090,6 +23296,12 @@
             "state": "translated",
             "value": "严重事件 \\(entry.timestamp.onCallRelativeTimestamp ?? \"\")"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重大イベント \\(entry.timestamp.onCallRelativeTimestamp ?? \"\")"
+          }
         }
       }
     },
@@ -22099,6 +23311,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(owner) · \\(item.session.messageCount) 条消息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(owner) · \\(item.session.messageCount) 件のメッセージ"
           }
         }
       }
@@ -22110,6 +23328,12 @@
             "state": "translated",
             "value": "此 iPhone 上已确认 \\(liveCritical) 项严重事项"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone で確認済みの重大項目 \\(liveCritical) 件"
+          }
         }
       }
     },
@@ -22120,6 +23344,12 @@
             "state": "translated",
             "value": "此 iPhone 上已确认 \\(visibleAlerts.count) 条实时告警"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone で確認済みのライブアラート \\(visibleAlerts.count) 件"
+          }
         }
       }
     },
@@ -22129,6 +23359,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(visibleAlerts.count) 条实时告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleAlerts.count) 件のライブアラート"
           }
         }
       }
@@ -22156,6 +23392,12 @@
             "state": "translated",
             "value": "\\(watchIssues) 个关注中的 agent 需要复查"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchIssues) 件の監視対象エージェントに確認が必要です"
+          }
         }
       }
     },
@@ -22165,6 +23407,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(mutedAlertCount) 条告警已在本地静默；关注列表和会话仍然活跃"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mutedAlertCount) 件のアラートはローカルでミュート中ですが、ウォッチリストとセッションはアクティブのままです"
           }
         }
       }
@@ -22176,6 +23424,12 @@
             "state": "translated",
             "value": "即使当前没有可见的实时告警卡片，仍有 \\(watchIssues) 个关注中的 agent 需要复查"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブアラートカードが表示されていなくても、\\(watchIssues) 件の監視対象エージェントにまだ確認が必要です"
+          }
         }
       }
     },
@@ -22185,6 +23439,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(channelRequiredFieldGapCount) 个通道缺少必填字段"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channelRequiredFieldGapCount) 件のチャネルで必須項目が不足しています"
           }
         }
       }
@@ -22196,6 +23456,12 @@
             "state": "translated",
             "value": "缺少 \\(missingRequiredChannelFieldCount) 个必填通道字段"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingRequiredChannelFieldCount) 件の必須チャネル項目が不足しています"
+          }
         }
       }
     },
@@ -22205,6 +23471,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(unavailableCount) 个 agent 使用了不可用模型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "利用不可モデル上のエージェント \\(unavailableCount) 件"
           }
         }
       }
@@ -22216,6 +23488,12 @@
             "state": "translated",
             "value": "\\(failedWorkflowRunCount) 个工作流失败，\\(stalledCronJobCount) 个 cron 作业停滞"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedWorkflowRunCount) 件のワークフロー失敗と \\(stalledCronJobCount) 件の停止した cron ジョブ"
+          }
         }
       }
     },
@@ -22225,6 +23503,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(failedWorkflowRunCount) 个工作流失败需要复查"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedWorkflowRunCount) 件のワークフロー失敗を確認する必要があります"
           }
         }
       }
@@ -22236,6 +23520,12 @@
             "state": "translated",
             "value": "\\(exhaustedTriggerCount) 个已耗尽触发器，\\(stalledCronJobCount) 个停滞的 cron 作业"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(exhaustedTriggerCount) 件の枯渇したトリガーと \\(stalledCronJobCount) 件の停止した cron ジョブ"
+          }
         }
       }
     },
@@ -22245,6 +23535,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(exhaustedTriggerCount) 个触发器已耗尽"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(exhaustedTriggerCount) 件のトリガーが枯渇しています"
           }
         }
       }
@@ -22256,6 +23552,12 @@
             "state": "translated",
             "value": "\\(stalledCronJobCount) 个 cron 作业缺少下一次运行"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(stalledCronJobCount) 件の cron ジョブに次回実行がありません"
+          }
         }
       }
     },
@@ -22265,6 +23567,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(unreachableLocalProviderCount) 个本地提供方不可达，且 \\(channelRequiredFieldGapCount) 个通道缺少必填字段"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unreachableLocalProviderCount) 件のローカルプロバイダに到達できず、\\(channelRequiredFieldGapCount) 件のチャネルで必須項目が不足しています"
           }
         }
       }
@@ -22276,6 +23584,12 @@
             "state": "translated",
             "value": "\\(unreachableLocalProviderCount) 个本地提供方不可达"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unreachableLocalProviderCount) 件のローカルプロバイダに到達できません"
+          }
         }
       }
     },
@@ -22285,6 +23599,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(channelRequiredFieldGapCount) 个已配置通道缺少必填字段"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channelRequiredFieldGapCount) 件の設定済みチャネルで必須項目が不足しています"
           }
         }
       }
@@ -22296,6 +23616,12 @@
             "state": "translated",
             "value": "仍有 \\(agentsWithModelDiagnostics.count) 个 agent 存在模型漂移"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agentsWithModelDiagnostics.count) 件のエージェントにまだモデルドリフトがあります"
+          }
         }
       }
     },
@@ -22305,6 +23631,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "本地交接检查点 \\(RelativeDateTimeFormatter().localizedString(for: status.baseline.createdAt, relativeTo: Date()))"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ローカル引き継ぎチェックポイント \\(RelativeDateTimeFormatter().localizedString(for: status.baseline.createdAt, relativeTo: Date()))"
           }
         }
       }
@@ -22316,6 +23648,12 @@
             "state": "translated",
             "value": "\\(pending.count) 项交接跟进已逾期"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pending.count) 件の引き継ぎフォローアップが期限超過です"
+          }
         }
       }
     },
@@ -22325,6 +23663,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "复查前仍有 \\(pending.count) 项交接跟进未完成"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チェックイン前に \\(pending.count) 件の引き継ぎフォローアップが未完了です"
           }
         }
       }
@@ -22336,6 +23680,12 @@
             "state": "translated",
             "value": "仍有 \\(pending.count) 项交接跟进未完成"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pending.count) 件の引き継ぎフォローアップが未完了です"
+          }
         }
       }
     },
@@ -22345,6 +23695,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "本地复查截止后仍有 \\(pendingCount) 项交接跟进未完成"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ローカルチェックインの期限後も \\(pendingCount) 件の引き継ぎフォローアップが未完了です"
           }
         }
       }
@@ -22356,6 +23712,12 @@
             "state": "translated",
             "value": "下次本地复查前仍有 \\(pendingCount) 项交接跟进未完成"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次のローカルチェックイン前も \\(pendingCount) 件の引き継ぎフォローアップが未完了です"
+          }
         }
       }
     },
@@ -22365,6 +23727,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "仍有 \\(pendingCount) 项交接跟进未完成"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingCount) 件の引き継ぎフォローアップが未完了です"
           }
         }
       }
@@ -53365,6 +54733,646 @@
           "stringUnit": {
             "state": "translated",
             "value": "ワークスペースアクションの準備状況は現在、ルート切り替えとワークスペース ID 確認を進めるのに十分明確です。"
+          }
+        }
+      }
+    },
+    "A2A action readiness is currently anchored by multi-host endpoint spread and nearby route exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 行动就绪度当前由多主机端点分布和附近路由出口主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A アクションの準備状況は現在、複数ホストのエンドポイント分布と近くのルート出口が軸です。"
+          }
+        }
+      }
+    },
+    "A2A action readiness is currently anchored by stream and push-ready external agents.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 行动就绪度当前由支持流式和推送的外部代理主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A アクションの準備状況は現在、ストリーム対応かつプッシュ対応の外部エージェントが軸です。"
+          }
+        }
+      }
+    },
+    "A2A action readiness is currently anchored by the filtered external-agent slice and the next route exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 行动就绪度当前由筛选后的外部代理切片和下一组路由出口主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A アクションの準備状況は現在、フィルター済みの外部エージェントスライスと次のルート出口が軸です。"
+          }
+        }
+      }
+    },
+    "A2A action readiness is currently centered on compact route breadth and visible directory coverage.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 行动就绪度当前集中在紧凑的路由广度和可见目录覆盖上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A アクションの準備状況は現在、コンパクトなルートの広がりと表示中ディレクトリのカバレッジが中心です。"
+          }
+        }
+      }
+    },
+    "Keep route breadth, endpoint host spread, and visible external-agent coverage readable before moving into the surrounding operator surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入周边操作界面前，先让路由广度、端点主机分布和可见外部代理覆盖保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "周辺のオペレーター画面へ移る前に、ルートの広がり、エンドポイントホストの分布、表示中の外部エージェントカバレッジを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to check route breadth, host spread, and visible external-agent coverage before leaving the compact directory for comms, runtime, or diagnostics.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在离开紧凑目录、转向 comms、runtime 或 diagnostics 前检查路由广度、主机分布和可见外部代理覆盖。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、コンパクトなディレクトリを離れて comms、runtime、diagnostics へ進む前に、ルートの広がり、ホスト分布、表示中の外部エージェントカバレッジを確認します。"
+          }
+        }
+      }
+    },
+    "Keep route breadth, selected-profile state, and visible catalog size readable before moving into fleet, runtime, or integration context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入 fleet、runtime 或集成上下文前，先让路由广度、已选 profile 状态和可见目录规模保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "fleet、runtime、または統合の文脈へ移る前に、ルートの広がり、選択中プロファイルの状態、表示中カタログの規模を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Tool-profile action readiness is currently anchored by dense bundled-tool catalogs.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具 profile 行动就绪度当前由高密度的捆绑工具目录主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルのアクション準備状況は現在、高密度なバンドルツールカタログが軸です。"
+          }
+        }
+      }
+    },
+    "Tool-profile action readiness is currently anchored by the filtered catalog slice and nearby route exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具 profile 行动就绪度当前由筛选后的目录切片和附近路由出口主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルのアクション準備状況は現在、フィルター済みカタログスライスと近くのルート出口が軸です。"
+          }
+        }
+      }
+    },
+    "Tool-profile action readiness is currently anchored by the selected profile and its bundled tools.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具 profile 行动就绪度当前由已选 profile 及其捆绑工具主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルのアクション準備状況は現在、選択中のプロファイルとそのバンドルツールが軸です。"
+          }
+        }
+      }
+    },
+    "Tool-profile action readiness is currently clear enough for compact route pivots and catalog review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具 profile 行动就绪度当前已足以支持紧凑路由切换和目录审查。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルのアクション準備状況は現在、コンパクトなルート切り替えとカタログ確認を進めるのに十分明確です。"
+          }
+        }
+      }
+    },
+    "Use this deck to check route breadth, selected-profile depth, and visible catalog coverage before leaving the compact tool-profile directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在离开紧凑工具 profile 目录前检查路由广度、已选 profile 深度和可见目录覆盖。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、コンパクトなツールプロファイルディレクトリを離れる前に、ルートの広がり、選択中プロファイルの深さ、表示中カタログのカバレッジを確認します。"
+          }
+        }
+      }
+    },
+    "Integration support coverage is currently anchored by catalog and agent drift context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成辅助覆盖当前由目录和 agent 漂移上下文主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合の補助カバレッジは現在、カタログと agent ドリフトの文脈が軸です。"
+          }
+        }
+      }
+    },
+    "Integration support coverage is currently anchored by deeper catalog and alias context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成辅助覆盖当前由更深层的目录和别名上下文主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合の補助カバレッジは現在、より深いカタログとエイリアスの文脈が軸です。"
+          }
+        }
+      }
+    },
+    "Integration support coverage is currently anchored by live provider and channel breadth.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成辅助覆盖当前由实时 provider 和 channel 广度主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合の補助カバレッジは現在、ライブの provider と channel の広がりが軸です。"
+          }
+        }
+      }
+    },
+    "Integration support coverage is currently light across the visible inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成辅助覆盖当前在可见清单中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合の補助カバレッジは現在、表示中インベントリ全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Integration support coverage is currently narrowed by a scoped inventory slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成辅助覆盖当前被限定范围的清单切片收窄。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合の補助カバレッジは現在、絞り込まれたインベントリスライスによって狭まっています。"
+          }
+        }
+      }
+    },
+    "Keep live provider and channel breadth, deeper catalog lanes, and agent drift support readable before drilling into the full integration inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入完整集成清单前，先让实时 provider 和 channel 广度、更深层目录通道以及 agent 漂移辅助保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全な統合インベントリへ掘り下げる前に、ライブの provider と channel の広がり、より深いカタログレーン、agent ドリフト補助を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the next channel stack visible before the credential and delivery rows open up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在凭据行和投递行展开前，先让下一组 channel 堆栈保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "資格情報と配信の行が開く前に、次の channel スタックを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the next provider stack visible before the full provider diagnostics rows open up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在完整 provider diagnostics 行展开前，先让下一组 provider 堆栈保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全な provider diagnostics 行が開く前に、次の provider スタックを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep supporting provider, channel, catalog, alias, and drift context visible before the deeper integration sections take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在更深层集成分区接管前，让辅助性的 provider、channel、目录、别名和漂移上下文保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、より深い統合セクションが前面に出る前に、補助的な provider、channel、カタログ、エイリアス、ドリフトの文脈を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "\\(supportLaneCount) support lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportLaneCount) 个辅助通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportLaneCount)件の補助レーン"
+          }
+        }
+      }
+    },
+    "1 more section": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "另外 1 个分区"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "さらに 1 セクション"
+          }
+        }
+      }
+    },
+    "Additional sections stay collapsed behind this first upcoming stack.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "其他分区会继续折叠在这个即将到来的首个堆栈之后。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "追加のセクションは、この最初の次スタックの後ろで折りたたまれたままです。"
+          }
+        }
+      }
+    },
+    "First": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第一个"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最初"
+          }
+        }
+      }
+    },
+    "Move directly into the upcoming sections from this preview.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从这个预览直接进入即将到来的分区。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このプレビューから次のセクションへ直接移動します。"
+          }
+        }
+      }
+    },
+    "Next: \\(firstVisibleSectionTitle)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一个：\\(firstVisibleSectionTitle)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次: \\(firstVisibleSectionTitle)"
+          }
+        }
+      }
+    },
+    "Preview the next monitoring stacks before the longer lists and cards take over the screen.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在更长的列表和卡片接管屏幕前，预览下一组监控堆栈。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より長い一覧やカードが画面を占める前に、次の監視スタックをプレビューします。"
+          }
+        }
+      }
+    },
+    "Starts with \\(firstVisibleSectionTitle)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从 \\(firstVisibleSectionTitle) 开始"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(firstVisibleSectionTitle) から始まります"
+          }
+        }
+      }
+    },
+    "Then \\(remainingVisibleSections.count) more visible sections follow in sequence.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "随后还会按顺序显示 \\(remainingVisibleSections.count) 个可见分区。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "その後に \\(remainingVisibleSections.count) 件の表示中セクションが順に続きます。"
+          }
+        }
+      }
+    },
+    "This is the next stack the screen will open into.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这是屏幕接下来会展开进入的堆栈。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "これは画面が次に開くスタックです。"
+          }
+        }
+      }
+    },
+    "\\(hiddenSectionCount) more sections": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还有 \\(hiddenSectionCount) 个分区"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "さらに \\(hiddenSectionCount) セクション"
+          }
+        }
+      }
+    },
+    "\\(index)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(index)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(index)"
+          }
+        }
+      }
+    },
+    "\\(sectionTitles.count) sections": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sectionTitles.count) 个分区"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sectionTitles.count) セクション"
+          }
+        }
+      }
+    },
+    "\\(pendingApprovals) approvals": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingApprovals) 项审批"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingApprovals) 件の承認"
+          }
+        }
+      }
+    },
+    "1 direct jump": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个直接跳转"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の直接ジャンプ"
+          }
+        }
+      }
+    },
+    "1 direct jump (+\\(hiddenJumpCount))": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个直接跳转（+\\(hiddenJumpCount)）"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の直接ジャンプ（+\\(hiddenJumpCount)）"
+          }
+        }
+      }
+    },
+    "Move directly into the next visible sections from this preview. \\(hiddenJumpCount) more jump targets stay collapsed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从这个预览直接进入下一组可见分区。另有 \\(hiddenJumpCount) 个跳转目标仍保持折叠。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このプレビューから次に表示されるセクションへ直接移動します。さらに \\(hiddenJumpCount) 件のジャンプ先は折りたたまれたままです。"
+          }
+        }
+      }
+    },
+    "\\(visibleJumpItems.count) direct jumps": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleJumpItems.count) 个直接跳转"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleJumpItems.count)件の直接ジャンプ"
+          }
+        }
+      }
+    },
+    "\\(visibleJumpItems.count) direct jumps (+\\(hiddenJumpCount))": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleJumpItems.count) 个直接跳转（+\\(hiddenJumpCount)）"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleJumpItems.count)件の直接ジャンプ（+\\(hiddenJumpCount)）"
           }
         }
       }
