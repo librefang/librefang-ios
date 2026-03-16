@@ -261,6 +261,15 @@ struct AgentMemoryView: View {
                 hasLoadError: loadError != nil
             )
 
+            AgentMemoryPressureCoverageDeck(
+                visibleCount: filteredEntries.count,
+                totalCount: entries.count,
+                structuredCount: structuredEntryCount,
+                scalarCount: scalarEntryCount,
+                hasActiveSearch: hasActiveSearch,
+                exportReady: exportSnapshot != nil
+            )
+
             AgentMemoryRouteInventoryDeck(
                 primaryRouteCount: agentMemoryPrimaryRouteCount,
                 supportRouteCount: agentMemorySupportRouteCount,
@@ -779,6 +788,80 @@ private struct AgentMemorySectionInventoryDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct AgentMemoryPressureCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let structuredCount: Int
+    let scalarCount: Int
+    let hasActiveSearch: Bool
+    let exportReady: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to separate structured state, scalar keys, search scope, and export readiness before drilling into individual memory edits."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if structuredCount > 0 {
+                        PresentationToneBadge(
+                            text: structuredCount == 1 ? String(localized: "1 structured value") : String(localized: "\(structuredCount) structured values"),
+                            tone: .warning
+                        )
+                    }
+                    if scalarCount > 0 {
+                        PresentationToneBadge(
+                            text: scalarCount == 1 ? String(localized: "1 scalar key") : String(localized: "\(scalarCount) scalar keys"),
+                            tone: .neutral
+                        )
+                    }
+                    PresentationToneBadge(
+                        text: exportReady ? String(localized: "Export ready") : String(localized: "Export pending"),
+                        tone: exportReady ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep durable-state shape and export readiness visible before the editable key rows take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible key") : String(localized: "\(visibleCount) visible keys"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: .positive
+                )
+            } facts: {
+                if hasActiveSearch {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+                if structuredCount > 0 && scalarCount > 0 {
+                    Label(String(localized: "Mixed state"), systemImage: "square.stack.3d.up")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if structuredCount > 0 {
+            return String(localized: "Memory pressure is currently anchored by structured durable state.")
+        }
+        if hasActiveSearch {
+            return String(localized: "Memory pressure is currently concentrated in a search-scoped slice.")
+        }
+        return String(localized: "Memory pressure is currently light and mostly reflects scalar durable keys.")
     }
 }
 

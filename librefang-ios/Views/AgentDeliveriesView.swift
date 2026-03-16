@@ -206,6 +206,15 @@ struct AgentDeliveriesView: View {
                     hasLoadError: loadError != nil
                 )
 
+                AgentDeliveriesPressureCoverageDeck(
+                    visibleCount: filteredReceipts.count,
+                    deliveredCount: deliveredCount,
+                    failedCount: failedCount,
+                    unsettledCount: unsettledCount,
+                    latestReceiptTimestampLabel: latestReceiptTimestampLabel,
+                    hasActiveFilter: hasActiveFilter
+                )
+
                 AgentDeliveriesRouteInventoryDeck(
                     primaryRouteCount: agentDeliveriesPrimaryRouteCount,
                     supportRouteCount: agentDeliveriesSupportRouteCount,
@@ -461,6 +470,80 @@ private struct AgentDeliveriesSectionInventoryDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct AgentDeliveriesPressureCoverageDeck: View {
+    let visibleCount: Int
+    let deliveredCount: Int
+    let failedCount: Int
+    let unsettledCount: Int
+    let latestReceiptTimestampLabel: String?
+    let hasActiveFilter: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to separate confirmed delivery, failed sends, unsettled receipts, and scoped receipt slices before opening the full log."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if failedCount > 0 {
+                        PresentationToneBadge(
+                            text: failedCount == 1 ? String(localized: "1 failed receipt") : String(localized: "\(failedCount) failed receipts"),
+                            tone: .critical
+                        )
+                    }
+                    if unsettledCount > 0 {
+                        PresentationToneBadge(
+                            text: unsettledCount == 1 ? String(localized: "1 unsettled receipt") : String(localized: "\(unsettledCount) unsettled receipts"),
+                            tone: .warning
+                        )
+                    }
+                    if deliveredCount > 0 {
+                        PresentationToneBadge(
+                            text: deliveredCount == 1 ? String(localized: "1 delivered receipt") : String(localized: "\(deliveredCount) delivered receipts"),
+                            tone: .positive
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep delivery failure, settlement lag, and freshness readable before the outbound receipt rows take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == 1 ? String(localized: "1 visible receipt") : String(localized: "\(visibleCount) visible receipts"),
+                    tone: .positive
+                )
+            } facts: {
+                if hasActiveFilter {
+                    Label(String(localized: "Scoped inventory"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+                if let latestReceiptTimestampLabel {
+                    Label(latestReceiptTimestampLabel, systemImage: "clock")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if failedCount > 0 {
+            return String(localized: "Delivery pressure is currently anchored by failed outbound receipts.")
+        }
+        if unsettledCount > 0 {
+            return String(localized: "Delivery pressure is currently concentrated in unsettled outbound receipts.")
+        }
+        return String(localized: "Delivery pressure is currently low and mostly reflects confirmed outbound receipts.")
     }
 }
 

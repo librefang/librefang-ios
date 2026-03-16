@@ -169,6 +169,15 @@ struct AgentFilesView: View {
                     hasLoadError: loadError != nil
                 )
 
+                AgentFilesPressureCoverageDeck(
+                    visibleCount: filteredFiles.count,
+                    existingCount: existingCount,
+                    missingCount: missingCount,
+                    hasActiveFilter: hasActiveFilter,
+                    scopeLabel: scope.label,
+                    scopeTone: scope.tone
+                )
+
                 AgentFilesRouteInventoryDeck(
                     primaryRouteCount: agentFilesPrimaryRouteCount,
                     supportRouteCount: agentFilesSupportRouteCount,
@@ -449,6 +458,75 @@ private struct AgentFilesSectionInventoryDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct AgentFilesPressureCoverageDeck: View {
+    let visibleCount: Int
+    let existingCount: Int
+    let missingCount: Int
+    let hasActiveFilter: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to separate identity-file drift from simple scope filtering before opening individual workspace files."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    if missingCount > 0 {
+                        PresentationToneBadge(
+                            text: missingCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingCount) missing files"),
+                            tone: .warning
+                        )
+                    }
+                    if existingCount > 0 {
+                        PresentationToneBadge(
+                            text: existingCount == 1 ? String(localized: "1 present file") : String(localized: "\(existingCount) present files"),
+                            tone: .positive
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep identity drift and scope pressure readable before the workspace file rows take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == 1 ? String(localized: "1 visible file") : String(localized: "\(visibleCount) visible files"),
+                    tone: .positive
+                )
+            } facts: {
+                if hasActiveFilter {
+                    Label(String(localized: "Scoped inventory"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+                if missingCount == 0 {
+                    Label(String(localized: "Identity intact"), systemImage: "checkmark.seal")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if missingCount > 0 {
+            return String(localized: "Workspace pressure is currently anchored by missing identity files.")
+        }
+        if hasActiveFilter {
+            return String(localized: "Workspace pressure is currently concentrated in a scoped file slice.")
+        }
+        return String(localized: "Workspace pressure is currently low and mostly reflects present identity files.")
     }
 }
 
