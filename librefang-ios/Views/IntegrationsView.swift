@@ -357,6 +357,16 @@ struct IntegrationsView: View {
                             channelAttentionCount: channelAttentionCount,
                             modelAttentionCount: modelAttentionCount
                         )
+                        IntegrationsPressureCoverageDeck(
+                            providerAttentionCount: providerAttentionCount,
+                            channelAttentionCount: channelAttentionCount,
+                            modelAttentionCount: modelAttentionCount,
+                            driftAttentionCount: driftAttentionCount,
+                            visibleResultCount: visibleResultCount,
+                            scopeLabel: scope.label,
+                            modelFilterLabel: modelFilter.label,
+                            hasSearchScope: !normalizedSearchText.isEmpty
+                        )
                     } header: {
                         Text("Inventory")
                     } footer: {
@@ -1062,6 +1072,86 @@ private struct IntegrationsSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Providers, channels, models, aliases, and drift stay summarized before the jump rail and deeper operator routes.")
+    }
+}
+
+private struct IntegrationsPressureCoverageDeck: View {
+    let providerAttentionCount: Int
+    let channelAttentionCount: Int
+    let modelAttentionCount: Int
+    let driftAttentionCount: Int
+    let visibleResultCount: Int
+    let scopeLabel: String
+    let modelFilterLabel: String
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to tell whether integration drag is mostly provider reachability, channel setup gaps, catalog availability, or agent model drift before opening the inventory below."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if providerAttentionCount > 0 {
+                        PresentationToneBadge(
+                            text: providerAttentionCount == 1 ? String(localized: "1 provider issue") : String(localized: "\(providerAttentionCount) provider issues"),
+                            tone: .critical
+                        )
+                    }
+                    if channelAttentionCount > 0 {
+                        PresentationToneBadge(
+                            text: channelAttentionCount == 1 ? String(localized: "1 channel gap") : String(localized: "\(channelAttentionCount) channel gaps"),
+                            tone: .warning
+                        )
+                    }
+                    if modelAttentionCount > 0 {
+                        PresentationToneBadge(
+                            text: modelAttentionCount == 1 ? String(localized: "1 unavailable model") : String(localized: "\(modelAttentionCount) unavailable models"),
+                            tone: .warning
+                        )
+                    }
+                    if driftAttentionCount > 0 {
+                        PresentationToneBadge(
+                            text: driftAttentionCount == 1 ? String(localized: "1 drift case") : String(localized: "\(driftAttentionCount) drift cases"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep search scope, inventory breadth, and the loudest provider, channel, catalog, and drift buckets readable before opening routes and jumps."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: scopeLabel, tone: .neutral)
+            } facts: {
+                Label(
+                    visibleResultCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleResultCount) visible results"),
+                    systemImage: "square.grid.2x2"
+                )
+                Label(modelFilterLabel, systemImage: "line.3.horizontal.decrease.circle")
+                if hasSearchScope {
+                    Label(String(localized: "Search active"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if providerAttentionCount > 0 || driftAttentionCount > 0 {
+            return String(localized: "Integration pressure is currently anchored by provider reachability or agent model drift.")
+        }
+        if channelAttentionCount > 0 || modelAttentionCount > 0 {
+            return String(localized: "Integration pressure is currently concentrated in channel setup gaps and catalog availability.")
+        }
+        return String(localized: "Integration pressure is currently low and mostly reflects scope, search, and catalog breadth.")
     }
 }
 

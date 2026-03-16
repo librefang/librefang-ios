@@ -588,6 +588,16 @@ struct AgentDetailView: View {
                     hasBudget: budgetDetail != nil,
                     hasModelResolution: hasModelResolution
                 )
+                AgentPressureCoverageDeck(
+                    issueCount: monitoringSurfaceIssueCount,
+                    approvalCount: agentApprovals.count,
+                    sessionIssueCount: sessionIssueCount,
+                    failedDeliveryCount: failedDeliveryCount,
+                    unsettledDeliveryCount: unsettledDeliveryCount,
+                    missingWorkspaceFileCount: missingWorkspaceFileCount,
+                    structuredMemoryCount: agentMemory.filter(\.isStructured).count,
+                    auditCount: agentRecentEvents.count
+                )
                 agentOperatorSurfaceDeckCard
             }
         } header: {
@@ -2314,6 +2324,99 @@ private struct AgentSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Current model path, budget visibility, and deeper diagnostics coverage stay summarized before the route rails and detail sections.")
+    }
+}
+
+private struct AgentPressureCoverageDeck: View {
+    let issueCount: Int
+    let approvalCount: Int
+    let sessionIssueCount: Int
+    let failedDeliveryCount: Int
+    let unsettledDeliveryCount: Int
+    let missingWorkspaceFileCount: Int
+    let structuredMemoryCount: Int
+    let auditCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to separate approval drag, session pressure, delivery failures, workspace gaps, and structured-memory churn before opening the deeper agent sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if issueCount > 0 {
+                        PresentationToneBadge(
+                            text: issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
+                            tone: .warning
+                        )
+                    }
+                    if approvalCount > 0 {
+                        PresentationToneBadge(
+                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                            tone: .critical
+                        )
+                    }
+                    if sessionIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: sessionIssueCount == 1 ? String(localized: "1 session issue") : String(localized: "\(sessionIssueCount) session issues"),
+                            tone: .warning
+                        )
+                    }
+                    if failedDeliveryCount > 0 {
+                        PresentationToneBadge(
+                            text: failedDeliveryCount == 1 ? String(localized: "1 failed receipt") : String(localized: "\(failedDeliveryCount) failed receipts"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep workspace identity gaps, unsettled receipts, structured memory, and audit churn readable before the agent routes and detail sections take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: auditCount == 1 ? String(localized: "1 audit event") : String(localized: "\(auditCount) audit events"),
+                    tone: auditCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if unsettledDeliveryCount > 0 {
+                    Label(
+                        unsettledDeliveryCount == 1 ? String(localized: "1 unsettled receipt") : String(localized: "\(unsettledDeliveryCount) unsettled receipts"),
+                        systemImage: "paperplane"
+                    )
+                }
+                if missingWorkspaceFileCount > 0 {
+                    Label(
+                        missingWorkspaceFileCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingWorkspaceFileCount) missing files"),
+                        systemImage: "doc.badge.exclamationmark"
+                    )
+                }
+                if structuredMemoryCount > 0 {
+                    Label(
+                        structuredMemoryCount == 1 ? String(localized: "1 structured memory key") : String(localized: "\(structuredMemoryCount) structured memory keys"),
+                        systemImage: "internaldrive"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if failedDeliveryCount > 0 || missingWorkspaceFileCount > 0 {
+            return String(localized: "Agent pressure is currently anchored by delivery failures or workspace identity gaps.")
+        }
+        if approvalCount > 0 || sessionIssueCount > 0 {
+            return String(localized: "Agent pressure is currently concentrated in approvals and session follow-up.")
+        }
+        return String(localized: "Agent pressure is currently concentrated in quieter diagnostics like structured memory and audit churn.")
     }
 }
 

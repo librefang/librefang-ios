@@ -472,6 +472,17 @@ struct HandoffCenterView: View {
                     queueCount: queueCount,
                     criticalCount: criticalCount
                 )
+                HandoffPressureCoverageDeck(
+                    queueCount: queueCount,
+                    criticalCount: criticalCount,
+                    liveAlertCount: liveAlertCount,
+                    pendingApprovalCount: vm.pendingApprovalCount,
+                    watchlistIssueCount: watchlistIssueCount,
+                    sessionAttentionCount: vm.sessionAttentionCount,
+                    criticalAuditCount: vm.recentCriticalAuditCount,
+                    pendingFollowUpCount: pendingLatestFollowUpCount,
+                    draftReadiness: draftReadiness
+                )
                 HandoffRouteInventoryDeck(
                     queueCount: queueCount,
                     criticalCount: criticalCount,
@@ -1437,6 +1448,99 @@ private struct HandoffSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Draft context, timeline depth, and saved history stay summarized before the route deck and editor sections take over.")
+    }
+}
+
+private struct HandoffPressureCoverageDeck: View {
+    let queueCount: Int
+    let criticalCount: Int
+    let liveAlertCount: Int
+    let pendingApprovalCount: Int
+    let watchlistIssueCount: Int
+    let sessionAttentionCount: Int
+    let criticalAuditCount: Int
+    let pendingFollowUpCount: Int
+    let draftReadiness: HandoffReadinessStatus
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to separate live queue drag from slower watchlist, session, audit, and follow-up work before editing or sharing the handoff draft."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if pendingApprovalCount > 0 {
+                        PresentationToneBadge(
+                            text: pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(pendingApprovalCount) approvals"),
+                            tone: .warning
+                        )
+                    }
+                    if sessionAttentionCount > 0 {
+                        PresentationToneBadge(
+                            text: sessionAttentionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionAttentionCount) session hotspots"),
+                            tone: .warning
+                        )
+                    }
+                    if pendingFollowUpCount > 0 {
+                        PresentationToneBadge(
+                            text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep live alerts, watchlist drag, audit pressure, and draft readiness readable before the draft editor and history take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: draftReadiness.state.label, tone: draftReadiness.state.tone)
+            } facts: {
+                Label(
+                    liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
+                    systemImage: "bell.badge"
+                )
+                if watchlistIssueCount > 0 {
+                    Label(
+                        watchlistIssueCount == 1 ? String(localized: "1 watchlist issue") : String(localized: "\(watchlistIssueCount) watchlist issues"),
+                        systemImage: "star"
+                    )
+                }
+                if criticalAuditCount > 0 {
+                    Label(
+                        criticalAuditCount == 1 ? String(localized: "1 critical audit") : String(localized: "\(criticalAuditCount) critical audits"),
+                        systemImage: "exclamationmark.bubble"
+                    )
+                }
+                Label(
+                    queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                    systemImage: "waveform.path.ecg"
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if criticalCount > 0 || liveAlertCount > 0 {
+            return String(localized: "Handoff pressure is currently anchored by live critical and alert load.")
+        }
+        if pendingApprovalCount > 0 || sessionAttentionCount > 0 {
+            return String(localized: "Handoff pressure is currently concentrated in approvals and session follow-up.")
+        }
+        return String(localized: "Handoff pressure is currently concentrated in watchlist, audit, and follow-up coverage.")
     }
 }
 
