@@ -286,6 +286,9 @@ struct MonitoringSectionPreviewDeck: View {
                     if let firstVisibleSectionTitle {
                         Label(String(localized: "Starts with \(firstVisibleSectionTitle)"), systemImage: "arrow.turn.down.right")
                     }
+                    if !visibleJumpItems.isEmpty {
+                        Label(jumpCountLabel, systemImage: "arrowshape.turn.up.forward.2")
+                    }
                     if hiddenSectionCount > 0 {
                         Label(
                             hiddenSectionCount == 1 ? String(localized: "1 more section") : String(localized: "\(hiddenSectionCount) more sections"),
@@ -326,7 +329,7 @@ struct MonitoringSectionPreviewDeck: View {
                 if !visibleJumpItems.isEmpty {
                     MonitoringShortcutRail(
                         title: String(localized: "Jump"),
-                        detail: String(localized: "Move directly into the upcoming sections from this preview.")
+                        detail: jumpRailDetail
                     ) {
                         ForEach(visibleJumpItems) { item in
                             Button(action: item.action) {
@@ -371,6 +374,21 @@ struct MonitoringSectionPreviewDeck: View {
         Array(jumpItems.prefix(maxVisibleSections))
     }
 
+    private var hiddenJumpCount: Int {
+        max(jumpItems.count - maxVisibleSections, 0)
+    }
+
+    private var jumpCountLabel: String {
+        if hiddenJumpCount > 0 {
+            return visibleJumpItems.count == 1
+                ? String(localized: "1 direct jump (+\(hiddenJumpCount))")
+                : String(localized: "\(visibleJumpItems.count) direct jumps (+\(hiddenJumpCount))")
+        }
+        return visibleJumpItems.count == 1
+            ? String(localized: "1 direct jump")
+            : String(localized: "\(visibleJumpItems.count) direct jumps")
+    }
+
     private var leadSectionDetail: String {
         if remainingVisibleSections.isEmpty {
             return hiddenSectionCount > 0
@@ -378,6 +396,13 @@ struct MonitoringSectionPreviewDeck: View {
                 : String(localized: "This is the next stack the screen will open into.")
         }
         return String(localized: "Then \(remainingVisibleSections.count) more visible sections follow in sequence.")
+    }
+
+    private var jumpRailDetail: String {
+        if hiddenJumpCount > 0 {
+            return String(localized: "Move directly into the next visible sections from this preview. \(hiddenJumpCount) more jump targets stay collapsed.")
+        }
+        return String(localized: "Move directly into the upcoming sections from this preview.")
     }
 
     private var hiddenSectionCount: Int {
