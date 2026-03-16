@@ -112,8 +112,6 @@ struct ApprovalsView: View {
                         .buttonStyle(.plain)
                     }
                 }
-            } header: {
-                Text("Filters")
             }
 
             if filteredApprovals.isEmpty && !vm.isLoading {
@@ -121,7 +119,7 @@ struct ApprovalsView: View {
                     ContentUnavailableView(
                         searchText.isEmpty ? String(localized: "No Pending Approvals") : String(localized: "No Search Results"),
                         systemImage: "checkmark.shield",
-                        description: Text(searchText.isEmpty ? String(localized: "The current dashboard snapshot has no unresolved approval gates.") : String(localized: "Try a different agent, tool, or action query."))
+                        description: Text(searchText.isEmpty ? String(localized: "No pending approvals right now.") : String(localized: "Try a different search."))
                     )
                 }
             } else {

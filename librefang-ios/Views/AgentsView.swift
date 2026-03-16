@@ -123,7 +123,7 @@ struct AgentsView: View {
                         ContentUnavailableView(
                             "No Agents",
                             systemImage: "cpu.fill",
-                            description: Text("Pull to refresh or check server connection.")
+                            description: Text("Pull to refresh.")
                         )
                     } else if filteredAgents.isEmpty && !searchText.isEmpty {
                         ContentUnavailableView.search(text: searchText)
@@ -131,19 +131,19 @@ struct AgentsView: View {
                         ContentUnavailableView(
                             "No Active Agent Issues",
                             systemImage: "checkmark.shield",
-                            description: Text("Running agents, approvals, auth, and stale activity all look normal right now.")
+                            description: Text("No active issues right now.")
                         )
                     } else if filteredAgents.isEmpty && filterState == .watchlist {
                         ContentUnavailableView(
                             "No Watched Agents",
                             systemImage: "star",
-                            description: Text("Mark important agents from the list or detail page to keep them near the top on mobile.")
+                            description: Text("Mark agents to pin them here.")
                         )
                     } else if filteredAgents.isEmpty {
                         ContentUnavailableView(
                             "No Agents In This Filter",
                             systemImage: "line.3.horizontal.decrease.circle",
-                            description: Text("Switch filters or pull to refresh to inspect the full fleet.")
+                            description: Text("Change the filter or refresh.")
                         )
                     } else {
                         List {
@@ -183,16 +183,6 @@ struct AgentsView: View {
                                                 )
                                             }
                                             .tint(.yellow)
-                                        }
-                                        .swipeActions(edge: .trailing) {
-                                            if item.agent.isRunning {
-                                                Button {
-                                                    // future: stop agent
-                                                } label: {
-                                                    Label(String(localized: "Message"), systemImage: "paperplane")
-                                                }
-                                                .tint(.blue)
-                                            }
                                         }
                                     }
                                 } header: {

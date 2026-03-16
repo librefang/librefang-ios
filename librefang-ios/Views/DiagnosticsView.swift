@@ -113,14 +113,12 @@ struct DiagnosticsView: View {
                         DiagnosticsMetricRow(
                             label: String(localized: "Kernel Status"),
                             value: healthDetail.localizedStatusLabel,
-                            detail: String(localized: "Database \(healthDetail.localizedDatabaseLabel)")
+                            detail: nil
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "Uptime"),
                             value: formatDuration(healthDetail.uptimeSeconds),
-                            detail: healthDetail.agentCount == 1
-                                ? String(localized: "1 agent in registry")
-                                : String(localized: "\(healthDetail.agentCount) agents in registry")
+                            detail: nil
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "Supervisor"),
@@ -147,8 +145,7 @@ struct DiagnosticsView: View {
                     Section {
                         DiagnosticsMetricRow(
                             label: String(localized: "Version"),
-                            value: versionInfo.version,
-                            detail: shortSHA(versionInfo.gitSHA)
+                            value: versionInfo.version
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "Toolchain"),
@@ -164,8 +161,7 @@ struct DiagnosticsView: View {
                     Section {
                         DiagnosticsMetricRow(
                             label: String(localized: "Home Dir"),
-                            value: configSummary.homeDir,
-                            detail: configSummary.dataDir
+                            value: configSummary.homeDir
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "Default Model"),
@@ -190,10 +186,7 @@ struct DiagnosticsView: View {
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "Rolling Tokens"),
-                            value: metrics.totalRollingTokens.formatted(),
-                            detail: metrics.totalRollingToolCalls == 1
-                                ? String(localized: "1 tool call in the current metrics window")
-                                : String(localized: "\(metrics.totalRollingToolCalls.formatted()) tool calls in the current metrics window")
+                            value: metrics.totalRollingTokens.formatted()
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "Supervisor Counters"),
@@ -242,7 +235,7 @@ struct DiagnosticsView: View {
                         ContentUnavailableView(
                             "No Diagnostic Snapshot",
                             systemImage: "stethoscope",
-                            description: Text("Deep runtime diagnostics are not available from the current server snapshot.")
+                            description: Text("No deep diagnostic snapshot right now.")
                         )
                     }
                 }
