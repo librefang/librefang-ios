@@ -26,6 +26,18 @@ struct SettingsView: View {
     private var supportControlCount: Int { 4 }
     private var utilityRouteCount: Int { 2 }
     private var settingsSectionCount: Int { 8 }
+    private var settingsSectionPreviewTitles: [String] {
+        [
+            String(localized: "Server"),
+            String(localized: "Auto Refresh"),
+            String(localized: "Language"),
+            String(localized: "On-Call Focus"),
+            String(localized: "Standby Reminder"),
+            String(localized: "Handoff"),
+            String(localized: "Monitoring"),
+            String(localized: "About")
+        ]
+    }
 
     var body: some View {
         NavigationStack {
@@ -81,6 +93,14 @@ struct SettingsView: View {
                             refreshIntervalLabel: "\(Int(refreshInterval))s",
                             languageLabel: currentLanguageLabel
                         )
+
+                        if !settingsSectionPreviewTitles.isEmpty {
+                            MonitoringSectionPreviewDeck(
+                                title: String(localized: "Section Preview"),
+                                detail: String(localized: "Keep the next device settings groups visible before the longer server, reminder, and monitoring forms open up."),
+                                sectionTitles: settingsSectionPreviewTitles
+                            )
+                        }
 
                         SettingsPressureCoverageDeck(
                             onCallQueueCount: onCallQueueCount,

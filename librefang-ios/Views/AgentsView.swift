@@ -112,6 +112,20 @@ struct AgentsView: View {
         3 + (vm.pendingApprovalCount > 0 ? 1 : 0)
     }
     private var agentsSectionCount: Int { 2 }
+    private var agentsSectionPreviewTitles: [String] {
+        switch filterState {
+        case .all:
+            [String(localized: "Fleet")]
+        case .attention:
+            [String(localized: "Attention Queue")]
+        case .watchlist:
+            [String(localized: "Watchlist")]
+        case .running:
+            [String(localized: "Running Fleet")]
+        case .stopped:
+            [String(localized: "Stopped Fleet")]
+        }
+    }
 
     var body: some View {
         NavigationStack {
@@ -183,6 +197,14 @@ struct AgentsView: View {
                                     filterLabel: filterState.label,
                                     filterTone: filterState == .attention ? .warning : .neutral
                                 )
+
+                                if !agentsSectionPreviewTitles.isEmpty {
+                                    MonitoringSectionPreviewDeck(
+                                        title: String(localized: "Section Preview"),
+                                        detail: String(localized: "Keep the next fleet slice visible before the compact route rail gives way to the longer agent list."),
+                                        sectionTitles: agentsSectionPreviewTitles
+                                    )
+                                }
 
                                 AgentsPressureCoverageDeck(
                                     issueCount: filteredIssueCount,
