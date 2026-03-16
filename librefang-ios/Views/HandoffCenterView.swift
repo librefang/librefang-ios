@@ -353,33 +353,6 @@ struct HandoffCenterView: View {
     }
 }
 
-private struct HandoffDraftSnapshotCard: View {
-    let kind: HandoffSnapshotKind
-    let readiness: HandoffReadinessStatus
-    let focusCount: Int
-    let followUpCount: Int
-    let checkInWindowLabel: String
-
-    var body: some View {
-        MonitoringSnapshotCard(summary: String(localized: "Draft snapshot is ready for handoff composition.")) {
-            FlowLayout(spacing: 8) {
-                PresentationToneBadge(text: kind.label, tone: .neutral)
-                PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
-                PresentationToneBadge(
-                    text: focusCount == 1 ? String(localized: "1 focus area") : String(localized: "\(focusCount) focus areas"),
-                    tone: focusCount > 0 ? .positive : .neutral
-                )
-                PresentationToneBadge(
-                    text: followUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(followUpCount) follow-ups"),
-                    tone: followUpCount > 0 ? .warning : .neutral
-                )
-                PresentationToneBadge(text: checkInWindowLabel, tone: .neutral)
-            }
-        }
-        .padding(.bottom, 2)
-    }
-}
-
 private struct HandoffDraftContextCard: View {
     @Binding var kind: HandoffSnapshotKind
     let readiness: HandoffReadinessStatus
@@ -392,13 +365,19 @@ private struct HandoffDraftContextCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HandoffDraftSnapshotCard(
-                kind: kind,
-                readiness: readiness,
-                focusCount: focusCount,
-                followUpCount: followUpCount,
-                checkInWindowLabel: checkInWindow.label
-            )
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(text: kind.label, tone: .neutral)
+                PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
+                PresentationToneBadge(
+                    text: focusCount == 1 ? String(localized: "1 focus area") : String(localized: "\(focusCount) focus areas"),
+                    tone: focusCount > 0 ? .positive : .neutral
+                )
+                PresentationToneBadge(
+                    text: followUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(followUpCount) follow-ups"),
+                    tone: followUpCount > 0 ? .warning : .neutral
+                )
+                PresentationToneBadge(text: checkInWindow.label, tone: .neutral)
+            }
 
             HandoffStatsRow(
                 queueCount: queueCount,
@@ -461,11 +440,7 @@ private struct HandoffDraftActionsCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            MonitoringFactsRow(
-                verticalSpacing: 10,
-                headerVerticalSpacing: 6,
-                factsFont: .caption2
-            ) {
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(String(localized: "Draft Actions"))
                         .font(.subheadline.weight(.semibold))
@@ -476,10 +451,15 @@ private struct HandoffDraftActionsCard: View {
                 }
             } accessory: {
                 PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
-            } facts: {
-                ForEach(readiness.issues) { issue in
-                    Label(issue.message, systemImage: issue.isBlocking ? "exclamationmark.triangle.fill" : "info.circle")
-                        .foregroundStyle(issue.tone.color)
+            }
+
+            if !readiness.issues.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(readiness.issues) { issue in
+                        Label(issue.message, systemImage: issue.isBlocking ? "exclamationmark.triangle.fill" : "info.circle")
+                            .font(.caption)
+                            .foregroundStyle(issue.tone.color)
+                    }
                 }
             }
 
@@ -504,6 +484,7 @@ private struct HandoffDraftActionsCard: View {
                 }
             }
         }
+        .padding(.vertical, 4)
     }
 
     private var resetButton: some View {
@@ -530,9 +511,25 @@ private struct HandoffHistoryFilterCard: View {
     let totalCount: Int
 
     var body: some View {
-        MonitoringFilterCard(summary: summaryLine, detail: searchSummary) {
-            PresentationToneBadge(text: filter.label, tone: badgeTone)
-        } controls: {
+        VStack(alignment: .leading, spacing: 10) {
+            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(String(localized: "History"))
+                        .font(.subheadline.weight(.semibold))
+                    Text(summaryLine)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            } accessory: {
+                PresentationToneBadge(text: filter.label, tone: badgeTone)
+            }
+
+            if !searchSummary.isEmpty {
+                Text(searchSummary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             FlowLayout(spacing: 8) {
                 ForEach(HandoffHistoryFilter.allCases) { option in
                     Button {
@@ -544,6 +541,7 @@ private struct HandoffHistoryFilterCard: View {
                 }
             }
         }
+        .padding(.vertical, 4)
     }
 
     private var summaryLine: String {
@@ -558,7 +556,7 @@ private struct HandoffHistoryFilterCard: View {
     private var searchSummary: String {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         if query.isEmpty {
-            return String(localized: "Search notes or summaries to narrow the local handoff history.")
+            return ""
         }
         return String(localized: "Search active: \"\(query)\"")
     }
