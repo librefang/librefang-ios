@@ -168,9 +168,6 @@ struct HandoffCenterView: View {
 
         return items
     }
-    private var isHistorySearchScoped: Bool {
-        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
     private var shouldShowFreshnessCard: Bool {
         handoffStore.latestEntry == nil
             || handoffStore.freshnessState != .fresh
@@ -184,7 +181,6 @@ struct HandoffCenterView: View {
                     HandoffFreshnessCard(
                         freshnessState: handoffStore.freshnessState,
                         freshnessSummary: handoffStore.freshnessSummary,
-                        latestEntry: handoffStore.latestEntry,
                         uncoveredChecklistKeys: handoffStore.uncoveredChecklistKeys
                     )
                 }
@@ -289,8 +285,7 @@ struct HandoffCenterView: View {
                 Section {
                     ContentUnavailableView(
                         "No Saved Handoffs",
-                        systemImage: "text.badge.plus",
-                        description: Text("Save a snapshot to keep handoffs.")
+                        systemImage: "text.badge.plus"
                     )
                 } header: {
                     Text("Recent Handoffs")
@@ -298,17 +293,13 @@ struct HandoffCenterView: View {
             } else {
                 Section {
                     HandoffHistoryFilterCard(
-                        filter: $historyFilter,
-                        searchText: searchText,
-                        visibleCount: filteredEntries.count,
-                        totalCount: handoffStore.entries.count
+                        filter: $historyFilter
                     )
 
                     if filteredEntries.isEmpty {
                         ContentUnavailableView(
                             "No Matching Handoffs",
-                            systemImage: "line.3.horizontal.decrease.circle",
-                            description: Text("Try a different search.")
+                            systemImage: "line.3.horizontal.decrease.circle"
                         )
                     } else {
                         ForEach(filteredEntries) { entry in
@@ -441,14 +432,8 @@ private struct HandoffDraftActionsCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "Draft Actions"))
-                        .font(.subheadline.weight(.semibold))
-                    Text(readiness.summary)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+                Text(String(localized: "Draft Actions"))
+                    .font(.subheadline.weight(.semibold))
             } accessory: {
                 PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
             }
@@ -506,28 +491,14 @@ private struct HandoffDraftActionsCard: View {
 
 private struct HandoffHistoryFilterCard: View {
     @Binding var filter: HandoffHistoryFilter
-    let searchText: String
-    let visibleCount: Int
-    let totalCount: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "History"))
-                        .font(.subheadline.weight(.semibold))
-                    Text(summaryLine)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                Text(String(localized: "History"))
+                    .font(.subheadline.weight(.semibold))
             } accessory: {
                 PresentationToneBadge(text: filter.label, tone: badgeTone)
-            }
-
-            if !searchSummary.isEmpty {
-                Text(searchSummary)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
 
             FlowLayout(spacing: 8) {
@@ -542,23 +513,6 @@ private struct HandoffHistoryFilterCard: View {
             }
         }
         .padding(.vertical, 4)
-    }
-
-    private var summaryLine: String {
-        if visibleCount == totalCount {
-            return totalCount == 1
-                ? String(localized: "1 saved handoff in history")
-                : String(localized: "\(totalCount) saved handoffs in history")
-        }
-        return String(localized: "\(visibleCount) of \(totalCount) handoffs visible")
-    }
-
-    private var searchSummary: String {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if query.isEmpty {
-            return ""
-        }
-        return String(localized: "Search active: \"\(query)\"")
     }
 
     private var badgeTone: PresentationTone {
@@ -589,10 +543,6 @@ private struct HandoffCheckInCard: View {
             Text(status.dueLabel)
                 .font(.caption)
                 .foregroundStyle(.primary)
-
-            Text(status.summary)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
         }
         .padding(.vertical, 6)
     }
@@ -698,7 +648,6 @@ private struct HandoffTimelineRow: View {
 private struct HandoffFreshnessCard: View {
     let freshnessState: HandoffFreshnessState
     let freshnessSummary: String
-    let latestEntry: OnCallHandoffEntry?
     let uncoveredChecklistKeys: [HandoffChecklistKey]
 
     var body: some View {
@@ -712,14 +661,6 @@ private struct HandoffFreshnessCard: View {
             Text(freshnessSummary)
                 .font(.caption)
                 .foregroundStyle(.secondary)
-
-            if let latestEntry {
-                HandoffStatsRow(
-                    queueCount: latestEntry.queueCount,
-                    criticalCount: latestEntry.criticalCount,
-                    liveAlertCount: latestEntry.liveAlertCount
-                )
-            }
 
             if uncoveredChecklistKeys.isEmpty {
                 Text("All checklist items appeared in the recent handoff window.")

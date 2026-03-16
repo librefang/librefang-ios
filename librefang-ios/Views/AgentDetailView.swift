@@ -149,10 +149,6 @@ struct AgentDetailView: View {
         agentMemory.contains { $0.isStructured } ? .warning : .neutral
     }
 
-    private var failedReceiptTone: PresentationTone {
-        agentDeliveries.contains { $0.status == .failed } ? .critical : .neutral
-    }
-
     private var sessionIssueCount: Int {
         sessionItems.filter { $0.severity > 0 }.count
     }
@@ -804,11 +800,6 @@ struct AgentDetailView: View {
                 label: "Messages",
                 value: snapshot.messageCount == 1 ? String(localized: "1 message") : String(localized: "\(snapshot.messageCount) messages")
             )
-            DetailRow(
-                icon: "text.word.spacing",
-                label: "Context",
-                value: String(localized: "\(snapshot.contextWindowTokens.formatted()) ctx")
-            )
             if sessionIssueCount > 0 {
                 DetailRow(
                     icon: "exclamationmark.triangle",
@@ -941,14 +932,8 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             } else {
-                AgentDetailValueRow("Structured") {
-                    Text(agentMemory.filter(\.isStructured).count.formatted())
-                        .foregroundStyle(structuredMemoryTone.color)
-                        .monospacedDigit()
-                }
-
                 if agentMemory.isEmpty {
-                    Text("No agent memory keys stored.")
+                    Text("No memory keys.")
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(agentMemory.prefix(3)) { entry in
@@ -980,13 +965,6 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             } else {
-                DetailRow(
-                    icon: "doc.text",
-                    label: "Identity",
-                    value: workspaceIdentitySummary.statusLabel,
-                    valueColor: workspaceIdentitySummary.tone.color
-                )
-
                 ForEach(agentFiles.filter(\.exists).prefix(3)) { file in
                     AgentFileSummaryRow(file: file)
                 }
@@ -995,14 +973,14 @@ struct AgentDetailView: View {
                     NavigationLink {
                         AgentFilesView(agent: agent, initialFiles: agentFiles, initialScope: .missing)
                     } label: {
-                        Label("Review Missing Identity Files", systemImage: "doc.badge.gearshape")
+                        Label("Missing Identity Files", systemImage: "doc.badge.gearshape")
                     }
                 }
 
                 NavigationLink {
                     AgentFilesView(agent: agent, initialFiles: agentFiles)
                 } label: {
-                    Label("Inspect Workspace Identity", systemImage: "doc.text.magnifyingglass")
+                    Label("Workspace Files", systemImage: "doc.text.magnifyingglass")
                 }
             }
         } header: {
@@ -1020,22 +998,6 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             } else {
-                let failed = agentDeliveries.filter { $0.status == .failed }.count
-                if failed > 0 {
-                    AgentDetailValueRow("Failed") {
-                        Text(failed.formatted())
-                            .foregroundStyle(failedReceiptTone.color)
-                            .monospacedDigit()
-                    }
-                }
-                if unsettledDeliveryCount > 0 {
-                    AgentDetailValueRow("Unsettled") {
-                        Text(unsettledDeliveryCount.formatted())
-                            .foregroundStyle(PresentationTone.warning.color)
-                            .monospacedDigit()
-                    }
-                }
-
                 if agentDeliveries.isEmpty {
                     Text("No delivery receipts.")
                         .foregroundStyle(.secondary)
@@ -1049,7 +1011,7 @@ struct AgentDetailView: View {
                     NavigationLink {
                         AgentDeliveriesView(agent: agent, initialReceipts: agentDeliveries, initialScope: .failed)
                     } label: {
-                        Label("Review Failed Deliveries", systemImage: "exclamationmark.triangle")
+                        Label("Failed Deliveries", systemImage: "exclamationmark.triangle")
                     }
                 }
 
@@ -1057,14 +1019,14 @@ struct AgentDetailView: View {
                     NavigationLink {
                         AgentDeliveriesView(agent: agent, initialReceipts: agentDeliveries, initialScope: .unsettled)
                     } label: {
-                        Label("Review Unsettled Deliveries", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+                        Label("Unsettled Deliveries", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
                     }
                 }
 
                 NavigationLink {
                     AgentDeliveriesView(agent: agent, initialReceipts: agentDeliveries)
                 } label: {
-                    Label("Inspect Delivery Receipts", systemImage: "paperplane")
+                    Label("Delivery Receipts", systemImage: "paperplane")
                 }
             }
         } header: {
