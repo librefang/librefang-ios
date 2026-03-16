@@ -864,66 +864,17 @@ private struct OperatorOverlayDeck: View {
             )
 
             if !primaryActions.isEmpty || !supportActions.isEmpty {
-                Divider()
-                    .overlay(.white.opacity(0.08))
-
-                VStack(alignment: .leading, spacing: 8) {
-                    overlayActionRail(title: String(localized: "Primary"), actions: primaryActions)
-                    if !supportActions.isEmpty {
-                        overlayActionRail(title: String(localized: "Support"), actions: supportActions)
-                    }
-                }
+                OperatorOverlayRouteDeck(
+                    preferredSurfaceLabel: preferredSurfaceLabel,
+                    isOffline: isOffline,
+                    primaryActions: primaryActions,
+                    supportActions: supportActions,
+                    badgedActionCount: badgedActionCount,
+                    criticalActionCount: criticalActionCount
+                )
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    @ViewBuilder
-    private func overlayActionRail(title: String, actions: [OperatorOverlayQuickAction]) -> some View {
-        if !actions.isEmpty {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(title)
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.secondary)
-
-                FlowLayout(spacing: 8) {
-                    ForEach(actions) { action in
-                        overlayActionButton(action)
-                    }
-                }
-            }
-        }
-    }
-
-    private func overlayActionButton(_ action: OperatorOverlayQuickAction) -> some View {
-        Button(action: action.action) {
-            HStack(spacing: 6) {
-                Image(systemName: action.systemImage)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 20, height: 20)
-                    .background(.white.opacity(0.16), in: RoundedRectangle(cornerRadius: 8))
-
-                Text(action.title)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.85)
-
-                if let badgeText = action.badgeText {
-                    Text(badgeText)
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(action.tone.color)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(.white.opacity(0.96), in: Capsule())
-                }
-            }
-            .padding(.horizontal, 9)
-            .padding(.vertical, 7)
-            .background(.white.opacity(0.10), in: Capsule())
-        }
-        .buttonStyle(.plain)
     }
 }
 
@@ -1167,6 +1118,115 @@ private struct OperatorOverlayPressureDeck: View {
             foregroundStyle: .primary,
             backgroundOpacity: 0.10
         )
+    }
+}
+
+private struct OperatorOverlayRouteDeck: View {
+    let preferredSurfaceLabel: String
+    let isOffline: Bool
+    let primaryActions: [OperatorOverlayQuickAction]
+    let supportActions: [OperatorOverlayQuickAction]
+    let badgedActionCount: Int
+    let criticalActionCount: Int
+
+    private var totalRouteCount: Int {
+        primaryActions.count + supportActions.count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Keep the preferred surface, urgent drilldowns, and supporting operator exits reachable from the overlay without expanding the full monitoring stack."),
+                verticalPadding: 2
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: totalRouteCount == 1 ? String(localized: "1 live route") : String(localized: "\(totalRouteCount) live routes"),
+                        tone: .positive
+                    )
+                    PresentationToneBadge(
+                        text: primaryActions.count == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryActions.count) primary routes"),
+                        tone: primaryActions.isEmpty ? .neutral : .warning
+                    )
+                    if !supportActions.isEmpty {
+                        PresentationToneBadge(
+                            text: supportActions.count == 1 ? String(localized: "1 support route") : String(localized: "\(supportActions.count) support routes"),
+                            tone: .neutral
+                        )
+                    }
+                    if badgedActionCount > 0 {
+                        PresentationToneBadge(
+                            text: badgedActionCount == 1 ? String(localized: "1 counted route") : String(localized: "\(badgedActionCount) counted routes"),
+                            tone: .warning
+                        )
+                    }
+                    if criticalActionCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalActionCount == 1 ? String(localized: "1 urgent route") : String(localized: "\(criticalActionCount) urgent routes"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            if !primaryActions.isEmpty {
+                MonitoringSurfaceGroupCard(
+                    title: String(localized: "Primary routes"),
+                    detail: String(localized: "Anchor the overlay around the preferred surface, active incidents, approvals, and handoff recovery without leaving the top-level operator context.")
+                ) {
+                    MonitoringShortcutRail(
+                        title: String(localized: "Immediate exits"),
+                        detail: String(localized: "Use the routes with the most active pressure first.")
+                    ) {
+                        ForEach(primaryActions) { action in
+                            routeButton(action)
+                        }
+                    }
+                }
+            }
+
+            if !supportActions.isEmpty {
+                MonitoringSurfaceGroupCard(
+                    title: String(localized: "Support routes"),
+                    detail: String(localized: "Keep supporting diagnostics and session drilldowns close when the overlay is carrying secondary pressure.")
+                ) {
+                    MonitoringShortcutRail(
+                        title: String(localized: "Support exits"),
+                        detail: String(localized: "Use these when the primary routes are stable but operator follow-through is still needed.")
+                    ) {
+                        ForEach(supportActions) { action in
+                            routeButton(action)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func routeButton(_ action: OperatorOverlayQuickAction) -> some View {
+        Button(action: action.action) {
+            MonitoringSurfaceShortcutChip(
+                title: action.title,
+                systemImage: action.systemImage,
+                tone: action.tone,
+                badgeText: action.badgeText
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var summaryLine: String {
+        if isOffline {
+            return String(localized: "Overlay routes are currently anchored by offline recovery and fallback operator exits.")
+        }
+        if criticalActionCount > 0 {
+            return String(localized: "Overlay routes are currently anchored by urgent operator exits.")
+        }
+        if badgedActionCount > 0 {
+            return String(localized: "Overlay routes are currently anchored by counted live signals from the top monitor surfaces.")
+        }
+        return String(localized: "Overlay routes are currently centered on the preferred surface and nearby operator follow-through.")
     }
 }
 
