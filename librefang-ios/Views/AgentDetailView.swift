@@ -149,10 +149,6 @@ struct AgentDetailView: View {
         agentMemory.contains { $0.isStructured } ? .warning : .neutral
     }
 
-    private var deliveredReceiptTone: PresentationTone {
-        agentDeliveries.contains { $0.status == .delivered } ? .positive : .neutral
-    }
-
     private var failedReceiptTone: PresentationTone {
         agentDeliveries.contains { $0.status == .failed } ? .critical : .neutral
     }
@@ -661,14 +657,6 @@ struct AgentDetailView: View {
                             valueColor: providerAlignmentStatus.tone.color
                         )
                     }
-                    AgentDetailValueRow("Capabilities") {
-                        Text(capabilitySummary(for: resolvedCatalogModel))
-                            .foregroundStyle(.secondary)
-                    }
-                    AgentDetailValueRow("Context") {
-                        Text(contextSummary(for: resolvedCatalogModel))
-                            .foregroundStyle(.secondary)
-                    }
                 } else if requestedModelReference != nil {
                     DetailRow(
                         icon: "questionmark.square.dashed",
@@ -704,22 +692,6 @@ struct AgentDetailView: View {
                     AgentDetailValueRow("Fallbacks") {
                         Text("\(agentDetailSnapshot.fallbackModels.count)")
                             .monospacedDigit()
-                    }
-
-                    ForEach(agentDetailSnapshot.fallbackModels.prefix(3), id: \.id) { fallback in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("\(fallback.provider)/\(fallback.model)")
-                                .font(.subheadline.weight(.medium))
-
-                            if let match = fallbackCatalogModel(for: fallback) {
-                                Text(match.available
-                                    ? String(localized: "Catalog available")
-                                    : String(localized: "Catalog unavailable"))
-                                    .font(.caption)
-                                    .foregroundStyle(match.availabilityTone.color)
-                            }
-                        }
-                        .padding(.vertical, 2)
                     }
                 }
 
@@ -845,12 +817,6 @@ struct AgentDetailView: View {
                     valueColor: sessionAttentionTone.color
                 )
             }
-            if let label = snapshot.label?.trimmingCharacters(in: .whitespacesAndNewlines), !label.isEmpty {
-                AgentDetailValueRow("Current Label") {
-                    Text(label)
-                        .foregroundStyle(.secondary)
-                }
-            }
         }
     }
 
@@ -920,15 +886,6 @@ struct AgentDetailView: View {
             }
         } else if !sessionItems.isEmpty {
             Section {
-                AgentDetailValueRow("Total Sessions") {
-                    Text("\(sessionItems.count)")
-                        .monospacedDigit()
-                }
-                AgentDetailValueRow("Attention") {
-                    Text("\(sessionItems.filter { $0.severity > 0 }.count)")
-                        .foregroundStyle(sessionAttentionTone.color)
-                }
-
                 ForEach(sessionItems.prefix(4)) { item in
                     AgentSessionInventoryRow(
                         item: item,
@@ -984,10 +941,6 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             } else {
-                AgentDetailValueRow("Keys") {
-                    Text(agentMemory.count.formatted())
-                        .monospacedDigit()
-                }
                 AgentDetailValueRow("Structured") {
                     Text(agentMemory.filter(\.isStructured).count.formatted())
                         .foregroundStyle(structuredMemoryTone.color)
@@ -1068,17 +1021,6 @@ struct AgentDetailView: View {
                 }
             } else {
                 let failed = agentDeliveries.filter { $0.status == .failed }.count
-                let delivered = agentDeliveries.filter { $0.status == .delivered }.count
-
-                AgentDetailValueRow("Receipts") {
-                    Text(agentDeliveries.count.formatted())
-                        .monospacedDigit()
-                }
-                AgentDetailValueRow("Delivered") {
-                    Text(delivered.formatted())
-                        .foregroundStyle(deliveredReceiptTone.color)
-                        .monospacedDigit()
-                }
                 if failed > 0 {
                     AgentDetailValueRow("Failed") {
                         Text(failed.formatted())
@@ -1184,13 +1126,6 @@ struct AgentDetailView: View {
             || !snapshot.capabilities.network.isEmpty
     }
 
-    private func fallbackCatalogModel(for fallback: AgentFallbackModel) -> CatalogModel? {
-        deps.dashboardViewModel.catalogModels.first { model in
-            model.provider.compare(fallback.provider, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame &&
-            model.id.compare(fallback.model, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
-        }
-    }
-
     private var deliveryStatusSummary: String {
         deliverySummaryStatus.label
     }
@@ -1209,31 +1144,6 @@ struct AgentDetailView: View {
             return "\(preview) +\(profile.tools.count - 4)"
         }
         return preview
-    }
-
-    private func capabilitySummary(for model: CatalogModel) -> String {
-        var capabilities: [String] = []
-        if model.supportsTools {
-            capabilities.append(String(localized: "tools"))
-        }
-        if model.supportsVision {
-            capabilities.append(String(localized: "vision"))
-        }
-        if model.supportsStreaming {
-            capabilities.append(String(localized: "streaming"))
-        }
-        return capabilities.isEmpty
-            ? String(localized: "No extra capabilities advertised")
-            : capabilities.joined(separator: " • ")
-    }
-
-    private func contextSummary(for model: CatalogModel) -> String {
-        let contextWindow = model.contextWindow.map { String(localized: "\($0.formatted()) ctx") }
-        let maxOutput = model.maxOutputTokens.map { String(localized: "\($0.formatted()) out") }
-        return [contextWindow, maxOutput]
-            .compactMap { $0 }
-            .joined(separator: " • ")
-            .ifEmpty(String(localized: "Catalog did not publish token limits"))
     }
 
     @MainActor
