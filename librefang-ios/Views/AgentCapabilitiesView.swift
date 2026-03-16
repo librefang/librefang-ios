@@ -173,6 +173,20 @@ struct AgentCapabilitiesView: View {
                         hasMCPServers: mcpServers != nil,
                         isRefreshingOnly: isRefreshing && hasLoadedAnything
                     )
+                    CapabilitiesActionReadinessDeck(
+                        primaryRouteCount: capabilitiesPrimaryRouteCount,
+                        supportRouteCount: capabilitiesSupportRouteCount,
+                        loadedFeedCount: loadedCapabilityFeedCount,
+                        toolRestrictionCount: toolRestrictionCount,
+                        assignedSkillCount: assignedSkillCount,
+                        assignedServerCount: assignedServerCount,
+                        configuredAvailableServerCount: configuredAvailableServerCount,
+                        hasProfileRoute: agent.profile?.isEmpty == false,
+                        hasToolFilters: toolFilters != nil,
+                        hasSkills: skills != nil,
+                        hasMCPServers: mcpServers != nil,
+                        isRefreshingOnly: isRefreshing && hasLoadedAnything
+                    )
 
                     CapabilitiesRouteInventoryDeck(
                         primaryRouteCount: capabilitiesPrimaryRouteCount,
@@ -951,6 +965,114 @@ private struct CapabilitiesWorkstreamCoverageDeck: View {
             return String(localized: "Capabilities workstream coverage is currently anchored by loaded capability feeds.")
         }
         return String(localized: "Capabilities workstream coverage is currently light across the visible feeds.")
+    }
+}
+
+private struct CapabilitiesActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let loadedFeedCount: Int
+    let toolRestrictionCount: Int
+    let assignedSkillCount: Int
+    let assignedServerCount: Int
+    let configuredAvailableServerCount: Int
+    let hasProfileRoute: Bool
+    let hasToolFilters: Bool
+    let hasSkills: Bool
+    let hasMCPServers: Bool
+    let isRefreshingOnly: Bool
+
+    private var totalRouteCount: Int {
+        primaryRouteCount + supportRouteCount
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check route breadth, feed readiness, and explicit capability scope before drilling into tool, skill, and MCP sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: totalRouteCount == 1 ? String(localized: "1 route ready") : String(localized: "\(totalRouteCount) routes ready"),
+                        tone: totalRouteCount > 0 ? .positive : .neutral
+                    )
+                    if hasProfileRoute {
+                        PresentationToneBadge(text: String(localized: "Profile linked"), tone: .positive)
+                    }
+                    if isRefreshingOnly {
+                        PresentationToneBadge(text: String(localized: "Refreshing"), tone: .warning)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep route breadth, loaded feeds, and explicit capability scope readable before leaving the compact capability monitor for surrounding operator surfaces."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: loadedFeedCount == 1 ? String(localized: "1 live feed") : String(localized: "\(loadedFeedCount) live feeds"),
+                    tone: loadedFeedCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                if supportRouteCount > 0 {
+                    Label(
+                        supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        systemImage: "square.grid.2x2"
+                    )
+                }
+                if toolRestrictionCount > 0 {
+                    Label(
+                        toolRestrictionCount == 1 ? String(localized: "1 tool rule") : String(localized: "\(toolRestrictionCount) tool rules"),
+                        systemImage: "slider.horizontal.3"
+                    )
+                }
+                if assignedSkillCount > 0 {
+                    Label(
+                        assignedSkillCount == 1 ? String(localized: "1 assigned skill") : String(localized: "\(assignedSkillCount) assigned skills"),
+                        systemImage: "sparkles"
+                    )
+                }
+                if assignedServerCount > 0 {
+                    Label(
+                        assignedServerCount == 1 ? String(localized: "1 assigned server") : String(localized: "\(assignedServerCount) assigned servers"),
+                        systemImage: "shippingbox"
+                    )
+                } else if configuredAvailableServerCount > 0 {
+                    Label(
+                        configuredAvailableServerCount == 1 ? String(localized: "1 configured server") : String(localized: "\(configuredAvailableServerCount) configured servers"),
+                        systemImage: "server.rack"
+                    )
+                }
+                if hasToolFilters || hasSkills || hasMCPServers {
+                    Label(String(localized: "Capability feeds loaded"), systemImage: "checkmark.circle")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if isRefreshingOnly {
+            return String(localized: "Capabilities action readiness is currently waiting on refreshed feed state.")
+        }
+        if toolRestrictionCount > 0 || assignedServerCount > 0 {
+            return String(localized: "Capabilities action readiness is currently anchored by explicit tool rules and server scope.")
+        }
+        if assignedSkillCount > 0 {
+            return String(localized: "Capabilities action readiness is currently anchored by assigned skill scope.")
+        }
+        return String(localized: "Capabilities action readiness is currently clear enough for route pivots and deeper capability drilldown.")
     }
 }
 

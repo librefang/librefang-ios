@@ -216,6 +216,17 @@ struct AgentFilesView: View {
                     scopeLabel: scope.label,
                     scopeTone: scope.tone
                 )
+                AgentFilesActionReadinessDeck(
+                    primaryRouteCount: agentFilesPrimaryRouteCount,
+                    supportRouteCount: agentFilesSupportRouteCount,
+                    visibleCount: filteredFiles.count,
+                    totalCount: files.count,
+                    existingCount: existingCount,
+                    missingCount: missingCount,
+                    hasActiveFilter: hasActiveFilter,
+                    scopeLabel: scope.label,
+                    scopeTone: scope.tone
+                )
 
                 AgentFilesRouteInventoryDeck(
                     primaryRouteCount: agentFilesPrimaryRouteCount,
@@ -784,6 +795,97 @@ private struct AgentFilesWorkstreamCoverageDeck: View {
             return String(localized: "Workspace workstream coverage is currently anchored by a filtered identity slice.")
         }
         return String(localized: "Workspace workstream coverage is currently light across the visible inventory.")
+    }
+}
+
+private struct AgentFilesActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let existingCount: Int
+    let missingCount: Int
+    let hasActiveFilter: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+
+    private var totalRouteCount: Int {
+        primaryRouteCount + supportRouteCount
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check route breadth, workspace identity drift, and visible file coverage before leaving the compact file monitor."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    PresentationToneBadge(
+                        text: totalRouteCount == 1 ? String(localized: "1 route ready") : String(localized: "\(totalRouteCount) routes ready"),
+                        tone: totalRouteCount > 0 ? .positive : .neutral
+                    )
+                    if hasActiveFilter {
+                        PresentationToneBadge(text: String(localized: "Scoped inventory"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep route breadth, missing-file drift, and visible workspace identity coverage readable before pivoting into adjacent agent surfaces."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible file") : String(localized: "\(visibleCount) visible files"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                if supportRouteCount > 0 {
+                    Label(
+                        supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        systemImage: "square.grid.2x2"
+                    )
+                }
+                if existingCount > 0 {
+                    Label(
+                        existingCount == 1 ? String(localized: "1 present file") : String(localized: "\(existingCount) present files"),
+                        systemImage: "doc.text"
+                    )
+                }
+                if missingCount > 0 {
+                    Label(
+                        missingCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingCount) missing files"),
+                        systemImage: "doc.badge.gearshape"
+                    )
+                }
+                if hasActiveFilter {
+                    Label(String(localized: "Scoped inventory"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if missingCount > 0 {
+            return String(localized: "Workspace action readiness is currently anchored by missing identity files and the next route exits.")
+        }
+        if hasActiveFilter {
+            return String(localized: "Workspace action readiness is currently anchored by the scoped identity slice and nearby route exits.")
+        }
+        return String(localized: "Workspace action readiness is currently clear enough for route pivots and workspace identity review.")
     }
 }
 

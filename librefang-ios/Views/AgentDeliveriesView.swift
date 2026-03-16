@@ -259,6 +259,19 @@ struct AgentDeliveriesView: View {
                     scopeLabel: scope.label,
                     scopeTone: scope.tone
                 )
+                AgentDeliveriesActionReadinessDeck(
+                    primaryRouteCount: agentDeliveriesPrimaryRouteCount,
+                    supportRouteCount: agentDeliveriesSupportRouteCount,
+                    visibleCount: filteredReceipts.count,
+                    totalCount: receipts.count,
+                    deliveredCount: deliveredCount,
+                    failedCount: failedCount,
+                    unsettledCount: unsettledCount,
+                    latestReceiptTimestampLabel: latestReceiptTimestampLabel,
+                    hasActiveFilter: hasActiveFilter,
+                    scopeLabel: scope.label,
+                    scopeTone: scope.tone
+                )
 
                 AgentDeliveriesRouteInventoryDeck(
                     primaryRouteCount: agentDeliveriesPrimaryRouteCount,
@@ -837,6 +850,108 @@ private struct AgentDeliveriesWorkstreamCoverageDeck: View {
             return String(localized: "Delivery workstream coverage is currently anchored by delivered outbound receipts.")
         }
         return String(localized: "Delivery workstream coverage is currently light across the visible receipts.")
+    }
+}
+
+private struct AgentDeliveriesActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let deliveredCount: Int
+    let failedCount: Int
+    let unsettledCount: Int
+    let latestReceiptTimestampLabel: String?
+    let hasActiveFilter: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+
+    private var totalRouteCount: Int {
+        primaryRouteCount + supportRouteCount
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check route breadth, receipt failure pressure, and visible outbound coverage before leaving the compact delivery log."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    PresentationToneBadge(
+                        text: totalRouteCount == 1 ? String(localized: "1 route ready") : String(localized: "\(totalRouteCount) routes ready"),
+                        tone: totalRouteCount > 0 ? .positive : .neutral
+                    )
+                    if failedCount > 0 {
+                        PresentationToneBadge(
+                            text: failedCount == 1 ? String(localized: "1 failed") : String(localized: "\(failedCount) failed"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep route breadth, failed or unsettled receipts, and visible outbound coverage readable before pivoting into incidents, events, or runtime context."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible receipt") : String(localized: "\(visibleCount) visible receipts"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                if supportRouteCount > 0 {
+                    Label(
+                        supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        systemImage: "square.grid.2x2"
+                    )
+                }
+                if deliveredCount > 0 {
+                    Label(
+                        deliveredCount == 1 ? String(localized: "1 delivered") : String(localized: "\(deliveredCount) delivered"),
+                        systemImage: "checkmark.circle"
+                    )
+                }
+                if unsettledCount > 0 {
+                    Label(
+                        unsettledCount == 1 ? String(localized: "1 unsettled") : String(localized: "\(unsettledCount) unsettled"),
+                        systemImage: "hourglass"
+                    )
+                }
+                if let latestReceiptTimestampLabel {
+                    Label(latestReceiptTimestampLabel, systemImage: "clock")
+                }
+                if hasActiveFilter {
+                    Label(String(localized: "Scoped inventory"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if failedCount > 0 {
+            return String(localized: "Delivery action readiness is currently anchored by failed outbound receipts and the next route exits.")
+        }
+        if unsettledCount > 0 {
+            return String(localized: "Delivery action readiness is currently anchored by unsettled outbound receipts and nearby route exits.")
+        }
+        if hasActiveFilter {
+            return String(localized: "Delivery action readiness is currently anchored by the scoped receipt slice and route breadth.")
+        }
+        return String(localized: "Delivery action readiness is currently clear enough for route pivots and receipt review.")
     }
 }
 

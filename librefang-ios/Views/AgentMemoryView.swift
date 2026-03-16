@@ -305,6 +305,16 @@ struct AgentMemoryView: View {
                 hasActiveSearch: hasActiveSearch,
                 exportReady: exportSnapshot != nil
             )
+            AgentMemoryActionReadinessDeck(
+                primaryRouteCount: agentMemoryPrimaryRouteCount,
+                supportRouteCount: agentMemorySupportRouteCount,
+                visibleCount: filteredEntries.count,
+                totalCount: entries.count,
+                structuredCount: structuredEntryCount,
+                scalarCount: scalarEntryCount,
+                hasActiveSearch: hasActiveSearch,
+                exportReady: exportSnapshot != nil
+            )
 
             AgentMemoryRouteInventoryDeck(
                 primaryRouteCount: agentMemoryPrimaryRouteCount,
@@ -1128,6 +1138,101 @@ private struct AgentMemoryWorkstreamCoverageDeck: View {
             return String(localized: "Memory workstream coverage is currently anchored by scoped export and search work.")
         }
         return String(localized: "Memory workstream coverage is currently light across the visible keys.")
+    }
+}
+
+private struct AgentMemoryActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let structuredCount: Int
+    let scalarCount: Int
+    let hasActiveSearch: Bool
+    let exportReady: Bool
+
+    private var totalRouteCount: Int {
+        primaryRouteCount + supportRouteCount
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check route breadth, structured-state pressure, and visible key coverage before leaving the compact memory monitor."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: totalRouteCount == 1 ? String(localized: "1 route ready") : String(localized: "\(totalRouteCount) routes ready"),
+                        tone: totalRouteCount > 0 ? .positive : .neutral
+                    )
+                    if exportReady {
+                        PresentationToneBadge(text: String(localized: "Export ready"), tone: .positive)
+                    }
+                    if hasActiveSearch {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep route breadth, structured-state pressure, and visible durable-key coverage readable before pivoting into agent, incident, or runtime context."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible key") : String(localized: "\(visibleCount) visible keys"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                if supportRouteCount > 0 {
+                    Label(
+                        supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        systemImage: "square.grid.2x2"
+                    )
+                }
+                if structuredCount > 0 {
+                    Label(
+                        structuredCount == 1 ? String(localized: "1 structured key") : String(localized: "\(structuredCount) structured keys"),
+                        systemImage: "square.brackets"
+                    )
+                }
+                if scalarCount > 0 {
+                    Label(
+                        scalarCount == 1 ? String(localized: "1 scalar key") : String(localized: "\(scalarCount) scalar keys"),
+                        systemImage: "text.cursor"
+                    )
+                }
+                if exportReady {
+                    Label(String(localized: "Export snapshot ready"), systemImage: "square.and.arrow.up")
+                }
+                if hasActiveSearch {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if structuredCount > 0 {
+            return String(localized: "Memory action readiness is currently anchored by structured durable state and the next route exits.")
+        }
+        if hasActiveSearch || exportReady {
+            return String(localized: "Memory action readiness is currently anchored by scoped export and search work.")
+        }
+        return String(localized: "Memory action readiness is currently clear enough for route pivots and durable-key review.")
     }
 }
 

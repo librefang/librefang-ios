@@ -22,5 +22,7 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>librefang needs local network access to connect to your monitoring server and on-call services on this LAN.</string>
 </dict>
 </plist>

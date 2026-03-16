@@ -97,6 +97,16 @@ struct A2AAgentsView: View {
                             pushCount: filteredAgents.filter { $0.capabilities?.pushNotifications == true }.count,
                             hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                         )
+                        A2AActionReadinessDeck(
+                            primaryRouteCount: a2aPrimaryRouteCount,
+                            supportRouteCount: a2aSupportRouteCount,
+                            visibleAgentCount: filteredAgents.count,
+                            totalAgentCount: agents.count,
+                            hostCount: visibleHostCount,
+                            streamingCount: visibleStreamingCount,
+                            pushCount: filteredAgents.filter { $0.capabilities?.pushNotifications == true }.count,
+                            hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        )
 
                         A2ARouteInventoryDeck(
                             primaryRouteCount: a2aPrimaryRouteCount,
@@ -590,6 +600,102 @@ private struct A2AWorkstreamCoverageDeck: View {
             return String(localized: "A2A workstream coverage is currently anchored by the filtered directory slice.")
         }
         return String(localized: "A2A workstream coverage is currently light across the visible directory.")
+    }
+}
+
+private struct A2AActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleAgentCount: Int
+    let totalAgentCount: Int
+    let hostCount: Int
+    let streamingCount: Int
+    let pushCount: Int
+    let hasSearchScope: Bool
+
+    private var totalRouteCount: Int {
+        primaryRouteCount + supportRouteCount
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check route breadth, host spread, and visible external-agent coverage before leaving the compact directory for comms, runtime, or diagnostics."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: totalRouteCount == 1 ? String(localized: "1 route ready") : String(localized: "\(totalRouteCount) routes ready"),
+                        tone: totalRouteCount > 0 ? .positive : .neutral
+                    )
+                    if streamingCount > 0 {
+                        PresentationToneBadge(
+                            text: streamingCount == 1 ? String(localized: "1 stream-ready") : String(localized: "\(streamingCount) stream-ready"),
+                            tone: .positive
+                        )
+                    }
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep route breadth, endpoint host spread, and visible external-agent coverage readable before moving into the surrounding operator surfaces."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleAgentCount == totalAgentCount
+                        ? (visibleAgentCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(visibleAgentCount) visible agents"))
+                        : String(localized: "\(visibleAgentCount) of \(totalAgentCount) visible"),
+                    tone: visibleAgentCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                if supportRouteCount > 0 {
+                    Label(
+                        supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        systemImage: "square.grid.2x2"
+                    )
+                }
+                Label(
+                    hostCount == 1 ? String(localized: "1 endpoint host") : String(localized: "\(hostCount) endpoint hosts"),
+                    systemImage: "network"
+                )
+                if pushCount > 0 {
+                    Label(
+                        pushCount == 1 ? String(localized: "1 push-ready agent") : String(localized: "\(pushCount) push-ready agents"),
+                        systemImage: "bell.badge"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "A2A action readiness is currently anchored by the filtered external-agent slice and the next route exits.")
+        }
+        if hostCount > 1 {
+            return String(localized: "A2A action readiness is currently anchored by multi-host endpoint spread and nearby route exits.")
+        }
+        if streamingCount > 0 || pushCount > 0 {
+            return String(localized: "A2A action readiness is currently anchored by stream and push-ready external agents.")
+        }
+        return String(localized: "A2A action readiness is currently centered on compact route breadth and visible directory coverage.")
     }
 }
 
