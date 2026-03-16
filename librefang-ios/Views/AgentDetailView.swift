@@ -243,6 +243,27 @@ struct AgentDetailView: View {
         .filter { $0 }
         .count
     }
+    private var agentSectionPreviewTitles: [String] {
+        var sections: [String] = [String(localized: "Runtime Status")]
+        if hasModelResolution {
+            sections.append(String(localized: "Config Snapshot"))
+        }
+        if !agentApprovals.isEmpty {
+            sections.append(String(localized: "Approvals"))
+        }
+        if budgetDetail != nil {
+            sections.append(String(localized: "Cost"))
+        }
+        sections.append(String(localized: "Session"))
+        if !agentSessions.isEmpty {
+            sections.append(String(localized: "Session Inventory"))
+        }
+        if !agentRecentEvents.isEmpty {
+            sections.append(String(localized: "Recent Activity"))
+        }
+        sections.append(String(localized: "Local Actions"))
+        return sections
+    }
 
     private var agentBudgetTone: PresentationTone {
         guard let budgetDetail else { return .neutral }
@@ -601,6 +622,13 @@ struct AgentDetailView: View {
                     hasBudget: budgetDetail != nil,
                     hasModelResolution: hasModelResolution
                 )
+                if !agentSectionPreviewTitles.isEmpty {
+                    MonitoringSectionPreviewDeck(
+                        title: String(localized: "Section Preview"),
+                        detail: String(localized: "Keep the next agent stacks visible before runtime, session, diagnostics, and local action sections open up."),
+                        sectionTitles: agentSectionPreviewTitles
+                    )
+                }
                 AgentPressureCoverageDeck(
                     issueCount: monitoringSurfaceIssueCount,
                     approvalCount: agentApprovals.count,

@@ -158,6 +158,25 @@ struct AutomationView: View {
         .filter { $0 }
         .count
     }
+    private var automationSectionPreviewTitles: [String] {
+        var sections: [String] = []
+        if !filteredWorkflows.isEmpty {
+            sections.append(String(localized: "Workflows"))
+        }
+        if !filteredWorkflowRuns.isEmpty {
+            sections.append(String(localized: "Runs"))
+        }
+        if !filteredTriggers.isEmpty {
+            sections.append(String(localized: "Triggers"))
+        }
+        if !filteredSchedules.isEmpty {
+            sections.append(String(localized: "Schedules"))
+        }
+        if !filteredCronJobs.isEmpty {
+            sections.append(String(localized: "Cron"))
+        }
+        return sections
+    }
 
     init(initialSearchText: String = "", initialScope: AutomationMonitorScope = .all) {
         _searchText = State(initialValue: initialSearchText)
@@ -204,6 +223,13 @@ struct AutomationView: View {
                         exhaustedTriggerCount: vm.exhaustedTriggerCount,
                         stalledCronCount: vm.stalledCronJobCount
                     )
+                    if !automationSectionPreviewTitles.isEmpty {
+                        MonitoringSectionPreviewDeck(
+                            title: String(localized: "Section Preview"),
+                            detail: String(localized: "Keep the next automation stacks visible before workflows, runs, triggers, and cron sections open up."),
+                            sectionTitles: automationSectionPreviewTitles
+                        )
+                    }
                     AutomationPressureCoverageDeck(
                         failedRunCount: vm.failedWorkflowRunCount,
                         exhaustedTriggerCount: vm.exhaustedTriggerCount,

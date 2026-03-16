@@ -234,6 +234,25 @@ struct IntegrationsView: View {
         .filter { $0 }
         .count
     }
+    private var integrationsSectionPreviewTitles: [String] {
+        var sections: [String] = []
+        if !filteredProviders.isEmpty {
+            sections.append(String(localized: "Providers"))
+        }
+        if !filteredChannels.isEmpty {
+            sections.append(String(localized: "Channels"))
+        }
+        if !filteredModels.isEmpty {
+            sections.append(String(localized: "Models"))
+        }
+        if !filteredAliases.isEmpty {
+            sections.append(String(localized: "Aliases"))
+        }
+        if !filteredAgentDiagnostics.isEmpty {
+            sections.append(String(localized: "Agent Drift"))
+        }
+        return sections
+    }
     private var configuredProviderCount: Int {
         filteredProviders.filter(\.isConfigured).count
     }
@@ -357,6 +376,13 @@ struct IntegrationsView: View {
                             channelAttentionCount: channelAttentionCount,
                             modelAttentionCount: modelAttentionCount
                         )
+                        if !integrationsSectionPreviewTitles.isEmpty {
+                            MonitoringSectionPreviewDeck(
+                                title: String(localized: "Section Preview"),
+                                detail: String(localized: "Keep the next integration stacks visible before providers, channels, models, and drift sections open up."),
+                                sectionTitles: integrationsSectionPreviewTitles
+                            )
+                        }
                         IntegrationsPressureCoverageDeck(
                             providerAttentionCount: providerAttentionCount,
                             channelAttentionCount: channelAttentionCount,

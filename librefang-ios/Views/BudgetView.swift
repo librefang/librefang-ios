@@ -96,6 +96,26 @@ struct BudgetView: View {
         .filter { $0 }
         .count
     }
+    private var budgetSectionPreviewTitles: [String] {
+        var sections: [String] = []
+        if vm.budget != nil {
+            sections.append(String(localized: "Limits & Alerts"))
+        }
+        if vm.usageSummary != nil {
+            sections.append(String(localized: "Cost Signals"))
+        }
+        if !vm.usageDaily.isEmpty {
+            sections.append(String(localized: "7-Day Cost Trend"))
+            sections.append(String(localized: "Daily Breakdown"))
+        }
+        if !sortedModels.isEmpty {
+            sections.append(String(localized: "By Model"))
+        }
+        if !sortedAgents.isEmpty {
+            sections.append(String(localized: "Per-Agent Cost"))
+        }
+        return sections
+    }
 
     var body: some View {
         NavigationStack {
@@ -384,6 +404,13 @@ struct BudgetView: View {
                 topModelName: topModelName,
                 topAgentName: topAgentBudgetItem?.name
             )
+            if !budgetSectionPreviewTitles.isEmpty {
+                MonitoringSectionPreviewDeck(
+                    title: String(localized: "Section Preview"),
+                    detail: String(localized: "Keep the next budget stacks visible before limits, trend, and model cost sections open up."),
+                    sectionTitles: budgetSectionPreviewTitles
+                )
+            }
 
             BudgetPressureCoverageDeck(
                 dailySpend: vm.budget?.dailySpend,
