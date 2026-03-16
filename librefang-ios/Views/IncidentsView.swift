@@ -311,7 +311,6 @@ struct IncidentsView: View {
     @ViewBuilder
     private func incidentSections(_ proxy: ScrollViewProxy) -> some View {
         scoreboardSection
-        operatorDeckSection(proxy)
 
         if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
             operatorStateSection
@@ -376,104 +375,6 @@ struct IncidentsView: View {
                 handoffCount: handoffIssueCount
             )
             .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-        }
-    }
-
-    private func operatorDeckSection(_ _: ScrollViewProxy) -> some View {
-        Section {
-            IncidentStatusDeckCard(
-                activeAlertCount: visibleAlerts.count,
-                mutedAlertCount: mutedAlerts.count,
-                criticalCount: criticalAlertCount,
-                warningCount: warningAlertCount,
-                approvalCount: vm.pendingApprovalCount,
-                agentCount: combinedAgentIssueCount,
-                sessionCount: vm.sessionAttentionCount,
-                eventCount: vm.recentCriticalAuditCount,
-                automationCount: automationIssueCount,
-                integrationCount: integrationIssueCount,
-                handoffCount: handoffIssueCount,
-                isAcknowledged: isCurrentSnapshotAcknowledged
-            )
-
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Shortcuts"),
-                detail: String(localized: "Keep the main incident drilldowns close to the live queue.")
-            ) {
-                MonitoringShortcutRail(
-                    title: String(localized: "Primary"),
-                    detail: String(localized: "Open the main incident drilldowns without extra queue cards.")
-                ) {
-                    NavigationLink {
-                        ApprovalsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Approvals"),
-                            systemImage: "checkmark.shield",
-                            tone: approvalCountTone,
-                            badgeText: vm.pendingApprovalCount > 0 ? "\(vm.pendingApprovalCount)" : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        SessionsView(initialFilter: .attention)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Sessions"),
-                            systemImage: "rectangle.stack",
-                            tone: sessionCountTone,
-                            badgeText: vm.sessionAttentionCount > 0 ? "\(vm.sessionAttentionCount)" : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        EventsView(api: deps.apiClient, initialScope: .critical)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Critical Events"),
-                            systemImage: "list.bullet.rectangle.portrait",
-                            tone: criticalEventTone,
-                            badgeText: vm.recentCriticalAuditCount > 0 ? "\(vm.recentCriticalAuditCount)" : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        HandoffCenterView(
-                            summary: handoffText,
-                            queueCount: onCallPriorityItems.count,
-                            criticalCount: criticalAlertCount,
-                            liveAlertCount: visibleAlerts.count
-                        )
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Handoff"),
-                            systemImage: "text.badge.plus",
-                            tone: handoffReadiness.state.tone,
-                            badgeText: handoffIssueCount > 0 ? "\(handoffIssueCount)" : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Runtime"),
-                            systemImage: "server.rack",
-                            tone: runtimeSurfaceTone,
-                            badgeText: vm.runtimeAlertCount > 0 ? "\(vm.runtimeAlertCount)" : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        } header: {
-            Text("Summary")
-        } footer: {
-            Text("Keep one incident summary and a short shortcut rail above the live buckets.")
         }
     }
 

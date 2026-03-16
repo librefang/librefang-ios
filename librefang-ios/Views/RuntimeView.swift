@@ -160,7 +160,6 @@ struct RuntimeView: View {
                 List {
                     errorSection
                     scoreboardSection
-                    runtimeOperatorDeckSection(proxy)
                     systemSection
                     diagnosticsSection
                     integrationsSection
@@ -239,99 +238,6 @@ struct RuntimeView: View {
         Section {
             RuntimeScoreboard(vm: vm)
                 .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-        }
-    }
-
-    private func runtimeOperatorDeckSection(_ proxy: ScrollViewProxy) -> some View {
-        Section {
-            RuntimeStatusDeckCard(vm: vm, runtimeSnapshotSummary: runtimeSnapshotSummary)
-            runtimeRouteDeckCard(proxy)
-        } header: {
-            Text("Summary")
-        } footer: {
-            Text("Keep one runtime snapshot and a short shortcut rail above the deeper sections.")
-        }
-    }
-
-    private func runtimeRouteDeckCard(_ _: ScrollViewProxy) -> some View {
-        MonitoringSurfaceGroupCard(
-            title: String(localized: "Shortcuts"),
-            detail: String(localized: "Keep the next runtime drills in one place.")
-        ) {
-            MonitoringShortcutRail(
-                title: String(localized: "Primary"),
-                detail: String(localized: "Open the main runtime drilldowns without extra layers.")
-            ) {
-                NavigationLink {
-                    DiagnosticsView()
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Diagnostics"),
-                        systemImage: "stethoscope",
-                        tone: vm.diagnosticsSummaryTone,
-                        badgeText: vm.diagnosticsConfigWarningCount > 0
-                            ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
-                            : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    IntegrationsView(initialScope: .attention)
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Integrations"),
-                        systemImage: "square.3.layers.3d.down.forward",
-                        tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
-                        badgeText: vm.integrationPressureIssueCategoryCount > 0
-                            ? (vm.integrationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues"))
-                            : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    ApprovalsView()
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Approvals"),
-                        systemImage: "checkmark.shield",
-                        tone: vm.pendingApprovalCount > 0 ? .critical : .neutral,
-                        badgeText: vm.pendingApprovalCount > 0
-                            ? (vm.pendingApprovalCount == 1 ? String(localized: "1 pending") : String(localized: "\(vm.pendingApprovalCount) pending"))
-                            : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    SessionsView(initialFilter: .attention)
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Sessions"),
-                        systemImage: "text.bubble",
-                        tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
-                        badgeText: vm.sessionAttentionCount > 0
-                            ? (vm.sessionAttentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(vm.sessionAttentionCount) hotspots"))
-                            : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    EventsView(api: deps.apiClient, initialScope: .critical)
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Critical Events"),
-                        systemImage: "text.justify.leading",
-                        tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
-                        badgeText: vm.recentCriticalAuditCount > 0
-                            ? (vm.recentCriticalAuditCount == 1 ? String(localized: "1 critical") : String(localized: "\(vm.recentCriticalAuditCount) critical"))
-                            : nil
-                    )
-                }
-                .buttonStyle(.plain)
-            }
         }
     }
 
