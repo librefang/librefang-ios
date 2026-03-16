@@ -398,7 +398,7 @@ struct AgentDetailView: View {
                             image: Image(systemName: "stethoscope")
                         )
                     ) {
-                        Label("Share Diagnostics", systemImage: "square.and.arrow.up")
+                        Label("Share", systemImage: "square.and.arrow.up")
                     }
 
                     Button {
@@ -406,8 +406,8 @@ struct AgentDetailView: View {
                     } label: {
                         Label(
                             isWatched
-                                ? String(localized: "Remove From Watchlist")
-                                : String(localized: "Add To Watchlist"),
+                                ? String(localized: "Unwatch")
+                                : String(localized: "Watch"),
                             systemImage: isWatched ? "star.slash" : "star"
                         )
                     }

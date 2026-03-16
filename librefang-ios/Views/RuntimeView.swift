@@ -76,84 +76,6 @@ struct RuntimeView: View {
         return String(localized: "Runtime monitoring is collecting the latest system, integrations, automation, and approval state.")
     }
 
-    private var runtimeJumpCount: Int {
-        [
-            vm.status != nil,
-            vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || vm.metricsSnapshot != nil,
-            !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty,
-            vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty,
-            !vm.sessions.isEmpty,
-            !vm.approvals.isEmpty,
-            !vm.recentAudit.isEmpty,
-            vm.security != nil
-        ]
-        .filter { $0 }
-        .count
-    }
-    private var runtimeSectionCount: Int {
-        [
-            vm.status != nil,
-            vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || vm.metricsSnapshot != nil,
-            !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty,
-            vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty,
-            !vm.sessions.isEmpty,
-            !vm.approvals.isEmpty,
-            !vm.recentAudit.isEmpty,
-            vm.security != nil
-        ]
-        .filter { $0 }
-        .count
-    }
-    private var runtimeSupportFeedCount: Int {
-        [
-            !vm.providers.isEmpty,
-            !vm.channels.isEmpty,
-            !vm.hands.isEmpty,
-            (vm.a2aAgents?.total ?? 0) > 0,
-            vm.networkStatus != nil
-        ]
-        .filter { $0 }
-        .count
-    }
-    private var runtimeQueueCardCount: Int {
-        [
-            vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty,
-            !vm.sessions.isEmpty,
-            !vm.approvals.isEmpty,
-            !vm.recentAudit.isEmpty
-        ]
-        .filter { $0 }
-        .count
-    }
-    private var runtimeSectionPreviewTitles: [String] {
-        var sections: [String] = []
-        if vm.status != nil {
-            sections.append(String(localized: "System"))
-        }
-        if vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || vm.metricsSnapshot != nil {
-            sections.append(String(localized: "Diagnostics"))
-        }
-        if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
-            sections.append(String(localized: "Integrations"))
-        }
-        if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
-            sections.append(String(localized: "Automation"))
-        }
-        if !vm.sessions.isEmpty {
-            sections.append(String(localized: "Sessions"))
-        }
-        if !vm.approvals.isEmpty {
-            sections.append(String(localized: "Approvals"))
-        }
-        if !vm.recentAudit.isEmpty {
-            sections.append(String(localized: "Audit"))
-        }
-        if vm.security != nil {
-            sections.append(String(localized: "Security"))
-        }
-        return sections
-    }
-
     var body: some View {
         NavigationStack {
             ScrollViewReader { proxy in
@@ -750,58 +672,54 @@ struct RuntimeView: View {
 
     @ToolbarContentBuilder
     private var runtimeToolbar: some ToolbarContent {
-        ToolbarItemGroup(placement: .topBarTrailing) {
-            NavigationLink {
-                IncidentsView()
-            } label: {
-                Image(systemName: "bell.badge")
-            }
-
+        ToolbarItem(placement: .topBarTrailing) {
             Menu {
-                Section("Queues") {
-                    NavigationLink {
-                        ApprovalsView()
-                    } label: {
-                        Label("Approvals", systemImage: "checkmark.shield")
-                    }
-
-                    NavigationLink {
-                        SessionsView(initialFilter: .attention)
-                    } label: {
-                        Label("Sessions", systemImage: "rectangle.stack")
-                    }
-
-                    NavigationLink {
-                        EventsView(api: deps.apiClient, initialScope: .critical)
-                    } label: {
-                        Label("Critical Events", systemImage: "list.bullet.rectangle.portrait")
-                    }
+                NavigationLink {
+                    IncidentsView()
+                } label: {
+                    Label("Incidents", systemImage: "bell.badge")
                 }
 
-                Section("Drilldowns") {
-                    NavigationLink {
-                        CommsView(api: deps.apiClient)
-                    } label: {
-                        Label("Comms", systemImage: "arrow.left.arrow.right.circle")
-                    }
+                NavigationLink {
+                    ApprovalsView()
+                } label: {
+                    Label("Approvals", systemImage: "checkmark.shield")
+                }
 
-                    NavigationLink {
-                        AutomationView()
-                    } label: {
-                        Label("Automation", systemImage: "flowchart")
-                    }
+                NavigationLink {
+                    SessionsView(initialFilter: .attention)
+                } label: {
+                    Label("Sessions", systemImage: "rectangle.stack")
+                }
 
-                    NavigationLink {
-                        IntegrationsView()
-                    } label: {
-                        Label("Integrations", systemImage: "square.3.layers.3d.down.forward")
-                    }
+                NavigationLink {
+                    EventsView(api: deps.apiClient, initialScope: .critical)
+                } label: {
+                    Label("Critical Events", systemImage: "list.bullet.rectangle.portrait")
+                }
 
-                    NavigationLink {
-                        DiagnosticsView()
-                    } label: {
-                        Label("Diagnostics", systemImage: "stethoscope")
-                    }
+                NavigationLink {
+                    CommsView(api: deps.apiClient)
+                } label: {
+                    Label("Comms", systemImage: "arrow.left.arrow.right.circle")
+                }
+
+                NavigationLink {
+                    AutomationView()
+                } label: {
+                    Label("Automation", systemImage: "flowchart")
+                }
+
+                NavigationLink {
+                    IntegrationsView()
+                } label: {
+                    Label("Integrations", systemImage: "square.3.layers.3d.down.forward")
+                }
+
+                NavigationLink {
+                    DiagnosticsView()
+                } label: {
+                    Label("Diagnostics", systemImage: "stethoscope")
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")
