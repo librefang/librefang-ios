@@ -124,6 +124,17 @@ struct DiagnosticsView: View {
                             panicCount: vm.supervisorPanicCount,
                             restartCount: vm.supervisorRestartCount
                         )
+                        DiagnosticsWorkstreamCoverageDeck(
+                            loadedFeedCount: loadedFeedCount,
+                            leaderboardCount: leaderboardCount,
+                            hasHealth: vm.healthDetail != nil,
+                            hasBuild: vm.versionInfo != nil,
+                            hasConfig: vm.configSummary != nil,
+                            hasMetrics: metrics != nil,
+                            warningCount: vm.diagnosticsConfigWarningCount,
+                            panicCount: vm.supervisorPanicCount,
+                            restartCount: vm.supervisorRestartCount
+                        )
                         diagnosticsRouteDeck(proxy)
                     } header: {
                         Text("Controls")
@@ -1094,6 +1105,89 @@ private struct DiagnosticsSupportCoverageDeck: View {
             return String(localized: "Diagnostics support coverage is currently anchored by config or recovery drag.")
         }
         return String(localized: "Diagnostics support coverage is currently light and mostly reflects feed readiness.")
+    }
+}
+
+private struct DiagnosticsWorkstreamCoverageDeck: View {
+    let loadedFeedCount: Int
+    let leaderboardCount: Int
+    let hasHealth: Bool
+    let hasBuild: Bool
+    let hasConfig: Bool
+    let hasMetrics: Bool
+    let warningCount: Int
+    let panicCount: Int
+    let restartCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether diagnostics is currently led by ready feeds, recovery drag, or leaderboard depth before opening the lower sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: loadedFeedCount == 1 ? String(localized: "1 feed ready") : String(localized: "\(loadedFeedCount) feeds ready"),
+                        tone: loadedFeedCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: leaderboardCount == 1 ? String(localized: "1 leaderboard") : String(localized: "\(leaderboardCount) leaderboards"),
+                        tone: leaderboardCount > 0 ? .neutral : .positive
+                    )
+                    if warningCount > 0 {
+                        PresentationToneBadge(
+                            text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep feed readiness, recovery drag, and leaderboard depth readable before moving into deep health, build, config, and metrics sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: readyFeedCount == 1 ? String(localized: "1 core feed") : String(localized: "\(readyFeedCount) core feeds"),
+                    tone: readyFeedCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(hasHealth ? String(localized: "Health ready") : String(localized: "Health pending"), systemImage: "stethoscope")
+                Label(hasBuild ? String(localized: "Build ready") : String(localized: "Build pending"), systemImage: "shippingbox")
+                Label(hasConfig ? String(localized: "Config ready") : String(localized: "Config pending"), systemImage: "gearshape.2")
+                Label(hasMetrics ? String(localized: "Metrics ready") : String(localized: "Metrics pending"), systemImage: "chart.xyaxis.line")
+                if panicCount > 0 || restartCount > 0 {
+                    Label(
+                        String(localized: "\(panicCount) panics / \(restartCount) restarts"),
+                        systemImage: "arrow.triangle.2.circlepath"
+                    )
+                }
+            }
+        }
+    }
+
+    private var readyFeedCount: Int {
+        [hasHealth, hasBuild, hasConfig, hasMetrics].filter { $0 }.count
+    }
+
+    private var summaryLine: String {
+        if warningCount > 0 || panicCount > 0 || restartCount > 0 {
+            return String(localized: "Diagnostics workstream coverage is currently anchored by warning and recovery drag.")
+        }
+        if loadedFeedCount >= leaderboardCount && loadedFeedCount > 0 {
+            return String(localized: "Diagnostics workstream coverage is currently anchored by ready deep feeds.")
+        }
+        if leaderboardCount > 0 {
+            return String(localized: "Diagnostics workstream coverage is currently anchored by leaderboard depth and metrics context.")
+        }
+        return String(localized: "Diagnostics workstream coverage is currently light across the visible lanes.")
     }
 }
 

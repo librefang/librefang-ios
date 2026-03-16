@@ -272,6 +272,18 @@ struct RuntimeView: View {
                 hasSecurity: vm.security != nil,
                 hasNetwork: vm.networkStatus != nil
             )
+            RuntimeWorkstreamCoverageDeck(
+                sectionCount: runtimeSectionCount,
+                supportFeedCount: runtimeSupportFeedCount,
+                queueCardCount: runtimeQueueCardCount,
+                runtimeAlertCount: vm.runtimeAlertCount,
+                approvalCount: vm.pendingApprovalCount,
+                hotspotCount: vm.sessionAttentionCount,
+                criticalAuditCount: vm.recentCriticalAuditCount,
+                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                hasSecurity: vm.security != nil,
+                hasNetwork: vm.networkStatus != nil
+            )
             RuntimeQueueInventoryDeck(
                 cardCount: runtimeQueueCardCount,
                 automationIssueCount: vm.automationPressureIssueCategoryCount,
@@ -2028,6 +2040,100 @@ private struct RuntimeSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Support feeds like channels, hands, peers, and A2A stay visible before the deeper runtime sections begin.")
+    }
+}
+
+private struct RuntimeWorkstreamCoverageDeck: View {
+    let sectionCount: Int
+    let supportFeedCount: Int
+    let queueCardCount: Int
+    let runtimeAlertCount: Int
+    let approvalCount: Int
+    let hotspotCount: Int
+    let criticalAuditCount: Int
+    let diagnosticsWarningCount: Int
+    let hasSecurity: Bool
+    let hasNetwork: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether runtime is currently led by queue alerts, support feeds, or deep section breadth before the lower sections open up."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: queueCardCount == 1 ? String(localized: "1 queue lane") : String(localized: "\(queueCardCount) queue lanes"),
+                        tone: queueCardCount > 0 ? .warning : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: supportFeedCount == 1 ? String(localized: "1 support feed") : String(localized: "\(supportFeedCount) support feeds"),
+                        tone: supportFeedCount > 0 ? .neutral : .positive
+                    )
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 deep section") : String(localized: "\(sectionCount) deep sections"),
+                        tone: sectionCount > 0 ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep queue pressure, support-feed readiness, and deep runtime section breadth readable before drilling into the lower runtime stacks."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: runtimeAlertCount == 1 ? String(localized: "1 runtime alert") : String(localized: "\(runtimeAlertCount) runtime alerts"),
+                    tone: runtimeAlertCount > 0 ? .critical : .neutral
+                )
+            } facts: {
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if hotspotCount > 0 {
+                    Label(
+                        hotspotCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(hotspotCount) session hotspots"),
+                        systemImage: "rectangle.stack"
+                    )
+                }
+                if criticalAuditCount > 0 {
+                    Label(
+                        criticalAuditCount == 1 ? String(localized: "1 critical audit") : String(localized: "\(criticalAuditCount) critical audits"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if diagnosticsWarningCount > 0 {
+                    Label(
+                        diagnosticsWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(diagnosticsWarningCount) warnings"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                Label(hasSecurity ? String(localized: "Security ready") : String(localized: "Security pending"), systemImage: "lock.shield")
+                Label(hasNetwork ? String(localized: "Network ready") : String(localized: "Network pending"), systemImage: "point.3.connected.trianglepath.dotted")
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if queueCardCount >= max(supportFeedCount, sectionCount) && queueCardCount > 0 {
+            return String(localized: "Runtime workstream coverage is currently anchored by queue pressure.")
+        }
+        if supportFeedCount >= sectionCount && supportFeedCount > 0 {
+            return String(localized: "Runtime workstream coverage is currently anchored by support-feed readiness and drag.")
+        }
+        if sectionCount > 0 {
+            return String(localized: "Runtime workstream coverage is currently anchored by deep section breadth.")
+        }
+        return String(localized: "Runtime workstream coverage is currently light across the visible lanes.")
     }
 }
 

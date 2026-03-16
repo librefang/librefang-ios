@@ -335,6 +335,16 @@ struct OverviewView: View {
                             automationIssueCount: vm.automationPressureIssueCategoryCount,
                             integrationIssueCount: vm.integrationPressureIssueCategoryCount
                         )
+                        OverviewWorkstreamCoverageDeck(
+                            platformCardCount: platformCardCount,
+                            signalCardCount: signalCardCount,
+                            fleetCardCount: fleetCardCount,
+                            queueCount: onCallPriorityItems.count,
+                            watchIssueCount: overviewWatchIssueCount,
+                            automationIssueCount: vm.automationPressureIssueCategoryCount,
+                            integrationIssueCount: vm.integrationPressureIssueCategoryCount,
+                            isDataStale: vm.isDataStale
+                        )
 
                         LazyVGrid(columns: summaryColumns, spacing: 8) {
                             StatBadge(
@@ -1529,6 +1539,95 @@ private struct OverviewSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Platform, signal, and fleet coverage stay summarized before the overview cards fan out into the longer mobile monitor.")
+    }
+}
+
+private struct OverviewWorkstreamCoverageDeck: View {
+    let platformCardCount: Int
+    let signalCardCount: Int
+    let fleetCardCount: Int
+    let queueCount: Int
+    let watchIssueCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let isDataStale: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether the overview is currently led by platform state, live signal pressure, or fleet follow-through before the lower cards fan out."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: platformCardCount == 1 ? String(localized: "1 platform lane") : String(localized: "\(platformCardCount) platform lanes"),
+                        tone: platformCardCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: signalCardCount == 1 ? String(localized: "1 signal lane") : String(localized: "\(signalCardCount) signal lanes"),
+                        tone: signalCardCount > 0 ? .warning : .neutral
+                    )
+                    if fleetCardCount > 0 {
+                        PresentationToneBadge(
+                            text: fleetCardCount == 1 ? String(localized: "1 fleet lane") : String(localized: "\(fleetCardCount) fleet lanes"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep platform state, live signal drag, and fleet follow-through readable before moving into the wider overview cards."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                    tone: queueCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if watchIssueCount > 0 {
+                    Label(
+                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+                if isDataStale {
+                    Label(String(localized: "Data stale"), systemImage: "clock.arrow.circlepath")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if signalCardCount >= max(platformCardCount, fleetCardCount) && signalCardCount > 0 {
+            return String(localized: "Overview workstream coverage is currently anchored by live signal pressure.")
+        }
+        if fleetCardCount >= platformCardCount && fleetCardCount > 0 {
+            return String(localized: "Overview workstream coverage is currently anchored by fleet follow-through.")
+        }
+        if platformCardCount > 0 {
+            return String(localized: "Overview workstream coverage is currently anchored by platform state.")
+        }
+        return String(localized: "Overview workstream coverage is currently light across the visible lanes.")
     }
 }
 
