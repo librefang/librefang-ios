@@ -53192,6 +53192,182 @@
           }
         }
       }
+    },
+    "Delivery action readiness is currently anchored by failed outbound receipts and the next route exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递行动就绪度当前由失败的外发回执和下一组路由出口主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信アクションの準備状況は現在、失敗した送信レシートと次のルート出口が軸です。"
+          }
+        }
+      }
+    },
+    "Delivery action readiness is currently anchored by the scoped receipt slice and route breadth.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递行动就绪度当前由限定范围的回执切片和路由广度主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信アクションの準備状況は現在、絞り込まれたレシートスライスとルートの広がりが軸です。"
+          }
+        }
+      }
+    },
+    "Delivery action readiness is currently anchored by unsettled outbound receipts and nearby route exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递行动就绪度当前由未结清的外发回执和附近路由出口主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信アクションの準備状況は現在、未解決の送信レシートと近くのルート出口が軸です。"
+          }
+        }
+      }
+    },
+    "Delivery action readiness is currently clear enough for route pivots and receipt review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "投递行动就绪度当前足以支持路由切换和回执审查。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配信アクションの準備状況は現在、ルート切り替えとレシート確認を進めるのに十分明確です。"
+          }
+        }
+      }
+    },
+    "Keep route breadth, failed or unsettled receipts, and visible outbound coverage readable before pivoting into incidents, events, or runtime context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到事件、事件流或运行时上下文前，先让路由广度、失败或未结清回执以及可见外发覆盖保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント、イベント、またはランタイムの文脈へ切り替える前に、ルートの広がり、失敗または未解決のレシート、表示中の送信カバレッジを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to check route breadth, receipt failure pressure, and visible outbound coverage before leaving the compact delivery log.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在离开紧凑投递日志前检查路由广度、回执失败压力和可见外发覆盖。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、コンパクトな配信ログを離れる前に、ルートの広がり、レシート失敗負荷、表示中の送信カバレッジを確認します。"
+          }
+        }
+      }
+    },
+    "Keep route breadth, missing-file drift, and visible workspace identity coverage readable before pivoting into adjacent agent surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到相邻代理界面前，先让路由广度、缺失文件漂移和可见工作区身份覆盖保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隣接するエージェント画面へ切り替える前に、ルートの広がり、欠落ファイルのドリフト、表示中のワークスペース ID カバレッジを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to check route breadth, workspace identity drift, and visible file coverage before leaving the compact file monitor.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在离开紧凑文件监视器前检查路由广度、工作区身份漂移和可见文件覆盖。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、コンパクトなファイルモニターを離れる前に、ルートの広がり、ワークスペース ID ドリフト、表示中のファイルカバレッジを確認します。"
+          }
+        }
+      }
+    },
+    "Workspace action readiness is currently anchored by missing identity files and the next route exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区行动就绪度当前由缺失身份文件和下一组路由出口主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースアクションの準備状況は現在、欠落している ID ファイルと次のルート出口が軸です。"
+          }
+        }
+      }
+    },
+    "Workspace action readiness is currently anchored by the scoped identity slice and nearby route exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区行动就绪度当前由限定范围的身份切片和附近路由出口主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースアクションの準備状況は現在、絞り込まれた ID スライスと近くのルート出口が軸です。"
+          }
+        }
+      }
+    },
+    "Workspace action readiness is currently clear enough for route pivots and workspace identity review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作区行动就绪度当前足以支持路由切换和工作区身份审查。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークスペースアクションの準備状況は現在、ルート切り替えとワークスペース ID 確認を進めるのに十分明確です。"
+          }
+        }
+      }
     }
   },
   "version": "1.1"
