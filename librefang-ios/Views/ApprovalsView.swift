@@ -91,19 +91,6 @@ struct ApprovalsView: View {
         Set(filteredApprovals.map(\.toolName)).count
     }
 
-    private var filterSummaryLine: String {
-        let query = trimmedSearchText
-        if query.isEmpty {
-            if filteredApprovals.count == vm.approvals.count {
-                return vm.approvals.count == 1
-                    ? String(localized: "1 approval in queue")
-                    : String(localized: "\(vm.approvals.count) approvals in queue")
-            }
-            return String(localized: "\(filteredApprovals.count) of \(vm.approvals.count) approvals visible")
-        }
-        return String(localized: "\(filteredApprovals.count) approvals visible for \"\(query)\"")
-    }
-
     var body: some View {
         List {
             Section {
@@ -124,12 +111,6 @@ struct ApprovalsView: View {
                         }
                         .buttonStyle(.plain)
                     }
-                }
-
-                if filter != .all || !trimmedSearchText.isEmpty {
-                    Text(filterSummaryLine)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
             } header: {
                 Text("Filters")

@@ -147,11 +147,8 @@ struct DiagnosticsView: View {
                     Section {
                         DiagnosticsMetricRow(
                             label: String(localized: "Version"),
-                            value: versionInfo.version
-                        )
-                        DiagnosticsMetricRow(
-                            label: String(localized: "Git SHA"),
-                            value: shortSHA(versionInfo.gitSHA)
+                            value: versionInfo.version,
+                            detail: shortSHA(versionInfo.gitSHA)
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "Toolchain"),
@@ -179,10 +176,6 @@ struct DiagnosticsView: View {
                             label: String(localized: "API Key"),
                             value: configSummary.apiKey
                         )
-                        DiagnosticsMetricRow(
-                            label: String(localized: "Memory Decay"),
-                            value: configSummary.memory.decayRate.formatted(.number.precision(.fractionLength(3)))
-                        )
                     } header: {
                         Text("Config")
                     }
@@ -206,12 +199,6 @@ struct DiagnosticsView: View {
                             label: String(localized: "Supervisor Counters"),
                             value: String(localized: "\(metrics.panicCount) panics / \(metrics.restartCount) restarts")
                         )
-                        if let versionLabel = metrics.versionLabel {
-                            DiagnosticsMetricRow(
-                                label: String(localized: "Metrics Version"),
-                                value: versionLabel
-                            )
-                        }
                     } header: {
                         Text("Metrics")
                     }

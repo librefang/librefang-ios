@@ -61,13 +61,6 @@ struct AgentsView: View {
         }
     }
 
-    private var searchSummaryLine: String {
-        if normalizedSearchText.isEmpty {
-            return String(localized: "\(filteredAgents.count) agents visible in the current fleet view.")
-        }
-        return String(localized: "\(filteredAgents.count) agents visible for \"\(searchText)\".")
-    }
-
     private var filteredRunningCount: Int {
         filteredAgents.filter { $0.agent.isRunning }.count
     }
@@ -157,9 +150,9 @@ struct AgentsView: View {
                             if !filteredAgents.isEmpty {
                                 Section {
                                     FlowLayout(spacing: 8) {
-                                        ForEach(AgentFilter.allCases, id: \.self) { filter in
-                                            Button {
-                                                filterState = filter
+                                    ForEach(AgentFilter.allCases, id: \.self) { filter in
+                                        Button {
+                                            filterState = filter
                                             } label: {
                                                 SelectableLabelCapsuleBadge(
                                                     text: filter.label,
@@ -169,12 +162,6 @@ struct AgentsView: View {
                                             }
                                             .buttonStyle(.plain)
                                         }
-                                    }
-
-                                    if filterState != .all || !normalizedSearchText.isEmpty {
-                                        Text(searchSummaryLine)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
                                     }
 
                                     ForEach(filteredAgents) { item in
@@ -308,14 +295,6 @@ private struct AgentRow: View {
                 FlowLayout(spacing: 6) {
                     statusSummary
                 }
-
-                if let model = agent.modelName {
-                    Text(model)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                        .lineLimit(1)
-                }
-
                 if let lastActive = agent.lastActive {
                     RelativeTimeText(dateString: lastActive)
                         .font(.caption2)

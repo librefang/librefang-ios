@@ -67,14 +67,6 @@ struct CommsView: View {
                 }
 
                 Section {
-                    CommsSummaryRow(label: "Agents") {
-                        Text("\(viewModel.nodeCount)")
-                            .monospacedDigit()
-                    }
-                    CommsSummaryRow(label: "Links") {
-                        Text("\(viewModel.edgeCount)")
-                            .monospacedDigit()
-                    }
                     if let topology = viewModel.topology, !topology.edges.isEmpty {
                         ForEach(visibleEdges) { edge in
                             CommsTopologyEdgeRow(
