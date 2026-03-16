@@ -139,6 +139,9 @@ struct OnCallView: View {
     private var watchIssueCount: Int {
         watchedAttentionItems.filter { $0.severity > 0 }.count
     }
+    private var activeWatchedAttentionItems: [AgentAttentionItem] {
+        watchedAttentionItems.filter { $0.severity > 0 }
+    }
     private var pendingFollowUpCount: Int {
         latestFollowUpStatuses.filter { !$0.isCompleted }.count
     }
@@ -243,14 +246,12 @@ struct OnCallView: View {
                     }
                 } header: {
                     Text("Priority Queue")
-                } footer: {
-                    Text("Sorted for quick triage using live alerts, approvals, watched agents, critical events, and session hotspots.")
                 }
             }
 
-            if !watchedAttentionItems.isEmpty {
+            if !activeWatchedAttentionItems.isEmpty {
                 Section {
-                    ForEach(watchedAttentionItems.prefix(6)) { item in
+                    ForEach(activeWatchedAttentionItems.prefix(6)) { item in
                         NavigationLink {
                             watchedDiagnosticsDestination(for: item)
                         } label: {
@@ -265,20 +266,18 @@ struct OnCallView: View {
                     }
                 } header: {
                     Text("Watchlist")
-                } footer: {
-                    Text("Pinned locally on this iPhone. Edit from the agent list or agent detail page.")
                 }
             }
 
             if priorityItems.isEmpty
-                && watchedAgents.isEmpty
+                && activeWatchedAttentionItems.isEmpty
                 && vm.pendingApprovalCount == 0
                 && vm.recentCriticalAuditCount == 0 {
                 Section("On Call") {
                     ContentUnavailableView(
                         "Calm State",
                         systemImage: "checkmark.shield",
-                        description: Text("No live priorities are currently surfacing on this device.")
+                        description: Text("No live priorities are currently surfacing.")
                     )
                 }
             }

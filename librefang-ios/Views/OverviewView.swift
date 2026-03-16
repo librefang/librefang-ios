@@ -76,38 +76,8 @@ struct OverviewView: View {
             .lowercased()
         return normalized.contains("127.0.0.1") || normalized.contains("localhost")
     }
-    private var latestHandoffGapLabel: String? {
-        deps.onCallHandoffStore.timelineItems.first?.gapToOlderEntry.map(OnCallHandoffStore.formatInterval)
-    }
-    private var latestHandoffDrift: HandoffSnapshotDrift? {
-        deps.onCallHandoffStore.driftFromLatest(
-            queueCount: onCallPriorityItems.count,
-            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-            liveAlertCount: visibleMonitoringAlerts.count
-        )
-    }
-    private var latestHandoffCarryover: HandoffCarryoverStatus? {
-        deps.onCallHandoffStore.carryoverFromLatest(
-            liveAlertCount: visibleMonitoringAlerts.count,
-            pendingApprovalCount: vm.pendingApprovalCount,
-            watchlistIssueCount: watchedAttentionItems.filter { $0.severity > 0 }.count,
-            sessionAttentionCount: vm.sessionAttentionCount,
-            criticalAuditCount: vm.recentCriticalAuditCount
-        )
-    }
     private var overviewWatchIssueCount: Int {
         watchedAttentionItems.filter { $0.severity > 0 }.count
-    }
-    private var shouldShowRecentHandoffCard: Bool {
-        guard deps.onCallHandoffStore.latestEntry != nil else { return false }
-        if deps.onCallHandoffStore.freshnessState != .fresh { return true }
-        if let checkInStatus = deps.onCallHandoffStore.latestCheckInStatus, checkInStatus.state != .scheduled {
-            return true
-        }
-        if deps.onCallHandoffStore.pendingLatestFollowUpCount > 0 { return true }
-        if let drift = latestHandoffDrift, drift.state != .steady { return true }
-        if let carryover = latestHandoffCarryover, carryover.state != .cleared { return true }
-        return false
     }
     private var shouldShowWatchlistCard: Bool {
         overviewWatchIssueCount > 0
@@ -163,28 +133,6 @@ struct OverviewView: View {
                     }
                     .buttonStyle(.plain)
 
-                    if shouldShowRecentHandoffCard, let latestHandoff = deps.onCallHandoffStore.latestEntry {
-                        NavigationLink {
-                            HandoffCenterView(
-                                summary: handoffText,
-                                queueCount: onCallPriorityItems.count,
-                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                                liveAlertCount: visibleMonitoringAlerts.count
-                            )
-                        } label: {
-                            RecentHandoffCard(
-                                entry: latestHandoff,
-                                gapLabel: latestHandoffGapLabel,
-                                checkInStatus: deps.onCallHandoffStore.latestCheckInStatus,
-                                drift: latestHandoffDrift,
-                                carryover: latestHandoffCarryover,
-                                pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
-                                completedFollowUpCount: deps.onCallHandoffStore.completedLatestFollowUpCount
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
                     if let status = vm.status {
                         SystemSnapshotCard(
                             status: status,
@@ -195,10 +143,6 @@ struct OverviewView: View {
                             sessionCount: vm.totalSessionCount,
                             mcpConnectedServers: vm.connectedMCPServerCount
                         )
-                    }
-
-                    if let budget = vm.budget {
-                        BudgetGaugesCard(budget: budget)
                     }
 
                     if shouldShowWatchlistCard {
@@ -381,142 +325,6 @@ private struct AlertsCard: View {
         .padding(14)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-}
-
-private struct RecentHandoffCard: View {
-    let entry: OnCallHandoffEntry
-    let gapLabel: String?
-    let checkInStatus: HandoffCheckInStatus?
-    let drift: HandoffSnapshotDrift?
-    let carryover: HandoffCarryoverStatus?
-    let pendingFollowUpCount: Int
-    let completedFollowUpCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            ResponsiveAccessoryRow(horizontalAlignment: .firstTextBaseline, verticalSpacing: 8) {
-                Label("Last Handoff", systemImage: "text.badge.plus")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-            } accessory: {
-                let freshnessState = freshnessState(for: entry)
-                PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
-            }
-
-            HandoffKindBadge(kind: entry.kind)
-
-            Text(entry.note.isEmpty ? entry.summary : entry.note)
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.primary)
-                .lineLimit(2)
-
-            Text(entry.summary)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(3)
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Shift inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep queue, critical load, live alerts, and checklist progress visible before reading the shift notes."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(text: createdAtRelativeLabel, tone: .neutral)
-            } facts: {
-                Label(
-                    entry.queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(entry.queueCount) queued"),
-                    systemImage: "list.bullet"
-                )
-                Label(
-                    entry.criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(entry.criticalCount) critical"),
-                    systemImage: "exclamationmark.triangle"
-                )
-                Label(
-                    entry.liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(entry.liveAlertCount) live alerts"),
-                    systemImage: "bell.badge"
-                )
-                Label(
-                    entry.checklist.completedCount == 1 ? String(localized: "1 completed check") : String(localized: "\(entry.checklist.completedCount) completed checks"),
-                    systemImage: "checkmark.circle"
-                )
-            }
-
-            Text(
-                entry.checklist.summaryLabel
-            )
-                .font(.caption2)
-                .foregroundStyle(entry.checklist.tone.color)
-                .lineLimit(2)
-
-            if !entry.focusAreas.items.isEmpty {
-                Text(String(localized: "Focus: \(entry.focusAreas.summaryLabel)"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-
-            if !entry.followUpItems.isEmpty {
-                let followUpSummary = HandoffFollowUpSummary.summarize(
-                    pendingCount: pendingFollowUpCount,
-                    completedCount: completedFollowUpCount
-                )
-
-                Text(String(localized: "Follow-ups: \(followUpSummary.settingsLabel)"))
-                    .font(.caption2)
-                    .foregroundStyle(followUpSummary.tone.color)
-            }
-
-            if let checkInStatus {
-                Text(String(localized: "Check-in: \(checkInStatus.state.label) · \(checkInStatus.dueLabel)"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            } else if entry.checkInWindow != .none {
-                Text(String(localized: "Check-in: \(entry.checkInWindow.dueLabel(from: entry.createdAt))"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-
-            if let drift {
-                Text(String(localized: "Drift: \(drift.state.label) · \(drift.compactSummary)"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-
-            if let carryover {
-                Text(String(localized: "Carryover: \(carryover.state.label) · \(carryover.summary)"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-
-            if let gapLabel {
-                Text(String(localized: "Gap to prior handoff: \(gapLabel)"))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(14)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    private func freshnessState(for entry: OnCallHandoffEntry) -> HandoffFreshnessState {
-        if Date().timeIntervalSince(entry.createdAt) >= 8 * 60 * 60 {
-            return .stale
-        }
-        return .fresh
-    }
-
-    private var createdAtRelativeLabel: String {
-        RelativeDateTimeFormatter().localizedString(for: entry.createdAt, relativeTo: Date())
     }
 }
 
@@ -929,109 +737,6 @@ private struct CompactMetric: View {
         .padding(.vertical, 8)
         .background(Color(.systemGray6))
         .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-}
-
-private struct BudgetGaugesCard: View {
-    let budget: BudgetOverview
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: String(localized: "Cost overview keeps hourly, daily, and monthly guardrails visible together."),
-                detail: String(localized: "Use this compact slice before opening the longer budget charts and trend views."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: String(localized: "\(Int(budget.hourlyPct * 100))% hourly"),
-                        tone: StatusPresentation.budgetUtilizationStatus(for: budget.hourlyPct)?.tone ?? .neutral
-                    )
-                    PresentationToneBadge(
-                        text: String(localized: "\(Int(budget.dailyPct * 100))% daily"),
-                        tone: StatusPresentation.budgetUtilizationStatus(for: budget.dailyPct)?.tone ?? .neutral
-                    )
-                    PresentationToneBadge(
-                        text: String(localized: "\(Int(budget.monthlyPct * 100))% monthly"),
-                        tone: StatusPresentation.budgetUtilizationStatus(for: budget.monthlyPct)?.tone ?? .neutral
-                    )
-                }
-            }
-
-            HStack(spacing: 16) {
-                GaugeItem(label: "Hourly", spend: budget.hourlySpend, limit: budget.hourlyLimit, pct: budget.hourlyPct)
-                GaugeItem(label: "Daily", spend: budget.dailySpend, limit: budget.dailyLimit, pct: budget.dailyPct)
-                GaugeItem(label: "Monthly", spend: budget.monthlySpend, limit: budget.monthlyLimit, pct: budget.monthlyPct)
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Budget inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep hourly, daily, and monthly spend visible without leaving the overview grid."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: String(localized: "\(Int(budget.alertThreshold * 100))% alert"),
-                    tone: .warning
-                )
-            } facts: {
-                Label(localizedUSDCurrency(budget.hourlySpend), systemImage: "clock")
-                Label(localizedUSDCurrency(budget.dailySpend), systemImage: "sun.max")
-                Label(localizedUSDCurrency(budget.monthlySpend), systemImage: "calendar")
-            }
-
-            if budget.alertThreshold > 0 {
-                let maxPct = max(budget.hourlyPct, budget.dailyPct, budget.monthlyPct)
-                if maxPct >= budget.alertThreshold {
-                    HStack(spacing: 4) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
-                        Text("Approaching budget limit (\(Int(maxPct * 100))%)")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    }
-                }
-            }
-        }
-        .padding()
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-}
-
-private struct GaugeItem: View {
-    let label: LocalizedStringResource
-    let spend: Double
-    let limit: Double
-    let pct: Double
-
-    var body: some View {
-        let utilizationStatus = StatusPresentation.budgetUtilizationStatus(for: pct) ?? .normal
-
-        VStack(spacing: 8) {
-            Gauge(value: min(pct, 1.0)) {
-                EmptyView()
-            } currentValueLabel: {
-                Text("\(Int(pct * 100))%")
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
-            }
-            .gaugeStyle(.accessoryCircularCapacity)
-            .tint(utilizationStatus.color())
-            .scaleEffect(0.85)
-
-            Text(label)
-                .font(.caption2.weight(.medium))
-                .foregroundStyle(.secondary)
-
-            Text(localizedUSDCurrency(spend, standardPrecision: 2, smallValuePrecision: 4))
-                .font(.caption2.monospacedDigit())
-                .foregroundStyle(.primary)
-        }
-        .frame(maxWidth: .infinity)
     }
 }
 
