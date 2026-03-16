@@ -3,7 +3,6 @@ import SwiftUI
 private enum NightWatchSectionAnchor: Hashable {
     case hero
     case primaryQueue
-    case secondaryQueue
     case watchlist
     case routes
 }
@@ -123,11 +122,7 @@ struct NightWatchView: View {
     }
 
     private var primaryItems: [OnCallPriorityItem] {
-        Array(priorityItems.prefix(3))
-    }
-
-    private var secondaryItems: [OnCallPriorityItem] {
-        Array(priorityItems.dropFirst(3).prefix(3))
+        Array(priorityItems.prefix(6))
     }
     private var activeWatchedItems: [AgentAttentionItem] {
         watchedAttentionItems.filter { $0.severity > 0 }
@@ -166,7 +161,6 @@ struct NightWatchView: View {
         [
             true,
             !primaryItems.isEmpty,
-            !secondaryItems.isEmpty,
             showsWatchlistSection
         ]
         .filter { $0 }
@@ -175,10 +169,7 @@ struct NightWatchView: View {
     private var nightWatchSectionPreviewTitles: [String] {
         var sections: [String] = [String(localized: "Hero")]
         if !primaryItems.isEmpty {
-            sections.append(String(localized: "Primary Queue"))
-        }
-        if !secondaryItems.isEmpty {
-            sections.append(String(localized: "Secondary Queue"))
+            sections.append(String(localized: "Queue"))
         }
         if showsWatchlistSection {
             sections.append(String(localized: "Watchlist"))
@@ -188,13 +179,13 @@ struct NightWatchView: View {
     }
 
     private var tone: NightWatchTone {
-        if primaryItems.contains(where: { $0.severity == .critical }) {
+        if priorityItems.contains(where: { $0.severity == .critical }) {
             return .critical
         }
-        if primaryItems.contains(where: { $0.severity == .warning }) || vm.pendingApprovalCount > 0 {
+        if priorityItems.contains(where: { $0.severity == .warning }) || vm.pendingApprovalCount > 0 {
             return .elevated
         }
-        if !primaryItems.isEmpty || mutedAlertCount > 0 || !watchedAttentionItems.isEmpty {
+        if !priorityItems.isEmpty || mutedAlertCount > 0 || !watchedAttentionItems.isEmpty {
             return .watching
         }
         return .calm
@@ -244,8 +235,6 @@ struct NightWatchView: View {
                             .id(NightWatchSectionAnchor.hero)
                         primaryQueueCard
                             .id(NightWatchSectionAnchor.primaryQueue)
-                        secondaryQueueCard
-                            .id(NightWatchSectionAnchor.secondaryQueue)
                         watchlistCard
                             .id(NightWatchSectionAnchor.watchlist)
                     }
@@ -339,23 +328,11 @@ struct NightWatchView: View {
         if !primaryItems.isEmpty {
             items.append(
                 MonitoringSectionJumpItem(
-                    title: String(localized: "Primary Queue"),
+                    title: String(localized: "Queue"),
                     systemImage: "exclamationmark.bubble",
                     tone: criticalCount > 0 ? .critical : .warning
                 ) {
                     jump(proxy, to: .primaryQueue)
-                }
-            )
-        }
-
-        if !secondaryItems.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Secondary Queue"),
-                    systemImage: "list.bullet.rectangle",
-                    tone: warningCount > 0 ? .warning : .neutral
-                ) {
-                    jump(proxy, to: .secondaryQueue)
                 }
             )
         }
@@ -471,34 +448,13 @@ struct NightWatchView: View {
                 detail: calmStateDetail
             )
         } else {
-            NightWatchSectionCard(title: String(localized: "Immediate Queue"), detail: focusSummary) {
+            NightWatchSectionCard(title: String(localized: "Queue"), detail: focusSummary) {
                 ForEach(primaryItems) { item in
                     NavigationLink(value: item.route) {
                         NightWatchPriorityCard(
                             item: item,
                             isWatched: isWatchedRoute(item.route),
                             emphasis: .primary
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var secondaryQueueCard: some View {
-        if !secondaryItems.isEmpty {
-            NightWatchSectionCard(
-                title: String(localized: "Follow-up Queue"),
-                detail: String(localized: "Lower on the page, but still above the fold for one-hand triage.")
-            ) {
-                ForEach(secondaryItems) { item in
-                    NavigationLink(value: item.route) {
-                        NightWatchPriorityCard(
-                            item: item,
-                            isWatched: isWatchedRoute(item.route),
-                            emphasis: .secondary
                         )
                     }
                     .buttonStyle(.plain)
