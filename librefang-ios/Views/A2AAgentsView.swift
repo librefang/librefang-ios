@@ -70,6 +70,14 @@ struct A2AAgentsView: View {
                             pushCount: filteredAgents.filter { $0.capabilities?.pushNotifications == true }.count,
                             hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                         )
+                        A2AWorkstreamCoverageDeck(
+                            visibleAgentCount: filteredAgents.count,
+                            totalAgentCount: agents.count,
+                            hostCount: visibleHostCount,
+                            streamingCount: visibleStreamingCount,
+                            pushCount: filteredAgents.filter { $0.capabilities?.pushNotifications == true }.count,
+                            hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        )
 
                         A2ARouteInventoryDeck(
                             primaryRouteCount: a2aPrimaryRouteCount,
@@ -410,6 +418,82 @@ private struct A2AFocusCoverageDeck: View {
             return String(localized: "A2A focus coverage is currently anchored by stream and push capability readiness.")
         }
         return String(localized: "A2A focus coverage is currently balanced across the visible external-agent directory.")
+    }
+}
+
+private struct A2AWorkstreamCoverageDeck: View {
+    let visibleAgentCount: Int
+    let totalAgentCount: Int
+    let hostCount: Int
+    let streamingCount: Int
+    let pushCount: Int
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether external-agent review is currently led by host spread, streaming readiness, or scoped search before opening the full directory."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleAgentCount == totalAgentCount
+                            ? (visibleAgentCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(visibleAgentCount) visible agents"))
+                            : String(localized: "\(visibleAgentCount) of \(totalAgentCount) visible"),
+                        tone: visibleAgentCount > 0 ? .positive : .neutral
+                    )
+                    if streamingCount > 0 {
+                        PresentationToneBadge(
+                            text: streamingCount == 1 ? String(localized: "1 stream-ready") : String(localized: "\(streamingCount) stream-ready"),
+                            tone: .positive
+                        )
+                    }
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep host spread, streaming or push readiness, and scoped directory state readable before moving through the external-agent list."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: hostCount == 1 ? String(localized: "1 host") : String(localized: "\(hostCount) hosts"),
+                    tone: hostCount > 0 ? .neutral : .positive
+                )
+            } facts: {
+                if pushCount > 0 {
+                    Label(
+                        pushCount == 1 ? String(localized: "1 push-ready") : String(localized: "\(pushCount) push-ready"),
+                        systemImage: "app.badge"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if hostCount > 1 {
+            return String(localized: "A2A workstream coverage is currently anchored by endpoint host spread.")
+        }
+        if streamingCount > 0 || pushCount > 0 {
+            return String(localized: "A2A workstream coverage is currently anchored by capability readiness across visible agents.")
+        }
+        if hasSearchScope {
+            return String(localized: "A2A workstream coverage is currently anchored by the filtered directory slice.")
+        }
+        return String(localized: "A2A workstream coverage is currently light across the visible directory.")
     }
 }
 

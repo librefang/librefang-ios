@@ -187,6 +187,15 @@ struct AgentFilesView: View {
                     scopeLabel: scope.label,
                     scopeTone: scope.tone
                 )
+                AgentFilesWorkstreamCoverageDeck(
+                    visibleCount: filteredFiles.count,
+                    totalCount: files.count,
+                    existingCount: existingCount,
+                    missingCount: missingCount,
+                    hasActiveFilter: hasActiveFilter,
+                    scopeLabel: scope.label,
+                    scopeTone: scope.tone
+                )
 
                 AgentFilesRouteInventoryDeck(
                     primaryRouteCount: agentFilesPrimaryRouteCount,
@@ -606,6 +615,80 @@ private struct AgentFilesFocusCoverageDeck: View {
             return String(localized: "Workspace focus coverage is currently anchored by the filtered identity slice.")
         }
         return String(localized: "Workspace focus coverage is currently balanced across the visible identity files.")
+    }
+}
+
+private struct AgentFilesWorkstreamCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let existingCount: Int
+    let missingCount: Int
+    let hasActiveFilter: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether workspace identity review is currently led by missing files, present files, or scoped inspection before the full inventory opens."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    if missingCount > 0 {
+                        PresentationToneBadge(
+                            text: missingCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingCount) missing files"),
+                            tone: .warning
+                        )
+                    }
+                    if hasActiveFilter {
+                        PresentationToneBadge(text: String(localized: "Filter active"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep missing identity files, present workspace files, and scoped inspection state readable before moving into the file rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible file") : String(localized: "\(visibleCount) visible files"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if existingCount > 0 {
+                    Label(
+                        existingCount == 1 ? String(localized: "1 present file") : String(localized: "\(existingCount) present files"),
+                        systemImage: "doc.text"
+                    )
+                }
+                if hasActiveFilter {
+                    Label(String(localized: "Filter active"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if missingCount > 0 {
+            return String(localized: "Workspace workstream coverage is currently anchored by missing identity files.")
+        }
+        if existingCount > 0 {
+            return String(localized: "Workspace workstream coverage is currently anchored by present identity files.")
+        }
+        if hasActiveFilter {
+            return String(localized: "Workspace workstream coverage is currently anchored by a filtered identity slice.")
+        }
+        return String(localized: "Workspace workstream coverage is currently light across the visible inventory.")
     }
 }
 
