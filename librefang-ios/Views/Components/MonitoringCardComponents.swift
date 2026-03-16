@@ -241,19 +241,22 @@ struct MonitoringSectionPreviewDeck: View {
     let sectionTitles: [String]
     let tone: PresentationTone
     let maxVisibleSections: Int
+    let jumpItems: [MonitoringSectionJumpItem]
 
     init(
         title: String,
         detail: String,
         sectionTitles: [String],
         tone: PresentationTone = .neutral,
-        maxVisibleSections: Int = 4
+        maxVisibleSections: Int = 4,
+        jumpItems: [MonitoringSectionJumpItem] = []
     ) {
         self.title = title
         self.detail = detail
         self.sectionTitles = sectionTitles
         self.tone = tone
         self.maxVisibleSections = maxVisibleSections
+        self.jumpItems = jumpItems
     }
 
     var body: some View {
@@ -319,6 +322,24 @@ struct MonitoringSectionPreviewDeck: View {
                         tone: .neutral
                     )
                 }
+
+                if !visibleJumpItems.isEmpty {
+                    MonitoringShortcutRail(
+                        title: String(localized: "Jump"),
+                        detail: String(localized: "Move directly into the upcoming sections from this preview.")
+                    ) {
+                        ForEach(visibleJumpItems) { item in
+                            Button(action: item.action) {
+                                MonitoringSurfaceShortcutChip(
+                                    title: item.title,
+                                    systemImage: item.systemImage,
+                                    tone: item.tone
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
             }
         }
     }
@@ -346,6 +367,10 @@ struct MonitoringSectionPreviewDeck: View {
         Array(sectionTitles.prefix(maxVisibleSections))
     }
 
+    private var visibleJumpItems: [MonitoringSectionJumpItem] {
+        Array(jumpItems.prefix(maxVisibleSections))
+    }
+
     private var leadSectionDetail: String {
         if remainingVisibleSections.isEmpty {
             return hiddenSectionCount > 0
@@ -358,6 +383,15 @@ struct MonitoringSectionPreviewDeck: View {
     private var hiddenSectionCount: Int {
         max(sectionTitles.count - maxVisibleSections, 0)
     }
+}
+
+struct MonitoringSectionJumpItem: Identifiable {
+    let title: String
+    let systemImage: String
+    let tone: PresentationTone
+    let action: () -> Void
+
+    var id: String { title }
 }
 
 private struct MonitoringSequenceBadge: View {

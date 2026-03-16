@@ -306,7 +306,8 @@ struct RuntimeView: View {
                     detail: String(localized: "Keep the next runtime sections visible before the deeper feeds and queue stacks open up."),
                     sectionTitles: runtimeSectionPreviewTitles,
                     tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
-                    maxVisibleSections: 5
+                    maxVisibleSections: 5,
+                    jumpItems: runtimeSectionPreviewJumpItems(proxy)
                 )
             }
             RuntimeWorkstreamCoverageDeck(
@@ -1317,6 +1318,51 @@ struct RuntimeView: View {
         withAnimation(.easeInOut(duration: 0.2)) {
             proxy.scrollTo(anchor, anchor: .top)
         }
+    }
+
+    private func runtimeSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = []
+        if vm.status != nil {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "System"), systemImage: "server.rack", tone: vm.status?.statusTone ?? .neutral) {
+                jump(proxy, to: .system)
+            })
+        }
+        if vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || vm.metricsSnapshot != nil {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Diagnostics"), systemImage: "stethoscope", tone: vm.diagnosticsSummaryTone) {
+                jump(proxy, to: .diagnostics)
+            })
+        }
+        if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Integrations"), systemImage: "square.3.layers.3d.down.forward", tone: vm.integrationPressureIssueCategoryCount > 0 ? .warning : .neutral) {
+                jump(proxy, to: .integrations)
+            })
+        }
+        if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Automation"), systemImage: "flowchart", tone: vm.automationPressureTone) {
+                jump(proxy, to: .automation)
+            })
+        }
+        if !vm.sessions.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Sessions"), systemImage: "rectangle.stack", tone: vm.sessionAttentionCount > 0 ? .warning : .neutral) {
+                jump(proxy, to: .sessions)
+            })
+        }
+        if !vm.approvals.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Approvals"), systemImage: "checkmark.shield", tone: vm.pendingApprovalCount > 0 ? .warning : .neutral) {
+                jump(proxy, to: .approvals)
+            })
+        }
+        if !vm.recentAudit.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Audit"), systemImage: "waveform.path.ecg.rectangle", tone: vm.recentCriticalAuditCount > 0 ? .warning : .neutral) {
+                jump(proxy, to: .audit)
+            })
+        }
+        if vm.security != nil {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Security"), systemImage: "lock.shield", tone: .neutral) {
+                jump(proxy, to: .security)
+            })
+        }
+        return items
     }
 
     @ToolbarContentBuilder

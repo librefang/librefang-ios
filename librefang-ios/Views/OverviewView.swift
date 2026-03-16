@@ -366,7 +366,8 @@ struct OverviewView: View {
                                 detail: String(localized: "Keep the next overview stacks visible before the platform, signal, and fleet cards spread out."),
                                 sectionTitles: overviewSectionPreviewTitles,
                                 tone: visibleMonitoringAlerts.contains { $0.severity == .critical } ? .critical : ((vm.runtimeAlertCount > 0 || vm.isDataStale) ? .warning : .neutral),
-                                maxVisibleSections: 5
+                                maxVisibleSections: 5,
+                                jumpItems: overviewSectionPreviewJumpItems(proxy)
                             )
                         }
                         OverviewWorkstreamCoverageDeck(
@@ -661,6 +662,88 @@ struct OverviewView: View {
         withAnimation(.easeInOut(duration: 0.2)) {
             proxy.scrollTo(anchor, anchor: .top)
         }
+    }
+
+    private func overviewSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = []
+        if vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Diagnostics"),
+                    systemImage: "stethoscope",
+                    tone: vm.diagnosticsSummaryTone
+                ) {
+                    jump(proxy, to: .diagnostics)
+                }
+            )
+        }
+        if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Integrations"),
+                    systemImage: "square.3.layers.3d.down.forward",
+                    tone: vm.integrationPressureIssueCategoryCount > 0 ? .warning : .neutral
+                ) {
+                    jump(proxy, to: .integrations)
+                }
+            )
+        }
+        if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Automation"),
+                    systemImage: "flowchart",
+                    tone: vm.automationPressureTone
+                ) {
+                    jump(proxy, to: .automation)
+                }
+            )
+        }
+        if !watchedAttentionItems.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Watchlist"),
+                    systemImage: "star",
+                    tone: overviewWatchIssueCount > 0 ? .warning : .neutral
+                ) {
+                    jump(proxy, to: .watchlist)
+                }
+            )
+        }
+        if !vm.sessionAttentionItems.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Sessions"),
+                    systemImage: "rectangle.stack",
+                    tone: vm.sessionAttentionCount > 0 ? .warning : .neutral
+                ) {
+                    jump(proxy, to: .sessions)
+                }
+            )
+        }
+        if !vm.recentAudit.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Recent Events"),
+                    systemImage: "waveform.path.ecg.rectangle",
+                    tone: vm.recentCriticalAuditCount > 0 ? .warning : .neutral
+                ) {
+                    jump(proxy, to: .audit)
+                }
+            )
+        }
+        if !vm.agents.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Fleet"),
+                    systemImage: "person.3",
+                    tone: vm.issueAgentCount > 0 ? .warning : .neutral
+                ) {
+                    jump(proxy, to: .agents)
+                }
+            )
+        }
+        return items
     }
 }
 

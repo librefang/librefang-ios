@@ -370,6 +370,36 @@ struct BudgetView: View {
         }
     }
 
+    private func budgetSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = []
+        if vm.budget != nil {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Limits & Alerts"), systemImage: "gauge.medium", tone: .neutral) {
+                jump(proxy, to: .limits)
+            })
+        }
+        if vm.usageSummary != nil {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Cost Signals"), systemImage: "chart.line.uptrend.xyaxis", tone: .warning) {
+                jump(proxy, to: .signals)
+            })
+        }
+        if !vm.usageDaily.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "7-Day Cost Trend"), systemImage: "chart.xyaxis.line", tone: budgetPressureTone) {
+                jump(proxy, to: .trend)
+            })
+        }
+        if !sortedModels.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "By Model"), systemImage: "square.stack.3d.up", tone: .neutral) {
+                jump(proxy, to: .models)
+            })
+        }
+        if !sortedAgents.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Per-Agent Cost"), systemImage: "person.3", tone: .neutral) {
+                jump(proxy, to: .agents)
+            })
+        }
+        return items
+    }
+
     @ViewBuilder
     private func budgetOperatorDeckSection(_ proxy: ScrollViewProxy) -> some View {
         Section {
@@ -410,7 +440,8 @@ struct BudgetView: View {
                     detail: String(localized: "Keep the next budget stacks visible before limits, trend, and model cost sections open up."),
                     sectionTitles: budgetSectionPreviewTitles,
                     tone: budgetPressureTone,
-                    maxVisibleSections: 5
+                    maxVisibleSections: 5,
+                    jumpItems: budgetSectionPreviewJumpItems(proxy)
                 )
             }
 
