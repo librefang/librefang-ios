@@ -99,11 +99,11 @@ struct StandbyDigestView: View {
     }
 
     private var primaryItems: [OnCallPriorityItem] {
-        Array(priorityItems.prefix(4))
+        Array(priorityItems.prefix(3))
     }
 
     private var watchItems: [AgentAttentionItem] {
-        Array(watchedAttentionItems.filter { $0.severity > 0 }.prefix(3))
+        Array(watchedAttentionItems.filter { $0.severity > 0 }.prefix(2))
     }
     private var activeWatchItems: [AgentAttentionItem] {
         watchedAttentionItems.filter { $0.severity > 0 }
