@@ -523,19 +523,6 @@ struct StandbyDigestView: View {
                     glanceCount
                 }
 
-                StandbyGlanceInventoryCard(
-                    visibleCount: primaryItems.count,
-                    totalCount: priorityItems.count,
-                    criticalCount: criticalCount,
-                    warningCount: warningQueueCount,
-                    advisoryCount: advisoryQueueCount,
-                    mutedAlertCount: mutedAlertCount,
-                    followUpCount: pendingFollowUpCount,
-                    approvalCount: vm.pendingApprovalCount,
-                    isAcknowledged: isAcknowledged,
-                    checkInStatus: checkInStatus
-                )
-
                 if primaryItems.isEmpty {
                     Text(String(localized: "No live priority cards are currently leading standby."))
                         .font(.caption)
@@ -558,12 +545,6 @@ struct StandbyDigestView: View {
                     } accessory: {
                         watchlistCount
                     }
-
-                    StandbyWatchlistInventoryCard(
-                        items: activeWatchItems,
-                        visibleCount: watchItems.count,
-                        totalPinnedCount: watchedAttentionItems.count
-                    )
 
                     ForEach(watchItems) { item in
                         NavigationLink(value: OnCallRoute.agent(item.agent.id)) {

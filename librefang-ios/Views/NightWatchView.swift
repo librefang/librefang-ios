@@ -472,16 +472,6 @@ struct NightWatchView: View {
             )
         } else {
             NightWatchSectionCard(title: String(localized: "Immediate Queue"), detail: focusSummary) {
-                NightWatchQueueInventoryCard(
-                    visibleCount: primaryItems.count,
-                    totalCount: priorityItems.count,
-                    criticalCount: criticalCount,
-                    warningCount: warningCount,
-                    advisoryCount: advisoryCount,
-                    watchedQueueCount: watchedQueueCount,
-                    pendingApprovalCount: vm.pendingApprovalCount
-                )
-
                 ForEach(primaryItems) { item in
                     NavigationLink(value: item.route) {
                         NightWatchPriorityCard(
@@ -524,11 +514,6 @@ struct NightWatchView: View {
                 title: String(localized: "Pinned Agents"),
                 detail: String(localized: "Locally watched on this iPhone so they stay visible during on-call.")
             ) {
-                NightWatchWatchlistInventoryCard(
-                    items: activeWatchedItems,
-                    totalWatchedCount: watchedAgents.count
-                )
-
                 ForEach(activeWatchedItems.prefix(3)) { item in
                     NavigationLink(value: OnCallRoute.agent(item.agent.id)) {
                         NightWatchWatchlistRow(item: item)
