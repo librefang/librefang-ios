@@ -107,6 +107,14 @@ struct DiagnosticsView: View {
                             hasBuild: vm.versionInfo != nil,
                             hasConfig: vm.configSummary != nil
                         )
+                        DiagnosticsPressureCoverageDeck(
+                            warningCount: vm.diagnosticsConfigWarningCount,
+                            panicCount: vm.supervisorPanicCount,
+                            restartCount: vm.supervisorRestartCount,
+                            loadedFeedCount: loadedFeedCount,
+                            leaderboardCount: leaderboardCount,
+                            hasMetrics: metrics != nil
+                        )
                         diagnosticsRouteDeck(proxy)
                     } header: {
                         Text("Controls")
@@ -916,6 +924,71 @@ private struct DiagnosticsSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Deep-diagnostic coverage stays summarized here so the longer health, config, metrics, and leaderboard sections start with context.")
+    }
+}
+
+private struct DiagnosticsPressureCoverageDeck: View {
+    let warningCount: Int
+    let panicCount: Int
+    let restartCount: Int
+    let loadedFeedCount: Int
+    let leaderboardCount: Int
+    let hasMetrics: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Pressure coverage keeps warnings and recovery counters readable before the long diagnostics sections begin."),
+                detail: String(localized: "Use this deck to judge whether current diagnostics drag is config-heavy, recovery-heavy, or mostly metrics and leaderboards."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if warningCount > 0 {
+                        PresentationToneBadge(
+                            text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                            tone: .warning
+                        )
+                    }
+                    if panicCount > 0 {
+                        PresentationToneBadge(
+                            text: panicCount == 1 ? String(localized: "1 panic") : String(localized: "\(panicCount) panics"),
+                            tone: .critical
+                        )
+                    }
+                    if restartCount > 0 {
+                        PresentationToneBadge(
+                            text: restartCount == 1 ? String(localized: "1 restart") : String(localized: "\(restartCount) restarts"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep loaded feeds, leaderboards, and recovery counters readable before digging into health, config, and metrics detail."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: loadedFeedCount == 1 ? String(localized: "1 feed") : String(localized: "\(loadedFeedCount) feeds"),
+                    tone: loadedFeedCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    leaderboardCount == 1 ? String(localized: "1 leaderboard") : String(localized: "\(leaderboardCount) leaderboards"),
+                    systemImage: "list.number"
+                )
+                Label(
+                    hasMetrics ? String(localized: "Metrics ready") : String(localized: "Metrics pending"),
+                    systemImage: "chart.xyaxis.line"
+                )
+            }
+        }
     }
 }
 

@@ -204,6 +204,15 @@ struct AutomationView: View {
                         exhaustedTriggerCount: vm.exhaustedTriggerCount,
                         stalledCronCount: vm.stalledCronJobCount
                     )
+                    AutomationPressureCoverageDeck(
+                        failedRunCount: vm.failedWorkflowRunCount,
+                        exhaustedTriggerCount: vm.exhaustedTriggerCount,
+                        stalledCronCount: vm.stalledCronJobCount,
+                        workflowCount: filteredWorkflows.count,
+                        triggerCount: filteredTriggers.count,
+                        cronCount: filteredCronJobs.count,
+                        visibleItemCount: visibleItemCount
+                    )
                     AutomationRouteInventoryDeck(
                         primaryRouteCount: 4,
                         supportRouteCount: 1,
@@ -1048,6 +1057,76 @@ private struct AutomationSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Workflow, trigger, schedule, and cron coverage stay summarized before the route rail and longer automation inventories.")
+    }
+}
+
+private struct AutomationPressureCoverageDeck: View {
+    let failedRunCount: Int
+    let exhaustedTriggerCount: Int
+    let stalledCronCount: Int
+    let workflowCount: Int
+    let triggerCount: Int
+    let cronCount: Int
+    let visibleItemCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Pressure coverage keeps automation failure mix readable before the grouped workflow lists begin."),
+                detail: String(localized: "Use this deck to judge whether current automation drag comes from failed runs, exhausted triggers, or stalled cron work."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if failedRunCount > 0 {
+                        PresentationToneBadge(
+                            text: failedRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(failedRunCount) failed runs"),
+                            tone: .critical
+                        )
+                    }
+                    if exhaustedTriggerCount > 0 {
+                        PresentationToneBadge(
+                            text: exhaustedTriggerCount == 1 ? String(localized: "1 exhausted trigger") : String(localized: "\(exhaustedTriggerCount) exhausted triggers"),
+                            tone: .warning
+                        )
+                    }
+                    if stalledCronCount > 0 {
+                        PresentationToneBadge(
+                            text: stalledCronCount == 1 ? String(localized: "1 stalled cron") : String(localized: "\(stalledCronCount) stalled cron jobs"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep visible automation breadth readable before opening the longer workflow, trigger, schedule, and cron sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleItemCount == 1 ? String(localized: "1 visible item") : String(localized: "\(visibleItemCount) visible items"),
+                    tone: visibleItemCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    workflowCount == 1 ? String(localized: "1 workflow") : String(localized: "\(workflowCount) workflows"),
+                    systemImage: "square.stack.3d.up"
+                )
+                Label(
+                    triggerCount == 1 ? String(localized: "1 trigger") : String(localized: "\(triggerCount) triggers"),
+                    systemImage: "bolt.badge.clock"
+                )
+                Label(
+                    cronCount == 1 ? String(localized: "1 cron") : String(localized: "\(cronCount) cron jobs"),
+                    systemImage: "clock.arrow.circlepath"
+                )
+            }
+        }
     }
 }
 
