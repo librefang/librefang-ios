@@ -128,7 +128,7 @@ struct DiagnosticsView: View {
                             DiagnosticsMetricListRow(
                                 rank: index + 1,
                                 title: sample.labels["agent"] ?? String(localized: "Unknown agent"),
-                                subtitle: String(localized: "Tool calls"),
+                                subtitle: nil,
                                 value: Int(sample.value).formatted()
                             )
                         }
@@ -139,13 +139,10 @@ struct DiagnosticsView: View {
             }
 
             if !hasDiagnosticsData && !vm.isLoading {
-                Section("Diagnostics") {
-                    ContentUnavailableView(
-                        "No Diagnostic Snapshot",
-                        systemImage: "stethoscope",
-                        description: Text("No deep diagnostic snapshot right now.")
-                    )
-                }
+                ContentUnavailableView(
+                    "No Diagnostic Snapshot",
+                    systemImage: "stethoscope"
+                )
             }
         }
         .navigationTitle(String(localized: "Diagnostics"))
@@ -207,7 +204,7 @@ private struct DiagnosticsMetricRow: View {
 private struct DiagnosticsMetricListRow: View {
     let rank: Int
     let title: String
-    let subtitle: String
+    let subtitle: String?
     let value: String
 
     var body: some View {
@@ -234,10 +231,12 @@ private struct DiagnosticsMetricListRow: View {
             Text(title)
                 .font(.subheadline.weight(.medium))
                 .lineLimit(2)
-            Text(subtitle)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
+            if let subtitle, !subtitle.isEmpty {
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
         }
     }
 

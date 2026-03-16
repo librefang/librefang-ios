@@ -1019,21 +1019,19 @@ private struct RuntimeMetricRow: View {
     let detail: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            ResponsiveValueRow(horizontalSpacing: 10) {
-                Text(label)
-                    .foregroundStyle(.secondary)
-            } value: {
-                Text(value)
-                    .fontWeight(.medium)
-            }
-            if let detail, !detail.isEmpty {
-                Text(detail)
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
+        ResponsiveValueRow(horizontalSpacing: 10) {
+            Text(label)
+                .foregroundStyle(.secondary)
+        } value: {
+            Text(displayValue)
+                .fontWeight(.medium)
         }
         .padding(.vertical, 1)
+    }
+
+    private var displayValue: String {
+        guard let detail, !detail.isEmpty else { return value }
+        return "\(value) · \(detail)"
     }
 }
 
@@ -1059,15 +1057,8 @@ private struct ProviderStatusRow: View {
     }
 
     private var providerSummary: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(provider.displayName)
-                .font(.subheadline.weight(.medium))
-            Text(provider.id)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .truncationMode(.middle)
-        }
+        Text(provider.displayName)
+            .font(.subheadline.weight(.medium))
     }
 
     @ViewBuilder

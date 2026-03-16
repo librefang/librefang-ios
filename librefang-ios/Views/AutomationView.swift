@@ -141,31 +141,26 @@ struct AutomationView: View {
                 }
             }
 
-            Section {
-                FlowLayout(spacing: 8) {
-                    ForEach(AutomationMonitorScope.allCases) { option in
-                        Button {
-                            scope = option
-                        } label: {
-                            SelectableLabelCapsuleBadge(
-                                text: option.label,
-                                systemImage: option == .attention ? "exclamationmark.triangle" : option == .active ? "bolt.fill" : "list.bullet",
-                                isSelected: scope == option
-                            )
-                        }
-                        .buttonStyle(.plain)
+            FlowLayout(spacing: 8) {
+                ForEach(AutomationMonitorScope.allCases) { option in
+                    Button {
+                        scope = option
+                    } label: {
+                        SelectableLabelCapsuleBadge(
+                            text: option.label,
+                            systemImage: option == .attention ? "exclamationmark.triangle" : option == .active ? "bolt.fill" : "list.bullet",
+                            isSelected: scope == option
+                        )
                     }
+                    .buttonStyle(.plain)
                 }
             }
 
             if !hasAutomationData && !vm.isLoading {
-                Section("Automation") {
-                    ContentUnavailableView(
-                        "No Automation Inventory",
-                        systemImage: "flowchart",
-                        description: Text("No workflows or jobs in the current snapshot.")
-                    )
-                }
+                ContentUnavailableView(
+                    "No Automation Inventory",
+                    systemImage: "flowchart"
+                )
             } else {
                 if filteredWorkflows.isEmpty
                     && filteredWorkflowRuns.isEmpty
@@ -173,19 +168,17 @@ struct AutomationView: View {
                     && filteredSchedules.isEmpty
                     && filteredCronJobs.isEmpty
                     && !vm.isLoading {
-                    Section("Automation") {
-                        ContentUnavailableView(
+                    ContentUnavailableView(
+                        searchText.isEmpty
+                            ? String(localized: "No Matching Automation")
+                            : String(localized: "No Search Results"),
+                        systemImage: scope == .all ? "flowchart" : "line.3.horizontal.decrease.circle",
+                        description: Text(
                             searchText.isEmpty
-                                ? String(localized: "No Matching Automation")
-                                : String(localized: "No Search Results"),
-                            systemImage: scope == .all ? "flowchart" : "line.3.horizontal.decrease.circle",
-                            description: Text(
-                                searchText.isEmpty
-                                    ? String(localized: "Change the scope or refresh.")
-                                    : String(localized: "Try a different search.")
-                            )
+                                ? String(localized: "Change the scope.")
+                                : String(localized: "Try a different search.")
                         )
-                    }
+                    )
                 } else {
                     workflowsSection
                     workflowRunsSection
@@ -489,9 +482,6 @@ private struct WorkflowRunRow: View {
     private var facts: some View {
         Label("Started \(relativeText(from: run.startedAt))", systemImage: "clock")
         Label("\(run.stepsCompleted) steps", systemImage: "list.number")
-        if let completedAt = run.completedAt {
-            Label(relativeText(from: completedAt), systemImage: "clock")
-        }
     }
 }
 
@@ -539,8 +529,6 @@ private struct TriggerRow: View {
         Label("\(trigger.fireCount) fires", systemImage: "bolt.circle")
         if trigger.maxFires > 0 {
             Label("\(trigger.maxFires) max", systemImage: "gauge.with.dots.needle.67percent")
-        } else {
-            Label("Unlimited", systemImage: "infinity")
         }
     }
 }
@@ -624,22 +612,15 @@ private struct CronJobRow: View {
     }
 
     private var summaryContent: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(job.name)
-                .font(.subheadline.weight(.medium))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Label(scheduleSummary, systemImage: "calendar.badge.clock")
-                Label(actionSummary, systemImage: "paperplane")
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-        }
+        Text(job.name)
+            .font(.subheadline.weight(.medium))
     }
 
     @ViewBuilder
     private var timingFacts: some View {
         Label(agentName ?? job.agentId, systemImage: "person")
+        Label(scheduleSummary, systemImage: "calendar.badge.clock")
+        Label(actionSummary, systemImage: "paperplane")
         Label(deliverySummary, systemImage: "point.3.filled.connected.trianglepath.dotted")
         if let nextRun = job.nextRun {
             Label("Next \(relativeText(from: nextRun))", systemImage: "clock.badge")
