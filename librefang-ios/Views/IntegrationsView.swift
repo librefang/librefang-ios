@@ -367,6 +367,21 @@ struct IntegrationsView: View {
                             modelFilterLabel: modelFilter.label,
                             hasSearchScope: !normalizedSearchText.isEmpty
                         )
+                        IntegrationsWorkstreamCoverageDeck(
+                            visibleResultCount: visibleResultCount,
+                            providerCount: filteredProviders.count,
+                            channelCount: filteredChannels.count,
+                            modelCount: filteredModels.count,
+                            aliasCount: filteredAliases.count,
+                            driftCount: filteredAgentDiagnostics.count,
+                            providerAttentionCount: providerAttentionCount,
+                            channelAttentionCount: channelAttentionCount,
+                            modelAttentionCount: modelAttentionCount,
+                            driftAttentionCount: driftAttentionCount,
+                            scopeLabel: scope.label,
+                            modelFilterLabel: modelFilter.label,
+                            hasSearchScope: !normalizedSearchText.isEmpty
+                        )
                         IntegrationsActionReadinessDeck(
                             primaryRouteCount: 4,
                             supportRouteCount: 3,
@@ -1273,6 +1288,121 @@ private struct IntegrationsActionReadinessDeck: View {
             return String(localized: "Integration action readiness is currently anchored by model or provider drift that is ready for deeper drilldown.")
         }
         return String(localized: "Integration action readiness is currently clear enough for route jumps and inventory review.")
+    }
+}
+
+private struct IntegrationsWorkstreamCoverageDeck: View {
+    let visibleResultCount: Int
+    let providerCount: Int
+    let channelCount: Int
+    let modelCount: Int
+    let aliasCount: Int
+    let driftCount: Int
+    let providerAttentionCount: Int
+    let channelAttentionCount: Int
+    let modelAttentionCount: Int
+    let driftAttentionCount: Int
+    let scopeLabel: String
+    let modelFilterLabel: String
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether integrations is currently led by live attention, surface inventory, or deeper catalog and drift context before the full inventory expands."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: .neutral)
+                    PresentationToneBadge(text: modelFilterLabel, tone: .neutral)
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                    if attentionCount > 0 {
+                        PresentationToneBadge(
+                            text: attentionCount == 1 ? String(localized: "1 attention lane") : String(localized: "\(attentionCount) attention lanes"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep live provider and channel attention, broader inventory breadth, and deeper catalog or drift context readable before the full integration sections take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleResultCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleResultCount) visible results"),
+                    tone: visibleResultCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if providerCount > 0 {
+                    Label(
+                        providerCount == 1 ? String(localized: "1 provider") : String(localized: "\(providerCount) providers"),
+                        systemImage: "key.horizontal"
+                    )
+                }
+                if channelCount > 0 {
+                    Label(
+                        channelCount == 1 ? String(localized: "1 channel") : String(localized: "\(channelCount) channels"),
+                        systemImage: "bubble.left.and.bubble.right"
+                    )
+                }
+                if modelCount > 0 {
+                    Label(
+                        modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
+                        systemImage: "square.stack.3d.up"
+                    )
+                }
+                if aliasCount > 0 {
+                    Label(
+                        aliasCount == 1 ? String(localized: "1 alias") : String(localized: "\(aliasCount) aliases"),
+                        systemImage: "tag"
+                    )
+                }
+                if driftCount > 0 {
+                    Label(
+                        driftCount == 1 ? String(localized: "1 drift case") : String(localized: "\(driftCount) drift cases"),
+                        systemImage: "arrow.triangle.branch"
+                    )
+                }
+            }
+        }
+    }
+
+    private var attentionCount: Int {
+        providerAttentionCount + channelAttentionCount + modelAttentionCount + driftAttentionCount
+    }
+
+    private var surfaceCount: Int {
+        providerCount + channelCount
+    }
+
+    private var catalogCount: Int {
+        modelCount + aliasCount + driftCount
+    }
+
+    private var summaryLine: String {
+        if attentionCount > 0 {
+            return String(localized: "Integrations workstream coverage is currently anchored by live provider, channel, or model attention.")
+        }
+        if surfaceCount >= catalogCount, surfaceCount > 0 {
+            return String(localized: "Integrations workstream coverage is currently anchored by provider and channel inventory.")
+        }
+        if catalogCount > 0 {
+            return String(localized: "Integrations workstream coverage is currently anchored by catalog, alias, and drift context.")
+        }
+        if hasSearchScope {
+            return String(localized: "Integrations workstream coverage is currently narrowed to a scoped inventory slice.")
+        }
+        return String(localized: "Integrations workstream coverage is currently light across the visible lanes.")
     }
 }
 

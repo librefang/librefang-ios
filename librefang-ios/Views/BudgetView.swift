@@ -403,18 +403,6 @@ struct BudgetView: View {
                 topModelName: topModelName,
                 topAgentName: topAgentBudgetItem?.name
             )
-            BudgetWorkstreamCoverageDeck(
-                trendDays: vm.usageDaily.count,
-                modelCount: sortedModels.count,
-                agentCount: sortedAgents.count,
-                hasBudgetGuardrails: vm.budget != nil,
-                hasUsageSignals: vm.usageSummary != nil,
-                totalCalls: trendTotalCalls,
-                totalTokens: trendTotalTokens,
-                topModelName: topModelName,
-                topAgentName: topAgentBudgetItem?.name,
-                sortOrderLabel: sortOrder.label
-            )
             BudgetActionReadinessDeck(
                 primaryAreaCount: budgetPrimaryAreaCount,
                 supportAreaCount: budgetSupportAreaCount,
@@ -444,7 +432,10 @@ struct BudgetView: View {
                 hasBudgetGuardrails: vm.budget != nil,
                 hasUsageSignals: vm.usageSummary != nil,
                 totalCalls: trendTotalCalls,
-                totalTokens: trendTotalTokens
+                totalTokens: trendTotalTokens,
+                topModelName: topModelName,
+                topAgentName: topAgentBudgetItem?.name,
+                sortOrderLabel: sortOrder.label
             )
 
             MonitoringSurfaceGroupCard(
@@ -2034,101 +2025,6 @@ private struct BudgetSupportCoverageDeck: View {
     }
 }
 
-private struct BudgetWorkstreamCoverageDeck: View {
-    let trendDays: Int
-    let modelCount: Int
-    let agentCount: Int
-    let hasBudgetGuardrails: Bool
-    let hasUsageSignals: Bool
-    let totalCalls: Int
-    let totalTokens: Int
-    let topModelName: String?
-    let topAgentName: String?
-    let sortOrderLabel: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to see whether the budget view is currently led by trend review, ranking review, or guardrail context before the long charts and rankings begin."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(text: sortOrderLabel, tone: .neutral)
-                    PresentationToneBadge(
-                        text: hasUsageSignals ? String(localized: "Signals ready") : String(localized: "Signals pending"),
-                        tone: hasUsageSignals ? .positive : .neutral
-                    )
-                    if let topModelName {
-                        PresentationToneBadge(text: topModelName, tone: .neutral)
-                    }
-                    if let topAgentName {
-                        PresentationToneBadge(text: topAgentName, tone: .neutral)
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Workstream coverage"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep trend review, spend rankings, and guardrail context readable before the limit, chart, model, and agent sections take over."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
-                    tone: trendDays > 0 ? .positive : .neutral
-                )
-            } facts: {
-                if totalCalls > 0 {
-                    Label(
-                        totalCalls == 1 ? String(localized: "1 call") : String(localized: "\(totalCalls) calls"),
-                        systemImage: "phone.connection"
-                    )
-                }
-                if totalTokens > 0 {
-                    Label(String(localized: "\(totalTokens.formatted()) tokens"), systemImage: "number")
-                }
-                if modelCount > 0 {
-                    Label(
-                        modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
-                        systemImage: "square.stack.3d.up"
-                    )
-                }
-                if agentCount > 0 {
-                    Label(
-                        agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
-                        systemImage: "person.3"
-                    )
-                }
-                Label(
-                    hasBudgetGuardrails ? String(localized: "Guardrails ready") : String(localized: "Guardrails pending"),
-                    systemImage: "gauge.with.needle"
-                )
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if !hasUsageSignals {
-            return String(localized: "Budget workstream coverage is currently waiting on usage signals.")
-        }
-        if trendDays > 0 || totalCalls > 0 {
-            return String(localized: "Budget workstream coverage is currently anchored by trend review.")
-        }
-        if modelCount > 0 || agentCount > 0 {
-            return String(localized: "Budget workstream coverage is currently anchored by spend leaderboards.")
-        }
-        if hasBudgetGuardrails {
-            return String(localized: "Budget workstream coverage is currently anchored by guardrail review.")
-        }
-        return String(localized: "Budget workstream coverage is currently light across the visible lanes.")
-    }
-}
-
 private struct BudgetActionReadinessDeck: View {
     let primaryAreaCount: Int
     let supportAreaCount: Int
@@ -2308,26 +2204,28 @@ private struct BudgetWorkstreamCoverageDeck: View {
     let hasUsageSignals: Bool
     let totalCalls: Int
     let totalTokens: Int
+    let topModelName: String?
+    let topAgentName: String?
+    let sortOrderLabel: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             MonitoringSnapshotCard(
                 summary: summaryLine,
-                detail: String(localized: "Use this deck to see whether budget review is currently led by guardrails, trend analysis, or ranked spend lanes before the lower charts and lists take over."),
+                detail: String(localized: "Use this deck to see whether the budget view is currently led by trend review, ranking review, or guardrail context before the long charts and rankings begin."),
                 verticalPadding: 4
             ) {
                 FlowLayout(spacing: 8) {
-                    if hasBudgetGuardrails {
-                        PresentationToneBadge(text: String(localized: "Guardrails ready"), tone: .positive)
+                    PresentationToneBadge(text: sortOrderLabel, tone: .neutral)
+                    PresentationToneBadge(
+                        text: hasUsageSignals ? String(localized: "Signals ready") : String(localized: "Signals pending"),
+                        tone: hasUsageSignals ? .positive : .neutral
+                    )
+                    if let topModelName {
+                        PresentationToneBadge(text: topModelName, tone: .neutral)
                     }
-                    if hasUsageSignals {
-                        PresentationToneBadge(text: String(localized: "Signals ready"), tone: .positive)
-                    }
-                    if trendDays > 0 {
-                        PresentationToneBadge(
-                            text: trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
-                            tone: .neutral
-                        )
+                    if let topAgentName {
+                        PresentationToneBadge(text: topAgentName, tone: .neutral)
                     }
                 }
             }
@@ -2336,53 +2234,60 @@ private struct BudgetWorkstreamCoverageDeck: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(String(localized: "Workstream coverage"))
                         .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep guardrails, usage trends, and ranked spend breadth readable before moving into budget charts, model lists, and agent rankings."))
+                    Text(String(localized: "Keep trend review, spend rankings, and guardrail context readable before the limit, chart, model, and agent sections take over."))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
             } accessory: {
                 PresentationToneBadge(
-                    text: modelCount + agentCount == 1 ? String(localized: "1 ranking lane") : String(localized: "\(modelCount + agentCount) ranking lanes"),
-                    tone: modelCount + agentCount > 0 ? .neutral : .positive
+                    text: trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
+                    tone: trendDays > 0 ? .positive : .neutral
                 )
             } facts: {
                 if modelCount > 0 {
                     Label(
-                        modelCount == 1 ? String(localized: "1 model lane") : String(localized: "\(modelCount) model lanes"),
+                        modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
                         systemImage: "square.stack.3d.up"
                     )
                 }
                 if agentCount > 0 {
                     Label(
-                        agentCount == 1 ? String(localized: "1 agent lane") : String(localized: "\(agentCount) agent lanes"),
+                        agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
                         systemImage: "person.3"
                     )
                 }
                 if totalCalls > 0 {
                     Label(
-                        totalCalls == 1 ? String(localized: "1 call tracked") : String(localized: "\(totalCalls) calls tracked"),
-                        systemImage: "phone.arrow.up.right"
+                        totalCalls == 1 ? String(localized: "1 call") : String(localized: "\(totalCalls) calls"),
+                        systemImage: "phone.connection"
                     )
                 }
                 if totalTokens > 0 {
-                    Label(
-                        String(localized: "\(totalTokens.formatted()) tokens tracked"),
-                        systemImage: "number"
-                    )
+                    Label(String(localized: "\(totalTokens.formatted()) tokens"), systemImage: "number")
                 }
+                Label(
+                    hasBudgetGuardrails ? String(localized: "Guardrails ready") : String(localized: "Guardrails pending"),
+                    systemImage: "gauge.with.needle"
+                )
             }
         }
     }
 
     private var summaryLine: String {
-        if hasBudgetGuardrails && hasUsageSignals {
-            return String(localized: "Budget workstream coverage is currently anchored by guardrails and live usage signals.")
+        if !hasUsageSignals {
+            return String(localized: "Budget workstream coverage is currently waiting on usage signals.")
         }
-        if trendDays > 0 {
-            return String(localized: "Budget workstream coverage is currently anchored by trend analysis and ranked spend lanes.")
+        if trendDays > 0 || totalCalls > 0 {
+            return String(localized: "Budget workstream coverage is currently anchored by trend review.")
         }
-        return String(localized: "Budget workstream coverage is currently light and mostly reflects lower ranking readiness.")
+        if modelCount > 0 || agentCount > 0 {
+            return String(localized: "Budget workstream coverage is currently anchored by spend leaderboards.")
+        }
+        if hasBudgetGuardrails {
+            return String(localized: "Budget workstream coverage is currently anchored by guardrail review.")
+        }
+        return String(localized: "Budget workstream coverage is currently light across the visible lanes.")
     }
 }
 

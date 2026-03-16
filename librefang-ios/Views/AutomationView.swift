@@ -223,6 +223,19 @@ struct AutomationView: View {
                         scopeLabel: scope.label,
                         hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                     )
+                    AutomationWorkstreamCoverageDeck(
+                        visibleItemCount: visibleItemCount,
+                        workflowCount: filteredWorkflows.count,
+                        runCount: filteredWorkflowRuns.count,
+                        triggerCount: filteredTriggers.count,
+                        scheduleCount: filteredSchedules.count,
+                        cronCount: filteredCronJobs.count,
+                        failedRunCount: vm.failedWorkflowRunCount,
+                        exhaustedTriggerCount: vm.exhaustedTriggerCount,
+                        stalledCronCount: vm.stalledCronJobCount,
+                        scopeLabel: scope.label,
+                        hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    )
                     AutomationActionReadinessDeck(
                         primaryRouteCount: 4,
                         supportRouteCount: 1,
@@ -1253,6 +1266,120 @@ private struct AutomationSupportCoverageDeck: View {
             return String(localized: "Automation support coverage is currently anchored by workflow breadth and scheduler depth.")
         }
         return String(localized: "Automation support coverage is currently light and mostly reflects active route breadth.")
+    }
+}
+
+private struct AutomationWorkstreamCoverageDeck: View {
+    let visibleItemCount: Int
+    let workflowCount: Int
+    let runCount: Int
+    let triggerCount: Int
+    let scheduleCount: Int
+    let cronCount: Int
+    let failedRunCount: Int
+    let exhaustedTriggerCount: Int
+    let stalledCronCount: Int
+    let scopeLabel: String
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether automation is currently led by execution drag, active queue flow, or broader workflow inventory before the grouped lists expand."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: .neutral)
+                    PresentationToneBadge(
+                        text: visibleItemCount == 1 ? String(localized: "1 visible item") : String(localized: "\(visibleItemCount) visible items"),
+                        tone: visibleItemCount > 0 ? .positive : .neutral
+                    )
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep execution drag, active queue flow, and slower workflow inventory breadth readable before grouped runs, triggers, schedules, and cron jobs take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: activeQueueCount == 1 ? String(localized: "1 active lane") : String(localized: "\(activeQueueCount) active lanes"),
+                    tone: activeQueueCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if workflowCount > 0 {
+                    Label(
+                        workflowCount == 1 ? String(localized: "1 workflow") : String(localized: "\(workflowCount) workflows"),
+                        systemImage: "square.stack.3d.up"
+                    )
+                }
+                if runCount > 0 {
+                    Label(
+                        runCount == 1 ? String(localized: "1 run") : String(localized: "\(runCount) runs"),
+                        systemImage: "play.rectangle.on.rectangle"
+                    )
+                }
+                if triggerCount > 0 {
+                    Label(
+                        triggerCount == 1 ? String(localized: "1 trigger") : String(localized: "\(triggerCount) triggers"),
+                        systemImage: "bolt.badge.clock"
+                    )
+                }
+                if schedulerCount > 0 {
+                    Label(
+                        schedulerCount == 1 ? String(localized: "1 scheduler entry") : String(localized: "\(schedulerCount) scheduler entries"),
+                        systemImage: "calendar"
+                    )
+                }
+                if pressureCount > 0 {
+                    Label(
+                        pressureCount == 1 ? String(localized: "1 execution drag signal") : String(localized: "\(pressureCount) execution drag signals"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+            }
+        }
+    }
+
+    private var activeQueueCount: Int {
+        runCount + triggerCount
+    }
+
+    private var schedulerCount: Int {
+        scheduleCount + cronCount
+    }
+
+    private var pressureCount: Int {
+        failedRunCount + exhaustedTriggerCount + stalledCronCount
+    }
+
+    private var inventoryCount: Int {
+        workflowCount + schedulerCount
+    }
+
+    private var summaryLine: String {
+        if pressureCount > 0 {
+            return String(localized: "Automation workstream coverage is currently anchored by execution drag.")
+        }
+        if activeQueueCount >= max(inventoryCount, 1), activeQueueCount > 0 {
+            return String(localized: "Automation workstream coverage is currently anchored by live execution flow.")
+        }
+        if inventoryCount > 0 {
+            return String(localized: "Automation workstream coverage is currently anchored by workflow and scheduler inventory.")
+        }
+        if hasSearchScope {
+            return String(localized: "Automation workstream coverage is currently narrowed to a scoped automation slice.")
+        }
+        return String(localized: "Automation workstream coverage is currently light across the visible lanes.")
     }
 }
 

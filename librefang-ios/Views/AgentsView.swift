@@ -207,6 +207,19 @@ struct AgentsView: View {
                                     filterLabel: filterState.label,
                                     filterTone: filterState == .attention ? .warning : .neutral
                                 )
+                                AgentsWorkstreamCoverageDeck(
+                                    visibleCount: filteredAgents.count,
+                                    totalCount: vm.agents.count,
+                                    issueCount: filteredIssueCount,
+                                    staleCount: filteredStaleCount,
+                                    watchlistCount: filteredWatchedCount,
+                                    authIssueCount: filteredAuthIssueCount,
+                                    modelIssueCount: filteredModelIssueCount,
+                                    sessionPressureCount: filteredSessionPressureCount,
+                                    hasSearchScope: !normalizedSearchText.isEmpty,
+                                    filterLabel: filterState.label,
+                                    filterTone: filterState == .attention ? .warning : .neutral
+                                )
 
                                 AgentsFocusCoverageDeck(
                                     visibleCount: filteredAgents.count,
@@ -969,6 +982,98 @@ private struct AgentsSupportCoverageDeck: View {
             return String(localized: "Fleet support coverage is currently anchored by watchlist load and slower config drift.")
         }
         return String(localized: "Fleet support coverage is currently light and mostly reflects total agent breadth.")
+    }
+}
+
+private struct AgentsWorkstreamCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let issueCount: Int
+    let staleCount: Int
+    let watchlistCount: Int
+    let authIssueCount: Int
+    let modelIssueCount: Int
+    let sessionPressureCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether fleet review is currently led by active issues, watched agents, or slower support drag before the agent list expands."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(visibleCount) visible agents"),
+                        tone: visibleCount > 0 ? .positive : .neutral
+                    )
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep live fleet pressure, watchlist follow-through, and slower support drag readable before the fleet list or adjacent surfaces take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: totalCount == 1 ? String(localized: "1 total agent") : String(localized: "\(totalCount) total agents"),
+                    tone: totalCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if issueSignalCount > 0 {
+                    Label(
+                        issueSignalCount == 1 ? String(localized: "1 live issue") : String(localized: "\(issueSignalCount) live issues"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if watchlistCount > 0 {
+                    Label(
+                        watchlistCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchlistCount) watched agents"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if supportSignalCount > 0 {
+                    Label(
+                        supportSignalCount == 1 ? String(localized: "1 support signal") : String(localized: "\(supportSignalCount) support signals"),
+                        systemImage: "wrench.and.screwdriver"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var issueSignalCount: Int {
+        issueCount + staleCount
+    }
+
+    private var supportSignalCount: Int {
+        authIssueCount + modelIssueCount + sessionPressureCount
+    }
+
+    private var summaryLine: String {
+        if issueSignalCount >= max(watchlistCount, supportSignalCount), issueSignalCount > 0 {
+            return String(localized: "Fleet workstream coverage is currently anchored by active issue follow-through.")
+        }
+        if watchlistCount >= supportSignalCount, watchlistCount > 0 {
+            return String(localized: "Fleet workstream coverage is currently anchored by watched-agent follow-through.")
+        }
+        if supportSignalCount > 0 || hasSearchScope {
+            return String(localized: "Fleet workstream coverage is currently anchored by slower support drag and scoped review.")
+        }
+        return String(localized: "Fleet workstream coverage is currently light across the visible lanes.")
     }
 }
 

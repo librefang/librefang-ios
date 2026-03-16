@@ -103,6 +103,16 @@ struct SettingsView: View {
                             refreshIntervalLabel: "\(Int(refreshInterval))s",
                             languageLabel: currentLanguageLabel
                         )
+                        SettingsWorkstreamCoverageDeck(
+                            onCallQueueCount: onCallQueueCount,
+                            currentCriticalCount: currentCriticalCount,
+                            visibleAlertCount: visibleAlertCount,
+                            hasQueuedReminder: deps.onCallNotificationManager.pendingReminderDate != nil,
+                            notificationLabel: deps.onCallNotificationManager.authorizationLabel,
+                            notificationTone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning,
+                            refreshIntervalLabel: "\(Int(refreshInterval))s",
+                            languageLabel: currentLanguageLabel
+                        )
 
                         SettingsFocusCoverageDeck(
                             onCallQueueCount: onCallQueueCount,
@@ -1530,6 +1540,77 @@ private struct SettingsSupportCoverageDeck: View {
             return String(localized: "Settings support coverage is currently anchored by live monitoring load reaching the device layer.")
         }
         return String(localized: "Settings support coverage is currently light and mostly reflects refresh cadence and language readiness.")
+    }
+}
+
+private struct SettingsWorkstreamCoverageDeck: View {
+    let onCallQueueCount: Int
+    let currentCriticalCount: Int
+    let visibleAlertCount: Int
+    let hasQueuedReminder: Bool
+    let notificationLabel: String
+    let notificationTone: PresentationTone
+    let refreshIntervalLabel: String
+    let languageLabel: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether settings is currently led by live device-facing monitoring, queued reminder follow-through, or passive device configuration context before the longer form opens."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: notificationLabel, tone: notificationTone)
+                    PresentationToneBadge(text: languageLabel, tone: .neutral)
+                    PresentationToneBadge(text: refreshIntervalLabel, tone: .neutral)
+                    if hasQueuedReminder {
+                        PresentationToneBadge(text: String(localized: "Reminder queued"), tone: .caution)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep live alert reach, on-call follow-through, and slower device configuration context readable before the server, reminder, and monitoring forms take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: onCallQueueCount == 1 ? String(localized: "1 on-call item") : String(localized: "\(onCallQueueCount) on-call items"),
+                    tone: onCallQueueCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    visibleAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(visibleAlertCount) live alerts"),
+                    systemImage: "bell.badge"
+                )
+                if currentCriticalCount > 0 {
+                    Label(
+                        currentCriticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(currentCriticalCount) critical"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if hasQueuedReminder {
+                    Label(String(localized: "Reminder queued"), systemImage: "bell.badge.fill")
+                }
+                Label(languageLabel, systemImage: "globe")
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if currentCriticalCount > 0 || visibleAlertCount > 0 {
+            return String(localized: "Settings workstream coverage is currently anchored by live monitoring reaching the device layer.")
+        }
+        if onCallQueueCount > 0 || hasQueuedReminder {
+            return String(localized: "Settings workstream coverage is currently anchored by on-call follow-through and queued reminder state.")
+        }
+        return String(localized: "Settings workstream coverage is currently anchored by passive device configuration context.")
     }
 }
 
