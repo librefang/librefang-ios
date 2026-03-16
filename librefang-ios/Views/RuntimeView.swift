@@ -245,17 +245,6 @@ struct RuntimeView: View {
     private var systemSection: some View {
         if let status = vm.status {
             Section("System") {
-                RuntimeSystemInventoryDeck(
-                    statusLabel: status.localizedStatusLabel,
-                    version: status.version,
-                    uptimeLabel: formatDuration(status.uptimeSeconds),
-                    agentCount: status.agentCount,
-                    networkEnabled: status.networkEnabled,
-                    providerCount: vm.configuredProviderCount,
-                    channelCount: vm.readyChannelCount,
-                    sessionCount: vm.totalSessionCount
-                )
-
                 RuntimeSystemRow(label: "Kernel") {
                     StatusPill(text: status.localizedStatusLabel, color: status.statusTone.color)
                 }
@@ -291,16 +280,6 @@ struct RuntimeView: View {
     private var diagnosticsSection: some View {
         if vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || vm.metricsSnapshot != nil {
             Section {
-                RuntimeDiagnosticsInventoryDeck(
-                    healthStatusLabel: vm.healthDetail?.localizedStatusLabel,
-                    configWarningCount: vm.diagnosticsConfigWarningCount,
-                    panicCount: vm.supervisorPanicCount,
-                    restartCount: vm.supervisorRestartCount,
-                    hasBuild: vm.versionInfo != nil,
-                    hasConfig: vm.configSummary != nil,
-                    hasMetrics: vm.metricsSnapshot != nil
-                )
-
                 if let healthDetail = vm.healthDetail {
                     RuntimeMetricRow(
                         label: String(localized: "Health"),
@@ -333,8 +312,6 @@ struct RuntimeView: View {
                 }
             } header: {
                 Text("Diagnostics")
-            } footer: {
-                Text("Daemon-level health and build drift that the higher-level cards can miss.")
             }
             .id(RuntimeSectionAnchor.diagnostics)
         }
@@ -344,18 +321,6 @@ struct RuntimeView: View {
     private var integrationsSection: some View {
         if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
             Section {
-                RuntimeIntegrationsInventoryDeck(
-                    providerCount: vm.configuredProviderCount,
-                    totalProviderCount: vm.providers.count,
-                    channelCount: vm.readyChannelCount,
-                    configuredChannelCount: vm.configuredChannelCount,
-                    catalogModelCount: vm.catalogModels.count,
-                    availableCatalogModelCount: vm.availableCatalogModelCount,
-                    providerIssueCount: vm.unreachableLocalProviderCount,
-                    channelGapCount: vm.channelRequiredFieldGapCount,
-                    driftCount: vm.agentsWithModelDiagnostics.count
-                )
-
                 RuntimeMetricRow(
                     label: String(localized: "Providers"),
                     value: "\(vm.configuredProviderCount)/\(vm.providers.count)",
@@ -389,8 +354,6 @@ struct RuntimeView: View {
                 }
             } header: {
                 Text("Integrations")
-            } footer: {
-                Text("This section focuses on model providers, delivery channels, and the model catalog rather than runtime execution.")
             }
             .id(RuntimeSectionAnchor.integrations)
         }
@@ -407,15 +370,6 @@ struct RuntimeView: View {
     private var usageSection: some View {
         if let usage = vm.usageSummary {
             Section("Usage") {
-                RuntimeUsageInventoryDeck(
-                    inputTokenCount: usage.totalInputTokens,
-                    outputTokenCount: usage.totalOutputTokens,
-                    toolCallCount: usage.totalToolCalls,
-                    llmCallCount: usage.callCount,
-                    totalCost: usage.totalCostUsd,
-                    sessionCount: vm.totalSessionCount
-                )
-
                 RuntimeMetricRow(
                     label: String(localized: "Tokens"),
                     value: String(localized: "\(usage.totalInputTokens.formatted()) in / \(usage.totalOutputTokens.formatted()) out"),
@@ -504,22 +458,11 @@ struct RuntimeView: View {
     private var providersSection: some View {
         if !sortedProviders.isEmpty {
             Section {
-                RuntimeProvidersInventoryDeck(
-                    providers: sortedProviders,
-                    visibleCount: visibleProviders.count
-                )
-
                 ForEach(visibleProviders) { provider in
                     ProviderStatusRow(provider: provider)
                 }
             } header: {
                 Text("Providers")
-            } footer: {
-                if sortedProviders.count > visibleProviders.count {
-                    Text("Showing \(visibleProviders.count) of \(sortedProviders.count) providers, \(vm.configuredProviderCount) configured")
-                } else {
-                    Text("\(vm.configuredProviderCount)/\(sortedProviders.count) configured")
-                }
             }
         }
     }
@@ -557,13 +500,6 @@ struct RuntimeView: View {
     private var channelsSection: some View {
         if !configuredChannels.isEmpty || !vm.channels.isEmpty {
             Section {
-                RuntimeChannelsInventoryDeck(
-                    channels: vm.channels,
-                    configuredChannels: configuredChannels,
-                    visibleCount: visibleConfiguredChannels.count,
-                    readyCount: vm.readyChannelCount
-                )
-
                 if configuredChannels.isEmpty {
                     RuntimeEmptyRow(
                         title: String(localized: "No channels configured"),
@@ -576,12 +512,6 @@ struct RuntimeView: View {
                 }
             } header: {
                 Text("Channels")
-            } footer: {
-                if configuredChannels.count > 8 {
-                    Text("Showing 8 of \(configuredChannels.count) configured channels")
-                } else {
-                    Text("\(vm.readyChannelCount) ready, \(vm.configuredChannelCount) configured")
-                }
             }
         }
     }
@@ -662,13 +592,6 @@ struct RuntimeView: View {
     private var handsSection: some View {
         if !vm.activeHands.isEmpty || !degradedHands.isEmpty || !vm.hands.isEmpty {
             Section {
-                RuntimeHandsInventoryDeck(
-                    activeHands: vm.activeHands,
-                    visibleActiveCount: visibleActiveHands.count,
-                    degradedHands: degradedHands,
-                    totalHands: vm.hands.count
-                )
-
                 if vm.activeHands.isEmpty {
                     RuntimeEmptyRow(
                         title: String(localized: "No active hands"),
@@ -687,12 +610,6 @@ struct RuntimeView: View {
                 }
             } header: {
                 Text("Hands")
-            } footer: {
-                if vm.activeHands.count > visibleActiveHands.count {
-                    Text("Showing \(visibleActiveHands.count) of \(vm.activeHands.count) active hands, \(vm.degradedHandCount) degraded")
-                } else {
-                    Text("\(vm.activeHandCount) active, \(vm.degradedHandCount) degraded")
-                }
             }
         }
     }
@@ -701,11 +618,6 @@ struct RuntimeView: View {
     private var approvalsSection: some View {
         if !vm.approvals.isEmpty {
             Section {
-                RuntimeApprovalsInventoryDeck(
-                    approvals: vm.approvals,
-                    visibleCount: visibleApprovals.count
-                )
-
                 ForEach(visibleApprovals) { approval in
                     ApprovalOperatorRow(
                         approval: approval,
@@ -726,12 +638,6 @@ struct RuntimeView: View {
                 }
             } header: {
                 Text("Pending Approvals")
-            } footer: {
-                if vm.approvals.count > visibleApprovals.count {
-                    Text("Showing \(visibleApprovals.count) of \(vm.approvals.count) approvals. High-risk tool approvals can now be resolved directly from mobile after confirmation.")
-                } else {
-                    Text("High-risk tool approvals can now be resolved directly from mobile after confirmation.")
-                }
             }
             .id(RuntimeSectionAnchor.approvals)
         }
@@ -741,11 +647,6 @@ struct RuntimeView: View {
     private var auditSection: some View {
         if !vm.recentAudit.isEmpty || vm.auditVerify != nil {
             Section("Audit") {
-                RuntimeAuditInventoryDeck(
-                    entries: vm.recentAudit,
-                    visibleCount: visibleAuditEntries.count
-                )
-
                 if vm.recentAudit.isEmpty {
                     RuntimeEmptyRow(
                         title: String(localized: "No recent audit events"),

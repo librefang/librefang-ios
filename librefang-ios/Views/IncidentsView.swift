@@ -413,8 +413,6 @@ struct IncidentsView: View {
             }
         } header: {
             Text("Shift Coverage")
-        } footer: {
-            Text("These handoff signals are local to this iPhone and help keep operator follow-through visible inside the incident flow.")
         }
         .id(IncidentSectionAnchor.shiftCoverage)
     }
@@ -428,8 +426,6 @@ struct IncidentsView: View {
             }
         } header: {
             Text("Automation")
-        } footer: {
-            Text("Workflow failures, exhausted triggers, and stalled cron jobs now flow into the mobile incident queue.")
         }
         .id(IncidentSectionAnchor.automation)
     }
@@ -451,8 +447,6 @@ struct IncidentsView: View {
             }
         } header: {
             Text("Integrations")
-        } footer: {
-            Text("Local provider reachability, delivery channel secrets, and model catalog drift now surface as first-class mobile incidents.")
         }
         .id(IncidentSectionAnchor.integrations)
     }
@@ -466,8 +460,6 @@ struct IncidentsView: View {
             }
         } header: {
             Text("Active Alerts")
-        } footer: {
-            Text("Muted alerts stay out of the overview attention card and the global critical banner on this iPhone.")
         }
         .id(IncidentSectionAnchor.activeAlerts)
     }
@@ -499,8 +491,6 @@ struct IncidentsView: View {
 
         } header: {
             Text("Pending Approvals")
-        } footer: {
-            Text("Approvals block sensitive actions until an operator responds. Mobile can now resolve them directly after confirmation.")
         }
         .id(IncidentSectionAnchor.approvals)
     }
@@ -517,8 +507,6 @@ struct IncidentsView: View {
 
         } header: {
             Text("Agents")
-        } footer: {
-            Text("\(vm.issueAgentCount) agents currently need attention")
         }
         .id(IncidentSectionAnchor.agents)
     }
@@ -534,8 +522,6 @@ struct IncidentsView: View {
             }
         } header: {
             Text("Watched Diagnostics")
-        } footer: {
-            Text("Pinned agents can surface operator issues here even when they are otherwise healthy enough to stay out of the general attention list.")
         }
         .id(IncidentSectionAnchor.watchedDiagnostics)
     }
@@ -556,8 +542,6 @@ struct IncidentsView: View {
 
         } header: {
             Text("Sessions")
-        } footer: {
-            Text("\(vm.sessionAttentionCount) sessions need review")
         }
         .id(IncidentSectionAnchor.sessions)
     }
@@ -582,8 +566,6 @@ struct IncidentsView: View {
 
         } header: {
             Text("Critical Events")
-        } footer: {
-            Text("\(vm.recentCriticalAuditCount) recent critical audit events already surfaced on mobile")
         }
         .id(IncidentSectionAnchor.criticalEvents)
     }

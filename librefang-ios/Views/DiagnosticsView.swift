@@ -129,8 +129,6 @@ struct DiagnosticsView: View {
                         )
                     } header: {
                         Text("Health Detail")
-                    } footer: {
-                        Text(healthDetail.isHealthy ? String(localized: "Deep health diagnostics are currently healthy.") : String(localized: "Deep health diagnostics report degraded runtime state."))
                     }
                     .id(DiagnosticsSectionAnchor.health)
 
@@ -141,8 +139,6 @@ struct DiagnosticsView: View {
                             }
                         } header: {
                             Text("Config Warnings")
-                        } footer: {
-                            Text("These warnings come from the kernel config validator and usually explain drift before it becomes an outage.")
                         }
                         .id(DiagnosticsSectionAnchor.warnings)
                     }
@@ -195,8 +191,6 @@ struct DiagnosticsView: View {
                         )
                     } header: {
                         Text("Config")
-                    } footer: {
-                        Text("This is the redacted runtime config view from the server, not local iPhone settings.")
                     }
                     .id(DiagnosticsSectionAnchor.config)
                 }

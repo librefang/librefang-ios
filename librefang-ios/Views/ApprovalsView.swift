@@ -106,8 +106,6 @@ struct ApprovalsView: View {
                 )
             } header: {
                 Text("Filters")
-            } footer: {
-                Text("Keep the filter bar above the queue.")
             }
 
             if filteredApprovals.isEmpty && !vm.isLoading {
@@ -134,8 +132,6 @@ struct ApprovalsView: View {
                     }
                 } header: {
                     Text("Approvals")
-                } footer: {
-                    Text("Resolve requests from mobile after confirmation. The queue refreshes from the server after each decision.")
                 }
             }
         }
