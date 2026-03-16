@@ -142,11 +142,6 @@ struct AutomationView: View {
             }
 
             Section {
-                AutomationScoreboard(vm: vm)
-                    .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-            }
-
-            Section {
                 FlowLayout(spacing: 8) {
                     ForEach(AutomationMonitorScope.allCases) { option in
                         Button {

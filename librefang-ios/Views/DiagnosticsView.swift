@@ -103,11 +103,6 @@ struct DiagnosticsView: View {
                     }
                 }
 
-                Section {
-                    DiagnosticsScoreboard(vm: vm, metrics: metrics)
-                        .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-                }
-
                 if let healthDetail = vm.healthDetail {
                     Section {
                         DiagnosticsMetricRow(

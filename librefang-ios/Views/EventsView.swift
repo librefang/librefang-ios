@@ -50,7 +50,6 @@ struct EventsView: View {
         ScrollViewReader { proxy in
             List {
                 eventsErrorSection
-                eventsScoreboardSection
                 eventsFeedSection
             }
             .navigationTitle(String(localized: "Events"))
@@ -100,13 +99,6 @@ struct EventsView: View {
                 .listRowInsets(.init())
                 .listRowBackground(Color.clear)
             }
-        }
-    }
-
-    private var eventsScoreboardSection: some View {
-        Section {
-            EventScoreboard(viewModel: viewModel)
-                .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
         }
     }
 

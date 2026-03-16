@@ -62,11 +62,6 @@ struct CommsView: View {
                 }
 
                 Section {
-                    CommsScoreboard(viewModel: viewModel)
-                        .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-                }
-
-                Section {
                     if let topology = viewModel.topology, !topology.edges.isEmpty {
                         ForEach(visibleEdges) { edge in
                             CommsTopologyEdgeRow(
@@ -78,7 +73,7 @@ struct CommsView: View {
                         ContentUnavailableView(
                             "No Active Links",
                             systemImage: "point.3.connected.trianglepath.dotted",
-                            description: Text("When agents start messaging, spawning, or coordinating tasks, their topology appears here.")
+                            description: Text("Active links appear here.")
                         )
                     }
                 } header: {
@@ -91,7 +86,7 @@ struct CommsView: View {
                         ContentUnavailableView(
                             searchText.isEmpty ? String(localized: "No Communication Events") : String(localized: "No Search Results"),
                             systemImage: "arrow.left.arrow.right.circle",
-                            description: Text(searchText.isEmpty ? String(localized: "Live inter-agent traffic will appear here.") : String(localized: "Try a different agent, task, or detail query."))
+                            description: Text(searchText.isEmpty ? String(localized: "Traffic appears here.") : String(localized: "Try a different search."))
                         )
                     }
                     .id(CommsSectionAnchor.traffic)

@@ -106,11 +106,6 @@ struct SessionsView: View {
     var body: some View {
         ScrollViewReader { proxy in
             List {
-                Section {
-                    SessionScoreboard(vm: vm)
-                        .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-                }
-
                 if filteredItems.isEmpty && !vm.isLoading {
                     Section("Sessions") {
                         ContentUnavailableView(
