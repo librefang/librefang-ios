@@ -106,6 +106,7 @@ struct EventsView: View {
             eventsStatusDeckCard
             eventsSectionInventoryDeck
             eventsPressureCoverageDeck
+            eventsSupportCoverageDeck
             eventsFeedCoverageDeck
             eventsControlDeckCard
         } header: {
@@ -370,6 +371,19 @@ struct EventsView: View {
             hasSearchScope: !trimmedSearchText.isEmpty
         )
     }
+
+    private var eventsSupportCoverageDeck: some View {
+        EventsSupportCoverageDeck(
+            visibleCount: filteredEntries.count,
+            totalCount: viewModel.entries.count,
+            infoCount: filteredEntries.filter { $0.severity == .info }.count,
+            isStreaming: viewModel.isStreaming,
+            hasSearchScope: !trimmedSearchText.isEmpty,
+            scopeLabel: scope.label,
+            scopeTone: scopeTone,
+            showsScopeBadge: scope != .all
+        )
+    }
 }
 
 private struct EventsSectionInventoryDeck: View {
@@ -548,6 +562,82 @@ private struct EventsPressureCoverageDeck: View {
             return String(localized: "Event pressure is currently narrowed by the active severity or search scope.")
         }
         return String(localized: "Event pressure is currently spread across lower-noise feed traffic and background audit flow.")
+    }
+}
+
+private struct EventsSupportCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let infoCount: Int
+    let isStreaming: Bool
+    let hasSearchScope: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+    let showsScopeBadge: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep transport mode, lower-noise feed traffic, and scope state readable before the event feed rows begin."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: isStreaming ? String(localized: "Live transport") : String(localized: "Polling transport"),
+                        tone: isStreaming ? .positive : .warning
+                    )
+                    if showsScopeBadge {
+                        PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    }
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep transport mode, info traffic, and scope state readable before the event feed expands into row-by-row audit detail."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleCount) visible events"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if infoCount > 0 {
+                    Label(
+                        infoCount == 1 ? String(localized: "1 info") : String(localized: "\(infoCount) info"),
+                        systemImage: "info.circle"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope || showsScopeBadge {
+            return String(localized: "Event support coverage is currently narrowed by the active severity or search scope.")
+        }
+        if !isStreaming {
+            return String(localized: "Event support coverage is currently leaning on polling transport.")
+        }
+        if infoCount > 0 {
+            return String(localized: "Event support coverage is currently light and mostly reflects lower-noise feed traffic.")
+        }
+        return String(localized: "Event support coverage is currently light and mostly reflects transport readiness.")
     }
 }
 

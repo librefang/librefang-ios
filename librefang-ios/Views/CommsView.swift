@@ -56,6 +56,7 @@ struct CommsView: View {
                 commsStatusDeckCard
                 commsSectionInventoryDeck
                 commsPressureCoverageDeck
+                commsSupportCoverageDeck
                 commsTrafficCoverageDeck
                 commsControlDeckCard
             } header: {
@@ -362,6 +363,18 @@ struct CommsView: View {
             hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         )
     }
+
+    private var commsSupportCoverageDeck: some View {
+        CommsSupportCoverageDeck(
+            visibleEventCount: filteredEvents.count,
+            totalEventCount: viewModel.events.count,
+            nodeCount: viewModel.nodeCount,
+            edgeCount: viewModel.edgeCount,
+            spawnEventCount: viewModel.spawnEventCount,
+            isStreaming: viewModel.isStreaming,
+            hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        )
+    }
 }
 
 private struct CommsSectionInventoryDeck: View {
@@ -548,6 +561,86 @@ private struct CommsPressureCoverageDeck: View {
             return String(localized: "Comms pressure is currently concentrated in a dense live topology.")
         }
         return String(localized: "Comms pressure is currently spread across transport mode, topology depth, and live traffic breadth.")
+    }
+}
+
+private struct CommsSupportCoverageDeck: View {
+    let visibleEventCount: Int
+    let totalEventCount: Int
+    let nodeCount: Int
+    let edgeCount: Int
+    let spawnEventCount: Int
+    let isStreaming: Bool
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep topology breadth, lifecycle churn, and transport mode readable before the topology and traffic rows take over."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: isStreaming ? String(localized: "Live transport") : String(localized: "Polling transport"),
+                        tone: isStreaming ? .positive : .warning
+                    )
+                    PresentationToneBadge(
+                        text: nodeCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(nodeCount) visible agents"),
+                        tone: nodeCount > 0 ? .positive : .neutral
+                    )
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep lifecycle churn, topology breadth, and scoped traffic state readable before the comms feed expands into row detail."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: edgeCount == 1 ? String(localized: "1 live link") : String(localized: "\(edgeCount) live links"),
+                    tone: edgeCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if spawnEventCount > 0 {
+                    Label(
+                        spawnEventCount == 1 ? String(localized: "1 lifecycle event") : String(localized: "\(spawnEventCount) lifecycle events"),
+                        systemImage: "arrow.triangle.branch"
+                    )
+                }
+                Label(
+                    visibleEventCount == totalEventCount
+                        ? (visibleEventCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleEventCount) visible events"))
+                        : String(localized: "\(visibleEventCount) of \(totalEventCount) visible"),
+                    systemImage: "arrow.left.arrow.right.circle"
+                )
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Comms support coverage is currently narrowed by a search-scoped traffic slice.")
+        }
+        if spawnEventCount > 0 {
+            return String(localized: "Comms support coverage is currently anchored by lifecycle churn.")
+        }
+        if !isStreaming {
+            return String(localized: "Comms support coverage is currently leaning on polling transport.")
+        }
+        return String(localized: "Comms support coverage is currently light and mostly reflects topology breadth.")
     }
 }
 

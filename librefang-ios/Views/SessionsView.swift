@@ -107,6 +107,7 @@ struct SessionsView: View {
                 sessionsStatusDeckCard
                 sessionsSectionInventoryDeck
                 sessionsPressureCoverageDeck
+                sessionsSupportCoverageDeck
                 sessionsQueueCoverageDeck
                 sessionsControlDeckCard
             } header: {
@@ -479,6 +480,18 @@ struct SessionsView: View {
         )
     }
 
+    private var sessionsSupportCoverageDeck: some View {
+        SessionsSupportCoverageDeck(
+            totalCount: vm.sessions.count,
+            highVolumeCount: visibleHighVolumeCount,
+            unlabeledCount: visibleUnlabeledCount,
+            duplicateAgentCount: visibleDuplicateAgentCount,
+            hasSearchScope: !normalizedSearchText.isEmpty,
+            filterLabel: filter.label,
+            filterTone: snapshotFilterTone
+        )
+    }
+
 private struct SessionsRouteInventoryDeck: View {
     let primaryRouteCount: Int
     let supportRouteCount: Int
@@ -743,6 +756,83 @@ private struct SessionsPressureCoverageDeck: View {
             return String(localized: "Session pressure is currently narrowed by the active backlog filter or search scope.")
         }
         return String(localized: "Session pressure is currently spread across the visible session backlog.")
+    }
+}
+
+private struct SessionsSupportCoverageDeck: View {
+    let totalCount: Int
+    let highVolumeCount: Int
+    let unlabeledCount: Int
+    let duplicateAgentCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep backlog scope, label hygiene, and duplicate-agent churn readable before the session queue rows begin."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    PresentationToneBadge(
+                        text: totalCount == 1 ? String(localized: "1 total session") : String(localized: "\(totalCount) total sessions"),
+                        tone: totalCount > 0 ? .positive : .neutral
+                    )
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep high-volume churn, label hygiene, and multi-session agent drag readable before drilling into individual sessions."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: highVolumeCount == 1 ? String(localized: "1 high-volume") : String(localized: "\(highVolumeCount) high-volume"),
+                    tone: highVolumeCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if unlabeledCount > 0 {
+                    Label(
+                        unlabeledCount == 1 ? String(localized: "1 unlabeled") : String(localized: "\(unlabeledCount) unlabeled"),
+                        systemImage: "tag.slash"
+                    )
+                }
+                if duplicateAgentCount > 0 {
+                    Label(
+                        duplicateAgentCount == 1 ? String(localized: "1 multi-session agent") : String(localized: "\(duplicateAgentCount) multi-session agents"),
+                        systemImage: "person.3"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Session support coverage is currently narrowed by the active backlog filter or search scope.")
+        }
+        if unlabeledCount > 0 || duplicateAgentCount > 0 {
+            return String(localized: "Session support coverage is currently anchored by label hygiene and duplicate-agent churn.")
+        }
+        if highVolumeCount > 0 {
+            return String(localized: "Session support coverage is currently anchored by high-volume backlog churn.")
+        }
+        return String(localized: "Session support coverage is currently light and mostly reflects backlog breadth.")
     }
 }
 
