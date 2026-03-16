@@ -124,8 +124,7 @@ struct DiagnosticsView: View {
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "Supervisor"),
-                            value: String(localized: "\(healthDetail.panicCount) panics / \(healthDetail.restartCount) restarts"),
-                            detail: healthDetail.panicCount > 0 ? String(localized: "Kernel supervisor recovered at least one panic.") : String(localized: "No panic recovery recorded.")
+                            value: String(localized: "\(healthDetail.panicCount) panics / \(healthDetail.restartCount) restarts")
                         )
                     } header: {
                         Text("Health Detail")
@@ -148,18 +147,15 @@ struct DiagnosticsView: View {
                     Section {
                         DiagnosticsMetricRow(
                             label: String(localized: "Version"),
-                            value: versionInfo.version,
-                            detail: versionInfo.name
+                            value: versionInfo.version
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "Git SHA"),
-                            value: shortSHA(versionInfo.gitSHA),
-                            detail: versionInfo.buildDate
+                            value: shortSHA(versionInfo.gitSHA)
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "Toolchain"),
-                            value: versionInfo.rustVersion,
-                            detail: String(localized: "\(versionInfo.platform) / \(versionInfo.arch)")
+                            value: versionInfo.rustVersion
                         )
                     } header: {
                         Text("Build")
@@ -181,13 +177,11 @@ struct DiagnosticsView: View {
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "API Key"),
-                            value: configSummary.apiKey,
-                            detail: configSummary.defaultModel.apiKeyEnv ?? String(localized: "No provider env override")
+                            value: configSummary.apiKey
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "Memory Decay"),
-                            value: configSummary.memory.decayRate.formatted(.number.precision(.fractionLength(3))),
-                            detail: String(localized: "Kernel memory compaction / decay tuning")
+                            value: configSummary.memory.decayRate.formatted(.number.precision(.fractionLength(3)))
                         )
                     } header: {
                         Text("Config")
@@ -199,8 +193,7 @@ struct DiagnosticsView: View {
                     Section {
                         DiagnosticsMetricRow(
                             label: String(localized: "Agents"),
-                            value: String(localized: "\(metrics.activeAgents)/\(metrics.totalAgents) active"),
-                            detail: String(localized: "Prometheus gauge snapshot")
+                            value: String(localized: "\(metrics.activeAgents)/\(metrics.totalAgents) active")
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "Rolling Tokens"),
@@ -211,14 +204,12 @@ struct DiagnosticsView: View {
                         )
                         DiagnosticsMetricRow(
                             label: String(localized: "Supervisor Counters"),
-                            value: String(localized: "\(metrics.panicCount) panics / \(metrics.restartCount) restarts"),
-                            detail: String(localized: "Exported through /api/metrics")
+                            value: String(localized: "\(metrics.panicCount) panics / \(metrics.restartCount) restarts")
                         )
                         if let versionLabel = metrics.versionLabel {
                             DiagnosticsMetricRow(
                                 label: String(localized: "Metrics Version"),
-                                value: versionLabel,
-                                detail: String(localized: "Version label from librefang_info")
+                                value: versionLabel
                             )
                         }
                     } header: {
@@ -1592,7 +1583,7 @@ private struct DiagnosticsLeadersInventoryCard: View {
 private struct DiagnosticsMetricRow: View {
     let label: String
     let value: String
-    let detail: String
+    let detail: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
@@ -1603,10 +1594,12 @@ private struct DiagnosticsMetricRow: View {
                 Text(value)
                     .fontWeight(.medium)
             }
-            Text(detail)
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-                .lineLimit(2)
+            if let detail, !detail.isEmpty {
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(2)
+            }
         }
         .padding(.vertical, 2)
     }
