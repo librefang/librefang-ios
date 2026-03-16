@@ -64,8 +64,7 @@ struct CommsView: View {
             if filteredEvents.isEmpty && !viewModel.isLoading {
                 ContentUnavailableView(
                     searchText.isEmpty ? String(localized: "No Communication Events") : String(localized: "No Search Results"),
-                    systemImage: "arrow.left.arrow.right.circle",
-                    description: Text(searchText.isEmpty ? String(localized: "No traffic yet.") : String(localized: "Try a different search."))
+                    systemImage: "arrow.left.arrow.right.circle"
                 )
             } else {
                 ForEach(filteredEvents) { event in
@@ -142,110 +141,27 @@ private struct CommsTopologyEdgeRow: View {
     }
 }
 
-private struct CommsSummaryRow<Content: View>: View {
-    let label: LocalizedStringKey
-    let content: Content
-
-    init(label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
-        self.label = label
-        self.content = content()
-    }
-
-    var body: some View {
-        ResponsiveValueRow {
-            Text(label)
-        } value: {
-            content
-        }
-    }
-}
-
-private struct CommsScoreboard: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    let viewModel: CommsViewModel
-
-    private var agentStatus: MonitoringSummaryStatus {
-        MonitoringSummaryStatus(
-            summary: "\(viewModel.nodeCount)",
-            tone: viewModel.nodeCount > 1 ? .positive : .neutral
-        )
-    }
-
-    private var linkStatus: MonitoringSummaryStatus {
-        .countStatus(viewModel.edgeCount, activeTone: .positive)
-    }
-
-    private var taskFlowStatus: MonitoringSummaryStatus {
-        .countStatus(viewModel.taskEventCount, activeTone: .warning)
-    }
-
-    private var transportStatus: MonitoringSummaryStatus {
-        MonitoringSummaryStatus(
-            summary: viewModel.isStreaming ? String(localized: "Live") : String(localized: "Polling"),
-            tone: viewModel.isStreaming ? .positive : .warning
-        )
-    }
-
-    private var columns: [GridItem] {
-        let count = horizontalSizeClass == .compact ? 2 : 4
-        return Array(repeating: GridItem(.flexible(), spacing: 10), count: count)
-    }
-
-    var body: some View {
-        LazyVGrid(columns: columns, spacing: 10) {
-            StatBadge(
-                value: "\(viewModel.nodeCount)",
-                label: "Agents",
-                icon: "cpu",
-                color: agentStatus.color(positive: .green)
-            )
-            StatBadge(
-                value: "\(viewModel.edgeCount)",
-                label: "Links",
-                icon: "point.3.connected.trianglepath.dotted",
-                color: linkStatus.color(positive: .blue)
-            )
-            StatBadge(
-                value: "\(viewModel.taskEventCount)",
-                label: "Task Flow",
-                icon: "checklist",
-                color: taskFlowStatus.tone.color
-            )
-            StatBadge(
-                value: transportStatus.summary,
-                label: "Transport",
-                icon: viewModel.isStreaming ? "dot.radiowaves.left.and.right" : "arrow.clockwise",
-                color: transportStatus.tone.color
-            )
-        }
-        .padding(.horizontal)
-    }
-}
-
 private struct CommsEventRow: View {
     let event: CommsEvent
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: event.kind.symbolName)
-                    .foregroundStyle(iconColor)
-                    .frame(width: 18)
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: event.kind.symbolName)
+                .foregroundStyle(iconColor)
+                .frame(width: 18)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    ResponsiveAccessoryRow(horizontalAlignment: .top, horizontalSpacing: 8, verticalSpacing: 4, spacerMinLength: 10) {
-                        titleLabel
-                    } accessory: {
-                        timestampLabel
-                    }
-
-                    ResponsiveIconDetailRow(horizontalSpacing: 6, verticalSpacing: 2, spacerMinLength: 0) {
-                        sourceLabelView
-                    } detail: {
-                        targetLabelView
-                    }
-
+            VStack(alignment: .leading, spacing: 3) {
+                ResponsiveAccessoryRow(horizontalAlignment: .top, horizontalSpacing: 8, verticalSpacing: 4, spacerMinLength: 10) {
+                    titleLabel
+                } accessory: {
+                    timestampLabel
                 }
+
+                Text("\(sourceLabel) → \(targetLabel)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
             }
         }
         .padding(.vertical, 2)
@@ -290,22 +206,6 @@ private struct CommsEventRow: View {
         Text(relativeTimestamp)
             .font(.caption2)
             .foregroundStyle(.tertiary)
-    }
-
-    private var sourceLabelView: some View {
-        Text(sourceLabel)
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.secondary)
-            .lineLimit(1)
-            .truncationMode(.middle)
-    }
-
-    private var targetLabelView: some View {
-        Text(targetLabel)
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.secondary)
-            .lineLimit(1)
-            .truncationMode(.middle)
     }
 
     private func shortID(_ id: String) -> String {

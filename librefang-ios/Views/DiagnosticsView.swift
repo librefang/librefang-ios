@@ -113,7 +113,7 @@ struct DiagnosticsView: View {
                             DiagnosticsMetricListRow(
                                 rank: index + 1,
                                 title: sample.labels["agent"] ?? String(localized: "Unknown agent"),
-                                subtitle: sample.labels["model"] ?? sample.labels["provider"] ?? String(localized: "Token usage"),
+                                subtitle: nil,
                                 value: Int(sample.value).formatted()
                             )
                         }
@@ -272,7 +272,7 @@ private struct DiagnosticsWarningRow: View {
 
     private var warningText: some View {
         Text(warning)
-            .font(.caption)
+            .font(.caption2)
             .foregroundStyle(.secondary)
     }
 }

@@ -172,12 +172,7 @@ struct AutomationView: View {
                         searchText.isEmpty
                             ? String(localized: "No Matching Automation")
                             : String(localized: "No Search Results"),
-                        systemImage: scope == .all ? "flowchart" : "line.3.horizontal.decrease.circle",
-                        description: Text(
-                            searchText.isEmpty
-                                ? String(localized: "Change the scope.")
-                                : String(localized: "Try a different search.")
-                        )
+                        systemImage: scope == .all ? "flowchart" : "line.3.horizontal.decrease.circle"
                     )
                 } else {
                     workflowsSection
@@ -231,7 +226,7 @@ struct AutomationView: View {
                     WorkflowRunRow(run: run)
                 }
             } header: {
-                Text("Recent Runs")
+                Text("Runs")
             }
         }
     }
@@ -276,7 +271,7 @@ struct AutomationView: View {
                     )
                 }
             } header: {
-                Text("Cron Jobs")
+                Text("Cron")
             }
         }
     }

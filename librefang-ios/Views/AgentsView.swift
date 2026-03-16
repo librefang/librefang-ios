@@ -7,9 +7,6 @@ struct AgentsView: View {
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
     private var watchlistStore: AgentWatchlistStore { deps.agentWatchlistStore }
-    private var normalizedSearchText: String {
-        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
 
     private var filteredAgents: [AgentAttentionItem] {
         var result = vm.agents.map { vm.attentionItem(for: $0) }
@@ -44,38 +41,6 @@ struct AgentsView: View {
             }
             return lhs.agent.name.localizedCompare(rhs.agent.name) == .orderedAscending
         }
-    }
-
-    private var filteredRunningCount: Int {
-        filteredAgents.filter { $0.agent.isRunning }.count
-    }
-
-    private var filteredIssueCount: Int {
-        filteredAgents.filter { $0.severity > 0 }.count
-    }
-
-    private var filteredApprovalCount: Int {
-        filteredAgents.reduce(0) { $0 + $1.pendingApprovals }
-    }
-
-    private var filteredStaleCount: Int {
-        filteredAgents.filter(\.isStale).count
-    }
-
-    private var filteredWatchedCount: Int {
-        filteredAgents.filter { watchlistStore.isWatched($0.agent) }.count
-    }
-
-    private var filteredAuthIssueCount: Int {
-        filteredAgents.filter(\.hasAuthIssue).count
-    }
-
-    private var filteredModelIssueCount: Int {
-        filteredAgents.filter { $0.modelDiagnostic != nil }.count
-    }
-
-    private var filteredSessionPressureCount: Int {
-        filteredAgents.filter(\.sessionPressure).count
     }
 
     var body: some View {
