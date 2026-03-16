@@ -1,16 +1,5 @@
 import SwiftUI
 
-private enum SettingsSectionAnchor: Hashable {
-    case server
-    case refresh
-    case language
-    case onCall
-    case reminder
-    case handoff
-    case monitoring
-    case about
-}
-
 struct SettingsView: View {
     @Environment(\.dependencies) private var deps
     @Environment(\.openURL) private var openURL
@@ -20,254 +9,11 @@ struct SettingsView: View {
     @State private var isSaving = false
     @State private var showSuccess = false
 
-    private var primaryRouteCount: Int { 3 }
-    private var supportRouteCount: Int { 2 }
-    private var primaryControlCount: Int { 4 }
-    private var supportControlCount: Int { 4 }
-    private var utilityRouteCount: Int { 2 }
-    private var settingsSectionCount: Int { 8 }
-    private var settingsSectionPreviewTitles: [String] {
-        [
-            String(localized: "Server"),
-            String(localized: "Auto Refresh"),
-            String(localized: "Language"),
-            String(localized: "On-Call Focus"),
-            String(localized: "Standby Reminder"),
-            String(localized: "Handoff"),
-            String(localized: "Monitoring"),
-            String(localized: "About")
-        ]
-    }
-
     var body: some View {
         NavigationStack {
-            ScrollViewReader { proxy in
-                Form {
-                    Section {
-                        MonitoringSnapshotCard(
-                            summary: String(localized: "Settings keeps server, language, refresh, and on-call state visible before the longer forms."),
-                            detail: String(localized: "Use this summary to confirm device-level monitoring behavior without digging through each section.")
-                        ) {
-                            FlowLayout(spacing: 8) {
-                                SettingsBadge(text: currentLanguageLabel, tone: .neutral)
-                                SettingsBadge(
-                                    text: String(localized: "\(Int(refreshInterval))s refresh"),
-                                    tone: .neutral
-                                )
-                                SettingsBadge(
-                                    text: snapshotStatus.settingsLabel,
-                                    tone: snapshotStatus.tone
-                                )
-                                SettingsBadge(
-                                    text: onCallQueueCount == 1 ? String(localized: "1 on-call item") : String(localized: "\(onCallQueueCount) on-call items"),
-                                    tone: onCallQueueStatus.tone
-                                )
-                                SettingsBadge(
-                                    text: deps.onCallNotificationManager.authorizationLabel,
-                                    tone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning
-                                )
-                                if deps.onCallNotificationManager.pendingReminderDate != nil {
-                                    SettingsBadge(text: deps.onCallNotificationManager.pendingReminderSourceLabel, tone: .caution)
-                                }
-                            }
-                        }
-
-                        MonitoringSurfaceGroupCard(
-                            title: String(localized: "Shortcuts"),
-                            detail: String(localized: "Keep the highest-value monitoring exits together before the longer device-control form.")
-                        ) {
-                            MonitoringShortcutRail(
-                                title: String(localized: "Primary"),
-                                detail: String(localized: "Keep the shift-management routes closest to settings.")
-                            ) {
-                                NavigationLink {
-                                    OnCallView()
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "On Call"),
-                                        systemImage: "waveform.path.ecg",
-                                        tone: onCallQueueStatus.tone,
-                                        badgeText: onCallQueueCount > 0 ? "\(onCallQueueCount)" : nil
-                                    )
-                                }
-                                .buttonStyle(.plain)
-
-                                NavigationLink {
-                                    IncidentsView()
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Incidents"),
-                                        systemImage: "bell.badge",
-                                        tone: currentCriticalCount > 0 ? .critical : .neutral,
-                                        badgeText: currentCriticalCount > 0 ? "\(currentCriticalCount)" : nil
-                                    )
-                                }
-                                .buttonStyle(.plain)
-
-                                NavigationLink {
-                                    HandoffCenterView(
-                                        summary: handoffText,
-                                        queueCount: onCallQueueCount,
-                                        criticalCount: currentCriticalCount,
-                                        liveAlertCount: visibleAlertCount
-                                    )
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Handoff"),
-                                        systemImage: "text.badge.plus",
-                                        tone: deps.onCallHandoffStore.freshnessState.tone
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-
-                            MonitoringShortcutRail(
-                                title: String(localized: "Support"),
-                                detail: String(localized: "Keep runtime and diagnostics behind the primary shift-management exits.")
-                            ) {
-                                NavigationLink {
-                                    RuntimeView()
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Runtime"),
-                                        systemImage: "server.rack",
-                                        tone: snapshotStatus.tone
-                                    )
-                                }
-                                .buttonStyle(.plain)
-
-                                NavigationLink {
-                                    DiagnosticsView()
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Diagnostics"),
-                                        systemImage: "stethoscope",
-                                        tone: .neutral
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-
-                        MonitoringSurfaceGroupCard(
-                            title: String(localized: "Controls"),
-                            detail: String(localized: "Keep the longest settings groups reachable on a single-handed mobile layout.")
-                        ) {
-                            MonitoringShortcutRail(
-                                title: String(localized: "Primary"),
-                                detail: String(localized: "Keep the most frequently adjusted device settings closest to the top of the form.")
-                            ) {
-                                Button {
-                                    jump(proxy, to: .server)
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Server"),
-                                        systemImage: "server.rack",
-                                        tone: snapshotStatus.tone
-                                    )
-                                }
-                                .buttonStyle(.plain)
-
-                                Button {
-                                    jump(proxy, to: .refresh)
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Refresh"),
-                                        systemImage: "arrow.clockwise",
-                                        tone: .neutral,
-                                        badgeText: "\(Int(refreshInterval))s"
-                                    )
-                                }
-                                .buttonStyle(.plain)
-
-                                Button {
-                                    jump(proxy, to: .language)
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Language"),
-                                        systemImage: "globe",
-                                        tone: .neutral
-                                    )
-                                }
-                                .buttonStyle(.plain)
-
-                                Button {
-                                    jump(proxy, to: .onCall)
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "On-Call Focus"),
-                                        systemImage: "waveform.path.ecg",
-                                        tone: onCallQueueStatus.tone,
-                                        badgeText: onCallQueueCount > 0 ? "\(onCallQueueCount)" : nil
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-
-                            MonitoringShortcutRail(
-                                title: String(localized: "Support"),
-                                detail: String(localized: "Keep reminders, handoff state, monitoring summary, and app metadata behind the primary jumps.")
-                            ) {
-                                Button {
-                                    jump(proxy, to: .reminder)
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Reminder"),
-                                        systemImage: "bell.badge",
-                                        tone: deps.onCallNotificationManager.authorizationStatus == .authorized ? .positive : .warning
-                                    )
-                                }
-                                .buttonStyle(.plain)
-
-                                Button {
-                                    jump(proxy, to: .handoff)
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Handoff"),
-                                        systemImage: "text.badge.plus",
-                                        tone: deps.onCallHandoffStore.freshnessState.tone
-                                    )
-                                }
-                                .buttonStyle(.plain)
-
-                                Button {
-                                    jump(proxy, to: .monitoring)
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Monitoring"),
-                                        systemImage: "chart.bar.xaxis",
-                                        tone: snapshotStatus.tone
-                                    )
-                                }
-                                .buttonStyle(.plain)
-
-                                Button {
-                                    jump(proxy, to: .about)
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "About"),
-                                        systemImage: "info.circle",
-                                        tone: .neutral
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    } header: {
-                        Text("Controls")
-                    } footer: {
-                        Text("Keep snapshot, routes, and device controls together before the longer settings form.")
-                    }
+            Form {
 
                     Section("Server") {
-                    SettingsServerSnapshotCard(
-                        serverURL: serverURL,
-                        apiKey: apiKey,
-                        serverStatusLabel: deps.dashboardViewModel.health?.localizedStatusLabel ?? String(localized: "Unavailable"),
-                        serverStatusTone: deps.dashboardViewModel.health?.statusTone ?? .neutral,
-                        connectionHint: serverConnectionHint
-                    )
-
                     TextField(String(localized: "Server URL"), text: $serverURL)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
@@ -297,14 +43,8 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                .id(SettingsSectionAnchor.server)
 
                     Section("Auto Refresh") {
-                    SettingsRefreshSnapshotCard(
-                        refreshInterval: Int(refreshInterval),
-                        lastRefresh: deps.dashboardViewModel.lastRefresh
-                    )
-
                     SettingsValueRow("Interval") {
                         Text("\(Int(refreshInterval))s")
                             .foregroundStyle(.secondary)
@@ -317,14 +57,8 @@ struct SettingsView: View {
                         deps.dashboardViewModel.startAutoRefresh(interval: refreshInterval)
                     }
                 }
-                .id(SettingsSectionAnchor.refresh)
 
                     Section("Language") {
-                    SettingsLanguageSnapshotCard(
-                        currentLanguageLabel: currentLanguageLabel,
-                        supportedLanguageLabels: supportedLanguageLabels
-                    )
-
                     SettingsValueRow("Current") {
                         Text(currentLanguageLabel)
                             .foregroundStyle(.secondary)
@@ -346,49 +80,8 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                .id(SettingsSectionAnchor.language)
-
-                    Section {
-                        MonitoringSurfaceGroupCard(
-                            title: String(localized: "Utility Deck"),
-                            detail: String(localized: "Keep secondary runtime catalogs and external-agent routes close without letting them crowd the primary control deck.")
-                        ) {
-                            MonitoringShortcutRail(
-                                title: String(localized: "Secondary Catalogs"),
-                                detail: String(localized: "Open supporting runtime inventories when device settings need adjacent catalog context.")
-                            ) {
-                                NavigationLink {
-                                    A2AAgentsView()
-                                        .navigationTitle(String(localized: "A2A Agents"))
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "External Agents"),
-                                        systemImage: "link.circle",
-                                        tone: .neutral,
-                                        badgeText: deps.dashboardViewModel.a2aAgents.map { String($0.total) }
-                                    )
-                                }
-                                .buttonStyle(.plain)
-
-                                NavigationLink {
-                                    ToolProfilesView()
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Tool Profiles"),
-                                        systemImage: "person.crop.rectangle.stack",
-                                        tone: .neutral
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    } header: {
-                        Text("Utility Deck")
-                    }
 
                     Section("On Call Focus") {
-                    SettingsBadgeFlow(items: onCallFocusBadges)
-
                     Picker("Queue Mode", selection: Binding(
                         get: { deps.onCallFocusStore.mode },
                         set: { deps.onCallFocusStore.mode = $0 }
@@ -429,23 +122,8 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                .id(SettingsSectionAnchor.onCall)
 
                     Section("Standby Reminder") {
-                    SettingsReminderSnapshotCard(
-                        isEnabled: deps.onCallNotificationManager.isEnabled,
-                        authorizationLabel: deps.onCallNotificationManager.authorizationLabel,
-                        authorizationTone: deps.onCallNotificationManager.authorizationTone,
-                        authorizationSummary: deps.onCallNotificationManager.authorizationSummary,
-                        scopeLabel: deps.onCallNotificationManager.isEnabled ? deps.onCallNotificationManager.scope.label : nil,
-                        delayMinutes: deps.onCallNotificationManager.isEnabled ? deps.onCallNotificationManager.remindAfterMinutes : nil,
-                        pendingReminderLabel: deps.onCallNotificationManager.pendingReminderLabel,
-                        pendingReminderSourceLabel: deps.onCallNotificationManager.pendingReminderSourceLabel,
-                        pendingReminderSummary: deps.onCallNotificationManager.pendingReminderSummary
-                    )
-
-                    SettingsBadgeFlow(items: standbyReminderBadges)
-
                     Toggle("Enable Reminder", isOn: Binding(
                         get: { deps.onCallNotificationManager.isEnabled },
                         set: { deps.onCallNotificationManager.isEnabled = $0 }
@@ -512,16 +190,8 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                .id(SettingsSectionAnchor.reminder)
 
                     Section("Handoff") {
-                    MonitoringSnapshotCard(
-                        summary: deps.onCallHandoffStore.freshnessSummary,
-                        detail: draftHandoffReadiness.summary
-                    ) {
-                        SettingsBadgeFlow(items: handoffSummaryBadges)
-                    }
-
                     NavigationLink {
                         HandoffCenterView(
                             summary: handoffText,
@@ -635,16 +305,8 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                .id(SettingsSectionAnchor.handoff)
 
                     Section("Monitoring") {
-                    MonitoringSnapshotCard(
-                        summary: String(localized: "Device-local monitoring state stays visible here before the longer per-signal rows."),
-                        detail: String(localized: "Use this digest to confirm queue pressure, watchlist pressure, and readiness signals without scanning every value.")
-                    ) {
-                        SettingsBadgeFlow(items: monitoringSummaryBadges)
-                    }
-
                     SettingsValueRow("Agents") {
                         Text(deps.dashboardViewModel.agentAttentionStatus.summary)
                             .foregroundStyle(deps.dashboardViewModel.agentAttentionStatus.tone.color)
@@ -701,8 +363,20 @@ struct SettingsView: View {
                         Text("\(deps.dashboardViewModel.securityFeatureCount) features")
                             .foregroundStyle(.secondary)
                     }
+
+                    NavigationLink {
+                        A2AAgentsView()
+                            .navigationTitle(String(localized: "A2A Agents"))
+                    } label: {
+                        Label("External Agents", systemImage: "link.circle")
+                    }
+
+                    NavigationLink {
+                        ToolProfilesView()
+                    } label: {
+                        Label("Tool Profiles", systemImage: "person.crop.rectangle.stack")
+                    }
                 }
-                .id(SettingsSectionAnchor.monitoring)
 
                     Section("About") {
                     SettingsValueRow("App") {
@@ -719,84 +393,13 @@ struct SettingsView: View {
                     if let refresh = deps.dashboardViewModel.lastRefresh {
                         SettingsValueRow("Last Refresh") {
                             Text(refresh, style: .relative)
-                            .foregroundStyle(.secondary)
+                                .foregroundStyle(.secondary)
                         }
                     }
                 }
-                .id(SettingsSectionAnchor.about)
-                }
+            }
                 .navigationTitle(String(localized: "Settings"))
-            }
         }
-    }
-
-    private func jump(_ proxy: ScrollViewProxy, to anchor: SettingsSectionAnchor) {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            proxy.scrollTo(anchor, anchor: .top)
-        }
-    }
-
-    private func settingsSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
-        [
-            MonitoringSectionJumpItem(
-                title: String(localized: "Server"),
-                systemImage: "server.rack",
-                tone: snapshotStatus.tone
-            ) {
-                jump(proxy, to: .server)
-            },
-            MonitoringSectionJumpItem(
-                title: String(localized: "Refresh"),
-                systemImage: "arrow.clockwise",
-                tone: .neutral
-            ) {
-                jump(proxy, to: .refresh)
-            },
-            MonitoringSectionJumpItem(
-                title: String(localized: "Language"),
-                systemImage: "globe",
-                tone: .neutral
-            ) {
-                jump(proxy, to: .language)
-            },
-            MonitoringSectionJumpItem(
-                title: String(localized: "On Call"),
-                systemImage: "waveform.path.ecg",
-                tone: onCallQueueStatus.tone
-            ) {
-                jump(proxy, to: .onCall)
-            },
-            MonitoringSectionJumpItem(
-                title: String(localized: "Reminder"),
-                systemImage: "bell.badge",
-                tone: deps.onCallNotificationManager.pendingReminderDate != nil
-                    ? .caution
-                    : (deps.onCallNotificationManager.authorizationStatus == .authorized ? .neutral : .warning)
-            ) {
-                jump(proxy, to: .reminder)
-            },
-            MonitoringSectionJumpItem(
-                title: String(localized: "Handoff"),
-                systemImage: "text.badge.plus",
-                tone: deps.onCallHandoffStore.freshnessState.tone
-            ) {
-                jump(proxy, to: .handoff)
-            },
-            MonitoringSectionJumpItem(
-                title: String(localized: "Monitoring"),
-                systemImage: "gauge.with.dots.needle.33percent",
-                tone: currentCriticalCount > 0 ? .critical : (visibleAlertCount > 0 ? .warning : .neutral)
-            ) {
-                jump(proxy, to: .monitoring)
-            },
-            MonitoringSectionJumpItem(
-                title: String(localized: "About"),
-                systemImage: "info.circle",
-                tone: .neutral
-            ) {
-                jump(proxy, to: .about)
-            }
-        ]
     }
 
     private func saveAndTest() async {

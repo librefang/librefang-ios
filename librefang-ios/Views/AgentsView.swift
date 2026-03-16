@@ -1,9 +1,5 @@
 import SwiftUI
 
-private enum AgentsSectionAnchor: Hashable {
-    case fleet
-}
-
 struct AgentsView: View {
     @Environment(\.dependencies) private var deps
     @State private var searchText = ""
@@ -11,10 +7,6 @@ struct AgentsView: View {
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
     private var watchlistStore: AgentWatchlistStore { deps.agentWatchlistStore }
-    private var watchedAgents: [Agent] {
-        watchlistStore.watchedAgents(from: vm.agents)
-    }
-
     private var normalizedSearchText: String {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -54,18 +46,18 @@ struct AgentsView: View {
         }
     }
 
-    private var filterSummaryLine: String {
+    private var sectionTitle: String {
         switch filterState {
         case .all:
-            return String(localized: "Showing the full fleet with watched agents and attention items promoted to the top.")
+            return String(localized: "Fleet")
         case .attention:
-            return String(localized: "Attention mode keeps stale, auth, approval, and delivery issues at the front.")
+            return String(localized: "Attention")
         case .watchlist:
-            return String(localized: "Watchlist mode limits the fleet to agents pinned locally on this iPhone.")
+            return String(localized: "Watchlist")
         case .running:
-            return String(localized: "Running mode keeps only active agents in the list.")
+            return String(localized: "Running")
         case .stopped:
-            return String(localized: "Stopped mode isolates idle agents for quick review.")
+            return String(localized: "Stopped")
         }
     }
 
@@ -133,8 +125,7 @@ struct AgentsView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollViewReader { proxy in
-                Group {
+            Group {
                     if vm.agents.isEmpty && !vm.isLoading {
                         ContentUnavailableView(
                             "No Agents",
@@ -165,12 +156,6 @@ struct AgentsView: View {
                         List {
                             if !filteredAgents.isEmpty {
                                 Section {
-                                MonitoringFilterCard(summary: filterSummaryLine, detail: searchSummaryLine) {
-                                    PresentationToneBadge(
-                                        text: filterState.label,
-                                        tone: filterState == .attention ? .warning : .neutral
-                                    )
-                                } controls: {
                                     FlowLayout(spacing: 8) {
                                         ForEach(AgentFilter.allCases, id: \.self) { filter in
                                             Button {
@@ -185,44 +170,50 @@ struct AgentsView: View {
                                             .buttonStyle(.plain)
                                         }
                                     }
-                                }
 
-                            } footer: {
-                                Text("Keep the fleet filter visible on mobile instead of relying on the top-bar menu alone.")
-                            }
-
-                        ForEach(filteredAgents) { item in
-                            NavigationLink(value: item.agent.id) {
-                                AgentRow(
-                                    attention: item,
-                                    isWatched: watchlistStore.isWatched(item.agent)
-                                )
-                            }
-                            .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                Button {
-                                    watchlistStore.toggle(item.agent)
-                                } label: {
-                                    Label(
-                                        watchlistStore.isWatched(item.agent)
-                                            ? String(localized: "Unwatch")
-                                            : String(localized: "Watch"),
-                                        systemImage: watchlistStore.isWatched(item.agent) ? "star.slash" : "star"
-                                    )
-                                }
-                                .tint(.yellow)
-                            }
-                            .swipeActions(edge: .trailing) {
-                                if item.agent.isRunning {
-                                    Button {
-                                        // future: stop agent
-                                    } label: {
-                                        Label(String(localized: "Message"), systemImage: "paperplane")
+                                    if filterState != .all || !normalizedSearchText.isEmpty {
+                                        Text(searchSummaryLine)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
                                     }
-                                    .tint(.blue)
+
+                                    ForEach(filteredAgents) { item in
+                                        NavigationLink(value: item.agent.id) {
+                                            AgentRow(
+                                                attention: item,
+                                                isWatched: watchlistStore.isWatched(item.agent)
+                                            )
+                                        }
+                                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                            Button {
+                                                watchlistStore.toggle(item.agent)
+                                            } label: {
+                                                Label(
+                                                    watchlistStore.isWatched(item.agent)
+                                                        ? String(localized: "Unwatch")
+                                                        : String(localized: "Watch"),
+                                                    systemImage: watchlistStore.isWatched(item.agent) ? "star.slash" : "star"
+                                                )
+                                            }
+                                            .tint(.yellow)
+                                        }
+                                        .swipeActions(edge: .trailing) {
+                                            if item.agent.isRunning {
+                                                Button {
+                                                    // future: stop agent
+                                                } label: {
+                                                    Label(String(localized: "Message"), systemImage: "paperplane")
+                                                }
+                                                .tint(.blue)
+                                            }
+                                        }
+                                    }
+                                } header: {
+                                    Text(sectionTitle)
+                                }
                             }
                         }
                     }
-                }
                     .navigationDestination(for: String.self) { agentId in
                         if let agent = vm.agents.first(where: { $0.id == agentId }) {
                             AgentDetailView(agent: agent)
@@ -234,18 +225,6 @@ struct AgentsView: View {
             .searchable(text: $searchText, prompt: Text(String(localized: "Search agents...")))
             .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Menu {
-                        Picker("Filter", selection: $filterState) {
-                            ForEach(AgentFilter.allCases, id: \.self) { filter in
-                                Label(filter.label, systemImage: filter.icon)
-                                    .tag(filter)
-                            }
-                        }
-                    } label: {
-                        Image(systemName: filterState == .all ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
-                    }
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     StatusIndicator(health: vm.health)
                 }
@@ -274,27 +253,8 @@ struct AgentsView: View {
                     })
                     .padding(.top, 4)
                 }
-                }
             }
         }
-    }
-
-    private func jump(_ proxy: ScrollViewProxy, to anchor: AgentsSectionAnchor) {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            proxy.scrollTo(anchor, anchor: .top)
-        }
-    }
-
-    private func agentsSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
-        [
-            MonitoringSectionJumpItem(
-                title: agentsSectionPreviewTitles.first ?? String(localized: "Fleet"),
-                systemImage: "person.3",
-                tone: filteredIssueCount > 0 ? .warning : .neutral
-            ) {
-                jump(proxy, to: .fleet)
-            }
-        ]
     }
 }
 

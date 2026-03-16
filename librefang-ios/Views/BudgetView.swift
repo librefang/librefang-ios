@@ -72,8 +72,6 @@ struct BudgetView: View {
                         }
                     } header: {
                         Text("Limits & Alerts")
-                    } footer: {
-                        Text("Thresholds and token guardrails now stay with the spend limits instead of splitting into separate compact sections.")
                     }
                 }
 
@@ -103,8 +101,6 @@ struct BudgetView: View {
                             .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
                     } header: {
                         Text("7-Day Cost Trend")
-                    } footer: {
-                        Text("Today: \(formatCost(vm.usageTodayCost))")
                     }
 
                     Section("Daily Breakdown") {
@@ -128,10 +124,6 @@ struct BudgetView: View {
                         }
                     } header: {
                         Text("By Model")
-                    } footer: {
-                        if sortedModels.count > 8 {
-                            Text("Showing top 8 of \(sortedModels.count) models")
-                        }
                     }
                 }
 
@@ -145,10 +137,6 @@ struct BudgetView: View {
                             Text("Per-Agent Cost")
                         } accessory: {
                             sortMenu
-                        }
-                    } footer: {
-                        if sortedAgents.count > visibleAgents.count {
-                            Text("Showing \(visibleAgents.count) of \(sortedAgents.count) agents")
                         }
                     }
                 }
