@@ -150,14 +150,14 @@ struct OverviewView: View {
             }
             .navigationTitle("LibreFang")
             .toolbar {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        Image(systemName: "bell.badge")
-                    }
-
+                ToolbarItem(placement: .topBarTrailing) {
                     Menu {
+                        NavigationLink {
+                            IncidentsView()
+                        } label: {
+                            Label("Incidents", systemImage: "bell.badge")
+                        }
+
                         NavigationLink {
                             RuntimeView()
                         } label: {

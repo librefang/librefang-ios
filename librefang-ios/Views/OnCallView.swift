@@ -260,12 +260,12 @@ struct OnCallView: View {
         }
         .navigationTitle(String(localized: "On Call"))
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                ShareLink(item: handoffText) {
-                    Image(systemName: "square.and.arrow.up")
-                }
-
+            ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    ShareLink(item: handoffText) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+
                     NavigationLink(value: OnCallRoute.incidents) {
                         Label("Incidents", systemImage: "bell.badge")
                     }

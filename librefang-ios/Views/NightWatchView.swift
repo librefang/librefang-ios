@@ -4,7 +4,6 @@ private enum NightWatchSectionAnchor: Hashable {
     case hero
     case primaryQueue
     case watchlist
-    case routes
 }
 
 private enum NightWatchTone {
@@ -157,27 +156,6 @@ struct NightWatchView: View {
     private var integrationIssueCount: Int {
         vm.integrationPressureIssueCategoryCount
     }
-    private var nightWatchSectionCount: Int {
-        [
-            true,
-            !primaryItems.isEmpty,
-            showsWatchlistSection
-        ]
-        .filter { $0 }
-        .count
-    }
-    private var nightWatchSectionPreviewTitles: [String] {
-        var sections: [String] = [String(localized: "Hero")]
-        if !primaryItems.isEmpty {
-            sections.append(String(localized: "Queue"))
-        }
-        if showsWatchlistSection {
-            sections.append(String(localized: "Watchlist"))
-        }
-        sections.append(String(localized: "Routes"))
-        return sections
-    }
-
     private var tone: NightWatchTone {
         if priorityItems.contains(where: { $0.severity == .critical }) {
             return .critical
@@ -285,161 +263,6 @@ struct NightWatchView: View {
         )
     }
 
-    private var snapshotCard: some View {
-        NightWatchSnapshotCard(
-            focusModeLabel: focusStore.mode.label,
-            preferredSurfaceLabel: focusStore.preferredSurface.label,
-            queueCount: priorityItems.count,
-            criticalCount: criticalCount,
-            approvalCount: vm.pendingApprovalCount,
-            watchIssueCount: watchIssueCount,
-            mutedAlertCount: mutedAlertCount,
-            pendingFollowUpCount: pendingFollowUpCount,
-            automationIssueCount: automationIssueCount,
-            integrationIssueCount: integrationIssueCount,
-            checkInStatus: checkInStatus
-        )
-    }
-
-    private func controlDeckCard(_ proxy: ScrollViewProxy) -> some View {
-        VStack(spacing: 12) {
-            snapshotCard
-            signalFactsCard
-        }
-    }
-
-    private func jump(_ proxy: ScrollViewProxy, to anchor: NightWatchSectionAnchor) {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            proxy.scrollTo(anchor, anchor: .top)
-        }
-    }
-
-    private func nightWatchSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
-        var items: [MonitoringSectionJumpItem] = [
-            MonitoringSectionJumpItem(
-                title: String(localized: "Hero"),
-                systemImage: "moon.stars",
-                tone: criticalCount > 0 ? .critical : .neutral
-            ) {
-                jump(proxy, to: .hero)
-            }
-        ]
-
-        if !primaryItems.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Queue"),
-                    systemImage: "exclamationmark.bubble",
-                    tone: criticalCount > 0 ? .critical : .warning
-                ) {
-                    jump(proxy, to: .primaryQueue)
-                }
-            )
-        }
-
-        if showsWatchlistSection {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Watchlist"),
-                    systemImage: "star.fill",
-                    tone: watchIssueCount > 0 ? .warning : .neutral
-                ) {
-                    jump(proxy, to: .watchlist)
-                }
-            )
-        }
-
-        items.append(
-            MonitoringSectionJumpItem(
-                title: String(localized: "Routes"),
-                systemImage: "arrow.triangle.branch",
-                tone: .neutral
-            ) {
-                jump(proxy, to: .routes)
-            }
-        )
-
-        return items
-    }
-
-    private var signalFactsCard: some View {
-        NightWatchSectionCard(
-            title: String(localized: "Signal Facts"),
-            detail: String(localized: "Keep focus mode, queue size, and current pressure visible before opening deeper night-duty surfaces.")
-        ) {
-            FlowLayout(spacing: 8) {
-                GlassCapsuleBadge(text: focusStore.mode.label, backgroundOpacity: 0.16)
-                GlassCapsuleBadge(
-                    text: priorityItems.count == 1 ? String(localized: "1 queued") : String(localized: "\(priorityItems.count) queued"),
-                    backgroundOpacity: 0.14
-                )
-                GlassCapsuleBadge(
-                    text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                    backgroundOpacity: criticalCount > 0 ? 0.18 : 0.10
-                )
-                if vm.pendingApprovalCount > 0 {
-                    GlassCapsuleBadge(
-                        text: vm.pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(vm.pendingApprovalCount) approvals"),
-                        backgroundOpacity: 0.14
-                    )
-                }
-                if watchIssueCount > 0 {
-                    GlassCapsuleBadge(
-                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    GlassCapsuleBadge(
-                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
-                        backgroundOpacity: 0.14
-                    )
-                }
-                if automationIssueCount > 0 {
-                    GlassCapsuleBadge(
-                        text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    GlassCapsuleBadge(
-                        text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-                if let checkInStatus {
-                    GlassCapsuleBadge(text: checkInStatus.state.label, backgroundOpacity: 0.14)
-                }
-            }
-
-            if focusStore.showsMutedSummary, mutedAlertCount > 0 {
-                Divider()
-                    .overlay(.white.opacity(0.08))
-
-                ResponsiveIconDetailRow(horizontalAlignment: .top, horizontalSpacing: 10, verticalSpacing: 8) {
-                    Image(systemName: "bell.slash.fill")
-                        .foregroundStyle(.orange)
-                } detail: {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(
-                            mutedAlertCount == 1
-                                ? String(localized: "1 alert muted locally")
-                                : String(localized: "\(mutedAlertCount) alerts muted locally")
-                        )
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.white)
-                        Text(String(localized: "Muted alerts stay out of the queue until you unmute them in incidents."))
-                            .font(.caption)
-                            .foregroundStyle(.white.opacity(0.72))
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-                .padding(12)
-                .glassPanel(fillOpacity: 0.07, cornerRadius: 14)
-            }
-        }
-    }
-
     @ViewBuilder
     private var primaryQueueCard: some View {
         if primaryItems.isEmpty {
@@ -480,256 +303,59 @@ struct NightWatchView: View {
         }
     }
 
-    private var surfaceDeckCard: some View {
-        NightWatchSectionCard(
-            title: String(localized: "Controls"),
-            detail: String(localized: "Keep display controls and the next night-duty drills in one deck.")
-        ) {
-            NightWatchSurfaceGroupLabel(title: String(localized: "Display Controls"))
-
-            NightWatchControlMenuRow(
-                title: String(localized: "Queue Mode"),
-                detail: focusStore.mode.summary
-            ) {
-                Menu {
-                    ForEach(OnCallFocusMode.allCases) { option in
-                        Button(option.label) {
-                            focusStore.mode = option
-                        }
-                    }
-                } label: {
-                    GlassCapsuleBadge(text: focusStore.mode.label, backgroundOpacity: 0.12)
-                }
-            }
-
-            NightWatchControlMenuRow(
-                title: String(localized: "Critical Banner"),
-                detail: focusStore.preferredSurface.summary
-            ) {
-                Menu {
-                    ForEach(OnCallSurfacePreference.allCases) { option in
-                        Button(option.label) {
-                            focusStore.preferredSurface = option
-                        }
-                    }
-                } label: {
-                    GlassCapsuleBadge(text: focusStore.preferredSurface.label, backgroundOpacity: 0.12)
-                }
-            }
-
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8, spacerMinLength: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "Muted Summary"))
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                    Text(
-                        focusStore.showsMutedSummary
-                            ? String(localized: "Muted alerts stay visible in the signal deck.")
-                            : String(localized: "Muted alerts stay hidden until you open incidents or re-enable the summary.")
-                    )
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.66))
-                    .fixedSize(horizontal: false, vertical: true)
-                }
-            } accessory: {
-                Toggle(isOn: Binding(
-                    get: { focusStore.showsMutedSummary },
-                    set: { focusStore.showsMutedSummary = $0 }
-                )) {
-                    EmptyView()
-                }
-                .labelsHidden()
-                .tint(.orange)
-            }
-
-            Divider()
-                .overlay(.white.opacity(0.08))
-
-            NightWatchSurfaceGroupLabel(title: String(localized: "Primary"))
-
-            FlowLayout(spacing: 8) {
-                NavigationLink {
-                    OnCallView()
-                } label: {
-                    GlassSurfaceShortcutChip(
-                        title: String(localized: "On Call"),
-                        systemImage: "waveform.path.ecg",
-                        badgeText: priorityItems.isEmpty ? nil : (priorityItems.count == 1 ? String(localized: "1 queued") : String(localized: "\(priorityItems.count) queued"))
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink(value: OnCallRoute.incidents) {
-                    GlassSurfaceShortcutChip(
-                        title: String(localized: "Incidents"),
-                        systemImage: "bell.badge",
-                        accent: criticalCount > 0 ? .red : .white,
-                        badgeText: visibleAlerts.isEmpty ? nil : (visibleAlerts.count == 1 ? String(localized: "1 alert") : String(localized: "\(visibleAlerts.count) alerts"))
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink(value: OnCallRoute.sessionsAttention) {
-                    GlassSurfaceShortcutChip(
-                        title: String(localized: "Sessions"),
-                        systemImage: "rectangle.stack",
-                        accent: vm.sessionAttentionCount > 0 ? .orange : .white,
-                        badgeText: vm.sessionAttentionCount > 0 ? String(localized: "\(vm.sessionAttentionCount) hotspots") : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink(value: OnCallRoute.eventsCritical) {
-                    GlassSurfaceShortcutChip(
-                        title: String(localized: "Critical Events"),
-                        systemImage: "list.bullet.rectangle.portrait",
-                        accent: vm.recentCriticalAuditCount > 0 ? .red : .white,
-                        badgeText: vm.recentCriticalAuditCount > 0 ? String(localized: "\(vm.recentCriticalAuditCount) critical") : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    HandoffCenterView(
-                        summary: handoffText,
-                        queueCount: priorityItems.count,
-                        criticalCount: criticalCount,
-                        liveAlertCount: visibleAlerts.count
-                    )
-                } label: {
-                    GlassSurfaceShortcutChip(
-                        title: String(localized: "Handoff"),
-                        systemImage: "text.badge.plus",
-                        accent: pendingFollowUpCount > 0 ? .orange : .white,
-                        badgeText: pendingFollowUpCount > 0 ? String(localized: "\(pendingFollowUpCount) open") : nil
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-
-            Divider()
-                .overlay(.white.opacity(0.08))
-
-            NightWatchSurfaceGroupLabel(title: String(localized: "Support"))
-
-            FlowLayout(spacing: 8) {
-                NavigationLink {
-                    StandbyDigestView()
-                } label: {
-                    GlassSurfaceShortcutChip(
-                        title: String(localized: "Standby"),
-                        systemImage: "rectangle.inset.filled"
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    RuntimeView()
-                } label: {
-                    GlassSurfaceShortcutChip(
-                        title: String(localized: "Runtime"),
-                        systemImage: "server.rack"
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    ApprovalsView()
-                } label: {
-                    GlassSurfaceShortcutChip(
-                        title: String(localized: "Approvals"),
-                        systemImage: "checkmark.shield",
-                        accent: vm.pendingApprovalCount > 0 ? .red : .white,
-                        badgeText: vm.pendingApprovalCount > 0 ? String(localized: "\(vm.pendingApprovalCount) waiting") : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    CommsView(api: deps.apiClient)
-                } label: {
-                    GlassSurfaceShortcutChip(
-                        title: String(localized: "Comms"),
-                        systemImage: "point.3.connected.trianglepath.dotted"
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    DiagnosticsView()
-                } label: {
-                    GlassSurfaceShortcutChip(
-                        title: String(localized: "Diagnostics"),
-                        systemImage: "stethoscope"
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink(value: OnCallRoute.integrationsAttention) {
-                    GlassSurfaceShortcutChip(
-                        title: String(localized: "Integrations"),
-                        systemImage: "square.3.layers.3d.down.forward",
-                        accent: integrationIssueCount > 0 ? .red : .white,
-                        badgeText: integrationIssueCount > 0 ? String(localized: "\(integrationIssueCount) issues") : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink(value: OnCallRoute.automation) {
-                    GlassSurfaceShortcutChip(
-                        title: String(localized: "Automation"),
-                        systemImage: "flowchart",
-                        accent: automationIssueCount > 0 ? .orange : .white,
-                        badgeText: automationIssueCount > 0 ? String(localized: "\(automationIssueCount) issues") : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    SettingsView()
-                } label: {
-                    GlassSurfaceShortcutChip(
-                        title: String(localized: "Settings"),
-                        systemImage: "gearshape"
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .topBarTrailing) {
+        ToolbarItem(placement: .topBarTrailing) {
             Menu {
-                Picker("Display Mode", selection: Binding(
-                    get: { focusStore.mode },
-                    set: { focusStore.mode = $0 }
-                )) {
-                    ForEach(OnCallFocusMode.allCases) { mode in
-                        Text(mode.label).tag(mode)
+                Section {
+                    Picker("Display Mode", selection: Binding(
+                        get: { focusStore.mode },
+                        set: { focusStore.mode = $0 }
+                    )) {
+                        ForEach(OnCallFocusMode.allCases) { mode in
+                            Text(mode.label).tag(mode)
+                        }
                     }
+
+                    Picker("Critical Banner", selection: Binding(
+                        get: { focusStore.preferredSurface },
+                        set: { focusStore.preferredSurface = $0 }
+                    )) {
+                        ForEach(OnCallSurfacePreference.allCases) { surface in
+                            Text(surface.label).tag(surface)
+                        }
+                    }
+
+                    Toggle("Show muted summary", isOn: Binding(
+                        get: { focusStore.showsMutedSummary },
+                        set: { focusStore.showsMutedSummary = $0 }
+                    ))
                 }
 
-                Picker("Critical Banner", selection: Binding(
-                    get: { focusStore.preferredSurface },
-                    set: { focusStore.preferredSurface = $0 }
-                )) {
-                    ForEach(OnCallSurfacePreference.allCases) { surface in
-                        Text(surface.label).tag(surface)
+                Section {
+                    NavigationLink(value: OnCallRoute.incidents) {
+                        Label("Incidents", systemImage: "bell.badge")
+                    }
+
+                    NavigationLink {
+                        OnCallView()
+                    } label: {
+                        Label("On Call", systemImage: "waveform.path.ecg")
+                    }
+
+                    NavigationLink {
+                        HandoffCenterView(
+                            summary: handoffText,
+                            queueCount: priorityItems.count,
+                            criticalCount: criticalCount,
+                            liveAlertCount: visibleAlerts.count
+                        )
+                    } label: {
+                        Label("Handoff", systemImage: "text.badge.plus")
                     }
                 }
-
-                Toggle("Show muted summary", isOn: Binding(
-                    get: { focusStore.showsMutedSummary },
-                    set: { focusStore.showsMutedSummary = $0 }
-                ))
             } label: {
-                Image(systemName: "slider.horizontal.3")
-            }
-
-            NavigationLink(value: OnCallRoute.incidents) {
-                Image(systemName: "bell.badge")
+                Image(systemName: "ellipsis.circle")
             }
         }
     }
@@ -2017,142 +1643,6 @@ private struct NightWatchWatchlistRow: View {
             text: item.severity >= 10 ? String(localized: "Critical") : String(localized: "Watch"),
             tone: item.tone
         )
-    }
-}
-
-private struct NightWatchControlsCard: View {
-    @Binding var mode: OnCallFocusMode
-    @Binding var preferredSurface: OnCallSurfacePreference
-    @Binding var showsMutedSummary: Bool
-
-    var body: some View {
-        NightWatchSectionCard(
-            title: String(localized: "Display Controls"),
-            detail: String(localized: "All settings are local to this iPhone.")
-        ) {
-            NightWatchControlMenuRow(
-                title: String(localized: "Queue Mode"),
-                detail: mode.summary
-            ) {
-                Menu {
-                    ForEach(OnCallFocusMode.allCases) { option in
-                        Button(option.label) {
-                            mode = option
-                        }
-                    }
-                } label: {
-                    GlassCapsuleBadge(text: mode.label, backgroundOpacity: 0.12)
-                }
-            }
-
-            NightWatchControlMenuRow(
-                title: String(localized: "Critical Banner"),
-                detail: preferredSurface.summary
-            ) {
-                Menu {
-                    ForEach(OnCallSurfacePreference.allCases) { option in
-                        Button(option.label) {
-                            preferredSurface = option
-                        }
-                    }
-                } label: {
-                    GlassCapsuleBadge(text: preferredSurface.label, backgroundOpacity: 0.12)
-                }
-            }
-
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8, spacerMinLength: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "Muted Summary"))
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                    Text(
-                        showsMutedSummary
-                            ? String(localized: "Muted alerts stay visible in a separate summary card.")
-                            : String(localized: "Muted alerts stay hidden until you open incidents or re-enable the summary.")
-                    )
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.66))
-                    .fixedSize(horizontal: false, vertical: true)
-                }
-            } accessory: {
-                Toggle(isOn: $showsMutedSummary) {
-                    EmptyView()
-                }
-                .labelsHidden()
-                .tint(.orange)
-            }
-        }
-    }
-}
-
-private struct NightWatchSurfaceGroupLabel: View {
-    let title: String
-
-    var body: some View {
-        Text(title)
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(.white.opacity(0.90))
-    }
-}
-
-private struct NightWatchControlMenuRow<Accessory: View>: View {
-    let title: String
-    let detail: String
-    let accessory: Accessory
-
-    init(
-        title: String,
-        detail: String,
-        @ViewBuilder accessory: () -> Accessory
-    ) {
-        self.title = title
-        self.detail = detail
-        self.accessory = accessory()
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8, spacerMinLength: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                    Text(detail)
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.66))
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            } accessory: {
-                accessory
-            }
-        }
-    }
-}
-
-private struct NightWatchActionRow: View {
-    let title: String
-    let detail: String
-    let systemImage: String
-
-    var body: some View {
-        ResponsiveIconDetailRow(horizontalAlignment: .top, horizontalSpacing: 12, verticalSpacing: 8, spacerMinLength: 0) {
-            Image(systemName: systemImage)
-                .foregroundStyle(.white.opacity(0.82))
-                .frame(width: 20)
-        } detail: {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.white)
-                Text(detail)
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.68))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
-        .glassPanel(fillOpacity: 0.07, cornerRadius: 14)
     }
 }
 

@@ -1,7 +1,6 @@
 import SwiftUI
 
 private enum HandoffSectionAnchor: Hashable {
-    case controls
     case draft
     case draftSnapshot
     case draftNote
@@ -179,48 +178,27 @@ struct HandoffCenterView: View {
 
         return items
     }
-    private var handoffSectionCount: Int {
-        [
-            true,
-            true,
-            !timelineItems.isEmpty,
-            !filteredEntries.isEmpty
-        ]
-        .filter { $0 }
-        .count
-    }
-    private var handoffSectionPreviewTitles: [String] {
-        var sections: [String] = [String(localized: "Draft")]
-        if !timelineItems.isEmpty {
-            sections.append(String(localized: "Timeline"))
-        }
-        if !filteredEntries.isEmpty {
-            sections.append(String(localized: "History"))
-        }
-        return sections
-    }
-    private var handoffDraftSectionPreviewTitles: [String] {
-        [
-            String(localized: "Draft Snapshot"),
-            String(localized: "Operator Note"),
-            String(localized: "Checklist & Focus"),
-            String(localized: "Follow-ups & Actions")
-        ]
-    }
     private var isHistorySearchScoped: Bool {
         !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    private var shouldShowFreshnessCard: Bool {
+        handoffStore.latestEntry == nil
+            || handoffStore.freshnessState != .fresh
+            || !handoffStore.uncoveredChecklistKeys.isEmpty
     }
 
     var body: some View {
         ScrollViewReader { _ in
             List {
                 Section {
-                    HandoffFreshnessCard(
-                        freshnessState: handoffStore.freshnessState,
-                        freshnessSummary: handoffStore.freshnessSummary,
-                        latestEntry: handoffStore.latestEntry,
-                        uncoveredChecklistKeys: handoffStore.uncoveredChecklistKeys
-                    )
+                    if shouldShowFreshnessCard {
+                        HandoffFreshnessCard(
+                            freshnessState: handoffStore.freshnessState,
+                            freshnessSummary: handoffStore.freshnessSummary,
+                            latestEntry: handoffStore.latestEntry,
+                            uncoveredChecklistKeys: handoffStore.uncoveredChecklistKeys
+                        )
+                    }
 
                     if let checkInStatus = handoffStore.latestCheckInStatus {
                         HandoffCheckInCard(status: checkInStatus)
@@ -366,251 +344,6 @@ struct HandoffCenterView: View {
         }
     }
 
-    private func controlDeckSection(_ proxy: ScrollViewProxy) -> some View {
-        Section {
-            VStack(alignment: .leading, spacing: 12) {
-                handoffSignalFactsCard
-                handoffSurfaceDeckCard
-            }
-        } header: {
-            Text(String(localized: "Summary"))
-        }
-    }
-
-    private func jump(_ proxy: ScrollViewProxy, to anchor: HandoffSectionAnchor) {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            proxy.scrollTo(anchor, anchor: .top)
-        }
-    }
-
-    private func handoffSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
-        var items: [MonitoringSectionJumpItem] = [
-            MonitoringSectionJumpItem(
-                title: String(localized: "Draft"),
-                systemImage: "square.and.pencil",
-                tone: draftReadiness.state.tone
-            ) {
-                jump(proxy, to: .draft)
-            }
-        ]
-
-        if !timelineItems.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Timeline"),
-                    systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90",
-                    tone: timelineGapWarningCount > 0 ? .warning : .neutral
-                ) {
-                    jump(proxy, to: .timeline)
-                }
-            )
-        }
-
-        if !handoffStore.entries.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "History"),
-                    systemImage: "text.badge.plus",
-                    tone: filteredEntries.isEmpty ? .neutral : .positive
-                ) {
-                    jump(proxy, to: .history)
-                }
-            )
-        }
-
-        return items
-    }
-
-    private func handoffDraftSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
-        [
-            MonitoringSectionJumpItem(
-                title: String(localized: "Draft Snapshot"),
-                systemImage: "rectangle.and.pencil.and.ellipsis",
-                tone: draftReadiness.state.tone
-            ) {
-                jump(proxy, to: .draftSnapshot)
-            },
-            MonitoringSectionJumpItem(
-                title: String(localized: "Operator Note"),
-                systemImage: "text.justify.left",
-                tone: handoffStore.draftNote.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .neutral : .positive
-            ) {
-                jump(proxy, to: .draftNote)
-            },
-            MonitoringSectionJumpItem(
-                title: String(localized: "Checklist & Focus"),
-                systemImage: "checklist",
-                tone: handoffStore.draftFocusAreas.items.isEmpty ? .neutral : .warning
-            ) {
-                jump(proxy, to: .draftChecklist)
-            },
-            MonitoringSectionJumpItem(
-                title: String(localized: "Follow-ups & Actions"),
-                systemImage: "square.and.arrow.up",
-                tone: pendingLatestFollowUpCount > 0 ? .warning : .neutral
-            ) {
-                jump(proxy, to: .draftFollowUps)
-            }
-        ]
-    }
-
-    private var handoffSignalFactsCard: some View {
-        MonitoringFactsRow {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(String(localized: "Handoff signal facts"))
-                    .font(.subheadline.weight(.medium))
-                Text(String(localized: "Keep live queue shape, follow-up load, and draft state visible before editing."))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-        } accessory: {
-            PresentationToneBadge(
-                text: draftReadiness.state.label,
-                tone: draftReadiness.state.tone
-            )
-        } facts: {
-            Label(
-                queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
-                systemImage: "waveform.path.ecg"
-            )
-            Label(
-                criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                systemImage: "xmark.octagon"
-            )
-            Label(
-                liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
-                systemImage: "bell.badge"
-            )
-            if vm.pendingApprovalCount > 0 {
-                Label(
-                    vm.pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(vm.pendingApprovalCount) approvals"),
-                    systemImage: "checkmark.shield"
-                )
-            }
-            if vm.sessionAttentionCount > 0 {
-                Label(
-                    vm.sessionAttentionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(vm.sessionAttentionCount) session hotspots"),
-                    systemImage: "rectangle.stack"
-                )
-            }
-            if pendingLatestFollowUpCount > 0 {
-                Label(
-                    pendingLatestFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingLatestFollowUpCount) follow-ups open"),
-                    systemImage: "arrow.triangle.2.circlepath"
-                )
-            }
-            if handoffStore.draftFocusAreas.items.count > 0 {
-                Label(
-                    handoffStore.draftFocusAreas.items.count == 1 ? String(localized: "1 focus area") : String(localized: "\(handoffStore.draftFocusAreas.items.count) focus areas"),
-                    systemImage: "scope"
-                )
-            }
-        }
-    }
-
-    private var handoffSurfaceDeckCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Primary"),
-                detail: String(localized: "Keep the live queue and shift-facing exits closest to the handoff draft.")
-            ) {
-                FlowLayout(spacing: 8) {
-                    NavigationLink {
-                        OnCallView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "On Call"),
-                            systemImage: "waveform.path.ecg",
-                            tone: queueCount > 0 ? .warning : .neutral,
-                            badgeText: queueCount == 0 ? nil : (queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"))
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        NightWatchView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Night Watch"),
-                            systemImage: "moon.stars",
-                            tone: criticalCount > 0 ? .critical : .neutral,
-                            badgeText: criticalCount == 0 ? nil : (criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"))
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        StandbyDigestView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Standby"),
-                            systemImage: "rectangle.inset.filled",
-                            tone: liveAlertCount > 0 ? .warning : .neutral,
-                            badgeText: liveAlertCount == 0 ? nil : (liveAlertCount == 1 ? String(localized: "1 alert") : String(localized: "\(liveAlertCount) alerts"))
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Incidents"),
-                            systemImage: "bell.badge",
-                            tone: criticalCount > 0 ? .critical : .warning,
-                            badgeText: liveAlertCount == 0 ? nil : (liveAlertCount == 1 ? String(localized: "1 alert") : String(localized: "\(liveAlertCount) alerts"))
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Support"),
-                detail: String(localized: "Keep runtime, diagnostics, and settings in a secondary rail.")
-            ) {
-                FlowLayout(spacing: 8) {
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Runtime"),
-                            systemImage: "server.rack",
-                            tone: liveAlertCount > 0 ? .warning : .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        DiagnosticsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Diagnostics"),
-                            systemImage: "stethoscope",
-                            tone: vm.diagnosticsSummaryTone,
-                            badgeText: vm.diagnosticsConfigWarningCount > 0
-                                ? (vm.diagnosticsConfigWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings"))
-                                : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        SettingsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Settings"),
-                            systemImage: "gearshape",
-                            tone: handoffStore.freshnessState.tone
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-    }
-
     private func deleteFilteredEntries(at offsets: IndexSet) {
         let ids = offsets.compactMap { filteredEntries.indices.contains($0) ? filteredEntries[$0].id : nil }
         handoffStore.removeEntries(ids: ids)
@@ -713,105 +446,6 @@ private struct HandoffDraftContextCard: View {
     }
 }
 
-private struct HandoffDraftSectionInventoryDeck: View {
-    let readiness: HandoffReadinessStatus
-    let kind: HandoffSnapshotKind
-    let note: String
-    let focusCount: Int
-    let followUpCount: Int
-    let suggestedFocusCount: Int
-    let suggestedFollowUpCount: Int
-    let checkInWindow: HandoffCheckInWindow
-
-    private var hasNote: Bool {
-        !note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: detailLine,
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(text: kind.label, tone: kindTone)
-                    PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
-                    PresentationToneBadge(
-                        text: hasNote ? String(localized: "Note ready") : String(localized: "Note empty"),
-                        tone: hasNote ? .positive : .neutral
-                    )
-                    if checkInWindow != .none {
-                        PresentationToneBadge(text: checkInWindow.label, tone: .neutral)
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Draft inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep note coverage, focus scope, and follow-up load visible before composing the handoff draft on mobile."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: focusCount == 1 ? String(localized: "1 focus area") : String(localized: "\(focusCount) focus areas"),
-                    tone: focusCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                Label(
-                    followUpCount == 1 ? String(localized: "1 draft follow-up") : String(localized: "\(followUpCount) draft follow-ups"),
-                    systemImage: "arrow.triangle.2.circlepath"
-                )
-                if suggestedFocusCount > 0 {
-                    Label(
-                        suggestedFocusCount == 1 ? String(localized: "1 suggested focus") : String(localized: "\(suggestedFocusCount) suggested focus areas"),
-                        systemImage: "scope"
-                    )
-                }
-                if suggestedFollowUpCount > 0 {
-                    Label(
-                        suggestedFollowUpCount == 1 ? String(localized: "1 suggested follow-up") : String(localized: "\(suggestedFollowUpCount) suggested follow-ups"),
-                        systemImage: "wand.and.stars"
-                    )
-                }
-            }
-        }
-        .padding(.vertical, 2)
-    }
-
-    private var summaryLine: String {
-        switch readiness.state {
-        case .ready:
-            return String(localized: "Draft coverage is ready before you edit the handoff note.")
-        case .caution:
-            return String(localized: "Draft coverage is usable, but still missing a bit of operator context.")
-        case .blocked:
-            return String(localized: "Draft coverage is blocked until the note or follow-up context catches up.")
-        }
-    }
-
-    private var detailLine: String {
-        String(localized: "Note coverage, focus scope, and follow-up load stay summarized here before the draft form expands into editing controls.")
-    }
-
-    private var kindTone: PresentationTone {
-        switch kind {
-        case .routine:
-            .neutral
-        case .watch:
-            .warning
-        case .incident:
-            .critical
-        case .recovery:
-            .positive
-        }
-    }
-}
-
 private struct HandoffNoteComposerCard: View {
     @Binding var note: String
     let kind: HandoffSnapshotKind
@@ -905,120 +539,6 @@ private struct HandoffDraftActionsCard: View {
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)
-    }
-}
-
-private struct HandoffShiftContextInventoryDeck: View {
-    let coverageCount: Int
-    let freshnessState: HandoffFreshnessState
-    let cadenceState: HandoffCadenceState
-    let readiness: HandoffReadinessStatus
-    let checkInStatus: HandoffCheckInStatus?
-    let pendingFollowUpCount: Int
-    let completedFollowUpCount: Int
-    let uncoveredChecklistCount: Int
-    let carryoverStatus: HandoffCarryoverStatus?
-    let drift: HandoffSnapshotDrift?
-    let latestEntryDate: Date?
-
-    private var activeCarryoverCount: Int {
-        carryoverStatus?.unresolvedCount ?? 0
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: detailLine,
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(text: freshnessState.label, tone: freshnessState.tone)
-                    PresentationToneBadge(text: cadenceState.label, tone: cadenceState.tone)
-                    PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
-                    if let checkInStatus {
-                        PresentationToneBadge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
-                    }
-                    if let carryoverStatus {
-                        PresentationToneBadge(text: carryoverStatus.state.label, tone: carryoverStatus.state.tone)
-                    }
-                    if let drift {
-                        PresentationToneBadge(text: drift.state.label, tone: drift.state.tone)
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Shift context inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Use this compact context slice to verify freshness, cadence, carryover, and follow-up load before opening the full handoff cards."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: coverageCount == 1 ? String(localized: "1 recent handoff") : String(localized: "\(coverageCount) recent handoffs"),
-                    tone: coverageCount > 0 ? .positive : .neutral
-                )
-            } facts: {
-                if pendingFollowUpCount > 0 {
-                    Label(
-                        pendingFollowUpCount == 1 ? String(localized: "1 pending follow-up") : String(localized: "\(pendingFollowUpCount) pending follow-ups"),
-                        systemImage: "checklist.unchecked"
-                    )
-                }
-                if completedFollowUpCount > 0 {
-                    Label(
-                        completedFollowUpCount == 1 ? String(localized: "1 follow-up done") : String(localized: "\(completedFollowUpCount) follow-ups done"),
-                        systemImage: "checkmark.circle"
-                    )
-                }
-                if uncoveredChecklistCount > 0 {
-                    Label(
-                        uncoveredChecklistCount == 1 ? String(localized: "1 checklist gap") : String(localized: "\(uncoveredChecklistCount) checklist gaps"),
-                        systemImage: "square.dashed"
-                    )
-                }
-                if activeCarryoverCount > 0 {
-                    Label(
-                        activeCarryoverCount == 1 ? String(localized: "1 carryover focus") : String(localized: "\(activeCarryoverCount) carryover focus areas"),
-                        systemImage: "arrow.triangle.branch"
-                    )
-                }
-                if let latestSavedLabel {
-                    Label(latestSavedLabel, systemImage: "clock.arrow.circlepath")
-                }
-            }
-        }
-        .padding(.vertical, 2)
-    }
-
-    private var summaryLine: String {
-        switch readiness.state {
-        case .ready:
-            return String(localized: "Shift context is ready for handoff drafting.")
-        case .caution:
-            return String(localized: "Shift context is usable, but some operator context still needs review.")
-        case .blocked:
-            return String(localized: "Shift context still has blocking gaps before the draft should be saved.")
-        }
-    }
-
-    private var detailLine: String {
-        if coverageCount == 0 {
-            return String(localized: "No local handoff history exists yet, so cadence and carryover can only be inferred from the live queue.")
-        }
-        if activeCarryoverCount > 0 {
-            return String(localized: "Recent handoffs exist, but unresolved carryover areas still need explicit coverage before the next shift takes over.")
-        }
-        return String(localized: "Recent handoffs, cadence, and follow-up state are all visible here so the draft can stay focused on the next operator handoff.")
-    }
-
-    private var latestSavedLabel: String? {
-        guard let latestEntryDate else { return nil }
-        return String(localized: "Latest \(RelativeDateTimeFormatter().localizedString(for: latestEntryDate, relativeTo: Date()))")
     }
 }
 
