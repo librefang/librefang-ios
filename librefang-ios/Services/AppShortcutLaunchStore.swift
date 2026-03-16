@@ -6,6 +6,10 @@ extension Notification.Name {
 
 enum AppShortcutSurface: String, CaseIterable, Identifiable {
     case onCall = "on-call"
+    case agents
+    case runtime
+    case budget
+    case settings
     case incidents
     case approvals
     case handoffCenter = "handoff-center"
@@ -21,6 +25,14 @@ enum AppShortcutSurface: String, CaseIterable, Identifiable {
         switch self {
         case .onCall:
             String(localized: "On Call")
+        case .agents:
+            String(localized: "Agents")
+        case .runtime:
+            String(localized: "Runtime")
+        case .budget:
+            String(localized: "Budget")
+        case .settings:
+            String(localized: "Settings")
         case .incidents:
             String(localized: "Incidents")
         case .approvals:
@@ -40,6 +52,21 @@ enum AppShortcutSurface: String, CaseIterable, Identifiable {
         }
     }
 
+    var tabSelection: Int? {
+        switch self {
+        case .agents:
+            1
+        case .runtime:
+            2
+        case .budget:
+            3
+        case .settings:
+            4
+        default:
+            nil
+        }
+    }
+
     var deepLinkURL: URL {
         URL(string: "\(AppShortcutLaunchBridge.urlScheme)://surface/\(rawValue)")!
     }
@@ -52,6 +79,14 @@ enum AppShortcutSurface: String, CaseIterable, Identifiable {
         switch normalized {
         case "on-call", "oncall":
             self = .onCall
+        case "agents", "agent", "fleet":
+            self = .agents
+        case "runtime", "ops", "operator", "operator-hub", "operatorhub":
+            self = .runtime
+        case "budget", "cost", "spend", "usage":
+            self = .budget
+        case "settings", "setting", "preferences", "prefs":
+            self = .settings
         case "incidents", "incident":
             self = .incidents
         case "approvals", "approval":

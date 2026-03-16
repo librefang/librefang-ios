@@ -448,6 +448,14 @@ struct MainTabView: View {
         switch route {
         case .surface(.onCall):
             OnCallView()
+        case .surface(.agents):
+            AgentsView()
+        case .surface(.runtime):
+            RuntimeView()
+        case .surface(.budget):
+            BudgetView()
+        case .surface(.settings):
+            SettingsView()
         case .surface(.approvals):
             ApprovalsView()
         case .surface(.handoffCenter):
@@ -647,6 +655,11 @@ struct MainTabView: View {
         handoffCue = nil
         if respectingPresentationGate {
             guard canPresentPendingShortcutRoute else { return false }
+        }
+        if case .surface(let surface) = route, let tabSelection = surface.tabSelection {
+            presentedTarget = nil
+            selectedTab = tabSelection
+            return true
         }
         presentedTarget = route
         return true
