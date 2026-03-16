@@ -318,6 +318,17 @@ struct OnCallView: View {
                     approvalCount: vm.pendingApprovalCount,
                     checkInStatus: handoffStore.latestCheckInStatus
                 )
+                OnCallFocusCoverageDeck(
+                    queueCount: priorityItems.count,
+                    liveAlertCount: visibleAlerts.count,
+                    criticalCount: criticalCount,
+                    watchIssueCount: watchIssueCount,
+                    mutedAlertCount: mutedAlertCount,
+                    pendingFollowUpCount: pendingFollowUpCount,
+                    automationIssueCount: automationIssueCount,
+                    integrationIssueCount: integrationIssueCount,
+                    checkInStatus: handoffStore.latestCheckInStatus
+                )
 
                 OnCallQueueCoverageDeck(
                     criticalCount: criticalCount,
@@ -1899,6 +1910,100 @@ private struct OnCallActionReadinessDeck: View {
             return String(localized: "On-call action readiness is currently anchored by follow-up and approval work after triage.")
         }
         return String(localized: "On-call action readiness is currently light, with routes and acknowledgement controls ready for use.")
+    }
+}
+
+private struct OnCallFocusCoverageDeck: View {
+    let queueCount: Int
+    let liveAlertCount: Int
+    let criticalCount: Int
+    let watchIssueCount: Int
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let checkInStatus: HandoffCheckInStatus?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether the current on-call focus is dominated by live queue drag, watched-agent follow-through, or slower handoff and platform drift."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if liveAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
+                            tone: criticalCount > 0 ? .critical : .warning
+                        )
+                    }
+                    if pendingFollowUpCount > 0 {
+                        PresentationToneBadge(
+                            text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                            tone: .warning
+                        )
+                    }
+                    if let checkInStatus {
+                        PresentationToneBadge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant on-call focus readable before moving from the summary decks into the ranked queue rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                    tone: queueCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if watchIssueCount > 0 {
+                    Label(
+                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if mutedAlertCount > 0 {
+                    Label(
+                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        systemImage: "bell.slash"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if criticalCount > 0 || liveAlertCount > 0 {
+            return String(localized: "On-call focus coverage is currently anchored by the live alert queue.")
+        }
+        if pendingFollowUpCount > 0 || mutedAlertCount > 0 || checkInStatus != nil {
+            return String(localized: "On-call focus coverage is currently anchored by handoff follow-through and muted-alert drag.")
+        }
+        if watchIssueCount > 0 || automationIssueCount > 0 || integrationIssueCount > 0 {
+            return String(localized: "On-call focus coverage is currently anchored by watched diagnostics and slower platform drift.")
+        }
+        return String(localized: "On-call focus coverage is currently balanced across the grouped queue surfaces.")
     }
 }
 

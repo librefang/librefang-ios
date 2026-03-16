@@ -323,6 +323,18 @@ struct NightWatchView: View {
                 focusModeLabel: focusStore.mode.label,
                 checkInStatus: checkInStatus
             )
+            NightWatchFocusCoverageDeck(
+                queueCount: priorityItems.count,
+                primaryQueueCount: primaryItems.count,
+                secondaryQueueCount: secondaryItems.count,
+                criticalCount: criticalCount,
+                watchIssueCount: watchIssueCount,
+                pendingFollowUpCount: pendingFollowUpCount,
+                automationIssueCount: automationIssueCount,
+                integrationIssueCount: integrationIssueCount,
+                focusModeLabel: focusStore.mode.label,
+                checkInStatus: checkInStatus
+            )
             NightWatchQueueCoverageDeck(
                 criticalCount: criticalCount,
                 warningCount: warningCount,
@@ -1747,6 +1759,79 @@ private struct NightWatchActionReadinessDeck: View {
                     GlassCapsuleBadge(
                         text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
                         backgroundOpacity: 0.12
+                    )
+                }
+            }
+        }
+    }
+}
+
+private struct NightWatchFocusCoverageDeck: View {
+    let queueCount: Int
+    let primaryQueueCount: Int
+    let secondaryQueueCount: Int
+    let criticalCount: Int
+    let watchIssueCount: Int
+    let pendingFollowUpCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let focusModeLabel: String
+    let checkInStatus: HandoffCheckInStatus?
+
+    var body: some View {
+        NightWatchSectionCard(
+            title: String(localized: "Focus coverage"),
+            detail: String(localized: "Keep the dominant night-duty lane readable before moving from the control deck into primary and support queue cards.")
+        ) {
+            FlowLayout(spacing: 8) {
+                GlassCapsuleBadge(text: focusModeLabel, backgroundOpacity: 0.16)
+                GlassCapsuleBadge(
+                    text: primaryQueueCount == 1 ? String(localized: "1 primary item") : String(localized: "\(primaryQueueCount) primary items"),
+                    backgroundOpacity: primaryQueueCount > 0 ? 0.16 : 0.10
+                )
+                if secondaryQueueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: secondaryQueueCount == 1 ? String(localized: "1 support item") : String(localized: "\(secondaryQueueCount) support items"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if let checkInStatus {
+                    GlassCapsuleBadge(text: checkInStatus.state.label, backgroundOpacity: 0.14)
+                }
+                if criticalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        backgroundOpacity: 0.18
+                    )
+                }
+                if watchIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    GlassCapsuleBadge(
+                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if automationIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if queueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
+                        backgroundOpacity: 0.10
                     )
                 }
             }

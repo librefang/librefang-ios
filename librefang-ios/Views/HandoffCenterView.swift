@@ -515,6 +515,18 @@ struct HandoffCenterView: View {
                     hasCheckIn: handoffStore.draftCheckInWindow != nil,
                     canShare: !currentShareText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 )
+                HandoffFocusCoverageDeck(
+                    queueCount: queueCount,
+                    criticalCount: criticalCount,
+                    pendingApprovalCount: vm.pendingApprovalCount,
+                    watchlistIssueCount: watchlistIssueCount,
+                    sessionAttentionCount: vm.sessionAttentionCount,
+                    criticalAuditCount: vm.recentCriticalAuditCount,
+                    focusCount: handoffStore.draftFocusAreas.items.count,
+                    followUpCount: handoffStore.draftFollowUpItems.count,
+                    pendingFollowUpCount: pendingLatestFollowUpCount,
+                    hasCheckIn: handoffStore.draftCheckInWindow != nil
+                )
                 handoffSurfaceDeckCard
             }
         } header: {
@@ -1731,6 +1743,113 @@ private struct HandoffActionReadinessDeck: View {
         case .blocked:
             return String(localized: "Handoff action readiness is currently blocked by missing draft coverage.")
         }
+    }
+}
+
+private struct HandoffFocusCoverageDeck: View {
+    let queueCount: Int
+    let criticalCount: Int
+    let pendingApprovalCount: Int
+    let watchlistIssueCount: Int
+    let sessionAttentionCount: Int
+    let criticalAuditCount: Int
+    let focusCount: Int
+    let followUpCount: Int
+    let pendingFollowUpCount: Int
+    let hasCheckIn: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant handoff lane visible before moving from draft readiness into route chips and editor sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if focusCount > 0 {
+                        PresentationToneBadge(
+                            text: focusCount == 1 ? String(localized: "1 focus area") : String(localized: "\(focusCount) focus areas"),
+                            tone: .positive
+                        )
+                    }
+                    if followUpCount > 0 {
+                        PresentationToneBadge(
+                            text: followUpCount == 1 ? String(localized: "1 follow-up item") : String(localized: "\(followUpCount) follow-up items"),
+                            tone: .warning
+                        )
+                    }
+                    if hasCheckIn {
+                        PresentationToneBadge(text: String(localized: "Check-in set"), tone: .positive)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant handoff lane readable before moving from the compact control deck into editing and history work."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                    tone: queueCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if criticalCount > 0 {
+                    Label(
+                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if pendingApprovalCount > 0 {
+                    Label(
+                        pendingApprovalCount == 1 ? String(localized: "1 approval") : String(localized: "\(pendingApprovalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if watchlistIssueCount > 0 {
+                    Label(
+                        watchlistIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchlistIssueCount) watch issues"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if sessionAttentionCount > 0 {
+                    Label(
+                        sessionAttentionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionAttentionCount) session hotspots"),
+                        systemImage: "rectangle.stack"
+                    )
+                }
+                if criticalAuditCount > 0 {
+                    Label(
+                        criticalAuditCount == 1 ? String(localized: "1 critical audit") : String(localized: "\(criticalAuditCount) critical audits"),
+                        systemImage: "text.badge.exclamationmark"
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    Label(
+                        pendingFollowUpCount == 1 ? String(localized: "1 open follow-up") : String(localized: "\(pendingFollowUpCount) open follow-ups"),
+                        systemImage: "checklist.unchecked"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if criticalCount > 0 || pendingApprovalCount > 0 || sessionAttentionCount > 0 {
+            return String(localized: "Handoff focus coverage is currently anchored by live queue pressure that still needs explicit handoff context.")
+        }
+        if followUpCount > 0 || pendingFollowUpCount > 0 || hasCheckIn {
+            return String(localized: "Handoff focus coverage is currently anchored by follow-through items and the active check-in plan.")
+        }
+        if watchlistIssueCount > 0 || criticalAuditCount > 0 {
+            return String(localized: "Handoff focus coverage is currently anchored by watched diagnostics and audit drag.")
+        }
+        return String(localized: "Handoff focus coverage is currently centered on the draft itself and the grouped control surfaces.")
     }
 }
 
