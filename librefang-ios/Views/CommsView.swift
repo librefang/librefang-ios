@@ -273,63 +273,6 @@ struct CommsView: View {
 
     private var commsControlDeckCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Shortcuts"),
-                detail: String(localized: "Keep nearby comms drilldowns and runtime exits visible without another stack of preview cards.")
-            ) {
-                MonitoringShortcutRail(
-                    title: String(localized: "Primary"),
-                    detail: String(localized: "Keep runtime, incidents, and event review closest to the live comms feed.")
-                ) {
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Runtime"),
-                            systemImage: "server.rack"
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Incidents"),
-                            systemImage: "bell.badge",
-                            tone: filteredEvents.isEmpty ? .neutral : .warning,
-                            badgeText: filteredEvents.isEmpty ? nil : String(localized: "\(filteredEvents.count) events")
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        EventsView(api: deps.apiClient, initialScope: .critical)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Critical Events"),
-                            systemImage: "text.justify.leading"
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                MonitoringShortcutRail(
-                    title: String(localized: "Support"),
-                    detail: String(localized: "Keep external-agent inventory behind the primary comms routes.")
-                ) {
-                    NavigationLink {
-                        A2AAgentsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "A2A Agents"),
-                            systemImage: "link.circle"
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-
             CommsFilterCard(
                 searchText: searchText,
                 visibleCount: filteredEvents.count,
