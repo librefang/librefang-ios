@@ -62,18 +62,14 @@ struct SessionsView: View {
     var body: some View {
         List {
             if filteredItems.isEmpty && !vm.isLoading {
-                Section("Sessions") {
-                    ContentUnavailableView(
-                        searchText.isEmpty ? String(localized: "No Sessions In This Filter") : String(localized: "No Search Results"),
-                        systemImage: "rectangle.stack",
-                        description: Text(searchText.isEmpty ? String(localized: "Change the filter or refresh.") : String(localized: "Try a different search."))
-                    )
-                }
+                ContentUnavailableView(
+                    searchText.isEmpty ? String(localized: "No Sessions In This Filter") : String(localized: "No Search Results"),
+                    systemImage: "rectangle.stack",
+                    description: Text(searchText.isEmpty ? String(localized: "Change the filter.") : String(localized: "Try a different search."))
+                )
             } else {
-                Section("Sessions") {
-                    ForEach(filteredItems) { item in
-                        sessionRow(for: item)
-                    }
+                ForEach(filteredItems) { item in
+                    sessionRow(for: item)
                 }
             }
         }
@@ -495,16 +491,9 @@ private struct SessionMonitorRow: View {
     }
 
     private var summaryBlock: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(displayTitle)
-                .font(.subheadline.weight(.medium))
-                .lineLimit(1)
-            Text(item.agent?.name ?? item.session.agentId)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .truncationMode(.middle)
-        }
+        Text(displayTitle)
+            .font(.subheadline.weight(.medium))
+            .lineLimit(1)
     }
 
     private var trailingBlock: some View {
@@ -521,6 +510,12 @@ private struct SessionMonitorRow: View {
 
     @ViewBuilder
     private var sessionFacts: some View {
+        Text(item.agent?.name ?? item.session.agentId)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+            .truncationMode(.middle)
+
         Label("\(item.session.messageCount)", systemImage: "bubble.left.and.bubble.right")
             .font(.caption)
             .foregroundStyle(item.messageCountTone.color)

@@ -7,11 +7,11 @@ struct ApprovalOperatorRow: View {
     let onReject: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             MonitoringFactsRow(
                 horizontalAlignment: .top,
-                verticalSpacing: 8,
-                headerVerticalSpacing: 6,
+                verticalSpacing: 6,
+                headerVerticalSpacing: 4,
                 factsFont: .caption2,
                 factsColor: .secondary
             ) {
@@ -37,27 +37,9 @@ struct ApprovalOperatorRow: View {
     }
 
     private var summaryBlock: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            titleSummary
-            if !approval.description.isEmpty {
-                Text(approval.description)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(3)
-            }
-        }
-    }
-
-    private var titleSummary: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(approval.actionSummary)
-                .font(.subheadline.weight(.medium))
-                .lineLimit(2)
-            Text(approval.agentName)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-        }
+        Text(approval.actionSummary)
+            .font(.subheadline.weight(.medium))
+            .lineLimit(2)
     }
 
     private var riskBadge: some View {
@@ -69,6 +51,7 @@ struct ApprovalOperatorRow: View {
 
     @ViewBuilder
     private var metadataLabels: some View {
+        Label(approval.agentName, systemImage: "cpu")
         Label(approval.toolName, systemImage: "wrench.and.screwdriver")
         Label(relativeRequestedAt, systemImage: "clock")
     }

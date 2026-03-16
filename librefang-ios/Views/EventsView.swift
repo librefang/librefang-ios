@@ -89,26 +89,17 @@ private struct EventRow: View {
                 .foregroundStyle(entry.severity.tone.color)
                 .frame(width: 18)
         } detail: {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 3) {
                 ResponsiveAccessoryRow(
                     horizontalAlignment: .firstTextBaseline,
                     verticalSpacing: 2
                 ) {
                     titleLabel
                 } accessory: {
-                    timestampLabel
-                }
-
-                ResponsiveAccessoryRow(
-                    horizontalAlignment: .firstTextBaseline,
-                    horizontalSpacing: 8,
-                    spacerMinLength: 0
-                ) {
-                    agentLabel
-                } accessory: {
                     outcomeBadge
                 }
 
+                captionLabel
             }
         }
         .padding(.vertical, 2)
@@ -124,15 +115,8 @@ private struct EventRow: View {
             .lineLimit(2)
     }
 
-    private var timestampLabel: some View {
-        Text(relativeTimestamp)
-            .font(.caption2)
-            .foregroundStyle(.tertiary)
-            .lineLimit(1)
-    }
-
-    private var agentLabel: some View {
-        Text(agentName ?? shortAgentId)
+    private var captionLabel: some View {
+        Text("\(agentName ?? shortAgentId) · \(relativeTimestamp)")
             .font(.caption)
             .foregroundStyle(.secondary)
             .lineLimit(1)

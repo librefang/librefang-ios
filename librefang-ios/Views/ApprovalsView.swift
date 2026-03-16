@@ -33,46 +33,38 @@ struct ApprovalsView: View {
     }
     var body: some View {
         List {
-            Section {
-                FlowLayout(spacing: 8) {
-                    ForEach(ApprovalRiskFilter.allCases) { option in
-                        Button {
-                            filter = option
-                        } label: {
-                            ApprovalFilterChip(
-                                label: option.label,
-                                isSelected: filter == option
-                            )
-                        }
-                        .buttonStyle(.plain)
+            FlowLayout(spacing: 8) {
+                ForEach(ApprovalRiskFilter.allCases) { option in
+                    Button {
+                        filter = option
+                    } label: {
+                        ApprovalFilterChip(
+                            label: option.label,
+                            isSelected: filter == option
+                        )
                     }
+                    .buttonStyle(.plain)
                 }
             }
 
             if filteredApprovals.isEmpty && !vm.isLoading {
-                Section("Approvals") {
-                    ContentUnavailableView(
-                        searchText.isEmpty ? String(localized: "No Pending Approvals") : String(localized: "No Search Results"),
-                        systemImage: "checkmark.shield",
-                        description: Text(searchText.isEmpty ? String(localized: "No pending approvals right now.") : String(localized: "Try a different search."))
-                    )
-                }
+                ContentUnavailableView(
+                    searchText.isEmpty ? String(localized: "No Pending Approvals") : String(localized: "No Search Results"),
+                    systemImage: "checkmark.shield",
+                    description: Text(searchText.isEmpty ? String(localized: "Nothing pending right now.") : String(localized: "Try a different search."))
+                )
             } else {
-                Section {
-                    ForEach(filteredApprovals) { approval in
-                        ApprovalOperatorRow(
-                            approval: approval,
-                            isBusy: actionInFlightID == approval.id,
-                            onApprove: {
-                                pendingAction = .approve(approval)
-                            },
-                            onReject: {
-                                pendingAction = .reject(approval)
-                            }
-                        )
-                    }
-                } header: {
-                    Text("Approvals")
+                ForEach(filteredApprovals) { approval in
+                    ApprovalOperatorRow(
+                        approval: approval,
+                        isBusy: actionInFlightID == approval.id,
+                        onApprove: {
+                            pendingAction = .approve(approval)
+                        },
+                        onReject: {
+                            pendingAction = .reject(approval)
+                        }
+                    )
                 }
             }
         }
