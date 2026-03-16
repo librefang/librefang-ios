@@ -54,8 +54,7 @@ struct CommsView: View {
                 } else {
                     ContentUnavailableView(
                         "No Active Links",
-                        systemImage: "point.3.connected.trianglepath.dotted",
-                        description: Text("Active links appear here.")
+                        systemImage: "point.3.connected.trianglepath.dotted"
                     )
                 }
             } header: {
@@ -63,20 +62,14 @@ struct CommsView: View {
             }
 
             if filteredEvents.isEmpty && !viewModel.isLoading {
-                Section("Traffic") {
-                    ContentUnavailableView(
-                        searchText.isEmpty ? String(localized: "No Communication Events") : String(localized: "No Search Results"),
-                        systemImage: "arrow.left.arrow.right.circle",
-                        description: Text(searchText.isEmpty ? String(localized: "Traffic appears here.") : String(localized: "Try a different search."))
-                    )
-                }
+                ContentUnavailableView(
+                    searchText.isEmpty ? String(localized: "No Communication Events") : String(localized: "No Search Results"),
+                    systemImage: "arrow.left.arrow.right.circle",
+                    description: Text(searchText.isEmpty ? String(localized: "No traffic yet.") : String(localized: "Try a different search."))
+                )
             } else {
-                Section {
-                    ForEach(filteredEvents) { event in
-                        CommsEventRow(event: event)
-                    }
-                } header: {
-                    Text("Traffic")
+                ForEach(filteredEvents) { event in
+                    CommsEventRow(event: event)
                 }
             }
         }

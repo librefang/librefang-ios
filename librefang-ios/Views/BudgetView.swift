@@ -112,8 +112,7 @@ struct BudgetView: View {
                 if vm.budget == nil && !vm.isLoading {
                     ContentUnavailableView(
                         "No Budget Data",
-                        systemImage: "chart.bar",
-                        description: Text("Pull to refresh.")
+                        systemImage: "chart.bar"
                     )
                 }
             }

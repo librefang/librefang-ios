@@ -46,21 +46,6 @@ struct AgentsView: View {
         }
     }
 
-    private var sectionTitle: String {
-        switch filterState {
-        case .all:
-            return String(localized: "Fleet")
-        case .attention:
-            return String(localized: "Attention")
-        case .watchlist:
-            return String(localized: "Watchlist")
-        case .running:
-            return String(localized: "Running")
-        case .stopped:
-            return String(localized: "Stopped")
-        }
-    }
-
     private var filteredRunningCount: Int {
         filteredAgents.filter { $0.agent.isRunning }.count
     }
@@ -99,71 +84,63 @@ struct AgentsView: View {
                     if vm.agents.isEmpty && !vm.isLoading {
                         ContentUnavailableView(
                             "No Agents",
-                            systemImage: "cpu.fill",
-                            description: Text("Pull to refresh.")
+                            systemImage: "cpu.fill"
                         )
                     } else if filteredAgents.isEmpty && !searchText.isEmpty {
                         ContentUnavailableView.search(text: searchText)
                     } else if filteredAgents.isEmpty && filterState == .attention {
                         ContentUnavailableView(
                             "No Active Agent Issues",
-                            systemImage: "checkmark.shield",
-                            description: Text("No active issues right now.")
+                            systemImage: "checkmark.shield"
                         )
                     } else if filteredAgents.isEmpty && filterState == .watchlist {
                         ContentUnavailableView(
                             "No Watched Agents",
-                            systemImage: "star",
-                            description: Text("Mark agents to pin them here.")
+                            systemImage: "star"
                         )
                     } else if filteredAgents.isEmpty {
                         ContentUnavailableView(
                             "No Agents In This Filter",
-                            systemImage: "line.3.horizontal.decrease.circle",
-                            description: Text("Change the filter or refresh.")
+                            systemImage: "line.3.horizontal.decrease.circle"
                         )
                     } else {
                         List {
                             if !filteredAgents.isEmpty {
-                                Section {
-                                    FlowLayout(spacing: 8) {
+                                FlowLayout(spacing: 8) {
                                     ForEach(AgentFilter.allCases, id: \.self) { filter in
                                         Button {
                                             filterState = filter
-                                            } label: {
-                                                SelectableLabelCapsuleBadge(
-                                                    text: filter.label,
-                                                    systemImage: filter.icon,
-                                                    isSelected: filterState == filter
-                                                )
-                                            }
-                                            .buttonStyle(.plain)
-                                        }
-                                    }
-
-                                    ForEach(filteredAgents) { item in
-                                        NavigationLink(value: item.agent.id) {
-                                            AgentRow(
-                                                attention: item,
-                                                isWatched: watchlistStore.isWatched(item.agent)
+                                        } label: {
+                                            SelectableLabelCapsuleBadge(
+                                                text: filter.label,
+                                                systemImage: filter.icon,
+                                                isSelected: filterState == filter
                                             )
                                         }
-                                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                            Button {
-                                                watchlistStore.toggle(item.agent)
-                                            } label: {
-                                                Label(
-                                                    watchlistStore.isWatched(item.agent)
-                                                        ? String(localized: "Unwatch")
-                                                        : String(localized: "Watch"),
-                                                    systemImage: watchlistStore.isWatched(item.agent) ? "star.slash" : "star"
-                                                )
-                                            }
-                                            .tint(.yellow)
-                                        }
+                                        .buttonStyle(.plain)
                                     }
-                                } header: {
-                                    Text(sectionTitle)
+                                }
+
+                                ForEach(filteredAgents) { item in
+                                    NavigationLink(value: item.agent.id) {
+                                        AgentRow(
+                                            attention: item,
+                                            isWatched: watchlistStore.isWatched(item.agent)
+                                        )
+                                    }
+                                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                        Button {
+                                            watchlistStore.toggle(item.agent)
+                                        } label: {
+                                            Label(
+                                                watchlistStore.isWatched(item.agent)
+                                                    ? String(localized: "Unwatch")
+                                                    : String(localized: "Watch"),
+                                                systemImage: watchlistStore.isWatched(item.agent) ? "star.slash" : "star"
+                                            )
+                                        }
+                                        .tint(.yellow)
+                                    }
                                 }
                             }
                         }
