@@ -1,5 +1,12 @@
 import SwiftUI
 
+private enum OnCallSectionAnchor: Hashable {
+    case controls
+    case priorityQueue
+    case routes
+    case watchlist
+}
+
 struct OnCallDigestCard: View {
     let queueCount: Int
     let criticalCount: Int
@@ -237,294 +244,355 @@ struct OnCallView: View {
         if !watchedAttentionItems.isEmpty {
             sections.append(String(localized: "Watchlist"))
         }
-        sections.append(String(localized: "Surfaces"))
+        sections.append(String(localized: "Routes"))
         return sections
     }
 
     var body: some View {
-        List {
-            Section {
-                OnCallScoreboard(
-                    criticalCount: criticalCount,
-                    liveAlertCount: visibleAlerts.count,
-                    approvalCount: vm.pendingApprovalCount,
-                    watchIssueCount: watchIssueCount,
-                    sessionCount: vm.sessionAttentionCount,
-                    eventCount: vm.recentCriticalAuditCount
-                )
-                .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-            }
-
-            Section {
-                OnCallStatusDeckCard(
-                    queueCount: priorityItems.count,
-                    criticalCount: criticalCount,
-                    approvalCount: vm.pendingApprovalCount,
-                    watchIssueCount: watchIssueCount,
-                    sessionCount: vm.sessionAttentionCount,
-                    eventCount: vm.recentCriticalAuditCount,
-                    mutedAlertCount: mutedAlertCount,
-                    pendingFollowUpCount: pendingFollowUpCount,
-                    automationIssueCount: automationIssueCount,
-                    integrationIssueCount: integrationIssueCount,
-                    checkInStatus: handoffStore.latestCheckInStatus,
-                    readiness: draftHandoffReadiness,
-                    isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
-                )
-
-                OnCallShiftInventoryCard(
-                    digestLine: digestLine,
-                    liveAlertCount: visibleAlerts.count,
-                    acknowledgedAt: incidentStateStore.currentAcknowledgementDate(for: vm.monitoringAlerts),
-                    isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
-                    mutedAlertCount: mutedAlertCount,
-                    watchCount: watchedAgents.count,
-                    lastRefresh: vm.lastRefresh,
-                    freshnessState: handoffStore.freshnessState,
-                    freshnessSummary: handoffStore.freshnessSummary,
-                    cadenceState: handoffStore.cadenceState,
-                    cadenceSummary: handoffStore.cadenceSummary,
-                    latestEntry: handoffStore.latestEntry,
-                    checkInStatus: handoffStore.latestCheckInStatus,
-                    drift: currentHandoffDrift,
-                    carryover: currentHandoffCarryover,
-                    readiness: draftHandoffReadiness,
-                    followUpStatuses: latestFollowUpStatuses
-                )
-
-                OnCallSectionInventoryDeck(
-                    sectionCount: onCallSectionCount,
-                    queueCount: priorityItems.count,
-                    watchItemCount: watchedAttentionItems.count,
-                    mutedAlertCount: mutedAlertCount,
-                    pendingFollowUpCount: pendingFollowUpCount,
-                    approvalCount: vm.pendingApprovalCount,
-                    eventCount: vm.recentCriticalAuditCount,
-                    automationIssueCount: automationIssueCount,
-                    integrationIssueCount: integrationIssueCount
-                )
-                if !onCallSectionPreviewTitles.isEmpty {
-                    MonitoringSectionPreviewDeck(
-                        title: String(localized: "Section Preview"),
-                        detail: String(localized: "Keep the next on-call stacks visible before the live queue, watchlist, and surface exits open up."),
-                        sectionTitles: onCallSectionPreviewTitles,
-                        tone: criticalCount > 0 ? .critical : ((watchIssueCount > 0 || pendingFollowUpCount > 0) ? .warning : .neutral),
-                        maxVisibleSections: 5
-                    )
-                }
-                OnCallSupportPressureDeck(
-                    mutedAlertCount: mutedAlertCount,
-                    pendingFollowUpCount: pendingFollowUpCount,
-                    approvalCount: vm.pendingApprovalCount,
-                    criticalAuditCount: vm.recentCriticalAuditCount,
-                    automationIssueCount: automationIssueCount,
-                    integrationIssueCount: integrationIssueCount,
-                    checkInStatus: handoffStore.latestCheckInStatus
-                )
-                OnCallSupportCoverageDeck(
-                    watchedCount: watchedAgents.count,
-                    issueAgentCount: watchedDiagnosticIssueAgentCount,
-                    failedDeliveryCount: watchedFailedDeliveryAgentCount,
-                    missingIdentityCount: watchedMissingIdentityAgentCount,
-                    fallbackDriftCount: watchedFallbackDriftAgentCount,
-                    pausedCount: watchedPausedAgentCount
-                )
-                OnCallActionReadinessDeck(
-                    queueCount: priorityItems.count,
-                    criticalCount: criticalCount,
-                    isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
-                    hasLiveAlerts: !visibleAlerts.isEmpty,
-                    pendingFollowUpCount: pendingFollowUpCount,
-                    approvalCount: vm.pendingApprovalCount,
-                    checkInStatus: handoffStore.latestCheckInStatus
-                )
-                OnCallFocusCoverageDeck(
-                    queueCount: priorityItems.count,
-                    liveAlertCount: visibleAlerts.count,
-                    criticalCount: criticalCount,
-                    watchIssueCount: watchIssueCount,
-                    mutedAlertCount: mutedAlertCount,
-                    pendingFollowUpCount: pendingFollowUpCount,
-                    automationIssueCount: automationIssueCount,
-                    integrationIssueCount: integrationIssueCount,
-                    checkInStatus: handoffStore.latestCheckInStatus
-                )
-                OnCallWorkstreamCoverageDeck(
-                    queueCount: priorityItems.count,
-                    watchItemCount: watchedAttentionItems.count,
-                    mutedAlertCount: mutedAlertCount,
-                    pendingFollowUpCount: pendingFollowUpCount,
-                    approvalCount: vm.pendingApprovalCount,
-                    eventCount: vm.recentCriticalAuditCount,
-                    automationIssueCount: automationIssueCount,
-                    integrationIssueCount: integrationIssueCount
-                )
-
-                OnCallQueueCoverageDeck(
-                    criticalCount: criticalCount,
-                    warningCount: warningCount,
-                    advisoryCount: advisoryCount,
-                    approvalCount: vm.pendingApprovalCount,
-                    watchIssueCount: watchIssueCount,
-                    pendingFollowUpCount: pendingFollowUpCount
-                )
-        } header: {
-            Text("Controls")
-        } footer: {
-            Text("Queue shape, ack state, and handoff readiness stay together before queue work.")
-        }
-
-            if !priorityItems.isEmpty {
+        ScrollViewReader { proxy in
+            List {
                 Section {
-                    OnCallPriorityInventoryDeck(
-                        items: priorityItems,
-                        visibleCount: min(priorityItems.count, 8)
+                    OnCallScoreboard(
+                        criticalCount: criticalCount,
+                        liveAlertCount: visibleAlerts.count,
+                        approvalCount: vm.pendingApprovalCount,
+                        watchIssueCount: watchIssueCount,
+                        sessionCount: vm.sessionAttentionCount,
+                        eventCount: vm.recentCriticalAuditCount
+                    )
+                    .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+                }
+
+                Section {
+                    OnCallStatusDeckCard(
+                        queueCount: priorityItems.count,
+                        criticalCount: criticalCount,
+                        approvalCount: vm.pendingApprovalCount,
+                        watchIssueCount: watchIssueCount,
+                        sessionCount: vm.sessionAttentionCount,
+                        eventCount: vm.recentCriticalAuditCount,
+                        mutedAlertCount: mutedAlertCount,
+                        pendingFollowUpCount: pendingFollowUpCount,
+                        automationIssueCount: automationIssueCount,
+                        integrationIssueCount: integrationIssueCount,
+                        checkInStatus: handoffStore.latestCheckInStatus,
+                        readiness: draftHandoffReadiness,
+                        isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
                     )
 
-                    ForEach(priorityItems.prefix(8)) { item in
-                        NavigationLink(value: item.route) {
-                            OnCallPriorityRow(item: item)
-                        }
+                    OnCallShiftInventoryCard(
+                        digestLine: digestLine,
+                        liveAlertCount: visibleAlerts.count,
+                        acknowledgedAt: incidentStateStore.currentAcknowledgementDate(for: vm.monitoringAlerts),
+                        isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
+                        mutedAlertCount: mutedAlertCount,
+                        watchCount: watchedAgents.count,
+                        lastRefresh: vm.lastRefresh,
+                        freshnessState: handoffStore.freshnessState,
+                        freshnessSummary: handoffStore.freshnessSummary,
+                        cadenceState: handoffStore.cadenceState,
+                        cadenceSummary: handoffStore.cadenceSummary,
+                        latestEntry: handoffStore.latestEntry,
+                        checkInStatus: handoffStore.latestCheckInStatus,
+                        drift: currentHandoffDrift,
+                        carryover: currentHandoffCarryover,
+                        readiness: draftHandoffReadiness,
+                        followUpStatuses: latestFollowUpStatuses
+                    )
+
+                    OnCallSectionInventoryDeck(
+                        sectionCount: onCallSectionCount,
+                        queueCount: priorityItems.count,
+                        watchItemCount: watchedAttentionItems.count,
+                        mutedAlertCount: mutedAlertCount,
+                        pendingFollowUpCount: pendingFollowUpCount,
+                        approvalCount: vm.pendingApprovalCount,
+                        eventCount: vm.recentCriticalAuditCount,
+                        automationIssueCount: automationIssueCount,
+                        integrationIssueCount: integrationIssueCount
+                    )
+                    if !onCallSectionPreviewTitles.isEmpty {
+                        MonitoringSectionPreviewDeck(
+                            title: String(localized: "Section Preview"),
+                            detail: String(localized: "Keep the next on-call stacks visible before the live queue, watchlist, and surface exits open up."),
+                            sectionTitles: onCallSectionPreviewTitles,
+                            tone: criticalCount > 0 ? .critical : ((watchIssueCount > 0 || pendingFollowUpCount > 0) ? .warning : .neutral),
+                            maxVisibleSections: 5,
+                            jumpItems: onCallSectionPreviewJumpItems(proxy)
+                        )
                     }
-                } header: {
-                    Text("Priority Queue")
-                } footer: {
-                    Text("Sorted for quick triage using live alerts, approvals, watched agents, critical events, and session hotspots.")
-                }
-            }
-
-            Section {
-                OnCallRouteInventoryDeck(
-                    queueCount: priorityItems.count,
-                    liveAlertCount: visibleAlerts.count,
-                    criticalCount: criticalCount,
-                    approvalCount: vm.pendingApprovalCount,
-                    sessionCount: vm.sessionAttentionCount,
-                    eventCount: vm.recentCriticalAuditCount,
-                    automationIssueCount: automationIssueCount,
-                    integrationIssueCount: integrationIssueCount
-                )
-
-                OnCallSurfaceDeckCard(
-                    approvalCount: vm.pendingApprovalCount,
-                    sessionCount: vm.sessionAttentionCount,
-                    eventCount: vm.recentCriticalAuditCount,
-                    criticalCount: criticalCount,
-                    queueCount: priorityItems.count,
-                    liveAlertCount: visibleAlerts.count,
-                    automationIssueCount: automationIssueCount,
-                    integrationIssueCount: integrationIssueCount,
-                    handoffText: handoffText
-                )
-            } header: {
-                Text("Routes")
-            } footer: {
-                Text("Primary exits and slower systemic drilldowns stay below the live queue.")
-            }
-
-            if !watchedAttentionItems.isEmpty {
-                Section {
-                    OnCallWatchlistInventoryDeck(
-                        watchedCount: watchedAttentionItems.count,
-                        visibleCount: min(watchedAttentionItems.count, 6),
-                        issueCount: watchedDiagnosticIssueAgentCount,
+                    OnCallSupportPressureDeck(
+                        mutedAlertCount: mutedAlertCount,
+                        pendingFollowUpCount: pendingFollowUpCount,
+                        approvalCount: vm.pendingApprovalCount,
+                        criticalAuditCount: vm.recentCriticalAuditCount,
+                        automationIssueCount: automationIssueCount,
+                        integrationIssueCount: integrationIssueCount,
+                        checkInStatus: handoffStore.latestCheckInStatus
+                    )
+                    OnCallSupportCoverageDeck(
+                        watchedCount: watchedAgents.count,
+                        issueAgentCount: watchedDiagnosticIssueAgentCount,
                         failedDeliveryCount: watchedFailedDeliveryAgentCount,
                         missingIdentityCount: watchedMissingIdentityAgentCount,
                         fallbackDriftCount: watchedFallbackDriftAgentCount,
                         pausedCount: watchedPausedAgentCount
                     )
-
-                    ForEach(watchedAttentionItems.prefix(6)) { item in
-                        NavigationLink {
-                            watchedDiagnosticsDestination(for: item)
-                        } label: {
-                            WatchedAgentRow(
-                                agent: item.agent,
-                                reasons: item.reasons,
-                                severity: item.severity,
-                                isHealthy: item.severity == 0,
-                                diagnostics: watchedDiagnostics[item.agent.id]
-                            )
-                        }
-                    }
-                } header: {
-                    Text("Watchlist")
-                } footer: {
-                    Text("Pinned locally on this iPhone. Edit from the agent list or agent detail page.")
-                }
-            }
-
-            if priorityItems.isEmpty
-                && watchedAgents.isEmpty
-                && vm.pendingApprovalCount == 0
-                && vm.recentCriticalAuditCount == 0 {
-                Section("On Call") {
-                    ContentUnavailableView(
-                        "Calm State",
-                        systemImage: "checkmark.shield",
-                        description: Text("No live priorities are currently surfacing on this device.")
+                    OnCallActionReadinessDeck(
+                        queueCount: priorityItems.count,
+                        criticalCount: criticalCount,
+                        isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
+                        hasLiveAlerts: !visibleAlerts.isEmpty,
+                        pendingFollowUpCount: pendingFollowUpCount,
+                        approvalCount: vm.pendingApprovalCount,
+                        checkInStatus: handoffStore.latestCheckInStatus
                     )
+                    OnCallFocusCoverageDeck(
+                        queueCount: priorityItems.count,
+                        liveAlertCount: visibleAlerts.count,
+                        criticalCount: criticalCount,
+                        watchIssueCount: watchIssueCount,
+                        mutedAlertCount: mutedAlertCount,
+                        pendingFollowUpCount: pendingFollowUpCount,
+                        automationIssueCount: automationIssueCount,
+                        integrationIssueCount: integrationIssueCount,
+                        checkInStatus: handoffStore.latestCheckInStatus
+                    )
+                    OnCallWorkstreamCoverageDeck(
+                        queueCount: priorityItems.count,
+                        watchItemCount: watchedAttentionItems.count,
+                        mutedAlertCount: mutedAlertCount,
+                        pendingFollowUpCount: pendingFollowUpCount,
+                        approvalCount: vm.pendingApprovalCount,
+                        eventCount: vm.recentCriticalAuditCount,
+                        automationIssueCount: automationIssueCount,
+                        integrationIssueCount: integrationIssueCount
+                    )
+
+                    OnCallQueueCoverageDeck(
+                        criticalCount: criticalCount,
+                        warningCount: warningCount,
+                        advisoryCount: advisoryCount,
+                        approvalCount: vm.pendingApprovalCount,
+                        watchIssueCount: watchIssueCount,
+                        pendingFollowUpCount: pendingFollowUpCount
+                    )
+                } header: {
+                    Text("Controls")
+                } footer: {
+                    Text("Queue shape, ack state, and handoff readiness stay together before queue work.")
                 }
-            }
-        }
-        .navigationTitle("On Call")
-        .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                ShareLink(item: handoffText) {
-                    Image(systemName: "square.and.arrow.up")
-                }
+                .id(OnCallSectionAnchor.controls)
 
-                Menu {
-                    NavigationLink(value: OnCallRoute.incidents) {
-                        Label("Incidents", systemImage: "bell.badge")
-                    }
-
-                    NavigationLink {
-                        NightWatchView()
-                    } label: {
-                        Label("Night Watch", systemImage: "moon.stars")
-                    }
-
-                    NavigationLink {
-                        StandbyDigestView()
-                    } label: {
-                        Label("Standby", systemImage: "rectangle.inset.filled")
-                    }
-
-                    NavigationLink {
-                        HandoffCenterView(
-                            summary: handoffText,
-                            queueCount: priorityItems.count,
-                            criticalCount: criticalCount,
-                            liveAlertCount: visibleAlerts.count
+                if !priorityItems.isEmpty {
+                    Section {
+                        OnCallPriorityInventoryDeck(
+                            items: priorityItems,
+                            visibleCount: min(priorityItems.count, 8)
                         )
-                    } label: {
-                        Label("Handoff", systemImage: "text.badge.plus")
+
+                        ForEach(priorityItems.prefix(8)) { item in
+                            NavigationLink(value: item.route) {
+                                OnCallPriorityRow(item: item)
+                            }
+                        }
+                    } header: {
+                        Text("Priority Queue")
+                    } footer: {
+                        Text("Sorted for quick triage using live alerts, approvals, watched agents, critical events, and session hotspots.")
                     }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
+                    .id(OnCallSectionAnchor.priorityQueue)
+                }
+
+                Section {
+                    OnCallRouteInventoryDeck(
+                        queueCount: priorityItems.count,
+                        liveAlertCount: visibleAlerts.count,
+                        criticalCount: criticalCount,
+                        approvalCount: vm.pendingApprovalCount,
+                        sessionCount: vm.sessionAttentionCount,
+                        eventCount: vm.recentCriticalAuditCount,
+                        automationIssueCount: automationIssueCount,
+                        integrationIssueCount: integrationIssueCount
+                    )
+
+                    OnCallSurfaceDeckCard(
+                        approvalCount: vm.pendingApprovalCount,
+                        sessionCount: vm.sessionAttentionCount,
+                        eventCount: vm.recentCriticalAuditCount,
+                        criticalCount: criticalCount,
+                        queueCount: priorityItems.count,
+                        liveAlertCount: visibleAlerts.count,
+                        automationIssueCount: automationIssueCount,
+                        integrationIssueCount: integrationIssueCount,
+                        handoffText: handoffText
+                    )
+                } header: {
+                    Text("Routes")
+                } footer: {
+                    Text("Primary exits and slower systemic drilldowns stay below the live queue.")
+                }
+                .id(OnCallSectionAnchor.routes)
+
+                if !watchedAttentionItems.isEmpty {
+                    Section {
+                        OnCallWatchlistInventoryDeck(
+                            watchedCount: watchedAttentionItems.count,
+                            visibleCount: min(watchedAttentionItems.count, 6),
+                            issueCount: watchedDiagnosticIssueAgentCount,
+                            failedDeliveryCount: watchedFailedDeliveryAgentCount,
+                            missingIdentityCount: watchedMissingIdentityAgentCount,
+                            fallbackDriftCount: watchedFallbackDriftAgentCount,
+                            pausedCount: watchedPausedAgentCount
+                        )
+
+                        ForEach(watchedAttentionItems.prefix(6)) { item in
+                            NavigationLink {
+                                watchedDiagnosticsDestination(for: item)
+                            } label: {
+                                WatchedAgentRow(
+                                    agent: item.agent,
+                                    reasons: item.reasons,
+                                    severity: item.severity,
+                                    isHealthy: item.severity == 0,
+                                    diagnostics: watchedDiagnostics[item.agent.id]
+                                )
+                            }
+                        }
+                    } header: {
+                        Text("Watchlist")
+                    } footer: {
+                        Text("Pinned locally on this iPhone. Edit from the agent list or agent detail page.")
+                    }
+                    .id(OnCallSectionAnchor.watchlist)
+                }
+
+                if priorityItems.isEmpty
+                    && watchedAgents.isEmpty
+                    && vm.pendingApprovalCount == 0
+                    && vm.recentCriticalAuditCount == 0 {
+                    Section("On Call") {
+                        ContentUnavailableView(
+                            "Calm State",
+                            systemImage: "checkmark.shield",
+                            description: Text("No live priorities are currently surfacing on this device.")
+                        )
+                    }
+                }
+            }
+            .navigationTitle("On Call")
+            .toolbar {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    ShareLink(item: handoffText) {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+
+                    Menu {
+                        NavigationLink(value: OnCallRoute.incidents) {
+                            Label("Incidents", systemImage: "bell.badge")
+                        }
+
+                        NavigationLink {
+                            NightWatchView()
+                        } label: {
+                            Label("Night Watch", systemImage: "moon.stars")
+                        }
+
+                        NavigationLink {
+                            StandbyDigestView()
+                        } label: {
+                            Label("Standby", systemImage: "rectangle.inset.filled")
+                        }
+
+                        NavigationLink {
+                            HandoffCenterView(
+                                summary: handoffText,
+                                queueCount: priorityItems.count,
+                                criticalCount: criticalCount,
+                                liveAlertCount: visibleAlerts.count
+                            )
+                        } label: {
+                            Label("Handoff", systemImage: "text.badge.plus")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                }
+            }
+            .navigationDestination(for: OnCallRoute.self) { route in
+                destination(for: route)
+            }
+            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
+            .refreshable {
+                await refreshAndSync()
+            }
+            .overlay {
+                if vm.isLoading && vm.lastRefresh == nil {
+                    ProgressView("Loading on-call view...")
+                }
+            }
+            .task {
+                if vm.lastRefresh == nil {
+                    await refreshAndSync()
+                } else {
+                    syncWatchlist()
                 }
             }
         }
-        .navigationDestination(for: OnCallRoute.self) { route in
-            destination(for: route)
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: OnCallSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
         }
-        .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
-        .refreshable {
-            await refreshAndSync()
-        }
-        .overlay {
-            if vm.isLoading && vm.lastRefresh == nil {
-                ProgressView("Loading on-call view...")
+    }
+
+    private func onCallSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = [
+            MonitoringSectionJumpItem(
+                title: String(localized: "Shift Status"),
+                systemImage: "waveform.path.ecg",
+                tone: criticalCount > 0 ? .critical : .neutral
+            ) {
+                jump(proxy, to: .controls)
             }
+        ]
+
+        if !priorityItems.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Priority Queue"),
+                    systemImage: "exclamationmark.bubble",
+                    tone: criticalCount > 0 ? .critical : .warning
+                ) {
+                    jump(proxy, to: .priorityQueue)
+                }
+            )
         }
-        .task {
-            if vm.lastRefresh == nil {
-                await refreshAndSync()
-            } else {
-                syncWatchlist()
+
+        if !watchedAttentionItems.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Watchlist"),
+                    systemImage: "star.fill",
+                    tone: watchIssueCount > 0 ? .warning : .neutral
+                ) {
+                    jump(proxy, to: .watchlist)
+                }
+            )
+        }
+
+        items.append(
+            MonitoringSectionJumpItem(
+                title: String(localized: "Routes"),
+                systemImage: "arrow.triangle.branch",
+                tone: .neutral
+            ) {
+                jump(proxy, to: .routes)
             }
-        }
+        )
+
+        return items
     }
 
     @ViewBuilder

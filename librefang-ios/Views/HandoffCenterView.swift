@@ -1,5 +1,16 @@
 import SwiftUI
 
+private enum HandoffSectionAnchor: Hashable {
+    case controls
+    case draft
+    case draftSnapshot
+    case draftNote
+    case draftChecklist
+    case draftFollowUps
+    case timeline
+    case history
+}
+
 private enum HandoffHistoryFilter: String, CaseIterable, Identifiable {
     case all
     case critical
@@ -211,283 +222,295 @@ struct HandoffCenterView: View {
     }
 
     var body: some View {
-        List {
-            Section {
-                HandoffShiftContextInventoryDeck(
-                    coverageCount: coverageEntries.count,
-                    freshnessState: handoffStore.freshnessState,
-                    cadenceState: handoffStore.cadenceState,
-                    readiness: draftReadiness,
-                    checkInStatus: handoffStore.latestCheckInStatus,
-                    pendingFollowUpCount: pendingLatestFollowUpCount,
-                    completedFollowUpCount: completedLatestFollowUpCount,
-                    uncoveredChecklistCount: uncoveredChecklistCount,
-                    carryoverStatus: carryoverStatus,
-                    drift: currentDrift,
-                    latestEntryDate: coverageEntries.map(\.createdAt).max()
-                )
-
-                HandoffFreshnessCard(
-                    freshnessState: handoffStore.freshnessState,
-                    freshnessSummary: handoffStore.freshnessSummary,
-                    latestEntry: handoffStore.latestEntry,
-                    uncoveredChecklistKeys: handoffStore.uncoveredChecklistKeys
-                )
-
-                HandoffCoverageCard(
-                    entries: coverageEntries,
-                    coverageCount: { handoffStore.recentCoverageCount(for: $0) }
-                )
-
-                HandoffCadenceCard(
-                    cadenceState: handoffStore.cadenceState,
-                    cadenceSummary: handoffStore.cadenceSummary,
-                    warningCount: handoffStore.cadenceWarningCount
-                )
-
-                HandoffReadinessCard(status: draftReadiness)
-
-                if let checkInStatus = handoffStore.latestCheckInStatus {
-                    HandoffCheckInCard(status: checkInStatus)
-                }
-
-                if !latestFollowUpStatuses.isEmpty {
-                    HandoffFollowUpTrackerCard(
-                        statuses: latestFollowUpStatuses,
-                        onToggle: { handoffStore.toggleFollowUpCompletion($0) }
+        ScrollViewReader { proxy in
+            List {
+                Section {
+                    HandoffShiftContextInventoryDeck(
+                        coverageCount: coverageEntries.count,
+                        freshnessState: handoffStore.freshnessState,
+                        cadenceState: handoffStore.cadenceState,
+                        readiness: draftReadiness,
+                        checkInStatus: handoffStore.latestCheckInStatus,
+                        pendingFollowUpCount: pendingLatestFollowUpCount,
+                        completedFollowUpCount: completedLatestFollowUpCount,
+                        uncoveredChecklistCount: uncoveredChecklistCount,
+                        carryoverStatus: carryoverStatus,
+                        drift: currentDrift,
+                        latestEntryDate: coverageEntries.map(\.createdAt).max()
                     )
-                }
 
-                if let carryoverStatus {
-                    HandoffCarryoverCard(status: carryoverStatus)
-                }
-
-                if let currentDrift {
-                    HandoffDriftCard(drift: currentDrift)
-                }
-            } header: {
-                Text("Shift Context")
-            }
-
-            controlDeckSection
-
-            Section {
-                HandoffDraftSectionInventoryDeck(
-                    readiness: draftReadiness,
-                    kind: handoffStore.draftKind,
-                    note: handoffStore.draftNote,
-                    focusCount: handoffStore.draftFocusAreas.items.count,
-                    followUpCount: handoffStore.draftFollowUpItems.count,
-                    suggestedFocusCount: suggestedFocusAreas.count,
-                    suggestedFollowUpCount: suggestedFollowUps.count,
-                    checkInWindow: handoffStore.draftCheckInWindow
-                )
-                if !handoffDraftSectionPreviewTitles.isEmpty {
-                    MonitoringSectionPreviewDeck(
-                        title: String(localized: "Draft Preview"),
-                        detail: String(localized: "Keep the next draft stacks visible before the note, checklist, and follow-up editors open up."),
-                        sectionTitles: handoffDraftSectionPreviewTitles,
-                        tone: pendingLatestFollowUpCount > 0 ? .warning : .neutral,
-                        maxVisibleSections: 5
+                    HandoffFreshnessCard(
+                        freshnessState: handoffStore.freshnessState,
+                        freshnessSummary: handoffStore.freshnessSummary,
+                        latestEntry: handoffStore.latestEntry,
+                        uncoveredChecklistKeys: handoffStore.uncoveredChecklistKeys
                     )
-                }
 
-                HandoffDraftContextCard(
-                    kind: Binding(
-                        get: { handoffStore.draftKind },
-                        set: { handoffStore.draftKind = $0 }
-                    ),
-                    readiness: draftReadiness,
-                    focusCount: handoffStore.draftFocusAreas.items.count,
-                    followUpCount: handoffStore.draftFollowUpItems.count,
-                    checkInWindow: Binding(
-                        get: { handoffStore.draftCheckInWindow },
-                        set: { handoffStore.draftCheckInWindow = $0 }
-                    ),
-                    queueCount: queueCount,
-                    criticalCount: criticalCount,
-                    liveAlertCount: liveAlertCount
-                )
+                    HandoffCoverageCard(
+                        entries: coverageEntries,
+                        coverageCount: { handoffStore.recentCoverageCount(for: $0) }
+                    )
 
-                HandoffNoteComposerCard(
-                    note: Binding(
-                        get: { handoffStore.draftNote },
-                        set: { handoffStore.draftNote = $0 }
-                    ),
-                    kind: handoffStore.draftKind,
-                    suggestedTemplateNote: suggestedTemplateNote,
-                    onUseSuggestedNote: {
-                        handoffStore.useSuggestedDraftNote(
-                            queueCount: queueCount,
-                            criticalCount: criticalCount,
-                            liveAlertCount: liveAlertCount
+                    HandoffCadenceCard(
+                        cadenceState: handoffStore.cadenceState,
+                        cadenceSummary: handoffStore.cadenceSummary,
+                        warningCount: handoffStore.cadenceWarningCount
+                    )
+
+                    HandoffReadinessCard(status: draftReadiness)
+
+                    if let checkInStatus = handoffStore.latestCheckInStatus {
+                        HandoffCheckInCard(status: checkInStatus)
+                    }
+
+                    if !latestFollowUpStatuses.isEmpty {
+                        HandoffFollowUpTrackerCard(
+                            statuses: latestFollowUpStatuses,
+                            onToggle: { handoffStore.toggleFollowUpCompletion($0) }
                         )
                     }
-                )
-            } header: {
-                Text("Draft")
-            } footer: {
-                Text("Keep snapshot type, live counts, check-in timing, and the summary together before the checklist and follow-ups.")
-            }
 
-            Section {
-                VStack(alignment: .leading, spacing: 14) {
-                    HandoffActionDeckInventoryCard(
-                        kind: handoffStore.draftKind,
+                    if let carryoverStatus {
+                        HandoffCarryoverCard(status: carryoverStatus)
+                    }
+
+                    if let currentDrift {
+                        HandoffDriftCard(drift: currentDrift)
+                    }
+                } header: {
+                    Text("Shift Context")
+                }
+
+                controlDeckSection(proxy)
+                    .id(HandoffSectionAnchor.controls)
+
+                Section {
+                    HandoffDraftSectionInventoryDeck(
                         readiness: draftReadiness,
-                        checklist: handoffStore.draftChecklist,
-                        focusAreas: handoffStore.draftFocusAreas,
+                        kind: handoffStore.draftKind,
+                        note: handoffStore.draftNote,
+                        focusCount: handoffStore.draftFocusAreas.items.count,
                         followUpCount: handoffStore.draftFollowUpItems.count,
                         suggestedFocusCount: suggestedFocusAreas.count,
                         suggestedFollowUpCount: suggestedFollowUps.count,
                         checkInWindow: handoffStore.draftCheckInWindow
                     )
-
-                    HandoffChecklistComposer(
-                        checklist: handoffStore.draftChecklist,
-                        toggle: { handoffStore.toggleDraftChecklist($0) }
-                    )
-
-                    HandoffFocusComposer(
-                        focusAreas: handoffStore.draftFocusAreas,
-                        toggle: { handoffStore.toggleDraftFocusArea($0) }
-                    )
-
-                    Button {
-                        handoffStore.setDraftFocusAreas(suggestedFocusAreas)
-                    } label: {
-                        Label("Use Suggested Focus", systemImage: "scope")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(suggestedFocusAreas.isEmpty)
-
-                    if !suggestedFocusAreas.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(HandoffFocusArea.allCases.filter { suggestedFocusAreas.contains($0) }) { area in
-                                    HandoffFocusAreaBadge(area: area)
-                                }
-                            }
-                        }
+                    if !handoffDraftSectionPreviewTitles.isEmpty {
+                        MonitoringSectionPreviewDeck(
+                            title: String(localized: "Draft Preview"),
+                            detail: String(localized: "Keep the next draft stacks visible before the note, checklist, and follow-up editors open up."),
+                            sectionTitles: handoffDraftSectionPreviewTitles,
+                            tone: pendingLatestFollowUpCount > 0 ? .warning : .neutral,
+                            maxVisibleSections: 5,
+                            jumpItems: handoffDraftSectionPreviewJumpItems(proxy)
+                        )
                     }
 
-                    HandoffFollowUpComposer(
-                        items: handoffStore.draftFollowUpItems,
-                        draftText: $draftFollowUpText,
-                        addAction: {
-                            handoffStore.addDraftFollowUp(draftFollowUpText)
-                            draftFollowUpText = ""
-                        },
-                        removeAction: { offsets in
-                            handoffStore.removeDraftFollowUps(at: offsets)
-                        }
-                    )
-
-                    Button {
-                        handoffStore.appendDraftFollowUps(suggestedFollowUps)
-                    } label: {
-                        Label("Use Suggested Follow-ups", systemImage: "checklist.unchecked")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(suggestedFollowUps.isEmpty)
-
-                    HandoffDraftActionsCard(
+                    HandoffDraftContextCard(
+                        kind: Binding(
+                            get: { handoffStore.draftKind },
+                            set: { handoffStore.draftKind = $0 }
+                        ),
                         readiness: draftReadiness,
-                        shareText: currentShareText,
-                        onSave: {
-                            handoffStore.saveSnapshot(
-                                summary: summary,
+                        focusCount: handoffStore.draftFocusAreas.items.count,
+                        followUpCount: handoffStore.draftFollowUpItems.count,
+                        checkInWindow: Binding(
+                            get: { handoffStore.draftCheckInWindow },
+                            set: { handoffStore.draftCheckInWindow = $0 }
+                        ),
+                        queueCount: queueCount,
+                        criticalCount: criticalCount,
+                        liveAlertCount: liveAlertCount
+                    )
+                    .id(HandoffSectionAnchor.draftSnapshot)
+
+                    HandoffNoteComposerCard(
+                        note: Binding(
+                            get: { handoffStore.draftNote },
+                            set: { handoffStore.draftNote = $0 }
+                        ),
+                        kind: handoffStore.draftKind,
+                        suggestedTemplateNote: suggestedTemplateNote,
+                        onUseSuggestedNote: {
+                            handoffStore.useSuggestedDraftNote(
                                 queueCount: queueCount,
                                 criticalCount: criticalCount,
                                 liveAlertCount: liveAlertCount
                             )
-                        },
-                        onReset: { handoffStore.resetDraft() }
+                        }
                     )
-                }
-                .padding(.vertical, 4)
-            } header: {
-                Text("Action Deck")
-            } footer: {
-                Text("Checklist completion, focus areas, follow-ups, and save/share actions stay in one operator block so the handoff draft is easier to finish on a phone.")
-            }
-
-            if !timelineItems.isEmpty {
-                Section {
-                    HandoffTimelineInventoryDeck(
-                        items: timelineItems,
-                        gapWarningCount: timelineGapWarningCount
-                    )
-
-                    ForEach(timelineItems, id: \.id) { item in
-                        HandoffTimelineRow(item: item)
-                    }
+                    .id(HandoffSectionAnchor.draftNote)
                 } header: {
-                    Text("Timeline")
+                    Text("Draft")
                 } footer: {
-                    Text("Shows recent local handoff cadence on this iPhone so shift gaps are visible.")
+                    Text("Keep snapshot type, live counts, check-in timing, and the summary together before the checklist and follow-ups.")
                 }
-            }
+                .id(HandoffSectionAnchor.draft)
 
-            if handoffStore.entries.isEmpty {
                 Section {
-                    ContentUnavailableView(
-                        "No Saved Handoffs",
-                        systemImage: "text.badge.plus",
-                        description: Text("Save a snapshot to keep a local history of shift notes and queue state.")
-                    )
-                } header: {
-                    Text("Recent Handoffs")
-                }
-            } else {
-                Section {
-                    HandoffHistoryInventoryDeck(
-                        entries: filteredEntries,
-                        totalCount: handoffStore.entries.count,
-                        filterLabel: historyFilter.label,
-                        filterTone: historyFilterTone,
-                        searchText: searchText
-                    )
-
-                    HandoffHistoryFilterCard(
-                        filter: $historyFilter,
-                        searchText: searchText,
-                        visibleCount: filteredEntries.count,
-                        totalCount: handoffStore.entries.count
-                    )
-
-                    if filteredEntries.isEmpty {
-                        ContentUnavailableView(
-                            "No Matching Handoffs",
-                            systemImage: "line.3.horizontal.decrease.circle",
-                            description: Text("Try a different filter or search term.")
+                    VStack(alignment: .leading, spacing: 14) {
+                        HandoffActionDeckInventoryCard(
+                            kind: handoffStore.draftKind,
+                            readiness: draftReadiness,
+                            checklist: handoffStore.draftChecklist,
+                            focusAreas: handoffStore.draftFocusAreas,
+                            followUpCount: handoffStore.draftFollowUpItems.count,
+                            suggestedFocusCount: suggestedFocusAreas.count,
+                            suggestedFollowUpCount: suggestedFollowUps.count,
+                            checkInWindow: handoffStore.draftCheckInWindow
                         )
-                    } else {
-                        ForEach(filteredEntries) { entry in
-                            HandoffEntryCard(entry: entry)
-                        }
-                        .onDelete(perform: deleteFilteredEntries)
-                    }
-                } header: {
-                    Text("Recent Handoffs")
-                } footer: {
-                    if !handoffStore.entries.isEmpty {
-                        Button(role: .destructive) {
-                            handoffStore.clearAll()
+
+                        HandoffChecklistComposer(
+                            checklist: handoffStore.draftChecklist,
+                            toggle: { handoffStore.toggleDraftChecklist($0) }
+                        )
+                        .id(HandoffSectionAnchor.draftChecklist)
+
+                        HandoffFocusComposer(
+                            focusAreas: handoffStore.draftFocusAreas,
+                            toggle: { handoffStore.toggleDraftFocusArea($0) }
+                        )
+
+                        Button {
+                            handoffStore.setDraftFocusAreas(suggestedFocusAreas)
                         } label: {
-                            Text("Clear History")
+                            Label("Use Suggested Focus", systemImage: "scope")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(suggestedFocusAreas.isEmpty)
+
+                        if !suggestedFocusAreas.isEmpty {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 8) {
+                                    ForEach(HandoffFocusArea.allCases.filter { suggestedFocusAreas.contains($0) }) { area in
+                                        HandoffFocusAreaBadge(area: area)
+                                    }
+                                }
+                            }
+                        }
+
+                        HandoffFollowUpComposer(
+                            items: handoffStore.draftFollowUpItems,
+                            draftText: $draftFollowUpText,
+                            addAction: {
+                                handoffStore.addDraftFollowUp(draftFollowUpText)
+                                draftFollowUpText = ""
+                            },
+                            removeAction: { offsets in
+                                handoffStore.removeDraftFollowUps(at: offsets)
+                            }
+                        )
+                        .id(HandoffSectionAnchor.draftFollowUps)
+
+                        Button {
+                            handoffStore.appendDraftFollowUps(suggestedFollowUps)
+                        } label: {
+                            Label("Use Suggested Follow-ups", systemImage: "checklist.unchecked")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(suggestedFollowUps.isEmpty)
+
+                        HandoffDraftActionsCard(
+                            readiness: draftReadiness,
+                            shareText: currentShareText,
+                            onSave: {
+                                handoffStore.saveSnapshot(
+                                    summary: summary,
+                                    queueCount: queueCount,
+                                    criticalCount: criticalCount,
+                                    liveAlertCount: liveAlertCount
+                                )
+                            },
+                            onReset: { handoffStore.resetDraft() }
+                        )
+                    }
+                    .padding(.vertical, 4)
+                } header: {
+                    Text("Action Deck")
+                } footer: {
+                    Text("Checklist completion, focus areas, follow-ups, and save/share actions stay in one operator block so the handoff draft is easier to finish on a phone.")
+                }
+
+                if !timelineItems.isEmpty {
+                    Section {
+                        HandoffTimelineInventoryDeck(
+                            items: timelineItems,
+                            gapWarningCount: timelineGapWarningCount
+                        )
+
+                        ForEach(timelineItems, id: \.id) { item in
+                            HandoffTimelineRow(item: item)
+                        }
+                    } header: {
+                        Text("Timeline")
+                    } footer: {
+                        Text("Shows recent local handoff cadence on this iPhone so shift gaps are visible.")
+                    }
+                    .id(HandoffSectionAnchor.timeline)
+                }
+
+                if handoffStore.entries.isEmpty {
+                    Section {
+                        ContentUnavailableView(
+                            "No Saved Handoffs",
+                            systemImage: "text.badge.plus",
+                            description: Text("Save a snapshot to keep a local history of shift notes and queue state.")
+                        )
+                    } header: {
+                        Text("Recent Handoffs")
+                    }
+                    .id(HandoffSectionAnchor.history)
+                } else {
+                    Section {
+                        HandoffHistoryInventoryDeck(
+                            entries: filteredEntries,
+                            totalCount: handoffStore.entries.count,
+                            filterLabel: historyFilter.label,
+                            filterTone: historyFilterTone,
+                            searchText: searchText
+                        )
+
+                        HandoffHistoryFilterCard(
+                            filter: $historyFilter,
+                            searchText: searchText,
+                            visibleCount: filteredEntries.count,
+                            totalCount: handoffStore.entries.count
+                        )
+
+                        if filteredEntries.isEmpty {
+                            ContentUnavailableView(
+                                "No Matching Handoffs",
+                                systemImage: "line.3.horizontal.decrease.circle",
+                                description: Text("Try a different filter or search term.")
+                            )
+                        } else {
+                            ForEach(filteredEntries) { entry in
+                                HandoffEntryCard(entry: entry)
+                            }
+                            .onDelete(perform: deleteFilteredEntries)
+                        }
+                    } header: {
+                        Text("Recent Handoffs")
+                    } footer: {
+                        if !handoffStore.entries.isEmpty {
+                            Button(role: .destructive) {
+                                handoffStore.clearAll()
+                            } label: {
+                                Text("Clear History")
+                            }
                         }
                     }
+                    .id(HandoffSectionAnchor.history)
                 }
             }
+            .navigationTitle("Handoff Center")
+            .searchable(text: $searchText, prompt: "Search notes or summaries")
         }
-        .navigationTitle("Handoff Center")
-        .searchable(text: $searchText, prompt: "Search notes or summaries")
     }
 
-    private var controlDeckSection: some View {
+    private func controlDeckSection(_ proxy: ScrollViewProxy) -> some View {
         Section {
             VStack(alignment: .leading, spacing: 12) {
                 handoffSignalFactsCard
@@ -508,7 +531,8 @@ struct HandoffCenterView: View {
                         detail: String(localized: "Keep the next handoff stacks visible before the draft, timeline, and history sections open up."),
                         sectionTitles: handoffSectionPreviewTitles,
                         tone: pendingLatestFollowUpCount > 0 ? .warning : .neutral,
-                        maxVisibleSections: 5
+                        maxVisibleSections: 5,
+                        jumpItems: handoffSectionPreviewJumpItems(proxy)
                     )
                 }
                 HandoffPressureCoverageDeck(
@@ -582,6 +606,83 @@ struct HandoffCenterView: View {
         } footer: {
             Text("Keep live pressure, draft readiness, and next routes together before editing.")
         }
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: HandoffSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
+        }
+    }
+
+    private func handoffSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = [
+            MonitoringSectionJumpItem(
+                title: String(localized: "Draft"),
+                systemImage: "square.and.pencil",
+                tone: draftReadiness.state.tone
+            ) {
+                jump(proxy, to: .draft)
+            }
+        ]
+
+        if !timelineItems.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Timeline"),
+                    systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90",
+                    tone: timelineGapWarningCount > 0 ? .warning : .neutral
+                ) {
+                    jump(proxy, to: .timeline)
+                }
+            )
+        }
+
+        if !handoffStore.entries.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "History"),
+                    systemImage: "text.badge.plus",
+                    tone: filteredEntries.isEmpty ? .neutral : .positive
+                ) {
+                    jump(proxy, to: .history)
+                }
+            )
+        }
+
+        return items
+    }
+
+    private func handoffDraftSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        [
+            MonitoringSectionJumpItem(
+                title: String(localized: "Draft Snapshot"),
+                systemImage: "rectangle.and.pencil.and.ellipsis",
+                tone: draftReadiness.state.tone
+            ) {
+                jump(proxy, to: .draftSnapshot)
+            },
+            MonitoringSectionJumpItem(
+                title: String(localized: "Operator Note"),
+                systemImage: "text.justify.left",
+                tone: handoffStore.draftNote.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .neutral : .positive
+            ) {
+                jump(proxy, to: .draftNote)
+            },
+            MonitoringSectionJumpItem(
+                title: String(localized: "Checklist & Focus"),
+                systemImage: "checklist",
+                tone: handoffStore.draftFocusAreas.items.isEmpty ? .neutral : .warning
+            ) {
+                jump(proxy, to: .draftChecklist)
+            },
+            MonitoringSectionJumpItem(
+                title: String(localized: "Follow-ups & Actions"),
+                systemImage: "square.and.arrow.up",
+                tone: pendingLatestFollowUpCount > 0 ? .warning : .neutral
+            ) {
+                jump(proxy, to: .draftFollowUps)
+            }
+        ]
     }
 
     private var handoffSignalFactsCard: some View {

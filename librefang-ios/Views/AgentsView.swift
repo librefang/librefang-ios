@@ -1,5 +1,9 @@
 import SwiftUI
 
+private enum AgentsSectionAnchor: Hashable {
+    case fleet
+}
+
 struct AgentsView: View {
     @Environment(\.dependencies) private var deps
     @State private var searchText = ""
@@ -129,37 +133,38 @@ struct AgentsView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if vm.agents.isEmpty && !vm.isLoading {
-                    ContentUnavailableView(
-                        "No Agents",
-                        systemImage: "cpu.fill",
-                        description: Text("Pull to refresh or check server connection.")
-                    )
-                } else if filteredAgents.isEmpty && !searchText.isEmpty {
-                    ContentUnavailableView.search(text: searchText)
-                } else if filteredAgents.isEmpty && filterState == .attention {
-                    ContentUnavailableView(
-                        "No Active Agent Issues",
-                        systemImage: "checkmark.shield",
-                        description: Text("Running agents, approvals, auth, and stale activity all look normal right now.")
-                    )
-                } else if filteredAgents.isEmpty && filterState == .watchlist {
-                    ContentUnavailableView(
-                        "No Watched Agents",
-                        systemImage: "star",
-                        description: Text("Mark important agents from the list or detail page to keep them near the top on mobile.")
-                    )
-                } else if filteredAgents.isEmpty {
-                    ContentUnavailableView(
-                        "No Agents In This Filter",
-                        systemImage: "line.3.horizontal.decrease.circle",
-                        description: Text("Switch filters or pull to refresh to inspect the full fleet.")
-                    )
-                } else {
-                    List {
-                        if !filteredAgents.isEmpty {
-                            Section {
+            ScrollViewReader { proxy in
+                Group {
+                    if vm.agents.isEmpty && !vm.isLoading {
+                        ContentUnavailableView(
+                            "No Agents",
+                            systemImage: "cpu.fill",
+                            description: Text("Pull to refresh or check server connection.")
+                        )
+                    } else if filteredAgents.isEmpty && !searchText.isEmpty {
+                        ContentUnavailableView.search(text: searchText)
+                    } else if filteredAgents.isEmpty && filterState == .attention {
+                        ContentUnavailableView(
+                            "No Active Agent Issues",
+                            systemImage: "checkmark.shield",
+                            description: Text("Running agents, approvals, auth, and stale activity all look normal right now.")
+                        )
+                    } else if filteredAgents.isEmpty && filterState == .watchlist {
+                        ContentUnavailableView(
+                            "No Watched Agents",
+                            systemImage: "star",
+                            description: Text("Mark important agents from the list or detail page to keep them near the top on mobile.")
+                        )
+                    } else if filteredAgents.isEmpty {
+                        ContentUnavailableView(
+                            "No Agents In This Filter",
+                            systemImage: "line.3.horizontal.decrease.circle",
+                            description: Text("Switch filters or pull to refresh to inspect the full fleet.")
+                        )
+                    } else {
+                        List {
+                            if !filteredAgents.isEmpty {
+                                Section {
                                 MonitoringFilterCard(summary: filterSummaryLine, detail: searchSummaryLine) {
                                     PresentationToneBadge(
                                         text: filterState.label,
@@ -204,7 +209,8 @@ struct AgentsView: View {
                                         detail: String(localized: "Keep the next fleet slice visible before the compact route rail gives way to the longer agent list."),
                                         sectionTitles: agentsSectionPreviewTitles,
                                         tone: filteredIssueCount > 0 ? .warning : .neutral,
-                                        maxVisibleSections: 5
+                                        maxVisibleSections: 5,
+                                        jumpItems: agentsSectionPreviewJumpItems(proxy)
                                     )
                                 }
 
@@ -428,6 +434,7 @@ struct AgentsView: View {
                                 )
                                 .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
                             }
+                            .id(AgentsSectionAnchor.fleet)
                         }
                         ForEach(filteredAgents) { item in
                             NavigationLink(value: item.agent.id) {
@@ -457,10 +464,10 @@ struct AgentsView: View {
                                         Label(String(localized: "Message"), systemImage: "paperplane")
                                     }
                                     .tint(.blue)
-                                }
                             }
                         }
                     }
+                }
                     .navigationDestination(for: String.self) { agentId in
                         if let agent = vm.agents.first(where: { $0.id == agentId }) {
                             AgentDetailView(agent: agent)
@@ -512,8 +519,27 @@ struct AgentsView: View {
                     })
                     .padding(.top, 4)
                 }
+                }
             }
         }
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: AgentsSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
+        }
+    }
+
+    private func agentsSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        [
+            MonitoringSectionJumpItem(
+                title: agentsSectionPreviewTitles.first ?? String(localized: "Fleet"),
+                systemImage: "person.3",
+                tone: filteredIssueCount > 0 ? .warning : .neutral
+            ) {
+                jump(proxy, to: .fleet)
+            }
+        ]
     }
 }
 

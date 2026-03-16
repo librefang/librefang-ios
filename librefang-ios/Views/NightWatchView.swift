@@ -1,5 +1,13 @@
 import SwiftUI
 
+private enum NightWatchSectionAnchor: Hashable {
+    case hero
+    case primaryQueue
+    case secondaryQueue
+    case watchlist
+    case routes
+}
+
 private enum NightWatchTone {
     case calm
     case watching
@@ -124,6 +132,9 @@ struct NightWatchView: View {
     private var activeWatchedItems: [AgentAttentionItem] {
         watchedAttentionItems.filter { $0.severity > 0 }
     }
+    private var showsWatchlistSection: Bool {
+        !activeWatchedItems.isEmpty && focusStore.mode != .criticalOnly
+    }
     private var advisoryCount: Int {
         priorityItems.filter { $0.severity == .advisory }.count
     }
@@ -156,7 +167,7 @@ struct NightWatchView: View {
             true,
             !primaryItems.isEmpty,
             !secondaryItems.isEmpty,
-            !activeWatchedItems.isEmpty
+            showsWatchlistSection
         ]
         .filter { $0 }
         .count
@@ -169,10 +180,10 @@ struct NightWatchView: View {
         if !secondaryItems.isEmpty {
             sections.append(String(localized: "Secondary Queue"))
         }
-        if !activeWatchedItems.isEmpty {
+        if showsWatchlistSection {
             sections.append(String(localized: "Watchlist"))
         }
-        sections.append(String(localized: "Surfaces"))
+        sections.append(String(localized: "Routes"))
         return sections
     }
 
@@ -223,39 +234,46 @@ struct NightWatchView: View {
     }
 
     var body: some View {
-        ZStack {
-            tone.gradient.ignoresSafeArea()
+        ScrollViewReader { proxy in
+            ZStack {
+                tone.gradient.ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 16) {
-                    heroCard
-                    controlDeckCard
-                    primaryQueueCard
-                    secondaryQueueCard
-                    watchlistCard
-                    surfaceDeckCard
+                ScrollView {
+                    VStack(spacing: 16) {
+                        heroCard
+                            .id(NightWatchSectionAnchor.hero)
+                        controlDeckCard(proxy)
+                        primaryQueueCard
+                            .id(NightWatchSectionAnchor.primaryQueue)
+                        secondaryQueueCard
+                            .id(NightWatchSectionAnchor.secondaryQueue)
+                        watchlistCard
+                            .id(NightWatchSectionAnchor.watchlist)
+                        surfaceDeckCard
+                            .id(NightWatchSectionAnchor.routes)
+                    }
+                    .padding()
                 }
-                .padding()
+                .scrollIndicators(.hidden)
             }
-            .scrollIndicators(.hidden)
-        }
-        .navigationTitle("Night Watch")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            toolbarContent
-        }
-        .navigationDestination(for: OnCallRoute.self) { route in
-            destination(for: route)
-        }
-        .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
-        .refreshable {
-            await refreshAndSync()
-        }
-        .task {
-            if vm.lastRefresh == nil {
+            .navigationTitle("Night Watch")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                toolbarContent
+            }
+            .navigationDestination(for: OnCallRoute.self) { route in
+                destination(for: route)
+            }
+            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
+            .refreshable {
                 await refreshAndSync()
-            } else {
-                syncWatchlist()
+            }
+            .task {
+                if vm.lastRefresh == nil {
+                    await refreshAndSync()
+                } else {
+                    syncWatchlist()
+                }
             }
         }
     }
@@ -297,7 +315,7 @@ struct NightWatchView: View {
         )
     }
 
-    private var controlDeckCard: some View {
+    private func controlDeckCard(_ proxy: ScrollViewProxy) -> some View {
         VStack(spacing: 12) {
             snapshotCard
             signalFactsCard
@@ -318,7 +336,8 @@ struct NightWatchView: View {
                     detail: String(localized: "Keep the next night-watch stacks visible before the primary queue, secondary queue, and watchlist cards expand."),
                     sectionTitles: nightWatchSectionPreviewTitles,
                     tone: criticalCount > 0 ? .critical : ((warningCount > 0 || watchIssueCount > 0) ? .warning : .neutral),
-                    maxVisibleSections: 5
+                    maxVisibleSections: 5,
+                    jumpItems: nightWatchSectionPreviewJumpItems(proxy)
                 )
             }
             NightWatchSupportPressureDeck(
@@ -378,6 +397,72 @@ struct NightWatchView: View {
                 pendingFollowUpCount: pendingFollowUpCount
             )
         }
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: NightWatchSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
+        }
+    }
+
+    private func nightWatchSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = [
+            MonitoringSectionJumpItem(
+                title: String(localized: "Hero"),
+                systemImage: "moon.stars",
+                tone: criticalCount > 0 ? .critical : .neutral
+            ) {
+                jump(proxy, to: .hero)
+            }
+        ]
+
+        if !primaryItems.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Primary Queue"),
+                    systemImage: "exclamationmark.bubble",
+                    tone: criticalCount > 0 ? .critical : .warning
+                ) {
+                    jump(proxy, to: .primaryQueue)
+                }
+            )
+        }
+
+        if !secondaryItems.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Secondary Queue"),
+                    systemImage: "list.bullet.rectangle",
+                    tone: warningCount > 0 ? .warning : .neutral
+                ) {
+                    jump(proxy, to: .secondaryQueue)
+                }
+            )
+        }
+
+        if showsWatchlistSection {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Watchlist"),
+                    systemImage: "star.fill",
+                    tone: watchIssueCount > 0 ? .warning : .neutral
+                ) {
+                    jump(proxy, to: .watchlist)
+                }
+            )
+        }
+
+        items.append(
+            MonitoringSectionJumpItem(
+                title: String(localized: "Routes"),
+                systemImage: "arrow.triangle.branch",
+                tone: .neutral
+            ) {
+                jump(proxy, to: .routes)
+            }
+        )
+
+        return items
     }
 
     private var signalFactsCard: some View {

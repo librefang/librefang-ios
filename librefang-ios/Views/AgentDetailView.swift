@@ -1,5 +1,19 @@
 import SwiftUI
 
+private enum AgentDetailSectionAnchor: Hashable {
+    case runtimeStatus
+    case assignments
+    case modelResolution
+    case configSnapshot
+    case approvals
+    case cost
+    case session
+    case sessionInventory
+    case recentActivity
+    case recentAudit
+    case localActions
+}
+
 struct AgentDetailView: View {
     let agent: Agent
     @Environment(\.dependencies) private var deps
@@ -245,21 +259,32 @@ struct AgentDetailView: View {
     }
     private var agentSectionPreviewTitles: [String] {
         var sections: [String] = [String(localized: "Runtime Status")]
+        if !isLoadingCapabilities || agent.profile != nil || isLoadingProfile {
+            sections.append(String(localized: "Assignments & Profile"))
+        }
         if hasModelResolution {
+            sections.append(String(localized: "Model Resolution"))
+        }
+        if (agentDetailSnapshot.map(hasConfigSnapshotContent) ?? false) || isLoadingAgentSnapshot {
             sections.append(String(localized: "Config Snapshot"))
         }
         if !agentApprovals.isEmpty {
             sections.append(String(localized: "Approvals"))
         }
-        if budgetDetail != nil {
+        if budgetDetail != nil || isLoadingBudget {
             sections.append(String(localized: "Cost"))
         }
-        sections.append(String(localized: "Session"))
-        if !agentSessions.isEmpty {
+        if sessionSnapshot != nil || isLoadingSession {
+            sections.append(String(localized: "Session"))
+        }
+        if !agentSessions.isEmpty || isLoadingSessions {
             sections.append(String(localized: "Session Inventory"))
         }
-        if !agentRecentEvents.isEmpty {
+        if sessionSnapshot != nil {
             sections.append(String(localized: "Recent Activity"))
+        }
+        if !agentRecentEvents.isEmpty {
+            sections.append(String(localized: "Recent Audit"))
         }
         sections.append(String(localized: "Local Actions"))
         return sections
@@ -339,274 +364,283 @@ struct AgentDetailView: View {
     }
 
     var body: some View {
-        List {
-            identitySection
-            controlDeckSection
-            statusSection
-            capabilitiesSection
-            modelResolutionSection
-            configSnapshotSection
-            approvalsSection
-            budgetSections
-            sessionSections
-            memorySection
-            deliveriesSection
-            filesSection
-            recentAuditSection
-            actionsSection
-        }
-        .navigationTitle(agent.name)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    ShareLink(
-                        item: diagnosticsShareText,
-                        preview: SharePreview(
-                            String(localized: "\(agent.name) Diagnostics"),
-                            image: Image(systemName: "stethoscope")
-                        )
-                    ) {
-                        Label("Share Diagnostics", systemImage: "square.and.arrow.up")
-                    }
+        ScrollViewReader { proxy in
+            List {
+                identitySection
+                controlDeckSection(proxy)
+                statusSection
+                    .id(AgentDetailSectionAnchor.runtimeStatus)
+                capabilitiesSection
+                    .id(AgentDetailSectionAnchor.assignments)
+                modelResolutionSection
+                    .id(AgentDetailSectionAnchor.modelResolution)
+                configSnapshotSection
+                    .id(AgentDetailSectionAnchor.configSnapshot)
+                approvalsSection
+                    .id(AgentDetailSectionAnchor.approvals)
+                budgetSections
+                sessionSections
+                memorySection
+                deliveriesSection
+                filesSection
+                recentAuditSection
+                    .id(AgentDetailSectionAnchor.recentAudit)
+                actionsSection
+                    .id(AgentDetailSectionAnchor.localActions)
+            }
+            .navigationTitle(agent.name)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        ShareLink(
+                            item: diagnosticsShareText,
+                            preview: SharePreview(
+                                String(localized: "\(agent.name) Diagnostics"),
+                                image: Image(systemName: "stethoscope")
+                            )
+                        ) {
+                            Label("Share Diagnostics", systemImage: "square.and.arrow.up")
+                        }
 
-                    Button {
-                        deps.agentWatchlistStore.toggle(agent)
+                        Button {
+                            deps.agentWatchlistStore.toggle(agent)
+                        } label: {
+                            Label(
+                                isWatched
+                                    ? String(localized: "Remove From Watchlist")
+                                    : String(localized: "Add To Watchlist"),
+                                systemImage: isWatched ? "star.slash" : "star"
+                            )
+                        }
                     } label: {
-                        Label(
-                            isWatched
-                                ? String(localized: "Remove From Watchlist")
-                                : String(localized: "Add To Watchlist"),
-                            systemImage: isWatched ? "star.slash" : "star"
-                        )
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .foregroundStyle(isWatched ? watchAccentColor : .primary)
-                }
-            }
-        }
-        .task {
-            await loadBudget()
-            await loadAgentSnapshot()
-            await loadSession()
-            await loadSessions()
-            await loadMemory()
-            await loadDeliveries()
-            await loadFiles()
-            await loadProfile()
-            await loadCapabilities()
-        }
-        .sheet(isPresented: $showChat) {
-            NavigationStack {
-                ChatView(viewModel: deps.makeChatViewModel(for: agent))
-            }
-        }
-        .sheet(isPresented: $showCreateSessionSheet) {
-            NavigationStack {
-                Form {
-                    Section("New Session") {
-                        TextField("Optional label", text: $newSessionLabel)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-
-                        Text("A fresh session is useful when you need a clean operator context without resetting the existing thread.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .navigationTitle("Fresh Session")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
-                            showCreateSessionSheet = false
-                        }
-                        .disabled(isCreatingSession)
-                    }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button {
-                            Task { await createFreshSession() }
-                        } label: {
-                            if isCreatingSession {
-                                ProgressView()
-                                    .controlSize(.small)
-                            } else {
-                                Text("Create")
-                            }
-                        }
-                        .disabled(isCreatingSession)
+                        Image(systemName: "ellipsis.circle")
+                            .foregroundStyle(isWatched ? watchAccentColor : .primary)
                     }
                 }
             }
-        }
-        .sheet(isPresented: $showFindSessionSheet) {
-            NavigationStack {
-                Form {
-                    Section {
-                        TextField("incident_review", text: $sessionLookupLabel)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
+            .task {
+                await loadBudget()
+                await loadAgentSnapshot()
+                await loadSession()
+                await loadSessions()
+                await loadMemory()
+                await loadDeliveries()
+                await loadFiles()
+                await loadProfile()
+                await loadCapabilities()
+            }
+            .sheet(isPresented: $showChat) {
+                NavigationStack {
+                    ChatView(viewModel: deps.makeChatViewModel(for: agent))
+                }
+            }
+            .sheet(isPresented: $showCreateSessionSheet) {
+                NavigationStack {
+                    Form {
+                        Section("New Session") {
+                            TextField("Optional label", text: $newSessionLabel)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
 
-                        Button {
-                            Task { await lookupSessionByLabel() }
-                        } label: {
-                            if isLookingUpSession {
-                                ProgressView()
-                                    .controlSize(.small)
-                            } else {
-                                Label("Find Session", systemImage: "magnifyingglass")
-                            }
-                        }
-                        .disabled(isLookingUpSession || sessionLookupLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    } header: {
-                        Text("Session Label")
-                    } footer: {
-                        Text("LibreFang resolves labels server-side for this agent, so this works even when the current inventory is stale.")
-                    }
-
-                    if let sessionLookupResult {
-                        Section("Result") {
-                            LabeledContent("Session") {
-                                Text((sessionLookupResult.label?.isEmpty == false ? sessionLookupResult.label : nil) ?? String(sessionLookupResult.sessionId.prefix(8)))
-                                    .foregroundStyle(.secondary)
-                            }
-                            LabeledContent("Messages") {
-                                Text(sessionLookupResult.messageCount.formatted())
-                                    .monospacedDigit()
-                            }
-
-                            if sessionLookupResult.sessionId == currentSessionID {
-                                Label("This is already the active session.", systemImage: "checkmark.circle")
-                                    .foregroundStyle(.green)
-                            } else {
-                                Button {
-                                    pendingSessionAction = .switchSession(
-                                        agentID: agent.id,
-                                        agentName: agent.name,
-                                        session: SessionInfo(
-                                            sessionId: sessionLookupResult.sessionId,
-                                            agentId: sessionLookupResult.agentId,
-                                            messageCount: sessionLookupResult.messageCount,
-                                            createdAt: "",
-                                            label: sessionLookupResult.label
-                                        )
-                                    )
-                                    showFindSessionSheet = false
-                                } label: {
-                                    Label("Switch To This Session", systemImage: "arrow.triangle.swap")
-                                }
-                            }
-                        }
-                    } else if let sessionLookupError {
-                        Section("Result") {
-                            Text(sessionLookupError)
+                            Text("A fresh session is useful when you need a clean operator context without resetting the existing thread.")
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
-                }
-                .navigationTitle("Find Session")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Close") {
-                            showFindSessionSheet = false
+                    .navigationTitle("Fresh Session")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") {
+                                showCreateSessionSheet = false
+                            }
+                            .disabled(isCreatingSession)
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button {
+                                Task { await createFreshSession() }
+                            } label: {
+                                if isCreatingSession {
+                                    ProgressView()
+                                        .controlSize(.small)
+                                } else {
+                                    Text("Create")
+                                }
+                            }
+                            .disabled(isCreatingSession)
                         }
                     }
                 }
             }
-        }
-        .sheet(item: $editingSession) { session in
-            NavigationStack {
-                Form {
-                    Section {
-                        TextField("Optional label", text: $sessionLabelDraft)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
+            .sheet(isPresented: $showFindSessionSheet) {
+                NavigationStack {
+                    Form {
+                        Section {
+                            TextField("incident_review", text: $sessionLookupLabel)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
 
-                        Text("Clear the field to remove the label. Labeled sessions are easier to hand off and recover later.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    } header: {
-                        Text("Session Label")
-                    } footer: {
-                        Text(sessionDisplayTitle(session))
-                    }
-                }
-                .navigationTitle("Edit Label")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
-                            editingSession = nil
+                            Button {
+                                Task { await lookupSessionByLabel() }
+                            } label: {
+                                if isLookingUpSession {
+                                    ProgressView()
+                                        .controlSize(.small)
+                                } else {
+                                    Label("Find Session", systemImage: "magnifyingglass")
+                                }
+                            }
+                            .disabled(isLookingUpSession || sessionLookupLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        } header: {
+                            Text("Session Label")
+                        } footer: {
+                            Text("LibreFang resolves labels server-side for this agent, so this works even when the current inventory is stale.")
                         }
-                        .disabled(isCatalogActionBusy)
-                    }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button {
-                            Task { await saveSessionLabel(for: session) }
-                        } label: {
-                            if sessionCatalogActionInFlightID == "label:\(session.sessionId)" {
-                                ProgressView()
-                                    .controlSize(.small)
-                            } else {
-                                Text("Save")
+
+                        if let sessionLookupResult {
+                            Section("Result") {
+                                LabeledContent("Session") {
+                                    Text((sessionLookupResult.label?.isEmpty == false ? sessionLookupResult.label : nil) ?? String(sessionLookupResult.sessionId.prefix(8)))
+                                        .foregroundStyle(.secondary)
+                                }
+                                LabeledContent("Messages") {
+                                    Text(sessionLookupResult.messageCount.formatted())
+                                        .monospacedDigit()
+                                }
+
+                                if sessionLookupResult.sessionId == currentSessionID {
+                                    Label("This is already the active session.", systemImage: "checkmark.circle")
+                                        .foregroundStyle(.green)
+                                } else {
+                                    Button {
+                                        pendingSessionAction = .switchSession(
+                                            agentID: agent.id,
+                                            agentName: agent.name,
+                                            session: SessionInfo(
+                                                sessionId: sessionLookupResult.sessionId,
+                                                agentId: sessionLookupResult.agentId,
+                                                messageCount: sessionLookupResult.messageCount,
+                                                createdAt: "",
+                                                label: sessionLookupResult.label
+                                            )
+                                        )
+                                        showFindSessionSheet = false
+                                    } label: {
+                                        Label("Switch To This Session", systemImage: "arrow.triangle.swap")
+                                    }
+                                }
+                            }
+                        } else if let sessionLookupError {
+                            Section("Result") {
+                                Text(sessionLookupError)
+                                    .foregroundStyle(.secondary)
                             }
                         }
-                        .disabled(isCatalogActionBusy)
+                    }
+                    .navigationTitle("Find Session")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Close") {
+                                showFindSessionSheet = false
+                            }
+                        }
                     }
                 }
             }
-        }
-        .confirmationDialog(
-            pendingApprovalAction?.title ?? "",
-            isPresented: approvalActionConfirmationPresented,
-            titleVisibility: .visible,
-            presenting: pendingApprovalAction
-        ) { action in
-            Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
-                Task { await performApprovalAction(action) }
+            .sheet(item: $editingSession) { session in
+                NavigationStack {
+                    Form {
+                        Section {
+                            TextField("Optional label", text: $sessionLabelDraft)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+
+                            Text("Clear the field to remove the label. Labeled sessions are easier to hand off and recover later.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        } header: {
+                            Text("Session Label")
+                        } footer: {
+                            Text(sessionDisplayTitle(session))
+                        }
+                    }
+                    .navigationTitle("Edit Label")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") {
+                                editingSession = nil
+                            }
+                            .disabled(isCatalogActionBusy)
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button {
+                                Task { await saveSessionLabel(for: session) }
+                            } label: {
+                                if sessionCatalogActionInFlightID == "label:\(session.sessionId)" {
+                                    ProgressView()
+                                        .controlSize(.small)
+                                } else {
+                                    Text("Save")
+                                }
+                            }
+                            .disabled(isCatalogActionBusy)
+                        }
+                    }
+                }
             }
-            Button("Cancel", role: .cancel) {}
-        } message: { action in
-            Text(action.message)
-        }
-        .confirmationDialog(
-            pendingSessionAction?.title ?? "",
-            isPresented: sessionActionConfirmationPresented,
-            titleVisibility: .visible,
-            presenting: pendingSessionAction
-        ) { action in
-            Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
-                Task { await performSessionAction(action) }
+            .confirmationDialog(
+                pendingApprovalAction?.title ?? "",
+                isPresented: approvalActionConfirmationPresented,
+                titleVisibility: .visible,
+                presenting: pendingApprovalAction
+            ) { action in
+                Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
+                    Task { await performApprovalAction(action) }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { action in
+                Text(action.message)
             }
-            Button("Cancel", role: .cancel) {}
-        } message: { action in
-            Text(action.message)
-        }
-        .confirmationDialog(
-            "Delete Session",
-            isPresented: deleteSessionConfirmationPresented,
-            titleVisibility: .visible,
-            presenting: pendingDeleteSession
-        ) { session in
-            Button("Delete Session", role: .destructive) {
-                Task { await deleteSession(session) }
+            .confirmationDialog(
+                pendingSessionAction?.title ?? "",
+                isPresented: sessionActionConfirmationPresented,
+                titleVisibility: .visible,
+                presenting: pendingSessionAction
+            ) { action in
+                Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
+                    Task { await performSessionAction(action) }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { action in
+                Text(action.message)
             }
-            Button("Cancel", role: .cancel) {}
-        } message: { session in
-            Text("Remove \(sessionDisplayTitle(session)) from this agent history? This cannot be undone.")
-        }
-        .alert(item: $operatorNotice) { notice in
-            Alert(
-                title: Text(notice.title),
-                message: Text(notice.message),
-                dismissButton: .default(Text("OK"))
-            )
+            .confirmationDialog(
+                "Delete Session",
+                isPresented: deleteSessionConfirmationPresented,
+                titleVisibility: .visible,
+                presenting: pendingDeleteSession
+            ) { session in
+                Button("Delete Session", role: .destructive) {
+                    Task { await deleteSession(session) }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { session in
+                Text("Remove \(sessionDisplayTitle(session)) from this agent history? This cannot be undone.")
+            }
+            .alert(item: $operatorNotice) { notice in
+                Alert(
+                    title: Text(notice.title),
+                    message: Text(notice.message),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
         }
     }
 
-    private var controlDeckSection: some View {
+    private func controlDeckSection(_ proxy: ScrollViewProxy) -> some View {
         Section {
             VStack(alignment: .leading, spacing: 12) {
                 agentDiagnosticsStatusDeckCard
@@ -628,7 +662,8 @@ struct AgentDetailView: View {
                         detail: String(localized: "Keep the next agent stacks visible before runtime, session, diagnostics, and local action sections open up."),
                         sectionTitles: agentSectionPreviewTitles,
                         tone: monitoringSurfaceIssueCount > 0 ? .warning : .neutral,
-                        maxVisibleSections: 5
+                        maxVisibleSections: 5,
+                        jumpItems: agentSectionPreviewJumpItems(proxy)
                     )
                 }
                 AgentPressureCoverageDeck(
@@ -702,6 +737,144 @@ struct AgentDetailView: View {
         } footer: {
             Text("Keep the digest and next exits together before deeper diagnostics sections.")
         }
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: AgentDetailSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
+        }
+    }
+
+    private func agentSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = [
+            MonitoringSectionJumpItem(
+                title: String(localized: "Runtime Status"),
+                systemImage: "power",
+                tone: monitoringSurfaceIssueCount > 0 ? .warning : .neutral
+            ) {
+                jump(proxy, to: .runtimeStatus)
+            }
+        ]
+
+        if !isLoadingCapabilities || agent.profile != nil || isLoadingProfile {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Assignments & Profile"),
+                    systemImage: "slider.horizontal.3",
+                    tone: hasCapabilityCoverage ? .positive : .neutral
+                ) {
+                    jump(proxy, to: .assignments)
+                }
+            )
+        }
+
+        if hasModelResolution {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Model Resolution"),
+                    systemImage: "square.stack.3d.up",
+                    tone: modelDiagnostic?.statusTone ?? .neutral
+                ) {
+                    jump(proxy, to: .modelResolution)
+                }
+            )
+        }
+
+        if (agentDetailSnapshot.map(hasConfigSnapshotContent) ?? false) || isLoadingAgentSnapshot {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Config Snapshot"),
+                    systemImage: "doc.text.magnifyingglass",
+                    tone: .neutral
+                ) {
+                    jump(proxy, to: .configSnapshot)
+                }
+            )
+        }
+
+        if !agentApprovals.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Approvals"),
+                    systemImage: "checkmark.shield",
+                    tone: .warning
+                ) {
+                    jump(proxy, to: .approvals)
+                }
+            )
+        }
+
+        if budgetDetail != nil || isLoadingBudget {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Cost"),
+                    systemImage: "dollarsign.circle",
+                    tone: agentBudgetTone
+                ) {
+                    jump(proxy, to: .cost)
+                }
+            )
+        }
+
+        if sessionSnapshot != nil || isLoadingSession {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Session"),
+                    systemImage: "text.bubble",
+                    tone: sessionAttentionTone
+                ) {
+                    jump(proxy, to: .session)
+                }
+            )
+        }
+
+        if !sessionItems.isEmpty || isLoadingSessions {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Session Inventory"),
+                    systemImage: "rectangle.stack",
+                    tone: sessionAttentionTone
+                ) {
+                    jump(proxy, to: .sessionInventory)
+                }
+            )
+        }
+
+        if sessionSnapshot != nil {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Recent Activity"),
+                    systemImage: "text.bubble.fill",
+                    tone: .neutral
+                ) {
+                    jump(proxy, to: .recentActivity)
+                }
+            )
+        }
+
+        if !agentRecentEvents.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Recent Audit"),
+                    systemImage: "list.bullet.rectangle.portrait",
+                    tone: .warning
+                ) {
+                    jump(proxy, to: .recentAudit)
+                }
+            )
+        }
+
+        items.append(
+            MonitoringSectionJumpItem(
+                title: String(localized: "Local Actions"),
+                systemImage: "star",
+                tone: isWatched ? .warning : .neutral
+            ) {
+                jump(proxy, to: .localActions)
+            }
+        )
+
+        return items
     }
 
     private var agentOperatorSurfaceDeckCard: some View {
@@ -1373,6 +1546,7 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             }
+            .id(AgentDetailSectionAnchor.cost)
         } else if let detail = budgetDetail {
             Section("Cost (USD)") {
                 MonitoringSnapshotCard(
@@ -1403,6 +1577,7 @@ struct AgentDetailView: View {
                 BudgetPeriodRow(label: "Daily", period: detail.daily)
                 BudgetPeriodRow(label: "Monthly", period: detail.monthly)
             }
+            .id(AgentDetailSectionAnchor.cost)
 
             Section("Token Usage") {
                 MonitoringFactsRow {
@@ -1450,6 +1625,7 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             }
+            .id(AgentDetailSectionAnchor.session)
         } else if let snapshot = sessionSnapshot {
             sessionSummarySection(snapshot)
             sessionControlsSection
@@ -1517,6 +1693,7 @@ struct AgentDetailView: View {
                 )
             }
         }
+        .id(AgentDetailSectionAnchor.session)
     }
 
     private var sessionControlsSection: some View {
@@ -1639,6 +1816,7 @@ struct AgentDetailView: View {
                     Text("Showing 4 of \(sessionItems.count) sessions for this agent")
                 }
             }
+            .id(AgentDetailSectionAnchor.sessionInventory)
         }
     }
 
@@ -1653,6 +1831,7 @@ struct AgentDetailView: View {
                 }
             }
         }
+        .id(AgentDetailSectionAnchor.recentActivity)
     }
 
     private var memorySection: some View {

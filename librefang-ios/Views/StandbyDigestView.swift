@@ -1,5 +1,11 @@
 import SwiftUI
 
+private enum StandbySectionAnchor: Hashable {
+    case hero
+    case glance
+    case routes
+}
+
 private enum StandbyTone {
     case calm
     case watch
@@ -140,7 +146,7 @@ struct StandbyDigestView: View {
         if !watchItems.isEmpty {
             sections.append(String(localized: "Pinned Watchlist"))
         }
-        sections.append(String(localized: "Surfaces"))
+        sections.append(String(localized: "Routes"))
         return sections
     }
 
@@ -183,68 +189,73 @@ struct StandbyDigestView: View {
     }
 
     var body: some View {
-        ZStack {
-            tone.gradient.ignoresSafeArea()
+        ScrollViewReader { proxy in
+            ZStack {
+                tone.gradient.ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 16) {
-                    heroCard
-                    controlDeckCard
-                    glanceCard
-                    surfaceDeckCard
+                ScrollView {
+                    VStack(spacing: 16) {
+                        heroCard
+                            .id(StandbySectionAnchor.hero)
+                        controlDeckCard(proxy)
+                        glanceCard
+                            .id(StandbySectionAnchor.glance)
+                        surfaceDeckCard
+                            .id(StandbySectionAnchor.routes)
+                    }
+                    .padding()
                 }
-                .padding()
+                .scrollIndicators(.hidden)
             }
-            .scrollIndicators(.hidden)
-        }
-        .navigationTitle("Standby")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    NavigationLink {
-                        NightWatchView()
-                    } label: {
-                        Label("Night Watch", systemImage: "moon.stars")
-                    }
+            .navigationTitle("Standby")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        NavigationLink {
+                            NightWatchView()
+                        } label: {
+                            Label("Night Watch", systemImage: "moon.stars")
+                        }
 
-                    NavigationLink {
-                        OnCallView()
-                    } label: {
-                        Label("On Call", systemImage: "waveform.path.ecg")
-                    }
+                        NavigationLink {
+                            OnCallView()
+                        } label: {
+                            Label("On Call", systemImage: "waveform.path.ecg")
+                        }
 
-                    NavigationLink(value: OnCallRoute.incidents) {
-                        Label("Incidents", systemImage: "bell.badge")
-                    }
+                        NavigationLink(value: OnCallRoute.incidents) {
+                            Label("Incidents", systemImage: "bell.badge")
+                        }
 
-                    NavigationLink {
-                        HandoffCenterView(
-                            summary: handoffText,
-                            queueCount: priorityItems.count,
-                            criticalCount: criticalCount,
-                            liveAlertCount: visibleAlerts.count
-                        )
+                        NavigationLink {
+                            HandoffCenterView(
+                                summary: handoffText,
+                                queueCount: priorityItems.count,
+                                criticalCount: criticalCount,
+                                liveAlertCount: visibleAlerts.count
+                            )
+                        } label: {
+                            Label("Handoff", systemImage: "text.badge.plus")
+                        }
                     } label: {
-                        Label("Handoff", systemImage: "text.badge.plus")
+                        Image(systemName: "ellipsis.circle")
                     }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
                 }
             }
-        }
-        .navigationDestination(for: OnCallRoute.self) { route in
-            destination(for: route)
-        }
-        .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
-        .refreshable {
-            await refreshAndSync()
-        }
-        .task {
-            if vm.lastRefresh == nil {
+            .navigationDestination(for: OnCallRoute.self) { route in
+                destination(for: route)
+            }
+            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
+            .refreshable {
                 await refreshAndSync()
-            } else {
-                syncWatchlist()
+            }
+            .task {
+                if vm.lastRefresh == nil {
+                    await refreshAndSync()
+                } else {
+                    syncWatchlist()
+                }
             }
         }
     }
@@ -295,7 +306,7 @@ struct StandbyDigestView: View {
         )
     }
 
-    private var controlDeckCard: some View {
+    private func controlDeckCard(_ proxy: ScrollViewProxy) -> some View {
         VStack(spacing: 12) {
             snapshotCard
             signalFactsCard
@@ -316,7 +327,8 @@ struct StandbyDigestView: View {
                     detail: String(localized: "Keep the next standby stacks visible before the glance, watchlist, and route cards open up."),
                     sectionTitles: standbySectionPreviewTitles,
                     tone: criticalCount > 0 ? .critical : ((warningQueueCount > 0 || pendingFollowUpCount > 0) ? .warning : .neutral),
-                    maxVisibleSections: 5
+                    maxVisibleSections: 5,
+                    jumpItems: standbySectionPreviewJumpItems(proxy)
                 )
             }
             StandbySupportPressureDeck(
@@ -374,6 +386,60 @@ struct StandbyDigestView: View {
                 pendingFollowUpCount: pendingFollowUpCount
             )
         }
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: StandbySectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
+        }
+    }
+
+    private func standbySectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = [
+            MonitoringSectionJumpItem(
+                title: String(localized: "Hero"),
+                systemImage: "rectangle.inset.filled",
+                tone: criticalCount > 0 ? .critical : .neutral
+            ) {
+                jump(proxy, to: .hero)
+            }
+        ]
+
+        if !primaryItems.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "At a Glance"),
+                    systemImage: "list.bullet.rectangle",
+                    tone: criticalCount > 0 ? .critical : .warning
+                ) {
+                    jump(proxy, to: .glance)
+                }
+            )
+        }
+
+        if !watchItems.isEmpty {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Pinned Watchlist"),
+                    systemImage: "star.fill",
+                    tone: watchIssueCount > 0 ? .warning : .neutral
+                ) {
+                    jump(proxy, to: .glance)
+                }
+            )
+        }
+
+        items.append(
+            MonitoringSectionJumpItem(
+                title: String(localized: "Routes"),
+                systemImage: "arrow.triangle.branch",
+                tone: .neutral
+            ) {
+                jump(proxy, to: .routes)
+            }
+        )
+
+        return items
     }
 
     private var signalFactsCard: some View {

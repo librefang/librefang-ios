@@ -1,5 +1,11 @@
 import SwiftUI
 
+private enum AgentCapabilitiesSectionAnchor: Hashable {
+    case toolFilters
+    case skills
+    case mcpServers
+}
+
 struct AgentCapabilitiesView: View {
     let agent: Agent
     let initialToolFilters: AgentToolFilters?
@@ -84,216 +90,267 @@ struct AgentCapabilitiesView: View {
     }
 
     var body: some View {
-        List {
-            if isRefreshing && !hasLoadedAnything {
-                Section {
-                    HStack {
-                        Spacer()
-                        ProgressView()
-                        Spacer()
+        ScrollViewReader { proxy in
+            List {
+                if isRefreshing && !hasLoadedAnything {
+                    Section {
+                        HStack {
+                            Spacer()
+                            ProgressView()
+                            Spacer()
+                        }
                     }
                 }
-            }
 
-            if hasLoadedAnything {
-                Section {
-                    CapabilitiesSnapshotCard(
-                        toolFilters: toolFilters,
-                        skills: skills,
-                        mcpServers: mcpServers
-                    )
-                } header: {
-                    Text("Snapshot")
-                } footer: {
-                    Text("This snapshot shows which capability feeds have loaded and how much access the agent currently has.")
-                }
-
-                Section {
-                    CapabilitiesSectionInventoryDeck(
-                        sectionCount: capabilitiesSectionCount,
-                        loadedFeedCount: loadedCapabilityFeedCount,
-                        hasProfileRoute: agent.profile?.isEmpty == false,
-                        hasToolFilters: toolFilters != nil,
-                        hasSkills: skills != nil,
-                        hasMCPServers: mcpServers != nil,
-                        isRefreshingOnly: isRefreshing && hasLoadedAnything
-                    )
-                    if !capabilitiesSectionPreviewTitles.isEmpty {
-                        MonitoringSectionPreviewDeck(
-                            title: String(localized: "Section Preview"),
-                            detail: String(localized: "Keep the next capability stacks visible before tool filters, skills, and MCP server sections open up."),
-                            sectionTitles: capabilitiesSectionPreviewTitles,
-                            tone: loadedCapabilityFeedCount > 0 ? .positive : .neutral,
-                            maxVisibleSections: 5
+                if hasLoadedAnything {
+                    Section {
+                        CapabilitiesSnapshotCard(
+                            toolFilters: toolFilters,
+                            skills: skills,
+                            mcpServers: mcpServers
                         )
+                    } header: {
+                        Text("Snapshot")
+                    } footer: {
+                        Text("This snapshot shows which capability feeds have loaded and how much access the agent currently has.")
                     }
 
-                    CapabilitiesPressureCoverageDeck(
-                        loadedFeedCount: loadedCapabilityFeedCount,
-                        toolRestrictionCount: toolRestrictionCount,
-                        assignedSkillCount: assignedSkillCount,
-                        assignedServerCount: assignedServerCount,
-                        configuredAvailableServerCount: configuredAvailableServerCount,
-                        hasProfileRoute: agent.profile?.isEmpty == false,
-                        isRefreshingOnly: isRefreshing && hasLoadedAnything
-                    )
-                    CapabilitiesSupportCoverageDeck(
-                        loadedFeedCount: loadedCapabilityFeedCount,
-                        toolRestrictionCount: toolRestrictionCount,
-                        assignedSkillCount: assignedSkillCount,
-                        assignedServerCount: assignedServerCount,
-                        configuredAvailableServerCount: configuredAvailableServerCount,
-                        hasProfileRoute: agent.profile?.isEmpty == false,
-                        hasToolFilters: toolFilters != nil,
-                        hasSkills: skills != nil,
-                        hasMCPServers: mcpServers != nil,
-                        isRefreshingOnly: isRefreshing && hasLoadedAnything
-                    )
+                    Section {
+                        CapabilitiesSectionInventoryDeck(
+                            sectionCount: capabilitiesSectionCount,
+                            loadedFeedCount: loadedCapabilityFeedCount,
+                            hasProfileRoute: agent.profile?.isEmpty == false,
+                            hasToolFilters: toolFilters != nil,
+                            hasSkills: skills != nil,
+                            hasMCPServers: mcpServers != nil,
+                            isRefreshingOnly: isRefreshing && hasLoadedAnything
+                        )
+                        if !capabilitiesSectionPreviewTitles.isEmpty {
+                            MonitoringSectionPreviewDeck(
+                                title: String(localized: "Section Preview"),
+                                detail: String(localized: "Keep the next capability stacks visible before tool filters, skills, and MCP server sections open up."),
+                                sectionTitles: capabilitiesSectionPreviewTitles,
+                                tone: loadedCapabilityFeedCount > 0 ? .positive : .neutral,
+                                maxVisibleSections: 5,
+                                jumpItems: capabilitiesSectionPreviewJumpItems(proxy)
+                            )
+                        }
 
-                    CapabilitiesFocusCoverageDeck(
-                        loadedFeedCount: loadedCapabilityFeedCount,
-                        toolRestrictionCount: toolRestrictionCount,
-                        assignedSkillCount: assignedSkillCount,
-                        assignedServerCount: assignedServerCount,
-                        configuredAvailableServerCount: configuredAvailableServerCount,
-                        hasProfileRoute: agent.profile?.isEmpty == false,
-                        hasToolFilters: toolFilters != nil,
-                        hasSkills: skills != nil,
-                        hasMCPServers: mcpServers != nil,
-                        isRefreshingOnly: isRefreshing && hasLoadedAnything
-                    )
-                    CapabilitiesWorkstreamCoverageDeck(
-                        loadedFeedCount: loadedCapabilityFeedCount,
-                        toolRestrictionCount: toolRestrictionCount,
-                        assignedSkillCount: assignedSkillCount,
-                        assignedServerCount: assignedServerCount,
-                        configuredAvailableServerCount: configuredAvailableServerCount,
-                        hasProfileRoute: agent.profile?.isEmpty == false,
-                        hasToolFilters: toolFilters != nil,
-                        hasSkills: skills != nil,
-                        hasMCPServers: mcpServers != nil,
-                        isRefreshingOnly: isRefreshing && hasLoadedAnything
-                    )
-                    CapabilitiesActionReadinessDeck(
-                        primaryRouteCount: capabilitiesPrimaryRouteCount,
-                        supportRouteCount: capabilitiesSupportRouteCount,
-                        loadedFeedCount: loadedCapabilityFeedCount,
-                        toolRestrictionCount: toolRestrictionCount,
-                        assignedSkillCount: assignedSkillCount,
-                        assignedServerCount: assignedServerCount,
-                        configuredAvailableServerCount: configuredAvailableServerCount,
-                        hasProfileRoute: agent.profile?.isEmpty == false,
-                        hasToolFilters: toolFilters != nil,
-                        hasSkills: skills != nil,
-                        hasMCPServers: mcpServers != nil,
-                        isRefreshingOnly: isRefreshing && hasLoadedAnything
-                    )
+                        CapabilitiesPressureCoverageDeck(
+                            loadedFeedCount: loadedCapabilityFeedCount,
+                            toolRestrictionCount: toolRestrictionCount,
+                            assignedSkillCount: assignedSkillCount,
+                            assignedServerCount: assignedServerCount,
+                            configuredAvailableServerCount: configuredAvailableServerCount,
+                            hasProfileRoute: agent.profile?.isEmpty == false,
+                            isRefreshingOnly: isRefreshing && hasLoadedAnything
+                        )
+                        CapabilitiesSupportCoverageDeck(
+                            loadedFeedCount: loadedCapabilityFeedCount,
+                            toolRestrictionCount: toolRestrictionCount,
+                            assignedSkillCount: assignedSkillCount,
+                            assignedServerCount: assignedServerCount,
+                            configuredAvailableServerCount: configuredAvailableServerCount,
+                            hasProfileRoute: agent.profile?.isEmpty == false,
+                            hasToolFilters: toolFilters != nil,
+                            hasSkills: skills != nil,
+                            hasMCPServers: mcpServers != nil,
+                            isRefreshingOnly: isRefreshing && hasLoadedAnything
+                        )
 
-                    CapabilitiesRouteInventoryDeck(
-                        primaryRouteCount: capabilitiesPrimaryRouteCount,
-                        supportRouteCount: capabilitiesSupportRouteCount,
-                        loadedFeedCount: loadedCapabilityFeedCount,
-                        hasProfileRoute: agent.profile?.isEmpty == false,
-                        hasToolFilters: toolFilters != nil,
-                        hasSkills: skills != nil,
-                        hasMCPServers: mcpServers != nil
-                    )
+                        CapabilitiesFocusCoverageDeck(
+                            loadedFeedCount: loadedCapabilityFeedCount,
+                            toolRestrictionCount: toolRestrictionCount,
+                            assignedSkillCount: assignedSkillCount,
+                            assignedServerCount: assignedServerCount,
+                            configuredAvailableServerCount: configuredAvailableServerCount,
+                            hasProfileRoute: agent.profile?.isEmpty == false,
+                            hasToolFilters: toolFilters != nil,
+                            hasSkills: skills != nil,
+                            hasMCPServers: mcpServers != nil,
+                            isRefreshingOnly: isRefreshing && hasLoadedAnything
+                        )
+                        CapabilitiesWorkstreamCoverageDeck(
+                            loadedFeedCount: loadedCapabilityFeedCount,
+                            toolRestrictionCount: toolRestrictionCount,
+                            assignedSkillCount: assignedSkillCount,
+                            assignedServerCount: assignedServerCount,
+                            configuredAvailableServerCount: configuredAvailableServerCount,
+                            hasProfileRoute: agent.profile?.isEmpty == false,
+                            hasToolFilters: toolFilters != nil,
+                            hasSkills: skills != nil,
+                            hasMCPServers: mcpServers != nil,
+                            isRefreshingOnly: isRefreshing && hasLoadedAnything
+                        )
+                        CapabilitiesActionReadinessDeck(
+                            primaryRouteCount: capabilitiesPrimaryRouteCount,
+                            supportRouteCount: capabilitiesSupportRouteCount,
+                            loadedFeedCount: loadedCapabilityFeedCount,
+                            toolRestrictionCount: toolRestrictionCount,
+                            assignedSkillCount: assignedSkillCount,
+                            assignedServerCount: assignedServerCount,
+                            configuredAvailableServerCount: configuredAvailableServerCount,
+                            hasProfileRoute: agent.profile?.isEmpty == false,
+                            hasToolFilters: toolFilters != nil,
+                            hasSkills: skills != nil,
+                            hasMCPServers: mcpServers != nil,
+                            isRefreshingOnly: isRefreshing && hasLoadedAnything
+                        )
 
-                    MonitoringSurfaceGroupCard(
-                        title: String(localized: "Routes"),
-                        detail: String(localized: "Keep nearby agent, profile, runtime, and integration exits closest to compact capability inspection.")
-                    ) {
-                        MonitoringShortcutRail(
-                            title: String(localized: "Primary"),
-                            detail: String(localized: "Use nearby agent, profile, and runtime surfaces first.")
+                        CapabilitiesRouteInventoryDeck(
+                            primaryRouteCount: capabilitiesPrimaryRouteCount,
+                            supportRouteCount: capabilitiesSupportRouteCount,
+                            loadedFeedCount: loadedCapabilityFeedCount,
+                            hasProfileRoute: agent.profile?.isEmpty == false,
+                            hasToolFilters: toolFilters != nil,
+                            hasSkills: skills != nil,
+                            hasMCPServers: mcpServers != nil
+                        )
+
+                        MonitoringSurfaceGroupCard(
+                            title: String(localized: "Routes"),
+                            detail: String(localized: "Keep nearby agent, profile, runtime, and integration exits closest to compact capability inspection.")
                         ) {
-                            NavigationLink {
-                                AgentDetailView(agent: agent)
-                            } label: {
-                                MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "Agent"),
-                                    systemImage: "cpu"
-                                )
-                            }
-                            .buttonStyle(.plain)
-
-                            if let profile = agent.profile, !profile.isEmpty {
+                            MonitoringShortcutRail(
+                                title: String(localized: "Primary"),
+                                detail: String(localized: "Use nearby agent, profile, and runtime surfaces first.")
+                            ) {
                                 NavigationLink {
-                                    ToolProfilesView(selectedProfileName: profile)
+                                    AgentDetailView(agent: agent)
                                 } label: {
                                     MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Tool Profile"),
-                                        systemImage: "person.crop.rectangle.stack",
-                                        badgeText: profile
+                                        title: String(localized: "Agent"),
+                                        systemImage: "cpu"
+                                    )
+                                }
+                                .buttonStyle(.plain)
+
+                                if let profile = agent.profile, !profile.isEmpty {
+                                    NavigationLink {
+                                        ToolProfilesView(selectedProfileName: profile)
+                                    } label: {
+                                        MonitoringSurfaceShortcutChip(
+                                            title: String(localized: "Tool Profile"),
+                                            systemImage: "person.crop.rectangle.stack",
+                                            badgeText: profile
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+
+                                NavigationLink {
+                                    RuntimeView()
+                                } label: {
+                                    MonitoringSurfaceShortcutChip(
+                                        title: String(localized: "Runtime"),
+                                        systemImage: "server.rack"
                                     )
                                 }
                                 .buttonStyle(.plain)
                             }
 
-                            NavigationLink {
-                                RuntimeView()
-                            } label: {
-                                MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "Runtime"),
-                                    systemImage: "server.rack"
-                                )
+                            MonitoringShortcutRail(
+                                title: String(localized: "Support"),
+                                detail: String(localized: "Keep integration drift checks behind the primary capability exits.")
+                            ) {
+                                NavigationLink {
+                                    IntegrationsView(initialSearchText: agent.id, initialScope: .attention)
+                                } label: {
+                                    MonitoringSurfaceShortcutChip(
+                                        title: String(localized: "Integrations"),
+                                        systemImage: "square.3.layers.3d.down.forward"
+                                    )
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
-
-                        MonitoringShortcutRail(
-                            title: String(localized: "Support"),
-                            detail: String(localized: "Keep integration drift checks behind the primary capability exits.")
-                        ) {
-                            NavigationLink {
-                                IntegrationsView(initialSearchText: agent.id, initialScope: .attention)
-                            } label: {
-                                MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "Integrations"),
-                                    systemImage: "square.3.layers.3d.down.forward"
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
+                    } header: {
+                        Text("Routes")
+                    } footer: {
+                        Text("Use these routes when capability scope needs profile, runtime, or integration context.")
                     }
-                } header: {
-                    Text("Routes")
-                } footer: {
-                    Text("Use these routes when capability scope needs profile, runtime, or integration context.")
+                }
+
+                if let toolFilters {
+                    toolFiltersSection(toolFilters)
+                }
+
+                if let skills {
+                    skillsSection(skills)
+                }
+
+                if let mcpServers {
+                    mcpServersSection(mcpServers)
+                }
+
+                if let loadError, !hasLoadedAnything {
+                    Section {
+                        ContentUnavailableView(
+                            "Capabilities Unavailable",
+                            systemImage: "slider.horizontal.3",
+                            description: Text(loadError)
+                        )
+                    }
                 }
             }
-
-            if let toolFilters {
-                toolFiltersSection(toolFilters)
+            .navigationTitle("Capabilities")
+            .navigationBarTitleDisplayMode(.inline)
+            .monitoringRefreshInteractionGate(isRefreshing: isRefreshing)
+            .refreshable {
+                await refresh()
             }
-
-            if let skills {
-                skillsSection(skills)
+            .task {
+                await refresh()
             }
+        }
+    }
 
-            if let mcpServers {
-                mcpServersSection(mcpServers)
-            }
+    private func jump(_ proxy: ScrollViewProxy, to anchor: AgentCapabilitiesSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
+        }
+    }
 
-            if let loadError, !hasLoadedAnything {
-                Section {
-                    ContentUnavailableView(
-                        "Capabilities Unavailable",
-                        systemImage: "slider.horizontal.3",
-                        description: Text(loadError)
-                    )
+    private func capabilitiesSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = []
+
+        if toolFilters != nil {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Tool Filters"),
+                    systemImage: "slider.horizontal.3",
+                    tone: toolRestrictionCount > 0 ? .warning : .neutral
+                ) {
+                    jump(proxy, to: .toolFilters)
                 }
-            }
+            )
         }
-        .navigationTitle("Capabilities")
-        .navigationBarTitleDisplayMode(.inline)
-        .monitoringRefreshInteractionGate(isRefreshing: isRefreshing)
-        .refreshable {
-            await refresh()
+
+        if skills != nil {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "Skills"),
+                    systemImage: "sparkles",
+                    tone: assignedSkillCount > 0 ? .positive : .neutral
+                ) {
+                    jump(proxy, to: .skills)
+                }
+            )
         }
-        .task {
-            await refresh()
+
+        if mcpServers != nil {
+            items.append(
+                MonitoringSectionJumpItem(
+                    title: String(localized: "MCP Servers"),
+                    systemImage: "shippingbox",
+                    tone: assignedServerCount > 0 ? .positive : .neutral
+                ) {
+                    jump(proxy, to: .mcpServers)
+                }
+            )
         }
+
+        return items
     }
 
     private func toolFiltersSection(_ filters: AgentToolFilters) -> some View {
@@ -338,6 +395,7 @@ struct AgentCapabilitiesView: View {
         } footer: {
             Text("These filters are applied on top of the agent profile and determine which tools the runtime can actually call.")
         }
+        .id(AgentCapabilitiesSectionAnchor.toolFilters)
     }
 
     private func skillsSection(_ assignment: AgentAssignmentScope) -> some View {
@@ -375,6 +433,7 @@ struct AgentCapabilitiesView: View {
         } footer: {
             Text("LibreFang resolves skills server-side. An empty allowlist means the agent can see every installed skill.")
         }
+        .id(AgentCapabilitiesSectionAnchor.skills)
     }
 
     private func mcpServersSection(_ assignment: AgentAssignmentScope) -> some View {
@@ -424,6 +483,7 @@ struct AgentCapabilitiesView: View {
         } footer: {
             Text("This shows the MCP server scope that the daemon exposes to the agent after runtime discovery.")
         }
+        .id(AgentCapabilitiesSectionAnchor.mcpServers)
     }
 
     @ViewBuilder

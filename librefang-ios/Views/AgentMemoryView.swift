@@ -1,5 +1,9 @@
 import SwiftUI
 
+private enum AgentMemorySectionAnchor: Hashable {
+    case memory
+}
+
 struct AgentMemoryView: View {
     let agent: Agent
     let onUpdate: (([AgentMemoryEntry]) -> Void)?
@@ -80,180 +84,185 @@ struct AgentMemoryView: View {
     }
 
     var body: some View {
-        List {
-            summarySection
-            operatorSurfacesSection
+        ScrollViewReader { proxy in
+            List {
+                summarySection
+                operatorSurfacesSection(proxy)
 
-            if let loadError {
-                Section("Memory Status") {
-                    ContentUnavailableView(
-                        "Memory Unavailable",
-                        systemImage: "externaldrive.badge.exclamationmark",
-                        description: Text(loadError)
-                    )
-                }
-            } else if filteredEntries.isEmpty, !isLoading {
-                Section("Memory") {
-                    ContentUnavailableView(
-                        entries.isEmpty ? String(localized: "No Memory Keys") : String(localized: "No Matching Keys"),
-                        systemImage: "internaldrive",
-                        description: Text(entries.isEmpty ? String(localized: "This agent has not stored any KV entries yet.") : String(localized: "Try a different key or value search."))
-                    )
-                }
-            } else {
-                Section("Memory") {
-                    AgentMemoryInventoryDeck(
-                        entries: filteredEntries,
-                        totalEntries: entries.count,
-                        searchText: searchText,
-                        exportReady: exportSnapshot != nil,
-                        isExporting: isExporting
-                    )
-
-                    ForEach(filteredEntries) { entry in
-                        AgentMemoryRow(entry: entry, isBusy: actionInFlightKey == entry.key)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button("Delete", role: .destructive) {
-                                    pendingDelete = entry
-                                }
-                            }
-                            .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                                Button("Edit") {
-                                    editorState = .edit(entry)
-                                }
-                                .tint(.indigo)
-                            }
-                            .contextMenu {
-                                Button {
-                                    editorState = .edit(entry)
-                                } label: {
-                                    Label("Edit Value", systemImage: "pencil")
-                                }
-
-                                Button {
-                                    UIPasteboard.general.string = entry.editorText
-                                    notice = OperatorActionNotice(
-                                        title: String(localized: "Memory Value"),
-                                        message: String(localized: "\"\(entry.key)\" copied to the clipboard.")
-                                    )
-                                } label: {
-                                    Label("Copy Value", systemImage: "doc.on.doc")
-                                }
-
-                                Button(role: .destructive) {
-                                    pendingDelete = entry
-                                } label: {
-                                    Label("Delete Key", systemImage: "trash")
-                                }
-                            }
+                if let loadError {
+                    Section("Memory Status") {
+                        ContentUnavailableView(
+                            "Memory Unavailable",
+                            systemImage: "externaldrive.badge.exclamationmark",
+                            description: Text(loadError)
+                        )
                     }
+                    .id(AgentMemorySectionAnchor.memory)
+                } else if filteredEntries.isEmpty, !isLoading {
+                    Section("Memory") {
+                        ContentUnavailableView(
+                            entries.isEmpty ? String(localized: "No Memory Keys") : String(localized: "No Matching Keys"),
+                            systemImage: "internaldrive",
+                            description: Text(entries.isEmpty ? String(localized: "This agent has not stored any KV entries yet.") : String(localized: "Try a different key or value search."))
+                        )
+                    }
+                    .id(AgentMemorySectionAnchor.memory)
+                } else {
+                    Section("Memory") {
+                        AgentMemoryInventoryDeck(
+                            entries: filteredEntries,
+                            totalEntries: entries.count,
+                            searchText: searchText,
+                            exportReady: exportSnapshot != nil,
+                            isExporting: isExporting
+                        )
+
+                        ForEach(filteredEntries) { entry in
+                            AgentMemoryRow(entry: entry, isBusy: actionInFlightKey == entry.key)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button("Delete", role: .destructive) {
+                                        pendingDelete = entry
+                                    }
+                                }
+                                .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                                    Button("Edit") {
+                                        editorState = .edit(entry)
+                                    }
+                                    .tint(.indigo)
+                                }
+                                .contextMenu {
+                                    Button {
+                                        editorState = .edit(entry)
+                                    } label: {
+                                        Label("Edit Value", systemImage: "pencil")
+                                    }
+
+                                    Button {
+                                        UIPasteboard.general.string = entry.editorText
+                                        notice = OperatorActionNotice(
+                                            title: String(localized: "Memory Value"),
+                                            message: String(localized: "\"\(entry.key)\" copied to the clipboard.")
+                                        )
+                                    } label: {
+                                        Label("Copy Value", systemImage: "doc.on.doc")
+                                    }
+
+                                    Button(role: .destructive) {
+                                        pendingDelete = entry
+                                    } label: {
+                                        Label("Delete Key", systemImage: "trash")
+                                    }
+                                }
+                        }
+                    }
+                    .id(AgentMemorySectionAnchor.memory)
                 }
             }
-        }
-        .navigationTitle("Agent Memory")
-        .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, prompt: "Search memory key or value")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        editorState = .create(agentName: agent.name)
-                    } label: {
-                        Label("New Memory Key", systemImage: "plus")
-                    }
-                    .disabled(isActionBusy)
-
-                    Divider()
-
-                    Button {
-                        Task { await copyExportJSON() }
-                    } label: {
-                        Label("Copy Export JSON", systemImage: "doc.on.doc")
-                    }
-                    .disabled(isActionBusy || isExporting)
-
-                    if let exportSnapshot {
-                        ShareLink(
-                            item: exportSnapshot.prettyPrintedJSONString,
-                            preview: SharePreview(
-                                String(localized: "\(agent.name) Memory Export"),
-                                image: Image(systemName: "externaldrive.badge.checkmark")
-                            )
-                        ) {
-                            Label("Share Export Snapshot", systemImage: "square.and.arrow.up")
-                        }
-                    } else {
+            .navigationTitle("Agent Memory")
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, prompt: "Search memory key or value")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
                         Button {
-                            Task { await prepareExportSnapshot() }
+                            editorState = .create(agentName: agent.name)
                         } label: {
-                            if isExporting {
-                                Label("Preparing Export…", systemImage: "square.and.arrow.up")
-                            } else {
-                                Label("Prepare Export Snapshot", systemImage: "square.and.arrow.up")
-                            }
+                            Label("New Memory Key", systemImage: "plus")
+                        }
+                        .disabled(isActionBusy)
+
+                        Divider()
+
+                        Button {
+                            Task { await copyExportJSON() }
+                        } label: {
+                            Label("Copy Export JSON", systemImage: "doc.on.doc")
                         }
                         .disabled(isActionBusy || isExporting)
+
+                        if let exportSnapshot {
+                            ShareLink(
+                                item: exportSnapshot.prettyPrintedJSONString,
+                                preview: SharePreview(
+                                    String(localized: "\(agent.name) Memory Export"),
+                                    image: Image(systemName: "externaldrive.badge.checkmark")
+                                )
+                            ) {
+                                Label("Share Export Snapshot", systemImage: "square.and.arrow.up")
+                            }
+                        } else {
+                            Button {
+                                Task { await prepareExportSnapshot() }
+                            } label: {
+                                if isExporting {
+                                    Label("Preparing Export…", systemImage: "square.and.arrow.up")
+                                } else {
+                                    Label("Prepare Export Snapshot", systemImage: "square.and.arrow.up")
+                                }
+                            }
+                            .disabled(isActionBusy || isExporting)
+                        }
+                    } label: {
+                        if isExporting {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: "ellipsis.circle")
+                        }
                     }
-                } label: {
-                    if isExporting {
-                        ProgressView()
-                            .controlSize(.small)
-                    } else {
-                        Image(systemName: "ellipsis.circle")
-                    }
+                    .disabled(isActionBusy && !isExporting)
                 }
-                .disabled(isActionBusy && !isExporting)
             }
-        }
-        .monitoringRefreshInteractionGate(isRefreshing: isLoading)
-        .refreshable {
-            await loadMemory()
-        }
-        .overlay {
-            if isLoading && entries.isEmpty {
-                ProgressView("Loading memory...")
-            }
-        }
-        .task {
-            if entries.isEmpty {
+            .monitoringRefreshInteractionGate(isRefreshing: isLoading)
+            .refreshable {
                 await loadMemory()
             }
-        }
-        .sheet(item: $editorState) { state in
-            NavigationStack {
-                AgentMemoryEditor(
-                    title: state.title,
-                    key: state.key,
-                    keyEditable: state.keyEditable,
-                    valueText: state.valueText
-                ) { key, valueText in
-                    await saveEntry(key: key, valueText: valueText)
+            .overlay {
+                if isLoading && entries.isEmpty {
+                    ProgressView("Loading memory...")
                 }
             }
-        }
-        .confirmationDialog(
-            "Delete Memory Key",
-            isPresented: deleteConfirmationPresented,
-            titleVisibility: .visible,
-            presenting: pendingDelete
-        ) { entry in
-            Button("Delete Key", role: .destructive) {
-                Task { await deleteEntry(entry) }
+            .task {
+                if entries.isEmpty {
+                    await loadMemory()
+                }
             }
-            Button("Cancel", role: .cancel) {}
-        } message: { entry in
-            Text("Delete memory key \"\(entry.key)\" from \(agent.name)? This cannot be undone.")
-        }
-        .alert(item: $notice) { notice in
-            Alert(
-                title: Text(notice.title),
-                message: Text(notice.message),
-                dismissButton: .default(Text("OK"))
-            )
+            .sheet(item: $editorState) { state in
+                NavigationStack {
+                    AgentMemoryEditor(
+                        title: state.title,
+                        key: state.key,
+                        keyEditable: state.keyEditable,
+                        valueText: state.valueText
+                    ) { key, valueText in
+                        await saveEntry(key: key, valueText: valueText)
+                    }
+                }
+            }
+            .confirmationDialog(
+                "Delete Memory Key",
+                isPresented: deleteConfirmationPresented,
+                titleVisibility: .visible,
+                presenting: pendingDelete
+            ) { entry in
+                Button("Delete Key", role: .destructive) {
+                    Task { await deleteEntry(entry) }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { entry in
+                Text("Delete memory key \"\(entry.key)\" from \(agent.name)? This cannot be undone.")
+            }
+            .alert(item: $notice) { notice in
+                Alert(
+                    title: Text(notice.title),
+                    message: Text(notice.message),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
         }
     }
 
-    private var operatorSurfacesSection: some View {
+    private func operatorSurfacesSection(_ proxy: ScrollViewProxy) -> some View {
         Section {
             AgentMemorySectionInventoryDeck(
                 sectionCount: agentMemorySectionCount,
@@ -270,7 +279,8 @@ struct AgentMemoryView: View {
                     detail: String(localized: "Keep the next memory stack visible before the key list opens into raw entry rows."),
                     sectionTitles: agentMemorySectionPreviewTitles,
                     tone: structuredEntryCount > 0 ? .warning : .neutral,
-                    maxVisibleSections: 5
+                    maxVisibleSections: 5,
+                    jumpItems: agentMemorySectionPreviewJumpItems(proxy)
                 )
             }
 
@@ -392,6 +402,28 @@ struct AgentMemoryView: View {
         } footer: {
             Text("Use these routes when agent memory needs session, runtime, or incident context instead of isolated key inspection.")
         }
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: AgentMemorySectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
+        }
+    }
+
+    private func agentMemorySectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        guard loadError != nil || !filteredEntries.isEmpty || !isLoading else {
+            return []
+        }
+
+        return [
+            MonitoringSectionJumpItem(
+                title: String(localized: "Memory"),
+                systemImage: "internaldrive",
+                tone: structuredEntryCount > 0 ? .warning : .neutral
+            ) {
+                jump(proxy, to: .memory)
+            }
+        ]
     }
 
     private var summarySection: some View {
