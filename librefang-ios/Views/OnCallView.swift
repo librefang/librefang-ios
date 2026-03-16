@@ -10,68 +10,44 @@ struct OnCallDigestCard: View {
         .countStatus(criticalCount, activeTone: .critical)
     }
 
-    private var watchStatus: MonitoringSummaryStatus {
-        .countStatus(watchCount, activeTone: .caution)
-    }
-
-    private var watchAccentColor: Color {
-        PresentationTone.caution.color
-    }
-
     var body: some View {
-        MonitoringFactsRow(
-            verticalSpacing: 12,
-            headerVerticalSpacing: 6,
-            factsFont: .caption2
-        ) {
-            summaryContent
-        } accessory: {
-            queueBadge
-        } facts: {
-            criticalLabel
-            watchLabel
-            openBadge
-        }
-        .padding()
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var summaryContent: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Label("On Call", systemImage: "waveform.path.ecg")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 10) {
+            ResponsiveAccessoryRow(verticalSpacing: 8) {
+                Label("On Call", systemImage: "waveform.path.ecg")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            } accessory: {
+                queueBadge
+            }
 
             Text(summary)
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
+
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(
+                    text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                    tone: criticalStatus.tone
+                )
+
+                if watchCount > 0 {
+                    PresentationToneBadge(
+                        text: watchCount == 1 ? String(localized: "1 watch") : String(localized: "\(watchCount) watch"),
+                        tone: .caution
+                    )
+                }
+            }
         }
+        .padding(14)
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     private var queueBadge: some View {
         PresentationToneBadge(
             text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
             tone: criticalStatus.tone
-        )
-    }
-
-    private var criticalLabel: some View {
-        Label("\(criticalCount)", systemImage: "xmark.octagon")
-            .foregroundStyle(criticalStatus.tone.color)
-    }
-
-    private var watchLabel: some View {
-        Label("\(watchCount)", systemImage: "star.fill")
-            .foregroundStyle(watchAccentColor)
-    }
-
-    private var openBadge: some View {
-        GlassCapsuleBadge(
-            text: String(localized: "Open"),
-            foregroundStyle: .secondary,
-            backgroundOpacity: 0.08
         )
     }
 }
@@ -239,7 +215,7 @@ struct OnCallView: View {
 
             if !priorityItems.isEmpty {
                 Section {
-                    ForEach(priorityItems.prefix(8)) { item in
+                    ForEach(priorityItems.prefix(6)) { item in
                         NavigationLink(value: item.route) {
                             OnCallPriorityRow(item: item)
                         }
@@ -251,7 +227,7 @@ struct OnCallView: View {
 
             if !activeWatchedAttentionItems.isEmpty {
                 Section {
-                    ForEach(activeWatchedAttentionItems.prefix(6)) { item in
+                    ForEach(activeWatchedAttentionItems.prefix(4)) { item in
                         NavigationLink {
                             watchedDiagnosticsDestination(for: item)
                         } label: {

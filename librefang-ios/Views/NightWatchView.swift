@@ -122,7 +122,7 @@ struct NightWatchView: View {
     }
 
     private var primaryItems: [OnCallPriorityItem] {
-        Array(priorityItems.prefix(6))
+        Array(priorityItems.prefix(5))
     }
     private var activeWatchedItems: [AgentAttentionItem] {
         watchedAttentionItems.filter { $0.severity > 0 }
@@ -468,9 +468,9 @@ struct NightWatchView: View {
         if !activeWatchedItems.isEmpty && focusStore.mode != .criticalOnly {
             NightWatchSectionCard(
                 title: String(localized: "Pinned Agents"),
-                detail: String(localized: "Locally watched on this iPhone so they stay visible during on-call.")
+                detail: String(localized: "Pinned agents with active issues.")
             ) {
-                ForEach(activeWatchedItems.prefix(3)) { item in
+                ForEach(activeWatchedItems.prefix(2)) { item in
                     NavigationLink(value: OnCallRoute.agent(item.agent.id)) {
                         NightWatchWatchlistRow(item: item)
                     }

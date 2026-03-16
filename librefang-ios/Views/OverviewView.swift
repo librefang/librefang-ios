@@ -260,33 +260,19 @@ private struct AlertsCard: View {
                 PresentationToneBadge(text: snapshotState.overviewLabel, tone: snapshotState.tone)
             }
 
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Alert inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep live, muted, and acknowledgement state visible before reading each alert row."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
+            FlowLayout(spacing: 8) {
                 PresentationToneBadge(
-                    text: snapshotAcknowledged ? String(localized: "Acknowledged") : String(localized: "Live"),
-                    tone: snapshotAcknowledged ? .neutral : snapshotState.tone
-                )
-            } facts: {
-                Label(
-                    alerts.count == 1 ? String(localized: "1 live alert") : String(localized: "\(alerts.count) live alerts"),
-                    systemImage: "bell.badge"
+                    text: alerts.count == 1 ? String(localized: "1 live") : String(localized: "\(alerts.count) live"),
+                    tone: alerts.isEmpty ? .neutral : snapshotState.tone
                 )
                 if mutedCount > 0 {
-                    Label(
-                        mutedCount == 1 ? String(localized: "1 muted locally") : String(localized: "\(mutedCount) muted locally"),
-                        systemImage: "bell.slash"
+                    PresentationToneBadge(
+                        text: mutedCount == 1 ? String(localized: "1 muted") : String(localized: "\(mutedCount) muted"),
+                        tone: .neutral
                     )
                 }
-                if let leadAlert = alerts.first {
-                    Label(leadAlert.title, systemImage: leadAlert.symbolName)
+                if snapshotAcknowledged {
+                    PresentationToneBadge(text: String(localized: "Acknowledged"), tone: .neutral)
                 }
             }
 
@@ -295,7 +281,7 @@ private struct AlertsCard: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(alerts.prefix(4)) { alert in
+                ForEach(alerts.prefix(3)) { alert in
                     HStack(alignment: .top, spacing: 8) {
                         Image(systemName: alert.symbolName)
                             .foregroundStyle(alert.severity.tone.color)
@@ -345,36 +331,23 @@ private struct StartupConnectionCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            MonitoringSnapshotCard(
-                summary: String(localized: "Connecting to LibreFang"),
-                detail: serverURL,
-                verticalPadding: 6
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(text: String(localized: "Connecting"), tone: .warning)
-                    if showsLoopbackHint {
-                        PresentationToneBadge(text: String(localized: "Loopback host"), tone: .warning)
-                    }
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 8) {
+                Label(String(localized: "Connecting to LibreFang"), systemImage: "network")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+            } accessory: {
+                PresentationToneBadge(text: String(localized: "Connecting"), tone: .warning)
             }
 
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Connection inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep the target server and loopback hint visible while the first snapshot is loading."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                ProgressView()
-                    .controlSize(.small)
-            } facts: {
-                Label(serverURL, systemImage: "network")
-                if showsLoopbackHint {
-                    Label(String(localized: "Use your Mac LAN IP on a physical iPhone"), systemImage: "iphone")
-                }
+            Text(serverURL)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+
+            if showsLoopbackHint {
+                Text(String(localized: "Use your Mac LAN IP on a physical iPhone"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(20)
@@ -427,49 +400,32 @@ private struct ConnectionCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(
-                summary: connectionText,
-                detail: (health?.version).map { String(localized: "Server v\($0)") },
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(text: connectionText, tone: connectionTone)
-                    if let date = lastRefresh {
-                        PresentationToneBadge(
-                            text: String(localized: "Updated \(date.formatted(.relative(presentation: .named)))"),
-                            tone: isStale ? .warning : .neutral
-                        )
-                    }
-                    if health?.isHealthy == true && !isStale {
-                        PresentationToneBadge(text: String(localized: "Live"), tone: .positive)
-                    }
+            ResponsiveAccessoryRow(verticalSpacing: 8) {
+                Label(String(localized: "Connection"), systemImage: "network")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            } accessory: {
+                PresentationToneBadge(text: connectionText, tone: connectionTone)
+            }
+
+            FlowLayout(spacing: 8) {
+                PresentationToneBadge(text: inventoryBadgeText, tone: inventoryBadgeTone)
+                if let health {
+                    PresentationToneBadge(text: health.version, tone: .neutral)
+                }
+                if let date = lastRefresh {
+                    PresentationToneBadge(
+                        text: String(localized: "Updated \(date.formatted(.relative(presentation: .named)))"),
+                        tone: isStale ? .warning : .neutral
+                    )
                 }
             }
 
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Connection inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep connection health, refresh age, and server version visible before opening deeper cards."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: inventoryBadgeText,
-                    tone: inventoryBadgeTone
-                )
-            } facts: {
-                if let health {
-                    Label(health.localizedStatusLabel, systemImage: "stethoscope")
-                    Label(health.version, systemImage: "shippingbox")
-                } else if !hasConnectionEvidence {
-                    Label(String(localized: "No health snapshot"), systemImage: "xmark.octagon")
-                }
-                if let date = lastRefresh {
-                    Label(date.formatted(.relative(presentation: .named)), systemImage: "clock")
-                }
+            if let errorMessage, !hasConnectionEvidence {
+                Text(errorMessage)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
             }
         }
         .padding()
@@ -505,63 +461,52 @@ private struct SystemSnapshotCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: String(localized: "Kernel \(status.localizedStatusLabel) · \(formatDuration(status.uptimeSeconds)) uptime"),
-                detail: String(localized: "System version \(status.version) with mobile runtime, provider, session, and security context.")
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(text: status.localizedStatusLabel, tone: status.statusTone)
-                    PresentationToneBadge(
-                        text: status.networkEnabled ? String(localized: "Network enabled") : String(localized: "Network disabled"),
-                        tone: status.networkEnabled ? .positive : .warning
-                    )
-                    PresentationToneBadge(
-                        text: connectedProviders == 1 ? String(localized: "1 provider") : String(localized: "\(connectedProviders) providers"),
-                        tone: connectedProviders > 0 ? .positive : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: sessionCount == 1 ? String(localized: "1 session") : String(localized: "\(sessionCount) sessions"),
-                        tone: sessionCount > 0 ? .neutral : .neutral
-                    )
-                    if let networkStatus {
-                        PresentationToneBadge(
-                            text: String(localized: "\(networkStatus.connectedPeers)/\(networkStatus.totalPeers) peers"),
-                            tone: networkStatus.connectedPeers > 0 ? .positive : .neutral
-                        )
-                    }
-                    if mcpConnectedServers > 0 || security != nil {
-                        PresentationToneBadge(
-                            text: mcpConnectedServers == 1 ? String(localized: "1 MCP server") : String(localized: "\(mcpConnectedServers) MCP servers"),
-                            tone: mcpConnectedServers > 0 ? .positive : .neutral
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "System inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep model, provider, peer, usage, and security context visible before opening deeper overview cards."))
+            ResponsiveAccessoryRow(verticalSpacing: 8) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Label(String(localized: "System"), systemImage: "server.rack")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(String(localized: "Kernel \(status.localizedStatusLabel) · \(formatDuration(status.uptimeSeconds)) uptime"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
             } accessory: {
+                PresentationToneBadge(text: status.localizedStatusLabel, tone: status.statusTone)
+            }
+
+            FlowLayout(spacing: 8) {
                 PresentationToneBadge(text: status.version, tone: .neutral)
-            } facts: {
-                Label(status.defaultProvider, systemImage: "key.horizontal")
-                Label(status.defaultModel, systemImage: "square.stack.3d.up")
+                PresentationToneBadge(
+                    text: connectedProviders == 1 ? String(localized: "1 provider") : String(localized: "\(connectedProviders) providers"),
+                    tone: connectedProviders > 0 ? .positive : .neutral
+                )
+                PresentationToneBadge(
+                    text: sessionCount == 1 ? String(localized: "1 session") : String(localized: "\(sessionCount) sessions"),
+                    tone: .neutral
+                )
                 if let networkStatus {
-                    Label("\(networkStatus.connectedPeers)/\(networkStatus.totalPeers) peers", systemImage: "point.3.connected.trianglepath.dotted")
+                    PresentationToneBadge(
+                        text: String(localized: "\(networkStatus.connectedPeers)/\(networkStatus.totalPeers) peers"),
+                        tone: networkStatus.connectedPeers > 0 ? .positive : .neutral
+                    )
+                }
+                if mcpConnectedServers > 0 {
+                    PresentationToneBadge(
+                        text: mcpConnectedServers == 1 ? String(localized: "1 MCP") : String(localized: "\(mcpConnectedServers) MCP"),
+                        tone: .positive
+                    )
                 }
                 if let usageSummary {
-                    Label((usageSummary.totalInputTokens + usageSummary.totalOutputTokens).formatted(), systemImage: "number")
+                    PresentationToneBadge(
+                        text: (usageSummary.totalInputTokens + usageSummary.totalOutputTokens).formatted(),
+                        tone: .neutral
+                    )
                 }
                 if let security {
-                    Label(
-                        security.totalFeatures == 1 ? String(localized: "1 security feature") : String(localized: "\(security.totalFeatures) security features"),
-                        systemImage: "lock.shield"
+                    PresentationToneBadge(
+                        text: security.totalFeatures == 1 ? String(localized: "1 security feature") : String(localized: "\(security.totalFeatures) security features"),
+                        tone: .neutral
                     )
                 }
             }
@@ -1348,57 +1293,28 @@ private struct WatchlistCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: items.count == 1
-                    ? String(localized: "1 pinned agent is on this watchlist.")
-                    : String(localized: "\(items.count) pinned agents are on this watchlist."),
-                detail: String(localized: "Pinned agents stay grouped here before opening the deeper fleet monitor."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: items.count == 1 ? String(localized: "1 pinned") : String(localized: "\(items.count) pinned"),
-                        tone: items.isEmpty ? .neutral : .positive
-                    )
-                    let issueCount = items.filter { $0.severity > 0 }.count
-                    if issueCount > 0 {
-                        PresentationToneBadge(
-                            text: issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
-                            tone: .warning
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Watch inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep pinned-agent pressure and diagnostic issues visible before opening the fleet list."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
+            ResponsiveAccessoryRow(verticalSpacing: 8) {
+                Label(String(localized: "Watchlist"), systemImage: "star.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
             } accessory: {
                 PresentationToneBadge(
-                    text: items.count == 1 ? String(localized: "Single watch") : String(localized: "Watchlist"),
+                    text: items.count == 1 ? String(localized: "1 pinned") : String(localized: "\(items.count) pinned"),
                     tone: items.isEmpty ? .neutral : .caution
                 )
-            } facts: {
-                Label(
-                    items.count == 1 ? String(localized: "1 pinned agent") : String(localized: "\(items.count) pinned agents"),
-                    systemImage: "star.fill"
-                )
-                let issueCount = items.filter { $0.severity > 0 }.count
-                if issueCount > 0 {
-                    Label(
-                        issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
-                        systemImage: "exclamationmark.triangle"
+            }
+
+            let issueCount = items.filter { $0.severity > 0 }.count
+            if issueCount > 0 {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
+                        tone: .warning
                     )
                 }
             }
 
-            ForEach(items.prefix(4)) { item in
+            ForEach(items.prefix(2)) { item in
                 NavigationLink {
                     destination(for: item)
                 } label: {
@@ -1467,10 +1383,6 @@ private struct WatchlistCard: View {
                 }
                 .buttonStyle(.plain)
             }
-
-            Label("Use the Agents tab to edit this watchlist", systemImage: "cpu")
-                .font(.caption)
-                .foregroundStyle(.secondary)
         }
         .padding()
         .background(.ultraThinMaterial)
@@ -1494,29 +1406,28 @@ private struct AttentionAgentsCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: items.count == 1
-                    ? String(localized: "1 agent currently needs attention.")
-                    : String(localized: "\(items.count) agents currently need attention."),
-                detail: String(localized: "Attention-heavy agents stay grouped here before opening the full fleet."),
-                verticalPadding: 4
-            ) {
+            ResponsiveAccessoryRow(verticalSpacing: 8) {
+                Label(String(localized: "Needs Attention"), systemImage: "exclamationmark.triangle")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            } accessory: {
+                PresentationToneBadge(
+                    text: items.count == 1 ? String(localized: "1 agent") : String(localized: "\(items.count) agents"),
+                    tone: items.isEmpty ? .neutral : .warning
+                )
+            }
+
+            let approvalCount = items.reduce(0) { $0 + $1.pendingApprovals }
+            if approvalCount > 0 {
                 FlowLayout(spacing: 8) {
                     PresentationToneBadge(
-                        text: items.count == 1 ? String(localized: "1 agent") : String(localized: "\(items.count) agents"),
-                        tone: items.isEmpty ? .neutral : .warning
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        tone: .critical
                     )
-                    let approvalCount = items.reduce(0) { $0 + $1.pendingApprovals }
-                    if approvalCount > 0 {
-                        PresentationToneBadge(
-                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                            tone: .critical
-                        )
-                    }
                 }
             }
 
-            ForEach(items.prefix(4)) { item in
+            ForEach(items.prefix(2)) { item in
                 HStack(alignment: .top, spacing: 10) {
                     Text(item.agent.identity?.emoji ?? "🤖")
                         .font(.body)
@@ -1558,29 +1469,28 @@ private struct SessionWatchlistCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: items.count == 1
-                    ? String(localized: "1 session is pinned in the watchlist.")
-                    : String(localized: "\(items.count) sessions are pinned in the watchlist."),
-                detail: String(localized: "Hot sessions stay grouped here before opening the full session monitor."),
-                verticalPadding: 4
-            ) {
+            ResponsiveAccessoryRow(verticalSpacing: 8) {
+                Label(String(localized: "Sessions"), systemImage: "rectangle.stack")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            } accessory: {
+                PresentationToneBadge(
+                    text: items.count == 1 ? String(localized: "1 hotspot") : String(localized: "\(items.count) hotspots"),
+                    tone: items.isEmpty ? .neutral : .warning
+                )
+            }
+
+            let highVolumeCount = items.filter { $0.reasons.contains(where: { $0.localizedCaseInsensitiveContains("message") }) }.count
+            if highVolumeCount > 0 {
                 FlowLayout(spacing: 8) {
                     PresentationToneBadge(
-                        text: items.count == 1 ? String(localized: "1 pinned session") : String(localized: "\(items.count) pinned sessions"),
-                        tone: items.isEmpty ? .neutral : .warning
+                        text: highVolumeCount == 1 ? String(localized: "1 high-volume") : String(localized: "\(highVolumeCount) high-volume"),
+                        tone: .warning
                     )
-                    let highVolumeCount = items.filter { $0.reasons.contains(where: { $0.localizedCaseInsensitiveContains("message") }) }.count
-                    if highVolumeCount > 0 {
-                        PresentationToneBadge(
-                            text: highVolumeCount == 1 ? String(localized: "1 high-volume") : String(localized: "\(highVolumeCount) high-volume"),
-                            tone: .warning
-                        )
-                    }
                 }
             }
 
-            ForEach(items.prefix(3)) { item in
+            ForEach(items.prefix(2)) { item in
                 if let sessionQuery = sessionQuery(for: item) {
                     NavigationLink {
                         SessionsView(initialSearchText: sessionQuery, initialFilter: .attention)
@@ -1591,13 +1501,6 @@ private struct SessionWatchlistCard: View {
                 } else {
                     sessionSummaryRow(item)
                 }
-            }
-
-            NavigationLink {
-                SessionsView(initialFilter: .attention)
-            } label: {
-                Label("Sessions", systemImage: "rectangle.stack")
-                    .font(.caption.weight(.medium))
             }
         }
         .padding()
