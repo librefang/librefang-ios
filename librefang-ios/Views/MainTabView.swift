@@ -12,6 +12,7 @@ struct MainTabView: View {
     @State private var isRoutePresentationSuspended = true
     @State private var routePresentationBlockedUntil = Date.distantPast
     @State private var pendingShortcutRetryTask: Task<Void, Never>?
+    @State private var watchedDiagnosticsRefreshTask: Task<Void, Never>?
     @State private var presentedTarget: AppShortcutLaunchTarget?
     @State private var incidentCue: ActiveIncidentCue?
     @State private var hasObservedCriticalState = false
@@ -230,11 +231,11 @@ struct MainTabView: View {
                     handlePendingAppShortcutIfNeeded()
                 }
             }
-            .onChange(of: vm.lastRefresh) { _, _ in
-                Task { await refreshWatchedAgentDiagnostics() }
+            .onChange(of: vm.lastSupplementalRefresh) { _, _ in
+                scheduleWatchedAgentDiagnosticsRefresh()
             }
             .onChange(of: deps.agentWatchlistStore.watchedAgentIDs) { _, _ in
-                Task { await refreshWatchedAgentDiagnostics() }
+                scheduleWatchedAgentDiagnosticsRefresh()
             }
     }
 
@@ -292,6 +293,26 @@ struct MainTabView: View {
             agents: watchedAgents,
             catalogModels: deps.dashboardViewModel.catalogModels
         )
+    }
+
+    @MainActor
+    private func scheduleWatchedAgentDiagnosticsRefresh() {
+        watchedDiagnosticsRefreshTask?.cancel()
+        watchedDiagnosticsRefreshTask = Task { @MainActor in
+            if watchedAgents.isEmpty {
+                await refreshWatchedAgentDiagnostics()
+                watchedDiagnosticsRefreshTask = nil
+                return
+            }
+
+            guard vm.lastSupplementalRefresh != nil else {
+                watchedDiagnosticsRefreshTask = nil
+                return
+            }
+
+            await refreshWatchedAgentDiagnostics()
+            watchedDiagnosticsRefreshTask = nil
+        }
     }
 
     private var budgetAlertBadge: Int {
@@ -408,28 +429,6 @@ struct MainTabView: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
-                if shouldShowOverlayDeck {
-                    OperatorOverlayDeck(
-                        summary: overlaySummaryLine,
-                        sectionCount: overlaySectionCount,
-                        criticalCount: visibleCriticalAlertCount,
-                        approvalCount: vm.pendingApprovalCount,
-                        watchIssueCount: watchedIssueCount,
-                        sessionCount: vm.sessionAttentionCount,
-                        pendingFollowUpCount: pendingLatestFollowUpCount,
-                        mutedAlertCount: activeMutedAlertCount,
-                        preferredSurfaceLabel: preferredOnCallSurface.label,
-                        isOffline: !deps.networkMonitor.isConnected,
-                        isSnapshotAcknowledged: isCurrentSnapshotAcknowledged,
-                        overviewCount: overviewTabSignalCount,
-                        agentsCount: vm.issueAgentCount,
-                        runtimeCount: runtimeAlertBadge,
-                        budgetCount: budgetAlertBadge,
-                        settingsCount: settingsTabSignalCount,
-                        actions: overlayQuickActions
-                    )
-                    .padding(.horizontal, 12)
-                }
             }
             .padding(.top, 4)
             .padding(.bottom, 8)
@@ -737,7 +736,7 @@ struct MainTabView: View {
         deps.appShortcutLaunchStore.refreshFromDefaults()
         handlePendingAppShortcutIfNeeded()
         Task { await deps.onCallNotificationManager.refreshAuthorizationStatus() }
-        Task { await refreshWatchedAgentDiagnostics() }
+        scheduleWatchedAgentDiagnosticsRefresh()
     }
 
     private func handleScenePhaseChange(_ newPhase: ScenePhase) {
@@ -758,6 +757,8 @@ struct MainTabView: View {
             }
         case .background:
             cancelPendingShortcutRetry()
+            watchedDiagnosticsRefreshTask?.cancel()
+            watchedDiagnosticsRefreshTask = nil
             deps.dashboardViewModel.stopAutoRefresh()
             incidentCue = nil
             handoffCue = nil

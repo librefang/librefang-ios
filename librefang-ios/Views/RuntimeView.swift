@@ -249,18 +249,18 @@ struct RuntimeView: View {
         } header: {
             Text("Summary")
         } footer: {
-            Text("Keep one runtime snapshot and one route rail above the deeper sections.")
+            Text("Keep one runtime snapshot and a short shortcut rail above the deeper sections.")
         }
     }
 
-    private func runtimeRouteDeckCard(_ proxy: ScrollViewProxy) -> some View {
+    private func runtimeRouteDeckCard(_ _: ScrollViewProxy) -> some View {
         MonitoringSurfaceGroupCard(
-            title: String(localized: "Routes"),
-            detail: String(localized: "Keep runtime surfaces and long-section jumps in one compact deck.")
+            title: String(localized: "Shortcuts"),
+            detail: String(localized: "Keep the next runtime drills in one place.")
         ) {
             MonitoringShortcutRail(
                 title: String(localized: "Primary"),
-                detail: String(localized: "Keep the next runtime drills right below the digest.")
+                detail: String(localized: "Open the main runtime drilldowns without extra layers.")
             ) {
                 NavigationLink {
                     DiagnosticsView()
@@ -332,170 +332,6 @@ struct RuntimeView: View {
                 }
                 .buttonStyle(.plain)
             }
-
-            MonitoringShortcutRail(
-                title: String(localized: "Support"),
-                detail: String(localized: "Keep slower infra and config routes in a secondary rail.")
-            ) {
-                NavigationLink {
-                    AutomationView(initialScope: .attention)
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Automation"),
-                        systemImage: "flowchart",
-                        tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral,
-                        badgeText: vm.automationPressureIssueCategoryCount > 0
-                            ? (vm.automationPressureIssueCategoryCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.automationPressureIssueCategoryCount) issues"))
-                            : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    CommsView(api: deps.apiClient)
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Comms"),
-                        systemImage: "point.3.connected.trianglepath.dotted"
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    A2AAgentsView()
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "A2A Agents"),
-                        systemImage: "link.circle"
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    SettingsView()
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Settings"),
-                        systemImage: "gearshape"
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-
-            MonitoringShortcutRail(
-                title: String(localized: "Jumps"),
-                detail: String(localized: "Keep the longest runtime sections reachable as compact jumps.")
-            ) {
-                if vm.status != nil {
-                    Button {
-                        jump(proxy, to: .system)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "System"),
-                            systemImage: "server.rack",
-                            tone: vm.status?.statusTone ?? .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                if vm.healthDetail != nil || vm.versionInfo != nil || vm.configSummary != nil || vm.metricsSnapshot != nil {
-                    Button {
-                        jump(proxy, to: .diagnostics)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Diagnostics"),
-                            systemImage: "stethoscope",
-                            tone: vm.diagnosticsSummaryTone,
-                            badgeText: vm.diagnosticsConfigWarningCount == 0 ? nil : String(localized: "\(vm.diagnosticsConfigWarningCount) warnings")
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
-                    Button {
-                        jump(proxy, to: .integrations)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Integrations"),
-                            systemImage: "square.3.layers.3d.down.forward",
-                            tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
-                            badgeText: vm.integrationPressureIssueCategoryCount == 0 ? nil : String(localized: "\(vm.integrationPressureIssueCategoryCount) issues")
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
-                    Button {
-                        jump(proxy, to: .automation)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Automation"),
-                            systemImage: "flowchart",
-                            tone: vm.automationPressureTone,
-                            badgeText: vm.automationPressureIssueCategoryCount == 0 ? nil : String(localized: "\(vm.automationPressureIssueCategoryCount) issues")
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                if !vm.sessions.isEmpty {
-                    Button {
-                        jump(proxy, to: .sessions)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Sessions"),
-                            systemImage: "rectangle.stack",
-                            tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
-                            badgeText: vm.sessionAttentionCount == 0 ? nil : String(localized: "\(vm.sessionAttentionCount) hotspots")
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                if !vm.approvals.isEmpty {
-                    Button {
-                        jump(proxy, to: .approvals)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Approvals"),
-                            systemImage: "checkmark.shield",
-                            tone: .critical,
-                            badgeText: vm.pendingApprovalCount == 1 ? String(localized: "1 waiting") : String(localized: "\(vm.pendingApprovalCount) waiting")
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                if !vm.recentAudit.isEmpty {
-                    Button {
-                        jump(proxy, to: .audit)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Audit"),
-                            systemImage: "list.bullet.rectangle.portrait",
-                            tone: vm.recentCriticalAuditCount > 0 ? .critical : .neutral,
-                            badgeText: vm.recentCriticalAuditCount == 0 ? nil : String(localized: "\(vm.recentCriticalAuditCount) critical")
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                if vm.security != nil {
-                    Button {
-                        jump(proxy, to: .security)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Security"),
-                            systemImage: "lock.shield",
-                            tone: .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
         }
     }
 
@@ -559,36 +395,6 @@ struct RuntimeView: View {
                     hasMetrics: vm.metricsSnapshot != nil
                 )
 
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Routes"),
-                    detail: String(localized: "Open deeper diagnostics without another long text row.")
-                ) {
-                    MonitoringShortcutRail(title: String(localized: "Primary")) {
-                        NavigationLink {
-                            DiagnosticsView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Diagnostics"),
-                                systemImage: "stethoscope",
-                                tone: vm.diagnosticsSummaryTone,
-                                badgeText: vm.diagnosticsConfigWarningCount > 0 ? "\(vm.diagnosticsConfigWarningCount)" : nil
-                            )
-                        }
-                        .buttonStyle(.plain)
-
-                        NavigationLink {
-                            IncidentsView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Incidents"),
-                                systemImage: "bell.badge",
-                                tone: vm.monitoringAlerts.contains { $0.severity == .critical } ? .critical : .neutral
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-
                 if let healthDetail = vm.healthDetail {
                     RuntimeMetricRow(
                         label: String(localized: "Health"),
@@ -643,72 +449,6 @@ struct RuntimeView: View {
                     channelGapCount: vm.channelRequiredFieldGapCount,
                     driftCount: vm.agentsWithModelDiagnostics.count
                 )
-
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Routes"),
-                    detail: String(localized: "Open provider, channel, and catalog diagnostics without another full-width text row.")
-                ) {
-                    MonitoringShortcutRail(title: String(localized: "Primary")) {
-                        NavigationLink {
-                            IntegrationsView(initialScope: .attention)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Integrations"),
-                                systemImage: "square.3.layers.3d.down.forward",
-                                tone: vm.integrationPressureIssueCategoryCount > 0 ? .critical : .neutral,
-                                badgeText: vm.integrationPressureIssueCategoryCount > 0 ? "\(vm.integrationPressureIssueCategoryCount)" : nil
-                            )
-                        }
-                        .buttonStyle(.plain)
-
-                        if vm.unreachableLocalProviderCount > 0 {
-                            NavigationLink {
-                                IntegrationsView(
-                                    initialSearchText: vm.unreachableLocalProviders.count == 1 ? vm.unreachableLocalProviders[0].displayName : "",
-                                    initialScope: .attention
-                                )
-                            } label: {
-                                MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "Provider Failures"),
-                                    systemImage: "network.slash",
-                                    tone: .critical,
-                                    badgeText: "\(vm.unreachableLocalProviderCount)"
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-
-                        if vm.channelRequiredFieldGapCount > 0 {
-                            NavigationLink {
-                                IntegrationsView(
-                                    initialSearchText: vm.channelsMissingRequiredFields.count == 1 ? vm.channelsMissingRequiredFields[0].displayName : "",
-                                    initialScope: .attention
-                                )
-                            } label: {
-                                MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "Channel Gaps"),
-                                    systemImage: "bubble.left.and.exclamationmark.bubble.right",
-                                    tone: .warning,
-                                    badgeText: "\(vm.channelRequiredFieldGapCount)"
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-
-                        if vm.hasEmptyModelCatalog {
-                            NavigationLink {
-                                IntegrationsView(initialScope: .attention)
-                            } label: {
-                                MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "Catalog"),
-                                    systemImage: "square.stack.3d.up.slash",
-                                    tone: .critical
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                }
 
                 RuntimeMetricRow(
                     label: String(localized: "Providers"),
@@ -798,36 +538,6 @@ struct RuntimeView: View {
     private var automationSection: some View {
         if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
             Section {
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Routes"),
-                    detail: String(localized: "Open workflow pressure and scheduler diagnostics without another dense text row.")
-                ) {
-                    MonitoringShortcutRail(title: String(localized: "Primary")) {
-                        NavigationLink {
-                            AutomationView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Automation Monitor"),
-                                systemImage: "flowchart",
-                                tone: vm.automationPressureTone,
-                                badgeText: vm.automationPressureIssueCategoryCount > 0 ? "\(vm.automationPressureIssueCategoryCount)" : nil
-                            )
-                        }
-                        .buttonStyle(.plain)
-
-                        NavigationLink {
-                            IncidentsView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Incidents"),
-                                systemImage: "bell.badge",
-                                tone: vm.automationPressureIssueCategoryCount > 0 ? .warning : .neutral
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-
                 RuntimeMetricRow(
                     label: String(localized: "Workflows"),
                     value: "\(vm.workflowCount)",
@@ -863,36 +573,6 @@ struct RuntimeView: View {
     private var sessionsSection: some View {
         if !vm.sessions.isEmpty {
             Section {
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Routes"),
-                    detail: String(localized: "Jump into the session monitor when the compact runtime list is not enough.")
-                ) {
-                    MonitoringShortcutRail(title: String(localized: "Primary")) {
-                        NavigationLink {
-                            SessionsView(initialFilter: .attention)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Sessions"),
-                                systemImage: "rectangle.stack",
-                                tone: vm.sessionAttentionCount > 0 ? .warning : .neutral,
-                                badgeText: vm.sessionAttentionCount > 0 ? "\(vm.sessionAttentionCount)" : nil
-                            )
-                        }
-                        .buttonStyle(.plain)
-
-                        NavigationLink {
-                            IncidentsView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Incidents"),
-                                systemImage: "bell.badge",
-                                tone: vm.sessionAttentionCount > 0 ? .warning : .neutral
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-
                 ForEach(vm.sessions.prefix(5)) { session in
                     let query = session.agentId
                     NavigationLink {

@@ -244,7 +244,7 @@ struct OnCallView: View {
         if !watchedAttentionItems.isEmpty {
             sections.append(String(localized: "Watchlist"))
         }
-        sections.append(String(localized: "Routes"))
+        sections.append(String(localized: "Shortcuts"))
         return sections
     }
 
@@ -313,14 +313,12 @@ struct OnCallView: View {
                         criticalCount: criticalCount,
                         queueCount: priorityItems.count,
                         liveAlertCount: visibleAlerts.count,
-                        automationIssueCount: automationIssueCount,
-                        integrationIssueCount: integrationIssueCount,
                         handoffText: handoffText
                     )
                 } header: {
-                    Text("Actions")
+                    Text("Shortcuts")
                 } footer: {
-                    Text("Primary exits stay close to the queue instead of hiding in extra control cards.")
+                    Text("Keep the main drilldowns close to the queue.")
                 }
                 .id(OnCallSectionAnchor.routes)
 
@@ -464,7 +462,7 @@ struct OnCallView: View {
 
         items.append(
             MonitoringSectionJumpItem(
-                title: String(localized: "Routes"),
+                title: String(localized: "Shortcuts"),
                 systemImage: "arrow.triangle.branch",
                 tone: .neutral
             ) {
@@ -1369,229 +1367,75 @@ private struct OnCallSurfaceDeckCard: View {
     let criticalCount: Int
     let queueCount: Int
     let liveAlertCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
     let handoffText: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringFactsRow(
-                verticalSpacing: 10,
-                headerVerticalSpacing: 6,
-                factsFont: .caption2
-            ) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Keep queue-first routes, slower systemic drilldowns, and export actions in one compact surface deck above the fold."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
-                    tone: queueCount > 0 ? .warning : .neutral
+        FlowLayout(spacing: 8) {
+            NavigationLink(value: OnCallRoute.incidents) {
+                MonitoringSurfaceShortcutChip(
+                    title: String(localized: "Incidents"),
+                    systemImage: "bell.badge",
+                    tone: criticalCount > 0 ? .critical : .neutral,
+                    badgeText: criticalCount > 0
+                        ? (criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"))
+                        : (liveAlertCount > 0 ? String(localized: "\(liveAlertCount) alerts") : nil)
                 )
-            } facts: {
-                if criticalCount > 0 {
-                    Label(
-                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                        systemImage: "xmark.octagon"
-                    )
-                }
-                if liveAlertCount > 0 {
-                    Label(
-                        liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
-                        systemImage: "bell.badge"
-                    )
-                }
-                if approvalCount > 0 {
-                    Label(
-                        approvalCount == 1 ? String(localized: "1 approval waiting") : String(localized: "\(approvalCount) approvals waiting"),
-                        systemImage: "checkmark.shield"
-                    )
-                }
-                if sessionCount > 0 {
-                    Label(
-                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
-                        systemImage: "rectangle.stack"
-                    )
-                }
-                if eventCount > 0 {
-                    Label(
-                        eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
-                        systemImage: "list.bullet.rectangle.portrait"
-                    )
-                }
-                if automationIssueCount > 0 {
-                    Label(
-                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        systemImage: "flowchart"
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    Label(
-                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        systemImage: "square.3.layers.3d.down.forward"
-                    )
-                }
             }
+            .buttonStyle(.plain)
 
-            Label("Primary", systemImage: "arrowshape.turn.up.right")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            FlowLayout(spacing: 8) {
-                NavigationLink(value: OnCallRoute.incidents) {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Incidents"),
-                        systemImage: "bell.badge",
-                        tone: criticalCount > 0 ? .critical : .neutral,
-                        badgeText: criticalCount > 0
-                            ? (criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"))
-                            : (liveAlertCount > 0 ? String(localized: "\(liveAlertCount) alerts") : nil)
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    RuntimeView()
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Runtime"),
-                        systemImage: "server.rack",
-                        tone: approvalCount > 0 || sessionCount > 0 ? .warning : .neutral
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    ApprovalsView()
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Approvals"),
-                        systemImage: "checkmark.shield",
-                        tone: approvalCount > 0 ? .critical : .neutral,
-                        badgeText: approvalCount > 0
-                            ? (approvalCount == 1 ? String(localized: "1 waiting") : String(localized: "\(approvalCount) waiting"))
-                            : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink(value: OnCallRoute.sessionsAttention) {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Sessions"),
-                        systemImage: "rectangle.stack",
-                        tone: sessionCount > 0 ? .warning : .neutral,
-                        badgeText: sessionCount > 0
-                            ? (sessionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(sessionCount) hotspots"))
-                            : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink(value: OnCallRoute.eventsCritical) {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Critical Events"),
-                        systemImage: "list.bullet.rectangle.portrait",
-                        tone: eventCount > 0 ? .critical : .neutral,
-                        badgeText: eventCount > 0
-                            ? (eventCount == 1 ? String(localized: "1 event") : String(localized: "\(eventCount) events"))
-                            : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    HandoffCenterView(
-                        summary: handoffText,
-                        queueCount: queueCount,
-                        criticalCount: criticalCount,
-                        liveAlertCount: liveAlertCount
-                    )
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Handoff"),
-                        systemImage: "text.badge.plus",
-                        tone: queueCount > 0 ? .warning : .neutral,
-                        badgeText: queueCount > 0
-                            ? (queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"))
-                            : nil
-                    )
-                }
-                .buttonStyle(.plain)
+            NavigationLink {
+                ApprovalsView()
+            } label: {
+                MonitoringSurfaceShortcutChip(
+                    title: String(localized: "Approvals"),
+                    systemImage: "checkmark.shield",
+                    tone: approvalCount > 0 ? .critical : .neutral,
+                    badgeText: approvalCount > 0
+                        ? (approvalCount == 1 ? String(localized: "1 waiting") : String(localized: "\(approvalCount) waiting"))
+                        : nil
+                )
             }
+            .buttonStyle(.plain)
 
-            Label("Support", systemImage: "square.grid.2x2")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            FlowLayout(spacing: 8) {
-                NavigationLink {
-                    DiagnosticsView()
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Diagnostics"),
-                        systemImage: "stethoscope"
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    IntegrationsView(initialScope: .attention)
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Integrations"),
-                        systemImage: "square.3.layers.3d.down.forward",
-                        tone: integrationIssueCount > 0 ? .critical : .neutral,
-                        badgeText: integrationIssueCount > 0
-                            ? (integrationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(integrationIssueCount) issues"))
-                            : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    AutomationView(initialScope: .attention)
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Automation"),
-                        systemImage: "flowchart",
-                        tone: automationIssueCount > 0 ? .warning : .neutral,
-                        badgeText: automationIssueCount > 0
-                            ? (automationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(automationIssueCount) issues"))
-                            : nil
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    NightWatchView()
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Night Watch"),
-                        systemImage: "moon.stars"
-                    )
-                }
-                .buttonStyle(.plain)
-
-                NavigationLink {
-                    StandbyDigestView()
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Standby"),
-                        systemImage: "rectangle.inset.filled"
-                    )
-                }
-                .buttonStyle(.plain)
-
-                ShareLink(item: handoffText) {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Share Handoff"),
-                        systemImage: "square.and.arrow.up"
-                    )
-                }
-                .buttonStyle(.plain)
+            NavigationLink(value: OnCallRoute.sessionsAttention) {
+                MonitoringSurfaceShortcutChip(
+                    title: String(localized: "Sessions"),
+                    systemImage: "rectangle.stack",
+                    tone: sessionCount > 0 ? .warning : .neutral,
+                    badgeText: sessionCount > 0
+                        ? (sessionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(sessionCount) hotspots"))
+                        : nil
+                )
             }
+            .buttonStyle(.plain)
+
+            NavigationLink(value: OnCallRoute.eventsCritical) {
+                MonitoringSurfaceShortcutChip(
+                    title: String(localized: "Critical Events"),
+                    systemImage: "list.bullet.rectangle.portrait",
+                    tone: eventCount > 0 ? .critical : .neutral,
+                    badgeText: eventCount > 0
+                        ? (eventCount == 1 ? String(localized: "1 event") : String(localized: "\(eventCount) events"))
+                        : nil
+                )
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink {
+                HandoffCenterView(
+                    summary: handoffText,
+                    queueCount: queueCount,
+                    criticalCount: criticalCount,
+                    liveAlertCount: liveAlertCount
+                )
+            } label: {
+                MonitoringSurfaceShortcutChip(
+                    title: String(localized: "Handoff"),
+                    systemImage: "text.badge.plus",
+                    tone: .neutral
+                )
+            }
+            .buttonStyle(.plain)
         }
         .padding(.vertical, 4)
     }

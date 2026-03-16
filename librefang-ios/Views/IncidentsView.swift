@@ -379,7 +379,7 @@ struct IncidentsView: View {
         }
     }
 
-    private func operatorDeckSection(_ proxy: ScrollViewProxy) -> some View {
+    private func operatorDeckSection(_ _: ScrollViewProxy) -> some View {
         Section {
             IncidentStatusDeckCard(
                 activeAlertCount: visibleAlerts.count,
@@ -397,12 +397,12 @@ struct IncidentsView: View {
             )
 
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Routes"),
-                detail: String(localized: "Keep the most likely next drilldowns visible before the incident queue.")
+                title: String(localized: "Shortcuts"),
+                detail: String(localized: "Keep the main incident drilldowns close to the live queue.")
             ) {
                 MonitoringShortcutRail(
                     title: String(localized: "Primary"),
-                    detail: String(localized: "Use the direct monitors first when approvals, sessions, events, or handoff need a dedicated screen.")
+                    detail: String(localized: "Open the main incident drilldowns without extra queue cards.")
                 ) {
                     NavigationLink {
                         ApprovalsView()
@@ -456,12 +456,7 @@ struct IncidentsView: View {
                         )
                     }
                     .buttonStyle(.plain)
-                }
 
-                MonitoringShortcutRail(
-                    title: String(localized: "Support"),
-                    detail: String(localized: "Use the broader runtime path when the incident needs deeper infrastructure context.")
-                ) {
                     NavigationLink {
                         RuntimeView()
                     } label: {
@@ -473,205 +468,12 @@ struct IncidentsView: View {
                         )
                     }
                     .buttonStyle(.plain)
-
-                    NavigationLink {
-                        DiagnosticsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Diagnostics"),
-                            systemImage: "stethoscope",
-                            tone: .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    if automationIssueCount > 0 {
-                        NavigationLink {
-                            AutomationView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Automation"),
-                                systemImage: "flowchart",
-                                tone: .warning,
-                                badgeText: "\(automationIssueCount)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if integrationIssueCount > 0 {
-                        NavigationLink {
-                            IntegrationsView(initialScope: .attention)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Integrations"),
-                                systemImage: "square.3.layers.3d.down.forward",
-                                tone: .critical,
-                                badgeText: "\(integrationIssueCount)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Queue"),
-                detail: String(localized: "Jump around the incident buckets themselves without dragging through the entire list.")
-            ) {
-                MonitoringShortcutRail(
-                    title: String(localized: "Primary Queue Sections"),
-                    detail: String(localized: "Keep the live operator controls and highest-priority buckets closest to the top.")
-                ) {
-                    if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
-                        Button {
-                            jump(proxy, to: .operatorState)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Operator State"),
-                                systemImage: "person.crop.circle.badge.checkmark",
-                                tone: isCurrentSnapshotAcknowledged ? .neutral : .warning
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if handoffIssueCount > 0 {
-                        Button {
-                            jump(proxy, to: .shiftCoverage)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Shift Coverage"),
-                                systemImage: "text.badge.plus",
-                                tone: handoffReadiness.state.tone,
-                                badgeText: "\(handoffIssueCount)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if !visibleAlerts.isEmpty {
-                        Button {
-                            jump(proxy, to: .activeAlerts)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Active Alerts"),
-                                systemImage: "bell.badge",
-                                tone: criticalAlertCount > 0 ? .critical : .warning,
-                                badgeText: "\(visibleAlerts.count)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if !vm.approvals.isEmpty {
-                        Button {
-                            jump(proxy, to: .approvals)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Approvals"),
-                                systemImage: "checkmark.shield",
-                                tone: .critical,
-                                badgeText: "\(vm.pendingApprovalCount)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if !vm.sessionAttentionItems.isEmpty {
-                        Button {
-                            jump(proxy, to: .sessions)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Session Hotspots"),
-                                systemImage: "rectangle.stack",
-                                tone: .warning,
-                                badgeText: "\(vm.sessionAttentionCount)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-
-                MonitoringShortcutRail(
-                    title: String(localized: "Supporting Queue Sections"),
-                    detail: String(localized: "Keep slower infrastructure and secondary drilldowns behind the primary buckets.")
-                ) {
-                    if automationIssueCount > 0 {
-                        Button {
-                            jump(proxy, to: .automation)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Automation Pressure"),
-                                systemImage: "flowchart",
-                                tone: .warning,
-                                badgeText: "\(automationIssueCount)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if integrationIssueCount > 0 {
-                        Button {
-                            jump(proxy, to: .integrations)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Integration Pressure"),
-                                systemImage: "square.3.layers.3d.down.forward",
-                                tone: .critical,
-                                badgeText: "\(integrationIssueCount)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if !vm.attentionAgents.isEmpty {
-                        Button {
-                            jump(proxy, to: .agents)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Agent Attention"),
-                                systemImage: "cpu",
-                                tone: .warning,
-                                badgeText: "\(vm.attentionAgents.count)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if !watchedDiagnosticRows.isEmpty {
-                        Button {
-                            jump(proxy, to: .watchedDiagnostics)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Watched Diagnostics"),
-                                systemImage: "star.fill",
-                                tone: .caution,
-                                badgeText: "\(watchedDiagnosticRows.count)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    if !vm.criticalAuditEntries.isEmpty {
-                        Button {
-                            jump(proxy, to: .criticalEvents)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Critical Events"),
-                                systemImage: "list.bullet.rectangle.portrait",
-                                tone: .critical,
-                                badgeText: "\(vm.criticalAuditEntries.count)"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
                 }
             }
         } header: {
             Text("Summary")
         } footer: {
-            Text("Keep one incident summary and direct jumps close to the live buckets.")
+            Text("Keep one incident summary and a short shortcut rail above the live buckets.")
         }
     }
 
@@ -739,62 +541,6 @@ struct IncidentsView: View {
                 IncidentIntegrationsCard(vm: vm)
             }
 
-            if vm.unreachableLocalProviderCount > 0 || vm.channelRequiredFieldGapCount > 0 || vm.hasEmptyModelCatalog {
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Routes"),
-                    detail: String(localized: "Jump directly into the most likely provider, channel, or catalog failure path.")
-                ) {
-                    MonitoringShortcutRail(title: String(localized: "Targets")) {
-                        if vm.unreachableLocalProviderCount > 0 {
-                            NavigationLink {
-                                IntegrationsView(
-                                    initialSearchText: vm.unreachableLocalProviders.count == 1 ? vm.unreachableLocalProviders[0].displayName : "",
-                                    initialScope: .attention
-                                )
-                            } label: {
-                                MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "Provider Failures"),
-                                    systemImage: "network.slash",
-                                    tone: .critical,
-                                    badgeText: "\(vm.unreachableLocalProviderCount)"
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-
-                        if vm.channelRequiredFieldGapCount > 0 {
-                            NavigationLink {
-                                IntegrationsView(
-                                    initialSearchText: vm.channelsMissingRequiredFields.count == 1 ? vm.channelsMissingRequiredFields[0].displayName : "",
-                                    initialScope: .attention
-                                )
-                            } label: {
-                                MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "Channel Gaps"),
-                                    systemImage: "bubble.left.and.exclamationmark.bubble.right",
-                                    tone: .warning,
-                                    badgeText: "\(vm.channelRequiredFieldGapCount)"
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-
-                        if vm.hasEmptyModelCatalog {
-                            NavigationLink {
-                                IntegrationsView(initialScope: .attention)
-                            } label: {
-                                MonitoringSurfaceShortcutChip(
-                                    title: String(localized: "Catalog Availability"),
-                                    systemImage: "square.stack.3d.up.slash",
-                                    tone: .critical
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                }
-            }
-
             ForEach(vm.agentsWithModelDiagnostics.prefix(3)) { diagnostic in
                 NavigationLink {
                     AgentDetailView(agent: diagnostic.agent)
@@ -850,35 +596,6 @@ struct IncidentsView: View {
                 )
             }
 
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Routes"),
-                detail: String(localized: "Open the dedicated approval monitor when the compact incident list is not enough.")
-            ) {
-                MonitoringShortcutRail(title: String(localized: "Approvals")) {
-                    NavigationLink {
-                        ApprovalsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Queue"),
-                            systemImage: "checkmark.shield",
-                            tone: .warning,
-                            badgeText: "\(vm.pendingApprovalCount)"
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        OnCallView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "On Call"),
-                            systemImage: "waveform.path.ecg",
-                            tone: .warning
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
         } header: {
             Text("Pending Approvals")
         } footer: {
@@ -897,24 +614,6 @@ struct IncidentsView: View {
                 }
             }
 
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Routes"),
-                detail: String(localized: "Open the full fleet monitor when agent pressure spreads beyond the top incident rows.")
-            ) {
-                MonitoringShortcutRail(title: String(localized: "Fleet")) {
-                    NavigationLink {
-                        AgentsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Agents"),
-                            systemImage: "person.3",
-                            tone: .warning,
-                            badgeText: "\(vm.issueAgentCount)"
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
         } header: {
             Text("Agents")
         } footer: {
@@ -954,35 +653,6 @@ struct IncidentsView: View {
                 }
             }
 
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Routes"),
-                detail: String(localized: "Open the dedicated session monitor when hotspots spread beyond the compact incident list.")
-            ) {
-                MonitoringShortcutRail(title: String(localized: "Sessions")) {
-                    NavigationLink {
-                        SessionsView(initialFilter: .attention)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Monitor"),
-                            systemImage: "rectangle.stack",
-                            tone: .warning,
-                            badgeText: "\(vm.sessionAttentionCount)"
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Runtime"),
-                            systemImage: "server.rack",
-                            tone: .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
         } header: {
             Text("Sessions")
         } footer: {
@@ -1009,35 +679,6 @@ struct IncidentsView: View {
                 }
             }
 
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Routes"),
-                detail: String(localized: "Open the full event feed when the compact critical trail needs deeper inspection.")
-            ) {
-                MonitoringShortcutRail(title: String(localized: "Events")) {
-                    NavigationLink {
-                        EventsView(api: deps.apiClient, initialScope: .critical)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Feed"),
-                            systemImage: "list.bullet.rectangle.portrait",
-                            tone: .critical,
-                            badgeText: "\(vm.recentCriticalAuditCount)"
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        DiagnosticsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Diagnostics"),
-                            systemImage: "stethoscope",
-                            tone: .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
         } header: {
             Text("Critical Events")
         } footer: {
