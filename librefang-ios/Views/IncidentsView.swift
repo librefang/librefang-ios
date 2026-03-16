@@ -413,7 +413,8 @@ struct IncidentsView: View {
                     detail: String(localized: "Keep the next incident buckets visible before the alert, queue, and support stacks begin."),
                     sectionTitles: incidentSectionPreviewTitles,
                     tone: criticalAlertCount > 0 ? .critical : .warning,
-                    maxVisibleSections: 5
+                    maxVisibleSections: 5,
+                    jumpItems: incidentSectionPreviewJumpItems(proxy)
                 )
             }
 
@@ -1211,6 +1212,92 @@ struct IncidentsView: View {
         withAnimation(.easeInOut(duration: 0.2)) {
             proxy.scrollTo(anchor, anchor: .top)
         }
+    }
+
+    private func incidentSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = []
+        if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Operator State"),
+                systemImage: "bell.badge",
+                tone: criticalAlertCount > 0 ? .critical : .warning
+            ) {
+                jump(proxy, to: .operatorState)
+            })
+        }
+        if handoffIssueCount > 0 {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Shift Coverage"),
+                systemImage: "person.2.wave.2",
+                tone: handoffReadiness.state.tone
+            ) {
+                jump(proxy, to: .shiftCoverage)
+            })
+        }
+        if automationIssueCount > 0 {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Automation"),
+                systemImage: "flowchart",
+                tone: .warning
+            ) {
+                jump(proxy, to: .automation)
+            })
+        }
+        if integrationIssueCount > 0 {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Integrations"),
+                systemImage: "square.stack.3d.up",
+                tone: .warning
+            ) {
+                jump(proxy, to: .integrations)
+            })
+        }
+        if !visibleAlerts.isEmpty {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Active Alerts"),
+                systemImage: "exclamationmark.bubble",
+                tone: criticalAlertCount > 0 ? .critical : .warning
+            ) {
+                jump(proxy, to: .activeAlerts)
+            })
+        }
+        if !vm.approvals.isEmpty {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Approvals"),
+                systemImage: "checkmark.shield",
+                tone: approvalCountTone
+            ) {
+                jump(proxy, to: .approvals)
+            })
+        }
+        if !vm.attentionAgents.isEmpty || !watchedDiagnosticRows.isEmpty {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Agents"),
+                systemImage: "person.3",
+                tone: combinedAgentIssueCount > 0 ? .warning : .neutral
+            ) {
+                jump(proxy, to: .agents)
+            })
+        }
+        if !vm.sessionAttentionItems.isEmpty {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Sessions"),
+                systemImage: "rectangle.stack",
+                tone: sessionCountTone
+            ) {
+                jump(proxy, to: .sessions)
+            })
+        }
+        if !vm.criticalAuditEntries.isEmpty {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Critical Events"),
+                systemImage: "list.bullet.rectangle.portrait",
+                tone: criticalEventTone
+            ) {
+                jump(proxy, to: .criticalEvents)
+            })
+        }
+        return items
     }
 
     private var approvalCountTone: PresentationTone {

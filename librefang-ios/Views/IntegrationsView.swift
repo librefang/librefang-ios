@@ -382,6 +382,7 @@ struct IntegrationsView: View {
                                 detail: String(localized: "Keep the next integration stacks visible before providers, channels, models, and drift sections open up."),
                                 sectionTitles: integrationsSectionPreviewTitles,
                                 tone: (providerAttentionCount > 0 || channelAttentionCount > 0 || modelAttentionCount > 0 || driftAttentionCount > 0) ? .warning : .neutral,
+                                maxVisibleSections: 5,
                                 jumpItems: integrationsSectionPreviewJumpItems(proxy)
                             )
                         }

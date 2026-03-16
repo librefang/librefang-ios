@@ -138,7 +138,8 @@ struct DiagnosticsView: View {
                                 detail: String(localized: "Keep the next diagnostics feeds visible before the deep health, config, and metrics stacks open up."),
                                 sectionTitles: diagnosticsSectionPreviewTitles,
                                 tone: vm.supervisorPanicCount > 0 ? .critical : ((vm.diagnosticsConfigWarningCount > 0 || vm.supervisorRestartCount > 0) ? .warning : .neutral),
-                                maxVisibleSections: 5
+                                maxVisibleSections: 5,
+                                jumpItems: diagnosticsSectionPreviewJumpItems(proxy)
                             )
                         }
                         DiagnosticsPressureCoverageDeck(
@@ -645,6 +646,74 @@ struct DiagnosticsView: View {
         withAnimation(.easeInOut(duration: 0.2)) {
             proxy.scrollTo(anchor, anchor: .top)
         }
+    }
+
+    private func diagnosticsSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = []
+        if let healthDetail = vm.healthDetail {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Health"),
+                systemImage: "heart.text.square",
+                tone: healthDetail.isHealthy ? .neutral : .warning
+            ) {
+                jump(proxy, to: .health)
+            })
+            if !healthDetail.configWarnings.isEmpty {
+                items.append(MonitoringSectionJumpItem(
+                    title: String(localized: "Warnings"),
+                    systemImage: "exclamationmark.triangle",
+                    tone: vm.supervisorPanicCount > 0 ? .critical : .warning
+                ) {
+                    jump(proxy, to: .warnings)
+                })
+            }
+        }
+        if vm.versionInfo != nil {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Build"),
+                systemImage: "shippingbox",
+                tone: .neutral
+            ) {
+                jump(proxy, to: .build)
+            })
+        }
+        if vm.configSummary != nil {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Config"),
+                systemImage: "switch.2",
+                tone: vm.diagnosticsConfigWarningCount > 0 ? .warning : .neutral
+            ) {
+                jump(proxy, to: .config)
+            })
+        }
+        if metrics != nil {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Metrics"),
+                systemImage: "chart.xyaxis.line",
+                tone: vm.supervisorRestartCount > 0 ? .warning : .neutral
+            ) {
+                jump(proxy, to: .metrics)
+            })
+        }
+        if !(metrics?.tokenLeaders.isEmpty ?? true) {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Token Leaders"),
+                systemImage: "number.square",
+                tone: .neutral
+            ) {
+                jump(proxy, to: .tokenLeaders)
+            })
+        }
+        if !(metrics?.toolCallLeaders.isEmpty ?? true) {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Tool Leaders"),
+                systemImage: "hammer",
+                tone: .neutral
+            ) {
+                jump(proxy, to: .toolLeaders)
+            })
+        }
+        return items
     }
 
     private func formatDuration(_ seconds: Int) -> String {

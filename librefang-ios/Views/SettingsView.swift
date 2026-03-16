@@ -100,7 +100,8 @@ struct SettingsView: View {
                                 detail: String(localized: "Keep the next device settings groups visible before the longer server, reminder, and monitoring forms open up."),
                                 sectionTitles: settingsSectionPreviewTitles,
                                 tone: snapshotStatus.tone,
-                                maxVisibleSections: 5
+                                maxVisibleSections: 5,
+                                jumpItems: settingsSectionPreviewJumpItems(proxy)
                             )
                         }
 
@@ -825,6 +826,69 @@ struct SettingsView: View {
         withAnimation(.easeInOut(duration: 0.2)) {
             proxy.scrollTo(anchor, anchor: .top)
         }
+    }
+
+    private func settingsSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        [
+            MonitoringSectionJumpItem(
+                title: String(localized: "Server"),
+                systemImage: "server.rack",
+                tone: snapshotStatus.tone
+            ) {
+                jump(proxy, to: .server)
+            },
+            MonitoringSectionJumpItem(
+                title: String(localized: "Refresh"),
+                systemImage: "arrow.clockwise",
+                tone: .neutral
+            ) {
+                jump(proxy, to: .refresh)
+            },
+            MonitoringSectionJumpItem(
+                title: String(localized: "Language"),
+                systemImage: "globe",
+                tone: .neutral
+            ) {
+                jump(proxy, to: .language)
+            },
+            MonitoringSectionJumpItem(
+                title: String(localized: "On Call"),
+                systemImage: "waveform.path.ecg",
+                tone: onCallQueueStatus.tone
+            ) {
+                jump(proxy, to: .onCall)
+            },
+            MonitoringSectionJumpItem(
+                title: String(localized: "Reminder"),
+                systemImage: "bell.badge",
+                tone: deps.onCallNotificationManager.pendingReminderDate != nil
+                    ? .caution
+                    : (deps.onCallNotificationManager.authorizationStatus == .authorized ? .neutral : .warning)
+            ) {
+                jump(proxy, to: .reminder)
+            },
+            MonitoringSectionJumpItem(
+                title: String(localized: "Handoff"),
+                systemImage: "text.badge.plus",
+                tone: deps.onCallHandoffStore.freshnessState.tone
+            ) {
+                jump(proxy, to: .handoff)
+            },
+            MonitoringSectionJumpItem(
+                title: String(localized: "Monitoring"),
+                systemImage: "gauge.with.dots.needle.33percent",
+                tone: currentCriticalCount > 0 ? .critical : (visibleAlertCount > 0 ? .warning : .neutral)
+            ) {
+                jump(proxy, to: .monitoring)
+            },
+            MonitoringSectionJumpItem(
+                title: String(localized: "About"),
+                systemImage: "info.circle",
+                tone: .neutral
+            ) {
+                jump(proxy, to: .about)
+            }
+        ]
     }
 
     private func saveAndTest() async {
