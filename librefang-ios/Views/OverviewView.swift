@@ -1,18 +1,7 @@
 import SwiftUI
 
-private enum OverviewSectionAnchor: Hashable {
-    case diagnostics
-    case integrations
-    case automation
-    case watchlist
-    case sessions
-    case audit
-    case agents
-}
-
 struct OverviewView: View {
     @Environment(\.dependencies) private var deps
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private var vm: DashboardViewModel { deps.dashboardViewModel }
     private var visibleMonitoringAlerts: [MonitoringAlertItem] {
@@ -109,299 +98,171 @@ struct OverviewView: View {
     private var overviewWatchIssueCount: Int {
         watchedAttentionItems.filter { $0.severity > 0 }.count
     }
-    private var summaryColumns: [GridItem] {
-        let count = horizontalSizeClass == .compact ? 2 : 3
-        return Array(repeating: GridItem(.flexible(), spacing: 8), count: count)
-    }
-    private var platformCardCount: Int {
-        [
-            vm.status != nil,
-            vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil,
-            !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty,
-            vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty
-        ]
-        .filter { $0 }
-        .count
-    }
-    private var signalCardCount: Int {
-        [
-            true,
-            vm.usageSummary != nil,
-            vm.budget != nil,
-            !(vm.budgetAgents?.agents.isEmpty ?? true),
-            !vm.activeHands.isEmpty || !vm.approvals.isEmpty
-        ]
-        .filter { $0 }
-        .count
-    }
-    private var fleetCardCount: Int {
-        [
-            !watchedAttentionItems.isEmpty,
-            !vm.sessionAttentionItems.isEmpty,
-            !vm.attentionAgents.isEmpty,
-            !vm.recentAudit.isEmpty,
-            (vm.a2aAgents?.total ?? 0) > 0,
-            !vm.agents.isEmpty
-        ]
-        .filter { $0 }
-        .count
-    }
-    private var overviewQueueCardCount: Int {
-        [
-            !watchedAttentionItems.isEmpty,
-            !vm.sessionAttentionItems.isEmpty,
-            !vm.attentionAgents.isEmpty,
-            !vm.recentAudit.isEmpty
-        ]
-        .filter { $0 }
-        .count
-    }
-    private var overviewSectionCount: Int {
-        platformCardCount + signalCardCount + fleetCardCount
-    }
-    private var overviewJumpCount: Int {
-        [
-            vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil,
-            !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty,
-            vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty,
-            !watchedAttentionItems.isEmpty,
-            !vm.sessionAttentionItems.isEmpty,
-            !vm.recentAudit.isEmpty,
-            !vm.agents.isEmpty
-        ]
-        .filter { $0 }
-        .count
-    }
-    private var overviewSectionPreviewTitles: [String] {
-        var sections: [String] = []
-        if vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil {
-            sections.append(String(localized: "Diagnostics"))
+    private var shouldShowRecentHandoffCard: Bool {
+        guard deps.onCallHandoffStore.latestEntry != nil else { return false }
+        if deps.onCallHandoffStore.freshnessState != .fresh { return true }
+        if let checkInStatus = deps.onCallHandoffStore.latestCheckInStatus, checkInStatus.state != .scheduled {
+            return true
         }
-        if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
-            sections.append(String(localized: "Integrations"))
-        }
-        if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
-            sections.append(String(localized: "Automation"))
-        }
-        if !watchedAttentionItems.isEmpty {
-            sections.append(String(localized: "Watchlist"))
-        }
-        if !vm.sessionAttentionItems.isEmpty {
-            sections.append(String(localized: "Sessions"))
-        }
-        if !vm.recentAudit.isEmpty {
-            sections.append(String(localized: "Recent Events"))
-        }
-        if !vm.agents.isEmpty {
-            sections.append(String(localized: "Fleet"))
-        }
-        return sections
+        if deps.onCallHandoffStore.pendingLatestFollowUpCount > 0 { return true }
+        if let drift = latestHandoffDrift, drift.state != .steady { return true }
+        if let carryover = latestHandoffCarryover, carryover.state != .cleared { return true }
+        return false
+    }
+    private var shouldShowWatchlistCard: Bool {
+        overviewWatchIssueCount > 0
+    }
+    private var shouldShowSessionWatchlistCard: Bool {
+        vm.sessionAttentionCount > 0
+    }
+    private var shouldShowAttentionAgentsCard: Bool {
+        vm.issueAgentCount > 0
+    }
+    private var shouldShowOverviewShortcutStrip: Bool {
+        vm.pendingApprovalCount > 0
+            || vm.runtimeAlertCount > 0
+            || shouldShowRecentHandoffCard
+            || vm.diagnosticsConfigWarningCount > 0
+            || vm.supervisorPanicCount > 0
     }
 
     var body: some View {
         NavigationStack {
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(spacing: 14) {
-                        if let error = vm.error {
-                            ErrorBanner(message: error, onRetry: {
-                                await vm.refresh()
-                            }, onDismiss: {
-                                vm.error = nil
-                            })
-                        }
+            ScrollView {
+                VStack(spacing: 12) {
+                    if let error = vm.error {
+                        ErrorBanner(message: error, onRetry: {
+                            await vm.refresh()
+                        }, onDismiss: {
+                            vm.error = nil
+                        })
+                    }
 
-                        VStack(spacing: 14) {
-                            ConnectionCard(
-                                health: vm.health,
-                                lastRefresh: vm.lastRefresh,
-                                isStale: vm.isDataStale,
-                                errorMessage: vm.error
+                    ConnectionCard(
+                        health: vm.health,
+                        lastRefresh: vm.lastRefresh,
+                        isStale: vm.isDataStale,
+                        hasConnectionEvidence: vm.hasPrimaryConnectionEvidence,
+                        errorMessage: vm.error
+                    )
+
+                    if !visibleMonitoringAlerts.isEmpty || activeMutedAlertCount > 0 {
+                        NavigationLink {
+                            IncidentsView()
+                        } label: {
+                            AlertsCard(
+                                alerts: visibleMonitoringAlerts,
+                                mutedCount: activeMutedAlertCount,
+                                snapshotAcknowledged: isCurrentSnapshotAcknowledged
                             )
-
-                            if !visibleMonitoringAlerts.isEmpty || activeMutedAlertCount > 0 {
-                                NavigationLink {
-                                    IncidentsView()
-                                } label: {
-                                    AlertsCard(
-                                        alerts: visibleMonitoringAlerts,
-                                        mutedCount: activeMutedAlertCount,
-                                        snapshotAcknowledged: isCurrentSnapshotAcknowledged
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-
-                            NavigationLink {
-                                preferredSurfaceView
-                            } label: {
-                                OnCallDigestCard(
-                                    queueCount: onCallPriorityItems.count,
-                                    criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                                    watchCount: watchedAttentionItems.count,
-                                    summary: onCallDigestLine
-                                )
-                            }
-                            .buttonStyle(.plain)
-
-                            if let latestHandoff = deps.onCallHandoffStore.latestEntry {
-                                NavigationLink {
-                                    HandoffCenterView(
-                                        summary: handoffText,
-                                        queueCount: onCallPriorityItems.count,
-                                        criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                                        liveAlertCount: visibleMonitoringAlerts.count
-                                    )
-                                } label: {
-                                    RecentHandoffCard(
-                                        entry: latestHandoff,
-                                        gapLabel: latestHandoffGapLabel,
-                                        checkInStatus: deps.onCallHandoffStore.latestCheckInStatus,
-                                        drift: latestHandoffDrift,
-                                        carryover: latestHandoffCarryover,
-                                        pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
-                                        completedFollowUpCount: deps.onCallHandoffStore.completedLatestFollowUpCount
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-
-                            OverviewStatusDeckCard(
-                                queueCount: onCallPriorityItems.count,
-                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                                approvalCount: vm.pendingApprovalCount,
-                                sessionCount: vm.sessionAttentionCount,
-                                watchIssueCount: overviewWatchIssueCount,
-                                automationIssueCount: vm.automationPressureIssueCategoryCount,
-                                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                                isDataStale: vm.isDataStale,
-                                isLoopbackServer: isLoopbackServer,
-                                providerCount: vm.configuredProviderCount,
-                                channelCount: vm.readyChannelCount,
-                                handoffStateLabel: deps.onCallHandoffStore.freshnessLabel,
-                                handoffTone: deps.onCallHandoffStore.freshnessState.tone
-                            )
-
-                            OverviewEntryDeckCard(
-                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                                approvalCount: vm.pendingApprovalCount,
-                                sessionCount: vm.sessionAttentionCount,
-                                automationIssueCount: vm.automationPressureIssueCategoryCount,
-                                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                                budgetDailyCost: vm.budget?.dailySpend,
-                                handoffText: handoffText,
-                                queueCount: onCallPriorityItems.count,
-                                liveAlertCount: visibleMonitoringAlerts.count,
-                                watchIssueCount: overviewWatchIssueCount,
-                                auditCount: vm.recentAudit.count,
-                                agentCount: vm.attentionAgents.isEmpty ? vm.agents.count : vm.attentionAgents.count,
-                                showsDiagnostics: vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil,
-                                showsIntegrations: !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty,
-                                showsAutomation: vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty,
-                                showsWatchlist: !watchedAttentionItems.isEmpty,
-                                showsSessions: !vm.sessionAttentionItems.isEmpty,
-                                showsAudit: !vm.recentAudit.isEmpty,
-                                showsAgents: !vm.agents.isEmpty
-                            ) { anchor in
-                                jump(proxy, to: anchor)
-                            }
-
-                            if let status = vm.status {
-                                SystemSnapshotCard(
-                                    status: status,
-                                    security: vm.security,
-                                    usageSummary: vm.usageSummary,
-                                    connectedProviders: vm.configuredProviderCount,
-                                    networkStatus: vm.networkStatus,
-                                    sessionCount: vm.totalSessionCount,
-                                    mcpConnectedServers: vm.connectedMCPServerCount
-                                )
-                            }
-
-                            if vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil {
-                                NavigationLink {
-                                    DiagnosticsView()
-                                } label: {
-                                    DiagnosticsOverviewCard(vm: vm)
-                                }
-                                .buttonStyle(.plain)
-                                .id(OverviewSectionAnchor.diagnostics)
-                            }
-
-                            if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
-                                NavigationLink {
-                                    IntegrationsView()
-                                } label: {
-                                    IntegrationsOverviewCard(vm: vm)
-                                }
-                                .buttonStyle(.plain)
-                                .id(OverviewSectionAnchor.integrations)
-                            }
-
-                            ReadinessCard(vm: vm)
-
-                            if let usageSummary = vm.usageSummary {
-                                UsageSnapshotCard(usageSummary: usageSummary)
-                            }
-
-                            if let budget = vm.budget {
-                                BudgetGaugesCard(budget: budget)
-                            }
-
-                            if let ranking = vm.budgetAgents, !ranking.agents.isEmpty {
-                                TopSpendersCard(agents: ranking.agents)
-                            }
-
-                            if !vm.activeHands.isEmpty || !vm.approvals.isEmpty {
-                                LiveSignalsCard(activeHands: vm.activeHands, approvals: vm.approvals, hands: vm.hands)
-                            }
-
-                            if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
-                                NavigationLink {
-                                    AutomationView()
-                                } label: {
-                                    AutomationOverviewCard(vm: vm)
-                                }
-                                .buttonStyle(.plain)
-                                .id(OverviewSectionAnchor.automation)
-                            }
-
-                            if !watchedAttentionItems.isEmpty {
-                                WatchlistCard(items: watchedAttentionItems, diagnostics: watchedDiagnostics)
-                                    .id(OverviewSectionAnchor.watchlist)
-                            }
-
-                            if !vm.sessionAttentionItems.isEmpty {
-                                SessionWatchlistCard(items: vm.sessionAttentionItems)
-                                    .id(OverviewSectionAnchor.sessions)
-                            }
-
-                            if !vm.attentionAgents.isEmpty {
-                                AttentionAgentsCard(items: vm.attentionAgents)
-                            }
-
-                            if !vm.recentAudit.isEmpty {
-                                AuditFeedCard(entries: vm.recentAudit)
-                                    .id(OverviewSectionAnchor.audit)
-                            }
-
-                            if let a2a = vm.a2aAgents, a2a.total > 0 {
-                                A2ASummaryCard(count: a2a.total)
-                            }
-
-                            if !vm.agents.isEmpty {
-                                AgentPreviewCard(agents: vm.attentionAgents.isEmpty ? vm.agents : vm.attentionAgents.map(\.agent))
-                                    .id(OverviewSectionAnchor.agents)
-                            }
                         }
-                        .monitoringRefreshInteractionGate(
-                            isRefreshing: vm.isLoading,
-                            restoreDelay: 0.9
+                        .buttonStyle(.plain)
+                    }
+
+                    NavigationLink {
+                        preferredSurfaceView
+                    } label: {
+                        OnCallDigestCard(
+                            queueCount: onCallPriorityItems.count,
+                            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                            watchCount: watchedAttentionItems.count,
+                            summary: onCallDigestLine
                         )
                     }
-                    .padding()
+                    .buttonStyle(.plain)
+
+                    if shouldShowRecentHandoffCard, let latestHandoff = deps.onCallHandoffStore.latestEntry {
+                        NavigationLink {
+                            HandoffCenterView(
+                                summary: handoffText,
+                                queueCount: onCallPriorityItems.count,
+                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                                liveAlertCount: visibleMonitoringAlerts.count
+                            )
+                        } label: {
+                            RecentHandoffCard(
+                                entry: latestHandoff,
+                                gapLabel: latestHandoffGapLabel,
+                                checkInStatus: deps.onCallHandoffStore.latestCheckInStatus,
+                                drift: latestHandoffDrift,
+                                carryover: latestHandoffCarryover,
+                                pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
+                                completedFollowUpCount: deps.onCallHandoffStore.completedLatestFollowUpCount
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    if shouldShowOverviewShortcutStrip {
+                        overviewShortcutStrip
+                    }
+
+                    if let status = vm.status {
+                        SystemSnapshotCard(
+                            status: status,
+                            security: vm.security,
+                            usageSummary: vm.usageSummary,
+                            connectedProviders: vm.configuredProviderCount,
+                            networkStatus: vm.networkStatus,
+                            sessionCount: vm.totalSessionCount,
+                            mcpConnectedServers: vm.connectedMCPServerCount
+                        )
+                    }
+
+                    if !vm.activeHands.isEmpty || !vm.approvals.isEmpty {
+                        LiveSignalsCard(activeHands: vm.activeHands, approvals: vm.approvals, hands: vm.hands)
+                    }
+
+                    if let budget = vm.budget {
+                        BudgetGaugesCard(budget: budget)
+                    }
+
+                    if vm.diagnosticsConfigWarningCount > 0 || vm.supervisorPanicCount > 0 || vm.supervisorRestartCount > 0 {
+                        NavigationLink {
+                            DiagnosticsView()
+                        } label: {
+                            DiagnosticsOverviewCard(vm: vm)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    if vm.integrationPressureIssueCategoryCount > 0 {
+                        NavigationLink {
+                            IntegrationsView()
+                        } label: {
+                            IntegrationsOverviewCard(vm: vm)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    if vm.automationPressureIssueCategoryCount > 0 {
+                        NavigationLink {
+                            AutomationView()
+                        } label: {
+                            AutomationOverviewCard(vm: vm)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    if shouldShowWatchlistCard {
+                        WatchlistCard(items: watchedAttentionItems, diagnostics: watchedDiagnostics)
+                    } else if shouldShowSessionWatchlistCard {
+                        SessionWatchlistCard(items: vm.sessionAttentionItems)
+                    } else if shouldShowAttentionAgentsCard {
+                        AttentionAgentsCard(items: vm.attentionAgents)
+                    } else if !vm.agents.isEmpty {
+                        AgentPreviewCard(agents: vm.agents)
+                    }
+
+                    if vm.recentCriticalAuditCount > 0 {
+                        AuditFeedCard(entries: vm.recentAudit)
+                    }
                 }
+                .padding()
+                .monitoringRefreshInteractionGate(
+                    isRefreshing: vm.isLoading,
+                    restoreDelay: 0.9
+                )
             }
             .navigationTitle("LibreFang")
             .toolbar {
@@ -413,55 +274,33 @@ struct OverviewView: View {
                     }
 
                     Menu {
-                        Section("On Call") {
-                            NavigationLink {
-                                NightWatchView()
-                            } label: {
-                                Label("Night Watch", systemImage: "moon.stars")
-                            }
-
-                            NavigationLink {
-                                StandbyDigestView()
-                            } label: {
-                                Label("Standby", systemImage: "rectangle.inset.filled")
-                            }
-
-                            NavigationLink {
-                                HandoffCenterView(
-                                    summary: handoffText,
-                                    queueCount: onCallPriorityItems.count,
-                                    criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                                    liveAlertCount: visibleMonitoringAlerts.count
-                                )
-                            } label: {
-                                Label("Handoff", systemImage: "text.badge.plus")
-                            }
+                        NavigationLink {
+                            NightWatchView()
+                        } label: {
+                            Label("Night Watch", systemImage: "moon.stars")
                         }
 
-                        Section("Monitoring") {
-                            NavigationLink {
-                                ApprovalsView()
-                            } label: {
-                                Label("Approvals", systemImage: "checkmark.shield")
-                            }
+                        NavigationLink {
+                            RuntimeView()
+                        } label: {
+                            Label("Runtime", systemImage: "server.rack")
+                        }
 
-                            NavigationLink {
-                                AutomationView()
-                            } label: {
-                                Label("Automation", systemImage: "flowchart")
-                            }
+                        NavigationLink {
+                            HandoffCenterView(
+                                summary: handoffText,
+                                queueCount: onCallPriorityItems.count,
+                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                                liveAlertCount: visibleMonitoringAlerts.count
+                            )
+                        } label: {
+                            Label("Handoff", systemImage: "text.badge.plus")
+                        }
 
-                            NavigationLink {
-                                DiagnosticsView()
-                            } label: {
-                                Label("Diagnostics", systemImage: "stethoscope")
-                            }
-
-                            NavigationLink {
-                                IntegrationsView()
-                            } label: {
-                                Label("Integrations", systemImage: "square.3.layers.3d.down.forward")
-                            }
+                        NavigationLink {
+                            DiagnosticsView()
+                        } label: {
+                            Label("Diagnostics", systemImage: "stethoscope")
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
@@ -479,7 +318,7 @@ struct OverviewView: View {
                 deps.agentWatchlistStore.removeMissingAgents(validIDs: Set(vm.agents.map(\.id)))
             }
             .overlay {
-                if vm.isLoading && vm.agents.isEmpty && vm.error == nil {
+                if vm.isLoading && !vm.hasPrimaryConnectionEvidence && vm.error == nil {
                     StartupConnectionCard(
                         serverURL: configuredServerURL,
                         showsLoopbackHint: isLoopbackServer
@@ -496,6 +335,74 @@ struct OverviewView: View {
     }
 
     @ViewBuilder
+    private var overviewShortcutStrip: some View {
+        FlowLayout(spacing: 8) {
+            if vm.pendingApprovalCount > 0 {
+                NavigationLink {
+                    ApprovalsView()
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Approvals"),
+                        systemImage: "checkmark.shield",
+                        tone: .warning,
+                        badgeText: "\(vm.pendingApprovalCount)"
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if vm.runtimeAlertCount > 0 {
+                NavigationLink {
+                    RuntimeView()
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Runtime"),
+                        systemImage: "server.rack",
+                        tone: .warning,
+                        badgeText: "\(vm.runtimeAlertCount)"
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if shouldShowRecentHandoffCard {
+                NavigationLink {
+                    HandoffCenterView(
+                        summary: handoffText,
+                        queueCount: onCallPriorityItems.count,
+                        criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                        liveAlertCount: visibleMonitoringAlerts.count
+                    )
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Handoff"),
+                        systemImage: "text.badge.plus",
+                        tone: deps.onCallHandoffStore.freshnessState.tone,
+                        badgeText: deps.onCallHandoffStore.pendingLatestFollowUpCount > 0
+                            ? "\(deps.onCallHandoffStore.pendingLatestFollowUpCount)"
+                            : nil
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+
+            if vm.diagnosticsConfigWarningCount > 0 || vm.supervisorPanicCount > 0 {
+                NavigationLink {
+                    DiagnosticsView()
+                } label: {
+                    MonitoringSurfaceShortcutChip(
+                        title: String(localized: "Diagnostics"),
+                        systemImage: "stethoscope",
+                        tone: vm.diagnosticsSummaryTone,
+                        badgeText: vm.diagnosticsConfigWarningCount > 0 ? "\(vm.diagnosticsConfigWarningCount)" : nil
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    @ViewBuilder
     private var preferredSurfaceView: some View {
         switch preferredOnCallSurface {
         case .onCall:
@@ -505,1487 +412,6 @@ struct OverviewView: View {
         case .standbyDigest:
             StandbyDigestView()
         }
-    }
-
-    private func jump(_ proxy: ScrollViewProxy, to anchor: OverviewSectionAnchor) {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            proxy.scrollTo(anchor, anchor: .top)
-        }
-    }
-
-    private func overviewSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
-        var items: [MonitoringSectionJumpItem] = []
-        if vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Diagnostics"),
-                    systemImage: "stethoscope",
-                    tone: vm.diagnosticsSummaryTone
-                ) {
-                    jump(proxy, to: .diagnostics)
-                }
-            )
-        }
-        if !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Integrations"),
-                    systemImage: "square.3.layers.3d.down.forward",
-                    tone: vm.integrationPressureIssueCategoryCount > 0 ? .warning : .neutral
-                ) {
-                    jump(proxy, to: .integrations)
-                }
-            )
-        }
-        if vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Automation"),
-                    systemImage: "flowchart",
-                    tone: vm.automationPressureTone
-                ) {
-                    jump(proxy, to: .automation)
-                }
-            )
-        }
-        if !watchedAttentionItems.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Watchlist"),
-                    systemImage: "star",
-                    tone: overviewWatchIssueCount > 0 ? .warning : .neutral
-                ) {
-                    jump(proxy, to: .watchlist)
-                }
-            )
-        }
-        if !vm.sessionAttentionItems.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Sessions"),
-                    systemImage: "rectangle.stack",
-                    tone: vm.sessionAttentionCount > 0 ? .warning : .neutral
-                ) {
-                    jump(proxy, to: .sessions)
-                }
-            )
-        }
-        if !vm.recentAudit.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Recent Events"),
-                    systemImage: "waveform.path.ecg.rectangle",
-                    tone: vm.recentCriticalAuditCount > 0 ? .warning : .neutral
-                ) {
-                    jump(proxy, to: .audit)
-                }
-            )
-        }
-        if !vm.agents.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Fleet"),
-                    systemImage: "person.3",
-                    tone: vm.issueAgentCount > 0 ? .warning : .neutral
-                ) {
-                    jump(proxy, to: .agents)
-                }
-            )
-        }
-        return items
-    }
-}
-
-private struct OverviewStatusDeckCard: View {
-    let queueCount: Int
-    let criticalCount: Int
-    let approvalCount: Int
-    let sessionCount: Int
-    let watchIssueCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-    let isDataStale: Bool
-    let isLoopbackServer: Bool
-    let providerCount: Int
-    let channelCount: Int
-    let handoffStateLabel: String
-    let handoffTone: PresentationTone
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(summary: String(localized: "Mobile triage is ready from the current snapshot.")) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
-                        tone: queueCount > 0 ? .warning : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                        tone: criticalCount > 0 ? .critical : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                        tone: approvalCount > 0 ? .warning : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: sessionCount == 1 ? String(localized: "1 session") : String(localized: "\(sessionCount) sessions"),
-                        tone: sessionCount > 0 ? .warning : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                        tone: watchIssueCount > 0 ? .warning : .neutral
-                    )
-                    if automationIssueCount > 0 {
-                        PresentationToneBadge(
-                            text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                            tone: .warning
-                        )
-                    }
-                    if integrationIssueCount > 0 {
-                        PresentationToneBadge(
-                            text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                            tone: .warning
-                        )
-                    }
-                    PresentationToneBadge(text: handoffStateLabel, tone: handoffTone)
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Overview signal facts"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep connection, queue, and pressure visible before opening the overview cards."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: isDataStale ? String(localized: "Stale") : String(localized: "Live"),
-                    tone: isDataStale ? .warning : .positive
-                )
-            } facts: {
-                Label(
-                    isLoopbackServer ? String(localized: "Loopback server") : String(localized: "Remote server"),
-                    systemImage: "network"
-                )
-                Label(
-                    providerCount == 1 ? String(localized: "1 provider") : String(localized: "\(providerCount) providers"),
-                    systemImage: "key.horizontal"
-                )
-                Label(
-                    channelCount == 1 ? String(localized: "1 ready channel") : String(localized: "\(channelCount) ready channels"),
-                    systemImage: "bubble.left.and.bubble.right"
-                )
-                if approvalCount > 0 {
-                    Label(
-                        approvalCount == 1 ? String(localized: "1 pending approval") : String(localized: "\(approvalCount) pending approvals"),
-                        systemImage: "checkmark.shield"
-                    )
-                }
-                if sessionCount > 0 {
-                    Label(
-                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
-                        systemImage: "rectangle.stack"
-                    )
-                }
-                if watchIssueCount > 0 {
-                    Label(
-                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                        systemImage: "star.fill"
-                    )
-                }
-                if automationIssueCount > 0 {
-                    Label(
-                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        systemImage: "flowchart"
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    Label(
-                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        systemImage: "square.3.layers.3d.down.forward"
-                    )
-                }
-            }
-        }
-    }
-}
-
-private struct OverviewEntryDeckCard: View {
-    let criticalCount: Int
-    let approvalCount: Int
-    let sessionCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-    let diagnosticsWarningCount: Int
-    let budgetDailyCost: Double?
-    let handoffText: String
-    let queueCount: Int
-    let liveAlertCount: Int
-    let watchIssueCount: Int
-    let auditCount: Int
-    let agentCount: Int
-    let showsDiagnostics: Bool
-    let showsIntegrations: Bool
-    let showsAutomation: Bool
-    let showsWatchlist: Bool
-    let showsSessions: Bool
-    let showsAudit: Bool
-    let showsAgents: Bool
-    let onJump: (OverviewSectionAnchor) -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(
-                summary: String(localized: "Overview control deck keeps the next operator surfaces visible without stacking multiple similar cards."),
-                detail: String(localized: "Use these exits when the top snapshot already tells you where to go next.")
-            ) {
-                FlowLayout(spacing: 8) {
-                    if criticalCount > 0 {
-                        PresentationToneBadge(
-                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                            tone: .critical
-                        )
-                    }
-                    if approvalCount > 0 {
-                        PresentationToneBadge(
-                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                            tone: .warning
-                        )
-                    }
-                    if sessionCount > 0 {
-                        PresentationToneBadge(
-                            text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
-                            tone: .warning
-                        )
-                    }
-                    if automationIssueCount > 0 {
-                        PresentationToneBadge(
-                            text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                            tone: .warning
-                        )
-                    }
-                    if integrationIssueCount > 0 {
-                        PresentationToneBadge(
-                            text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                            tone: .critical
-                        )
-                    }
-                    if diagnosticsWarningCount > 0 {
-                        PresentationToneBadge(
-                            text: diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
-                            tone: .warning
-                        )
-                    }
-                    if let budgetDailyCost {
-                        PresentationToneBadge(
-                            text: String(localized: "Today \(localizedUSDCurrency(budgetDailyCost))"),
-                            tone: .neutral
-                        )
-                    }
-                }
-            }
-
-            MonitoringSurfaceGroupCard(
-                title: String(localized: "Routes"),
-                detail: String(localized: "Keep the first overview exits and lower-section jumps in one compact deck.")
-            ) {
-                MonitoringShortcutRail(
-                    title: String(localized: "Primary"),
-                    detail: String(localized: "Keep the first operator exits right below the overview snapshot.")
-                ) {
-                    NavigationLink {
-                        IncidentsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Incidents"),
-                            systemImage: "bell.badge",
-                            tone: criticalCount > 0 ? .critical : .neutral,
-                            badgeText: criticalCount > 0
-                                ? (criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"))
-                                : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        RuntimeView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Runtime"),
-                            systemImage: "waveform.path.ecg",
-                            tone: approvalCount > 0 || sessionCount > 0 ? .warning : .neutral
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        DiagnosticsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Diagnostics"),
-                            systemImage: "stethoscope",
-                            tone: diagnosticsWarningCount > 0 ? .warning : .neutral,
-                            badgeText: diagnosticsWarningCount > 0
-                                ? (diagnosticsWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(diagnosticsWarningCount) warnings"))
-                                : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        HandoffCenterView(
-                            summary: handoffText,
-                            queueCount: queueCount,
-                            criticalCount: criticalCount,
-                            liveAlertCount: liveAlertCount
-                        )
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Handoff"),
-                            systemImage: "text.badge.plus",
-                            tone: liveAlertCount > 0 ? .warning : .neutral,
-                            badgeText: queueCount > 0
-                                ? (queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"))
-                                : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                MonitoringShortcutRail(
-                    title: String(localized: "Support"),
-                    detail: String(localized: "Keep slower spend and config routes in a secondary rail.")
-                ) {
-                    NavigationLink {
-                        IntegrationsView(initialScope: .attention)
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Integrations"),
-                            systemImage: "square.3.layers.3d.down.forward",
-                            tone: integrationIssueCount > 0 ? .critical : .neutral,
-                            badgeText: integrationIssueCount > 0
-                                ? (integrationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(integrationIssueCount) issues"))
-                                : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        AutomationView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Automation"),
-                            systemImage: "flowchart",
-                            tone: automationIssueCount > 0 ? .warning : .neutral,
-                            badgeText: automationIssueCount > 0
-                                ? (automationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(automationIssueCount) issues"))
-                                : nil
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        BudgetView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Budget"),
-                            systemImage: "chart.bar",
-                            tone: budgetDailyCost == nil ? .neutral : .warning,
-                            badgeText: budgetDailyCost.map { localizedUSDCurrency($0) }
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        SettingsView()
-                    } label: {
-                        MonitoringSurfaceShortcutChip(
-                            title: String(localized: "Settings"),
-                            systemImage: "gearshape"
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                MonitoringShortcutRail(
-                    title: String(localized: "Jumps"),
-                    detail: String(localized: "Jump to lower overview sections without long thumb-scrolling.")
-                ) {
-                    if showsDiagnostics {
-                        jumpChip(
-                            title: String(localized: "Diagnostics"),
-                            systemImage: "stethoscope",
-                            tone: diagnosticsWarningCount > 0 ? .warning : .neutral,
-                            badgeText: diagnosticsWarningCount > 0
-                                ? (diagnosticsWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(diagnosticsWarningCount) warnings"))
-                                : nil,
-                            anchor: .diagnostics
-                        )
-                    }
-
-                    if showsIntegrations {
-                        jumpChip(
-                            title: String(localized: "Integrations"),
-                            systemImage: "square.3.layers.3d.down.forward",
-                            tone: integrationIssueCount > 0 ? .warning : .neutral,
-                            badgeText: integrationIssueCount > 0
-                                ? (integrationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(integrationIssueCount) issues"))
-                                : nil,
-                            anchor: .integrations
-                        )
-                    }
-
-                    if showsAutomation {
-                        jumpChip(
-                            title: String(localized: "Automation"),
-                            systemImage: "flowchart",
-                            tone: automationIssueCount > 0 ? .warning : .neutral,
-                            badgeText: automationIssueCount > 0
-                                ? (automationIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(automationIssueCount) issues"))
-                                : nil,
-                            anchor: .automation
-                        )
-                    }
-
-                    if showsWatchlist {
-                        jumpChip(
-                            title: String(localized: "Watchlist"),
-                            systemImage: "star.fill",
-                            tone: watchIssueCount > 0 ? .warning : .neutral,
-                            badgeText: watchIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(watchIssueCount) issues"),
-                            anchor: .watchlist
-                        )
-                    }
-
-                    if showsSessions {
-                        jumpChip(
-                            title: String(localized: "Sessions"),
-                            systemImage: "text.bubble",
-                            tone: sessionCount > 0 ? .warning : .neutral,
-                            badgeText: sessionCount == 1 ? String(localized: "1 hot session") : String(localized: "\(sessionCount) hot sessions"),
-                            anchor: .sessions
-                        )
-                    }
-
-                    if showsAudit {
-                        jumpChip(
-                            title: String(localized: "Audit"),
-                            systemImage: "text.justify.leading",
-                            tone: .neutral,
-                            badgeText: auditCount == 1 ? String(localized: "1 recent event") : String(localized: "\(auditCount) recent events"),
-                            anchor: .audit
-                        )
-                    }
-
-                    if showsAgents {
-                        jumpChip(
-                            title: String(localized: "Agents"),
-                            systemImage: "person.3",
-                            tone: .neutral,
-                            badgeText: agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
-                            anchor: .agents
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private var visibleJumpCount: Int {
-        [showsDiagnostics, showsIntegrations, showsAutomation, showsWatchlist, showsSessions, showsAudit, showsAgents]
-            .filter { $0 }
-            .count
-    }
-
-    private func jumpChip(
-        title: String,
-        systemImage: String,
-        tone: PresentationTone,
-        badgeText: String?,
-        anchor: OverviewSectionAnchor
-    ) -> some View {
-        Button {
-            onJump(anchor)
-        } label: {
-            MonitoringSurfaceShortcutChip(
-                title: title,
-                systemImage: systemImage,
-                tone: tone,
-                badgeText: badgeText
-            )
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-private struct OverviewPressureCoverageDeck: View {
-    let criticalCount: Int
-    let liveAlertCount: Int
-    let approvalCount: Int
-    let sessionCount: Int
-    let watchIssueCount: Int
-    let mutedAlertCount: Int
-    let pendingFollowUpCount: Int
-    let diagnosticsWarningCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this pressure slice to separate live alert drag from slower follow-up, diagnostics, and systems work before opening the lower overview decks."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    if criticalCount > 0 {
-                        PresentationToneBadge(
-                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                            tone: .critical
-                        )
-                    }
-                    if approvalCount > 0 {
-                        PresentationToneBadge(
-                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                            tone: .warning
-                        )
-                    }
-                    if sessionCount > 0 {
-                        PresentationToneBadge(
-                            text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
-                            tone: .warning
-                        )
-                    }
-                    if watchIssueCount > 0 {
-                        PresentationToneBadge(
-                            text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                            tone: .warning
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Pressure coverage"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep muted drag, handoff follow-up, diagnostics noise, and slower systems pressure visible before the overview fans out into platform and fleet cards."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
-                    tone: criticalCount > 0 ? .critical : (liveAlertCount > 0 ? .warning : .neutral)
-                )
-            } facts: {
-                if mutedAlertCount > 0 {
-                    Label(
-                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
-                        systemImage: "bell.slash"
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    Label(
-                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
-                        systemImage: "arrow.triangle.2.circlepath"
-                    )
-                }
-                if diagnosticsWarningCount > 0 {
-                    Label(
-                        diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
-                        systemImage: "stethoscope"
-                    )
-                }
-                if automationIssueCount > 0 {
-                    Label(
-                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        systemImage: "flowchart"
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    Label(
-                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        systemImage: "square.3.layers.3d.down.forward"
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if criticalCount > 0 {
-            return criticalCount == 1
-                ? String(localized: "Overview pressure is currently anchored by 1 critical incident.")
-                : String(localized: "Overview pressure is currently anchored by \(criticalCount) critical incidents.")
-        }
-        if liveAlertCount > 0 {
-            return liveAlertCount == 1
-                ? String(localized: "Overview pressure currently includes 1 live alert in the mobile snapshot.")
-                : String(localized: "Overview pressure currently includes \(liveAlertCount) live alerts in the mobile snapshot.")
-        }
-        return String(localized: "Overview pressure is currently driven by follow-up, diagnostics, and lower-severity operator load.")
-    }
-}
-
-private struct OverviewSupportCoverageDeck: View {
-    let mutedAlertCount: Int
-    let pendingFollowUpCount: Int
-    let diagnosticsWarningCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-    let isDataStale: Bool
-    let providerCount: Int
-    let channelCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to keep stale data, muted drag, slower handoff work, and platform readiness readable before the overview spreads into platform and fleet cards."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: isDataStale ? String(localized: "Data stale") : String(localized: "Data live"),
-                        tone: isDataStale ? .warning : .positive
-                    )
-                    PresentationToneBadge(
-                        text: providerCount == 1 ? String(localized: "1 provider ready") : String(localized: "\(providerCount) providers ready"),
-                        tone: providerCount > 0 ? .positive : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: channelCount == 1 ? String(localized: "1 channel ready") : String(localized: "\(channelCount) channels ready"),
-                        tone: channelCount > 0 ? .positive : .neutral
-                    )
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Support coverage"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep muted alerts, follow-up load, diagnostics noise, and provider or channel readiness visible before the broader overview cards fan out."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
-                    tone: diagnosticsWarningCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                if mutedAlertCount > 0 {
-                    Label(
-                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
-                        systemImage: "bell.slash"
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    Label(
-                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
-                        systemImage: "arrow.triangle.2.circlepath"
-                    )
-                }
-                if automationIssueCount > 0 {
-                    Label(
-                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        systemImage: "flowchart"
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    Label(
-                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        systemImage: "square.3.layers.3d.down.forward"
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if isDataStale {
-            return String(localized: "Overview support coverage is currently anchored by stale monitoring data.")
-        }
-        if diagnosticsWarningCount > 0 || automationIssueCount > 0 || integrationIssueCount > 0 {
-            return String(localized: "Overview support coverage is currently anchored by slower diagnostics and platform drift.")
-        }
-        if mutedAlertCount > 0 || pendingFollowUpCount > 0 {
-            return String(localized: "Overview support coverage is currently anchored by muted alert drag and handoff follow-up.")
-        }
-        return String(localized: "Overview support coverage is currently light and mostly reflects provider and channel readiness.")
-    }
-}
-
-private struct OverviewActionReadinessDeck: View {
-    let primaryRouteCount: Int
-    let supportRouteCount: Int
-    let jumpCount: Int
-    let sectionCount: Int
-    let platformCardCount: Int
-    let signalCardCount: Int
-    let fleetCardCount: Int
-    let queueCount: Int
-    let criticalCount: Int
-    let isDataStale: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to confirm route breadth, jump coverage, and section readiness before drilling into the longer platform, signal, and fleet stacks."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: String(localized: "\(primaryRouteCount + supportRouteCount + jumpCount) actions"),
-                        tone: .neutral
-                    )
-                    PresentationToneBadge(
-                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
-                        tone: sectionCount > 0 ? .positive : .neutral
-                    )
-                    if isDataStale {
-                        PresentationToneBadge(text: String(localized: "Data stale"), tone: .warning)
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Action readiness"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep routes, jumps, and section coverage readable before the overview fans out into platform, signal, and fleet cards."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
-                    tone: queueCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                Label(
-                    platformCardCount == 1 ? String(localized: "1 platform card") : String(localized: "\(platformCardCount) platform cards"),
-                    systemImage: "server.rack"
-                )
-                Label(
-                    signalCardCount == 1 ? String(localized: "1 signal card") : String(localized: "\(signalCardCount) signal cards"),
-                    systemImage: "waveform.path.ecg"
-                )
-                if fleetCardCount > 0 {
-                    Label(
-                        fleetCardCount == 1 ? String(localized: "1 fleet card") : String(localized: "\(fleetCardCount) fleet cards"),
-                        systemImage: "person.3"
-                    )
-                }
-                if criticalCount > 0 {
-                    Label(
-                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                        systemImage: "exclamationmark.triangle"
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if isDataStale {
-            return String(localized: "Overview action readiness is currently limited by stale monitoring data.")
-        }
-        if criticalCount > 0 {
-            return String(localized: "Overview action readiness is currently anchored by critical incident load before the broader cards fan out.")
-        }
-        if queueCount > 0 {
-            return String(localized: "Overview action readiness is currently centered on queued on-call work and cross-surface drilldowns.")
-        }
-        return String(localized: "Overview action readiness is currently clear enough for route jumps and broader section drilldown.")
-    }
-}
-
-private struct OverviewFocusCoverageDeck: View {
-    let platformCardCount: Int
-    let signalCardCount: Int
-    let fleetCardCount: Int
-    let queueCount: Int
-    let criticalCount: Int
-    let watchIssueCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-    let isDataStale: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to keep the dominant overview lane readable before dropping into the wider platform, signal, and fleet cards."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: platformCardCount == 1 ? String(localized: "1 platform lane") : String(localized: "\(platformCardCount) platform lanes"),
-                        tone: platformCardCount > 0 ? .positive : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: signalCardCount == 1 ? String(localized: "1 signal lane") : String(localized: "\(signalCardCount) signal lanes"),
-                        tone: signalCardCount > 0 ? .positive : .neutral
-                    )
-                    if fleetCardCount > 0 {
-                        PresentationToneBadge(
-                            text: fleetCardCount == 1 ? String(localized: "1 fleet lane") : String(localized: "\(fleetCardCount) fleet lanes"),
-                            tone: .neutral
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Focus coverage"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep the dominant overview lane readable before moving from the compact entry decks into lower platform, signal, and fleet sections."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
-                    tone: queueCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                if criticalCount > 0 {
-                    Label(
-                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                        systemImage: "xmark.octagon"
-                    )
-                }
-                if watchIssueCount > 0 {
-                    Label(
-                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                        systemImage: "star.fill"
-                    )
-                }
-                if automationIssueCount > 0 {
-                    Label(
-                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        systemImage: "flowchart"
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    Label(
-                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        systemImage: "square.3.layers.3d.down.forward"
-                    )
-                }
-                if isDataStale {
-                    Label(String(localized: "Data stale"), systemImage: "clock.arrow.circlepath")
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if criticalCount > 0 || queueCount > 0 {
-            return String(localized: "Overview focus coverage is currently anchored by live triage pressure.")
-        }
-        if watchIssueCount > 0 || automationIssueCount > 0 || integrationIssueCount > 0 {
-            return String(localized: "Overview focus coverage is currently anchored by fleet and platform drift.")
-        }
-        if isDataStale {
-            return String(localized: "Overview focus coverage is currently anchored by stale data across the mobile snapshot.")
-        }
-        return String(localized: "Overview focus coverage is currently balanced across platform, signal, and fleet lanes.")
-    }
-}
-
-private struct OverviewSectionInventoryDeck: View {
-    let sectionCount: Int
-    let platformCardCount: Int
-    let signalCardCount: Int
-    let fleetCardCount: Int
-    let approvalCount: Int
-    let sessionCount: Int
-    let watchIssueCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: detailLine,
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
-                        tone: .positive
-                    )
-                    PresentationToneBadge(
-                        text: platformCardCount == 1 ? String(localized: "1 platform card") : String(localized: "\(platformCardCount) platform cards"),
-                        tone: .neutral
-                    )
-                    PresentationToneBadge(
-                        text: signalCardCount == 1 ? String(localized: "1 signal card") : String(localized: "\(signalCardCount) signal cards"),
-                        tone: .neutral
-                    )
-                    if fleetCardCount > 0 {
-                        PresentationToneBadge(
-                            text: fleetCardCount == 1 ? String(localized: "1 fleet card") : String(localized: "\(fleetCardCount) fleet cards"),
-                            tone: .neutral
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Section inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep platform, signal, and fleet coverage visible before the overview cards fan out below the entry deck."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                    tone: approvalCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                if sessionCount > 0 {
-                    Label(
-                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
-                        systemImage: "text.bubble"
-                    )
-                }
-                if watchIssueCount > 0 {
-                    Label(
-                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                        systemImage: "star.fill"
-                    )
-                }
-                if automationIssueCount > 0 {
-                    Label(
-                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        systemImage: "flowchart"
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    Label(
-                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        systemImage: "square.3.layers.3d.down.forward"
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        sectionCount == 1
-            ? String(localized: "1 overview section is active below the entry deck.")
-            : String(localized: "\(sectionCount) overview sections are active below the entry deck.")
-    }
-
-    private var detailLine: String {
-        String(localized: "Platform, signal, and fleet coverage stay summarized before the overview cards fan out into the longer mobile monitor.")
-    }
-}
-
-private struct OverviewWorkstreamCoverageDeck: View {
-    let platformCardCount: Int
-    let signalCardCount: Int
-    let fleetCardCount: Int
-    let queueCount: Int
-    let watchIssueCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-    let isDataStale: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to see whether the overview is currently led by platform state, live signal pressure, or fleet follow-through before the lower cards fan out."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: platformCardCount == 1 ? String(localized: "1 platform lane") : String(localized: "\(platformCardCount) platform lanes"),
-                        tone: platformCardCount > 0 ? .positive : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: signalCardCount == 1 ? String(localized: "1 signal lane") : String(localized: "\(signalCardCount) signal lanes"),
-                        tone: signalCardCount > 0 ? .warning : .neutral
-                    )
-                    if fleetCardCount > 0 {
-                        PresentationToneBadge(
-                            text: fleetCardCount == 1 ? String(localized: "1 fleet lane") : String(localized: "\(fleetCardCount) fleet lanes"),
-                            tone: .neutral
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Workstream coverage"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep platform state, live signal drag, and fleet follow-through readable before moving into the wider overview cards."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
-                    tone: queueCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                if watchIssueCount > 0 {
-                    Label(
-                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                        systemImage: "star.fill"
-                    )
-                }
-                if automationIssueCount > 0 {
-                    Label(
-                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        systemImage: "flowchart"
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    Label(
-                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        systemImage: "square.3.layers.3d.down.forward"
-                    )
-                }
-                if isDataStale {
-                    Label(String(localized: "Data stale"), systemImage: "clock.arrow.circlepath")
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if signalCardCount >= max(platformCardCount, fleetCardCount) && signalCardCount > 0 {
-            return String(localized: "Overview workstream coverage is currently anchored by live signal pressure.")
-        }
-        if fleetCardCount >= platformCardCount && fleetCardCount > 0 {
-            return String(localized: "Overview workstream coverage is currently anchored by fleet follow-through.")
-        }
-        if platformCardCount > 0 {
-            return String(localized: "Overview workstream coverage is currently anchored by platform state.")
-        }
-        return String(localized: "Overview workstream coverage is currently light across the visible lanes.")
-    }
-}
-
-private struct OverviewRouteInventoryDeck: View {
-    let primaryCount: Int
-    let supportCount: Int
-    let jumpCount: Int
-    let queueCount: Int
-    let criticalCount: Int
-    let watchIssueCount: Int
-
-    var body: some View {
-        MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
-            FlowLayout(spacing: 8) {
-                PresentationToneBadge(
-                    text: primaryCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryCount) primary routes"),
-                    tone: .neutral
-                )
-                PresentationToneBadge(
-                    text: supportCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportCount) support routes"),
-                    tone: .neutral
-                )
-                PresentationToneBadge(
-                    text: jumpCount == 1 ? String(localized: "1 jump") : String(localized: "\(jumpCount) jumps"),
-                    tone: jumpCount > 0 ? .positive : .neutral
-                )
-                if criticalCount > 0 {
-                    PresentationToneBadge(
-                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                        tone: .critical
-                    )
-                }
-                if queueCount > 0 {
-                    PresentationToneBadge(
-                        text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
-                        tone: .warning
-                    )
-                }
-                if watchIssueCount > 0 {
-                    PresentationToneBadge(
-                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                        tone: .warning
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        let totalRoutes = primaryCount + supportCount + jumpCount
-        return totalRoutes == 1
-            ? String(localized: "1 overview route is grouped in this deck.")
-            : String(localized: "\(totalRoutes) overview routes are grouped in this deck.")
-    }
-
-    private var detailLine: String {
-        if jumpCount == 0 {
-            return String(localized: "Primary and support exits stay together before the lower overview sections load.")
-        }
-        return String(localized: "Primary exits, slower support routes, and lower-section jumps stay together in one compact deck.")
-    }
-}
-
-private struct OverviewPlatformInventoryDeck: View {
-    let cardCount: Int
-    let diagnosticsVisible: Bool
-    let diagnosticsWarningCount: Int
-    let integrationIssueCount: Int
-    let automationIssueCount: Int
-    let providerCount: Int
-    let readyChannelCount: Int
-    let runningCount: Int
-    let includesSystemSnapshot: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: includesSystemSnapshot ? String(localized: "System snapshot ready") : String(localized: "System snapshot pending"),
-                        tone: includesSystemSnapshot ? .positive : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: diagnosticsVisible ? String(localized: "Diagnostics loaded") : String(localized: "Diagnostics pending"),
-                        tone: diagnosticsWarningCount > 0 ? .warning : (diagnosticsVisible ? .positive : .neutral)
-                    )
-                    PresentationToneBadge(
-                        text: integrationIssueCount > 0
-                            ? (integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"))
-                            : String(localized: "Integrations steady"),
-                        tone: integrationIssueCount > 0 ? .warning : .positive
-                    )
-                    PresentationToneBadge(
-                        text: automationIssueCount > 0
-                            ? (automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"))
-                            : String(localized: "Automation steady"),
-                        tone: automationIssueCount > 0 ? .warning : .positive
-                    )
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Platform inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep system, diagnostics, integrations, and automation grouped before the platform cards begin."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: cardCount == 1 ? String(localized: "1 card") : String(localized: "\(cardCount) cards"),
-                    tone: cardCount > 0 ? .positive : .neutral
-                )
-            } facts: {
-                Label(
-                    runningCount == 1 ? String(localized: "1 running agent") : String(localized: "\(runningCount) running agents"),
-                    systemImage: "play.circle"
-                )
-                Label(
-                    providerCount == 1 ? String(localized: "1 provider") : String(localized: "\(providerCount) providers"),
-                    systemImage: "key.horizontal"
-                )
-                Label(
-                    readyChannelCount == 1 ? String(localized: "1 ready channel") : String(localized: "\(readyChannelCount) ready channels"),
-                    systemImage: "bubble.left.and.bubble.right"
-                )
-                if diagnosticsWarningCount > 0 {
-                    Label(
-                        diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
-                        systemImage: "exclamationmark.triangle"
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        cardCount == 1
-            ? String(localized: "1 platform card follows the overview digest.")
-            : String(localized: "\(cardCount) platform cards follow the overview digest.")
-    }
-
-    private var detailLine: String {
-        String(localized: "System state, diagnostics, integrations, and automation stay grouped so the platform slice reads as one monitor.")
-    }
-}
-
-private struct OverviewSignalInventoryDeck: View {
-    let cardCount: Int
-    let approvalCount: Int
-    let activeHandCount: Int
-    let readyChannelCount: Int
-    let hasUsageCard: Bool
-    let hasBudgetCard: Bool
-    let topSpenderCount: Int
-    let liveSignalCount: Int
-    let dailySpend: Double?
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(text: String(localized: "Readiness"), tone: .neutral)
-                    PresentationToneBadge(
-                        text: hasUsageCard ? String(localized: "Usage ready") : String(localized: "Usage pending"),
-                        tone: hasUsageCard ? .positive : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: hasBudgetCard ? String(localized: "Budget ready") : String(localized: "Budget pending"),
-                        tone: hasBudgetCard ? .warning : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: topSpenderCount > 0
-                            ? (topSpenderCount == 1 ? String(localized: "1 spender") : String(localized: "\(topSpenderCount) spenders"))
-                            : String(localized: "No spender ranks"),
-                        tone: topSpenderCount > 0 ? .warning : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: liveSignalCount > 0
-                            ? (liveSignalCount == 1 ? String(localized: "1 live signal") : String(localized: "\(liveSignalCount) live signals"))
-                            : String(localized: "No live signals"),
-                        tone: liveSignalCount > 0 ? .warning : .neutral
-                    )
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Signal inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep readiness, usage, spend, and live workload visible before the signal cards start stacking."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: cardCount == 1 ? String(localized: "1 card") : String(localized: "\(cardCount) cards"),
-                    tone: cardCount > 0 ? .positive : .neutral
-                )
-            } facts: {
-                Label(
-                    readyChannelCount == 1 ? String(localized: "1 ready channel") : String(localized: "\(readyChannelCount) ready channels"),
-                    systemImage: "dot.radiowaves.left.and.right"
-                )
-                Label(
-                    activeHandCount == 1 ? String(localized: "1 active hand") : String(localized: "\(activeHandCount) active hands"),
-                    systemImage: "hand.raised"
-                )
-                Label(
-                    approvalCount == 1 ? String(localized: "1 pending approval") : String(localized: "\(approvalCount) pending approvals"),
-                    systemImage: "checkmark.shield"
-                )
-                if let dailySpend {
-                    Label(String(localized: "Today \(localizedUSDCurrency(dailySpend))"), systemImage: "dollarsign.circle")
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        cardCount == 1
-            ? String(localized: "1 signal card follows the platform slice.")
-            : String(localized: "\(cardCount) signal cards follow the platform slice.")
-    }
-
-    private var detailLine: String {
-        String(localized: "Readiness, usage, spend, and live workload stay grouped before the lower overview queues.")
-    }
-}
-
-private struct OverviewFleetInventoryDeck: View {
-    let cardCount: Int
-    let watchIssueCount: Int
-    let sessionCount: Int
-    let attentionAgentCount: Int
-    let auditCount: Int
-    let a2aCount: Int
-    let agentCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
-                FlowLayout(spacing: 8) {
-                    if watchIssueCount > 0 {
-                        PresentationToneBadge(
-                            text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                            tone: .warning
-                        )
-                    } else {
-                        PresentationToneBadge(text: String(localized: "Watchlist calm"), tone: .positive)
-                    }
-                    if sessionCount > 0 {
-                        PresentationToneBadge(
-                            text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
-                            tone: .warning
-                        )
-                    }
-                    if attentionAgentCount > 0 {
-                        PresentationToneBadge(
-                            text: attentionAgentCount == 1 ? String(localized: "1 attention agent") : String(localized: "\(attentionAgentCount) attention agents"),
-                            tone: .warning
-                        )
-                    }
-                    if auditCount > 0 {
-                        PresentationToneBadge(
-                            text: auditCount == 1 ? String(localized: "1 audit event") : String(localized: "\(auditCount) audit events"),
-                            tone: .neutral
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Fleet inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep watchlist, sessions, audit, and fleet previews grouped before the queue-heavy lower cards."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: cardCount == 1 ? String(localized: "1 card") : String(localized: "\(cardCount) cards"),
-                    tone: cardCount > 0 ? .positive : .neutral
-                )
-            } facts: {
-                Label(
-                    agentCount == 1 ? String(localized: "1 agent visible") : String(localized: "\(agentCount) agents visible"),
-                    systemImage: "person.3"
-                )
-                Label(
-                    a2aCount == 1 ? String(localized: "1 A2A peer") : String(localized: "\(a2aCount) A2A peers"),
-                    systemImage: "point.3.connected.trianglepath.dotted"
-                )
-                Label(
-                    auditCount == 1 ? String(localized: "1 audit event") : String(localized: "\(auditCount) audit events"),
-                    systemImage: "text.justify.leading"
-                )
-                if sessionCount > 0 {
-                    Label(
-                        sessionCount == 1 ? String(localized: "1 hot session") : String(localized: "\(sessionCount) hot sessions"),
-                        systemImage: "text.bubble"
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        cardCount == 1
-            ? String(localized: "1 fleet card follows the signal slice.")
-            : String(localized: "\(cardCount) fleet cards follow the signal slice.")
-    }
-
-    private var detailLine: String {
-        String(localized: "Watchlist, sessions, audit, and fleet previews stay grouped so the bottom half reads like one operator queue.")
-    }
-}
-
-private struct OverviewQueueInventoryDeck: View {
-    let cardCount: Int
-    let watchIssueCount: Int
-    let sessionCount: Int
-    let attentionAgentCount: Int
-    let auditCount: Int
-    let liveAlertCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
-                FlowLayout(spacing: 8) {
-                    if liveAlertCount > 0 {
-                        PresentationToneBadge(
-                            text: liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
-                            tone: .critical
-                        )
-                    }
-                    if watchIssueCount > 0 {
-                        PresentationToneBadge(
-                            text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                            tone: .warning
-                        )
-                    }
-                    if sessionCount > 0 {
-                        PresentationToneBadge(
-                            text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
-                            tone: .warning
-                        )
-                    }
-                    if attentionAgentCount > 0 {
-                        PresentationToneBadge(
-                            text: attentionAgentCount == 1 ? String(localized: "1 attention agent") : String(localized: "\(attentionAgentCount) attention agents"),
-                            tone: .warning
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Queue coverage"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep the lower watchlist, sessions, attention, and audit queues readable before drilling into each feed."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: cardCount == 1 ? String(localized: "1 active queue card") : String(localized: "\(cardCount) active queue cards"),
-                    tone: cardCount > 0 ? .positive : .neutral
-                )
-            } facts: {
-                Label(
-                    watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                    systemImage: "star.fill"
-                )
-                Label(
-                    sessionCount == 1 ? String(localized: "1 hot session") : String(localized: "\(sessionCount) hot sessions"),
-                    systemImage: "text.bubble"
-                )
-                Label(
-                    auditCount == 1 ? String(localized: "1 audit event") : String(localized: "\(auditCount) audit events"),
-                    systemImage: "text.justify.leading"
-                )
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        cardCount == 1
-            ? String(localized: "1 active queue card follows the fleet slice.")
-            : String(localized: "\(cardCount) active queue cards follow the fleet slice.")
-    }
-
-    private var detailLine: String {
-        String(localized: "This queue coverage condenses the lower operator feeds before the watchlist, sessions, attention agents, and audit cards.")
     }
 }
 
@@ -2277,10 +703,16 @@ private struct ConnectionCard: View {
     let health: HealthStatus?
     let lastRefresh: Date?
     let isStale: Bool
+    let hasConnectionEvidence: Bool
     let errorMessage: String?
 
     private var connectionTone: PresentationTone {
-        guard let health else { return errorMessage == nil ? .warning : .critical }
+        guard let health else {
+            if hasConnectionEvidence {
+                return .positive
+            }
+            return errorMessage == nil ? .warning : .critical
+        }
         if health.isHealthy && isStale {
             return .warning
         }
@@ -2289,6 +721,9 @@ private struct ConnectionCard: View {
 
     private var inventoryBadgeText: String {
         guard health != nil else {
+            if hasConnectionEvidence {
+                return String(localized: "Connected")
+            }
             return errorMessage == nil ? String(localized: "Connecting") : String(localized: "Disconnected")
         }
         return isStale ? String(localized: "Stale") : String(localized: "Fresh")
@@ -2296,6 +731,9 @@ private struct ConnectionCard: View {
 
     private var inventoryBadgeTone: PresentationTone {
         guard health != nil else {
+            if hasConnectionEvidence {
+                return .positive
+            }
             return errorMessage == nil ? .warning : .critical
         }
         return isStale ? .warning : .positive
@@ -2340,7 +778,7 @@ private struct ConnectionCard: View {
                 if let health {
                     Label(health.localizedStatusLabel, systemImage: "stethoscope")
                     Label(health.version, systemImage: "shippingbox")
-                } else {
+                } else if !hasConnectionEvidence {
                     Label(String(localized: "No health snapshot"), systemImage: "xmark.octagon")
                 }
                 if let date = lastRefresh {
@@ -2355,6 +793,9 @@ private struct ConnectionCard: View {
 
     private var connectionText: String {
         guard let health else {
+            if hasConnectionEvidence {
+                return String(localized: "Connected")
+            }
             return errorMessage == nil ? String(localized: "Connecting") : String(localized: "Disconnected")
         }
         if !health.isHealthy {
