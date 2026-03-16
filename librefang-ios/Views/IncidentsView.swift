@@ -218,37 +218,6 @@ struct IncidentsView: View {
     private var watchedUnsettledAgentCount: Int {
         watchedDiagnosticRows.filter { $0.summary.unsettledDeliveries > 0 }.count
     }
-    private var incidentSectionPreviewTitles: [String] {
-        var sections: [String] = []
-        if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
-            sections.append(String(localized: "Operator State"))
-        }
-        if handoffIssueCount > 0 {
-            sections.append(String(localized: "Shift Coverage"))
-        }
-        if automationIssueCount > 0 {
-            sections.append(String(localized: "Automation"))
-        }
-        if integrationIssueCount > 0 {
-            sections.append(String(localized: "Integrations"))
-        }
-        if !visibleAlerts.isEmpty {
-            sections.append(String(localized: "Active Alerts"))
-        }
-        if !vm.approvals.isEmpty {
-            sections.append(String(localized: "Approvals"))
-        }
-        if !vm.attentionAgents.isEmpty || !watchedDiagnosticRows.isEmpty {
-            sections.append(String(localized: "Agents"))
-        }
-        if !vm.sessionAttentionItems.isEmpty {
-            sections.append(String(localized: "Sessions"))
-        }
-        if !vm.criticalAuditEntries.isEmpty {
-            sections.append(String(localized: "Critical Events"))
-        }
-        return sections
-    }
     private var unlabeledSessionCount: Int {
         vm.sessionAttentionItems.filter { !$0.hasLabel }.count
     }
@@ -266,24 +235,22 @@ struct IncidentsView: View {
     }
 
     var body: some View {
-        ScrollViewReader { proxy in
-            List {
-                incidentSections(proxy)
+        List {
+            incidentSections
+        }
+        .navigationTitle(String(localized: "Incidents"))
+        .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
+        .refreshable {
+            await vm.refresh()
+        }
+        .overlay {
+            if vm.isLoading && vm.lastRefresh == nil {
+                ProgressView(String(localized: "Loading incidents..."))
             }
-            .navigationTitle(String(localized: "Incidents"))
-            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
-            .refreshable {
+        }
+        .task {
+            if vm.lastRefresh == nil {
                 await vm.refresh()
-            }
-            .overlay {
-                if vm.isLoading && vm.lastRefresh == nil {
-                    ProgressView(String(localized: "Loading incidents..."))
-                }
-            }
-            .task {
-                if vm.lastRefresh == nil {
-                    await vm.refresh()
-                }
             }
         }
         .confirmationDialog(
@@ -309,7 +276,7 @@ struct IncidentsView: View {
     }
 
     @ViewBuilder
-    private func incidentSections(_ proxy: ScrollViewProxy) -> some View {
+    private var incidentSections: some View {
         scoreboardSection
 
         if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
@@ -560,98 +527,6 @@ struct IncidentsView: View {
             Text("Critical Events")
         }
         .id(IncidentSectionAnchor.criticalEvents)
-    }
-
-    private func jump(_ proxy: ScrollViewProxy, to anchor: IncidentSectionAnchor) {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            proxy.scrollTo(anchor, anchor: .top)
-        }
-    }
-
-    private func incidentSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
-        var items: [MonitoringSectionJumpItem] = []
-        if !visibleAlerts.isEmpty || !mutedAlerts.isEmpty {
-            items.append(MonitoringSectionJumpItem(
-                title: String(localized: "Operator State"),
-                systemImage: "bell.badge",
-                tone: criticalAlertCount > 0 ? .critical : .warning
-            ) {
-                jump(proxy, to: .operatorState)
-            })
-        }
-        if handoffIssueCount > 0 {
-            items.append(MonitoringSectionJumpItem(
-                title: String(localized: "Shift Coverage"),
-                systemImage: "person.2.wave.2",
-                tone: handoffReadiness.state.tone
-            ) {
-                jump(proxy, to: .shiftCoverage)
-            })
-        }
-        if automationIssueCount > 0 {
-            items.append(MonitoringSectionJumpItem(
-                title: String(localized: "Automation"),
-                systemImage: "flowchart",
-                tone: .warning
-            ) {
-                jump(proxy, to: .automation)
-            })
-        }
-        if integrationIssueCount > 0 {
-            items.append(MonitoringSectionJumpItem(
-                title: String(localized: "Integrations"),
-                systemImage: "square.stack.3d.up",
-                tone: .warning
-            ) {
-                jump(proxy, to: .integrations)
-            })
-        }
-        if !visibleAlerts.isEmpty {
-            items.append(MonitoringSectionJumpItem(
-                title: String(localized: "Active Alerts"),
-                systemImage: "exclamationmark.bubble",
-                tone: criticalAlertCount > 0 ? .critical : .warning
-            ) {
-                jump(proxy, to: .activeAlerts)
-            })
-        }
-        if !vm.approvals.isEmpty {
-            items.append(MonitoringSectionJumpItem(
-                title: String(localized: "Approvals"),
-                systemImage: "checkmark.shield",
-                tone: approvalCountTone
-            ) {
-                jump(proxy, to: .approvals)
-            })
-        }
-        if !vm.attentionAgents.isEmpty || !watchedDiagnosticRows.isEmpty {
-            items.append(MonitoringSectionJumpItem(
-                title: String(localized: "Agents"),
-                systemImage: "person.3",
-                tone: combinedAgentIssueCount > 0 ? .warning : .neutral
-            ) {
-                jump(proxy, to: .agents)
-            })
-        }
-        if !vm.sessionAttentionItems.isEmpty {
-            items.append(MonitoringSectionJumpItem(
-                title: String(localized: "Sessions"),
-                systemImage: "rectangle.stack",
-                tone: sessionCountTone
-            ) {
-                jump(proxy, to: .sessions)
-            })
-        }
-        if !vm.criticalAuditEntries.isEmpty {
-            items.append(MonitoringSectionJumpItem(
-                title: String(localized: "Critical Events"),
-                systemImage: "list.bullet.rectangle.portrait",
-                tone: criticalEventTone
-            ) {
-                jump(proxy, to: .criticalEvents)
-            })
-        }
-        return items
     }
 
     private var approvalCountTone: PresentationTone {

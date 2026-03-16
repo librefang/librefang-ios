@@ -93,29 +93,6 @@ struct AgentsView: View {
         filteredAgents.filter(\.sessionPressure).count
     }
 
-    private var agentRoutePrimaryCount: Int {
-        3 + (vm.sessionAttentionCount > 0 ? 1 : 0)
-    }
-
-    private var agentRouteSupportCount: Int {
-        3 + (vm.pendingApprovalCount > 0 ? 1 : 0)
-    }
-    private var agentsSectionCount: Int { 2 }
-    private var agentsSectionPreviewTitles: [String] {
-        switch filterState {
-        case .all:
-            [String(localized: "Fleet")]
-        case .attention:
-            [String(localized: "Attention Queue")]
-        case .watchlist:
-            [String(localized: "Watchlist")]
-        case .running:
-            [String(localized: "Running Fleet")]
-        case .stopped:
-            [String(localized: "Stopped Fleet")]
-        }
-    }
-
     var body: some View {
         NavigationStack {
             Group {
@@ -201,11 +178,6 @@ struct AgentsView: View {
             .navigationTitle(String(localized: "Agents"))
             .searchable(text: $searchText, prompt: Text(String(localized: "Search agents...")))
             .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    StatusIndicator(health: vm.health)
-                }
-            }
             .refreshable {
                 await vm.refresh()
                 watchlistStore.removeMissingAgents(validIDs: Set(vm.agents.map(\.id)))
