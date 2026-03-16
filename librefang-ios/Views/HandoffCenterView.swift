@@ -496,6 +496,18 @@ struct HandoffCenterView: View {
                     watchlistIssueCount: watchlistIssueCount,
                     diagnosticsWarningCount: vm.diagnosticsConfigWarningCount
                 )
+                HandoffWorkstreamCoverageDeck(
+                    queueCount: queueCount,
+                    criticalCount: criticalCount,
+                    timelineCount: timelineItems.count,
+                    historyCount: filteredEntries.count,
+                    focusCount: handoffStore.draftFocusAreas.items.count,
+                    followUpCount: handoffStore.draftFollowUpItems.count,
+                    suggestedFocusCount: suggestedFocusAreas.count,
+                    suggestedFollowUpCount: suggestedFollowUps.count,
+                    pendingFollowUpCount: pendingLatestFollowUpCount,
+                    readiness: draftReadiness
+                )
                 HandoffRouteInventoryDeck(
                     queueCount: queueCount,
                     criticalCount: criticalCount,
@@ -518,7 +530,7 @@ struct HandoffCenterView: View {
                 HandoffFocusCoverageDeck(
                     queueCount: queueCount,
                     criticalCount: criticalCount,
-                    pendingApprovalCount: vm.pendingApprovalCount,
+                    pendingApprovalCount: vm.pendingApprovalCount,
                     watchlistIssueCount: watchlistIssueCount,
                     sessionAttentionCount: vm.sessionAttentionCount,
                     criticalAuditCount: vm.recentCriticalAuditCount,
@@ -1662,6 +1674,107 @@ private struct HandoffSupportCoverageDeck: View {
             return String(localized: "Handoff support coverage is currently anchored by slower diagnostics and watchlist drift.")
         }
         return String(localized: "Handoff support coverage is currently light and mostly reflects saved-history readiness.")
+    }
+}
+
+private struct HandoffWorkstreamCoverageDeck: View {
+    let queueCount: Int
+    let criticalCount: Int
+    let timelineCount: Int
+    let historyCount: Int
+    let focusCount: Int
+    let followUpCount: Int
+    let suggestedFocusCount: Int
+    let suggestedFollowUpCount: Int
+    let pendingFollowUpCount: Int
+    let readiness: HandoffReadinessStatus
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether handoff work is currently led by draft coverage, saved history, or live queue follow-through before editing in detail."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
+                    if draftCount > 0 {
+                        PresentationToneBadge(
+                            text: draftCount == 1 ? String(localized: "1 draft lane") : String(localized: "\(draftCount) draft lanes"),
+                            tone: .warning
+                        )
+                    }
+                    if historyLaneCount > 0 {
+                        PresentationToneBadge(
+                            text: historyLaneCount == 1 ? String(localized: "1 history lane") : String(localized: "\(historyLaneCount) history lanes"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep draft coverage, saved history, and live queue follow-through readable before the handoff editor and timeline rows take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                    tone: queueCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if criticalCount > 0 {
+                    Label(
+                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if timelineCount > 0 {
+                    Label(
+                        timelineCount == 1 ? String(localized: "1 timeline card") : String(localized: "\(timelineCount) timeline cards"),
+                        systemImage: "clock.arrow.circlepath"
+                    )
+                }
+                if historyCount > 0 {
+                    Label(
+                        historyCount == 1 ? String(localized: "1 history row") : String(localized: "\(historyCount) history rows"),
+                        systemImage: "text.badge.plus"
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    Label(
+                        pendingFollowUpCount == 1 ? String(localized: "1 pending follow-up") : String(localized: "\(pendingFollowUpCount) pending follow-ups"),
+                        systemImage: "arrow.triangle.2.circlepath"
+                    )
+                }
+            }
+        }
+    }
+
+    private var draftCount: Int {
+        focusCount + followUpCount + suggestedFocusCount + suggestedFollowUpCount
+    }
+
+    private var historyLaneCount: Int {
+        timelineCount + historyCount
+    }
+
+    private var summaryLine: String {
+        if draftCount >= max(historyLaneCount, queueCount + pendingFollowUpCount) && draftCount > 0 {
+            return String(localized: "Handoff workstream coverage is currently anchored by draft composition.")
+        }
+        if historyLaneCount >= queueCount + pendingFollowUpCount && historyLaneCount > 0 {
+            return String(localized: "Handoff workstream coverage is currently anchored by timeline and saved-history review.")
+        }
+        if queueCount > 0 || pendingFollowUpCount > 0 {
+            return String(localized: "Handoff workstream coverage is currently anchored by live queue follow-through.")
+        }
+        return String(localized: "Handoff workstream coverage is currently light across draft and history lanes.")
     }
 }
 

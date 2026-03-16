@@ -397,6 +397,18 @@ struct IncidentsView: View {
                 integrationCount: integrationIssueCount,
                 isAcknowledged: isCurrentSnapshotAcknowledged
             )
+            IncidentWorkstreamCoverageDeck(
+                activeAlertCount: visibleAlerts.count,
+                mutedAlertCount: mutedAlerts.count,
+                approvalCount: vm.pendingApprovalCount,
+                agentCount: combinedAgentIssueCount,
+                watchedDiagnosticCount: watchedDiagnosticRows.count,
+                sessionCount: vm.sessionAttentionCount,
+                eventCount: vm.recentCriticalAuditCount,
+                automationCount: automationIssueCount,
+                integrationCount: integrationIssueCount,
+                handoffCount: handoffIssueCount
+            )
 
             IncidentActionReadinessDeck(
                 primaryRouteCount: operatorPrimaryRouteCount,
@@ -1942,6 +1954,119 @@ private struct IncidentSupportCoverageDeck: View {
             return String(localized: "Incident support coverage is currently light, and the active snapshot is acknowledged.")
         }
         return String(localized: "Incident support coverage is currently light and mostly reflects slower automation and audit context.")
+    }
+}
+
+private struct IncidentWorkstreamCoverageDeck: View {
+    let activeAlertCount: Int
+    let mutedAlertCount: Int
+    let approvalCount: Int
+    let agentCount: Int
+    let watchedDiagnosticCount: Int
+    let sessionCount: Int
+    let eventCount: Int
+    let automationCount: Int
+    let integrationCount: Int
+    let handoffCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether incidents are currently led by live alerts, operator queues, or slower support follow-through before opening the buckets below."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if activeAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: activeAlertCount == 1 ? String(localized: "1 active alert") : String(localized: "\(activeAlertCount) active alerts"),
+                            tone: .critical
+                        )
+                    }
+                    if operatorCount > 0 {
+                        PresentationToneBadge(
+                            text: operatorCount == 1 ? String(localized: "1 operator lane") : String(localized: "\(operatorCount) operator lanes"),
+                            tone: .warning
+                        )
+                    }
+                    if supportCount > 0 {
+                        PresentationToneBadge(
+                            text: supportCount == 1 ? String(localized: "1 support lane") : String(localized: "\(supportCount) support lanes"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep live alerts, operator queues, and slower handoff or platform drag readable before moving through incident buckets."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: operatorCount == 1 ? String(localized: "1 operator lane") : String(localized: "\(operatorCount) operator lanes"),
+                    tone: operatorCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if mutedAlertCount > 0 {
+                    Label(
+                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        systemImage: "bell.slash"
+                    )
+                }
+                if handoffCount > 0 {
+                    Label(
+                        handoffCount == 1 ? String(localized: "1 handoff issue") : String(localized: "\(handoffCount) handoff issues"),
+                        systemImage: "text.badge.plus"
+                    )
+                }
+                if eventCount > 0 {
+                    Label(
+                        eventCount == 1 ? String(localized: "1 critical event") : String(localized: "\(eventCount) critical events"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if automationCount > 0 {
+                    Label(
+                        automationCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationCount > 0 {
+                    Label(
+                        integrationCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var operatorCount: Int {
+        approvalCount + agentCount + watchedDiagnosticCount + sessionCount
+    }
+
+    private var supportCount: Int {
+        mutedAlertCount + eventCount + automationCount + integrationCount + handoffCount
+    }
+
+    private var summaryLine: String {
+        if activeAlertCount >= max(operatorCount, supportCount) && activeAlertCount > 0 {
+            return String(localized: "Incident workstream coverage is currently anchored by live alerts.")
+        }
+        if operatorCount >= supportCount && operatorCount > 0 {
+            return String(localized: "Incident workstream coverage is currently anchored by operator queues behind the alert buckets.")
+        }
+        if supportCount > 0 {
+            return String(localized: "Incident workstream coverage is currently anchored by slower support lanes behind the live incident buckets.")
+        }
+        return String(localized: "Incident workstream coverage is currently light across the visible buckets.")
     }
 }
 
