@@ -410,6 +410,18 @@ struct IncidentsView: View {
                 mutedAlertCount: mutedAlerts.count,
                 isAcknowledged: isCurrentSnapshotAcknowledged
             )
+            IncidentFocusCoverageDeck(
+                activeAlertCount: visibleAlerts.count,
+                criticalCount: criticalAlertCount,
+                approvalCount: vm.pendingApprovalCount,
+                agentCount: combinedAgentIssueCount,
+                sessionCount: vm.sessionAttentionCount,
+                handoffCount: handoffIssueCount,
+                automationCount: automationIssueCount,
+                integrationCount: integrationIssueCount,
+                mutedAlertCount: mutedAlerts.count,
+                watchedDiagnosticCount: watchedDiagnosticRows.count
+            )
 
             IncidentRouteInventoryDeck(
                 primaryRouteCount: operatorPrimaryRouteCount,
@@ -2043,6 +2055,115 @@ private struct IncidentActionReadinessDeck: View {
             return String(localized: "Incident action readiness is currently calm enough for route review and queue maintenance.")
         }
         return String(localized: "Incident action readiness is currently centered on route breadth and queue coverage.")
+    }
+}
+
+private struct IncidentFocusCoverageDeck: View {
+    let activeAlertCount: Int
+    let criticalCount: Int
+    let approvalCount: Int
+    let agentCount: Int
+    let sessionCount: Int
+    let handoffCount: Int
+    let automationCount: Int
+    let integrationCount: Int
+    let mutedAlertCount: Int
+    let watchedDiagnosticCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant incident lane readable before opening route rails and queue buckets."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: activeAlertCount == 1 ? String(localized: "1 active alert") : String(localized: "\(activeAlertCount) active alerts"),
+                        tone: criticalCount > 0 ? .critical : .warning
+                    )
+                    if mutedAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                            tone: .neutral
+                        )
+                    }
+                    if handoffCount > 0 {
+                        PresentationToneBadge(
+                            text: handoffCount == 1 ? String(localized: "1 handoff issue") : String(localized: "\(handoffCount) handoff issues"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant incident lane readable before moving from the summary decks into route rails and queue buckets."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                    tone: criticalCount > 0 ? .critical : .neutral
+                )
+            } facts: {
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if agentCount > 0 {
+                    Label(
+                        agentCount == 1 ? String(localized: "1 agent issue") : String(localized: "\(agentCount) agent issues"),
+                        systemImage: "person.3"
+                    )
+                }
+                if sessionCount > 0 {
+                    Label(
+                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        systemImage: "rectangle.stack"
+                    )
+                }
+                if watchedDiagnosticCount > 0 {
+                    Label(
+                        watchedDiagnosticCount == 1 ? String(localized: "1 watched diagnostic") : String(localized: "\(watchedDiagnosticCount) watched diagnostics"),
+                        systemImage: "star.circle"
+                    )
+                }
+                if automationCount > 0 {
+                    Label(
+                        automationCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationCount > 0 {
+                    Label(
+                        integrationCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if criticalCount > 0 || activeAlertCount > 0 {
+            return String(localized: "Incident focus coverage is currently anchored by the active alert lane.")
+        }
+        if approvalCount > 0 || sessionCount > 0 || agentCount > 0 {
+            return String(localized: "Incident focus coverage is currently anchored by operator queue and fleet drag.")
+        }
+        if handoffCount > 0 || mutedAlertCount > 0 || watchedDiagnosticCount > 0 {
+            return String(localized: "Incident focus coverage is currently anchored by handoff and watched-diagnostics follow-through.")
+        }
+        return String(localized: "Incident focus coverage is currently balanced across the grouped incident lanes.")
     }
 }
 

@@ -149,6 +149,16 @@ struct ApprovalsView: View {
                     filterLabel: filter.label,
                     filterTone: filterTone
                 )
+                ApprovalsFocusCoverageDeck(
+                    visibleApprovalCount: filteredApprovals.count,
+                    criticalApprovalCount: criticalApprovalCount,
+                    highRiskApprovalCount: highRiskApprovalCount,
+                    approvalAgentCount: approvalAgentCount,
+                    toolCount: visibleToolCount,
+                    hasSearchScope: !trimmedSearchText.isEmpty,
+                    filterLabel: filter.label,
+                    filterTone: filterTone
+                )
                 ApprovalsRouteInventoryDeck(
                     primaryRouteCount: approvalsPrimaryRouteCount,
                     supportRouteCount: approvalsSupportRouteCount,
@@ -916,6 +926,83 @@ private struct ApprovalsActionReadinessDeck: View {
             return String(localized: "Approval action readiness is currently anchored by the active search scope and filtered review slice.")
         }
         return String(localized: "Approval action readiness is currently centered on grouped operator exits and visible queue coverage.")
+    }
+}
+
+private struct ApprovalsFocusCoverageDeck: View {
+    let visibleApprovalCount: Int
+    let criticalApprovalCount: Int
+    let highRiskApprovalCount: Int
+    let approvalAgentCount: Int
+    let toolCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant approval lane visible before opening route rails and the full approval queue."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    PresentationToneBadge(
+                        text: visibleApprovalCount == 1 ? String(localized: "1 visible approval") : String(localized: "\(visibleApprovalCount) visible approvals"),
+                        tone: visibleApprovalCount > 0 ? .positive : .neutral
+                    )
+                    if criticalApprovalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant approval lane readable before moving from the compact control decks into route rails and queue rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: highRiskApprovalCount == 1 ? String(localized: "1 high risk") : String(localized: "\(highRiskApprovalCount) high risk"),
+                    tone: highRiskApprovalCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if approvalAgentCount > 0 {
+                    Label(
+                        approvalAgentCount == 1 ? String(localized: "1 agent lane") : String(localized: "\(approvalAgentCount) agent lanes"),
+                        systemImage: "person.2"
+                    )
+                }
+                if toolCount > 0 {
+                    Label(
+                        toolCount == 1 ? String(localized: "1 tool lane") : String(localized: "\(toolCount) tool lanes"),
+                        systemImage: "wrench.and.screwdriver"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if criticalApprovalCount > 0 || highRiskApprovalCount > 0 {
+            return String(localized: "Approval focus coverage is currently anchored by critical and high-risk review lanes.")
+        }
+        if hasSearchScope {
+            return String(localized: "Approval focus coverage is currently anchored by the filtered approval slice.")
+        }
+        return String(localized: "Approval focus coverage is currently balanced across the visible approval lanes.")
     }
 }
 

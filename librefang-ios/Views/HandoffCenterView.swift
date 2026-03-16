@@ -512,7 +512,7 @@ struct HandoffCenterView: View {
                     followUpCount: handoffStore.draftFollowUpItems.count,
                     suggestedFocusCount: suggestedFocusAreas.count,
                     suggestedFollowUpCount: suggestedFollowUps.count,
-                    hasCheckIn: handoffStore.draftCheckInWindow != nil,
+                    hasCheckIn: handoffStore.draftCheckInWindow != .none,
                     canShare: !currentShareText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 )
                 HandoffFocusCoverageDeck(
@@ -525,7 +525,7 @@ struct HandoffCenterView: View {
                     focusCount: handoffStore.draftFocusAreas.items.count,
                     followUpCount: handoffStore.draftFollowUpItems.count,
                     pendingFollowUpCount: pendingLatestFollowUpCount,
-                    hasCheckIn: handoffStore.draftCheckInWindow != nil
+                    hasCheckIn: handoffStore.draftCheckInWindow != .none
                 )
                 handoffSurfaceDeckCard
             }

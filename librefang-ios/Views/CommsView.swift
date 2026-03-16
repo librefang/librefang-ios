@@ -58,6 +58,7 @@ struct CommsView: View {
                 commsPressureCoverageDeck
                 commsSupportCoverageDeck
                 commsActionReadinessDeck
+                commsFocusCoverageDeck
                 commsTrafficCoverageDeck
                 commsControlDeckCard
             } header: {
@@ -387,6 +388,18 @@ struct CommsView: View {
             nodeCount: viewModel.nodeCount,
             edgeCount: viewModel.edgeCount,
             taskEventCount: viewModel.taskEventCount,
+            isStreaming: viewModel.isStreaming,
+            hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        )
+    }
+
+    private var commsFocusCoverageDeck: some View {
+        CommsFocusCoverageDeck(
+            visibleEventCount: filteredEvents.count,
+            nodeCount: viewModel.nodeCount,
+            edgeCount: viewModel.edgeCount,
+            taskEventCount: viewModel.taskEventCount,
+            spawnEventCount: viewModel.spawnEventCount,
             isStreaming: viewModel.isStreaming,
             hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         )
@@ -813,6 +826,85 @@ private struct CommsActionReadinessDeck: View {
             return String(localized: "Comms action readiness is currently leaning on polling transport.")
         }
         return String(localized: "Comms action readiness is currently clear enough for route pivots and deeper traffic review.")
+    }
+}
+
+private struct CommsFocusCoverageDeck: View {
+    let visibleEventCount: Int
+    let nodeCount: Int
+    let edgeCount: Int
+    let taskEventCount: Int
+    let spawnEventCount: Int
+    let isStreaming: Bool
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant comms lane visible before opening route rails, topology rows, and traffic detail."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                        tone: isStreaming ? .positive : .warning
+                    )
+                    PresentationToneBadge(
+                        text: visibleEventCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleEventCount) visible events"),
+                        tone: visibleEventCount > 0 ? .positive : .neutral
+                    )
+                    if edgeCount > 0 {
+                        PresentationToneBadge(
+                            text: edgeCount == 1 ? String(localized: "1 link") : String(localized: "\(edgeCount) links"),
+                            tone: .positive
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant comms lane readable before moving from compact control decks into topology and traffic detail."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: nodeCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(nodeCount) visible agents"),
+                    tone: nodeCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if taskEventCount > 0 {
+                    Label(
+                        taskEventCount == 1 ? String(localized: "1 task-flow lane") : String(localized: "\(taskEventCount) task-flow lanes"),
+                        systemImage: "checklist"
+                    )
+                }
+                if spawnEventCount > 0 {
+                    Label(
+                        spawnEventCount == 1 ? String(localized: "1 lifecycle lane") : String(localized: "\(spawnEventCount) lifecycle lanes"),
+                        systemImage: "arrow.triangle.branch"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if taskEventCount > 0 || spawnEventCount > 0 {
+            return String(localized: "Comms focus coverage is currently anchored by active task-flow and lifecycle lanes.")
+        }
+        if hasSearchScope {
+            return String(localized: "Comms focus coverage is currently anchored by the filtered traffic slice.")
+        }
+        return String(localized: "Comms focus coverage is currently balanced across visible topology and traffic lanes.")
     }
 }
 

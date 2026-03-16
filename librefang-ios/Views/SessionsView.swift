@@ -109,6 +109,7 @@ struct SessionsView: View {
                 sessionsPressureCoverageDeck
                 sessionsSupportCoverageDeck
                 sessionsActionReadinessDeck
+                sessionsFocusCoverageDeck
                 sessionsQueueCoverageDeck
                 sessionsControlDeckCard
             } header: {
@@ -507,6 +508,19 @@ struct SessionsView: View {
         )
     }
 
+    private var sessionsFocusCoverageDeck: some View {
+        SessionsFocusCoverageDeck(
+            visibleCount: filteredItems.count,
+            attentionCount: visibleAttentionCount,
+            highVolumeCount: visibleHighVolumeCount,
+            unlabeledCount: visibleUnlabeledCount,
+            duplicateAgentCount: visibleDuplicateAgentCount,
+            hasSearchScope: !normalizedSearchText.isEmpty,
+            filterLabel: filter.label,
+            filterTone: snapshotFilterTone
+        )
+    }
+
 private struct SessionsRouteInventoryDeck: View {
     let primaryRouteCount: Int
     let supportRouteCount: Int
@@ -666,6 +680,83 @@ private struct SessionsActionReadinessDeck: View {
             return String(localized: "Session action readiness is currently anchored by the active search scope and filtered backlog slice.")
         }
         return String(localized: "Session action readiness is currently centered on grouped session routes and backlog coverage.")
+    }
+}
+
+private struct SessionsFocusCoverageDeck: View {
+    let visibleCount: Int
+    let attentionCount: Int
+    let highVolumeCount: Int
+    let unlabeledCount: Int
+    let duplicateAgentCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant session lane visible before opening route rails and the full session backlog."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    PresentationToneBadge(
+                        text: visibleCount == 1 ? String(localized: "1 visible session") : String(localized: "\(visibleCount) visible sessions"),
+                        tone: visibleCount > 0 ? .positive : .neutral
+                    )
+                    if attentionCount > 0 {
+                        PresentationToneBadge(
+                            text: attentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(attentionCount) hotspots"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant session lane readable before moving from compact control decks into the backlog list and route rails."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: highVolumeCount == 1 ? String(localized: "1 high-volume") : String(localized: "\(highVolumeCount) high-volume"),
+                    tone: highVolumeCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if unlabeledCount > 0 {
+                    Label(
+                        unlabeledCount == 1 ? String(localized: "1 unlabeled") : String(localized: "\(unlabeledCount) unlabeled"),
+                        systemImage: "tag.slash"
+                    )
+                }
+                if duplicateAgentCount > 0 {
+                    Label(
+                        duplicateAgentCount == 1 ? String(localized: "1 duplicate agent") : String(localized: "\(duplicateAgentCount) duplicate agents"),
+                        systemImage: "person.2"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if attentionCount > 0 || highVolumeCount > 0 || unlabeledCount > 0 {
+            return String(localized: "Session focus coverage is currently anchored by backlog pressure and label hygiene.")
+        }
+        if hasSearchScope {
+            return String(localized: "Session focus coverage is currently anchored by the filtered backlog slice.")
+        }
+        return String(localized: "Session focus coverage is currently balanced across the visible session lanes.")
     }
 }
 
