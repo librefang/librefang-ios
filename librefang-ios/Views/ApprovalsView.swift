@@ -90,6 +90,20 @@ struct ApprovalsView: View {
     private var visibleToolCount: Int {
         Set(filteredApprovals.map(\.toolName)).count
     }
+
+    private var filterSummaryLine: String {
+        let query = trimmedSearchText
+        if query.isEmpty {
+            if filteredApprovals.count == vm.approvals.count {
+                return vm.approvals.count == 1
+                    ? String(localized: "1 approval in queue")
+                    : String(localized: "\(vm.approvals.count) approvals in queue")
+            }
+            return String(localized: "\(filteredApprovals.count) of \(vm.approvals.count) approvals visible")
+        }
+        return String(localized: "\(filteredApprovals.count) approvals visible for \"\(query)\"")
+    }
+
     var body: some View {
         List {
             Section {
@@ -98,12 +112,25 @@ struct ApprovalsView: View {
             }
 
             Section {
-                ApprovalsFilterCard(
-                    filter: $filter,
-                    searchText: searchText,
-                    visibleCount: filteredApprovals.count,
-                    totalCount: vm.approvals.count
-                )
+                FlowLayout(spacing: 8) {
+                    ForEach(ApprovalRiskFilter.allCases) { option in
+                        Button {
+                            filter = option
+                        } label: {
+                            ApprovalFilterChip(
+                                label: option.label,
+                                isSelected: filter == option
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+                if filter != .all || !trimmedSearchText.isEmpty {
+                    Text(filterSummaryLine)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             } header: {
                 Text("Filters")
             }
@@ -202,69 +229,6 @@ struct ApprovalsView: View {
         }
     }
 
-}
-
-private struct ApprovalsFilterCard: View {
-    @Binding var filter: ApprovalRiskFilter
-    let searchText: String
-    let visibleCount: Int
-    let totalCount: Int
-
-    var body: some View {
-        MonitoringFilterCard(summary: summaryLine, detail: searchSummary) {
-            activeBadge
-        } controls: {
-            FlowLayout(spacing: 8) {
-                ForEach(ApprovalRiskFilter.allCases) { option in
-                    Button {
-                        filter = option
-                    } label: {
-                        ApprovalFilterChip(
-                            label: option.label,
-                            isSelected: filter == option
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-    }
-
-    private var activeBadge: some View {
-        PresentationToneBadge(
-            text: filter.label,
-            tone: badgeTone
-        )
-    }
-
-    private var summaryLine: String {
-        if visibleCount == totalCount {
-            return totalCount == 1
-                ? String(localized: "1 approval in queue")
-                : String(localized: "\(totalCount) approvals in queue")
-        }
-
-        return String(localized: "\(visibleCount) of \(totalCount) approvals visible")
-    }
-
-    private var searchSummary: String {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if query.isEmpty {
-            return String(localized: "Use search to narrow by agent, tool, or action.")
-        }
-        return String(localized: "Search active: \"\(query)\"")
-    }
-
-    private var badgeTone: PresentationTone {
-        switch filter {
-        case .all:
-            return .neutral
-        case .critical:
-            return .critical
-        case .high:
-            return .warning
-        }
-    }
 }
 
 private struct ApprovalsStatusDeckCard: View {
