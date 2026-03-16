@@ -120,93 +120,9 @@ struct ApprovalsView: View {
                         filterTone: filterTone,
                         hasSearchScope: !trimmedSearchText.isEmpty
                     )
-                    ApprovalsSectionInventoryDeck(
-                        sectionCount: approvalsSectionCount,
-                        pendingApprovalCount: vm.pendingApprovalCount,
-                        visibleApprovalCount: filteredApprovals.count,
-                        criticalApprovalCount: criticalApprovalCount,
-                        highRiskApprovalCount: highRiskApprovalCount,
-                        approvalAgentCount: approvalAgentCount,
-                        toolCount: visibleToolCount,
-                        hasSearchScope: !trimmedSearchText.isEmpty
-                    )
-                    if !approvalsSectionPreviewTitles.isEmpty {
-                        MonitoringSectionPreviewDeck(
-                            title: String(localized: "Section Preview"),
-                            detail: String(localized: "Keep the next approval stack visible before the queue opens into full review rows."),
-                            sectionTitles: approvalsSectionPreviewTitles,
-                            tone: filterTone,
-                            maxVisibleSections: 5,
-                            jumpItems: approvalsSectionPreviewJumpItems(proxy)
-                        )
-                    }
-                    ApprovalsPressureCoverageDeck(
-                        pendingApprovalCount: vm.pendingApprovalCount,
-                        visibleApprovalCount: filteredApprovals.count,
-                        criticalApprovalCount: criticalApprovalCount,
-                        highRiskApprovalCount: highRiskApprovalCount,
-                        approvalAgentCount: approvalAgentCount,
-                        toolCount: visibleToolCount,
-                        hasSearchScope: !trimmedSearchText.isEmpty
-                    )
-                    ApprovalsSupportCoverageDeck(
-                        visibleApprovalCount: filteredApprovals.count,
-                        approvalAgentCount: approvalAgentCount,
-                        toolCount: visibleToolCount,
-                        hasSearchScope: !trimmedSearchText.isEmpty,
-                        filterLabel: filter.label,
-                        filterTone: filterTone
-                    )
-                    ApprovalsActionReadinessDeck(
-                        primaryRouteCount: approvalsPrimaryRouteCount,
-                        supportRouteCount: approvalsSupportRouteCount,
-                        visibleApprovalCount: filteredApprovals.count,
-                        criticalApprovalCount: criticalApprovalCount,
-                        approvalAgentCount: approvalAgentCount,
-                        hasSearchScope: !trimmedSearchText.isEmpty,
-                        filterLabel: filter.label,
-                        filterTone: filterTone
-                    )
-                    ApprovalsFocusCoverageDeck(
-                        visibleApprovalCount: filteredApprovals.count,
-                        criticalApprovalCount: criticalApprovalCount,
-                        highRiskApprovalCount: highRiskApprovalCount,
-                        approvalAgentCount: approvalAgentCount,
-                        toolCount: visibleToolCount,
-                        hasSearchScope: !trimmedSearchText.isEmpty,
-                        filterLabel: filter.label,
-                        filterTone: filterTone
-                    )
-                    ApprovalsWorkstreamCoverageDeck(
-                        visibleApprovalCount: filteredApprovals.count,
-                        criticalApprovalCount: criticalApprovalCount,
-                        highRiskApprovalCount: highRiskApprovalCount,
-                        approvalAgentCount: approvalAgentCount,
-                        toolCount: visibleToolCount,
-                        hasSearchScope: !trimmedSearchText.isEmpty,
-                        filterLabel: filter.label,
-                        filterTone: filterTone
-                    )
-                    ApprovalsScopeCoverageDeck(
-                        visibleApprovalCount: filteredApprovals.count,
-                        totalApprovalCount: vm.approvals.count,
-                        approvalAgentCount: approvalAgentCount,
-                        toolCount: visibleToolCount,
-                        hasSearchScope: !trimmedSearchText.isEmpty,
-                        isFilterScoped: filter != .all,
-                        filterLabel: filter.label,
-                        filterTone: filterTone
-                    )
-                    ApprovalsRouteInventoryDeck(
-                        primaryRouteCount: approvalsPrimaryRouteCount,
-                        supportRouteCount: approvalsSupportRouteCount,
-                        pendingApprovalCount: vm.pendingApprovalCount,
-                        criticalApprovalCount: criticalApprovalCount,
-                        approvalAgentCount: approvalAgentCount
-                    )
                     MonitoringSurfaceGroupCard(
-                        title: String(localized: "Routes"),
-                        detail: String(localized: "Keep the incident, on-call, and runtime exits closest to approval review.")
+                        title: String(localized: "Shortcuts"),
+                        detail: String(localized: "Keep the next operator screens close to the approval queue.")
                     ) {
                         MonitoringShortcutRail(
                             title: String(localized: "Primary"),
@@ -274,9 +190,9 @@ struct ApprovalsView: View {
                         totalCount: vm.approvals.count
                     )
                 } header: {
-                    Text("Controls")
+                    Text("Summary")
                 } footer: {
-                    Text("Keep severity, routes, and filters together before the approval list.")
+                    Text("Keep one approvals summary, the main exits, and the filter bar above the queue.")
                 }
 
                 if filteredApprovals.isEmpty && !vm.isLoading {
@@ -290,14 +206,6 @@ struct ApprovalsView: View {
                     .id(ApprovalsSectionAnchor.approvals)
                 } else {
                     Section {
-                        ApprovalsQueueInventoryDeck(
-                            approvals: filteredApprovals,
-                            totalCount: vm.approvals.count,
-                            filterLabel: filter.label,
-                            filterTone: filterTone,
-                            searchText: trimmedSearchText
-                        )
-
                         ForEach(filteredApprovals) { approval in
                             ApprovalOperatorRow(
                                 approval: approval,
@@ -318,15 +226,15 @@ struct ApprovalsView: View {
                     .id(ApprovalsSectionAnchor.approvals)
                 }
             }
-            .navigationTitle("Approvals")
-            .searchable(text: $searchText, prompt: "Search agent, tool, or action")
+            .navigationTitle(String(localized: "Approvals"))
+            .searchable(text: $searchText, prompt: Text(String(localized: "Search agent, tool, or action")))
             .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .refreshable {
                 await vm.refresh()
             }
             .overlay {
                 if vm.isLoading && vm.approvals.isEmpty {
-                    ProgressView("Loading approvals...")
+                    ProgressView(String(localized: "Loading approvals..."))
                 }
             }
             .task {
@@ -343,7 +251,7 @@ struct ApprovalsView: View {
                 Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
                     Task { await performAction(action) }
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Cancel"), role: .cancel) {}
             } message: { action in
                 Text(action.message)
             }

@@ -309,7 +309,7 @@ struct BudgetView: View {
                         )
                     }
                 }
-                .navigationTitle("Budget")
+                .navigationTitle(String(localized: "Budget"))
                 .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
                 .refreshable {
                     HapticManager.impact(.light)
@@ -317,7 +317,7 @@ struct BudgetView: View {
                 }
                 .overlay {
                     if vm.isLoading && vm.budget == nil && vm.usageDaily.isEmpty {
-                        ProgressView("Loading...")
+                        ProgressView(String(localized: "Loading..."))
                     }
                 }
                 .task {
@@ -425,94 +425,10 @@ struct BudgetView: View {
                 )
             }
 
-            BudgetSectionInventoryDeck(
-                sectionCount: budgetSectionCount,
-                trendDays: vm.usageDaily.count,
-                modelCount: sortedModels.count,
-                agentCount: sortedAgents.count,
-                hasBudgetGuardrails: vm.budget != nil,
-                hasUsageSignals: vm.usageSummary != nil,
-                topModelName: topModelName,
-                topAgentName: topAgentBudgetItem?.name
-            )
-            if !budgetSectionPreviewTitles.isEmpty {
-                MonitoringSectionPreviewDeck(
-                    title: String(localized: "Section Preview"),
-                    detail: String(localized: "Keep the next budget stacks visible before limits, trend, and model cost sections open up."),
-                    sectionTitles: budgetSectionPreviewTitles,
-                    tone: budgetPressureTone,
-                    maxVisibleSections: 5,
-                    jumpItems: budgetSectionPreviewJumpItems(proxy)
-                )
-            }
-
-            BudgetPressureCoverageDeck(
-                dailySpend: vm.budget?.dailySpend,
-                projectedMonthlyCost: vm.usageSummary.flatMap(projectedMonthlyCost),
-                trendDays: vm.usageDaily.count,
-                modelCount: sortedModels.count,
-                agentCount: sortedAgents.count,
-                hasUsageSignals: vm.usageSummary != nil,
-                alertThreshold: vm.budget?.alertThreshold
-            )
-
-            BudgetSupportCoverageDeck(
-                hasUsageSignals: vm.usageSummary != nil,
-                trendDays: vm.usageDaily.count,
-                totalCalls: trendTotalCalls,
-                totalTokens: trendTotalTokens,
-                topModelName: topModelName,
-                topAgentName: topAgentBudgetItem?.name
-            )
-            BudgetActionReadinessDeck(
-                primaryAreaCount: budgetPrimaryAreaCount,
-                supportAreaCount: budgetSupportAreaCount,
-                primaryRouteCount: 2,
-                supportRouteCount: 2,
-                sortOrderLabel: sortOrder.label,
-                hasBudgetGuardrails: vm.budget != nil,
-                hasUsageSignals: vm.usageSummary != nil,
-                trendDays: vm.usageDaily.count,
-                modelCount: sortedModels.count,
-                agentCount: sortedAgents.count
-            )
-            BudgetFocusCoverageDeck(
-                trendDays: vm.usageDaily.count,
-                modelCount: sortedModels.count,
-                agentCount: sortedAgents.count,
-                hasBudgetGuardrails: vm.budget != nil,
-                hasUsageSignals: vm.usageSummary != nil,
-                sortOrderLabel: sortOrder.label,
-                totalCalls: trendTotalCalls,
-                totalTokens: trendTotalTokens
-            )
-            BudgetWorkstreamCoverageDeck(
-                trendDays: vm.usageDaily.count,
-                modelCount: sortedModels.count,
-                agentCount: sortedAgents.count,
-                hasBudgetGuardrails: vm.budget != nil,
-                hasUsageSignals: vm.usageSummary != nil,
-                totalCalls: trendTotalCalls,
-                totalTokens: trendTotalTokens,
-                topModelName: topModelName,
-                topAgentName: topAgentBudgetItem?.name,
-                sortOrderLabel: sortOrder.label
-            )
-
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Focus Rail"),
-                detail: String(localized: "Keep the longest budget charts and rankings reachable from the compact mobile view.")
+                title: String(localized: "Shortcuts"),
+                detail: String(localized: "Jump to the long charts and rankings without stacking more summary cards.")
             ) {
-                BudgetRouteInventoryDeck(
-                    primaryAreaCount: budgetPrimaryAreaCount,
-                    supportAreaCount: budgetSupportAreaCount,
-                    primaryRouteCount: 2,
-                    supportRouteCount: 2,
-                    trendDays: vm.usageDaily.count,
-                    modelCount: sortedModels.count,
-                    agentCount: sortedAgents.count
-                )
-
                 MonitoringShortcutRail(
                     title: String(localized: "Primary Areas"),
                     detail: budgetFocusSummary

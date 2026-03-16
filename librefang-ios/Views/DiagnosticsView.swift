@@ -111,70 +111,11 @@ struct DiagnosticsView: View {
                 if hasDiagnosticsData {
                     Section {
                         DiagnosticsStatusDeckCard(vm: vm, metrics: metrics)
-                        DiagnosticsFeedInventoryDeck(
-                            loadedFeedCount: loadedFeedCount,
-                            leaderboardCount: leaderboardCount,
-                            warningCount: vm.diagnosticsConfigWarningCount,
-                            panicCount: vm.supervisorPanicCount,
-                            restartCount: vm.supervisorRestartCount,
-                            hasMetrics: metrics != nil,
-                            hasHealth: vm.healthDetail != nil,
-                            hasBuild: vm.versionInfo != nil,
-                            hasConfig: vm.configSummary != nil
-                        )
-                        DiagnosticsSectionInventoryDeck(
-                            sectionCount: diagnosticsSectionCount,
-                            loadedFeedCount: loadedFeedCount,
-                            leaderboardCount: leaderboardCount,
-                            warningCount: vm.diagnosticsConfigWarningCount,
-                            hasMetrics: metrics != nil,
-                            hasHealth: vm.healthDetail != nil,
-                            hasBuild: vm.versionInfo != nil,
-                            hasConfig: vm.configSummary != nil
-                        )
-                        if !diagnosticsSectionPreviewTitles.isEmpty {
-                            MonitoringSectionPreviewDeck(
-                                title: String(localized: "Section Preview"),
-                                detail: String(localized: "Keep the next diagnostics feeds visible before the deep health, config, and metrics stacks open up."),
-                                sectionTitles: diagnosticsSectionPreviewTitles,
-                                tone: vm.supervisorPanicCount > 0 ? .critical : ((vm.diagnosticsConfigWarningCount > 0 || vm.supervisorRestartCount > 0) ? .warning : .neutral),
-                                maxVisibleSections: 5,
-                                jumpItems: diagnosticsSectionPreviewJumpItems(proxy)
-                            )
-                        }
-                        DiagnosticsPressureCoverageDeck(
-                            warningCount: vm.diagnosticsConfigWarningCount,
-                            panicCount: vm.supervisorPanicCount,
-                            restartCount: vm.supervisorRestartCount,
-                            loadedFeedCount: loadedFeedCount,
-                            leaderboardCount: leaderboardCount,
-                            hasMetrics: metrics != nil
-                        )
-                        DiagnosticsSupportCoverageDeck(
-                            hasHealth: vm.healthDetail != nil,
-                            hasBuild: vm.versionInfo != nil,
-                            hasConfig: vm.configSummary != nil,
-                            hasMetrics: metrics != nil,
-                            warningCount: vm.diagnosticsConfigWarningCount,
-                            panicCount: vm.supervisorPanicCount,
-                            restartCount: vm.supervisorRestartCount
-                        )
-                        DiagnosticsWorkstreamCoverageDeck(
-                            loadedFeedCount: loadedFeedCount,
-                            leaderboardCount: leaderboardCount,
-                            hasHealth: vm.healthDetail != nil,
-                            hasBuild: vm.versionInfo != nil,
-                            hasConfig: vm.configSummary != nil,
-                            hasMetrics: metrics != nil,
-                            warningCount: vm.diagnosticsConfigWarningCount,
-                            panicCount: vm.supervisorPanicCount,
-                            restartCount: vm.supervisorRestartCount
-                        )
                         diagnosticsRouteDeck(proxy)
                     } header: {
-                        Text("Controls")
+                        Text("Summary")
                     } footer: {
-                        Text("Keep state, jumps, and nearby surfaces together before the long sections.")
+                        Text("Keep one diagnostics snapshot and direct jumps above the long sections.")
                     }
                 }
 
@@ -384,14 +325,14 @@ struct DiagnosticsView: View {
                     }
                 }
             }
-            .navigationTitle("Diagnostics")
+            .navigationTitle(String(localized: "Diagnostics"))
             .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .refreshable {
                 await vm.refresh()
             }
             .overlay {
                 if vm.isLoading && !hasDiagnosticsData {
-                    ProgressView("Loading diagnostics...")
+                    ProgressView(String(localized: "Loading diagnostics..."))
                 }
             }
             .task {
@@ -405,40 +346,9 @@ struct DiagnosticsView: View {
     @ViewBuilder
     private func diagnosticsRouteDeck(_ proxy: ScrollViewProxy) -> some View {
         MonitoringSurfaceGroupCard(
-            title: String(localized: "Routes"),
-            detail: String(localized: "Keep long diagnostic sections and nearby surfaces in one compact deck.")
+            title: String(localized: "Shortcuts"),
+            detail: String(localized: "Jump to the long diagnostic sections without stacking more summary cards.")
         ) {
-            DiagnosticsRouteInventoryDeck(
-                primaryCount: 5,
-                supportCount: 2,
-                jumpCount: diagnosticsJumpCount,
-                warningCount: vm.diagnosticsConfigWarningCount,
-                panicCount: vm.supervisorPanicCount,
-                hasMetrics: metrics != nil
-            )
-            DiagnosticsActionReadinessDeck(
-                primaryCount: 5,
-                supportCount: 2,
-                jumpCount: diagnosticsJumpCount,
-                hasHealth: vm.healthDetail != nil,
-                hasBuild: vm.versionInfo != nil,
-                hasConfig: vm.configSummary != nil,
-                hasMetrics: metrics != nil,
-                warningCount: vm.diagnosticsConfigWarningCount,
-                panicCount: vm.supervisorPanicCount
-            )
-            DiagnosticsFocusCoverageDeck(
-                loadedFeedCount: loadedFeedCount,
-                leaderboardCount: leaderboardCount,
-                warningCount: vm.diagnosticsConfigWarningCount,
-                panicCount: vm.supervisorPanicCount,
-                restartCount: vm.supervisorRestartCount,
-                hasHealth: vm.healthDetail != nil,
-                hasBuild: vm.versionInfo != nil,
-                hasConfig: vm.configSummary != nil,
-                hasMetrics: metrics != nil
-            )
-
             MonitoringShortcutRail(
                 title: String(localized: "Jumps"),
                 detail: String(localized: "Jump through the longest diagnostic sections without scanning the full monitor.")
