@@ -2,8 +2,8 @@ import SwiftUI
 
 struct MainTabView: View {
     private static let maxPendingShortcutAge: TimeInterval = 10
-    private static let routePresentationCooldown: TimeInterval = 1
     private static let pendingShortcutRetryDelay: TimeInterval = 0.5
+    private static let routePresentationCooldown: TimeInterval = 1
 
     @Environment(\.dependencies) private var deps
     @Environment(\.scenePhase) private var scenePhase
@@ -698,6 +698,16 @@ struct MainTabView: View {
             return
         }
 
+        guard !vm.isLoading else {
+            cancelPendingShortcutRetry()
+            return
+        }
+
+        guard !isRoutePresentationSuspended, Date() >= routePresentationBlockedUntil else {
+            schedulePendingShortcutRetry(after: max(routePresentationBlockedUntil.timeIntervalSinceNow, Self.pendingShortcutRetryDelay))
+            return
+        }
+
         guard openRoute(target, respectingPresentationGate: true) else {
             schedulePendingShortcutRetry()
             return
@@ -748,6 +758,7 @@ struct MainTabView: View {
 
     private func updateRoutePresentationWindow(for isLoading: Bool) {
         guard !isLoading else {
+            cancelPendingShortcutRetry()
             suspendRoutePresentation()
             return
         }
@@ -782,6 +793,7 @@ struct MainTabView: View {
             }
             guard !Task.isCancelled else { return }
             await MainActor.run {
+                pendingShortcutRetryTask = nil
                 deps.appShortcutLaunchStore.refreshFromDefaults()
                 handlePendingAppShortcutIfNeeded()
             }
@@ -865,7 +877,7 @@ struct MainTabView: View {
                     badgeText: vm.sessionAttentionCount == 1
                         ? String(localized: "1 hotspot")
                         : String(localized: "\(vm.sessionAttentionCount) hotspots"),
-                    action: { openRoute(.sessionsAttention) }
+                    action: { _ = openRoute(.sessionsAttention, respectingPresentationGate: false) }
                 )
             )
         }
