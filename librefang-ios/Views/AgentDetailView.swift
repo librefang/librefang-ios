@@ -627,6 +627,7 @@ struct AgentDetailView: View {
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next agent stacks visible before runtime, session, diagnostics, and local action sections open up."),
                         sectionTitles: agentSectionPreviewTitles,
+                        tone: monitoringSurfaceIssueCount > 0 ? .warning : .neutral,
                         maxVisibleSections: 5
                     )
                 }

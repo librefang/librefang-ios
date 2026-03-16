@@ -365,6 +365,7 @@ struct OverviewView: View {
                                 title: String(localized: "Section Preview"),
                                 detail: String(localized: "Keep the next overview stacks visible before the platform, signal, and fleet cards spread out."),
                                 sectionTitles: overviewSectionPreviewTitles,
+                                tone: visibleMonitoringAlerts.contains { $0.severity == .critical } ? .critical : ((vm.runtimeAlertCount > 0 || vm.isDataStale) ? .warning : .neutral),
                                 maxVisibleSections: 5
                             )
                         }

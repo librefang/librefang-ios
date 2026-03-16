@@ -307,7 +307,9 @@ struct OnCallView: View {
                     MonitoringSectionPreviewDeck(
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next on-call stacks visible before the live queue, watchlist, and surface exits open up."),
-                        sectionTitles: onCallSectionPreviewTitles
+                        sectionTitles: onCallSectionPreviewTitles,
+                        tone: criticalCount > 0 ? .critical : ((watchIssueCount > 0 || pendingFollowUpCount > 0) ? .warning : .neutral),
+                        maxVisibleSections: 5
                     )
                 }
                 OnCallSupportPressureDeck(

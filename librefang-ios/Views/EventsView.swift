@@ -112,7 +112,8 @@ struct EventsView: View {
                 MonitoringSectionPreviewDeck(
                     title: String(localized: "Section Preview"),
                     detail: String(localized: "Keep the next event feed visible before the audit rows spread into the full mobile stream."),
-                    sectionTitles: eventsSectionPreviewTitles
+                    sectionTitles: eventsSectionPreviewTitles,
+                    tone: scopeTone
                 )
             }
             eventsPressureCoverageDeck

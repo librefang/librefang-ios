@@ -313,7 +313,9 @@ struct StandbyDigestView: View {
                 MonitoringSectionPreviewDeck(
                     title: String(localized: "Section Preview"),
                     detail: String(localized: "Keep the next standby stacks visible before the glance, watchlist, and route cards open up."),
-                    sectionTitles: standbySectionPreviewTitles
+                    sectionTitles: standbySectionPreviewTitles,
+                    tone: criticalCount > 0 ? .critical : ((warningQueueCount > 0 || pendingFollowUpCount > 0) ? .warning : .neutral),
+                    maxVisibleSections: 5
                 )
             }
             StandbySupportPressureDeck(

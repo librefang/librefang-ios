@@ -113,7 +113,8 @@ struct SessionsView: View {
                     MonitoringSectionPreviewDeck(
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next session inventory visible before the backlog rows expand into full operator detail."),
-                        sectionTitles: sessionsSectionPreviewTitles
+                        sectionTitles: sessionsSectionPreviewTitles,
+                        tone: snapshotFilterTone
                     )
                 }
                 sessionsPressureCoverageDeck

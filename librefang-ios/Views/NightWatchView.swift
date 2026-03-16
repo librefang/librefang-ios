@@ -315,7 +315,9 @@ struct NightWatchView: View {
                 MonitoringSectionPreviewDeck(
                     title: String(localized: "Section Preview"),
                     detail: String(localized: "Keep the next night-watch stacks visible before the primary queue, secondary queue, and watchlist cards expand."),
-                    sectionTitles: nightWatchSectionPreviewTitles
+                    sectionTitles: nightWatchSectionPreviewTitles,
+                    tone: criticalCount > 0 ? .critical : ((warningCount > 0 || watchIssueCount > 0) ? .warning : .neutral),
+                    maxVisibleSections: 5
                 )
             }
             NightWatchSupportPressureDeck(

@@ -408,7 +408,9 @@ struct BudgetView: View {
                 MonitoringSectionPreviewDeck(
                     title: String(localized: "Section Preview"),
                     detail: String(localized: "Keep the next budget stacks visible before limits, trend, and model cost sections open up."),
-                    sectionTitles: budgetSectionPreviewTitles
+                    sectionTitles: budgetSectionPreviewTitles,
+                    tone: budgetPressureTone,
+                    maxVisibleSections: 5
                 )
             }
 

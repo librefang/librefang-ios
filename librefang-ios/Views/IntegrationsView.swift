@@ -612,7 +612,9 @@ struct IntegrationsView: View {
                         MonitoringSectionPreviewDeck(
                             title: String(localized: "Section Preview"),
                             detail: String(localized: "Keep the next provider stack visible before the full provider diagnostics rows open up."),
-                            sectionTitles: [String(localized: "Providers")]
+                            sectionTitles: [String(localized: "Providers")],
+                            tone: providerAttentionCount > 0 ? .warning : .neutral,
+                            maxVisibleSections: 5
                         )
 
                         ForEach(filteredProviders) { provider in
@@ -650,7 +652,9 @@ struct IntegrationsView: View {
                         MonitoringSectionPreviewDeck(
                             title: String(localized: "Section Preview"),
                             detail: String(localized: "Keep the next channel stack visible before the credential and delivery rows open up."),
-                            sectionTitles: [String(localized: "Channels")]
+                            sectionTitles: [String(localized: "Channels")],
+                            tone: channelAttentionCount > 0 ? .warning : .neutral,
+                            maxVisibleSections: 5
                         )
 
                         ForEach(filteredChannels) { channel in

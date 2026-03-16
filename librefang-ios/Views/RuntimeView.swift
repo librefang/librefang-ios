@@ -305,6 +305,7 @@ struct RuntimeView: View {
                     title: String(localized: "Section Preview"),
                     detail: String(localized: "Keep the next runtime sections visible before the deeper feeds and queue stacks open up."),
                     sectionTitles: runtimeSectionPreviewTitles,
+                    tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
                     maxVisibleSections: 5
                 )
             }

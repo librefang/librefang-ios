@@ -227,7 +227,9 @@ struct AutomationView: View {
                         MonitoringSectionPreviewDeck(
                             title: String(localized: "Section Preview"),
                             detail: String(localized: "Keep the next automation stacks visible before workflows, runs, triggers, and cron sections open up."),
-                            sectionTitles: automationSectionPreviewTitles
+                            sectionTitles: automationSectionPreviewTitles,
+                            tone: (vm.failedWorkflowRunCount > 0 || vm.exhaustedTriggerCount > 0 || vm.stalledCronJobCount > 0) ? .warning : .neutral,
+                            maxVisibleSections: 5
                         )
                     }
                     AutomationPressureCoverageDeck(
