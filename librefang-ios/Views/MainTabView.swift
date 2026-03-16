@@ -2,11 +2,16 @@ import SwiftUI
 
 struct MainTabView: View {
     private static let maxPendingShortcutAge: TimeInterval = 10
+    private static let routePresentationCooldown: TimeInterval = 1
+    private static let pendingShortcutRetryDelay: TimeInterval = 0.5
 
     @Environment(\.dependencies) private var deps
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedTab = 0
     @State private var handledPendingShortcutToken: String?
+    @State private var isRoutePresentationSuspended = true
+    @State private var routePresentationBlockedUntil = Date.distantPast
+    @State private var pendingShortcutRetryTask: Task<Void, Never>?
     @State private var presentedTarget: AppShortcutLaunchTarget?
     @State private var incidentCue: ActiveIncidentCue?
     @State private var hasObservedCriticalState = false
@@ -144,11 +149,6 @@ struct MainTabView: View {
 
     private var shouldShowOverlayDeck: Bool {
         !deps.networkMonitor.isConnected
-            || vm.pendingApprovalCount > 0
-            || watchedIssueCount > 0
-            || vm.sessionAttentionCount > 0
-            || pendingLatestFollowUpCount > 0
-            || activeMutedAlertCount > 0
     }
     private var overlaySectionCount: Int {
         [
@@ -221,6 +221,14 @@ struct MainTabView: View {
             .onReceive(NotificationCenter.default.publisher(for: .appShortcutLaunchQueued)) { _ in
                 deps.appShortcutLaunchStore.refreshFromDefaults()
                 handlePendingAppShortcutIfNeeded()
+            }
+            .onChange(of: vm.isLoading) { _, isLoading in
+                updateRoutePresentationWindow(for: isLoading)
+            }
+            .onChange(of: presentedTarget?.id) { _, presentedID in
+                if presentedID == nil {
+                    handlePendingAppShortcutIfNeeded()
+                }
             }
             .onChange(of: vm.lastRefresh) { _, _ in
                 Task { await refreshWatchedAgentDiagnostics() }
@@ -623,42 +631,85 @@ struct MainTabView: View {
     }
 
     private func openSurface(_ surface: AppShortcutSurface) {
-        openRoute(.surface(surface))
+        _ = openRoute(.surface(surface), respectingPresentationGate: false)
     }
 
     private func openAgent(_ id: String) {
-        openRoute(.agent(id))
+        _ = openRoute(.agent(id), respectingPresentationGate: false)
     }
 
-    private func openRoute(_ route: AppShortcutLaunchTarget) {
+    @discardableResult
+    private func openRoute(
+        _ route: AppShortcutLaunchTarget,
+        respectingPresentationGate: Bool
+    ) -> Bool {
         incidentCue = nil
         handoffCue = nil
+        if respectingPresentationGate {
+            guard canPresentPendingShortcutRoute else { return false }
+        }
         presentedTarget = route
+        return true
     }
 
     private func handlePendingAppShortcutIfNeeded() {
-        guard let pendingToken = deps.appShortcutLaunchStore.pendingToken else { return }
-        guard pendingToken != handledPendingShortcutToken else { return }
-
-        handledPendingShortcutToken = pendingToken
+        guard let pendingToken = deps.appShortcutLaunchStore.pendingToken else {
+            cancelPendingShortcutRetry()
+            return
+        }
 
         guard let queuedAt = deps.appShortcutLaunchStore.pendingQueuedAt else {
             deps.appShortcutLaunchStore.discardPendingTarget()
+            handledPendingShortcutToken = pendingToken
+            cancelPendingShortcutRetry()
             return
         }
 
         let age = Date().timeIntervalSince(queuedAt)
         guard age <= Self.maxPendingShortcutAge else {
             deps.appShortcutLaunchStore.discardPendingTarget()
+            handledPendingShortcutToken = pendingToken
+            cancelPendingShortcutRetry()
             return
         }
 
-        guard let target = deps.appShortcutLaunchStore.consumePendingTarget() else { return }
-        guard presentedTarget?.id != target.id else { return }
-        openRoute(target)
+        guard pendingToken != handledPendingShortcutToken else {
+            deps.appShortcutLaunchStore.discardPendingTarget()
+            cancelPendingShortcutRetry()
+            return
+        }
+
+        guard let target = deps.appShortcutLaunchStore.pendingTarget else {
+            deps.appShortcutLaunchStore.discardPendingTarget()
+            handledPendingShortcutToken = pendingToken
+            cancelPendingShortcutRetry()
+            return
+        }
+
+        if presentedTarget?.id == target.id {
+            handledPendingShortcutToken = pendingToken
+            deps.appShortcutLaunchStore.discardPendingTarget()
+            cancelPendingShortcutRetry()
+            return
+        }
+
+        guard presentedTarget == nil else {
+            cancelPendingShortcutRetry()
+            return
+        }
+
+        guard openRoute(target, respectingPresentationGate: true) else {
+            schedulePendingShortcutRetry()
+            return
+        }
+
+        handledPendingShortcutToken = pendingToken
+        deps.appShortcutLaunchStore.consumePendingTarget()
+        cancelPendingShortcutRetry()
     }
 
     private func handleMainViewAppear() {
+        suspendRoutePresentation()
         deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
         deps.appShortcutLaunchStore.refreshFromDefaults()
         handlePendingAppShortcutIfNeeded()
@@ -669,7 +720,10 @@ struct MainTabView: View {
     private func handleScenePhaseChange(_ newPhase: ScenePhase) {
         switch newPhase {
         case .active:
+            suspendRoutePresentation()
             deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
+            deps.appShortcutLaunchStore.refreshFromDefaults()
+            handlePendingAppShortcutIfNeeded()
             Task {
                 await deps.dashboardViewModel.refresh()
                 await deps.onCallNotificationManager.refreshAuthorizationStatus()
@@ -680,6 +734,7 @@ struct MainTabView: View {
                 }
             }
         case .background:
+            cancelPendingShortcutRetry()
             deps.dashboardViewModel.stopAutoRefresh()
             incidentCue = nil
             handoffCue = nil
@@ -689,6 +744,53 @@ struct MainTabView: View {
         default:
             break
         }
+    }
+
+    private func updateRoutePresentationWindow(for isLoading: Bool) {
+        guard !isLoading else {
+            suspendRoutePresentation()
+            return
+        }
+
+        isRoutePresentationSuspended = false
+        routePresentationBlockedUntil = Date().addingTimeInterval(Self.routePresentationCooldown)
+        schedulePendingShortcutRetry(after: max(routePresentationBlockedUntil.timeIntervalSinceNow, 0))
+    }
+
+    private func suspendRoutePresentation() {
+        isRoutePresentationSuspended = true
+        routePresentationBlockedUntil = Date().addingTimeInterval(Self.routePresentationCooldown)
+    }
+
+    private var canPresentPendingShortcutRoute: Bool {
+        !isRoutePresentationSuspended
+            && !vm.isLoading
+            && presentedTarget == nil
+            && Date() >= routePresentationBlockedUntil
+    }
+
+    private func schedulePendingShortcutRetry(after delay: TimeInterval = Self.pendingShortcutRetryDelay) {
+        guard deps.appShortcutLaunchStore.pendingToken != nil else {
+            cancelPendingShortcutRetry()
+            return
+        }
+
+        pendingShortcutRetryTask?.cancel()
+        pendingShortcutRetryTask = Task { [delay] in
+            if delay > 0 {
+                try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            }
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                deps.appShortcutLaunchStore.refreshFromDefaults()
+                handlePendingAppShortcutIfNeeded()
+            }
+        }
+    }
+
+    private func cancelPendingShortcutRetry() {
+        pendingShortcutRetryTask?.cancel()
+        pendingShortcutRetryTask = nil
     }
 
     private var overlayQuickActions: [OperatorOverlayQuickAction] {

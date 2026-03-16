@@ -184,6 +184,7 @@ enum AppShortcutLaunchBridge {
         static let pendingTargetKind = "appshortcuts.pendingTargetKind"
         static let pendingTargetValue = "appshortcuts.pendingTargetValue"
         static let pendingToken = "appshortcuts.pendingToken"
+        static let pendingQueuedAt = "appshortcuts.pendingQueuedAt"
     }
 
     static let urlScheme = "librefang"
@@ -232,6 +233,7 @@ enum AppShortcutLaunchBridge {
         defaults.set(kind, forKey: StorageKey.pendingTargetKind)
         defaults.set(value, forKey: StorageKey.pendingTargetValue)
         defaults.set(UUID().uuidString, forKey: StorageKey.pendingToken)
+        defaults.set(Date().timeIntervalSinceReferenceDate, forKey: StorageKey.pendingQueuedAt)
         NotificationCenter.default.post(name: .appShortcutLaunchQueued, object: nil)
     }
 
@@ -490,12 +492,19 @@ enum AppShortcutLaunchBridge {
         defaults.string(forKey: StorageKey.pendingToken)
     }
 
+    static func pendingQueuedAt(defaults: UserDefaults = .standard) -> Date? {
+        guard defaults.object(forKey: StorageKey.pendingQueuedAt) != nil else { return nil }
+        let rawValue = defaults.double(forKey: StorageKey.pendingQueuedAt)
+        return Date(timeIntervalSinceReferenceDate: rawValue)
+    }
+
     @discardableResult
     static func consume(defaults: UserDefaults = .standard) -> AppShortcutLaunchTarget? {
         let target = pendingTarget(defaults: defaults)
         let hasPendingState =
             target != nil
             || pendingToken(defaults: defaults) != nil
+            || pendingQueuedAt(defaults: defaults) != nil
             || defaults.object(forKey: StorageKey.pendingTargetKind) != nil
             || defaults.object(forKey: StorageKey.pendingTargetValue) != nil
 
@@ -506,6 +515,7 @@ enum AppShortcutLaunchBridge {
         defaults.removeObject(forKey: StorageKey.pendingTargetKind)
         defaults.removeObject(forKey: StorageKey.pendingTargetValue)
         defaults.removeObject(forKey: StorageKey.pendingToken)
+        defaults.removeObject(forKey: StorageKey.pendingQueuedAt)
         return target
     }
 }
@@ -517,6 +527,7 @@ final class AppShortcutLaunchStore {
 
     private(set) var pendingTarget: AppShortcutLaunchTarget?
     private(set) var pendingToken: String?
+    private(set) var pendingQueuedAt: Date?
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -526,6 +537,7 @@ final class AppShortcutLaunchStore {
     func refreshFromDefaults() {
         pendingTarget = AppShortcutLaunchBridge.pendingTarget(defaults: defaults)
         pendingToken = AppShortcutLaunchBridge.pendingToken(defaults: defaults)
+        pendingQueuedAt = AppShortcutLaunchBridge.pendingQueuedAt(defaults: defaults)
     }
 
     func queue(_ surface: AppShortcutSurface) {
@@ -545,6 +557,13 @@ final class AppShortcutLaunchStore {
 
     @discardableResult
     func consumePendingTarget() -> AppShortcutLaunchTarget? {
+        let target = AppShortcutLaunchBridge.consume(defaults: defaults)
+        refreshFromDefaults()
+        return target
+    }
+
+    @discardableResult
+    func discardPendingTarget() -> AppShortcutLaunchTarget? {
         let target = AppShortcutLaunchBridge.consume(defaults: defaults)
         refreshFromDefaults()
         return target
