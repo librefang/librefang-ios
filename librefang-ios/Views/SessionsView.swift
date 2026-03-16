@@ -110,6 +110,7 @@ struct SessionsView: View {
                 sessionsSupportCoverageDeck
                 sessionsActionReadinessDeck
                 sessionsFocusCoverageDeck
+                sessionsScopeCoverageDeck
                 sessionsQueueCoverageDeck
                 sessionsControlDeckCard
             } header: {
@@ -521,6 +522,21 @@ struct SessionsView: View {
         )
     }
 
+    private var sessionsScopeCoverageDeck: some View {
+        SessionsScopeCoverageDeck(
+            visibleCount: filteredItems.count,
+            totalCount: vm.sessions.count,
+            attentionCount: visibleAttentionCount,
+            highVolumeCount: visibleHighVolumeCount,
+            unlabeledCount: visibleUnlabeledCount,
+            duplicateAgentCount: visibleDuplicateAgentCount,
+            hasSearchScope: !normalizedSearchText.isEmpty,
+            isFilterScoped: filter != .all,
+            filterLabel: filter.label,
+            filterTone: snapshotFilterTone
+        )
+    }
+
 private struct SessionsRouteInventoryDeck: View {
     let primaryRouteCount: Int
     let supportRouteCount: Int
@@ -757,6 +773,99 @@ private struct SessionsFocusCoverageDeck: View {
             return String(localized: "Session focus coverage is currently anchored by the filtered backlog slice.")
         }
         return String(localized: "Session focus coverage is currently balanced across the visible session lanes.")
+    }
+}
+
+private struct SessionsScopeCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let attentionCount: Int
+    let highVolumeCount: Int
+    let unlabeledCount: Int
+    let duplicateAgentCount: Int
+    let hasSearchScope: Bool
+    let isFilterScoped: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep filter scope, search state, and visible backlog breadth readable before opening routes and session rows."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                    PresentationToneBadge(
+                        text: visibleCount == totalCount
+                            ? (visibleCount == 1 ? String(localized: "1 visible session") : String(localized: "\(visibleCount) visible sessions"))
+                            : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                        tone: visibleCount > 0 ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Scope coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the active backlog slice, label hygiene, and duplicate-agent spread readable before moving into queue rows and route rails."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: filterLabel, tone: filterTone)
+            } facts: {
+                if attentionCount > 0 {
+                    Label(
+                        attentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(attentionCount) hotspots"),
+                        systemImage: "exclamationmark.circle"
+                    )
+                }
+                if highVolumeCount > 0 {
+                    Label(
+                        highVolumeCount == 1 ? String(localized: "1 high-volume") : String(localized: "\(highVolumeCount) high-volume"),
+                        systemImage: "chart.bar"
+                    )
+                }
+                if unlabeledCount > 0 {
+                    Label(
+                        unlabeledCount == 1 ? String(localized: "1 unlabeled") : String(localized: "\(unlabeledCount) unlabeled"),
+                        systemImage: "tag.slash"
+                    )
+                }
+                if duplicateAgentCount > 0 {
+                    Label(
+                        duplicateAgentCount == 1 ? String(localized: "1 duplicate agent") : String(localized: "\(duplicateAgentCount) duplicate agents"),
+                        systemImage: "person.2"
+                    )
+                }
+                if isFilterScoped {
+                    Label(String(localized: "Filter scoped"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Session scope coverage is currently anchored by the active search slice.")
+        }
+        if isFilterScoped {
+            return String(localized: "Session scope coverage is currently narrowed to a filtered backlog slice.")
+        }
+        if visibleCount == totalCount {
+            return String(localized: "Session scope coverage is currently balanced across the visible backlog.")
+        }
+        return String(localized: "Session scope coverage is currently centered on the visible mobile backlog slice.")
     }
 }
 

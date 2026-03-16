@@ -159,6 +159,16 @@ struct ApprovalsView: View {
                     filterLabel: filter.label,
                     filterTone: filterTone
                 )
+                ApprovalsScopeCoverageDeck(
+                    visibleApprovalCount: filteredApprovals.count,
+                    totalApprovalCount: vm.approvals.count,
+                    approvalAgentCount: approvalAgentCount,
+                    toolCount: visibleToolCount,
+                    hasSearchScope: !trimmedSearchText.isEmpty,
+                    isFilterScoped: filter != .all,
+                    filterLabel: filter.label,
+                    filterTone: filterTone
+                )
                 ApprovalsRouteInventoryDeck(
                     primaryRouteCount: approvalsPrimaryRouteCount,
                     supportRouteCount: approvalsSupportRouteCount,
@@ -1003,6 +1013,85 @@ private struct ApprovalsFocusCoverageDeck: View {
             return String(localized: "Approval focus coverage is currently anchored by the filtered approval slice.")
         }
         return String(localized: "Approval focus coverage is currently balanced across the visible approval lanes.")
+    }
+}
+
+private struct ApprovalsScopeCoverageDeck: View {
+    let visibleApprovalCount: Int
+    let totalApprovalCount: Int
+    let approvalAgentCount: Int
+    let toolCount: Int
+    let hasSearchScope: Bool
+    let isFilterScoped: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep severity scope, search state, and visible approval breadth readable before routes and queue rows."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                    PresentationToneBadge(
+                        text: visibleApprovalCount == totalApprovalCount
+                            ? (visibleApprovalCount == 1 ? String(localized: "1 visible approval") : String(localized: "\(visibleApprovalCount) visible approvals"))
+                            : String(localized: "\(visibleApprovalCount) of \(totalApprovalCount) visible"),
+                        tone: visibleApprovalCount > 0 ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Scope coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the approval slice, visible agent spread, and tool breadth readable before moving deeper into route rails and queue review."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(text: filterLabel, tone: filterTone)
+            } facts: {
+                if approvalAgentCount > 0 {
+                    Label(
+                        approvalAgentCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(approvalAgentCount) visible agents"),
+                        systemImage: "person.2"
+                    )
+                }
+                if toolCount > 0 {
+                    Label(
+                        toolCount == 1 ? String(localized: "1 visible tool") : String(localized: "\(toolCount) visible tools"),
+                        systemImage: "wrench.and.screwdriver"
+                    )
+                }
+                if isFilterScoped {
+                    Label(String(localized: "Severity scoped"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Approval scope coverage is currently anchored by the active search slice.")
+        }
+        if isFilterScoped {
+            return String(localized: "Approval scope coverage is currently narrowed to a severity-filtered review slice.")
+        }
+        if visibleApprovalCount == totalApprovalCount {
+            return String(localized: "Approval scope coverage is currently balanced across the full pending queue.")
+        }
+        return String(localized: "Approval scope coverage is currently centered on the visible mobile queue slice.")
     }
 }
 

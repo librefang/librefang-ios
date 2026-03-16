@@ -109,6 +109,7 @@ struct EventsView: View {
             eventsSupportCoverageDeck
             eventsActionReadinessDeck
             eventsFocusCoverageDeck
+            eventsScopeCoverageDeck
             eventsFeedCoverageDeck
             eventsControlDeckCard
         } header: {
@@ -409,6 +410,20 @@ struct EventsView: View {
             infoCount: filteredEntries.filter { $0.severity == .info }.count,
             isStreaming: viewModel.isStreaming,
             hasSearchScope: !trimmedSearchText.isEmpty,
+            scopeLabel: scope.label,
+            scopeTone: scopeTone
+        )
+    }
+
+    private var eventsScopeCoverageDeck: some View {
+        EventsScopeCoverageDeck(
+            visibleCount: filteredEntries.count,
+            totalCount: viewModel.entries.count,
+            criticalCount: filteredEntries.filter { $0.severity == .critical }.count,
+            warningCount: filteredEntries.filter { $0.severity == .warning }.count,
+            isStreaming: viewModel.isStreaming,
+            hasSearchScope: !trimmedSearchText.isEmpty,
+            isScopeFiltered: scope != .all,
             scopeLabel: scope.label,
             scopeTone: scopeTone
         )
@@ -900,6 +915,89 @@ private struct EventsFocusCoverageDeck: View {
             return String(localized: "Event focus coverage is currently anchored by the filtered event slice.")
         }
         return String(localized: "Event focus coverage is currently balanced across the current event feed lane.")
+    }
+}
+
+private struct EventsScopeCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let criticalCount: Int
+    let warningCount: Int
+    let isStreaming: Bool
+    let hasSearchScope: Bool
+    let isScopeFiltered: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep severity scope, search state, and transport coverage readable before opening the full feed."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    PresentationToneBadge(
+                        text: isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                        tone: isStreaming ? .positive : .warning
+                    )
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Scope coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the current event slice, visible severity span, and transport mode readable before dropping into the live feed."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleCount) visible events"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if criticalCount > 0 {
+                    Label(
+                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if warningCount > 0 {
+                    Label(
+                        warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if isScopeFiltered {
+                    Label(String(localized: "Severity scoped"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Event scope coverage is currently anchored by the active search slice.")
+        }
+        if isScopeFiltered {
+            return String(localized: "Event scope coverage is currently narrowed to a severity-filtered feed slice.")
+        }
+        if !isStreaming {
+            return String(localized: "Event scope coverage is currently leaning on polling transport and the full visible feed.")
+        }
+        return String(localized: "Event scope coverage is currently balanced across the live feed.")
     }
 }
 
