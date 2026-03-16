@@ -407,8 +407,10 @@ struct MainTabView: View {
                         watchIssueCount: watchedIssueCount,
                         sessionCount: vm.sessionAttentionCount,
                         pendingFollowUpCount: pendingLatestFollowUpCount,
+                        mutedAlertCount: activeMutedAlertCount,
                         preferredSurfaceLabel: preferredOnCallSurface.label,
                         isOffline: !deps.networkMonitor.isConnected,
+                        isSnapshotAcknowledged: isCurrentSnapshotAcknowledged,
                         overviewCount: overviewTabSignalCount,
                         agentsCount: vm.issueAgentCount,
                         runtimeCount: runtimeAlertBadge,
@@ -772,8 +774,10 @@ private struct OperatorOverlayDeck: View {
     let watchIssueCount: Int
     let sessionCount: Int
     let pendingFollowUpCount: Int
+    let mutedAlertCount: Int
     let preferredSurfaceLabel: String
     let isOffline: Bool
+    let isSnapshotAcknowledged: Bool
     let overviewCount: Int
     let agentsCount: Int
     let runtimeCount: Int
@@ -860,6 +864,19 @@ private struct OperatorOverlayDeck: View {
                 approvalCount: approvalCount,
                 watchIssueCount: watchIssueCount,
                 sessionCount: sessionCount,
+                pendingFollowUpCount: pendingFollowUpCount
+            )
+
+            OperatorOverlayActionReadinessDeck(
+                preferredSurfaceLabel: preferredSurfaceLabel,
+                primaryActionCount: primaryActions.count,
+                supportActionCount: supportActions.count,
+                badgedActionCount: badgedActionCount,
+                criticalActionCount: criticalActionCount,
+                tabSignalCount: tabSignalCount,
+                isOffline: isOffline,
+                isSnapshotAcknowledged: isSnapshotAcknowledged,
+                mutedAlertCount: mutedAlertCount,
                 pendingFollowUpCount: pendingFollowUpCount
             )
 
@@ -1118,6 +1135,112 @@ private struct OperatorOverlayPressureDeck: View {
             foregroundStyle: .primary,
             backgroundOpacity: 0.10
         )
+    }
+}
+
+private struct OperatorOverlayActionReadinessDeck: View {
+    let preferredSurfaceLabel: String
+    let primaryActionCount: Int
+    let supportActionCount: Int
+    let badgedActionCount: Int
+    let criticalActionCount: Int
+    let tabSignalCount: Int
+    let isOffline: Bool
+    let isSnapshotAcknowledged: Bool
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+
+    private var totalActionCount: Int {
+        primaryActionCount + supportActionCount
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check whether the preferred surface, overlay exits, and follow-through actions are ready before opening the larger route groups."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: preferredSurfaceLabel,
+                        tone: isOffline ? .warning : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: isSnapshotAcknowledged ? String(localized: "Snapshot acknowledged") : String(localized: "Snapshot live"),
+                        tone: isSnapshotAcknowledged ? .positive : .warning
+                    )
+                    PresentationToneBadge(
+                        text: totalActionCount == 1 ? String(localized: "1 route ready") : String(localized: "\(totalActionCount) routes ready"),
+                        tone: totalActionCount > 0 ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep overlay route breadth, snapshot state, and follow-up readiness visible before opening the primary and support exits."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: tabSignalCount == 1 ? String(localized: "1 live tab") : String(localized: "\(tabSignalCount) live tabs"),
+                    tone: tabSignalCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    primaryActionCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryActionCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                if supportActionCount > 0 {
+                    Label(
+                        supportActionCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportActionCount) support routes"),
+                        systemImage: "square.grid.2x2"
+                    )
+                }
+                if criticalActionCount > 0 {
+                    Label(
+                        criticalActionCount == 1 ? String(localized: "1 urgent route") : String(localized: "\(criticalActionCount) urgent routes"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if badgedActionCount > 0 {
+                    Label(
+                        badgedActionCount == 1 ? String(localized: "1 counted route") : String(localized: "\(badgedActionCount) counted routes"),
+                        systemImage: "number"
+                    )
+                }
+                if mutedAlertCount > 0 {
+                    Label(
+                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        systemImage: "bell.slash"
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    Label(
+                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
+                        systemImage: "checklist.unchecked"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if isOffline {
+            return String(localized: "Overlay action readiness is currently anchored by offline recovery and fallback routes.")
+        }
+        if criticalActionCount > 0 {
+            return String(localized: "Overlay action readiness is currently anchored by urgent exits from the active snapshot.")
+        }
+        if pendingFollowUpCount > 0 || mutedAlertCount > 0 {
+            return String(localized: "Overlay action readiness is currently anchored by follow-up and muted-alert follow-through.")
+        }
+        return String(localized: "Overlay action readiness is currently centered on the preferred surface and nearby operator exits.")
     }
 }
 

@@ -156,8 +156,36 @@ struct OverviewView: View {
         .filter { $0 }
         .count
     }
+    private let overviewPrimaryRouteCount = 4
+    private let overviewSupportRouteCount = 4
+    private var overviewJumpCount: Int {
+        [
+            vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil,
+            !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty,
+            vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty,
+            !watchedAttentionItems.isEmpty,
+            !vm.sessionAttentionItems.isEmpty,
+            !vm.recentAudit.isEmpty,
+            !vm.agents.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
     private var overviewSectionCount: Int {
         platformCardCount + signalCardCount + fleetCardCount
+    }
+    private var overviewJumpCount: Int {
+        [
+            vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil,
+            !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty,
+            vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty,
+            !watchedAttentionItems.isEmpty,
+            !vm.sessionAttentionItems.isEmpty,
+            !vm.recentAudit.isEmpty,
+            !vm.agents.isEmpty
+        ]
+        .filter { $0 }
+        .count
     }
 
     var body: some View {
@@ -262,6 +290,21 @@ struct OverviewView: View {
                             channelCount: vm.readyChannelCount
                         )
 
+                        OverviewActionReadinessDeck(
+                            primaryCount: overviewPrimaryRouteCount,
+                            supportCount: overviewSupportRouteCount,
+                            jumpCount: overviewJumpCount,
+                            queueCount: onCallPriorityItems.count,
+                            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                            approvalCount: vm.pendingApprovalCount,
+                            sessionCount: vm.sessionAttentionCount,
+                            watchIssueCount: overviewWatchIssueCount,
+                            isDataStale: vm.isDataStale,
+                            diagnosticsVisible: vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil,
+                            integrationsVisible: !vm.providers.isEmpty || !vm.channels.isEmpty || !vm.catalogModels.isEmpty,
+                            automationVisible: vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty
+                        )
+
                         OverviewEntryDeckCard(
                             criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
                             approvalCount: vm.pendingApprovalCount,
@@ -286,6 +329,19 @@ struct OverviewView: View {
                         ) { anchor in
                             jump(proxy, to: anchor)
                         }
+
+                        OverviewActionReadinessDeck(
+                            primaryRouteCount: 4,
+                            supportRouteCount: 4,
+                            jumpCount: overviewJumpCount,
+                            sectionCount: overviewSectionCount,
+                            platformCardCount: platformCardCount,
+                            signalCardCount: signalCardCount,
+                            fleetCardCount: fleetCardCount,
+                            queueCount: onCallPriorityItems.count,
+                            criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
+                            isDataStale: vm.isDataStale
+                        )
 
                         OverviewSectionInventoryDeck(
                             sectionCount: overviewSectionCount,
@@ -1017,6 +1073,123 @@ private struct OverviewEntryDeckCard: View {
     }
 }
 
+private struct OverviewActionReadinessDeck: View {
+    let primaryCount: Int
+    let supportCount: Int
+    let jumpCount: Int
+    let queueCount: Int
+    let criticalCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let watchIssueCount: Int
+    let isDataStale: Bool
+    let diagnosticsVisible: Bool
+    let integrationsVisible: Bool
+    let automationVisible: Bool
+
+    private var totalActionCount: Int {
+        primaryCount + supportCount + jumpCount
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check route breadth, jump coverage, and platform readiness before opening the overview control deck."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: isDataStale ? String(localized: "Data stale") : String(localized: "Data live"),
+                        tone: isDataStale ? .warning : .positive
+                    )
+                    PresentationToneBadge(
+                        text: totalActionCount == 1 ? String(localized: "1 exit ready") : String(localized: "\(totalActionCount) exits ready"),
+                        tone: totalActionCount > 0 ? .positive : .neutral
+                    )
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep overview exits, lower-section jumps, and platform drilldown readiness visible before the route deck takes over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                    tone: queueCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    primaryCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                Label(
+                    supportCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportCount) support routes"),
+                    systemImage: "square.grid.2x2"
+                )
+                if jumpCount > 0 {
+                    Label(
+                        jumpCount == 1 ? String(localized: "1 jump") : String(localized: "\(jumpCount) jumps"),
+                        systemImage: "arrow.down.to.line"
+                    )
+                }
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if sessionCount > 0 {
+                    Label(
+                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        systemImage: "text.bubble"
+                    )
+                }
+                if watchIssueCount > 0 {
+                    Label(
+                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if diagnosticsVisible {
+                    Label(String(localized: "Diagnostics ready"), systemImage: "stethoscope")
+                }
+                if integrationsVisible {
+                    Label(String(localized: "Integrations ready"), systemImage: "square.3.layers.3d.down.forward")
+                }
+                if automationVisible {
+                    Label(String(localized: "Automation ready"), systemImage: "flowchart")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if criticalCount > 0 || queueCount > 0 {
+            return String(localized: "Overview action readiness is currently anchored by live queue pressure and the next operator exits.")
+        }
+        if isDataStale {
+            return String(localized: "Overview action readiness is currently anchored by stale data and slower platform follow-through.")
+        }
+        if diagnosticsVisible || integrationsVisible || automationVisible {
+            return String(localized: "Overview action readiness is currently centered on diagnostics, integrations, and automation drilldowns.")
+        }
+        return String(localized: "Overview action readiness is currently light and mostly reflects lower-section jumps.")
+    }
+}
+
 private struct OverviewPressureCoverageDeck: View {
     let criticalCount: Int
     let liveAlertCount: Int
@@ -1215,6 +1388,93 @@ private struct OverviewSupportCoverageDeck: View {
             return String(localized: "Overview support coverage is currently anchored by muted alert drag and handoff follow-up.")
         }
         return String(localized: "Overview support coverage is currently light and mostly reflects provider and channel readiness.")
+    }
+}
+
+private struct OverviewActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let jumpCount: Int
+    let sectionCount: Int
+    let platformCardCount: Int
+    let signalCardCount: Int
+    let fleetCardCount: Int
+    let queueCount: Int
+    let criticalCount: Int
+    let isDataStale: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to confirm route breadth, jump coverage, and section readiness before drilling into the longer platform, signal, and fleet stacks."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: String(localized: "\(primaryRouteCount + supportRouteCount + jumpCount) actions"),
+                        tone: .neutral
+                    )
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                        tone: sectionCount > 0 ? .positive : .neutral
+                    )
+                    if isDataStale {
+                        PresentationToneBadge(text: String(localized: "Data stale"), tone: .warning)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep routes, jumps, and section coverage readable before the overview fans out into platform, signal, and fleet cards."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                    tone: queueCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    platformCardCount == 1 ? String(localized: "1 platform card") : String(localized: "\(platformCardCount) platform cards"),
+                    systemImage: "server.rack"
+                )
+                Label(
+                    signalCardCount == 1 ? String(localized: "1 signal card") : String(localized: "\(signalCardCount) signal cards"),
+                    systemImage: "waveform.path.ecg"
+                )
+                if fleetCardCount > 0 {
+                    Label(
+                        fleetCardCount == 1 ? String(localized: "1 fleet card") : String(localized: "\(fleetCardCount) fleet cards"),
+                        systemImage: "person.3"
+                    )
+                }
+                if criticalCount > 0 {
+                    Label(
+                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if isDataStale {
+            return String(localized: "Overview action readiness is currently limited by stale monitoring data.")
+        }
+        if criticalCount > 0 {
+            return String(localized: "Overview action readiness is currently anchored by critical incident load before the broader cards fan out.")
+        }
+        if queueCount > 0 {
+            return String(localized: "Overview action readiness is currently centered on queued on-call work and cross-surface drilldowns.")
+        }
+        return String(localized: "Overview action readiness is currently clear enough for route jumps and broader section drilldown.")
     }
 }
 

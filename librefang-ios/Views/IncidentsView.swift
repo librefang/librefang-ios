@@ -398,6 +398,19 @@ struct IncidentsView: View {
                 isAcknowledged: isCurrentSnapshotAcknowledged
             )
 
+            IncidentActionReadinessDeck(
+                primaryRouteCount: operatorPrimaryRouteCount,
+                supportRouteCount: operatorSupportRouteCount,
+                primaryQueueSectionCount: primaryQueueSectionCount,
+                supportQueueSectionCount: supportQueueSectionCount,
+                criticalCount: criticalAlertCount,
+                approvalCount: vm.pendingApprovalCount,
+                sessionCount: vm.sessionAttentionCount,
+                handoffCount: handoffIssueCount,
+                mutedAlertCount: mutedAlerts.count,
+                isAcknowledged: isCurrentSnapshotAcknowledged
+            )
+
             IncidentRouteInventoryDeck(
                 primaryRouteCount: operatorPrimaryRouteCount,
                 supportRouteCount: operatorSupportRouteCount,
@@ -1917,6 +1930,119 @@ private struct IncidentSupportCoverageDeck: View {
             return String(localized: "Incident support coverage is currently light, and the active snapshot is acknowledged.")
         }
         return String(localized: "Incident support coverage is currently light and mostly reflects slower automation and audit context.")
+    }
+}
+
+private struct IncidentActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let primaryQueueSectionCount: Int
+    let supportQueueSectionCount: Int
+    let criticalCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let handoffCount: Int
+    let mutedAlertCount: Int
+    let isAcknowledged: Bool
+
+    private var totalRouteCount: Int {
+        primaryRouteCount + supportRouteCount
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check route breadth, queue coverage, and acknowledgement state before opening the incident route and bucket sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: isAcknowledged ? String(localized: "Snapshot acknowledged") : String(localized: "Snapshot live"),
+                        tone: isAcknowledged ? .positive : .warning
+                    )
+                    PresentationToneBadge(
+                        text: totalRouteCount == 1 ? String(localized: "1 route ready") : String(localized: "\(totalRouteCount) routes ready"),
+                        tone: totalRouteCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: primaryQueueSectionCount == 1 ? String(localized: "1 primary queue") : String(localized: "\(primaryQueueSectionCount) primary queues"),
+                        tone: primaryQueueSectionCount > 0 ? .warning : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep incident exit breadth, queue coverage, and acknowledgement state visible before moving from the summary into route rails and queue buckets."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: supportQueueSectionCount == 1 ? String(localized: "1 support queue") : String(localized: "\(supportQueueSectionCount) support queues"),
+                    tone: supportQueueSectionCount > 0 ? .neutral : .positive
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                if supportRouteCount > 0 {
+                    Label(
+                        supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        systemImage: "square.grid.2x2"
+                    )
+                }
+                if criticalCount > 0 {
+                    Label(
+                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if sessionCount > 0 {
+                    Label(
+                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        systemImage: "rectangle.stack"
+                    )
+                }
+                if handoffCount > 0 {
+                    Label(
+                        handoffCount == 1 ? String(localized: "1 handoff issue") : String(localized: "\(handoffCount) handoff issues"),
+                        systemImage: "text.badge.plus"
+                    )
+                }
+                if mutedAlertCount > 0 {
+                    Label(
+                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        systemImage: "bell.slash"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if criticalCount > 0 || approvalCount > 0 || sessionCount > 0 {
+            return String(localized: "Incident action readiness is currently anchored by live alert pressure and the next triage exits.")
+        }
+        if handoffCount > 0 || mutedAlertCount > 0 {
+            return String(localized: "Incident action readiness is currently anchored by handoff follow-through and muted-alert drag.")
+        }
+        if isAcknowledged {
+            return String(localized: "Incident action readiness is currently calm enough for route review and queue maintenance.")
+        }
+        return String(localized: "Incident action readiness is currently centered on route breadth and queue coverage.")
     }
 }
 

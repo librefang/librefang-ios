@@ -236,6 +236,19 @@ struct RuntimeView: View {
                 hasNetwork: vm.networkStatus != nil,
                 hasSecurity: vm.security != nil
             )
+            RuntimeActionReadinessDeck(
+                primaryRouteCount: 5,
+                supportRouteCount: 4,
+                jumpCount: runtimeJumpCount,
+                sectionCount: runtimeSectionCount,
+                supportFeedCount: runtimeSupportFeedCount,
+                queueCardCount: runtimeQueueCardCount,
+                runtimeAlertCount: vm.runtimeAlertCount,
+                approvalCount: vm.pendingApprovalCount,
+                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
+                hasSecurity: vm.security != nil,
+                hasNetwork: vm.networkStatus != nil
+            )
             RuntimeSectionInventoryDeck(
                 sectionCount: runtimeSectionCount,
                 supportFeedCount: runtimeSupportFeedCount,
@@ -1740,6 +1753,92 @@ private struct RuntimeSupportCoverageDeck: View {
             return String(localized: "Runtime support coverage is currently waiting on one or more deep support feeds.")
         }
         return String(localized: "Runtime support coverage is currently light and mostly reflects feed readiness.")
+    }
+}
+
+private struct RuntimeActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let jumpCount: Int
+    let sectionCount: Int
+    let supportFeedCount: Int
+    let queueCardCount: Int
+    let runtimeAlertCount: Int
+    let approvalCount: Int
+    let diagnosticsWarningCount: Int
+    let hasSecurity: Bool
+    let hasNetwork: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to confirm route breadth, queue coverage, and deep-feed readiness before opening the longer runtime sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: String(localized: "\(primaryRouteCount + supportRouteCount + jumpCount) actions"),
+                        tone: .neutral
+                    )
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
+                        tone: sectionCount > 0 ? .positive : .neutral
+                    )
+                    if diagnosticsWarningCount > 0 {
+                        PresentationToneBadge(
+                            text: diagnosticsWarningCount == 1 ? String(localized: "1 warning") : String(localized: "\(diagnosticsWarningCount) warnings"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep route breadth, queue readiness, and support-feed coverage visible before drilling into diagnostics, integrations, automation, approvals, and audit feeds."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: queueCardCount == 1 ? String(localized: "1 queue card") : String(localized: "\(queueCardCount) queue cards"),
+                    tone: queueCardCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    supportFeedCount == 1 ? String(localized: "1 support feed") : String(localized: "\(supportFeedCount) support feeds"),
+                    systemImage: "square.grid.2x2"
+                )
+                if runtimeAlertCount > 0 {
+                    Label(
+                        runtimeAlertCount == 1 ? String(localized: "1 runtime alert") : String(localized: "\(runtimeAlertCount) runtime alerts"),
+                        systemImage: "bolt.trianglebadge.exclamationmark"
+                    )
+                }
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                Label(hasSecurity ? String(localized: "Security ready") : String(localized: "Security pending"), systemImage: "lock.shield")
+                Label(hasNetwork ? String(localized: "Network ready") : String(localized: "Network pending"), systemImage: "point.3.connected.trianglepath.dotted")
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if runtimeAlertCount > 0 {
+            return String(localized: "Runtime action readiness is currently anchored by active runtime alerts.")
+        }
+        if approvalCount > 0 || diagnosticsWarningCount > 0 {
+            return String(localized: "Runtime action readiness is currently anchored by approvals and diagnostics follow-up.")
+        }
+        return String(localized: "Runtime action readiness is currently clear enough for deep section jumps and queue review.")
     }
 }
 
