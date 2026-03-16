@@ -38,6 +38,9 @@ struct EventsView: View {
     private var eventSectionCount: Int { 1 }
     private var eventsPrimaryRouteCount: Int { 3 }
     private var eventsSupportRouteCount: Int { 2 }
+    private var eventsSectionPreviewTitles: [String] {
+        [String(localized: "Feed")]
+    }
 
     var body: some View {
         List {
@@ -105,6 +108,13 @@ struct EventsView: View {
         Section {
             eventsStatusDeckCard
             eventsSectionInventoryDeck
+            if !eventsSectionPreviewTitles.isEmpty {
+                MonitoringSectionPreviewDeck(
+                    title: String(localized: "Section Preview"),
+                    detail: String(localized: "Keep the next event feed visible before the audit rows spread into the full mobile stream."),
+                    sectionTitles: eventsSectionPreviewTitles
+                )
+            }
             eventsPressureCoverageDeck
             eventsSupportCoverageDeck
             eventsActionReadinessDeck

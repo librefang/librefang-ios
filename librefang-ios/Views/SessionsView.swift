@@ -95,6 +95,9 @@ struct SessionsView: View {
     private var sessionsSectionCount: Int { 1 }
     private var sessionsPrimaryRouteCount: Int { 3 }
     private var sessionsSupportRouteCount: Int { 2 }
+    private var sessionsSectionPreviewTitles: [String] {
+        [String(localized: "Sessions")]
+    }
 
     var body: some View {
         List {
@@ -106,6 +109,13 @@ struct SessionsView: View {
             Section {
                 sessionsStatusDeckCard
                 sessionsSectionInventoryDeck
+                if !sessionsSectionPreviewTitles.isEmpty {
+                    MonitoringSectionPreviewDeck(
+                        title: String(localized: "Section Preview"),
+                        detail: String(localized: "Keep the next session inventory visible before the backlog rows expand into full operator detail."),
+                        sectionTitles: sessionsSectionPreviewTitles
+                    )
+                }
                 sessionsPressureCoverageDeck
                 sessionsSupportCoverageDeck
                 sessionsActionReadinessDeck

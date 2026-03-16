@@ -93,6 +93,9 @@ struct ApprovalsView: View {
     private var approvalsSectionCount: Int { 1 }
     private var approvalsPrimaryRouteCount: Int { 3 }
     private var approvalsSupportRouteCount: Int { 1 }
+    private var approvalsSectionPreviewTitles: [String] {
+        [String(localized: "Approvals")]
+    }
 
     var body: some View {
         List {
@@ -122,6 +125,13 @@ struct ApprovalsView: View {
                     toolCount: visibleToolCount,
                     hasSearchScope: !trimmedSearchText.isEmpty
                 )
+                if !approvalsSectionPreviewTitles.isEmpty {
+                    MonitoringSectionPreviewDeck(
+                        title: String(localized: "Section Preview"),
+                        detail: String(localized: "Keep the next approval stack visible before the queue opens into full review rows."),
+                        sectionTitles: approvalsSectionPreviewTitles
+                    )
+                }
                 ApprovalsPressureCoverageDeck(
                     pendingApprovalCount: vm.pendingApprovalCount,
                     visibleApprovalCount: filteredApprovals.count,

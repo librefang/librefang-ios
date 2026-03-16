@@ -32,6 +32,14 @@ struct CommsView: View {
     private var commsSectionCount: Int { 2 }
     private var commsPrimaryRouteCount: Int { 3 }
     private var commsSupportRouteCount: Int { 1 }
+    private var commsSectionPreviewTitles: [String] {
+        var sections: [String] = []
+        if viewModel.topology != nil {
+            sections.append(String(localized: "Topology"))
+        }
+        sections.append(String(localized: "Traffic"))
+        return sections
+    }
 
     var body: some View {
         List {
@@ -55,6 +63,13 @@ struct CommsView: View {
             Section {
                 commsStatusDeckCard
                 commsSectionInventoryDeck
+                if !commsSectionPreviewTitles.isEmpty {
+                    MonitoringSectionPreviewDeck(
+                        title: String(localized: "Section Preview"),
+                        detail: String(localized: "Keep the next comms topology and traffic stacks visible before the transport rows open up."),
+                        sectionTitles: commsSectionPreviewTitles
+                    )
+                }
                 commsPressureCoverageDeck
                 commsSupportCoverageDeck
                 commsActionReadinessDeck
