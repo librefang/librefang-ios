@@ -258,7 +258,7 @@ struct MonitoringSectionPreviewDeck: View {
 
     var body: some View {
         MonitoringSnapshotCard(
-            summary: title,
+            summary: previewSummary,
             detail: detail,
             verticalPadding: 4
         ) {
@@ -270,7 +270,7 @@ struct MonitoringSectionPreviewDeck: View {
                     factsFont: .caption2
                 ) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(String(localized: "Upcoming sections"))
+                        Text(title)
                             .font(.caption.weight(.semibold))
                         Text(String(localized: "Preview the next monitoring stacks before the longer lists and cards take over the screen."))
                             .font(.caption2)
@@ -325,6 +325,11 @@ struct MonitoringSectionPreviewDeck: View {
 
     private var firstVisibleSectionTitle: String? {
         visibleSectionTitles.first
+    }
+
+    private var previewSummary: String {
+        guard let firstVisibleSectionTitle else { return title }
+        return String(localized: "Next: \(firstVisibleSectionTitle)")
     }
 
     private var remainingVisibleSections: [String] {
