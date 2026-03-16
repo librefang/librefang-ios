@@ -146,6 +146,16 @@ struct OverviewView: View {
         .filter { $0 }
         .count
     }
+    private var overviewQueueCardCount: Int {
+        [
+            !watchedAttentionItems.isEmpty,
+            !vm.sessionAttentionItems.isEmpty,
+            !vm.attentionAgents.isEmpty,
+            !vm.recentAudit.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
     private var overviewSectionCount: Int {
         platformCardCount + signalCardCount + fleetCardCount
     }
@@ -396,6 +406,15 @@ struct OverviewView: View {
                             auditCount: vm.recentAudit.count,
                             a2aCount: vm.a2aAgents?.total ?? 0,
                             agentCount: vm.agents.count
+                        )
+
+                        OverviewQueueInventoryDeck(
+                            cardCount: overviewQueueCardCount,
+                            watchIssueCount: overviewWatchIssueCount,
+                            sessionCount: vm.sessionAttentionCount,
+                            attentionAgentCount: vm.attentionAgents.count,
+                            auditCount: vm.recentAudit.count,
+                            liveAlertCount: visibleMonitoringAlerts.count
                         )
 
                         if !watchedAttentionItems.isEmpty {
@@ -1385,6 +1404,87 @@ private struct OverviewFleetInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Watchlist, sessions, audit, and fleet previews stay grouped so the bottom half reads like one operator queue.")
+    }
+}
+
+private struct OverviewQueueInventoryDeck: View {
+    let cardCount: Int
+    let watchIssueCount: Int
+    let sessionCount: Int
+    let attentionAgentCount: Int
+    let auditCount: Int
+    let liveAlertCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    if liveAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
+                            tone: .critical
+                        )
+                    }
+                    if watchIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                            tone: .warning
+                        )
+                    }
+                    if sessionCount > 0 {
+                        PresentationToneBadge(
+                            text: sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                            tone: .warning
+                        )
+                    }
+                    if attentionAgentCount > 0 {
+                        PresentationToneBadge(
+                            text: attentionAgentCount == 1 ? String(localized: "1 attention agent") : String(localized: "\(attentionAgentCount) attention agents"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Queue coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the lower watchlist, sessions, attention, and audit queues readable before drilling into each feed."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: cardCount == 1 ? String(localized: "1 active queue card") : String(localized: "\(cardCount) active queue cards"),
+                    tone: cardCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                    systemImage: "star.fill"
+                )
+                Label(
+                    sessionCount == 1 ? String(localized: "1 hot session") : String(localized: "\(sessionCount) hot sessions"),
+                    systemImage: "text.bubble"
+                )
+                Label(
+                    auditCount == 1 ? String(localized: "1 audit event") : String(localized: "\(auditCount) audit events"),
+                    systemImage: "text.justify.leading"
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        cardCount == 1
+            ? String(localized: "1 active queue card follows the fleet slice.")
+            : String(localized: "\(cardCount) active queue cards follow the fleet slice.")
+    }
+
+    private var detailLine: String {
+        String(localized: "This queue coverage condenses the lower operator feeds before the watchlist, sessions, attention agents, and audit cards.")
     }
 }
 

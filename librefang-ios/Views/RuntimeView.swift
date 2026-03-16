@@ -115,6 +115,16 @@ struct RuntimeView: View {
         .filter { $0 }
         .count
     }
+    private var runtimeQueueCardCount: Int {
+        [
+            vm.automationDefinitionCount > 0 || !vm.workflowRuns.isEmpty,
+            !vm.sessions.isEmpty,
+            !vm.approvals.isEmpty,
+            !vm.recentAudit.isEmpty
+        ]
+        .filter { $0 }
+        .count
+    }
 
     var body: some View {
         NavigationStack {
@@ -216,6 +226,14 @@ struct RuntimeView: View {
                 auditCount: vm.recentAudit.count,
                 hasSecurity: vm.security != nil,
                 hasNetwork: vm.networkStatus != nil
+            )
+            RuntimeQueueInventoryDeck(
+                cardCount: runtimeQueueCardCount,
+                automationIssueCount: vm.automationPressureIssueCategoryCount,
+                approvalCount: vm.pendingApprovalCount,
+                hotspotCount: vm.sessionAttentionCount,
+                criticalAuditCount: vm.recentCriticalAuditCount,
+                auditCount: vm.recentAudit.count
             )
             runtimeRouteDeckCard(proxy)
         } header: {
@@ -1595,6 +1613,87 @@ private struct RuntimeSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Support feeds like channels, hands, peers, and A2A stay visible before the deeper runtime sections begin.")
+    }
+}
+
+private struct RuntimeQueueInventoryDeck: View {
+    let cardCount: Int
+    let automationIssueCount: Int
+    let approvalCount: Int
+    let hotspotCount: Int
+    let criticalAuditCount: Int
+    let auditCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
+                FlowLayout(spacing: 8) {
+                    if automationIssueCount > 0 {
+                        PresentationToneBadge(
+                            text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                            tone: .warning
+                        )
+                    }
+                    if approvalCount > 0 {
+                        PresentationToneBadge(
+                            text: approvalCount == 1 ? String(localized: "1 pending approval") : String(localized: "\(approvalCount) pending approvals"),
+                            tone: .critical
+                        )
+                    }
+                    if hotspotCount > 0 {
+                        PresentationToneBadge(
+                            text: hotspotCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(hotspotCount) session hotspots"),
+                            tone: .warning
+                        )
+                    }
+                    if criticalAuditCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalAuditCount == 1 ? String(localized: "1 critical audit") : String(localized: "\(criticalAuditCount) critical audits"),
+                            tone: .critical
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Queue coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep automation, approvals, sessions, and audit queues readable before drilling into the deeper runtime feeds."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: cardCount == 1 ? String(localized: "1 active queue card") : String(localized: "\(cardCount) active queue cards"),
+                    tone: cardCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    approvalCount == 1 ? String(localized: "1 pending approval") : String(localized: "\(approvalCount) pending approvals"),
+                    systemImage: "checkmark.shield"
+                )
+                Label(
+                    hotspotCount == 1 ? String(localized: "1 hot session") : String(localized: "\(hotspotCount) hot sessions"),
+                    systemImage: "text.bubble"
+                )
+                Label(
+                    auditCount == 1 ? String(localized: "1 audit feed item") : String(localized: "\(auditCount) audit feed items"),
+                    systemImage: "text.justify.leading"
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        cardCount == 1
+            ? String(localized: "1 active queue card sits inside the runtime deck.")
+            : String(localized: "\(cardCount) active queue cards sit inside the runtime deck.")
+    }
+
+    private var detailLine: String {
+        String(localized: "This queue coverage condenses the runtime queues before the longer automation, session, approval, and audit sections.")
     }
 }
 
