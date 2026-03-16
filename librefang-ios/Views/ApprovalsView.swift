@@ -320,6 +320,7 @@ struct ApprovalsView: View {
             }
             .navigationTitle("Approvals")
             .searchable(text: $searchText, prompt: "Search agent, tool, or action")
+            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .refreshable {
                 await vm.refresh()
             }

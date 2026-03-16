@@ -455,6 +455,7 @@ struct AutomationView: View {
             }
             .navigationTitle("Automation")
             .searchable(text: $searchText, prompt: "Search workflow, trigger, or job")
+            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .refreshable {
                 await vm.refresh()
             }

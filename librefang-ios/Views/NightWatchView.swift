@@ -247,6 +247,7 @@ struct NightWatchView: View {
         .navigationDestination(for: OnCallRoute.self) { route in
             destination(for: route)
         }
+        .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
         .refreshable {
             await refreshAndSync()
         }

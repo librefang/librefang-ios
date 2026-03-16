@@ -56,6 +56,7 @@ struct EventsView: View {
             }
             .navigationTitle("Events")
             .searchable(text: $searchText, prompt: "Search action, detail, or agent")
+            .monitoringRefreshInteractionGate(isRefreshing: viewModel.isLoading)
             .refreshable {
                 await viewModel.refresh()
             }

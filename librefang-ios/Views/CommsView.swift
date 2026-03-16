@@ -166,6 +166,7 @@ struct CommsView: View {
             }
             .navigationTitle("Comms")
             .searchable(text: $searchText, prompt: "Search source, target, or detail")
+            .monitoringRefreshInteractionGate(isRefreshing: viewModel.isLoading)
             .refreshable {
                 await viewModel.refresh()
             }

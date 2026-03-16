@@ -364,6 +364,7 @@ struct AgentFilesView: View {
                 }
             }
         }
+        .monitoringRefreshInteractionGate(isRefreshing: isLoading)
         .refreshable {
             await loadFiles()
         }

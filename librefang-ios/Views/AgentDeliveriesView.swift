@@ -414,6 +414,7 @@ struct AgentDeliveriesView: View {
                 }
             }
         }
+        .monitoringRefreshInteractionGate(isRefreshing: isLoading)
         .refreshable {
             await loadReceipts()
         }

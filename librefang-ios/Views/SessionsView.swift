@@ -170,6 +170,7 @@ struct SessionsView: View {
             }
             .navigationTitle("Sessions")
             .searchable(text: $searchText, prompt: "Search session, label, or agent")
+            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .refreshable {
                 await vm.refresh()
             }

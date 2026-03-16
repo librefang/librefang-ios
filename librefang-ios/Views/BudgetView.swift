@@ -310,6 +310,7 @@ struct BudgetView: View {
                     }
                 }
                 .navigationTitle("Budget")
+                .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
                 .refreshable {
                     HapticManager.impact(.light)
                     await vm.refresh()

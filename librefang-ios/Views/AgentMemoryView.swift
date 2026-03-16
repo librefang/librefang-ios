@@ -205,6 +205,7 @@ struct AgentMemoryView: View {
                 .disabled(isActionBusy && !isExporting)
             }
         }
+        .monitoringRefreshInteractionGate(isRefreshing: isLoading)
         .refreshable {
             await loadMemory()
         }

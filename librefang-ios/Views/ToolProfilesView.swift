@@ -267,6 +267,7 @@ struct ToolProfilesView: View {
         .navigationTitle("Tool Profiles")
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, prompt: "Search profile or tool")
+        .monitoringRefreshInteractionGate(isRefreshing: isLoading)
         .refreshable {
             await loadProfiles()
         }

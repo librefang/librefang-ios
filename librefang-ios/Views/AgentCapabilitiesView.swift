@@ -287,6 +287,7 @@ struct AgentCapabilitiesView: View {
         }
         .navigationTitle("Capabilities")
         .navigationBarTitleDisplayMode(.inline)
+        .monitoringRefreshInteractionGate(isRefreshing: isRefreshing)
         .refreshable {
             await refresh()
         }
