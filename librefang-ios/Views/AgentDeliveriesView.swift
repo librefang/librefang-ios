@@ -78,6 +78,9 @@ struct AgentDeliveriesView: View {
     private var agentDeliveriesSectionCount: Int {
         isLoading && receipts.isEmpty && loadError == nil ? 2 : 3
     }
+    private var agentDeliveriesSectionPreviewTitles: [String] {
+        [String(localized: "Receipts")]
+    }
 
     private var agentDeliveriesPrimaryRouteCount: Int { 3 }
     private var agentDeliveriesSupportRouteCount: Int { 1 }
@@ -205,6 +208,13 @@ struct AgentDeliveriesView: View {
                     isLoading: isLoading && receipts.isEmpty && loadError == nil,
                     hasLoadError: loadError != nil
                 )
+                if !agentDeliveriesSectionPreviewTitles.isEmpty {
+                    MonitoringSectionPreviewDeck(
+                        title: String(localized: "Section Preview"),
+                        detail: String(localized: "Keep the next receipt stack visible before delivery rows expand into the full outbound log."),
+                        sectionTitles: agentDeliveriesSectionPreviewTitles
+                    )
+                }
 
                 AgentDeliveriesPressureCoverageDeck(
                     visibleCount: filteredReceipts.count,

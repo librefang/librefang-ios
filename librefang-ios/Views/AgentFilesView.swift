@@ -58,6 +58,9 @@ struct AgentFilesView: View {
     private var agentFilesSectionCount: Int {
         isLoading && files.isEmpty && loadError == nil ? 2 : 3
     }
+    private var agentFilesSectionPreviewTitles: [String] {
+        [String(localized: "Files")]
+    }
 
     private var agentFilesPrimaryRouteCount: Int { 3 }
     private var agentFilesSupportRouteCount: Int { 1 }
@@ -168,6 +171,13 @@ struct AgentFilesView: View {
                     isLoading: isLoading && files.isEmpty && loadError == nil,
                     hasLoadError: loadError != nil
                 )
+                if !agentFilesSectionPreviewTitles.isEmpty {
+                    MonitoringSectionPreviewDeck(
+                        title: String(localized: "Section Preview"),
+                        detail: String(localized: "Keep the next workspace file stack visible before identity rows expand into the full file list."),
+                        sectionTitles: agentFilesSectionPreviewTitles
+                    )
+                }
 
                 AgentFilesPressureCoverageDeck(
                     visibleCount: filteredFiles.count,

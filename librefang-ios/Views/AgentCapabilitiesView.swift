@@ -57,6 +57,19 @@ struct AgentCapabilitiesView: View {
     private var capabilitiesSectionCount: Int {
         hasLoadedAnything ? (2 + loadedCapabilityFeedCount) : 1
     }
+    private var capabilitiesSectionPreviewTitles: [String] {
+        var sections: [String] = []
+        if toolFilters != nil {
+            sections.append(String(localized: "Tool Filters"))
+        }
+        if skills != nil {
+            sections.append(String(localized: "Skills"))
+        }
+        if mcpServers != nil {
+            sections.append(String(localized: "MCP Servers"))
+        }
+        return sections
+    }
     private var toolRestrictionCount: Int {
         (toolFilters?.toolAllowlist.count ?? 0) + (toolFilters?.toolBlocklist.count ?? 0)
     }
@@ -105,6 +118,13 @@ struct AgentCapabilitiesView: View {
                         hasMCPServers: mcpServers != nil,
                         isRefreshingOnly: isRefreshing && hasLoadedAnything
                     )
+                    if !capabilitiesSectionPreviewTitles.isEmpty {
+                        MonitoringSectionPreviewDeck(
+                            title: String(localized: "Section Preview"),
+                            detail: String(localized: "Keep the next capability stacks visible before tool filters, skills, and MCP server sections open up."),
+                            sectionTitles: capabilitiesSectionPreviewTitles
+                        )
+                    }
 
                     CapabilitiesPressureCoverageDeck(
                         loadedFeedCount: loadedCapabilityFeedCount,

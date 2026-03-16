@@ -18,6 +18,9 @@ struct A2AAgentsView: View {
     private var a2aPrimaryRouteCount: Int { 2 }
     private var a2aSupportRouteCount: Int { 1 }
     private var a2aSectionCount: Int { 3 }
+    private var a2aSectionPreviewTitles: [String] {
+        [String(localized: "Agents")]
+    }
     private var visibleHostCount: Int {
         Set(filteredAgents.compactMap { URL(string: $0.url)?.host?.lowercased() }).count
     }
@@ -53,6 +56,13 @@ struct A2AAgentsView: View {
                             streamingCount: visibleStreamingCount,
                             hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                         )
+                        if !a2aSectionPreviewTitles.isEmpty {
+                            MonitoringSectionPreviewDeck(
+                                title: String(localized: "Section Preview"),
+                                detail: String(localized: "Keep the next external-agent stack visible before the directory opens into full agent rows."),
+                                sectionTitles: a2aSectionPreviewTitles
+                            )
+                        }
 
                         A2APressureCoverageDeck(
                             visibleAgentCount: filteredAgents.count,

@@ -53,6 +53,9 @@ struct AgentMemoryView: View {
     private var agentMemorySectionCount: Int {
         isLoading && entries.isEmpty && loadError == nil ? 2 : 3
     }
+    private var agentMemorySectionPreviewTitles: [String] {
+        [String(localized: "Memory")]
+    }
 
     private var agentMemoryPrimaryRouteCount: Int { 3 }
     private var agentMemorySupportRouteCount: Int { 1 }
@@ -260,6 +263,13 @@ struct AgentMemoryView: View {
                 isLoading: isLoading && entries.isEmpty && loadError == nil,
                 hasLoadError: loadError != nil
             )
+            if !agentMemorySectionPreviewTitles.isEmpty {
+                MonitoringSectionPreviewDeck(
+                    title: String(localized: "Section Preview"),
+                    detail: String(localized: "Keep the next memory stack visible before the key list opens into raw entry rows."),
+                    sectionTitles: agentMemorySectionPreviewTitles
+                )
+            }
 
             AgentMemoryPressureCoverageDeck(
                 visibleCount: filteredEntries.count,
