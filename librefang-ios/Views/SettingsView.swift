@@ -39,9 +39,6 @@ struct SettingsView: View {
                     }
                     .disabled(isSaving)
 
-                    Text(serverConnectionHint)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
 
                     Section("Auto Refresh") {
@@ -118,10 +115,6 @@ struct SettingsView: View {
                             .foregroundStyle(deps.onCallNotificationManager.authorizationTone.color)
                     }
 
-                    Text(deps.onCallNotificationManager.authorizationSummary)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
                     if deps.onCallNotificationManager.authorizationStatus != .authorized
                         && deps.onCallNotificationManager.authorizationStatus != .provisional
                         && deps.onCallNotificationManager.authorizationStatus != .ephemeral {
@@ -157,12 +150,6 @@ struct SettingsView: View {
                         SettingsValueRow("Schedule Driver") {
                             Text(deps.onCallNotificationManager.pendingReminderSourceLabel)
                                 .foregroundStyle(reminderArmStatus.color(positive: .secondary, neutral: tertiaryLabelColor))
-                        }
-
-                        if let pendingReminderSummary = deps.onCallNotificationManager.pendingReminderSummary {
-                            Text(pendingReminderSummary)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
                         }
                     }
                 }
@@ -201,14 +188,6 @@ struct SettingsView: View {
                             Text(latest.checklist.progressLabel)
                                 .foregroundStyle(latest.checklist.tone.color)
                         }
-                        SettingsValueRow("Type") {
-                            Text(latest.kind.label)
-                                .foregroundStyle(latest.kind.tintColor)
-                        }
-                        SettingsValueRow("Focus") {
-                            Text(latest.focusAreas.summaryLabel)
-                                .foregroundStyle(handoffFocusStatus(for: latest).color(positive: .primary))
-                        }
                         SettingsValueRow("Follow-ups") {
                             Text(followUpSummary.settingsLabel)
                                 .foregroundStyle(followUpSummary.tone.color)
@@ -231,34 +210,9 @@ struct SettingsView: View {
                             Text(draftHandoffReadiness.state.label)
                                 .foregroundStyle(draftHandoffReadiness.state.tone.color)
                         }
-                        if let drift = deps.onCallHandoffStore.driftFromLatest(
-                            queueCount: onCallQueueCount,
-                            criticalCount: currentCriticalCount,
-                            liveAlertCount: visibleAlertCount
-                        ) {
-                            SettingsValueRow("Drift") {
-                                Text(drift.state.label)
-                                    .foregroundStyle(drift.state.tone.color)
-                            }
-                        }
-                        if let carryover = handoffCarryoverStatus {
-                            SettingsValueRow("Carryover") {
-                                Text(carryover.state.label)
-                                    .foregroundStyle(carryover.state.tone.color)
-                            }
-                        }
                         SettingsValueRow("Freshness") {
                             Text(deps.onCallHandoffStore.freshnessLabel)
                                 .foregroundStyle(deps.onCallHandoffStore.freshnessState.tone.color)
-                        }
-                        SettingsValueRow("Cadence") {
-                            Text(deps.onCallHandoffStore.cadenceState.label)
-                                .foregroundStyle(deps.onCallHandoffStore.cadenceState.tone.color)
-                        }
-                        if !latest.checklist.pendingLabels.isEmpty {
-                            Text(String(localized: "Pending: \(latest.checklist.pendingLabels.joined(separator: ", "))"))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
                         }
                     } else {
                         Text("No local handoff snapshots saved on this iPhone yet.")
@@ -372,18 +326,6 @@ struct SettingsView: View {
         if deps.dashboardViewModel.health?.isHealthy == true {
             showSuccess = true
         }
-    }
-
-    private var serverConnectionHint: String {
-        let normalized = serverURL
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
-
-        if normalized.contains("127.0.0.1") || normalized.contains("localhost") {
-            return String(localized: "127.0.0.1 and localhost only work when the daemon is reachable from the same host. On a physical iPhone, use your Mac's LAN IP, for example http://192.168.x.x:4545.")
-        }
-
-        return String(localized: "The app connects to this base URL on launch and refreshes the dashboard immediately after you save.")
     }
 
     private var currentLanguageLabel: String {

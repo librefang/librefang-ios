@@ -127,19 +127,6 @@ struct AutomationView: View {
         _scope = State(initialValue: initialScope)
     }
 
-    private var filterSummaryLine: String {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if query.isEmpty {
-            if visibleItemCount == totalItemCount {
-                return totalItemCount == 1
-                    ? String(localized: "1 automation item visible")
-                    : String(localized: "\(totalItemCount) automation items visible")
-            }
-            return String(localized: "\(visibleItemCount) of \(totalItemCount) automation items visible")
-        }
-        return String(localized: "\(visibleItemCount) automation items visible for \"\(query)\"")
-    }
-
     var body: some View {
         List {
             if let error = vm.error, !hasAutomationData {
@@ -174,14 +161,6 @@ struct AutomationView: View {
                         .buttonStyle(.plain)
                     }
                 }
-
-                if scope != .all || !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Text(filterSummaryLine)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            } header: {
-                Text("Filters")
             }
 
             if !hasAutomationData && !vm.isLoading {
@@ -189,7 +168,7 @@ struct AutomationView: View {
                     ContentUnavailableView(
                         "No Automation Inventory",
                         systemImage: "flowchart",
-                        description: Text("LibreFang has no workflows, triggers, schedules, or cron jobs in the current snapshot.")
+                        description: Text("No workflows or jobs in the current snapshot.")
                     )
                 }
             } else {
@@ -207,8 +186,8 @@ struct AutomationView: View {
                             systemImage: scope == .all ? "flowchart" : "line.3.horizontal.decrease.circle",
                             description: Text(
                                 searchText.isEmpty
-                                    ? String(localized: "Widen the scope or wait for the next dashboard refresh.")
-                                    : String(localized: "Try a different workflow, trigger, or agent query.")
+                                    ? String(localized: "Change the scope or refresh.")
+                                    : String(localized: "Try a different search.")
                             )
                         )
                     }
@@ -1809,36 +1788,17 @@ private struct WorkflowDefinitionRow: View {
     let runningRuns: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
-                summaryBlock
-            } accessory: {
-                statusBlock
-            }
-
-            Text(relativeText(from: workflow.createdAt))
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
+        ResponsiveAccessoryRow(horizontalAlignment: .top, verticalSpacing: 8) {
+            summaryBlock
+        } accessory: {
+            statusBlock
         }
         .padding(.vertical, 2)
     }
 
-    private func relativeText(from value: String) -> String {
-        guard let date = value.automationISO8601Date else { return value }
-        return String(localized: "Created \(RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date()))")
-    }
-
     private var summaryBlock: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(workflow.name)
-                .font(.subheadline.weight(.medium))
-            if !workflow.description.isEmpty {
-                Text(workflow.description)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-        }
+        Text(workflow.name)
+            .font(.subheadline.weight(.medium))
     }
 
     private var statusBlock: some View {
@@ -1925,13 +1885,6 @@ private struct TriggerRow: View {
             } facts: {
                 facts
             }
-
-            if !trigger.promptTemplate.isEmpty {
-                Text(trigger.promptTemplate)
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                    .lineLimit(2)
-            }
         }
         .padding(.vertical, 2)
     }
@@ -1979,39 +1932,19 @@ private struct ScheduleRow: View {
     let agentName: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            MonitoringFactsRow(horizontalAlignment: .top, verticalSpacing: 8, headerVerticalSpacing: 8) {
-                summaryBlock
-            } accessory: {
-                PresentationToneBadge(
-                    text: schedule.enabled
-                        ? String(localized: "Enabled")
-                        : String(localized: "Paused"),
-                    tone: schedule.enabled ? .positive : .warning
-                )
-            } facts: {
-                facts
-            }
-
-            if !schedule.message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                Text(schedule.message)
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                    .lineLimit(2)
-            }
-
-            if let lastRun = schedule.lastRun {
-                Text("Last run \(relativeText(from: lastRun))")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
+        MonitoringFactsRow(horizontalAlignment: .top, verticalSpacing: 8, headerVerticalSpacing: 8) {
+            summaryBlock
+        } accessory: {
+            PresentationToneBadge(
+                text: schedule.enabled
+                    ? String(localized: "Enabled")
+                    : String(localized: "Paused"),
+                tone: schedule.enabled ? .positive : .warning
+            )
+        } facts: {
+            facts
         }
         .padding(.vertical, 2)
-    }
-
-    private func relativeText(from value: String) -> String {
-        guard let date = value.automationISO8601Date else { return value }
-        return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
     }
 
     private var summaryBlock: some View {

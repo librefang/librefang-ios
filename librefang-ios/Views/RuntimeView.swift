@@ -307,7 +307,7 @@ struct RuntimeView: View {
                     RuntimeMetricRow(
                         label: String(localized: "Metrics"),
                         value: String(localized: "\(metrics.activeAgents)/\(metrics.totalAgents) active"),
-                        detail: String(localized: "\(metrics.totalRollingTokens.formatted()) rolling tokens · \(metrics.totalRollingToolCalls.formatted()) tool calls")
+                        detail: nil
                     )
                 }
             } header: {
@@ -326,19 +326,19 @@ struct RuntimeView: View {
                     value: "\(vm.configuredProviderCount)/\(vm.providers.count)",
                     detail: vm.unreachableLocalProviderCount > 0
                         ? String(localized: "\(vm.unreachableLocalProviderCount) local unreachable")
-                        : String(localized: "\(vm.reachableLocalProviderCount) local reachable")
+                        : nil
                 )
                 RuntimeMetricRow(
                     label: String(localized: "Channels"),
                     value: "\(vm.readyChannelCount)/\(vm.configuredChannelCount)",
                     detail: vm.channelRequiredFieldGapCount > 0
                         ? String(localized: "\(vm.channelRequiredFieldGapCount) channels missing \(vm.missingRequiredChannelFieldCount) required fields")
-                        : String(localized: "Configured channels have required fields")
+                        : nil
                 )
                 RuntimeMetricRow(
                     label: String(localized: "Catalog"),
                     value: String(localized: "\(vm.availableCatalogModelCount)/\(vm.catalogModels.count) available"),
-                    detail: vm.hasEmptyModelCatalog ? String(localized: "No executable models in the current catalog") : String(localized: "\(vm.modelAliasCount) aliases")
+                    detail: vm.hasEmptyModelCatalog ? String(localized: "No executable models in the current catalog") : nil
                 )
                 RuntimeMetricRow(
                     label: String(localized: "Catalog Sync"),
@@ -373,22 +373,22 @@ struct RuntimeView: View {
                 RuntimeMetricRow(
                     label: String(localized: "Tokens"),
                     value: String(localized: "\(usage.totalInputTokens.formatted()) in / \(usage.totalOutputTokens.formatted()) out"),
-                    detail: String(localized: "\(vm.totalTokenCount.formatted()) total")
+                    detail: nil
                 )
                 RuntimeMetricRow(
                     label: String(localized: "Tool Calls"),
                     value: usage.totalToolCalls.formatted(),
-                    detail: String(localized: "\(usage.callCount.formatted()) LLM calls")
+                    detail: nil
                 )
                 RuntimeMetricRow(
                     label: String(localized: "Accumulated Cost"),
                     value: currency(usage.totalCostUsd),
-                    detail: usage.totalCostUsd > 0 ? String(localized: "All recorded sessions") : String(localized: "No spend recorded")
+                    detail: nil
                 )
                 RuntimeMetricRow(
                     label: String(localized: "Sessions"),
                     value: "\(vm.totalSessionCount)",
-                    detail: String(localized: "\(vm.totalSessionMessages.formatted()) messages retained")
+                    detail: nil
                 )
             }
         }
@@ -401,23 +401,23 @@ struct RuntimeView: View {
                 RuntimeMetricRow(
                     label: String(localized: "Workflows"),
                     value: "\(vm.workflowCount)",
-                    detail: String(localized: "\(vm.failedWorkflowRunCount) failed runs, \(vm.runningWorkflowRunCount) in flight")
+                    detail: nil
                 )
                 RuntimeMetricRow(
                     label: String(localized: "Triggers"),
                     value: String(localized: "\(vm.enabledTriggerCount)/\(vm.triggers.count) enabled"),
-                    detail: String(localized: "\(vm.exhaustedTriggerCount) exhausted, \(vm.disabledTriggerCount) disabled")
+                    detail: nil
                 )
                 RuntimeMetricRow(
                     label: String(localized: "Schedules"),
                     value: String(localized: "\(vm.enabledScheduleCount)/\(vm.schedules.count) enabled"),
-                    detail: String(localized: "\(vm.pausedScheduleCount) paused, \(vm.enabledCronJobCount)/\(vm.cronJobs.count) cron enabled")
+                    detail: nil
                 )
                 if vm.stalledCronJobCount > 0 {
                     RuntimeMetricRow(
                         label: String(localized: "Cron Health"),
                         value: String(localized: "\(vm.stalledCronJobCount) missing next run"),
-                        detail: String(localized: "Enabled jobs without a next execution should be reviewed in the scheduler.")
+                        detail: nil
                     )
                 }
             } header: {
@@ -499,7 +499,7 @@ struct RuntimeView: View {
                 if configuredChannels.isEmpty {
                     RuntimeEmptyRow(
                         title: String(localized: "No channels configured"),
-                        subtitle: String(localized: "Desktop or web can finish setup. Mobile focuses on status tracking.")
+                        subtitle: String(localized: "Finish setup on desktop or web.")
                     )
                 } else {
                     ForEach(visibleConfiguredChannels) { channel in
@@ -519,7 +519,7 @@ struct RuntimeView: View {
                 RuntimeMetricRow(
                     label: String(localized: "Connected Agents"),
                     value: "\(a2a.total)",
-                    detail: String(localized: "External agents discovered through A2A")
+                    detail: nil
                 )
 
                 ForEach(a2a.agents.prefix(5)) { agent in
@@ -567,7 +567,7 @@ struct RuntimeView: View {
                 if vm.peers.isEmpty {
                     RuntimeEmptyRow(
                         title: String(localized: "No peers discovered"),
-                        subtitle: network.enabled ? String(localized: "The wire network is enabled but no peers are currently visible.") : String(localized: "Enable peer networking on the server to surface node status.")
+                        subtitle: network.enabled ? String(localized: "No peers are currently visible.") : String(localized: "Enable peer networking on the server.")
                     )
                 } else {
                     ForEach(vm.peers.prefix(5)) { peer in
@@ -585,7 +585,7 @@ struct RuntimeView: View {
                 if vm.activeHands.isEmpty {
                     RuntimeEmptyRow(
                         title: String(localized: "No active hands"),
-                        subtitle: String(localized: "When autonomous hands are activated, their runtime status appears here.")
+                        subtitle: String(localized: "Active hands appear here.")
                     )
                 } else {
                     ForEach(visibleActiveHands) { instance in
@@ -2021,7 +2021,7 @@ private struct RuntimeScoreboard: View {
 private struct RuntimeMetricRow: View {
     let label: String
     let value: String
-    let detail: String
+    let detail: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -2032,9 +2032,11 @@ private struct RuntimeMetricRow: View {
                 Text(value)
                     .fontWeight(.medium)
             }
-            Text(detail)
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+            if let detail, !detail.isEmpty {
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
         }
         .padding(.vertical, 1)
     }
