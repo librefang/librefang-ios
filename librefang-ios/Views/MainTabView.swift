@@ -954,6 +954,17 @@ private struct OperatorOverlayDeck: View {
                 pendingFollowUpCount: pendingFollowUpCount,
                 isOffline: isOffline
             )
+            OperatorOverlayWorkstreamCoverageDeck(
+                preferredSurfaceLabel: preferredSurfaceLabel,
+                tabSignalCount: tabSignalCount,
+                criticalCount: criticalCount,
+                approvalCount: approvalCount,
+                watchIssueCount: watchIssueCount,
+                sessionCount: sessionCount,
+                mutedAlertCount: mutedAlertCount,
+                pendingFollowUpCount: pendingFollowUpCount,
+                isOffline: isOffline
+            )
 
             if !primaryActions.isEmpty || !supportActions.isEmpty {
                 OperatorOverlayRouteDeck(
@@ -1409,6 +1420,127 @@ private struct OperatorOverlayFocusCoverageDeck: View {
             return String(localized: "Overlay focus coverage is currently anchored by watch, muted-alert, and follow-up drag.")
         }
         return String(localized: "Overlay focus coverage is currently centered on the preferred surface and nearby tabs.")
+    }
+}
+
+private struct OperatorOverlayWorkstreamCoverageDeck: View {
+    let preferredSurfaceLabel: String
+    let tabSignalCount: Int
+    let criticalCount: Int
+    let approvalCount: Int
+    let watchIssueCount: Int
+    let sessionCount: Int
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let isOffline: Bool
+
+    private var activeLaneCount: Int {
+        [
+            criticalCount > 0,
+            approvalCount > 0,
+            watchIssueCount > 0,
+            sessionCount > 0,
+            mutedAlertCount > 0,
+            pendingFollowUpCount > 0,
+            isOffline
+        ].filter { $0 }.count
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether the overlay is currently led by live triage, follow-through drag, or offline recovery before opening the route groups."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: preferredSurfaceLabel, tone: .neutral)
+                    PresentationToneBadge(
+                        text: tabSignalCount == 1 ? String(localized: "1 live tab") : String(localized: "\(tabSignalCount) live tabs"),
+                        tone: tabSignalCount > 0 ? .warning : .neutral
+                    )
+                    if isOffline {
+                        PresentationToneBadge(text: String(localized: "Offline"), tone: .warning)
+                    } else if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    } else if pendingFollowUpCount > 0 {
+                        PresentationToneBadge(
+                            text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep live triage, watch drag, and follow-through pressure readable before moving from the overlay into deeper route groups."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: activeLaneCount == 1 ? String(localized: "1 active lane") : String(localized: "\(activeLaneCount) active lanes"),
+                    tone: activeLaneCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if criticalCount > 0 {
+                    Label(
+                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if watchIssueCount > 0 {
+                    Label(
+                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if sessionCount > 0 {
+                    Label(
+                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                        systemImage: "text.bubble"
+                    )
+                }
+                if mutedAlertCount > 0 {
+                    Label(
+                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        systemImage: "bell.slash"
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    Label(
+                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
+                        systemImage: "checklist.unchecked"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if isOffline {
+            return String(localized: "Overlay workstream coverage is currently anchored by offline recovery.")
+        }
+        if criticalCount > 0 || approvalCount > 0 || sessionCount > 0 {
+            return String(localized: "Overlay workstream coverage is currently anchored by live triage pressure.")
+        }
+        if watchIssueCount > 0 || mutedAlertCount > 0 || pendingFollowUpCount > 0 {
+            return String(localized: "Overlay workstream coverage is currently anchored by watch drag and follow-through work.")
+        }
+        return String(localized: "Overlay workstream coverage is currently centered on the preferred surface and live tab context.")
     }
 }
 
