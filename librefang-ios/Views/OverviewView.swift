@@ -252,10 +252,6 @@ private struct AlertsCard: View {
                             Text(alert.title)
                                 .font(.subheadline.weight(.medium))
                                 .lineLimit(1)
-                            Text(alert.detail)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
                         }
 
                         Spacer()
@@ -266,25 +262,6 @@ private struct AlertsCard: View {
         .padding(14)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-}
-
-private struct HandoffBadge: View {
-    let value: Int
-    let label: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text("\(value)")
-                .font(.caption.weight(.semibold))
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-        }
-        .padding(.horizontal, 7)
-        .padding(.vertical, 5)
-        .background(.secondary.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }
 
@@ -464,11 +441,12 @@ private struct WatchlistCard: View {
                                 Text(item.agent.isRunning ? String(localized: "Running normally") : String(localized: "Not currently running"))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
+                                    .lineLimit(1)
                             } else if let summary = diagnostics[item.agent.id], summary.hasIssues {
                                 Text(([item.reasons.prefix(1).first].compactMap { $0 } + [summary.summaryLine]).joined(separator: " • "))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
-                                    .lineLimit(2)
+                                    .lineLimit(1)
                             } else {
                                 Text(item.reasons.prefix(2).joined(separator: " • "))
                                     .font(.caption)
@@ -614,12 +592,7 @@ private struct SessionWatchlistCard: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Text(item.agent?.name ?? item.session.agentId)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-
-                Text(item.reasons.prefix(2).joined(separator: " • "))
+                Text("\(item.agent?.name ?? item.session.agentId) · \(item.reasons.prefix(2).joined(separator: " • "))")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
