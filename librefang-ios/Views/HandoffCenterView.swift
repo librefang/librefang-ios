@@ -530,7 +530,7 @@ struct HandoffCenterView: View {
                 HandoffFocusCoverageDeck(
                     queueCount: queueCount,
                     criticalCount: criticalCount,
-                    pendingApprovalCount: vm.pendingApprovalCount,
+                    pendingApprovalCount: vm.pendingApprovalCount,
                     watchlistIssueCount: watchlistIssueCount,
                     sessionAttentionCount: vm.sessionAttentionCount,
                     criticalAuditCount: vm.recentCriticalAuditCount,
