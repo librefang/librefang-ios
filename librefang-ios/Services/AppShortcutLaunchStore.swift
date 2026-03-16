@@ -180,6 +180,8 @@ enum AppShortcutLaunchTarget: Hashable, Identifiable {
 }
 
 enum AppShortcutLaunchBridge {
+    private static let duplicateQueueWindow: TimeInterval = 1
+
     private enum StorageKey {
         static let pendingTargetKind = "appshortcuts.pendingTargetKind"
         static let pendingTargetValue = "appshortcuts.pendingTargetValue"
@@ -201,6 +203,13 @@ enum AppShortcutLaunchBridge {
     }
 
     static func queue(_ target: AppShortcutLaunchTarget, defaults: UserDefaults = .standard) {
+        if let existingTarget = pendingTarget(defaults: defaults),
+           existingTarget == target,
+           let queuedAt = pendingQueuedAt(defaults: defaults),
+           Date().timeIntervalSince(queuedAt) < duplicateQueueWindow {
+            return
+        }
+
         let kind: String
         let value: String
 
