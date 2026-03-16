@@ -130,6 +130,12 @@ struct OnCallView: View {
     private var criticalCount: Int {
         visibleAlerts.filter { $0.severity == .critical }.count
     }
+    private var warningCount: Int {
+        priorityItems.filter { $0.severity == .warning }.count
+    }
+    private var advisoryCount: Int {
+        priorityItems.filter { $0.severity == .advisory }.count
+    }
     private var watchIssueCount: Int {
         watchedAttentionItems.filter { $0.severity > 0 }.count
     }
@@ -285,6 +291,15 @@ struct OnCallView: View {
                     eventCount: vm.recentCriticalAuditCount,
                     automationIssueCount: automationIssueCount,
                     integrationIssueCount: integrationIssueCount
+                )
+
+                OnCallQueueCoverageDeck(
+                    criticalCount: criticalCount,
+                    warningCount: warningCount,
+                    advisoryCount: advisoryCount,
+                    approvalCount: vm.pendingApprovalCount,
+                    watchIssueCount: watchIssueCount,
+                    pendingFollowUpCount: pendingFollowUpCount
                 )
         } header: {
             Text("Controls")
@@ -883,6 +898,71 @@ private struct OnCallSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Queue work, watchlist pressure, and supporting issue buckets stay summarized before the route deck and live rows take over.")
+    }
+}
+
+private struct OnCallQueueCoverageDeck: View {
+    let criticalCount: Int
+    let warningCount: Int
+    let advisoryCount: Int
+    let approvalCount: Int
+    let watchIssueCount: Int
+    let pendingFollowUpCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Queue coverage keeps severity mix readable before the live on-call rows begin."),
+                detail: String(localized: "Use this deck to gauge whether the queue is dominated by criticals, warnings, watch pressure, or handoff follow-ups."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if warningCount > 0 {
+                        PresentationToneBadge(
+                            text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                            tone: .warning
+                        )
+                    }
+                    if advisoryCount > 0 {
+                        PresentationToneBadge(
+                            text: advisoryCount == 1 ? String(localized: "1 advisory") : String(localized: "\(advisoryCount) advisories"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Queue coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep approvals, watch pressure, and follow-up drag visible before opening the full priority queue."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                    tone: approvalCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                    systemImage: "star.fill"
+                )
+                Label(
+                    pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                    systemImage: "arrow.triangle.2.circlepath"
+                )
+            }
+        }
     }
 }
 

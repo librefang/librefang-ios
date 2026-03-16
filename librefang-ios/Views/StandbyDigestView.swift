@@ -298,6 +298,14 @@ struct StandbyDigestView: View {
                 automationIssueCount: automationIssueCount,
                 integrationIssueCount: integrationIssueCount
             )
+            StandbyQueueCoverageDeck(
+                criticalCount: criticalCount,
+                warningCount: warningQueueCount,
+                advisoryCount: advisoryQueueCount,
+                approvalCount: vm.pendingApprovalCount,
+                watchIssueCount: watchIssueCount,
+                pendingFollowUpCount: pendingFollowUpCount
+            )
         }
     }
 
@@ -1344,6 +1352,80 @@ private struct StandbySectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Glance cards, watch pressure, and support issue buckets stay summarized before the route rails and slower drills take over.")
+    }
+}
+
+private struct StandbyQueueCoverageDeck: View {
+    let criticalCount: Int
+    let warningCount: Int
+    let advisoryCount: Int
+    let approvalCount: Int
+    let watchIssueCount: Int
+    let pendingFollowUpCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ResponsiveAccessoryRow {
+                Label {
+                    Text(String(localized: "Queue Coverage"))
+                } icon: {
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                }
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.white)
+            } accessory: {
+                GlassCapsuleBadge(
+                    text: criticalCount == 0 && warningCount == 0 && advisoryCount == 0
+                        ? String(localized: "Calm queue")
+                        : String(localized: "Live queue"),
+                    backgroundOpacity: 0.14
+                )
+            }
+
+            Text(String(localized: "Keep severity mix, watch pressure, and follow-up drag readable before the glance cards and route rails."))
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.72))
+                .fixedSize(horizontal: false, vertical: true)
+
+            FlowLayout(spacing: 8) {
+                if criticalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        backgroundOpacity: 0.18
+                    )
+                }
+                if warningCount > 0 {
+                    GlassCapsuleBadge(
+                        text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if advisoryCount > 0 {
+                    GlassCapsuleBadge(
+                        text: advisoryCount == 1 ? String(localized: "1 advisory") : String(localized: "\(advisoryCount) advisories"),
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if approvalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if watchIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    GlassCapsuleBadge(
+                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+            }
+        }
     }
 }
 

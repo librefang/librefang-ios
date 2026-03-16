@@ -297,6 +297,14 @@ struct NightWatchView: View {
                 automationIssueCount: automationIssueCount,
                 integrationIssueCount: integrationIssueCount
             )
+            NightWatchQueueCoverageDeck(
+                criticalCount: criticalCount,
+                warningCount: warningCount,
+                advisoryCount: advisoryCount,
+                approvalCount: vm.pendingApprovalCount,
+                watchIssueCount: watchIssueCount,
+                pendingFollowUpCount: pendingFollowUpCount
+            )
         }
     }
 
@@ -1476,6 +1484,61 @@ private struct NightWatchSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Priority cards, watchlist pressure, and support issue buckets stay summarized before the display controls and route rails take over.")
+    }
+}
+
+private struct NightWatchQueueCoverageDeck: View {
+    let criticalCount: Int
+    let warningCount: Int
+    let advisoryCount: Int
+    let approvalCount: Int
+    let watchIssueCount: Int
+    let pendingFollowUpCount: Int
+
+    var body: some View {
+        NightWatchSectionCard(
+            title: String(localized: "Queue Coverage"),
+            detail: String(localized: "Keep severity mix and follow-up drag readable before the primary and secondary night queue cards.")
+        ) {
+            FlowLayout(spacing: 8) {
+                if criticalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        backgroundOpacity: 0.18
+                    )
+                }
+                if warningCount > 0 {
+                    GlassCapsuleBadge(
+                        text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if advisoryCount > 0 {
+                    GlassCapsuleBadge(
+                        text: advisoryCount == 1 ? String(localized: "1 advisory") : String(localized: "\(advisoryCount) advisories"),
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if approvalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if watchIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    GlassCapsuleBadge(
+                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+            }
+        }
     }
 }
 
