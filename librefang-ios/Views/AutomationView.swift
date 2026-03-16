@@ -127,7 +127,19 @@ struct AutomationView: View {
         _scope = State(initialValue: initialScope)
     }
 
-    var body: some View {
+    private var filterSummaryLine: String {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty {
+            if visibleItemCount == totalItemCount {
+                return totalItemCount == 1
+                    ? String(localized: "1 automation item visible")
+                    : String(localized: "\(totalItemCount) automation items visible")
+            }
+            return String(localized: "\(visibleItemCount) of \(totalItemCount) automation items visible")
+        }
+        return String(localized: "\(visibleItemCount) automation items visible for \"\(query)\"")
+    }
+
     var body: some View {
         List {
             if let error = vm.error, !hasAutomationData {
@@ -148,12 +160,26 @@ struct AutomationView: View {
             }
 
             Section {
-                AutomationFilterCard(
-                    scope: $scope,
-                    searchText: searchText,
-                    visibleCount: visibleItemCount,
-                    totalCount: totalItemCount
-                )
+                FlowLayout(spacing: 8) {
+                    ForEach(AutomationMonitorScope.allCases) { option in
+                        Button {
+                            scope = option
+                        } label: {
+                            SelectableLabelCapsuleBadge(
+                                text: option.label,
+                                systemImage: option == .attention ? "exclamationmark.triangle" : option == .active ? "bolt.fill" : "list.bullet",
+                                isSelected: scope == option
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+                if scope != .all || !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(filterSummaryLine)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             } header: {
                 Text("Filters")
             }
@@ -226,12 +252,6 @@ struct AutomationView: View {
                 }
             } header: {
                 Text("Workflows")
-            } footer: {
-                if filteredWorkflows.count > visibleWorkflows.count {
-                    Text("Showing \(visibleWorkflows.count) of \(filteredWorkflows.count) workflows")
-                } else {
-                    Text("\(vm.workflowCount) definitions, \(vm.recentWorkflowRunCount) recent runs cached from the server")
-                }
             }
         }
     }
@@ -245,12 +265,6 @@ struct AutomationView: View {
                 }
             } header: {
                 Text("Recent Runs")
-            } footer: {
-                if filteredWorkflowRuns.count > visibleWorkflowRuns.count {
-                    Text("Showing \(visibleWorkflowRuns.count) of \(filteredWorkflowRuns.count) recent runs")
-                } else {
-                    Text("\(vm.failedWorkflowRunCount) failed, \(vm.runningWorkflowRunCount) still running")
-                }
             }
         }
     }
@@ -264,12 +278,6 @@ struct AutomationView: View {
                 }
             } header: {
                 Text("Triggers")
-            } footer: {
-                if filteredTriggers.count > visibleTriggers.count {
-                    Text("Showing \(visibleTriggers.count) of \(filteredTriggers.count) triggers")
-                } else {
-                    Text("\(vm.enabledTriggerCount) enabled, \(vm.exhaustedTriggerCount) exhausted")
-                }
             }
         }
     }
@@ -283,12 +291,6 @@ struct AutomationView: View {
                 }
             } header: {
                 Text("Schedules")
-            } footer: {
-                if filteredSchedules.count > visibleSchedules.count {
-                    Text("Showing \(visibleSchedules.count) of \(filteredSchedules.count) schedules")
-                } else {
-                    Text("\(vm.enabledScheduleCount) enabled, \(vm.pausedScheduleCount) paused")
-                }
             }
         }
     }
@@ -308,12 +310,6 @@ struct AutomationView: View {
                 }
             } header: {
                 Text("Cron Jobs")
-            } footer: {
-                if filteredCronJobs.count > visibleCronJobs.count {
-                    Text("Showing \(visibleCronJobs.count) of \(filteredCronJobs.count) cron jobs")
-                } else {
-                    Text("\(vm.enabledCronJobCount) enabled, \(vm.pausedCronJobCount) paused, \(vm.stalledCronJobCount) missing next run")
-                }
             }
         }
     }
@@ -554,66 +550,6 @@ private struct AutomationStatusDeckCard: View {
                     )
                 }
             }
-        }
-    }
-}
-
-private struct AutomationFilterCard: View {
-    @Binding var scope: AutomationMonitorScope
-    let searchText: String
-    let visibleCount: Int
-    let totalCount: Int
-
-    var body: some View {
-        MonitoringFilterCard(summary: summaryLine, detail: searchSummary) {
-            activeBadge
-        } controls: {
-            FlowLayout(spacing: 8) {
-                ForEach(AutomationMonitorScope.allCases) { option in
-                    Button {
-                        scope = option
-                    } label: {
-                        SelectableCapsuleBadge(text: option.label, isSelected: scope == option)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-    }
-
-    private var activeBadge: some View {
-        PresentationToneBadge(
-            text: scope.label,
-            tone: badgeTone
-        )
-    }
-
-    private var summaryLine: String {
-        if visibleCount == totalCount {
-            return totalCount == 1
-                ? String(localized: "1 automation item in monitor")
-                : String(localized: "\(totalCount) automation items in monitor")
-        }
-
-        return String(localized: "\(visibleCount) of \(totalCount) automation items visible")
-    }
-
-    private var searchSummary: String {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if query.isEmpty {
-            return String(localized: "Search workflows, triggers, schedules, or cron jobs.")
-        }
-        return String(localized: "Search active: \"\(query)\"")
-    }
-
-    private var badgeTone: PresentationTone {
-        switch scope {
-        case .all:
-            return .neutral
-        case .attention:
-            return .warning
-        case .active:
-            return .positive
         }
     }
 }
