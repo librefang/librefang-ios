@@ -298,6 +298,14 @@ struct StandbyDigestView: View {
                 automationIssueCount: automationIssueCount,
                 integrationIssueCount: integrationIssueCount
             )
+            StandbySupportPressureDeck(
+                mutedAlertCount: mutedAlertCount,
+                pendingFollowUpCount: pendingFollowUpCount,
+                approvalCount: vm.pendingApprovalCount,
+                automationIssueCount: automationIssueCount,
+                integrationIssueCount: integrationIssueCount,
+                checkInStatus: checkInStatus
+            )
             StandbyQueueCoverageDeck(
                 criticalCount: criticalCount,
                 warningCount: warningQueueCount,
@@ -1422,6 +1430,69 @@ private struct StandbyQueueCoverageDeck: View {
                     GlassCapsuleBadge(
                         text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
                         backgroundOpacity: 0.14
+                    )
+                }
+            }
+        }
+    }
+}
+
+private struct StandbySupportPressureDeck: View {
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let approvalCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let checkInStatus: HandoffCheckInStatus?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ResponsiveAccessoryRow {
+                Label {
+                    Text(String(localized: "Support Pressure"))
+                } icon: {
+                    Image(systemName: "bell.slash")
+                }
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.white)
+            } accessory: {
+                GlassCapsuleBadge(
+                    text: approvalCount == 0 ? String(localized: "Quiet support") : String(localized: "Active support"),
+                    backgroundOpacity: 0.14
+                )
+            }
+
+            Text(String(localized: "Keep muted alerts, handoff follow-ups, check-ins, and platform drift readable before the glance cards and support routes."))
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.72))
+                .fixedSize(horizontal: false, vertical: true)
+
+            FlowLayout(spacing: 8) {
+                if mutedAlertCount > 0 {
+                    GlassCapsuleBadge(
+                        text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    GlassCapsuleBadge(
+                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if let checkInStatus {
+                    GlassCapsuleBadge(text: checkInStatus.state.label, backgroundOpacity: 0.16)
+                }
+                if automationIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        backgroundOpacity: 0.12
                     )
                 }
             }

@@ -297,6 +297,14 @@ struct NightWatchView: View {
                 automationIssueCount: automationIssueCount,
                 integrationIssueCount: integrationIssueCount
             )
+            NightWatchSupportPressureDeck(
+                mutedAlertCount: mutedAlertCount,
+                pendingFollowUpCount: pendingFollowUpCount,
+                approvalCount: vm.pendingApprovalCount,
+                automationIssueCount: automationIssueCount,
+                integrationIssueCount: integrationIssueCount,
+                checkInStatus: checkInStatus
+            )
             NightWatchQueueCoverageDeck(
                 criticalCount: criticalCount,
                 warningCount: warningCount,
@@ -1535,6 +1543,58 @@ private struct NightWatchQueueCoverageDeck: View {
                     GlassCapsuleBadge(
                         text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
                         backgroundOpacity: 0.14
+                    )
+                }
+            }
+        }
+    }
+}
+
+private struct NightWatchSupportPressureDeck: View {
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let approvalCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let checkInStatus: HandoffCheckInStatus?
+
+    var body: some View {
+        NightWatchSectionCard(
+            title: String(localized: "Support Pressure"),
+            detail: String(localized: "Keep muted alerts, check-ins, follow-ups, and platform drift readable before the queue cards and route rails.")
+        ) {
+            FlowLayout(spacing: 8) {
+                if mutedAlertCount > 0 {
+                    GlassCapsuleBadge(
+                        text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        backgroundOpacity: 0.10
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    GlassCapsuleBadge(
+                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if approvalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if let checkInStatus {
+                    GlassCapsuleBadge(text: checkInStatus.state.label, backgroundOpacity: 0.16)
+                }
+                if automationIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        backgroundOpacity: 0.12
                     )
                 }
             }

@@ -292,6 +292,15 @@ struct OnCallView: View {
                     automationIssueCount: automationIssueCount,
                     integrationIssueCount: integrationIssueCount
                 )
+                OnCallSupportPressureDeck(
+                    mutedAlertCount: mutedAlertCount,
+                    pendingFollowUpCount: pendingFollowUpCount,
+                    approvalCount: vm.pendingApprovalCount,
+                    criticalAuditCount: vm.recentCriticalAuditCount,
+                    automationIssueCount: automationIssueCount,
+                    integrationIssueCount: integrationIssueCount,
+                    checkInStatus: handoffStore.latestCheckInStatus
+                )
 
                 OnCallQueueCoverageDeck(
                     criticalCount: criticalCount,
@@ -963,6 +972,89 @@ private struct OnCallQueueCoverageDeck: View {
                 )
             }
         }
+    }
+}
+
+private struct OnCallSupportPressureDeck: View {
+    let mutedAlertCount: Int
+    let pendingFollowUpCount: Int
+    let approvalCount: Int
+    let criticalAuditCount: Int
+    let automationIssueCount: Int
+    let integrationIssueCount: Int
+    let checkInStatus: HandoffCheckInStatus?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to surface slower shift pressure like muted alerts, check-ins, audit churn, and automation or integration drift before opening the queue."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if mutedAlertCount > 0 {
+                        PresentationToneBadge(
+                            text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                            tone: .neutral
+                        )
+                    }
+                    if pendingFollowUpCount > 0 {
+                        PresentationToneBadge(
+                            text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                            tone: .warning
+                        )
+                    }
+                    if let checkInStatus {
+                        PresentationToneBadge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support pressure"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep follow-ups, check-ins, approvals, audit churn, and platform drift visible before the live queue rows take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                    tone: approvalCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if criticalAuditCount > 0 {
+                    Label(
+                        criticalAuditCount == 1 ? String(localized: "1 critical audit") : String(localized: "\(criticalAuditCount) critical audits"),
+                        systemImage: "list.bullet.rectangle.portrait"
+                    )
+                }
+                if automationIssueCount > 0 {
+                    Label(
+                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationIssueCount > 0 {
+                    Label(
+                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if pendingFollowUpCount > 0 || checkInStatus != nil {
+            return String(localized: "Support pressure is currently anchored by handoff follow-up and check-in state.")
+        }
+        if automationIssueCount > 0 || integrationIssueCount > 0 || criticalAuditCount > 0 {
+            return String(localized: "Support pressure is currently concentrated in audit, automation, and integration drift.")
+        }
+        return String(localized: "Support pressure is currently low and mostly reflects muted alerts and queue readiness.")
     }
 }
 
