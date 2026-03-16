@@ -151,8 +151,6 @@ struct OverviewView: View {
                         SessionWatchlistCard(items: vm.sessionAttentionItems)
                     } else if shouldShowAttentionAgentsCard {
                         AttentionAgentsCard(items: vm.attentionAgents)
-                    } else if !vm.agents.isEmpty {
-                        AgentPreviewCard(agents: vm.agents)
                     }
 
                 }
@@ -193,12 +191,6 @@ struct OverviewView: View {
                             )
                         } label: {
                             Label("Handoff", systemImage: "text.badge.plus")
-                        }
-
-                        NavigationLink {
-                            DiagnosticsView()
-                        } label: {
-                            Label("Diagnostics", systemImage: "stethoscope")
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
@@ -1787,47 +1779,6 @@ private struct A2ASummaryCard: View {
             Image(systemName: "network")
                 .font(.system(size: 28))
                 .foregroundStyle(.blue.opacity(0.3))
-        }
-        .padding()
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-}
-
-private struct AgentPreviewCard: View {
-    let agents: [Agent]
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Agents")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(String(localized: "\(agents.count) total"))
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
-
-            ForEach(agents.prefix(4)) { agent in
-                HStack(spacing: 8) {
-                    Text(agent.identity?.emoji ?? "🤖")
-                        .font(.body)
-                    Text(agent.name)
-                        .font(.subheadline)
-                        .lineLimit(1)
-                    Spacer()
-                    Circle()
-                        .fill(agent.stateTone.color)
-                        .frame(width: 8, height: 8)
-                }
-            }
-
-            if agents.count > 4 {
-                Text(String(localized: "+\(agents.count - 4) more"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
         }
         .padding()
         .background(.ultraThinMaterial)
