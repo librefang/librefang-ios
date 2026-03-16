@@ -55,6 +55,7 @@ struct CommsView: View {
             Section {
                 commsStatusDeckCard
                 commsSectionInventoryDeck
+                commsTrafficCoverageDeck
                 commsControlDeckCard
             } header: {
                 Text("Controls")
@@ -335,6 +336,18 @@ struct CommsView: View {
             hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         )
     }
+
+    private var commsTrafficCoverageDeck: some View {
+        CommsTrafficCoverageDeck(
+            visibleEventCount: filteredEvents.count,
+            totalEventCount: viewModel.events.count,
+            nodeCount: viewModel.nodeCount,
+            edgeCount: viewModel.edgeCount,
+            taskEventCount: viewModel.taskEventCount,
+            isStreaming: viewModel.isStreaming,
+            hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        )
+    }
 }
 
 private struct CommsSectionInventoryDeck: View {
@@ -418,6 +431,74 @@ private struct CommsSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Topology depth, traffic volume, and transport state stay summarized before the comms topology and traffic rows take over.")
+    }
+}
+
+private struct CommsTrafficCoverageDeck: View {
+    let visibleEventCount: Int
+    let totalEventCount: Int
+    let nodeCount: Int
+    let edgeCount: Int
+    let taskEventCount: Int
+    let isStreaming: Bool
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Traffic coverage keeps live topology pressure readable before the comms feed begins."),
+                detail: String(localized: "Use this deck to judge whether the current slice is dominated by dense topology, task traffic, or a narrow search-scoped lane."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if edgeCount > 0 {
+                        PresentationToneBadge(
+                            text: edgeCount == 1 ? String(localized: "1 live link") : String(localized: "\(edgeCount) live links"),
+                            tone: .positive
+                        )
+                    }
+                    if taskEventCount > 0 {
+                        PresentationToneBadge(
+                            text: taskEventCount == 1 ? String(localized: "1 task-flow event") : String(localized: "\(taskEventCount) task-flow events"),
+                            tone: .neutral
+                        )
+                    }
+                    if nodeCount > 0 {
+                        PresentationToneBadge(
+                            text: nodeCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(nodeCount) visible agents"),
+                            tone: .positive
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Traffic coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep visible traffic breadth and transport mode readable before diving into topology and event rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                    tone: isStreaming ? .positive : .warning
+                )
+            } facts: {
+                Label(
+                    visibleEventCount == totalEventCount
+                        ? (visibleEventCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleEventCount) visible events"))
+                        : String(localized: "\(visibleEventCount) of \(totalEventCount) visible"),
+                    systemImage: "arrow.left.arrow.right.circle"
+                )
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

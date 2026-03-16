@@ -106,6 +106,7 @@ struct SessionsView: View {
             Section {
                 sessionsStatusDeckCard
                 sessionsSectionInventoryDeck
+                sessionsQueueCoverageDeck
                 sessionsControlDeckCard
             } header: {
                 Text("Controls")
@@ -443,6 +444,18 @@ struct SessionsView: View {
         )
     }
 
+    private var sessionsQueueCoverageDeck: some View {
+        SessionsQueueCoverageDeck(
+            attentionCount: visibleAttentionCount,
+            highVolumeCount: visibleHighVolumeCount,
+            unlabeledCount: visibleUnlabeledCount,
+            duplicateAgentCount: visibleDuplicateAgentCount,
+            visibleCount: filteredItems.count,
+            totalCount: vm.sessions.count,
+            hasSearchScope: !normalizedSearchText.isEmpty
+        )
+    }
+
 private struct SessionsRouteInventoryDeck: View {
     let primaryRouteCount: Int
     let supportRouteCount: Int
@@ -600,6 +613,76 @@ private struct SessionsSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Hotspot counts, label hygiene, and duplicate-agent pressure stay summarized before the session list takes over the page.")
+    }
+}
+
+private struct SessionsQueueCoverageDeck: View {
+    let attentionCount: Int
+    let highVolumeCount: Int
+    let unlabeledCount: Int
+    let duplicateAgentCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Queue coverage keeps session pressure readable before the session rows begin."),
+                detail: String(localized: "Use this deck to gauge whether the current slice is dominated by hotspots, unlabeled sessions, or duplicate-agent churn."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if attentionCount > 0 {
+                        PresentationToneBadge(
+                            text: attentionCount == 1 ? String(localized: "1 hotspot") : String(localized: "\(attentionCount) hotspots"),
+                            tone: .warning
+                        )
+                    }
+                    if highVolumeCount > 0 {
+                        PresentationToneBadge(
+                            text: highVolumeCount == 1 ? String(localized: "1 high-volume") : String(localized: "\(highVolumeCount) high-volume"),
+                            tone: .warning
+                        )
+                    }
+                    if unlabeledCount > 0 {
+                        PresentationToneBadge(
+                            text: unlabeledCount == 1 ? String(localized: "1 unlabeled") : String(localized: "\(unlabeledCount) unlabeled"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Queue coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep visible session breadth and duplicate-agent churn readable before drilling into the queue."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible session") : String(localized: "\(visibleCount) visible sessions"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: .positive
+                )
+            } facts: {
+                if duplicateAgentCount > 0 {
+                    Label(
+                        duplicateAgentCount == 1 ? String(localized: "1 multi-session agent") : String(localized: "\(duplicateAgentCount) multi-session agents"),
+                        systemImage: "person.3"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

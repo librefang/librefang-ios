@@ -105,6 +105,7 @@ struct EventsView: View {
         Section {
             eventsStatusDeckCard
             eventsSectionInventoryDeck
+            eventsFeedCoverageDeck
             eventsControlDeckCard
         } header: {
             Text("Controls")
@@ -341,6 +342,18 @@ struct EventsView: View {
             hasSearchScope: !trimmedSearchText.isEmpty
         )
     }
+
+    private var eventsFeedCoverageDeck: some View {
+        EventsFeedCoverageDeck(
+            visibleCount: filteredEntries.count,
+            totalCount: viewModel.entries.count,
+            criticalCount: filteredEntries.filter { $0.severity == .critical }.count,
+            warningCount: filteredEntries.filter { $0.severity == .warning }.count,
+            infoCount: filteredEntries.filter { $0.severity == .info }.count,
+            isStreaming: viewModel.isStreaming,
+            hasSearchScope: !trimmedSearchText.isEmpty
+        )
+    }
 }
 
 private struct EventsSectionInventoryDeck: View {
@@ -425,6 +438,74 @@ private struct EventsSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Severity mix, result volume, and transport mode stay summarized before the event feed takes over the page.")
+    }
+}
+
+private struct EventsFeedCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let criticalCount: Int
+    let warningCount: Int
+    let infoCount: Int
+    let isStreaming: Bool
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Feed coverage keeps the active severity mix readable before the event rows begin."),
+                detail: String(localized: "Use this deck to judge whether the current event slice is dominated by criticals, warnings, or lower-noise feed traffic."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if warningCount > 0 {
+                        PresentationToneBadge(
+                            text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                            tone: .warning
+                        )
+                    }
+                    if infoCount > 0 {
+                        PresentationToneBadge(
+                            text: infoCount == 1 ? String(localized: "1 info") : String(localized: "\(infoCount) info"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Feed coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep transport mode and visible feed breadth readable before diving into individual audit rows."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: isStreaming ? String(localized: "Live") : String(localized: "Polling"),
+                    tone: isStreaming ? .positive : .warning
+                )
+            } facts: {
+                Label(
+                    visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible event") : String(localized: "\(visibleCount) visible events"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    systemImage: "list.bullet.rectangle"
+                )
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
