@@ -225,20 +225,6 @@ struct HandoffCenterView: View {
         ScrollViewReader { _ in
             List {
                 Section {
-                    HandoffShiftContextInventoryDeck(
-                        coverageCount: coverageEntries.count,
-                        freshnessState: handoffStore.freshnessState,
-                        cadenceState: handoffStore.cadenceState,
-                        readiness: draftReadiness,
-                        checkInStatus: handoffStore.latestCheckInStatus,
-                        pendingFollowUpCount: pendingLatestFollowUpCount,
-                        completedFollowUpCount: completedLatestFollowUpCount,
-                        uncoveredChecklistCount: uncoveredChecklistCount,
-                        carryoverStatus: carryoverStatus,
-                        drift: currentDrift,
-                        latestEntryDate: coverageEntries.map(\.createdAt).max()
-                    )
-
                     HandoffFreshnessCard(
                         freshnessState: handoffStore.freshnessState,
                         freshnessSummary: handoffStore.freshnessSummary,
@@ -410,11 +396,6 @@ struct HandoffCenterView: View {
 
                 if !timelineItems.isEmpty {
                     Section {
-                        HandoffTimelineInventoryDeck(
-                            items: timelineItems,
-                            gapWarningCount: timelineGapWarningCount
-                        )
-
                         ForEach(timelineItems, id: \.id) { item in
                             HandoffTimelineRow(item: item)
                         }
@@ -439,14 +420,6 @@ struct HandoffCenterView: View {
                     .id(HandoffSectionAnchor.history)
                 } else {
                     Section {
-                        HandoffHistoryInventoryDeck(
-                            entries: filteredEntries,
-                            totalCount: handoffStore.entries.count,
-                            filterLabel: historyFilter.label,
-                            filterTone: historyFilterTone,
-                            searchText: searchText
-                        )
-
                         HandoffHistoryFilterCard(
                             filter: $historyFilter,
                             searchText: searchText,

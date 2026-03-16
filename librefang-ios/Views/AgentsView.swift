@@ -191,18 +191,6 @@ struct AgentsView: View {
                                 Text("Keep the fleet filter visible on mobile instead of relying on the top-bar menu alone.")
                             }
 
-                            Section {
-                                AgentFleetSummaryCard(
-                                    runningCount: filteredRunningCount,
-                                    issueCount: filteredIssueCount,
-                                    approvalCount: filteredApprovalCount,
-                                    staleCount: filteredStaleCount,
-                                    watchlistCount: watchedAgents.count
-                                )
-                                .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-                            }
-                            .id(AgentsSectionAnchor.fleet)
-                        }
                         ForEach(filteredAgents) { item in
                             NavigationLink(value: item.agent.id) {
                                 AgentRow(
