@@ -270,6 +270,15 @@ struct AgentMemoryView: View {
                 exportReady: exportSnapshot != nil
             )
 
+            AgentMemoryFocusCoverageDeck(
+                visibleCount: filteredEntries.count,
+                totalCount: entries.count,
+                structuredCount: structuredEntryCount,
+                scalarCount: scalarEntryCount,
+                hasActiveSearch: hasActiveSearch,
+                exportReady: exportSnapshot != nil
+            )
+
             AgentMemoryRouteInventoryDeck(
                 primaryRouteCount: agentMemoryPrimaryRouteCount,
                 supportRouteCount: agentMemorySupportRouteCount,
@@ -862,6 +871,82 @@ private struct AgentMemoryPressureCoverageDeck: View {
             return String(localized: "Memory pressure is currently concentrated in a search-scoped slice.")
         }
         return String(localized: "Memory pressure is currently light and mostly reflects scalar durable keys.")
+    }
+}
+
+private struct AgentMemoryFocusCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let structuredCount: Int
+    let scalarCount: Int
+    let hasActiveSearch: Bool
+    let exportReady: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant memory lane visible before opening route rails and the full key list."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleCount == totalCount
+                            ? (visibleCount == 1 ? String(localized: "1 visible key") : String(localized: "\(visibleCount) visible keys"))
+                            : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                        tone: visibleCount > 0 ? .positive : .neutral
+                    )
+                    if exportReady {
+                        PresentationToneBadge(text: String(localized: "Export ready"), tone: .positive)
+                    }
+                    if hasActiveSearch {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant memory lane readable before moving from compact memory decks into editable keys and adjacent monitoring routes."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: structuredCount == 1 ? String(localized: "1 structured key") : String(localized: "\(structuredCount) structured keys"),
+                    tone: structuredCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if scalarCount > 0 {
+                    Label(
+                        scalarCount == 1 ? String(localized: "1 scalar key") : String(localized: "\(scalarCount) scalar keys"),
+                        systemImage: "text.cursor"
+                    )
+                }
+                if hasActiveSearch {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+                if exportReady {
+                    Label(String(localized: "Export snapshot ready"), systemImage: "square.and.arrow.up")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if structuredCount > 0 {
+            return String(localized: "Memory focus coverage is currently anchored by structured state.")
+        }
+        if hasActiveSearch {
+            return String(localized: "Memory focus coverage is currently anchored by the filtered memory slice.")
+        }
+        if exportReady {
+            return String(localized: "Memory focus coverage is currently anchored by export-ready durable state.")
+        }
+        return String(localized: "Memory focus coverage is currently balanced across the visible key set.")
     }
 }
 

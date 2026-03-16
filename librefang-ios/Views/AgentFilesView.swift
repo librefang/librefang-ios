@@ -178,6 +178,16 @@ struct AgentFilesView: View {
                     scopeTone: scope.tone
                 )
 
+                AgentFilesFocusCoverageDeck(
+                    visibleCount: filteredFiles.count,
+                    totalCount: files.count,
+                    existingCount: existingCount,
+                    missingCount: missingCount,
+                    hasActiveFilter: hasActiveFilter,
+                    scopeLabel: scope.label,
+                    scopeTone: scope.tone
+                )
+
                 AgentFilesRouteInventoryDeck(
                     primaryRouteCount: agentFilesPrimaryRouteCount,
                     supportRouteCount: agentFilesSupportRouteCount,
@@ -527,6 +537,75 @@ private struct AgentFilesPressureCoverageDeck: View {
             return String(localized: "Workspace pressure is currently concentrated in a scoped file slice.")
         }
         return String(localized: "Workspace pressure is currently low and mostly reflects present identity files.")
+    }
+}
+
+private struct AgentFilesFocusCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let existingCount: Int
+    let missingCount: Int
+    let hasActiveFilter: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the dominant workspace-identity lane visible before opening route rails and the full file inventory."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    PresentationToneBadge(
+                        text: visibleCount == totalCount
+                            ? (visibleCount == 1 ? String(localized: "1 visible file") : String(localized: "\(visibleCount) visible files"))
+                            : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                        tone: visibleCount > 0 ? .positive : .neutral
+                    )
+                    if hasActiveFilter {
+                        PresentationToneBadge(text: String(localized: "Filter active"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Focus coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the dominant workspace-identity lane readable before moving from compact identity decks into file rows and adjacent agent surfaces."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: existingCount == 1 ? String(localized: "1 present") : String(localized: "\(existingCount) present"),
+                    tone: existingCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if missingCount > 0 {
+                    Label(
+                        missingCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingCount) missing files"),
+                        systemImage: "doc.badge.gearshape"
+                    )
+                }
+                if hasActiveFilter {
+                    Label(String(localized: "Filter active"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if missingCount > 0 {
+            return String(localized: "Workspace focus coverage is currently anchored by missing identity files.")
+        }
+        if hasActiveFilter {
+            return String(localized: "Workspace focus coverage is currently anchored by the filtered identity slice.")
+        }
+        return String(localized: "Workspace focus coverage is currently balanced across the visible identity files.")
     }
 }
 
