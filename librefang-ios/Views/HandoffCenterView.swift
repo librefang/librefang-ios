@@ -274,8 +274,6 @@ struct HandoffCenterView: View {
                     .id(HandoffSectionAnchor.draftNote)
                 } header: {
                     Text("Draft")
-                } footer: {
-                    Text("Keep snapshot type, live counts, check-in timing, and the summary together before the checklist and follow-ups.")
                 }
                 .id(HandoffSectionAnchor.draft)
 
@@ -350,8 +348,6 @@ struct HandoffCenterView: View {
                     .padding(.vertical, 4)
                 } header: {
                     Text("Action Deck")
-                } footer: {
-                    Text("Checklist completion, focus areas, follow-ups, and save/share actions stay in one operator block so the handoff draft is easier to finish on a phone.")
                 }
 
                 if !timelineItems.isEmpty {
@@ -361,8 +357,6 @@ struct HandoffCenterView: View {
                         }
                     } header: {
                         Text("Timeline")
-                    } footer: {
-                        Text("Shows recent local handoff cadence on this iPhone so shift gaps are visible.")
                     }
                     .id(HandoffSectionAnchor.timeline)
                 }
@@ -398,17 +392,15 @@ struct HandoffCenterView: View {
                                 HandoffEntryCard(entry: entry)
                             }
                             .onDelete(perform: deleteFilteredEntries)
-                        }
-                    } header: {
-                        Text("Recent Handoffs")
-                    } footer: {
-                        if !handoffStore.entries.isEmpty {
+
                             Button(role: .destructive) {
                                 handoffStore.clearAll()
                             } label: {
                                 Text("Clear History")
                             }
                         }
+                    } header: {
+                        Text("Recent Handoffs")
                     }
                     .id(HandoffSectionAnchor.history)
                 }
@@ -426,8 +418,6 @@ struct HandoffCenterView: View {
             }
         } header: {
             Text(String(localized: "Summary"))
-        } footer: {
-            Text(String(localized: "Keep live pressure and next shortcuts together before editing."))
         }
     }
 

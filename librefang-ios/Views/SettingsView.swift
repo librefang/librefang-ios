@@ -75,10 +75,6 @@ struct SettingsView: View {
                     } label: {
                         Label("Open iPhone Language Settings", systemImage: "globe")
                     }
-
-                    Text("LibreFang iOS follows iPhone per-app language settings so String Catalog translations stay consistent across SwiftUI views and system surfaces. In Settings, open the app page and choose Language.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
 
                     Section("On Call Focus") {
@@ -91,10 +87,6 @@ struct SettingsView: View {
                         }
                     }
 
-                    Text(deps.onCallFocusStore.mode.summary)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
                     Picker("Critical Banner", selection: Binding(
                         get: { deps.onCallFocusStore.preferredSurface },
                         set: { deps.onCallFocusStore.preferredSurface = $0 }
@@ -103,10 +95,6 @@ struct SettingsView: View {
                             Text(surface.label).tag(surface)
                         }
                     }
-
-                    Text(deps.onCallFocusStore.preferredSurface.summary)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
 
                     Toggle("Show Muted Summary", isOn: Binding(
                         get: { deps.onCallFocusStore.showsMutedSummary },
@@ -117,10 +105,6 @@ struct SettingsView: View {
                         get: { deps.onCallFocusStore.showsForegroundCues },
                         set: { deps.onCallFocusStore.showsForegroundCues = $0 }
                     ))
-
-                    Text("When a new critical incident appears while the app is open, show a temporary cue and haptic.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
 
                     Section("Standby Reminder") {
@@ -156,10 +140,6 @@ struct SettingsView: View {
                             }
                         }
 
-                        Text(deps.onCallNotificationManager.scope.summary)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-
                         Picker("Remind After", selection: Binding(
                             get: { deps.onCallNotificationManager.remindAfterMinutes },
                             set: { deps.onCallNotificationManager.remindAfterMinutes = $0 }
@@ -184,10 +164,6 @@ struct SettingsView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
-
-                        Text("If a handoff check-in is due before the standby delay, the reminder is pulled forward to that local checkpoint.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                     }
                 }
 
@@ -255,9 +231,6 @@ struct SettingsView: View {
                             Text(draftHandoffReadiness.state.label)
                                 .foregroundStyle(draftHandoffReadiness.state.tone.color)
                         }
-                        Text(draftHandoffReadiness.summary)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                         if let drift = deps.onCallHandoffStore.driftFromLatest(
                             queueCount: onCallQueueCount,
                             criticalCount: currentCriticalCount,
@@ -267,18 +240,12 @@ struct SettingsView: View {
                                 Text(drift.state.label)
                                     .foregroundStyle(drift.state.tone.color)
                             }
-                            Text(drift.summary)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
                         }
                         if let carryover = handoffCarryoverStatus {
                             SettingsValueRow("Carryover") {
                                 Text(carryover.state.label)
                                     .foregroundStyle(carryover.state.tone.color)
                             }
-                            Text(carryover.summary)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
                         }
                         SettingsValueRow("Freshness") {
                             Text(deps.onCallHandoffStore.freshnessLabel)
@@ -293,12 +260,6 @@ struct SettingsView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
-                        Text(deps.onCallHandoffStore.freshnessSummary)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(deps.onCallHandoffStore.cadenceSummary)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                     } else {
                         Text("No local handoff snapshots saved on this iPhone yet.")
                             .font(.caption)
