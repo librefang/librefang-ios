@@ -86,9 +86,6 @@ struct AgentMemoryView: View {
     var body: some View {
         ScrollViewReader { proxy in
             List {
-                summarySection
-                operatorSurfacesSection(proxy)
-
                 if let loadError {
                     Section("Memory Status") {
                         ContentUnavailableView(
