@@ -108,16 +108,6 @@ struct DiagnosticsView: View {
                         .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
                 }
 
-                if hasDiagnosticsData {
-                    Section {
-                        DiagnosticsStatusDeckCard(vm: vm, metrics: metrics)
-                    } header: {
-                        Text("Summary")
-                    } footer: {
-                        Text("Keep one diagnostics snapshot above the long sections.")
-                    }
-                }
-
                 if let healthDetail = vm.healthDetail {
                     Section {
                         HealthDetailInventoryCard(
