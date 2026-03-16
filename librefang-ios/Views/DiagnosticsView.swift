@@ -115,6 +115,15 @@ struct DiagnosticsView: View {
                             leaderboardCount: leaderboardCount,
                             hasMetrics: metrics != nil
                         )
+                        DiagnosticsSupportCoverageDeck(
+                            hasHealth: vm.healthDetail != nil,
+                            hasBuild: vm.versionInfo != nil,
+                            hasConfig: vm.configSummary != nil,
+                            hasMetrics: metrics != nil,
+                            warningCount: vm.diagnosticsConfigWarningCount,
+                            panicCount: vm.supervisorPanicCount,
+                            restartCount: vm.supervisorRestartCount
+                        )
                         diagnosticsRouteDeck(proxy)
                     } header: {
                         Text("Controls")
@@ -989,6 +998,80 @@ private struct DiagnosticsPressureCoverageDeck: View {
                 )
             }
         }
+    }
+}
+
+private struct DiagnosticsSupportCoverageDeck: View {
+    let hasHealth: Bool
+    let hasBuild: Bool
+    let hasConfig: Bool
+    let hasMetrics: Bool
+    let warningCount: Int
+    let panicCount: Int
+    let restartCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep loaded diagnostics feeds and slower recovery or config drag readable before opening the detailed health, build, config, and metrics sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: hasHealth ? String(localized: "Health ready") : String(localized: "Health pending"),
+                        tone: hasHealth ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: hasConfig ? String(localized: "Config ready") : String(localized: "Config pending"),
+                        tone: hasConfig ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: hasMetrics ? String(localized: "Metrics ready") : String(localized: "Metrics pending"),
+                        tone: hasMetrics ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep slower config, recovery, build, and metrics readiness visible before the detailed diagnostics feeds take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: hasBuild ? String(localized: "Build ready") : String(localized: "Build pending"),
+                    tone: hasBuild ? .positive : .neutral
+                )
+            } facts: {
+                if warningCount > 0 {
+                    Label(
+                        warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if panicCount > 0 || restartCount > 0 {
+                    Label(
+                        String(localized: "\(panicCount) panics / \(restartCount) restarts"),
+                        systemImage: "arrow.triangle.2.circlepath"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if !hasMetrics || !hasConfig {
+            return String(localized: "Diagnostics support coverage is currently waiting on one or more deep feeds.")
+        }
+        if warningCount > 0 || panicCount > 0 || restartCount > 0 {
+            return String(localized: "Diagnostics support coverage is currently anchored by config or recovery drag.")
+        }
+        return String(localized: "Diagnostics support coverage is currently light and mostly reflects feed readiness.")
     }
 }
 

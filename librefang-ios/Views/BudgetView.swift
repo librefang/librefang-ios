@@ -395,6 +395,15 @@ struct BudgetView: View {
                 alertThreshold: vm.budget?.alertThreshold
             )
 
+            BudgetSupportCoverageDeck(
+                hasUsageSignals: vm.usageSummary != nil,
+                trendDays: vm.usageDaily.count,
+                totalCalls: trendTotalCalls,
+                totalTokens: trendTotalTokens,
+                topModelName: topModelName,
+                topAgentName: topAgentBudgetItem?.name
+            )
+
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Focus Rail"),
                 detail: String(localized: "Keep the longest budget charts and rankings reachable from the compact mobile view.")
@@ -1911,6 +1920,74 @@ private struct BudgetPressureCoverageDeck: View {
                 )
             }
         }
+    }
+}
+
+private struct BudgetSupportCoverageDeck: View {
+    let hasUsageSignals: Bool
+    let trendDays: Int
+    let totalCalls: Int
+    let totalTokens: Int
+    let topModelName: String?
+    let topAgentName: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep trend depth, token volume, and current spend leaders readable before the charts and rankings begin."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: hasUsageSignals ? String(localized: "Signals ready") : String(localized: "Signals pending"),
+                        tone: hasUsageSignals ? .positive : .neutral
+                    )
+                    if let topModelName {
+                        PresentationToneBadge(text: topModelName, tone: .neutral)
+                    }
+                    if let topAgentName {
+                        PresentationToneBadge(text: topAgentName, tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep usage depth and current ranking leaders visible before the longer limit, trend, and spend sections take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
+                    tone: trendDays > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if totalCalls > 0 {
+                    Label(
+                        totalCalls == 1 ? String(localized: "1 call") : String(localized: "\(totalCalls) calls"),
+                        systemImage: "phone.connection"
+                    )
+                }
+                if totalTokens > 0 {
+                    Label(totalTokens.formatted(), systemImage: "number")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if !hasUsageSignals {
+            return String(localized: "Budget support coverage is currently waiting on usage signals.")
+        }
+        if topModelName != nil || topAgentName != nil {
+            return String(localized: "Budget support coverage is currently anchored by trend depth and current spend leaders.")
+        }
+        return String(localized: "Budget support coverage is currently light and mostly reflects trend depth.")
     }
 }
 
