@@ -110,11 +110,6 @@ struct DiagnosticsView: View {
 
                 if let healthDetail = vm.healthDetail {
                     Section {
-                        HealthDetailInventoryCard(
-                            healthDetail: healthDetail,
-                            uptimeLabel: formatDuration(healthDetail.uptimeSeconds)
-                        )
-
                         DiagnosticsMetricRow(
                             label: String(localized: "Kernel Status"),
                             value: healthDetail.localizedStatusLabel,
@@ -141,11 +136,6 @@ struct DiagnosticsView: View {
 
                     if !healthDetail.configWarnings.isEmpty {
                         Section {
-                            DiagnosticsWarningsInventoryCard(
-                                warnings: healthDetail.configWarnings,
-                                statusLabel: healthDetail.localizedStatusLabel
-                            )
-
                             ForEach(Array(healthDetail.configWarnings.enumerated()), id: \.offset) { _, warning in
                                 DiagnosticsWarningRow(warning: warning)
                             }
@@ -160,11 +150,6 @@ struct DiagnosticsView: View {
 
                 if let versionInfo = vm.versionInfo {
                     Section {
-                        BuildInventoryCard(
-                            versionInfo: versionInfo,
-                            shortSHA: shortSHA(versionInfo.gitSHA)
-                        )
-
                         DiagnosticsMetricRow(
                             label: String(localized: "Version"),
                             value: versionInfo.version,
@@ -188,8 +173,6 @@ struct DiagnosticsView: View {
 
                 if let configSummary = vm.configSummary {
                     Section {
-                        ConfigInventoryCard(configSummary: configSummary)
-
                         DiagnosticsMetricRow(
                             label: String(localized: "Home Dir"),
                             value: configSummary.homeDir,
@@ -220,8 +203,6 @@ struct DiagnosticsView: View {
 
                 if let metrics {
                     Section {
-                        MetricsInventoryCard(metrics: metrics)
-
                         DiagnosticsMetricRow(
                             label: String(localized: "Agents"),
                             value: String(localized: "\(metrics.activeAgents)/\(metrics.totalAgents) active"),
@@ -253,16 +234,6 @@ struct DiagnosticsView: View {
 
                     if !metrics.tokenLeaders.isEmpty {
                         Section {
-                            DiagnosticsLeadersInventoryCard(
-                                title: String(localized: "Token Leaderboard"),
-                                detail: String(localized: "Use the compact token slice to see top agent demand before reading the ranked rows."),
-                                samples: metrics.tokenLeaders,
-                                metricUnitSingular: String(localized: "token"),
-                                metricUnitPlural: String(localized: "tokens"),
-                                accessoryText: metrics.totalRollingTokens.formatted(),
-                                accessoryTone: .warning
-                            )
-
                             ForEach(Array(metrics.tokenLeaders.prefix(5).enumerated()), id: \.offset) { index, sample in
                                 DiagnosticsMetricListRow(
                                     rank: index + 1,
@@ -279,16 +250,6 @@ struct DiagnosticsView: View {
 
                     if !metrics.toolCallLeaders.isEmpty {
                         Section {
-                            DiagnosticsLeadersInventoryCard(
-                                title: String(localized: "Tool Leaderboard"),
-                                detail: String(localized: "Use the compact tool-call slice to see which agents are driving the most operator activity."),
-                                samples: metrics.toolCallLeaders,
-                                metricUnitSingular: String(localized: "tool call"),
-                                metricUnitPlural: String(localized: "tool calls"),
-                                accessoryText: metrics.totalRollingToolCalls.formatted(),
-                                accessoryTone: .warning
-                            )
-
                             ForEach(Array(metrics.toolCallLeaders.prefix(5).enumerated()), id: \.offset) { index, sample in
                                 DiagnosticsMetricListRow(
                                     rank: index + 1,

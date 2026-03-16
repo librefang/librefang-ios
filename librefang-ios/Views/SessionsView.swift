@@ -111,15 +111,6 @@ struct SessionsView: View {
                         .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
                 }
 
-                Section {
-                    sessionsStatusDeckCard
-                    sessionsControlDeckCard
-                } header: {
-                    Text(String(localized: "Summary"))
-                } footer: {
-                    Text(String(localized: "Keep filters and shortcuts close, then move straight into the backlog."))
-                }
-
                 if filteredItems.isEmpty && !vm.isLoading {
                     Section("Sessions") {
                         ContentUnavailableView(

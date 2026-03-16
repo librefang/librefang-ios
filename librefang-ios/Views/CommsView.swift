@@ -67,15 +67,6 @@ struct CommsView: View {
                 }
 
                 Section {
-                    commsStatusDeckCard
-                    commsControlDeckCard
-                } header: {
-                    Text(String(localized: "Summary"))
-                } footer: {
-                    Text(String(localized: "Keep shortcuts and filters close, then move straight into topology and traffic."))
-                }
-
-                Section {
                     CommsSummaryRow(label: "Agents") {
                         Text("\(viewModel.nodeCount)")
                             .monospacedDigit()

@@ -51,7 +51,6 @@ struct EventsView: View {
             List {
                 eventsErrorSection
                 eventsScoreboardSection
-                eventsControlsSection(proxy)
                 eventsFeedSection
             }
             .navigationTitle(String(localized: "Events"))
