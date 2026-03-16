@@ -234,7 +234,7 @@ struct NightWatchView: View {
     }
 
     var body: some View {
-        ScrollViewReader { proxy in
+        ScrollViewReader { _ in
             ZStack {
                 tone.gradient.ignoresSafeArea()
 
@@ -242,15 +242,12 @@ struct NightWatchView: View {
                     VStack(spacing: 16) {
                         heroCard
                             .id(NightWatchSectionAnchor.hero)
-                        controlDeckCard(proxy)
                         primaryQueueCard
                             .id(NightWatchSectionAnchor.primaryQueue)
                         secondaryQueueCard
                             .id(NightWatchSectionAnchor.secondaryQueue)
                         watchlistCard
                             .id(NightWatchSectionAnchor.watchlist)
-                        surfaceDeckCard
-                            .id(NightWatchSectionAnchor.routes)
                     }
                     .padding()
                 }

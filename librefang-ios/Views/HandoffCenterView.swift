@@ -222,7 +222,7 @@ struct HandoffCenterView: View {
     }
 
     var body: some View {
-        ScrollViewReader { proxy in
+        ScrollViewReader { _ in
             List {
                 Section {
                     HandoffShiftContextInventoryDeck(
@@ -280,10 +280,6 @@ struct HandoffCenterView: View {
                 } header: {
                     Text("Shift Context")
                 }
-
-                controlDeckSection(proxy)
-                    .id(HandoffSectionAnchor.controls)
-
                 Section {
                     HandoffDraftContextCard(
                         kind: Binding(

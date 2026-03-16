@@ -1,12 +1,5 @@
 import SwiftUI
 
-private enum OnCallSectionAnchor: Hashable {
-    case controls
-    case priorityQueue
-    case routes
-    case watchlist
-}
-
 struct OnCallDigestCard: View {
     let queueCount: Int
     let criticalCount: Int
@@ -227,250 +220,127 @@ struct OnCallView: View {
     private var latestFollowUpStatuses: [HandoffFollowUpStatus] {
         handoffStore.latestFollowUpStatuses
     }
-    private var onCallSectionCount: Int {
-        [
-            true,
-            !priorityItems.isEmpty,
-            !watchedAttentionItems.isEmpty
-        ]
-        .filter { $0 }
-        .count
-    }
-    private var onCallSectionPreviewTitles: [String] {
-        var sections: [String] = [String(localized: "Shift Status")]
-        if !priorityItems.isEmpty {
-            sections.append(String(localized: "Priority Queue"))
-        }
-        if !watchedAttentionItems.isEmpty {
-            sections.append(String(localized: "Watchlist"))
-        }
-        sections.append(String(localized: "Shortcuts"))
-        return sections
-    }
-
     var body: some View {
-        ScrollViewReader { proxy in
-            List {
-                Section {
-                    OnCallScoreboard(
-                        criticalCount: criticalCount,
-                        liveAlertCount: visibleAlerts.count,
-                        approvalCount: vm.pendingApprovalCount,
-                        watchIssueCount: watchIssueCount,
-                        sessionCount: vm.sessionAttentionCount,
-                        eventCount: vm.recentCriticalAuditCount
-                    )
-                    .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-                }
+        List {
+            Section {
+                OnCallScoreboard(
+                    criticalCount: criticalCount,
+                    liveAlertCount: visibleAlerts.count,
+                    approvalCount: vm.pendingApprovalCount,
+                    watchIssueCount: watchIssueCount,
+                    sessionCount: vm.sessionAttentionCount,
+                    eventCount: vm.recentCriticalAuditCount
+                )
+                .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+            }
 
+            if !priorityItems.isEmpty {
                 Section {
-                    OnCallShiftInventoryCard(
-                        digestLine: digestLine,
-                        liveAlertCount: visibleAlerts.count,
-                        acknowledgedAt: incidentStateStore.currentAcknowledgementDate(for: vm.monitoringAlerts),
-                        isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
-                        mutedAlertCount: mutedAlertCount,
-                        watchCount: watchedAgents.count,
-                        lastRefresh: vm.lastRefresh,
-                        freshnessState: handoffStore.freshnessState,
-                        freshnessSummary: handoffStore.freshnessSummary,
-                        cadenceState: handoffStore.cadenceState,
-                        cadenceSummary: handoffStore.cadenceSummary,
-                        latestEntry: handoffStore.latestEntry,
-                        checkInStatus: handoffStore.latestCheckInStatus,
-                        drift: currentHandoffDrift,
-                        carryover: currentHandoffCarryover,
-                        readiness: draftHandoffReadiness,
-                        followUpStatuses: latestFollowUpStatuses
-                    )
-                } header: {
-                    Text("Summary")
-                } footer: {
-                    Text("Keep the shift picture together, then move straight into the queue.")
-                }
-                .id(OnCallSectionAnchor.controls)
-
-                if !priorityItems.isEmpty {
-                    Section {
-                        ForEach(priorityItems.prefix(8)) { item in
-                            NavigationLink(value: item.route) {
-                                OnCallPriorityRow(item: item)
-                            }
+                    ForEach(priorityItems.prefix(8)) { item in
+                        NavigationLink(value: item.route) {
+                            OnCallPriorityRow(item: item)
                         }
-                    } header: {
-                        Text("Priority Queue")
-                    } footer: {
-                        Text("Sorted for quick triage using live alerts, approvals, watched agents, critical events, and session hotspots.")
                     }
-                    .id(OnCallSectionAnchor.priorityQueue)
-                }
-
-                Section {
-                    OnCallSurfaceDeckCard(
-                        approvalCount: vm.pendingApprovalCount,
-                        sessionCount: vm.sessionAttentionCount,
-                        eventCount: vm.recentCriticalAuditCount,
-                        criticalCount: criticalCount,
-                        queueCount: priorityItems.count,
-                        liveAlertCount: visibleAlerts.count,
-                        handoffText: handoffText
-                    )
                 } header: {
-                    Text("Shortcuts")
+                    Text("Priority Queue")
                 } footer: {
-                    Text("Keep the main drilldowns close to the queue.")
-                }
-                .id(OnCallSectionAnchor.routes)
-
-                if !watchedAttentionItems.isEmpty {
-                    Section {
-                        ForEach(watchedAttentionItems.prefix(6)) { item in
-                            NavigationLink {
-                                watchedDiagnosticsDestination(for: item)
-                            } label: {
-                                WatchedAgentRow(
-                                    agent: item.agent,
-                                    reasons: item.reasons,
-                                    severity: item.severity,
-                                    isHealthy: item.severity == 0,
-                                    diagnostics: watchedDiagnostics[item.agent.id]
-                                )
-                            }
-                        }
-                    } header: {
-                        Text("Watchlist")
-                    } footer: {
-                        Text("Pinned locally on this iPhone. Edit from the agent list or agent detail page.")
-                    }
-                    .id(OnCallSectionAnchor.watchlist)
-                }
-
-                if priorityItems.isEmpty
-                    && watchedAgents.isEmpty
-                    && vm.pendingApprovalCount == 0
-                    && vm.recentCriticalAuditCount == 0 {
-                    Section("On Call") {
-                        ContentUnavailableView(
-                            "Calm State",
-                            systemImage: "checkmark.shield",
-                            description: Text("No live priorities are currently surfacing on this device.")
-                        )
-                    }
+                    Text("Sorted for quick triage using live alerts, approvals, watched agents, critical events, and session hotspots.")
                 }
             }
-            .navigationTitle(String(localized: "On Call"))
-            .toolbar {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    ShareLink(item: handoffText) {
-                        Image(systemName: "square.and.arrow.up")
-                    }
 
-                    Menu {
-                        NavigationLink(value: OnCallRoute.incidents) {
-                            Label("Incidents", systemImage: "bell.badge")
-                        }
-
+            if !watchedAttentionItems.isEmpty {
+                Section {
+                    ForEach(watchedAttentionItems.prefix(6)) { item in
                         NavigationLink {
-                            NightWatchView()
+                            watchedDiagnosticsDestination(for: item)
                         } label: {
-                            Label("Night Watch", systemImage: "moon.stars")
-                        }
-
-                        NavigationLink {
-                            StandbyDigestView()
-                        } label: {
-                            Label("Standby", systemImage: "rectangle.inset.filled")
-                        }
-
-                        NavigationLink {
-                            HandoffCenterView(
-                                summary: handoffText,
-                                queueCount: priorityItems.count,
-                                criticalCount: criticalCount,
-                                liveAlertCount: visibleAlerts.count
+                            WatchedAgentRow(
+                                agent: item.agent,
+                                reasons: item.reasons,
+                                severity: item.severity,
+                                isHealthy: item.severity == 0,
+                                diagnostics: watchedDiagnostics[item.agent.id]
                             )
-                        } label: {
-                            Label("Handoff", systemImage: "text.badge.plus")
                         }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
                     }
+                } header: {
+                    Text("Watchlist")
+                } footer: {
+                    Text("Pinned locally on this iPhone. Edit from the agent list or agent detail page.")
                 }
             }
-            .navigationDestination(for: OnCallRoute.self) { route in
-                destination(for: route)
+
+            if priorityItems.isEmpty
+                && watchedAgents.isEmpty
+                && vm.pendingApprovalCount == 0
+                && vm.recentCriticalAuditCount == 0 {
+                Section("On Call") {
+                    ContentUnavailableView(
+                        "Calm State",
+                        systemImage: "checkmark.shield",
+                        description: Text("No live priorities are currently surfacing on this device.")
+                    )
+                }
             }
-            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
-            .refreshable {
+        }
+        .navigationTitle(String(localized: "On Call"))
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                ShareLink(item: handoffText) {
+                    Image(systemName: "square.and.arrow.up")
+                }
+
+                Menu {
+                    NavigationLink(value: OnCallRoute.incidents) {
+                        Label("Incidents", systemImage: "bell.badge")
+                    }
+
+                    NavigationLink {
+                        NightWatchView()
+                    } label: {
+                        Label("Night Watch", systemImage: "moon.stars")
+                    }
+
+                    NavigationLink {
+                        StandbyDigestView()
+                    } label: {
+                        Label("Standby", systemImage: "rectangle.inset.filled")
+                    }
+
+                    NavigationLink {
+                        HandoffCenterView(
+                            summary: handoffText,
+                            queueCount: priorityItems.count,
+                            criticalCount: criticalCount,
+                            liveAlertCount: visibleAlerts.count
+                        )
+                    } label: {
+                        Label("Handoff", systemImage: "text.badge.plus")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
+        .navigationDestination(for: OnCallRoute.self) { route in
+            destination(for: route)
+        }
+        .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
+        .refreshable {
+            await refreshAndSync()
+        }
+        .overlay {
+            if vm.isLoading && vm.lastRefresh == nil {
+                ProgressView(String(localized: "Loading on-call view..."))
+            }
+        }
+        .task {
+            if vm.lastRefresh == nil {
                 await refreshAndSync()
-            }
-            .overlay {
-                if vm.isLoading && vm.lastRefresh == nil {
-                    ProgressView(String(localized: "Loading on-call view..."))
-                }
-            }
-            .task {
-                if vm.lastRefresh == nil {
-                    await refreshAndSync()
-                } else {
-                    syncWatchlist()
-                }
+            } else {
+                syncWatchlist()
             }
         }
-    }
-
-    private func jump(_ proxy: ScrollViewProxy, to anchor: OnCallSectionAnchor) {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            proxy.scrollTo(anchor, anchor: .top)
-        }
-    }
-
-    private func onCallSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
-        var items: [MonitoringSectionJumpItem] = [
-            MonitoringSectionJumpItem(
-                title: String(localized: "Shift Status"),
-                systemImage: "waveform.path.ecg",
-                tone: criticalCount > 0 ? .critical : .neutral
-            ) {
-                jump(proxy, to: .controls)
-            }
-        ]
-
-        if !priorityItems.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Priority Queue"),
-                    systemImage: "exclamationmark.bubble",
-                    tone: criticalCount > 0 ? .critical : .warning
-                ) {
-                    jump(proxy, to: .priorityQueue)
-                }
-            )
-        }
-
-        if !watchedAttentionItems.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Watchlist"),
-                    systemImage: "star.fill",
-                    tone: watchIssueCount > 0 ? .warning : .neutral
-                ) {
-                    jump(proxy, to: .watchlist)
-                }
-            )
-        }
-
-        items.append(
-            MonitoringSectionJumpItem(
-                title: String(localized: "Shortcuts"),
-                systemImage: "arrow.triangle.branch",
-                tone: .neutral
-            ) {
-                jump(proxy, to: .routes)
-            }
-        )
-
-        return items
     }
 
     @ViewBuilder

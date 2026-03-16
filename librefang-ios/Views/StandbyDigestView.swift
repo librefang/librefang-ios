@@ -189,7 +189,7 @@ struct StandbyDigestView: View {
     }
 
     var body: some View {
-        ScrollViewReader { proxy in
+        ScrollViewReader { _ in
             ZStack {
                 tone.gradient.ignoresSafeArea()
 
@@ -197,11 +197,8 @@ struct StandbyDigestView: View {
                     VStack(spacing: 16) {
                         heroCard
                             .id(StandbySectionAnchor.hero)
-                        controlDeckCard(proxy)
                         glanceCard
                             .id(StandbySectionAnchor.glance)
-                        surfaceDeckCard
-                            .id(StandbySectionAnchor.routes)
                     }
                     .padding()
                 }
