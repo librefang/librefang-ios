@@ -229,7 +229,8 @@ struct AutomationView: View {
                             detail: String(localized: "Keep the next automation stacks visible before workflows, runs, triggers, and cron sections open up."),
                             sectionTitles: automationSectionPreviewTitles,
                             tone: (vm.failedWorkflowRunCount > 0 || vm.exhaustedTriggerCount > 0 || vm.stalledCronJobCount > 0) ? .warning : .neutral,
-                            maxVisibleSections: 5
+                            maxVisibleSections: 5,
+                            jumpItems: automationSectionPreviewJumpItems(proxy)
                         )
                     }
                     AutomationPressureCoverageDeck(
@@ -562,6 +563,36 @@ struct AutomationView: View {
         withAnimation(.easeInOut(duration: 0.2)) {
             proxy.scrollTo(anchor, anchor: .top)
         }
+    }
+
+    private func automationSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = []
+        if !filteredWorkflows.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Workflows"), systemImage: "flowchart", tone: .neutral) {
+                jump(proxy, to: .workflows)
+            })
+        }
+        if !filteredWorkflowRuns.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Runs"), systemImage: "play.rectangle.on.rectangle", tone: vm.failedWorkflowRunCount > 0 ? .critical : .neutral) {
+                jump(proxy, to: .runs)
+            })
+        }
+        if !filteredTriggers.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Triggers"), systemImage: "bolt.horizontal.circle", tone: vm.exhaustedTriggerCount > 0 ? .warning : .neutral) {
+                jump(proxy, to: .triggers)
+            })
+        }
+        if !filteredSchedules.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Schedules"), systemImage: "calendar", tone: vm.pausedScheduleCount > 0 ? .warning : .neutral) {
+                jump(proxy, to: .schedules)
+            })
+        }
+        if !filteredCronJobs.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Cron"), systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90", tone: vm.stalledCronJobCount > 0 ? .warning : .neutral) {
+                jump(proxy, to: .cron)
+            })
+        }
+        return items
     }
 
     @ViewBuilder

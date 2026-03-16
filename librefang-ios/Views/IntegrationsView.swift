@@ -381,7 +381,8 @@ struct IntegrationsView: View {
                                 title: String(localized: "Section Preview"),
                                 detail: String(localized: "Keep the next integration stacks visible before providers, channels, models, and drift sections open up."),
                                 sectionTitles: integrationsSectionPreviewTitles,
-                                tone: (providerAttentionCount > 0 || channelAttentionCount > 0 || modelAttentionCount > 0 || driftAttentionCount > 0) ? .warning : .neutral
+                                tone: (providerAttentionCount > 0 || channelAttentionCount > 0 || modelAttentionCount > 0 || driftAttentionCount > 0) ? .warning : .neutral,
+                                jumpItems: integrationsSectionPreviewJumpItems(proxy)
                             )
                         }
                         IntegrationsPressureCoverageDeck(
@@ -879,6 +880,36 @@ struct IntegrationsView: View {
         withAnimation(.easeInOut(duration: 0.2)) {
             proxy.scrollTo(anchor, anchor: .top)
         }
+    }
+
+    private func integrationsSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = []
+        if !filteredProviders.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Providers"), systemImage: "key.horizontal", tone: providerAttentionCount > 0 ? .warning : .neutral) {
+                jump(proxy, to: .providers)
+            })
+        }
+        if !filteredChannels.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Channels"), systemImage: "bubble.left.and.bubble.right", tone: channelAttentionCount > 0 ? .warning : .neutral) {
+                jump(proxy, to: .channels)
+            })
+        }
+        if !filteredModels.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Models"), systemImage: "square.stack.3d.up", tone: modelAttentionCount > 0 ? .warning : .neutral) {
+                jump(proxy, to: .models)
+            })
+        }
+        if !filteredAliases.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Aliases"), systemImage: "arrow.left.arrow.right", tone: .neutral) {
+                jump(proxy, to: .aliases)
+            })
+        }
+        if !filteredAgentDiagnostics.isEmpty {
+            items.append(MonitoringSectionJumpItem(title: String(localized: "Agent Drift"), systemImage: "cpu", tone: driftAttentionCount > 0 ? .warning : .neutral) {
+                jump(proxy, to: .drift)
+            })
+        }
+        return items
     }
 
     private func providerRank(_ provider: ProviderStatus) -> Int {
