@@ -131,6 +131,14 @@ struct ApprovalsView: View {
                     toolCount: visibleToolCount,
                     hasSearchScope: !trimmedSearchText.isEmpty
                 )
+                ApprovalsSupportCoverageDeck(
+                    visibleApprovalCount: filteredApprovals.count,
+                    approvalAgentCount: approvalAgentCount,
+                    toolCount: visibleToolCount,
+                    hasSearchScope: !trimmedSearchText.isEmpty,
+                    filterLabel: filter.label,
+                    filterTone: filterTone
+                )
                 ApprovalsRouteInventoryDeck(
                     primaryRouteCount: approvalsPrimaryRouteCount,
                     supportRouteCount: approvalsSupportRouteCount,
@@ -623,6 +631,71 @@ private struct ApprovalsPressureCoverageDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct ApprovalsSupportCoverageDeck: View {
+    let visibleApprovalCount: Int
+    let approvalAgentCount: Int
+    let toolCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep queue scope, agent spread, and tool breadth readable before acting on individual approvals."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                    PresentationToneBadge(
+                        text: visibleApprovalCount == 1 ? String(localized: "1 visible approval") : String(localized: "\(visibleApprovalCount) visible approvals"),
+                        tone: visibleApprovalCount > 0 ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep queue breadth, agent spread, and tool mix visible before the approval rows and action buttons take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: approvalAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(approvalAgentCount) agents"),
+                    tone: approvalAgentCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    toolCount == 1 ? String(localized: "1 visible tool") : String(localized: "\(toolCount) visible tools"),
+                    systemImage: "wrench.and.screwdriver"
+                )
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Approval support coverage is currently narrowed to a filtered slice of the queue.")
+        }
+        if approvalAgentCount > 1 || toolCount > 1 {
+            return String(localized: "Approval support coverage is currently spread across multiple agents and tools.")
+        }
+        return String(localized: "Approval support coverage is currently narrow and mostly reflects a single agent or tool slice.")
     }
 }
 

@@ -196,6 +196,18 @@ struct AgentsView: View {
                                     visibleCount: filteredAgents.count
                                 )
 
+                                AgentsSupportCoverageDeck(
+                                    totalCount: vm.agents.count,
+                                    runningCount: filteredRunningCount,
+                                    watchlistCount: filteredWatchedCount,
+                                    authIssueCount: filteredAuthIssueCount,
+                                    modelIssueCount: filteredModelIssueCount,
+                                    sessionPressureCount: filteredSessionPressureCount,
+                                    hasSearchScope: !normalizedSearchText.isEmpty,
+                                    filterLabel: filterState.label,
+                                    filterTone: filterState == .attention ? .warning : .neutral
+                                )
+
                                 MonitoringSurfaceGroupCard(
                                     title: String(localized: "Routes"),
                                     detail: String(localized: "Keep the broader operator queues one tap away from the compact fleet filter.")
@@ -842,6 +854,91 @@ private struct AgentsPressureCoverageDeck: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+private struct AgentsSupportCoverageDeck: View {
+    let totalCount: Int
+    let runningCount: Int
+    let watchlistCount: Int
+    let authIssueCount: Int
+    let modelIssueCount: Int
+    let sessionPressureCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep fleet breadth, filter scope, and slower auth or model drag readable before opening individual agent cards."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    PresentationToneBadge(
+                        text: totalCount == 1 ? String(localized: "1 total agent") : String(localized: "\(totalCount) total agents"),
+                        tone: totalCount > 0 ? .positive : .neutral
+                    )
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep watchlist breadth, auth drift, model drift, and session pressure visible before the fleet list fans out."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: runningCount == 1 ? String(localized: "1 running") : String(localized: "\(runningCount) running"),
+                    tone: runningCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if watchlistCount > 0 {
+                    Label(
+                        watchlistCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchlistCount) watched agents"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if authIssueCount > 0 {
+                    Label(
+                        authIssueCount == 1 ? String(localized: "1 auth issue") : String(localized: "\(authIssueCount) auth issues"),
+                        systemImage: "key.horizontal"
+                    )
+                }
+                if modelIssueCount > 0 {
+                    Label(
+                        modelIssueCount == 1 ? String(localized: "1 model issue") : String(localized: "\(modelIssueCount) model issues"),
+                        systemImage: "square.stack.3d.up.slash"
+                    )
+                }
+                if sessionPressureCount > 0 {
+                    Label(
+                        sessionPressureCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionPressureCount) session hotspots"),
+                        systemImage: "text.bubble"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Fleet support coverage is currently narrowed to a filtered slice of the agent list.")
+        }
+        if watchlistCount > 0 || authIssueCount > 0 || modelIssueCount > 0 {
+            return String(localized: "Fleet support coverage is currently anchored by watchlist load and slower config drift.")
+        }
+        return String(localized: "Fleet support coverage is currently light and mostly reflects total agent breadth.")
     }
 }
 
