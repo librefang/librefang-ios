@@ -86,18 +86,8 @@ struct HandoffCenterView: View {
             .positive
         }
     }
-    private var coverageEntries: [OnCallHandoffEntry] {
-        handoffStore.recentEntries
-    }
     private var timelineItems: [HandoffTimelineItem] {
         handoffStore.timelineItems
-    }
-    private var currentDrift: HandoffSnapshotDrift? {
-        handoffStore.driftFromLatest(
-            queueCount: queueCount,
-            criticalCount: criticalCount,
-            liveAlertCount: liveAlertCount
-        )
     }
     private var latestFollowUpStatuses: [HandoffFollowUpStatus] {
         handoffStore.latestFollowUpStatuses
@@ -232,17 +222,6 @@ struct HandoffCenterView: View {
                         uncoveredChecklistKeys: handoffStore.uncoveredChecklistKeys
                     )
 
-                    HandoffCoverageCard(
-                        entries: coverageEntries,
-                        coverageCount: { handoffStore.recentCoverageCount(for: $0) }
-                    )
-
-                    HandoffCadenceCard(
-                        cadenceState: handoffStore.cadenceState,
-                        cadenceSummary: handoffStore.cadenceSummary,
-                        warningCount: handoffStore.cadenceWarningCount
-                    )
-
                     HandoffReadinessCard(status: draftReadiness)
 
                     if let checkInStatus = handoffStore.latestCheckInStatus {
@@ -254,14 +233,6 @@ struct HandoffCenterView: View {
                             statuses: latestFollowUpStatuses,
                             onToggle: { handoffStore.toggleFollowUpCompletion($0) }
                         )
-                    }
-
-                    if let carryoverStatus {
-                        HandoffCarryoverCard(status: carryoverStatus)
-                    }
-
-                    if let currentDrift {
-                        HandoffDriftCard(drift: currentDrift)
                     }
                 } header: {
                     Text("Shift Context")
