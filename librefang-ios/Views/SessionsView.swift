@@ -116,7 +116,7 @@ struct SessionsView: View {
                         ContentUnavailableView(
                             searchText.isEmpty ? String(localized: "No Sessions In This Filter") : String(localized: "No Search Results"),
                             systemImage: "rectangle.stack",
-                            description: Text(searchText.isEmpty ? String(localized: "Pull to refresh or switch the session filter.") : String(localized: "Try a different agent name, label, or session signal."))
+                            description: Text(searchText.isEmpty ? String(localized: "Change the filter or refresh.") : String(localized: "Try a different search."))
                         )
                     }
                     .id(SessionsSectionAnchor.sessions)

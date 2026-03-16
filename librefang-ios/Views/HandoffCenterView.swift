@@ -222,8 +222,6 @@ struct HandoffCenterView: View {
                         uncoveredChecklistKeys: handoffStore.uncoveredChecklistKeys
                     )
 
-                    HandoffReadinessCard(status: draftReadiness)
-
                     if let checkInStatus = handoffStore.latestCheckInStatus {
                         HandoffCheckInCard(status: checkInStatus)
                     }
@@ -366,7 +364,7 @@ struct HandoffCenterView: View {
                         ContentUnavailableView(
                             "No Saved Handoffs",
                             systemImage: "text.badge.plus",
-                            description: Text("Save a snapshot to keep a local history of shift notes and queue state.")
+                            description: Text("Save a snapshot to keep local handoff history.")
                         )
                     } header: {
                         Text("Recent Handoffs")
@@ -385,7 +383,7 @@ struct HandoffCenterView: View {
                             ContentUnavailableView(
                                 "No Matching Handoffs",
                                 systemImage: "line.3.horizontal.decrease.circle",
-                                description: Text("Try a different filter or search term.")
+                                description: Text("Try a different search.")
                             )
                         } else {
                             ForEach(filteredEntries) { entry in

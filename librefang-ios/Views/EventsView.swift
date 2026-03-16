@@ -128,7 +128,7 @@ struct EventsView: View {
                 ContentUnavailableView(
                     trimmedSearchText.isEmpty ? String(localized: "No Matching Events") : String(localized: "No Search Results"),
                     systemImage: scope == .all ? "list.bullet.rectangle" : "line.3.horizontal.decrease.circle",
-                    description: Text(trimmedSearchText.isEmpty ? String(localized: "Pull to refresh or widen the severity filter.") : String(localized: "Try a different agent, action, or detail query."))
+                    description: Text(trimmedSearchText.isEmpty ? String(localized: "Refresh or widen the filter.") : String(localized: "Try a different search."))
                 )
             }
             .id(EventsSectionAnchor.feed)
