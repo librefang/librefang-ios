@@ -306,6 +306,23 @@ struct StandbyDigestView: View {
                 integrationIssueCount: integrationIssueCount,
                 checkInStatus: checkInStatus
             )
+            StandbySupportCoverageDeck(
+                totalWatchedCount: watchedAttentionItems.count,
+                activeWatchCount: activeWatchItems.count,
+                liveAlertCount: visibleAlerts.count,
+                pendingFollowUpCount: pendingFollowUpCount,
+                toneLabel: tone.label,
+                checkInStatus: checkInStatus
+            )
+            StandbyActionReadinessDeck(
+                queueCount: priorityItems.count,
+                criticalCount: criticalCount,
+                mutedAlertCount: mutedAlertCount,
+                isAcknowledged: isAcknowledged,
+                pendingFollowUpCount: pendingFollowUpCount,
+                approvalCount: vm.pendingApprovalCount,
+                checkInStatus: checkInStatus
+            )
             StandbyQueueCoverageDeck(
                 criticalCount: criticalCount,
                 warningCount: warningQueueCount,
@@ -1268,6 +1285,70 @@ private struct StandbyRouteInventoryDeck: View {
     }
 }
 
+private struct StandbyActionReadinessDeck: View {
+    let queueCount: Int
+    let criticalCount: Int
+    let mutedAlertCount: Int
+    let isAcknowledged: Bool
+    let pendingFollowUpCount: Int
+    let approvalCount: Int
+    let checkInStatus: HandoffCheckInStatus?
+
+    private let primaryRouteCount = 6
+    private let supportRouteCount = 6
+
+    var body: some View {
+        StandbySurfaceSectionCard(
+            title: String(localized: "Action Readiness"),
+            detail: String(localized: "Keep standby acknowledgement, muted drag, and next-route readiness visible before opening the deeper calm-mode surfaces.")
+        ) {
+            FlowLayout(spacing: 8) {
+                GlassCapsuleBadge(
+                    text: isAcknowledged ? String(localized: "Snapshot acknowledged") : String(localized: "Snapshot live"),
+                    backgroundOpacity: 0.14
+                )
+                GlassCapsuleBadge(
+                    text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
+                    backgroundOpacity: 0.12
+                )
+                if let checkInStatus {
+                    GlassCapsuleBadge(text: checkInStatus.state.label, backgroundOpacity: 0.14)
+                }
+                if mutedAlertCount > 0 {
+                    GlassCapsuleBadge(
+                        text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    GlassCapsuleBadge(
+                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if approvalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if criticalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        backgroundOpacity: 0.18
+                    )
+                }
+                if queueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+            }
+        }
+    }
+}
+
 private struct StandbySectionInventoryDeck: View {
     let sectionCount: Int
     let queueCount: Int
@@ -1497,6 +1578,76 @@ private struct StandbySupportPressureDeck: View {
                 }
             }
         }
+    }
+}
+
+private struct StandbySupportCoverageDeck: View {
+    let totalWatchedCount: Int
+    let activeWatchCount: Int
+    let liveAlertCount: Int
+    let pendingFollowUpCount: Int
+    let toneLabel: String
+    let checkInStatus: HandoffCheckInStatus?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep local watch breadth, live alert visibility, and slower handoff support context readable before the readiness deck and route rails expand."),
+                verticalPadding: 2
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: toneLabel, tone: .neutral)
+                    PresentationToneBadge(
+                        text: totalWatchedCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(totalWatchedCount) watched agents"),
+                        tone: totalWatchedCount > 0 ? .caution : .neutral
+                    )
+                    if let checkInStatus {
+                        PresentationToneBadge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
+                    }
+                }
+            }
+
+            MonitoringFactsRow(factsColor: .white.opacity(0.72)) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white)
+                    Text(String(localized: "Keep local watch breadth, live alert visibility, and slower handoff carry-through readable before the standby control rails take over."))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.66))
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: activeWatchCount == 1 ? String(localized: "1 active watch") : String(localized: "\(activeWatchCount) active watches"),
+                    tone: activeWatchCount > 0 ? .caution : .neutral
+                )
+            } facts: {
+                if liveAlertCount > 0 {
+                    Label(
+                        liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
+                        systemImage: "bell.badge"
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    Label(
+                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                        systemImage: "checklist.unchecked"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if activeWatchCount > 0 || liveAlertCount > 0 {
+            return String(localized: "Standby support coverage is currently anchored by local watch breadth and live alert visibility.")
+        }
+        if pendingFollowUpCount > 0 || checkInStatus != nil {
+            return String(localized: "Standby support coverage is currently anchored by handoff follow-up and check-in context.")
+        }
+        return String(localized: "Standby support coverage is currently light and mostly reflects local standby readiness.")
     }
 }
 

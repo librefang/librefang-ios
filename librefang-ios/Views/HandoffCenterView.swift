@@ -188,6 +188,9 @@ struct HandoffCenterView: View {
         .filter { $0 }
         .count
     }
+    private var isHistorySearchScoped: Bool {
+        !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 
     var body: some View {
         List {
@@ -483,6 +486,16 @@ struct HandoffCenterView: View {
                     pendingFollowUpCount: pendingLatestFollowUpCount,
                     draftReadiness: draftReadiness
                 )
+                HandoffSupportCoverageDeck(
+                    historyFilterLabel: historyFilter.label,
+                    filteredHistoryCount: filteredEntries.count,
+                    isSearchScoped: isHistorySearchScoped,
+                    timelineGapWarningCount: timelineGapWarningCount,
+                    uncoveredChecklistCount: uncoveredChecklistCount,
+                    completedFollowUpCount: completedLatestFollowUpCount,
+                    watchlistIssueCount: watchlistIssueCount,
+                    diagnosticsWarningCount: vm.diagnosticsConfigWarningCount
+                )
                 HandoffRouteInventoryDeck(
                     queueCount: queueCount,
                     criticalCount: criticalCount,
@@ -491,6 +504,16 @@ struct HandoffCenterView: View {
                     diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
                     primaryRouteCount: 4,
                     supportRouteCount: 3
+                )
+                HandoffActionReadinessDeck(
+                    readiness: draftReadiness,
+                    hasNote: !handoffStore.draftNote.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                    focusCount: handoffStore.draftFocusAreas.items.count,
+                    followUpCount: handoffStore.draftFollowUpItems.count,
+                    suggestedFocusCount: suggestedFocusAreas.count,
+                    suggestedFollowUpCount: suggestedFollowUps.count,
+                    hasCheckIn: handoffStore.draftCheckInWindow != nil,
+                    canShare: !currentShareText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 )
                 handoffSurfaceDeckCard
             }
@@ -1541,6 +1564,173 @@ private struct HandoffPressureCoverageDeck: View {
             return String(localized: "Handoff pressure is currently concentrated in approvals and session follow-up.")
         }
         return String(localized: "Handoff pressure is currently concentrated in watchlist, audit, and follow-up coverage.")
+    }
+}
+
+private struct HandoffSupportCoverageDeck: View {
+    let historyFilterLabel: String
+    let filteredHistoryCount: Int
+    let isSearchScoped: Bool
+    let timelineGapWarningCount: Int
+    let uncoveredChecklistCount: Int
+    let completedFollowUpCount: Int
+    let watchlistIssueCount: Int
+    let diagnosticsWarningCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep history scope, timeline gaps, checklist coverage, and slower diagnostics or watchlist drag readable before the route deck and editor sections take over."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: historyFilterLabel, tone: .neutral)
+                    PresentationToneBadge(
+                        text: filteredHistoryCount == 1 ? String(localized: "1 visible entry") : String(localized: "\(filteredHistoryCount) visible entries"),
+                        tone: filteredHistoryCount > 0 ? .positive : .neutral
+                    )
+                    if isSearchScoped {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .warning)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep history scope, timeline gaps, checklist coverage, completed follow-through, and slower support drift visible before the handoff editor fans out."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
+                    tone: diagnosticsWarningCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if timelineGapWarningCount > 0 {
+                    Label(
+                        timelineGapWarningCount == 1 ? String(localized: "1 timeline gap") : String(localized: "\(timelineGapWarningCount) timeline gaps"),
+                        systemImage: "clock.badge.exclamationmark"
+                    )
+                }
+                if uncoveredChecklistCount > 0 {
+                    Label(
+                        uncoveredChecklistCount == 1 ? String(localized: "1 uncovered checklist item") : String(localized: "\(uncoveredChecklistCount) uncovered checklist items"),
+                        systemImage: "checklist.unchecked"
+                    )
+                }
+                if completedFollowUpCount > 0 {
+                    Label(
+                        completedFollowUpCount == 1 ? String(localized: "1 completed follow-up") : String(localized: "\(completedFollowUpCount) completed follow-ups"),
+                        systemImage: "checkmark.circle"
+                    )
+                }
+                if watchlistIssueCount > 0 {
+                    Label(
+                        watchlistIssueCount == 1 ? String(localized: "1 watchlist issue") : String(localized: "\(watchlistIssueCount) watchlist issues"),
+                        systemImage: "star.fill"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if timelineGapWarningCount > 0 || uncoveredChecklistCount > 0 {
+            return String(localized: "Handoff support coverage is currently anchored by timeline or checklist gaps.")
+        }
+        if isSearchScoped {
+            return String(localized: "Handoff support coverage is currently narrowed to a filtered slice of saved history.")
+        }
+        if diagnosticsWarningCount > 0 || watchlistIssueCount > 0 {
+            return String(localized: "Handoff support coverage is currently anchored by slower diagnostics and watchlist drift.")
+        }
+        return String(localized: "Handoff support coverage is currently light and mostly reflects saved-history readiness.")
+    }
+}
+
+private struct HandoffActionReadinessDeck: View {
+    let readiness: HandoffReadinessStatus
+    let hasNote: Bool
+    let focusCount: Int
+    let followUpCount: Int
+    let suggestedFocusCount: Int
+    let suggestedFollowUpCount: Int
+    let hasCheckIn: Bool
+    let canShare: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check whether save, share, suggestion, and check-in actions are ready before editing the draft in detail."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: readiness.state.label, tone: readiness.state.tone)
+                    PresentationToneBadge(
+                        text: canShare ? String(localized: "Share ready") : String(localized: "Share pending"),
+                        tone: canShare ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: hasCheckIn ? String(localized: "Check-in set") : String(localized: "Check-in open"),
+                        tone: hasCheckIn ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep save readiness, note coverage, suggestions, and follow-up tooling visible before editing or sharing the handoff draft."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: hasNote ? String(localized: "Note ready") : String(localized: "Note pending"),
+                    tone: hasNote ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    focusCount == 1 ? String(localized: "1 focus area") : String(localized: "\(focusCount) focus areas"),
+                    systemImage: "scope"
+                )
+                Label(
+                    followUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(followUpCount) follow-ups"),
+                    systemImage: "checklist.unchecked"
+                )
+                if suggestedFocusCount > 0 {
+                    Label(
+                        suggestedFocusCount == 1 ? String(localized: "1 suggested focus") : String(localized: "\(suggestedFocusCount) suggested focus"),
+                        systemImage: "wand.and.stars"
+                    )
+                }
+                if suggestedFollowUpCount > 0 {
+                    Label(
+                        suggestedFollowUpCount == 1 ? String(localized: "1 suggested follow-up") : String(localized: "\(suggestedFollowUpCount) suggested follow-ups"),
+                        systemImage: "wand.and.stars.inverse"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        switch readiness.state {
+        case .ready:
+            return String(localized: "Handoff action readiness is currently clear enough to save or share the draft.")
+        case .caution:
+            return String(localized: "Handoff action readiness is currently usable, but the draft still has gaps worth checking before save or share.")
+        case .blocked:
+            return String(localized: "Handoff action readiness is currently blocked by missing draft coverage.")
+        }
     }
 }
 

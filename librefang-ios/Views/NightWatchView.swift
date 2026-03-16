@@ -305,6 +305,24 @@ struct NightWatchView: View {
                 integrationIssueCount: integrationIssueCount,
                 checkInStatus: checkInStatus
             )
+            NightWatchSupportCoverageDeck(
+                totalWatchedCount: watchedAgents.count,
+                activeWatchCount: activeWatchedItems.count,
+                watchedQueueCount: watchedQueueCount,
+                focusModeLabel: focusStore.mode.label,
+                preferredSurfaceLabel: focusStore.preferredSurface.label,
+                showsMutedSummary: focusStore.showsMutedSummary,
+                checkInStatus: checkInStatus
+            )
+            NightWatchActionReadinessDeck(
+                queueCount: priorityItems.count,
+                criticalCount: criticalCount,
+                isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
+                pendingFollowUpCount: pendingFollowUpCount,
+                approvalCount: vm.pendingApprovalCount,
+                focusModeLabel: focusStore.mode.label,
+                checkInStatus: checkInStatus
+            )
             NightWatchQueueCoverageDeck(
                 criticalCount: criticalCount,
                 warningCount: warningCount,
@@ -1594,6 +1612,140 @@ private struct NightWatchSupportPressureDeck: View {
                 if integrationIssueCount > 0 {
                     GlassCapsuleBadge(
                         text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
+                        backgroundOpacity: 0.12
+                    )
+                }
+            }
+        }
+    }
+}
+
+private struct NightWatchSupportCoverageDeck: View {
+    let totalWatchedCount: Int
+    let activeWatchCount: Int
+    let watchedQueueCount: Int
+    let focusModeLabel: String
+    let preferredSurfaceLabel: String
+    let showsMutedSummary: Bool
+    let checkInStatus: HandoffCheckInStatus?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep pinned watch breadth, focus mode, muted-summary behavior, and preferred surface visible before the action-readiness deck and route rails expand."),
+                verticalPadding: 2
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: focusModeLabel, tone: .neutral)
+                    PresentationToneBadge(text: preferredSurfaceLabel, tone: .positive)
+                    PresentationToneBadge(
+                        text: showsMutedSummary ? String(localized: "Muted summary on") : String(localized: "Muted summary off"),
+                        tone: showsMutedSummary ? .neutral : .warning
+                    )
+                }
+            }
+
+            MonitoringFactsRow(factsColor: .white.opacity(0.72)) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white)
+                    Text(String(localized: "Keep pinned fleet breadth, watched queue spillover, and local surface preferences readable before the next night-duty exits take over."))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.66))
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: totalWatchedCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(totalWatchedCount) watched agents"),
+                    tone: totalWatchedCount > 0 ? .caution : .neutral
+                )
+            } facts: {
+                if activeWatchCount > 0 {
+                    Label(
+                        activeWatchCount == 1 ? String(localized: "1 active watch") : String(localized: "\(activeWatchCount) active watches"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if watchedQueueCount > 0 {
+                    Label(
+                        watchedQueueCount == 1 ? String(localized: "1 watched queue item") : String(localized: "\(watchedQueueCount) watched queue items"),
+                        systemImage: "list.bullet"
+                    )
+                }
+                if let checkInStatus {
+                    Label(checkInStatus.state.label, systemImage: "calendar.badge.clock")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if activeWatchCount > 0 || watchedQueueCount > 0 {
+            return String(localized: "Night Watch support coverage is currently anchored by pinned watchlist breadth and watched queue spillover.")
+        }
+        if !showsMutedSummary {
+            return String(localized: "Night Watch support coverage is currently narrowed because muted-summary visibility is turned off.")
+        }
+        if checkInStatus != nil {
+            return String(localized: "Night Watch support coverage is currently anchored by handoff check-in state and local surface preferences.")
+        }
+        return String(localized: "Night Watch support coverage is currently light and mostly reflects focus mode plus preferred surface state.")
+    }
+}
+
+private struct NightWatchActionReadinessDeck: View {
+    let queueCount: Int
+    let criticalCount: Int
+    let isAcknowledged: Bool
+    let pendingFollowUpCount: Int
+    let approvalCount: Int
+    let focusModeLabel: String
+    let checkInStatus: HandoffCheckInStatus?
+
+    private let primaryRouteCount = 5
+    private let supportRouteCount = 8
+
+    var body: some View {
+        NightWatchSectionCard(
+            title: String(localized: "Action Readiness"),
+            detail: String(localized: "Keep acknowledge state, focus mode, and route readiness visible before opening the compact night queue.")
+        ) {
+            FlowLayout(spacing: 8) {
+                GlassCapsuleBadge(text: focusModeLabel, backgroundOpacity: 0.16)
+                GlassCapsuleBadge(
+                    text: isAcknowledged ? String(localized: "Snapshot acknowledged") : String(localized: "Snapshot live"),
+                    backgroundOpacity: 0.14
+                )
+                GlassCapsuleBadge(
+                    text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
+                    backgroundOpacity: 0.12
+                )
+                if let checkInStatus {
+                    GlassCapsuleBadge(text: checkInStatus.state.label, backgroundOpacity: 0.14)
+                }
+                if approvalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    GlassCapsuleBadge(
+                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
+                        backgroundOpacity: 0.14
+                    )
+                }
+                if criticalCount > 0 {
+                    GlassCapsuleBadge(
+                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        backgroundOpacity: 0.18
+                    )
+                }
+                if queueCount > 0 {
+                    GlassCapsuleBadge(
+                        text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
                         backgroundOpacity: 0.12
                     )
                 }

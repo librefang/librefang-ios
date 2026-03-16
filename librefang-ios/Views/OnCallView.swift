@@ -301,6 +301,23 @@ struct OnCallView: View {
                     integrationIssueCount: integrationIssueCount,
                     checkInStatus: handoffStore.latestCheckInStatus
                 )
+                OnCallSupportCoverageDeck(
+                    watchedCount: watchedAgents.count,
+                    issueAgentCount: watchedDiagnosticIssueAgentCount,
+                    failedDeliveryCount: watchedFailedDeliveryAgentCount,
+                    missingIdentityCount: watchedMissingIdentityAgentCount,
+                    fallbackDriftCount: watchedFallbackDriftAgentCount,
+                    pausedCount: watchedPausedAgentCount
+                )
+                OnCallActionReadinessDeck(
+                    queueCount: priorityItems.count,
+                    criticalCount: criticalCount,
+                    isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
+                    hasLiveAlerts: !visibleAlerts.isEmpty,
+                    pendingFollowUpCount: pendingFollowUpCount,
+                    approvalCount: vm.pendingApprovalCount,
+                    checkInStatus: handoffStore.latestCheckInStatus
+                )
 
                 OnCallQueueCoverageDeck(
                     criticalCount: criticalCount,
@@ -1058,6 +1075,98 @@ private struct OnCallSupportPressureDeck: View {
     }
 }
 
+private struct OnCallSupportCoverageDeck: View {
+    let watchedCount: Int
+    let issueAgentCount: Int
+    let failedDeliveryCount: Int
+    let missingIdentityCount: Int
+    let fallbackDriftCount: Int
+    let pausedCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep watched-fleet breadth, delivery drag, identity gaps, fallback drift, and paused agents readable before the readiness deck and live queue rows begin."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: watchedCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchedCount) watched agents"),
+                        tone: watchedCount > 0 ? .caution : .neutral
+                    )
+                    if issueAgentCount > 0 {
+                        PresentationToneBadge(
+                            text: issueAgentCount == 1 ? String(localized: "1 watched issue") : String(localized: "\(issueAgentCount) watched issues"),
+                            tone: .warning
+                        )
+                    }
+                    if pausedCount > 0 {
+                        PresentationToneBadge(
+                            text: pausedCount == 1 ? String(localized: "1 paused") : String(localized: "\(pausedCount) paused"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep watched-agent breadth, delivery failures, identity gaps, and fallback drift visible before the live queue and lower watchlist rows take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: issueAgentCount == 1 ? String(localized: "1 agent under drag") : String(localized: "\(issueAgentCount) agents under drag"),
+                    tone: issueAgentCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if failedDeliveryCount > 0 {
+                    Label(
+                        failedDeliveryCount == 1 ? String(localized: "1 failed delivery") : String(localized: "\(failedDeliveryCount) failed deliveries"),
+                        systemImage: "paperplane"
+                    )
+                }
+                if missingIdentityCount > 0 {
+                    Label(
+                        missingIdentityCount == 1 ? String(localized: "1 identity gap") : String(localized: "\(missingIdentityCount) identity gaps"),
+                        systemImage: "doc.badge.exclamationmark"
+                    )
+                }
+                if fallbackDriftCount > 0 {
+                    Label(
+                        fallbackDriftCount == 1 ? String(localized: "1 fallback drift") : String(localized: "\(fallbackDriftCount) fallback drifts"),
+                        systemImage: "square.stack.3d.up.slash"
+                    )
+                }
+                if pausedCount > 0 {
+                    Label(
+                        pausedCount == 1 ? String(localized: "1 paused agent") : String(localized: "\(pausedCount) paused agents"),
+                        systemImage: "pause.circle"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if issueAgentCount > 0 || failedDeliveryCount > 0 {
+            return String(localized: "On-call support coverage is currently anchored by watched-agent diagnostics and delivery drag.")
+        }
+        if missingIdentityCount > 0 || fallbackDriftCount > 0 || pausedCount > 0 {
+            return String(localized: "On-call support coverage is currently anchored by identity, fallback, or paused-agent drift.")
+        }
+        if watchedCount > 0 {
+            return String(localized: "On-call support coverage is currently centered on the local watched fleet.")
+        }
+        return String(localized: "On-call support coverage is currently light and mostly reflects background watch readiness.")
+    }
+}
+
 private struct OnCallQueueSnapshotCard: View {
     let queueCount: Int
     let criticalCount: Int
@@ -1694,6 +1803,102 @@ private struct OnCallStatusCard: View {
             .foregroundStyle(.tertiary)
         }
         .padding(.vertical, 4)
+    }
+}
+
+private struct OnCallActionReadinessDeck: View {
+    let queueCount: Int
+    let criticalCount: Int
+    let isAcknowledged: Bool
+    let hasLiveAlerts: Bool
+    let pendingFollowUpCount: Int
+    let approvalCount: Int
+    let checkInStatus: HandoffCheckInStatus?
+
+    private let primaryRouteCount = 6
+    private let supportRouteCount = 6
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check whether acknowledge, handoff, and broader drilldowns are ready before opening the ranked queue rows."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: isAcknowledged ? String(localized: "Snapshot acknowledged") : String(localized: "Snapshot live"),
+                        tone: isAcknowledged ? .positive : .warning
+                    )
+                    PresentationToneBadge(
+                        text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
+                        tone: .neutral
+                    )
+                    if let checkInStatus {
+                        PresentationToneBadge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep acknowledge state, follow-up load, and next-route readiness visible before moving from triage into action."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: hasLiveAlerts ? String(localized: "Ack available") : String(localized: "Ack idle"),
+                    tone: hasLiveAlerts && !isAcknowledged ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                Label(
+                    supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                    systemImage: "square.grid.2x2"
+                )
+                if queueCount > 0 {
+                    Label(
+                        queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
+                        systemImage: "waveform.path.ecg"
+                    )
+                }
+                if criticalCount > 0 {
+                    Label(
+                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
+                        systemImage: "xmark.octagon"
+                    )
+                }
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if pendingFollowUpCount > 0 {
+                    Label(
+                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
+                        systemImage: "checklist.unchecked"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if hasLiveAlerts && !isAcknowledged {
+            return String(localized: "On-call action readiness is currently anchored by a live snapshot that still needs acknowledgement.")
+        }
+        if pendingFollowUpCount > 0 || approvalCount > 0 {
+            return String(localized: "On-call action readiness is currently anchored by follow-up and approval work after triage.")
+        }
+        return String(localized: "On-call action readiness is currently light, with routes and acknowledgement controls ready for use.")
     }
 }
 
