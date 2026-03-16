@@ -644,6 +644,18 @@ struct AgentDetailView: View {
                     hasModelResolution: hasModelResolution,
                     hasCapabilities: hasCapabilityCoverage
                 )
+                AgentWorkstreamCoverageDeck(
+                    issueCount: monitoringSurfaceIssueCount,
+                    approvalCount: agentApprovals.count,
+                    sessionCount: agentSessions.count,
+                    memoryCount: agentMemory.count,
+                    fileCount: agentFiles.count,
+                    deliveryCount: agentDeliveries.count,
+                    auditCount: agentRecentEvents.count,
+                    hasBudget: budgetDetail != nil,
+                    hasModelResolution: hasModelResolution,
+                    hasCapabilities: hasCapabilityCoverage
+                )
                 AgentRouteInventoryDeck(
                     primaryRouteCount: agentPrimaryRouteCount,
                     supportRouteCount: agentSupportRouteCount,
@@ -2741,6 +2753,127 @@ private struct AgentFocusCoverageDeck: View {
             return String(localized: "Agent focus coverage is currently anchored by active session, delivery, and memory lanes.")
         }
         return String(localized: "Agent focus coverage is currently balanced across the deeper agent diagnostics lanes.")
+    }
+}
+
+private struct AgentWorkstreamCoverageDeck: View {
+    let issueCount: Int
+    let approvalCount: Int
+    let sessionCount: Int
+    let memoryCount: Int
+    let fileCount: Int
+    let deliveryCount: Int
+    let auditCount: Int
+    let hasBudget: Bool
+    let hasModelResolution: Bool
+    let hasCapabilities: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to see whether agent review is currently led by surfaced issues, operational diagnostics, or slower capability and budget context before the deeper sections take over."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if issueCount > 0 {
+                        PresentationToneBadge(
+                            text: issueCount == 1 ? String(localized: "1 surfaced issue") : String(localized: "\(issueCount) surfaced issues"),
+                            tone: .warning
+                        )
+                    }
+                    if diagnosticsLaneCount > 0 {
+                        PresentationToneBadge(
+                            text: diagnosticsLaneCount == 1 ? String(localized: "1 diagnostics lane") : String(localized: "\(diagnosticsLaneCount) diagnostics lanes"),
+                            tone: .neutral
+                        )
+                    }
+                    if supportCount > 0 {
+                        PresentationToneBadge(
+                            text: supportCount == 1 ? String(localized: "1 support lane") : String(localized: "\(supportCount) support lanes"),
+                            tone: .positive
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Workstream coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep issue review, operational diagnostics, and slower capability or budget context readable before moving through the deeper agent sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                    tone: approvalCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                if sessionCount > 0 {
+                    Label(
+                        sessionCount == 1 ? String(localized: "1 session lane") : String(localized: "\(sessionCount) session lanes"),
+                        systemImage: "rectangle.stack"
+                    )
+                }
+                if memoryCount > 0 {
+                    Label(
+                        memoryCount == 1 ? String(localized: "1 memory lane") : String(localized: "\(memoryCount) memory lanes"),
+                        systemImage: "externaldrive"
+                    )
+                }
+                if fileCount > 0 {
+                    Label(
+                        fileCount == 1 ? String(localized: "1 file lane") : String(localized: "\(fileCount) file lanes"),
+                        systemImage: "doc.text"
+                    )
+                }
+                if deliveryCount > 0 {
+                    Label(
+                        deliveryCount == 1 ? String(localized: "1 delivery lane") : String(localized: "\(deliveryCount) delivery lanes"),
+                        systemImage: "tray.and.arrow.up"
+                    )
+                }
+                if auditCount > 0 {
+                    Label(
+                        auditCount == 1 ? String(localized: "1 audit lane") : String(localized: "\(auditCount) audit lanes"),
+                        systemImage: "text.badge.exclamationmark"
+                    )
+                }
+                if hasCapabilities {
+                    Label(String(localized: "Capabilities ready"), systemImage: "slider.horizontal.3")
+                }
+                if hasModelResolution {
+                    Label(String(localized: "Model ready"), systemImage: "square.stack.3d.up")
+                }
+                if hasBudget {
+                    Label(String(localized: "Budget ready"), systemImage: "chart.bar")
+                }
+            }
+        }
+    }
+
+    private var diagnosticsLaneCount: Int {
+        sessionCount + memoryCount + fileCount + deliveryCount + auditCount
+    }
+
+    private var supportCount: Int {
+        (hasCapabilities ? 1 : 0) + (hasModelResolution ? 1 : 0) + (hasBudget ? 1 : 0)
+    }
+
+    private var summaryLine: String {
+        if issueCount + approvalCount > 0 {
+            return String(localized: "Agent workstream coverage is currently anchored by surfaced issues and approvals.")
+        }
+        if diagnosticsLaneCount >= supportCount && diagnosticsLaneCount > 0 {
+            return String(localized: "Agent workstream coverage is currently anchored by operational diagnostics.")
+        }
+        if supportCount > 0 {
+            return String(localized: "Agent workstream coverage is currently anchored by capability, model, and budget context.")
+        }
+        return String(localized: "Agent workstream coverage is currently light across the visible lanes.")
     }
 }
 
