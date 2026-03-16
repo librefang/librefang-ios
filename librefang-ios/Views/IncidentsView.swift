@@ -316,24 +316,8 @@ struct IncidentsView: View {
             operatorStateSection
         }
 
-        if handoffIssueCount > 0 {
-            shiftCoverageSection
-        }
-
-        if automationIssueCount > 0 {
-            automationSection
-        }
-
-        if integrationIssueCount > 0 {
-            integrationsSection
-        }
-
         if !visibleAlerts.isEmpty {
             activeAlertsSection
-        }
-
-        if !mutedAlerts.isEmpty {
-            mutedAlertsSection
         }
 
         if !vm.approvals.isEmpty {
@@ -354,6 +338,22 @@ struct IncidentsView: View {
 
         if !vm.criticalAuditEntries.isEmpty {
             criticalEventsSection
+        }
+
+        if handoffIssueCount > 0 {
+            shiftCoverageSection
+        }
+
+        if automationIssueCount > 0 {
+            automationSection
+        }
+
+        if integrationIssueCount > 0 {
+            integrationsSection
+        }
+
+        if !mutedAlerts.isEmpty {
+            mutedAlertsSection
         }
 
         if !hasVisibleIncidents {
@@ -436,14 +436,6 @@ struct IncidentsView: View {
                 IntegrationsView(initialScope: .attention)
             } label: {
                 IncidentIntegrationsCard(vm: vm)
-            }
-
-            ForEach(vm.agentsWithModelDiagnostics.prefix(3)) { diagnostic in
-                NavigationLink {
-                    AgentDetailView(agent: diagnostic.agent)
-                } label: {
-                    IncidentIntegrationAgentRow(diagnostic: diagnostic)
-                }
             }
         } header: {
             Text("Integrations")

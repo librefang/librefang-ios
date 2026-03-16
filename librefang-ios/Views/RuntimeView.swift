@@ -422,8 +422,6 @@ struct RuntimeView: View {
                 }
             } header: {
                 Text("Automation")
-            } footer: {
-                Text("\(vm.automationDefinitionCount) total automation objects across workflows, triggers, schedules, and cron")
             }
             .id(RuntimeSectionAnchor.automation)
         }
@@ -447,8 +445,6 @@ struct RuntimeView: View {
 
             } header: {
                 Text("Recent Sessions")
-            } footer: {
-                Text("\(vm.totalSessionCount) sessions across the workspace, \(vm.sessionAttentionCount) need attention")
             }
             .id(RuntimeSectionAnchor.sessions)
         }
@@ -548,13 +544,7 @@ struct RuntimeView: View {
             NavigationLink {
                 CommsView(api: deps.apiClient)
             } label: {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Comms")
-                        .font(.subheadline.weight(.medium))
-                    Text("Track inter-agent messages, spawns, and task coordination in real time.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                Label("Comms", systemImage: "arrow.left.arrow.right.circle")
             }
         }
     }
