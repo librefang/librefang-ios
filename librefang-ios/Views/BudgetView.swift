@@ -715,3 +715,28 @@ private struct AgentCostRow: View {
         }
     }
 }
+
+private extension String {
+    var usageDate: Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.date(from: self)
+    }
+}
+
+private func localizedUSDCurrency(
+    _ value: Double,
+    standardPrecision: Int = 2,
+    smallValuePrecision: Int? = nil,
+    minimumDisplayValue: Double = 0.01
+) -> String {
+    let style = FloatingPointFormatStyle<Double>.Currency(code: "USD")
+    if value == 0 {
+        return value.formatted(style.precision(.fractionLength(standardPrecision)))
+    }
+    if value < minimumDisplayValue {
+        return "<\(minimumDisplayValue.formatted(style.precision(.fractionLength(standardPrecision))))"
+    }
+    let precision = value < 1 ? (smallValuePrecision ?? standardPrecision) : standardPrecision
+    return value.formatted(style.precision(.fractionLength(precision)))
+}

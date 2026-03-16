@@ -201,94 +201,15 @@ struct OnCallView: View {
     }
     var body: some View {
         List {
-            Section {
-                OnCallScoreboard(
-                    criticalCount: criticalCount,
-                    liveAlertCount: visibleAlerts.count,
-                    approvalCount: vm.pendingApprovalCount,
-                    watchIssueCount: watchIssueCount,
-                    sessionCount: vm.sessionAttentionCount,
-                    eventCount: vm.recentCriticalAuditCount
-                )
-                .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-            }
-
-            if !priorityItems.isEmpty {
-                Section {
-                    ForEach(priorityItems.prefix(5)) { item in
-                        NavigationLink(value: item.route) {
-                            OnCallPriorityRow(item: item)
-                        }
-                    }
-                } header: {
-                    Text("Priority Queue")
-                }
-            }
-
-            if !activeWatchedAttentionItems.isEmpty {
-                Section {
-                    ForEach(activeWatchedAttentionItems.prefix(3)) { item in
-                        NavigationLink(value: item.route) {
-                            watchedDiagnosticsDestination(for: item)
-                        } label: {
-                            WatchedAgentRow(
-                                agent: item.agent,
-                                reasons: item.reasons,
-                                severity: item.severity,
-                                isHealthy: item.severity == 0,
-                                diagnostics: watchedDiagnostics[item.agent.id]
-                            )
-                        }
-                    }
-                } header: {
-                    Text("Watchlist")
-                }
-            }
-
-            if priorityItems.isEmpty
-                && activeWatchedAttentionItems.isEmpty
-                && vm.pendingApprovalCount == 0
-                && vm.recentCriticalAuditCount == 0 {
-                Section("On Call") {
-                    ContentUnavailableView(
-                        "Calm State",
-                        systemImage: "checkmark.shield",
-                        description: Text("No live priorities right now.")
-                    )
-                }
-            }
+            scoreboardSection
+            priorityQueueSection
+            watchlistSection
+            calmStateSection
         }
         .navigationTitle(String(localized: "On Call"))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    ShareLink(item: handoffText) {
-                        Label("Share", systemImage: "square.and.arrow.up")
-                    }
-
-                    NavigationLink(value: OnCallRoute.incidents) {
-                        Label("Incidents", systemImage: "bell.badge")
-                    }
-
-                    NavigationLink {
-                        NightWatchView()
-                    } label: {
-                        Label("Night Watch", systemImage: "moon.stars")
-                    }
-
-                    NavigationLink {
-                        HandoffCenterView(
-                            summary: handoffText,
-                            queueCount: priorityItems.count,
-                            criticalCount: criticalCount,
-                            liveAlertCount: visibleAlerts.count
-                        )
-                    } label: {
-                        Label("Handoff", systemImage: "text.badge.plus")
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                }
+                trailingMenu
             }
         }
         .navigationDestination(for: OnCallRoute.self) { route in
@@ -313,6 +234,105 @@ struct OnCallView: View {
     }
 
     @ViewBuilder
+    private var trailingMenu: some View {
+        Menu {
+            ShareLink(item: handoffText) {
+                Label("Share", systemImage: "square.and.arrow.up")
+            }
+
+            NavigationLink(value: OnCallRoute.incidents) {
+                Label("Incidents", systemImage: "bell.badge")
+            }
+
+            NavigationLink {
+                NightWatchView()
+            } label: {
+                Label("Night Watch", systemImage: "moon.stars")
+            }
+
+            NavigationLink {
+                HandoffCenterView(
+                    summary: handoffText,
+                    queueCount: priorityItems.count,
+                    criticalCount: criticalCount,
+                    liveAlertCount: visibleAlerts.count
+                )
+            } label: {
+                Label("Handoff", systemImage: "text.badge.plus")
+            }
+        } label: {
+            Image(systemName: "ellipsis.circle")
+        }
+    }
+
+    @ViewBuilder
+    private var scoreboardSection: some View {
+        Section {
+            OnCallScoreboard(
+                criticalCount: criticalCount,
+                liveAlertCount: visibleAlerts.count,
+                approvalCount: vm.pendingApprovalCount,
+                watchIssueCount: watchIssueCount,
+                sessionCount: vm.sessionAttentionCount,
+                eventCount: vm.recentCriticalAuditCount
+            )
+            .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+        }
+    }
+
+    @ViewBuilder
+    private var priorityQueueSection: some View {
+        if !priorityItems.isEmpty {
+            Section {
+                ForEach(priorityItems.prefix(5)) { item in
+                    NavigationLink(value: item.route) {
+                        OnCallPriorityRow(item: item)
+                    }
+                }
+            } header: {
+                Text("Priority Queue")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var watchlistSection: some View {
+        if !activeWatchedAttentionItems.isEmpty {
+            Section {
+                ForEach(activeWatchedAttentionItems.prefix(3)) { item in
+                    NavigationLink(value: OnCallRoute.agent(item.agent.id)) {
+                        WatchedAgentRow(
+                            agent: item.agent,
+                            reasons: item.reasons,
+                            severity: item.severity,
+                            isHealthy: item.severity == 0,
+                            diagnostics: watchedDiagnostics[item.agent.id]
+                        )
+                    }
+                }
+            } header: {
+                Text("Watchlist")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var calmStateSection: some View {
+        if priorityItems.isEmpty
+            && activeWatchedAttentionItems.isEmpty
+            && vm.pendingApprovalCount == 0
+            && vm.recentCriticalAuditCount == 0 {
+            Section("On Call") {
+                ContentUnavailableView(
+                    "Calm State",
+                    systemImage: "checkmark.shield",
+                    description: Text("No live priorities right now.")
+                )
+            }
+        }
+    }
+
+    @ViewBuilder
     private func destination(for route: OnCallRoute) -> some View {
         switch route {
         case .incidents:
@@ -320,7 +340,9 @@ struct OnCallView: View {
         case .approvals:
             ApprovalsView()
         case .agent(let id):
-            if let agent = vm.agents.first(where: { $0.id == id }) {
+            if let item = activeWatchedAttentionItems.first(where: { $0.agent.id == id }) {
+                watchedDiagnosticsDestination(for: item)
+            } else if let agent = vm.agents.first(where: { $0.id == id }) {
                 AgentDetailView(agent: agent)
             } else {
                 ContentUnavailableView(

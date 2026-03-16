@@ -160,6 +160,7 @@ struct SessionsView: View {
         }
     }
 
+    @ViewBuilder
     private func sessionRow(for item: SessionAttentionItem) -> some View {
         let row = SessionMonitorRow(
             item: item,

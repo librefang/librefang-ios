@@ -1,4 +1,5 @@
 import Foundation
+import Network
 
 @Observable
 final class DashboardViewModel {
@@ -40,12 +41,18 @@ final class DashboardViewModel {
     var configSummary: RuntimeConfigSummary?
     var metricsRawText: String?
     var isLoading = false
+    var hasCompletedSupplementalRefresh = false
     var error: String?
     var lastRefresh: Date?
+    var lastSupplementalRefresh: Date?
+    var hasReachableServer = false
 
     private let api: APIClientProtocol
     private var refreshTask: Task<Void, Never>?
+    private var supplementalRefreshTask: Task<Void, Never>?
+    private var reachabilityTask: Task<Void, Never>?
     private var isRefreshInFlight = false
+    private var refreshGeneration = 0
 
     init(api: APIClientProtocol) {
         self.api = api
@@ -74,15 +81,50 @@ final class DashboardViewModel {
     func refresh() async {
         guard !isRefreshInFlight else { return }
 
+        refreshGeneration += 1
+        let generation = refreshGeneration
+        supplementalRefreshTask?.cancel()
+        reachabilityTask?.cancel()
         isRefreshInFlight = true
         isLoading = true
         error = nil
-        defer {
-            lastRefresh = Date()
-            isLoading = false
-            isRefreshInFlight = false
+        reachabilityTask = Task { [weak self] in
+            await self?.refreshServerReachability(for: generation)
+        }
+        await refreshPrimaryData()
+        lastRefresh = Date()
+        isLoading = false
+        isRefreshInFlight = false
+
+        guard error == nil || health != nil || status != nil || !agents.isEmpty else {
+            return
         }
 
+        supplementalRefreshTask = Task { [weak self] in
+            await self?.refreshSupplementalData(for: generation)
+        }
+    }
+
+    @MainActor
+    private func refreshServerReachability(for generation: Int) async {
+        guard let connectionInfo = try? await api.connectionInfo() else { return }
+        let baseURL = connectionInfo.baseURL
+        guard let host = baseURL.host, !host.isEmpty else { return }
+        let resolvedPort = baseURL.port ?? (baseURL.scheme?.lowercased() == "https" ? 443 : 80)
+        guard let port = NWEndpoint.Port(rawValue: UInt16(resolvedPort)) else { return }
+
+        let reachable = await ServerReachabilityProbe.canConnect(
+            host: host,
+            port: port,
+            timeout: 1.5
+        )
+
+        guard !Task.isCancelled, generation == refreshGeneration, reachable else { return }
+        hasReachableServer = true
+    }
+
+    @MainActor
+    private func refreshPrimaryData() async {
         await withTaskGroup(of: Void.self) { group in
             group.addTask { @MainActor in
                 do { self.health = try await self.api.health() }
@@ -96,13 +138,19 @@ final class DashboardViewModel {
                 do { self.agents = try await self.api.agents() }
                 catch { self.storeRefreshErrorIfNeeded(error) }
             }
+        }
+    }
+
+    @MainActor
+    private func refreshSupplementalData(for generation: Int) async {
+        await withTaskGroup(of: Void.self) { group in
             group.addTask { @MainActor in
                 do { self.budget = try await self.api.budget() }
-                catch { self.storeRefreshErrorIfNeeded(error) }
+                catch { /* Budget is optional on first paint */ }
             }
             group.addTask { @MainActor in
                 do { self.budgetAgents = try await self.api.budgetAgents() }
-                catch { self.storeRefreshErrorIfNeeded(error) }
+                catch { /* Agent budget ranking is optional on first paint */ }
             }
             group.addTask { @MainActor in
                 do { self.a2aAgents = try await self.api.a2aAgents() }
@@ -242,11 +290,18 @@ final class DashboardViewModel {
                 catch { /* Cron inventory is optional */ }
             }
         }
+
+        guard !Task.isCancelled, generation == refreshGeneration else { return }
+        hasCompletedSupplementalRefresh = true
+        let completionDate = Date()
+        lastSupplementalRefresh = completionDate
+        lastRefresh = completionDate
     }
 
     @MainActor
     func updateServer(_ config: ServerConfig) async {
         config.save()
+        hasReachableServer = false
         await api.updateConfig(config)
         await refresh()
     }
@@ -284,6 +339,9 @@ final class DashboardViewModel {
     var runningCount: Int { agents.filter(\.isRunning).count }
     var totalCount: Int { agents.count }
     var isConnected: Bool { health?.isHealthy == true }
+    var hasPrimaryConnectionEvidence: Bool {
+        hasReachableServer || health != nil || status != nil || !agents.isEmpty
+    }
     var configuredProviderCount: Int { providers.filter(\.isConfigured).count }
     var localProviderCount: Int { providers.filter { $0.isLocal == true }.count }
     var unreachableLocalProviderCount: Int { providers.filter { $0.isLocal == true && $0.reachable == false }.count }
@@ -353,5 +411,54 @@ final class DashboardViewModel {
     var hasHealthDatabaseIssue: Bool {
         guard let database = healthDetail?.database else { return false }
         return database.lowercased() != "connected"
+    }
+}
+
+private nonisolated enum ServerReachabilityProbe {
+    static func canConnect(host: String, port: NWEndpoint.Port, timeout: TimeInterval) async -> Bool {
+        await attemptConnection(host: host, port: port, timeout: timeout)
+    }
+
+    private static func attemptConnection(host: String, port: NWEndpoint.Port, timeout: TimeInterval) async -> Bool {
+        await withCheckedContinuation { continuation in
+            let connection = NWConnection(host: NWEndpoint.Host(host), port: port, using: .tcp)
+            let queue = DispatchQueue(label: "ServerReachabilityProbe")
+            let gate = ResumeGate()
+
+            @Sendable func finish(_ value: Bool) {
+                guard gate.tryResume() else { return }
+                connection.cancel()
+                continuation.resume(returning: value)
+            }
+
+            connection.stateUpdateHandler = { state in
+                switch state {
+                case .ready:
+                    finish(true)
+                case .failed(_), .cancelled:
+                    finish(false)
+                default:
+                    break
+                }
+            }
+
+            connection.start(queue: queue)
+            queue.asyncAfter(deadline: .now() + timeout) {
+                finish(false)
+            }
+        }
+    }
+
+    private final class ResumeGate: @unchecked Sendable {
+        private let lock = NSLock()
+        private var hasResumed = false
+
+        func tryResume() -> Bool {
+            lock.lock()
+            defer { lock.unlock() }
+            guard !hasResumed else { return false }
+            hasResumed = true
+            return true
+        }
     }
 }

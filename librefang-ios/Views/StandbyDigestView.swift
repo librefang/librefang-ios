@@ -178,30 +178,7 @@ struct StandbyDigestView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    NavigationLink {
-                        OnCallView()
-                    } label: {
-                        Label("On Call", systemImage: "waveform.path.ecg")
-                    }
-
-                    NavigationLink(value: OnCallRoute.incidents) {
-                        Label("Incidents", systemImage: "bell.badge")
-                    }
-
-                    NavigationLink {
-                        HandoffCenterView(
-                            summary: handoffText,
-                            queueCount: priorityItems.count,
-                            criticalCount: criticalCount,
-                            liveAlertCount: visibleAlerts.count
-                        )
-                    } label: {
-                        Label("Handoff", systemImage: "text.badge.plus")
-                    }
-                }
-            } label: {
-                Image(systemName: "ellipsis.circle")
+                trailingMenu
             }
         }
         .navigationDestination(for: OnCallRoute.self) { route in
@@ -217,6 +194,34 @@ struct StandbyDigestView: View {
             } else {
                 syncWatchlist()
             }
+        }
+    }
+
+    @ViewBuilder
+    private var trailingMenu: some View {
+        Menu {
+            NavigationLink {
+                OnCallView()
+            } label: {
+                Label("On Call", systemImage: "waveform.path.ecg")
+            }
+
+            NavigationLink(value: OnCallRoute.incidents) {
+                Label("Incidents", systemImage: "bell.badge")
+            }
+
+            NavigationLink {
+                HandoffCenterView(
+                    summary: handoffText,
+                    queueCount: priorityItems.count,
+                    criticalCount: criticalCount,
+                    liveAlertCount: visibleAlerts.count
+                )
+            } label: {
+                Label("Handoff", systemImage: "text.badge.plus")
+            }
+        } label: {
+            Image(systemName: "ellipsis.circle")
         }
     }
 

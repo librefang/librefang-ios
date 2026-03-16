@@ -4,6 +4,26 @@ private enum AgentDeliveriesSectionAnchor: Hashable {
     case receipts
 }
 
+enum DeliveryScope: String, CaseIterable {
+    case all, failed, unsettled
+
+    var label: String {
+        switch self {
+        case .all: return String(localized: "All")
+        case .failed: return String(localized: "Failed")
+        case .unsettled: return String(localized: "Unsettled")
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .all: return "tray"
+        case .failed: return "exclamationmark.octagon"
+        case .unsettled: return "clock.badge.exclamationmark"
+        }
+    }
+}
+
 struct AgentDeliveriesView: View {
     let agent: Agent
     let initialReceipts: [DeliveryReceipt]

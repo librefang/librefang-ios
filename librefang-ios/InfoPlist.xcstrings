@@ -41,6 +41,18 @@
           }
         }
       }
+    },
+    "NSLocalNetworkUsageDescription" : {
+      "comment" : "Privacy - Local Network Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "librefang needs local network access to connect to your monitoring server and on-call services on this LAN."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

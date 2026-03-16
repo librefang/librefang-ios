@@ -31,6 +31,30 @@ struct ApprovalsView: View {
     private var trimmedSearchText: String {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    private var filteredApprovals: [ApprovalItem] {
+        var base = vm.approvals
+        
+        switch filter {
+        case .all:
+            break
+        case .critical:
+            base = base.filter { $0.isCriticalRisk }
+        case .high:
+            base = base.filter { $0.isHighRiskOrAbove }
+        }
+        
+        let query = trimmedSearchText.lowercased()
+        if !query.isEmpty {
+            base = base.filter {
+                $0.agentName.localizedCaseInsensitiveContains(query) ||
+                $0.toolName.localizedCaseInsensitiveContains(query) ||
+                $0.actionSummary.localizedCaseInsensitiveContains(query)
+            }
+        }
+        
+        return base
+    }
     var body: some View {
         List {
             FlowLayout(spacing: 8) {

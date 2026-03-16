@@ -109,7 +109,9 @@ actor APIClient: APIClientProtocol {
     init(config: ServerConfig) {
         self.config = config
         let sessionConfig = URLSessionConfiguration.default
+        sessionConfig.waitsForConnectivity = false
         sessionConfig.timeoutIntervalForRequest = 30
+        sessionConfig.timeoutIntervalForResource = 30
         self.session = URLSession(configuration: sessionConfig)
     }
 
@@ -120,15 +122,15 @@ actor APIClient: APIClientProtocol {
     // MARK: - Public API
 
     func health() async throws -> HealthStatus {
-        try await get("/api/health")
+        try await get("/api/health", timeout: 5)
     }
 
     func status() async throws -> SystemStatus {
-        try await get("/api/status")
+        try await get("/api/status", timeout: 5)
     }
 
     func agents() async throws -> [Agent] {
-        try await get("/api/agents")
+        try await get("/api/agents", timeout: 5)
     }
 
     func budget() async throws -> BudgetOverview {
@@ -409,8 +411,8 @@ actor APIClient: APIClientProtocol {
 
     // MARK: - Private Networking
 
-    private func get<T: Decodable>(_ path: String) async throws -> T {
-        let request = try buildRequest(path: path, method: "GET")
+    private func get<T: Decodable>(_ path: String, timeout: TimeInterval? = nil) async throws -> T {
+        let request = try buildRequest(path: path, method: "GET", timeout: timeout)
         return try await perform(request)
     }
 
@@ -438,13 +440,16 @@ actor APIClient: APIClientProtocol {
         return try await perform(request)
     }
 
-    private func buildRequest(path: String, method: String) throws -> URLRequest {
+    private func buildRequest(path: String, method: String, timeout: TimeInterval? = nil) throws -> URLRequest {
         let base = config.baseURL.trimmingCharacters(in: .init(charactersIn: "/"))
         guard let url = URL(string: base + path) else {
             throw APIError.invalidURL
         }
         var request = URLRequest(url: url)
         request.httpMethod = method
+        if let timeout {
+            request.timeoutInterval = timeout
+        }
         if !config.apiKey.isEmpty {
             request.setValue("Bearer \(config.apiKey)", forHTTPHeaderField: "Authorization")
         }

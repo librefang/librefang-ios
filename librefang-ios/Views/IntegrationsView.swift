@@ -366,28 +366,14 @@ struct IntegrationsView: View {
                     Section {
                         integrationsFocusSection(proxy)
                     }
+                }
 
                 if !filteredProviders.isEmpty {
                     Section {
                         IntegrationProvidersSnapshotCard(
                             providers: filteredProviders
                         )
-                        IntegrationsProviderSectionInventoryDeck(
-                            visibleCount: filteredProviders.count,
-                            configuredCount: configuredProviderCount,
-                            localCount: localProviderCount,
-                            unreachableLocalCount: unreachableFilteredProviderCount,
-                            discoveredModelCount: discoveredProviderModelCount,
-                            isTesting: providerProbeInFlightID != nil,
-                            hasSearchScope: !normalizedSearchText.isEmpty
-                        )
-                        MonitoringSectionPreviewDeck(
-                            title: String(localized: "Section Preview"),
-                            detail: String(localized: "Keep the next provider stack visible before the full provider diagnostics rows open up."),
-                            sectionTitles: [String(localized: "Providers")],
-                            tone: providerAttentionCount > 0 ? .warning : .neutral,
-                            maxVisibleSections: 5
-                        )
+
 
                         ForEach(filteredProviders) { provider in
                             IntegrationProviderRow(
@@ -412,22 +398,7 @@ struct IntegrationsView: View {
                         IntegrationChannelsSnapshotCard(
                             channels: filteredChannels
                         )
-                        IntegrationsChannelSectionInventoryDeck(
-                            visibleCount: filteredChannels.count,
-                            readyCount: readyChannelCount,
-                            missingCredentialCount: missingCredentialChannelCount,
-                            missingRequiredFieldCount: missingRequiredFieldCount,
-                            quickSetupCount: quickSetupChannelCount,
-                            isTesting: channelProbeInFlightID != nil,
-                            hasSearchScope: !normalizedSearchText.isEmpty
-                        )
-                        MonitoringSectionPreviewDeck(
-                            title: String(localized: "Section Preview"),
-                            detail: String(localized: "Keep the next channel stack visible before the credential and delivery rows open up."),
-                            sectionTitles: [String(localized: "Channels")],
-                            tone: channelAttentionCount > 0 ? .warning : .neutral,
-                            maxVisibleSections: 5
-                        )
+
 
                         ForEach(filteredChannels) { channel in
                             IntegrationChannelRow(

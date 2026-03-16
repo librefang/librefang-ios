@@ -181,7 +181,7 @@ private struct DiagnosticsMetricRow: View {
 
     let label: String
     let value: String
-    let detail: String?
+    var detail: String? = nil
 
     var body: some View {
         ResponsiveValueRow(horizontalSpacing: 10) {

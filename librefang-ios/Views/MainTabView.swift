@@ -15,7 +15,7 @@ struct MainTabView: View {
     @State private var watchedDiagnosticsRefreshTask: Task<Void, Never>?
     @State private var presentedTarget: AppShortcutLaunchTarget?
     @State private var incidentCue: ActiveIncidentCue?
-    @State private var hasObservedCriticalState = false
+    @State private var criticalCueBaseline: CriticalTrackingState?
     @State private var handoffCue: ActiveHandoffCue?
     @State private var hasObservedCheckInState = false
 
@@ -35,9 +35,7 @@ struct MainTabView: View {
     private var visibleCriticalAlertCount: Int {
         visibleCriticalAlerts.count
     }
-    private var overviewTabSignalCount: Int {
-        visibleCriticalAlertCount + watchedIssueCount
-    }
+
     private var handoffCheckInStatus: HandoffCheckInStatus? {
         deps.onCallHandoffStore.latestCheckInStatus
     }
@@ -128,38 +126,7 @@ struct MainTabView: View {
             handoffFollowUpStatuses: latestFollowUpStatuses
         )
     }
-    private var overlaySummaryLine: String {
-        if !deps.networkMonitor.isConnected {
-            return String(localized: "Monitoring data may be stale while this iPhone is offline.")
-        }
-        if visibleCriticalAlertCount > 0 {
-            return visibleCriticalAlertCount == 1
-                ? String(localized: "A critical incident is active and ready for triage.")
-                : String(localized: "\(visibleCriticalAlertCount) critical incidents are active and ready for triage.")
-        }
-        if let handoffBannerStatus {
-            return handoffBannerStatus.summary
-        }
-        if pendingLatestFollowUpCount > 0 {
-            return pendingLatestFollowUpCount == 1
-                ? String(localized: "1 handoff follow-up is still open on this phone.")
-                : String(localized: "\(pendingLatestFollowUpCount) handoff follow-ups are still open on this phone.")
-        }
-        return String(localized: "Use the current snapshot to jump straight into the most relevant surface.")
-    }
 
-    private var shouldShowOverlayDeck: Bool {
-        !deps.networkMonitor.isConnected
-    }
-    private var overlaySectionCount: Int {
-        [
-            !deps.networkMonitor.isConnected || visibleCriticalAlertCount > 0 || handoffBannerStatus != nil,
-            (incidentCue != nil && showsForegroundCues) || (handoffCue != nil && showsForegroundCues),
-            shouldShowOverlayDeck
-        ]
-        .filter { $0 }
-        .count
-    }
 
     var body: some View {
         presentedMainContent
@@ -208,6 +175,7 @@ struct MainTabView: View {
             .onChange(of: isCurrentSnapshotAcknowledged) { _, isAcknowledged in
                 if isAcknowledged {
                     incidentCue = nil
+                    criticalCueBaseline = criticalTrackingState
                 }
             }
             .onChange(of: showsForegroundCues) { _, isEnabled in
@@ -215,6 +183,7 @@ struct MainTabView: View {
                     incidentCue = nil
                     handoffCue = nil
                 }
+                criticalCueBaseline = criticalTrackingState
             }
             .onChange(of: scenePhase) { _, newPhase in
                 handleScenePhaseChange(newPhase)
@@ -323,9 +292,7 @@ struct MainTabView: View {
         vm.runtimeAlertCount
     }
 
-    private var settingsTabSignalCount: Int {
-        pendingLatestFollowUpCount + activeMutedAlertCount
-    }
+
 
     private var storedRefreshInterval: TimeInterval {
         let value = UserDefaults.standard.double(forKey: "refreshInterval")
@@ -501,35 +468,39 @@ struct MainTabView: View {
         }
     }
 
-    private func handleCriticalTrackingChange(from oldValue: CriticalTrackingState, to newValue: CriticalTrackingState) {
-        guard scenePhase == .active else {
-            hasObservedCriticalState = true
+    private func handleCriticalTrackingChange(from _: CriticalTrackingState, to newValue: CriticalTrackingState) {
+        guard scenePhase == .active, !vm.isLoading, vm.hasCompletedSupplementalRefresh else {
+            incidentCue = nil
+            criticalCueBaseline = newValue
             return
         }
 
         guard showsForegroundCues else {
             incidentCue = nil
-            hasObservedCriticalState = true
+            criticalCueBaseline = newValue
             return
         }
 
-        guard hasObservedCriticalState else {
-            hasObservedCriticalState = true
+        guard let baseline = criticalCueBaseline else {
+            criticalCueBaseline = newValue
             return
         }
 
         guard !isCurrentSnapshotAcknowledged else {
             incidentCue = nil
+            criticalCueBaseline = newValue
             return
         }
 
         guard newValue.count > 0 else {
             incidentCue = nil
+            criticalCueBaseline = newValue
             return
         }
 
-        let queueIntensified = newValue.count >= oldValue.count
-        let queueChanged = newValue.signature != oldValue.signature
+        let queueIntensified = newValue.count >= baseline.count
+        let queueChanged = newValue.signature != baseline.signature
+        criticalCueBaseline = newValue
 
         guard queueChanged, queueIntensified else { return }
 
@@ -538,14 +509,24 @@ struct MainTabView: View {
         let followUpPrompt = String(localized: "Open the on-call surface to inspect the latest pressure.")
         incidentCue = ActiveIncidentCue(
             id: newValue.signature,
-            title: newValue.count == 1
-                ? (leadAlert?.title ?? String(localized: "Critical incident changed"))
-                : String(localized: "\(newValue.count) critical incidents changed"),
+            title: criticalCueTitle(for: newValue.count, leadAlert: leadAlert),
             detail: newValue.count == 1
                 ? (leadAlert?.detail ?? String(localized: "Open the on-call surface to review the new state."))
                 : [leadAlert?.title ?? fallbackLeadTitle, followUpPrompt].joined(separator: " · ")
         )
         HapticManager.notification(.error)
+    }
+
+    private func criticalCueTitle(for count: Int, leadAlert: MonitoringAlertItem?) -> String {
+        guard count > 1 else {
+            return leadAlert?.title ?? String(localized: "Critical incident changed")
+        }
+
+        return String(
+            format: String(localized: "%lld critical incidents changed"),
+            locale: Locale.current,
+            count
+        )
     }
 
     private func handleHandoffCheckInChange(from oldValue: HandoffCheckInTrackingState, to newValue: HandoffCheckInTrackingState) {
@@ -730,6 +711,7 @@ struct MainTabView: View {
         cancelPendingShortcutRetry()
     }
 
+    @MainActor
     private func handleMainViewAppear() {
         suspendRoutePresentation()
         deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
@@ -739,6 +721,7 @@ struct MainTabView: View {
         scheduleWatchedAgentDiagnosticsRefresh()
     }
 
+    @MainActor
     private func handleScenePhaseChange(_ newPhase: ScenePhase) {
         switch newPhase {
         case .active:
@@ -819,113 +802,8 @@ struct MainTabView: View {
         pendingShortcutRetryTask = nil
     }
 
-    private var overlayQuickActions: [OperatorOverlayQuickAction] {
-        var actions = [
-            OperatorOverlayQuickAction(
-                title: preferredOnCallSurface.label,
-                systemImage: preferredSurfaceSymbolName,
-                tone: visibleCriticalAlertCount > 0 ? .critical : .neutral,
-                priority: .primary,
-                isCritical: visibleCriticalAlertCount > 0,
-                badgeText: visibleCriticalAlertCount > 0
-                    ? (visibleCriticalAlertCount == 1 ? String(localized: "1 critical") : String(localized: "\(visibleCriticalAlertCount) critical"))
-                    : nil,
-                action: openPreferredSurface
-            )
-        ]
-
-        if visibleMonitoringAlerts.count > 0 {
-            actions.append(
-                OperatorOverlayQuickAction(
-                    title: String(localized: "Incidents"),
-                    systemImage: "bell.badge",
-                    tone: visibleCriticalAlertCount > 0 ? .critical : .warning,
-                    priority: .primary,
-                    isCritical: visibleCriticalAlertCount > 0,
-                    badgeText: visibleMonitoringAlerts.count == 1
-                        ? String(localized: "1 alert")
-                        : String(localized: "\(visibleMonitoringAlerts.count) alerts"),
-                    action: { openSurface(.incidents) }
-                )
-            )
-        }
-
-        if vm.pendingApprovalCount > 0 {
-            actions.append(
-                OperatorOverlayQuickAction(
-                    title: String(localized: "Approvals"),
-                    systemImage: "checkmark.shield",
-                    tone: .warning,
-                    priority: .primary,
-                    badgeText: vm.pendingApprovalCount == 1
-                        ? String(localized: "1 pending")
-                        : String(localized: "\(vm.pendingApprovalCount) pending"),
-                    action: { openSurface(.approvals) }
-                )
-            )
-        }
-
-        if handoffBannerStatus != nil || pendingLatestFollowUpCount > 0 {
-            actions.append(
-                OperatorOverlayQuickAction(
-                    title: String(localized: "Handoff"),
-                    systemImage: "person.2.wave.2",
-                    tone: handoffBannerStatus?.state == .overdue ? .critical : .warning,
-                    priority: .primary,
-                    isCritical: handoffBannerStatus?.state == .overdue,
-                    badgeText: pendingLatestFollowUpCount > 0
-                        ? (pendingLatestFollowUpCount == 1 ? String(localized: "1 open") : String(localized: "\(pendingLatestFollowUpCount) open"))
-                        : nil,
-                    action: openHandoffCenter
-                )
-            )
-        }
-
-        if vm.sessionAttentionCount > 0 {
-            actions.append(
-                OperatorOverlayQuickAction(
-                    title: String(localized: "Sessions"),
-                    systemImage: "text.bubble",
-                    tone: .warning,
-                    priority: .support,
-                    badgeText: vm.sessionAttentionCount == 1
-                        ? String(localized: "1 hotspot")
-                        : String(localized: "\(vm.sessionAttentionCount) hotspots"),
-                    action: { _ = openRoute(.sessionsAttention, respectingPresentationGate: false) }
-                )
-            )
-        }
-
-        if !deps.networkMonitor.isConnected || vm.runtimeAlertCount > 0 {
-            actions.append(
-                OperatorOverlayQuickAction(
-                    title: String(localized: "Diagnostics"),
-                    systemImage: "stethoscope",
-                    tone: !deps.networkMonitor.isConnected ? .critical : .warning,
-                    priority: .support,
-                    isCritical: !deps.networkMonitor.isConnected,
-                    badgeText: vm.runtimeAlertCount > 0
-                        ? (vm.runtimeAlertCount == 1 ? String(localized: "1 issue") : String(localized: "\(vm.runtimeAlertCount) issues"))
-                        : nil,
-                    action: { openSurface(.diagnostics) }
-                )
-            )
-        }
-
-        return actions
-    }
-
-    private var preferredSurfaceSymbolName: String {
-        switch preferredOnCallSurface {
-        case .onCall:
-            return "waveform.path.ecg"
-        case .nightWatch:
-            return "moon.stars"
-        case .standbyDigest:
-            return "rectangle.compress.vertical"
-        }
-    }
 }
+
 
 private struct CriticalTrackingState: Equatable {
     let count: Int
@@ -950,866 +828,9 @@ private struct ActiveHandoffCue: Identifiable, Equatable {
     let detail: String
 }
 
-private struct OperatorOverlayDeck: View {
-    let summary: String
-    let sectionCount: Int
-    let criticalCount: Int
-    let approvalCount: Int
-    let watchIssueCount: Int
-    let sessionCount: Int
-    let pendingFollowUpCount: Int
-    let mutedAlertCount: Int
-    let preferredSurfaceLabel: String
-    let isOffline: Bool
-    let isSnapshotAcknowledged: Bool
-    let overviewCount: Int
-    let agentsCount: Int
-    let runtimeCount: Int
-    let budgetCount: Int
-    let settingsCount: Int
-    let actions: [OperatorOverlayQuickAction]
 
-    private var primaryActions: [OperatorOverlayQuickAction] {
-        actions.filter { $0.priority == .primary }
-    }
+// MARK: - Banners
 
-    private var supportActions: [OperatorOverlayQuickAction] {
-        actions.filter { $0.priority == .support }
-    }
-
-    private var badgedActionCount: Int {
-        actions.filter(\.hasBadge).count
-    }
-
-    private var criticalActionCount: Int {
-        actions.filter(\.isCritical).count
-    }
-
-    private var tabSignalCount: Int {
-        [overviewCount, agentsCount, runtimeCount, budgetCount, settingsCount]
-            .filter { $0 > 0 }
-            .count
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalSpacing: 10, verticalSpacing: 6) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Quick Actions"))
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-
-                    Text(summary)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            } accessory: {
-                GlassCapsuleBadge(
-                    text: preferredSurfaceLabel,
-                    foregroundStyle: .secondary,
-                    backgroundOpacity: 0.08
-                )
-            }
-
-            OperatorOverlayInventoryDeck(
-                preferredSurfaceLabel: preferredSurfaceLabel,
-                isOffline: isOffline,
-                primaryActionCount: primaryActions.count,
-                supportActionCount: supportActions.count,
-                badgedActionCount: badgedActionCount,
-                criticalActionCount: criticalActionCount
-            )
-
-            OperatorOverlaySectionDeck(
-                sectionCount: sectionCount,
-                isOffline: isOffline,
-                hasActions: !primaryActions.isEmpty || !supportActions.isEmpty,
-                criticalCount: criticalCount,
-                approvalCount: approvalCount,
-                watchIssueCount: watchIssueCount,
-                sessionCount: sessionCount,
-                pendingFollowUpCount: pendingFollowUpCount
-            )
-
-            if tabSignalCount > 0 {
-                OperatorOverlayTabDeck(
-                    overviewCount: overviewCount,
-                    agentsCount: agentsCount,
-                    runtimeCount: runtimeCount,
-                    budgetCount: budgetCount,
-                    settingsCount: settingsCount
-                )
-            }
-
-            OperatorOverlayPressureDeck(
-                isOffline: isOffline,
-                criticalCount: criticalCount,
-                approvalCount: approvalCount,
-                watchIssueCount: watchIssueCount,
-                sessionCount: sessionCount,
-                pendingFollowUpCount: pendingFollowUpCount
-            )
-
-            OperatorOverlayActionReadinessDeck(
-                preferredSurfaceLabel: preferredSurfaceLabel,
-                primaryActionCount: primaryActions.count,
-                supportActionCount: supportActions.count,
-                badgedActionCount: badgedActionCount,
-                criticalActionCount: criticalActionCount,
-                tabSignalCount: tabSignalCount,
-                isOffline: isOffline,
-                isSnapshotAcknowledged: isSnapshotAcknowledged,
-                mutedAlertCount: mutedAlertCount,
-                pendingFollowUpCount: pendingFollowUpCount
-            )
-            OperatorOverlayFocusCoverageDeck(
-                preferredSurfaceLabel: preferredSurfaceLabel,
-                tabSignalCount: tabSignalCount,
-                criticalCount: criticalCount,
-                approvalCount: approvalCount,
-                watchIssueCount: watchIssueCount,
-                sessionCount: sessionCount,
-                mutedAlertCount: mutedAlertCount,
-                pendingFollowUpCount: pendingFollowUpCount,
-                isOffline: isOffline
-            )
-            OperatorOverlayWorkstreamCoverageDeck(
-                preferredSurfaceLabel: preferredSurfaceLabel,
-                tabSignalCount: tabSignalCount,
-                criticalCount: criticalCount,
-                approvalCount: approvalCount,
-                watchIssueCount: watchIssueCount,
-                sessionCount: sessionCount,
-                mutedAlertCount: mutedAlertCount,
-                pendingFollowUpCount: pendingFollowUpCount,
-                isOffline: isOffline
-            )
-
-            if !primaryActions.isEmpty || !supportActions.isEmpty {
-                OperatorOverlayRouteDeck(
-                    preferredSurfaceLabel: preferredSurfaceLabel,
-                    isOffline: isOffline,
-                    primaryActions: primaryActions,
-                    supportActions: supportActions,
-                    badgedActionCount: badgedActionCount,
-                    criticalActionCount: criticalActionCount
-                )
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-private struct OperatorOverlayTabDeck: View {
-    let overviewCount: Int
-    let agentsCount: Int
-    let runtimeCount: Int
-    let budgetCount: Int
-    let settingsCount: Int
-
-    private var liveTabCount: Int {
-        [overviewCount, agentsCount, runtimeCount, budgetCount, settingsCount]
-            .filter { $0 > 0 }
-            .count
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalSpacing: 10, verticalSpacing: 6) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Tab coverage"))
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Text(String(localized: "Keep tab-level pressure readable before jumping into the next monitor surface."))
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            } accessory: {
-                GlassCapsuleBadge(
-                    text: liveTabCount == 1 ? String(localized: "1 live tab") : String(localized: "\(liveTabCount) live tabs"),
-                    foregroundStyle: .secondary,
-                    backgroundOpacity: 0.08
-                )
-            }
-
-            FlowLayout(spacing: 8) {
-                if overviewCount > 0 {
-                    tabBadge(title: String(localized: "Overview"), count: overviewCount)
-                }
-                if agentsCount > 0 {
-                    tabBadge(title: String(localized: "Agents"), count: agentsCount)
-                }
-                if runtimeCount > 0 {
-                    tabBadge(title: String(localized: "Runtime"), count: runtimeCount)
-                }
-                if budgetCount > 0 {
-                    tabBadge(title: String(localized: "Budget"), count: budgetCount)
-                }
-                if settingsCount > 0 {
-                    tabBadge(title: String(localized: "Settings"), count: settingsCount)
-                }
-            }
-        }
-    }
-
-    private func tabBadge(title: String, count: Int) -> some View {
-        GlassCapsuleBadge(
-            text: count == 1 ? String(localized: "\(title) 1 issue") : String(localized: "\(title) \(count) issues"),
-            foregroundStyle: .primary,
-            backgroundOpacity: 0.10
-        )
-    }
-}
-
-private struct OperatorOverlaySectionDeck: View {
-    let sectionCount: Int
-    let isOffline: Bool
-    let hasActions: Bool
-    let criticalCount: Int
-    let approvalCount: Int
-    let watchIssueCount: Int
-    let sessionCount: Int
-    let pendingFollowUpCount: Int
-
-    private var activePressureCount: Int {
-        [
-            isOffline,
-            criticalCount > 0,
-            approvalCount > 0,
-            watchIssueCount > 0,
-            sessionCount > 0,
-            pendingFollowUpCount > 0
-        ]
-        .filter { $0 }
-        .count
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalSpacing: 10, verticalSpacing: 6) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Section inventory"))
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Text(String(localized: "Keep overlay coverage readable before the quick-action rails and pressure badges."))
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            } accessory: {
-                GlassCapsuleBadge(
-                    text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
-                    foregroundStyle: .secondary,
-                    backgroundOpacity: 0.08
-                )
-            }
-
-            FlowLayout(spacing: 8) {
-                GlassCapsuleBadge(
-                    text: activePressureCount == 1 ? String(localized: "1 pressure bucket") : String(localized: "\(activePressureCount) pressure buckets"),
-                    foregroundStyle: .primary,
-                    backgroundOpacity: 0.10
-                )
-                if hasActions {
-                    GlassCapsuleBadge(
-                        text: String(localized: "Actions ready"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if isOffline {
-                    GlassCapsuleBadge(
-                        text: String(localized: "Offline banner"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-            }
-        }
-    }
-}
-
-private struct OperatorOverlayInventoryDeck: View {
-    let preferredSurfaceLabel: String
-    let isOffline: Bool
-    let primaryActionCount: Int
-    let supportActionCount: Int
-    let badgedActionCount: Int
-    let criticalActionCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ResponsiveAccessoryRow(horizontalSpacing: 10, verticalSpacing: 6) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Route inventory"))
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Text(String(localized: "Keep the preferred surface and quick-action split readable before opening the full monitor surface."))
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            } accessory: {
-                GlassCapsuleBadge(
-                    text: preferredSurfaceLabel,
-                    foregroundStyle: .secondary,
-                    backgroundOpacity: 0.08
-                )
-            }
-
-            FlowLayout(spacing: 8) {
-                GlassCapsuleBadge(
-                    text: primaryActionCount == 1 ? String(localized: "1 primary") : String(localized: "\(primaryActionCount) primary"),
-                    foregroundStyle: .primary,
-                    backgroundOpacity: 0.10
-                )
-                if supportActionCount > 0 {
-                    GlassCapsuleBadge(
-                        text: supportActionCount == 1 ? String(localized: "1 support") : String(localized: "\(supportActionCount) support"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if badgedActionCount > 0 {
-                    GlassCapsuleBadge(
-                        text: badgedActionCount == 1 ? String(localized: "1 badged") : String(localized: "\(badgedActionCount) badged"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if criticalActionCount > 0 {
-                    GlassCapsuleBadge(
-                        text: criticalActionCount == 1 ? String(localized: "1 urgent route") : String(localized: "\(criticalActionCount) urgent routes"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if isOffline {
-                    GlassCapsuleBadge(
-                        text: String(localized: "Offline fallback"),
-                        foregroundStyle: .primary,
-                        backgroundOpacity: 0.10
-                    )
-                }
-            }
-        }
-    }
-}
-
-private struct OperatorOverlayPressureDeck: View {
-    let isOffline: Bool
-    let criticalCount: Int
-    let approvalCount: Int
-    let watchIssueCount: Int
-    let sessionCount: Int
-    let pendingFollowUpCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(String(localized: "Pressure"))
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            FlowLayout(spacing: 8) {
-                if isOffline {
-                    pressureBadge(String(localized: "Offline"))
-                }
-                if criticalCount > 0 {
-                    pressureBadge(criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"))
-                }
-                if approvalCount > 0 {
-                    pressureBadge(approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"))
-                }
-                if watchIssueCount > 0 {
-                    pressureBadge(watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"))
-                }
-                if sessionCount > 0 {
-                    pressureBadge(sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"))
-                }
-                if pendingFollowUpCount > 0 {
-                    pressureBadge(pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"))
-                }
-            }
-        }
-    }
-
-    private func pressureBadge(_ text: String) -> some View {
-        GlassCapsuleBadge(
-            text: text,
-            foregroundStyle: .primary,
-            backgroundOpacity: 0.10
-        )
-    }
-}
-
-private struct OperatorOverlayActionReadinessDeck: View {
-    let preferredSurfaceLabel: String
-    let primaryActionCount: Int
-    let supportActionCount: Int
-    let badgedActionCount: Int
-    let criticalActionCount: Int
-    let tabSignalCount: Int
-    let isOffline: Bool
-    let isSnapshotAcknowledged: Bool
-    let mutedAlertCount: Int
-    let pendingFollowUpCount: Int
-
-    private var totalActionCount: Int {
-        primaryActionCount + supportActionCount
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to check whether the preferred surface, overlay exits, and follow-through actions are ready before opening the larger route groups."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: preferredSurfaceLabel,
-                        tone: isOffline ? .warning : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: isSnapshotAcknowledged ? String(localized: "Snapshot acknowledged") : String(localized: "Snapshot live"),
-                        tone: isSnapshotAcknowledged ? .positive : .warning
-                    )
-                    PresentationToneBadge(
-                        text: totalActionCount == 1 ? String(localized: "1 route ready") : String(localized: "\(totalActionCount) routes ready"),
-                        tone: totalActionCount > 0 ? .positive : .neutral
-                    )
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Action readiness"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep overlay route breadth, snapshot state, and follow-up readiness visible before opening the primary and support exits."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: tabSignalCount == 1 ? String(localized: "1 live tab") : String(localized: "\(tabSignalCount) live tabs"),
-                    tone: tabSignalCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                Label(
-                    primaryActionCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryActionCount) primary routes"),
-                    systemImage: "arrowshape.turn.up.right"
-                )
-                if supportActionCount > 0 {
-                    Label(
-                        supportActionCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportActionCount) support routes"),
-                        systemImage: "square.grid.2x2"
-                    )
-                }
-                if criticalActionCount > 0 {
-                    Label(
-                        criticalActionCount == 1 ? String(localized: "1 urgent route") : String(localized: "\(criticalActionCount) urgent routes"),
-                        systemImage: "exclamationmark.triangle"
-                    )
-                }
-                if badgedActionCount > 0 {
-                    Label(
-                        badgedActionCount == 1 ? String(localized: "1 counted route") : String(localized: "\(badgedActionCount) counted routes"),
-                        systemImage: "number"
-                    )
-                }
-                if mutedAlertCount > 0 {
-                    Label(
-                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
-                        systemImage: "bell.slash"
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    Label(
-                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
-                        systemImage: "checklist.unchecked"
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if isOffline {
-            return String(localized: "Overlay action readiness is currently anchored by offline recovery and fallback routes.")
-        }
-        if criticalActionCount > 0 {
-            return String(localized: "Overlay action readiness is currently anchored by urgent exits from the active snapshot.")
-        }
-        if pendingFollowUpCount > 0 || mutedAlertCount > 0 {
-            return String(localized: "Overlay action readiness is currently anchored by follow-up and muted-alert follow-through.")
-        }
-        return String(localized: "Overlay action readiness is currently centered on the preferred surface and nearby operator exits.")
-    }
-}
-
-private struct OperatorOverlayFocusCoverageDeck: View {
-    let preferredSurfaceLabel: String
-    let tabSignalCount: Int
-    let criticalCount: Int
-    let approvalCount: Int
-    let watchIssueCount: Int
-    let sessionCount: Int
-    let mutedAlertCount: Int
-    let pendingFollowUpCount: Int
-    let isOffline: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to keep the dominant overlay lane readable before opening the broader primary and support route groups."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(text: preferredSurfaceLabel, tone: .neutral)
-                    PresentationToneBadge(
-                        text: tabSignalCount == 1 ? String(localized: "1 live tab") : String(localized: "\(tabSignalCount) live tabs"),
-                        tone: tabSignalCount > 0 ? .warning : .neutral
-                    )
-                    if isOffline {
-                        PresentationToneBadge(text: String(localized: "Offline"), tone: .warning)
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Focus coverage"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep the dominant overlay lane readable before moving from the top overlay summary into quick-action exits."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                    tone: criticalCount > 0 ? .critical : .neutral
-                )
-            } facts: {
-                if approvalCount > 0 {
-                    Label(
-                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                        systemImage: "checkmark.shield"
-                    )
-                }
-                if watchIssueCount > 0 {
-                    Label(
-                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                        systemImage: "star.fill"
-                    )
-                }
-                if sessionCount > 0 {
-                    Label(
-                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
-                        systemImage: "text.bubble"
-                    )
-                }
-                if mutedAlertCount > 0 {
-                    Label(
-                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
-                        systemImage: "bell.slash"
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    Label(
-                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
-                        systemImage: "checklist.unchecked"
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if isOffline {
-            return String(localized: "Overlay focus coverage is currently anchored by offline recovery.")
-        }
-        if criticalCount > 0 || approvalCount > 0 || sessionCount > 0 {
-            return String(localized: "Overlay focus coverage is currently anchored by live triage pressure.")
-        }
-        if watchIssueCount > 0 || mutedAlertCount > 0 || pendingFollowUpCount > 0 {
-            return String(localized: "Overlay focus coverage is currently anchored by watch, muted-alert, and follow-up drag.")
-        }
-        return String(localized: "Overlay focus coverage is currently centered on the preferred surface and nearby tabs.")
-    }
-}
-
-private struct OperatorOverlayWorkstreamCoverageDeck: View {
-    let preferredSurfaceLabel: String
-    let tabSignalCount: Int
-    let criticalCount: Int
-    let approvalCount: Int
-    let watchIssueCount: Int
-    let sessionCount: Int
-    let mutedAlertCount: Int
-    let pendingFollowUpCount: Int
-    let isOffline: Bool
-
-    private var activeLaneCount: Int {
-        [
-            criticalCount > 0,
-            approvalCount > 0,
-            watchIssueCount > 0,
-            sessionCount > 0,
-            mutedAlertCount > 0,
-            pendingFollowUpCount > 0,
-            isOffline
-        ].filter { $0 }.count
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to see whether the overlay is currently led by live triage, follow-through drag, or offline recovery before opening the route groups."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(text: preferredSurfaceLabel, tone: .neutral)
-                    PresentationToneBadge(
-                        text: tabSignalCount == 1 ? String(localized: "1 live tab") : String(localized: "\(tabSignalCount) live tabs"),
-                        tone: tabSignalCount > 0 ? .warning : .neutral
-                    )
-                    if isOffline {
-                        PresentationToneBadge(text: String(localized: "Offline"), tone: .warning)
-                    } else if criticalCount > 0 {
-                        PresentationToneBadge(
-                            text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                            tone: .critical
-                        )
-                    } else if pendingFollowUpCount > 0 {
-                        PresentationToneBadge(
-                            text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
-                            tone: .warning
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Workstream coverage"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep live triage, watch drag, and follow-through pressure readable before moving from the overlay into deeper route groups."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: activeLaneCount == 1 ? String(localized: "1 active lane") : String(localized: "\(activeLaneCount) active lanes"),
-                    tone: activeLaneCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                if criticalCount > 0 {
-                    Label(
-                        criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                        systemImage: "exclamationmark.triangle"
-                    )
-                }
-                if approvalCount > 0 {
-                    Label(
-                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                        systemImage: "checkmark.shield"
-                    )
-                }
-                if watchIssueCount > 0 {
-                    Label(
-                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                        systemImage: "star.fill"
-                    )
-                }
-                if sessionCount > 0 {
-                    Label(
-                        sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
-                        systemImage: "text.bubble"
-                    )
-                }
-                if mutedAlertCount > 0 {
-                    Label(
-                        mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
-                        systemImage: "bell.slash"
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    Label(
-                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
-                        systemImage: "checklist.unchecked"
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if isOffline {
-            return String(localized: "Overlay workstream coverage is currently anchored by offline recovery.")
-        }
-        if criticalCount > 0 || approvalCount > 0 || sessionCount > 0 {
-            return String(localized: "Overlay workstream coverage is currently anchored by live triage pressure.")
-        }
-        if watchIssueCount > 0 || mutedAlertCount > 0 || pendingFollowUpCount > 0 {
-            return String(localized: "Overlay workstream coverage is currently anchored by watch drag and follow-through work.")
-        }
-        return String(localized: "Overlay workstream coverage is currently centered on the preferred surface and live tab context.")
-    }
-}
-
-private struct OperatorOverlayRouteDeck: View {
-    let preferredSurfaceLabel: String
-    let isOffline: Bool
-    let primaryActions: [OperatorOverlayQuickAction]
-    let supportActions: [OperatorOverlayQuickAction]
-    let badgedActionCount: Int
-    let criticalActionCount: Int
-
-    private var totalRouteCount: Int {
-        primaryActions.count + supportActions.count
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Keep the preferred surface, urgent drilldowns, and supporting operator exits reachable from the overlay without expanding the full monitoring stack."),
-                verticalPadding: 2
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: totalRouteCount == 1 ? String(localized: "1 live route") : String(localized: "\(totalRouteCount) live routes"),
-                        tone: .positive
-                    )
-                    PresentationToneBadge(
-                        text: primaryActions.count == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryActions.count) primary routes"),
-                        tone: primaryActions.isEmpty ? .neutral : .warning
-                    )
-                    if !supportActions.isEmpty {
-                        PresentationToneBadge(
-                            text: supportActions.count == 1 ? String(localized: "1 support route") : String(localized: "\(supportActions.count) support routes"),
-                            tone: .neutral
-                        )
-                    }
-                    if badgedActionCount > 0 {
-                        PresentationToneBadge(
-                            text: badgedActionCount == 1 ? String(localized: "1 counted route") : String(localized: "\(badgedActionCount) counted routes"),
-                            tone: .warning
-                        )
-                    }
-                    if criticalActionCount > 0 {
-                        PresentationToneBadge(
-                            text: criticalActionCount == 1 ? String(localized: "1 urgent route") : String(localized: "\(criticalActionCount) urgent routes"),
-                            tone: .critical
-                        )
-                    }
-                }
-            }
-
-            if !primaryActions.isEmpty {
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Primary routes"),
-                    detail: String(localized: "Anchor the overlay around the preferred surface, active incidents, approvals, and handoff recovery without leaving the top-level operator context.")
-                ) {
-                    MonitoringShortcutRail(
-                        title: String(localized: "Immediate exits"),
-                        detail: String(localized: "Use the routes with the most active pressure first.")
-                    ) {
-                        ForEach(primaryActions) { action in
-                            routeButton(action)
-                        }
-                    }
-                }
-            }
-
-            if !supportActions.isEmpty {
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Support routes"),
-                    detail: String(localized: "Keep supporting diagnostics and session drilldowns close when the overlay is carrying secondary pressure.")
-                ) {
-                    MonitoringShortcutRail(
-                        title: String(localized: "Support exits"),
-                        detail: String(localized: "Use these when the primary routes are stable but operator follow-through is still needed.")
-                    ) {
-                        ForEach(supportActions) { action in
-                            routeButton(action)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private func routeButton(_ action: OperatorOverlayQuickAction) -> some View {
-        Button(action: action.action) {
-            MonitoringSurfaceShortcutChip(
-                title: action.title,
-                systemImage: action.systemImage,
-                tone: action.tone,
-                badgeText: action.badgeText
-            )
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var summaryLine: String {
-        if isOffline {
-            return String(localized: "Overlay routes are currently anchored by offline recovery and fallback operator exits.")
-        }
-        if criticalActionCount > 0 {
-            return String(localized: "Overlay routes are currently anchored by urgent operator exits.")
-        }
-        if badgedActionCount > 0 {
-            return String(localized: "Overlay routes are currently anchored by counted live signals from the top monitor surfaces.")
-        }
-        return String(localized: "Overlay routes are currently centered on the preferred surface and nearby operator follow-through.")
-    }
-}
-
-private enum OperatorOverlayActionPriority {
-    case primary
-    case support
-}
-
-private struct OperatorOverlayQuickAction: Identifiable {
-    let id = UUID()
-    let title: String
-    let systemImage: String
-    let tone: PresentationTone
-    let priority: OperatorOverlayActionPriority
-    let isCritical: Bool
-    let badgeText: String?
-    let action: () -> Void
-
-    init(
-        title: String,
-        systemImage: String,
-        tone: PresentationTone,
-        priority: OperatorOverlayActionPriority,
-        isCritical: Bool = false,
-        badgeText: String?,
-        action: @escaping () -> Void
-    ) {
-        self.title = title
-        self.systemImage = systemImage
-        self.tone = tone
-        self.priority = priority
-        self.isCritical = isCritical
-        self.badgeText = badgeText
-        self.action = action
-    }
-
-    var hasBadge: Bool {
-        badgeText != nil
-    }
-}
 
 // MARK: - Offline Banner
 

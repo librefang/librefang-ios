@@ -77,6 +77,27 @@ struct EventsView: View {
             }
         }
     }
+
+    @ViewBuilder
+    private var eventsFeedSection: some View {
+        if !viewModel.entries.isEmpty {
+            Section {
+                if filteredEntries.isEmpty {
+                    ContentUnavailableView(
+                        String(localized: "No Matching Events"),
+                        systemImage: "magnifyingglass",
+                        description: Text(String(localized: "Try adjusting your search or severity filter."))
+                    )
+                } else {
+                    ForEach(filteredEntries) { entry in
+                        EventRow(entry: entry, agentName: agentName(for: entry.agentId))
+                    }
+                }
+            } header: {
+                Text(String(localized: "Event Feed"))
+            }
+        }
+    }
 }
 
 private struct EventRow: View {
