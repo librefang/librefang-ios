@@ -481,17 +481,13 @@ private struct WorkflowRunRow: View {
     }
 
     private var summaryBlock: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(run.workflowName)
-                .font(.subheadline.weight(.medium))
-            Text("Started \(relativeText(from: run.startedAt))")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
+        Text(run.workflowName)
+            .font(.subheadline.weight(.medium))
     }
 
     @ViewBuilder
     private var facts: some View {
+        Label("Started \(relativeText(from: run.startedAt))", systemImage: "clock")
         Label("\(run.stepsCompleted) steps", systemImage: "list.number")
         if let completedAt = run.completedAt {
             Label(relativeText(from: completedAt), systemImage: "clock")
@@ -533,18 +529,13 @@ private struct TriggerRow: View {
     }
 
     private var summaryBlock: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(trigger.patternSummary)
-                .font(.subheadline.weight(.medium))
-            Text(agentName ?? trigger.agentId)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-        }
+        Text(trigger.patternSummary)
+            .font(.subheadline.weight(.medium))
     }
 
     @ViewBuilder
     private var facts: some View {
+        Label(agentName ?? trigger.agentId, systemImage: "person")
         Label("\(trigger.fireCount) fires", systemImage: "bolt.circle")
         if trigger.maxFires > 0 {
             Label("\(trigger.maxFires) max", systemImage: "gauge.with.dots.needle.67percent")
@@ -575,18 +566,13 @@ private struct ScheduleRow: View {
     }
 
     private var summaryBlock: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(schedule.name)
-                .font(.subheadline.weight(.medium))
-            Text(agentName ?? schedule.agentId)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-        }
+        Text(schedule.name)
+            .font(.subheadline.weight(.medium))
     }
 
     @ViewBuilder
     private var facts: some View {
+        Label(agentName ?? schedule.agentId, systemImage: "person")
         Label(schedule.cron, systemImage: "calendar")
         Label("\(schedule.runCount) runs", systemImage: "clock.arrow.circlepath")
     }
@@ -639,19 +625,12 @@ private struct CronJobRow: View {
 
     private var summaryContent: some View {
         VStack(alignment: .leading, spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(job.name)
-                    .font(.subheadline.weight(.medium))
-                Text(agentName ?? job.agentId)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
+            Text(job.name)
+                .font(.subheadline.weight(.medium))
 
             VStack(alignment: .leading, spacing: 4) {
                 Label(scheduleSummary, systemImage: "calendar.badge.clock")
                 Label(actionSummary, systemImage: "paperplane")
-                Label(deliverySummary, systemImage: "point.3.filled.connected.trianglepath.dotted")
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -660,6 +639,8 @@ private struct CronJobRow: View {
 
     @ViewBuilder
     private var timingFacts: some View {
+        Label(agentName ?? job.agentId, systemImage: "person")
+        Label(deliverySummary, systemImage: "point.3.filled.connected.trianglepath.dotted")
         if let nextRun = job.nextRun {
             Label("Next \(relativeText(from: nextRun))", systemImage: "clock.badge")
         } else if job.enabled {

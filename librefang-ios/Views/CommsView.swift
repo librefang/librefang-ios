@@ -127,17 +127,10 @@ private struct CommsTopologyEdgeRow: View {
     let kind: CommsEdgeKind
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            ResponsiveAccessoryRow(horizontalSpacing: 10, verticalSpacing: 4) {
-                titleLabel
-            } accessory: {
-                relationshipBadge
-            }
-
-            Text(kind == .parentChild ? String(localized: "Parent-child relationship") : String(localized: "Peer communication path"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
+        ResponsiveAccessoryRow(horizontalSpacing: 10, verticalSpacing: 4) {
+            titleLabel
+        } accessory: {
+            relationshipBadge
         }
         .padding(.vertical, 2)
     }

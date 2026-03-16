@@ -187,22 +187,20 @@ private struct DiagnosticsMetricRow: View {
     let detail: String?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            ResponsiveValueRow(horizontalSpacing: 10) {
-                Text(label)
-                    .foregroundStyle(.secondary)
-            } value: {
-                Text(value)
-                    .fontWeight(.medium)
-            }
-            if let detail, !detail.isEmpty {
-                Text(detail)
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                    .lineLimit(2)
-            }
+        ResponsiveValueRow(horizontalSpacing: 10) {
+            Text(label)
+                .foregroundStyle(.secondary)
+        } value: {
+            Text(displayValue)
+                .fontWeight(.medium)
+                .multilineTextAlignment(.trailing)
         }
         .padding(.vertical, 2)
+    }
+
+    private var displayValue: String {
+        guard let detail, !detail.isEmpty else { return value }
+        return "\(value) · \(detail)"
     }
 }
 
