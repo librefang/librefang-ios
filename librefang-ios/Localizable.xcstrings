@@ -2173,6 +2173,12 @@
             "state": "translated",
             "value": "1 个严重事故已确认"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の重大インシデントを確認済み"
+          }
         }
       }
     },
@@ -2184,6 +2190,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个严重事故仍处于活动状态"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の重大インシデントが発生中"
           }
         }
       }
@@ -2327,6 +2339,12 @@
             "state": "translated",
             "value": "1 个交接跟进项仍未完成"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の引き継ぎフォローアップが未完了"
+          }
         }
       }
     },
@@ -2442,6 +2460,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个未完成"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件オープン"
           }
         }
       }
@@ -2850,6 +2874,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "确认"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認"
           }
         }
       }
@@ -3955,6 +3985,12 @@
             "state": "translated",
             "value": "损坏"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "異常"
+          }
         }
       }
     },
@@ -5010,6 +5046,12 @@
             "state": "translated",
             "value": "严重"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重大"
+          }
         }
       }
     },
@@ -5722,6 +5764,12 @@
             "state": "translated",
             "value": "事件"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベント"
+          }
         }
       }
     },
@@ -6154,6 +6202,12 @@
             "state": "translated",
             "value": "交接复查即将到期"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎチェックインがまもなく期限です"
+          }
         }
       }
     },
@@ -6211,6 +6265,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "交接复查已逾期"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎチェックインが期限超過です"
           }
         }
       }
@@ -6359,6 +6419,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "高+"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高リスク+"
           }
         }
       }
@@ -8720,6 +8786,12 @@
             "state": "translated",
             "value": "没有匹配的事件"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一致するイベントはありません"
+          }
         }
       }
     },
@@ -8802,6 +8874,12 @@
             "state": "translated",
             "value": "没有待处理审批"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保留中の承認はありません"
+          }
         }
       }
     },
@@ -8865,6 +8943,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "没有搜索结果"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "検索結果はありません"
           }
         }
       }
@@ -9153,6 +9237,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "打开"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開く"
           }
         }
       }
@@ -10074,6 +10164,12 @@
             "state": "translated",
             "value": "下拉刷新或放宽严重级别过滤条件。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プルして更新するか、重大度フィルタを広げてください。"
+          }
         }
       }
     },
@@ -10669,6 +10765,12 @@
             "state": "translated",
             "value": "在移动端确认后处理请求。每次决策后都会从服务器刷新队列。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認後はモバイルから要求を処理できます。各判断のたびにキューはサーバーから更新されます。"
+          }
         }
       }
     },
@@ -11111,6 +11213,12 @@
             "state": "translated",
             "value": "搜索操作、详情或智能体"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "操作、詳細、またはエージェントを検索"
+          }
         }
       }
     },
@@ -11122,6 +11230,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "搜索智能体、工具或操作"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェント、ツール、または操作を検索"
           }
         }
       }
@@ -12437,6 +12551,12 @@
             "state": "translated",
             "value": "当前仪表盘快照没有未解决的审批关卡。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のダッシュボードスナップショットには未解決の承認ゲートがありません。"
+          }
         }
       }
     },
@@ -12498,6 +12618,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "请求的智能体在当前仪表盘快照中不可用。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要求されたエージェントは現在のダッシュボードスナップショットでは利用できません。"
           }
         }
       }
@@ -13054,6 +13180,12 @@
             "state": "translated",
             "value": "尝试不同的智能体、操作或详情查询。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "別のエージェント、操作、または詳細で検索してください。"
+          }
         }
       }
     },
@@ -13077,6 +13209,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "尝试不同的智能体、工具或操作查询。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "別のエージェント、ツール、または操作で検索してください。"
           }
         }
       }
@@ -15432,6 +15570,12 @@
             "state": "translated",
             "value": "有效"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正常"
+          }
         }
       }
     },
@@ -15461,6 +15605,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "离线"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オフライン"
           }
         }
       }
@@ -16429,6 +16579,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 个工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ツール"
           }
         }
       }
@@ -18502,6 +18658,12 @@
             "state": "translated",
             "value": "1 个跟进项未完成"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件のフォローアップが未完了"
+          }
         }
       }
     },
@@ -19262,6 +19424,12 @@
             "state": "translated",
             "value": "轮询"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ポーリング"
+          }
         }
       }
     },
@@ -19571,6 +19739,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 项待处理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件保留中"
           }
         }
       }
@@ -20678,6 +20852,12 @@
             "state": "translated",
             "value": "\\(pendingFollowUpCount) 项跟进未完成"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingFollowUpCount) 件のフォローアップが未完了"
+          }
         }
       }
     },
@@ -20687,6 +20867,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "交接已逾期 · \\(followUpSummary)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎ期限超過 · \\(followUpSummary)"
           }
         }
       }
@@ -20698,6 +20884,12 @@
             "state": "translated",
             "value": "交接即将到期 · \\(followUpSummary)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎまもなく期限 · \\(followUpSummary)"
+          }
         }
       }
     },
@@ -20707,6 +20899,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "仍有 \\(pendingLatestFollowUpCount) 项交接跟进未完成"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingLatestFollowUpCount) 件の引き継ぎフォローアップが未完了"
           }
         }
       }
@@ -20718,6 +20916,12 @@
             "state": "translated",
             "value": "\\(followUpSummary)：\\(pendingLatestFollowUpPreview)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(followUpSummary): \\(pendingLatestFollowUpPreview)"
+          }
         }
       }
     },
@@ -20727,6 +20931,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(count) 起严重事故处于活跃状态"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(count) 件の重大インシデントが発生中"
           }
         }
       }
@@ -20738,6 +20948,12 @@
             "state": "translated",
             "value": "已静默 \\(mutedCount) 项"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mutedCount) 件ミュート済み"
+          }
         }
       }
     },
@@ -20748,6 +20964,12 @@
             "state": "translated",
             "value": "\\(pendingFollowUpCount) 项未完成"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingFollowUpCount) 件オープン"
+          }
         }
       }
     },
@@ -20757,6 +20979,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "已确认 \\(count) 起严重事故"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(count) 件の重大インシデントを確認済み"
           }
         }
       }
@@ -24553,6 +24781,3750 @@
           "stringUnit": {
             "state": "translated",
             "value": "プローブ実行中"
+          }
+        }
+      }
+    },
+    "1 alert": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件のアラート"
+          }
+        }
+      }
+    },
+    "1 approval gate is waiting for operator review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个审批关卡正等待运维审核。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の承認ゲートがオペレータレビュー待ちです。"
+          }
+        }
+      }
+    },
+    "1 approval in queue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "队列中有 1 条审批"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キューに 1 件の承認"
+          }
+        }
+      }
+    },
+    "1 approval route is grouped in this deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此卡片中汇总了 1 条审批路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキには 1 件の承認ルートがまとめられています。"
+          }
+        }
+      }
+    },
+    "1 approval section is active below the controls deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "控制卡片下方当前有 1 个审批分区处于活动状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コントロールデッキの下で 1 つの承認セクションが表示されています。"
+          }
+        }
+      }
+    },
+    "1 badged": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个带徽标项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件のバッジ付き"
+          }
+        }
+      }
+    },
+    "1 counted route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条带计数路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の件数付きルート"
+          }
+        }
+      }
+    },
+    "1 critical": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个严重项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の重大項目"
+          }
+        }
+      }
+    },
+    "1 critical visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见严重项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の重大が表示中"
+          }
+        }
+      }
+    },
+    "1 event in feed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件流中有 1 条事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードに 1 件のイベント"
+          }
+        }
+      }
+    },
+    "1 event is ready in the feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件流中有 1 条事件可查看。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードに 1 件のイベントがあります。"
+          }
+        }
+      }
+    },
+    "1 event is visible in the current event feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件流中可见 1 条事件。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のイベントフィードには 1 件のイベントが表示されています。"
+          }
+        }
+      }
+    },
+    "1 event section is active below the controls deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "控制卡片下方当前有 1 个事件分区处于活动状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コントロールデッキの下で 1 つのイベントセクションが表示されています。"
+          }
+        }
+      }
+    },
+    "1 handoff follow-up is still open on this phone.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这台手机上仍有 1 条交接跟进未完成。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone ではまだ 1 件の引き継ぎフォローアップが未完了です。"
+          }
+        }
+      }
+    },
+    "1 handoff open": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条交接未完成"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の引き継ぎ未完了"
+          }
+        }
+      }
+    },
+    "1 high+": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个高风险+"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 高リスク+"
+          }
+        }
+      }
+    },
+    "1 high-risk": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个高风险"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の高リスク"
+          }
+        }
+      }
+    },
+    "1 high-risk request": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个高风险请求"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の高リスク要求"
+          }
+        }
+      }
+    },
+    "1 hotspot": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个热点"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件のホットスポット"
+          }
+        }
+      }
+    },
+    "1 info": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条信息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の情報"
+          }
+        }
+      }
+    },
+    "1 live route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条活动路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件のライブルート"
+          }
+        }
+      }
+    },
+    "1 live tab": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个活动标签"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 つのライブタブ"
+          }
+        }
+      }
+    },
+    "1 muted": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 项已静音"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件のミュート済み"
+          }
+        }
+      }
+    },
+    "1 pending approval": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个待处理审批"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の保留承認"
+          }
+        }
+      }
+    },
+    "1 pressure bucket": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个压力类别"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の圧力バケット"
+          }
+        }
+      }
+    },
+    "1 primary": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个主项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件のプライマリ"
+          }
+        }
+      }
+    },
+    "1 route ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条路由已就绪"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ルート準備完了"
+          }
+        }
+      }
+    },
+    "1 runtime issue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个运行时问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件のランタイム問題"
+          }
+        }
+      }
+    },
+    "1 session hotspot": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个会话热点"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件のセッションホットスポット"
+          }
+        }
+      }
+    },
+    "1 support": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个支持项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件のサポート"
+          }
+        }
+      }
+    },
+    "1 total event": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条事件总量"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合計 1 件のイベント"
+          }
+        }
+      }
+    },
+    "1 urgent route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条紧急路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の緊急ルート"
+          }
+        }
+      }
+    },
+    "1 visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 项可见"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件表示"
+          }
+        }
+      }
+    },
+    "1 visible agent": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の表示エージェント"
+          }
+        }
+      }
+    },
+    "1 visible approval": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见审批"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の表示承認"
+          }
+        }
+      }
+    },
+    "1 visible event": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条可见事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の表示イベント"
+          }
+        }
+      }
+    },
+    "1 visible request": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见请求"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の表示リクエスト"
+          }
+        }
+      }
+    },
+    "1 visible tool": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件の表示ツール"
+          }
+        }
+      }
+    },
+    "1 watch issue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个关注问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件のウォッチ問題"
+          }
+        }
+      }
+    },
+    "A critical incident is active and ready for triage.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有严重事件正在发生，可立即分诊。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重大インシデントが発生中で、すぐにトリアージできます。"
+          }
+        }
+      }
+    },
+    "Actions ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "操作已就绪"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクション準備完了"
+          }
+        }
+      }
+    },
+    "Anchor the overlay around the preferred surface, active incidents, approvals, and handoff recovery without leaving the top-level operator context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "围绕首选面板、活动事件、审批和交接恢复组织浮层，而无需离开顶层运维上下文。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最上位のオペレータ文脈を離れずに、優先サーフェス、アクティブなインシデント、承認、引き継ぎ回復を中心にオーバーレイを構成します。"
+          }
+        }
+      }
+    },
+    "Approval action readiness is currently anchored by critical approval requests.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前审批行动就绪度主要受严重审批请求驱动。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認アクション準備度は現在、重大な承認要求に左右されています。"
+          }
+        }
+      }
+    },
+    "Approval action readiness is currently anchored by the active search scope and filtered review slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前审批行动就绪度主要受活动搜索范围和筛选后的审查切片影响。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認アクション準備度は現在、有効な検索範囲と絞り込み済みレビュー断面に左右されています。"
+          }
+        }
+      }
+    },
+    "Approval action readiness is currently centered on grouped operator exits and visible queue coverage.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前审批行动就绪度主要取决于分组后的运维出口和可见队列覆盖。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認アクション準備度は現在、まとめられたオペレータ導線と表示中のキューカバレッジが中心です。"
+          }
+        }
+      }
+    },
+    "Approval pressure coverage keeps severity mix readable before routes and row actions.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批压力概览会在进入路由和逐行操作前保持风险分布清晰。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認圧力カバレッジは、ルートや各行アクションに入る前に重大度の構成を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Approval queue facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批队列概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認キュー概要"
+          }
+        }
+      }
+    },
+    "Approval support coverage is currently narrow and mostly reflects a single agent or tool slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前审批支持覆盖较窄，主要反映单个代理或工具切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認サポートカバレッジは現在狭く、主に単一のエージェントまたはツール断面を反映しています。"
+          }
+        }
+      }
+    },
+    "Approval support coverage is currently narrowed to a filtered slice of the queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前审批支持覆盖已收窄到队列的筛选切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認サポートカバレッジは現在、キューの絞り込み断面に狭められています。"
+          }
+        }
+      }
+    },
+    "Approval support coverage is currently spread across multiple agents and tools.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前审批支持覆盖分散在多个代理和工具上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認サポートカバレッジは現在、複数のエージェントとツールに分散しています。"
+          }
+        }
+      }
+    },
+    "Critical and high-risk approvals stay visible above the mobile action queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "严重和高风险审批会在移动操作队列上方保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重大および高リスクの承認は、モバイル操作キューの上で見える状態を保ちます。"
+          }
+        }
+      }
+    },
+    "Critical audit pressure and transport state stay visible before the feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在事件流之前保持严重审计压力和传输状态可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードの前に重大な監査圧力と転送状態を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Critical entries stay summarized before the event list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "严重条目会在事件列表前保持汇总可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重大な項目はイベント一覧の前で要約表示されます。"
+          }
+        }
+      }
+    },
+    "Critical incident changed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "严重事件已变化"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重大インシデントが変化しました"
+          }
+        }
+      }
+    },
+    "Critical queue changed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "严重队列已变化"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重大キューが変化しました"
+          }
+        }
+      }
+    },
+    "Event action readiness is currently anchored by the active search scope and filtered event slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件行动就绪度主要受活动搜索范围和筛选后的事件切片影响。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントアクション準備度は現在、有効な検索範囲と絞り込み済みイベント断面に左右されています。"
+          }
+        }
+      }
+    },
+    "Event action readiness is currently anchored by the visible severity mix and next monitor exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件行动就绪度主要受可见风险分布和下一步监控出口影响。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントアクション準備度は現在、表示中の重大度構成と次の監視導線に左右されています。"
+          }
+        }
+      }
+    },
+    "Event action readiness is currently centered on transport state and grouped operator routes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件行动就绪度主要取决于传输状态和分组后的运维路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントアクション準備度は現在、転送状態とまとめられたオペレータルートが中心です。"
+          }
+        }
+      }
+    },
+    "Event feed facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件流概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントフィード概要"
+          }
+        }
+      }
+    },
+    "Event feed is ready for a fresh mobile review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件流已准备好供移动端重新查看。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントフィードはモバイルで新たに確認できる状態です。"
+          }
+        }
+      }
+    },
+    "Event pressure is currently anchored by 1 critical audit event.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件压力主要由 1 条严重审计事件驱动。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベント圧力は現在、1 件の重大監査イベントに左右されています。"
+          }
+        }
+      }
+    },
+    "Event pressure is currently anchored by \\(criticalCount) critical audit events.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件压力主要由 \\(criticalCount) 条严重审计事件驱动。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベント圧力は現在、\\(criticalCount) 件の重大監査イベントに左右されています。"
+          }
+        }
+      }
+    },
+    "Event pressure is currently concentrated in 1 warning event.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件压力集中在 1 条警告事件上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベント圧力は現在、1 件の警告イベントに集中しています。"
+          }
+        }
+      }
+    },
+    "Event pressure is currently concentrated in \\(warningCount) warning events.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件压力集中在 \\(warningCount) 条警告事件上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベント圧力は現在、\\(warningCount) 件の警告イベントに集中しています。"
+          }
+        }
+      }
+    },
+    "Event pressure is currently narrowed by the active severity or search scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件压力已被活动风险范围或搜索范围收窄。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベント圧力は現在、有効な重大度または検索範囲によって絞り込まれています。"
+          }
+        }
+      }
+    },
+    "Event pressure is currently spread across lower-noise feed traffic and background audit flow.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件压力分散在低噪声事件流和后台审计流中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベント圧力は現在、低ノイズのフィードトラフィックとバックグラウンド監査フローに分散しています。"
+          }
+        }
+      }
+    },
+    "Event pressure, routes, and filters stay together before the feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件压力、路由和过滤器会在事件流前集中展示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベント圧力、ルート、フィルタはフィードの前でまとまって表示されます。"
+          }
+        }
+      }
+    },
+    "Event routes stay compact before the surrounding incident and runtime drilldowns.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入周边事件和运行时下钻前，事件路由保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "周辺のインシデントやランタイムの深掘りに入る前も、イベントルートはコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Event routes stay compact while the feed is search-scoped.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在事件流被搜索范围收窄时，事件路由保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードが検索範囲で絞り込まれている間も、イベントルートはコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Event support coverage is currently leaning on polling transport.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件支持覆盖主要依赖轮询传输。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントサポートカバレッジは現在、ポーリング転送に寄っています。"
+          }
+        }
+      }
+    },
+    "Event support coverage is currently light and mostly reflects lower-noise feed traffic.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件支持覆盖较轻，主要反映低噪声事件流量。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントサポートカバレッジは現在軽く、主に低ノイズのフィードトラフィックを反映しています。"
+          }
+        }
+      }
+    },
+    "Event support coverage is currently light and mostly reflects transport readiness.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件支持覆盖较轻，主要反映传输准备状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントサポートカバレッジは現在軽く、主に転送準備状況を反映しています。"
+          }
+        }
+      }
+    },
+    "Event support coverage is currently narrowed by the active severity or search scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件支持覆盖已被活动风险范围或搜索范围收窄。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントサポートカバレッジは現在、有効な重大度または検索範囲によって絞り込まれています。"
+          }
+        }
+      }
+    },
+    "Feed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件流"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィード"
+          }
+        }
+      }
+    },
+    "Feed coverage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件流概览"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードカバレッジ"
+          }
+        }
+      }
+    },
+    "Feed coverage keeps the active severity mix readable before the event rows begin.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件流概览会在事件行开始前保持当前风险分布清晰。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードカバレッジは、イベント行が始まる前に現在の重大度構成を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Filter by risk first, then use agent, tool, or action search only when the queue is still too broad.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "先按风险过滤，只有当队列仍然过宽时再按代理、工具或操作搜索。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まずリスクで絞り込み、その後キューがまだ広すぎる場合にのみエージェント、ツール、または操作で検索します。"
+          }
+        }
+      }
+    },
+    "Filtered by \\\"\\(query)\\\" before the event list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件列表前已按“\\(query)”过滤。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベント一覧の前に「\\(query)」で絞り込まれています。"
+          }
+        }
+      }
+    },
+    "Full queue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完整队列"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フルキュー"
+          }
+        }
+      }
+    },
+    "Immediate exits": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即时出口"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即時導線"
+          }
+        }
+      }
+    },
+    "Jump straight to incidents, runtime, sessions, diagnostics, or comms without another long route stack.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无需再展开长路由栈，就能直接跳转到事件、运行时、会话、诊断或通信。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "長いルート群をもう一段開かずに、インシデント、ランタイム、セッション、診断、通信へ直接移動できます。"
+          }
+        }
+      }
+    },
+    "Keep decision pressure, agent spread, and visible tool breadth readable before acting on the queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在处理队列前，保持决策压力、代理分布和可见工具广度清晰可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キューを処理する前に、判断圧力、エージェント分布、表示中のツール範囲を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep deeper diagnostics and comms context behind the primary event routes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将更深层的诊断和通信上下文放在主要事件路由之后。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より深い診断と通信の文脈は主要なイベントルートの後ろに置きます。"
+          }
+        }
+      }
+    },
+    "Keep event severity, result volume, and transport state visible before the feed rows take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在事件流行接管前，保持事件风险、结果量和传输状态可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィード行が主役になる前に、イベント重大度、結果量、転送状態を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep feed scope and event pressure visible before pivoting into incidents, runtime, sessions, diagnostics, or comms.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到事件、运行时、会话、诊断或通信前，保持事件流范围和事件压力可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント、ランタイム、セッション、診断、通信へ切り替える前に、フィード範囲とイベント圧力を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep overlay coverage readable before the quick-action rails and pressure badges.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在快捷操作轨和压力徽章前，保持浮层覆盖清晰可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クイックアクション列や圧力バッジの前に、オーバーレイのカバレッジを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep overlay route breadth, snapshot state, and follow-up readiness visible before opening the primary and support exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开主出口和支持出口前，保持浮层路由广度、快照状态和后续跟进准备度可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プライマリ導線とサポート導線を開く前に、オーバーレイルートの広さ、スナップショット状態、フォローアップ準備度を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep queue breadth, agent spread, and tool mix visible before the approval rows and action buttons take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在审批行和操作按钮接管前，保持队列广度、代理分布和工具组合可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認行と操作ボタンが主役になる前に、キューの広さ、エージェント分布、ツール構成を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep queue coverage, agent spread, and tool load visible before the approval rows take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在审批行接管前，保持队列覆盖、代理分布和工具负载可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認行が主役になる前に、キューカバレッジ、エージェント分布、ツール負荷を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep queue severity, agent spread, and visible results clear before acting on requests from the phone.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在手机上处理请求前，保持队列风险、代理分布和可见结果清晰。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この端末から要求に対応する前に、キューの重大度、エージェント分布、表示中の結果を明確に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep route breadth, filter scope, and visible approval spread readable before leaving the approval queue for broader operator context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在离开审批队列进入更广运维上下文前，保持路由广度、过滤范围和可见审批分布清晰可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より広いオペレータ文脈へ移る前に、ルートの広さ、フィルタ範囲、表示中の承認分布を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep severity pressure, transport mode, and visible slice breadth readable before drilling into the audit feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入审计流前，保持风险压力、传输模式和可见切片范围清晰可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監査フィードを深掘りする前に、重大度圧力、転送モード、表示中の断面の広さを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep severity scope, transport mode, and audit pressure readable before opening the full feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开完整事件流前，保持风险范围、传输模式和审计压力清晰可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全なフィードを開く前に、重大度範囲、転送モード、監査圧力を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep severity, routes, and filters together before the approval list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在审批列表前，将风险、路由和过滤器集中展示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認一覧の前に、重大度、ルート、フィルタをまとめて表示します。"
+          }
+        }
+      }
+    },
+    "Keep supporting diagnostics and session drilldowns close when the overlay is carrying secondary pressure.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当浮层承载次级压力时，将辅助诊断和会话下钻保持在附近。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイが二次的な圧力を抱えているときは、補助的な診断やセッション深掘りを近くに置きます。"
+          }
+        }
+      }
+    },
+    "Keep tab-level pressure readable before jumping into the next monitor surface.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在跳转到下一个监控面板前，保持标签级压力清晰可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次の監視面へ移動する前に、タブ単位の圧力を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the incident, on-call, and runtime exits closest to approval review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将事件、值守和运行时出口放在最靠近审批审核的位置。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント、オンコール、ランタイムへの導線を承認レビューの近くに置きます。"
+          }
+        }
+      }
+    },
+    "Keep the next queue and runtime exits closest to the event feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将下一步队列和运行时出口放在最靠近事件流的位置。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次のキューとランタイムへの導線をイベントフィードの近くに置きます。"
+          }
+        }
+      }
+    },
+    "Keep the preferred surface and quick-action split readable before opening the full monitor surface.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开完整监控面板前，保持首选面板和快捷操作分区清晰可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全な監視面を開く前に、優先サーフェスとクイックアクションの分割を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the preferred surface, urgent drilldowns, and supporting operator exits reachable from the overlay without expanding the full monitoring stack.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无需展开完整监控栈，也能从浮层中触达首选面板、紧急下钻和辅助运维出口。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全な監視スタックを開かなくても、オーバーレイから優先サーフェス、緊急ドリルダウン、補助オペレータ導線へ到達できるようにします。"
+          }
+        }
+      }
+    },
+    "Keep transport mode and visible feed breadth readable before diving into individual audit rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入单条审计行前，保持传输模式和可见事件流范围清晰可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "個々の監査行に入る前に、転送モードと表示中のフィード範囲を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep transport mode, info traffic, and scope state readable before the event feed expands into row-by-row audit detail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在事件流展开为逐行审计细节前，保持传输模式、信息流量和范围状态清晰可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントフィードが行単位の監査詳細へ広がる前に、転送モード、情報トラフィック、範囲状態を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep transport mode, scope, and route breadth visible before leaving the event feed for the surrounding monitor surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在离开事件流进入周边监控面板前，保持传输模式、范围和路由广度可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "周辺の監視面へ移る前に、転送モード、範囲、ルートの広さを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Latest \\(RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date()))": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新 \\(RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date()))"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最新 \\(RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date()))"
+          }
+        }
+      }
+    },
+    "Live transport": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实时传输"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブ転送"
+          }
+        }
+      }
+    },
+    "Monitoring data may be stale while this iPhone is offline.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这台 iPhone 离线时，监控数据可能会过期。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone がオフラインの間、監視データは古くなる可能性があります。"
+          }
+        }
+      }
+    },
+    "Offline banner": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "离线横幅"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オフラインバナー"
+          }
+        }
+      }
+    },
+    "Offline fallback": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "离线兜底"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オフライン代替導線"
+          }
+        }
+      }
+    },
+    "Open the on-call surface to inspect the latest pressure.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开值守面板以查看最新压力。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコール画面を開いて最新の圧力を確認してください。"
+          }
+        }
+      }
+    },
+    "Open the on-call surface to review the new state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开值守面板以查看新的状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコール画面を開いて新しい状態を確認してください。"
+          }
+        }
+      }
+    },
+    "Overlay action readiness is currently anchored by follow-up and muted-alert follow-through.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前浮层行动就绪度主要受后续跟进和已静音告警的后续处理影响。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイのアクション準備度は現在、フォローアップとミュート済みアラートの後追い対応に左右されています。"
+          }
+        }
+      }
+    },
+    "Overlay action readiness is currently anchored by offline recovery and fallback routes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前浮层行动就绪度主要受离线恢复和兜底路由影响。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイのアクション準備度は現在、オフライン回復と代替ルートに左右されています。"
+          }
+        }
+      }
+    },
+    "Overlay action readiness is currently anchored by urgent exits from the active snapshot.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前浮层行动就绪度主要受活动快照中的紧急出口影响。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイのアクション準備度は現在、アクティブなスナップショットからの緊急導線に左右されています。"
+          }
+        }
+      }
+    },
+    "Overlay action readiness is currently centered on the preferred surface and nearby operator exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前浮层行动就绪度主要取决于首选面板和附近的运维出口。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイのアクション準備度は現在、優先サーフェスと近くのオペレータ導線が中心です。"
+          }
+        }
+      }
+    },
+    "Overlay routes are currently anchored by counted live signals from the top monitor surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前浮层路由主要受顶层监控面的带计数实时信号影响。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイルートは現在、上位監視面からの件数付きライブシグナルに左右されています。"
+          }
+        }
+      }
+    },
+    "Overlay routes are currently anchored by offline recovery and fallback operator exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前浮层路由主要受离线恢复和兜底运维出口影响。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイルートは現在、オフライン回復と代替オペレータ導線に左右されています。"
+          }
+        }
+      }
+    },
+    "Overlay routes are currently anchored by urgent operator exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前浮层路由主要受紧急运维出口影响。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイルートは現在、緊急オペレータ導線に左右されています。"
+          }
+        }
+      }
+    },
+    "Overlay routes are currently centered on the preferred surface and nearby operator follow-through.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前浮层路由主要围绕首选面板和附近的运维后续动作展开。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイルートは現在、優先サーフェスと近くのオペレータの後続対応が中心です。"
+          }
+        }
+      }
+    },
+    "Polling transport": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轮询传输"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ポーリング転送"
+          }
+        }
+      }
+    },
+    "Pressure": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "压力"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "圧力"
+          }
+        }
+      }
+    },
+    "Primary routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プライマリルート"
+          }
+        }
+      }
+    },
+    "Queue exits stay summarized here before the runtime, incident, and fleet route chips.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在运行时、事件和编队路由标签之前，队列出口会先在这里汇总。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ランタイム、インシデント、フリートのルートチップの前に、キュー導線はここで要約表示されます。"
+          }
+        }
+      }
+    },
+    "Queue inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "队列清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キュー一覧"
+          }
+        }
+      }
+    },
+    "Quick Actions": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快捷操作"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クイックアクション"
+          }
+        }
+      }
+    },
+    "Route Facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "路由概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルート概要"
+          }
+        }
+      }
+    },
+    "Route inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "路由清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルート一覧"
+          }
+        }
+      }
+    },
+    "Scoped queue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已收窄队列"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "絞り込みキュー"
+          }
+        }
+      }
+    },
+    "Scoped search": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已收窄搜索"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "絞り込み検索"
+          }
+        }
+      }
+    },
+    "Search active: \\\"\\(query)\\\"": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索中：“\\(query)”"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "検索中: 「\\(query)」"
+          }
+        }
+      }
+    },
+    "Search by action, detail, or agent to narrow the event stream.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按操作、详情或代理搜索，以缩小事件流范围。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "操作、詳細、またはエージェントで検索してイベントストリームを絞り込みます。"
+          }
+        }
+      }
+    },
+    "Search is narrowed to \\\"\\(searchText)\\\", so only the matching approval slice stays in the mobile queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索已收窄到“\\(searchText)”，因此移动队列中只保留匹配的审批切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "検索は「\\(searchText)」に絞り込まれているため、モバイルキューには一致する承認断面だけが残ります。"
+          }
+        }
+      }
+    },
+    "Severity mix, result volume, and transport mode stay summarized before the event feed takes over the page.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在事件流接管页面前，风险分布、结果量和传输模式会先保持汇总。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントフィードがページの主役になる前に、重大度構成、結果量、転送モードは要約表示のまま保たれます。"
+          }
+        }
+      }
+    },
+    "Snapshot acknowledged": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快照已确认"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スナップショット確認済み"
+          }
+        }
+      }
+    },
+    "Snapshot live": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快照实时"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スナップショット稼働中"
+          }
+        }
+      }
+    },
+    "Stale snapshot": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "过期快照"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "古いスナップショット"
+          }
+        }
+      }
+    },
+    "Support coverage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "支持概览"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サポートカバレッジ"
+          }
+        }
+      }
+    },
+    "Support exits": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "支持出口"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サポート導線"
+          }
+        }
+      }
+    },
+    "Support routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "支持路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サポートルート"
+          }
+        }
+      }
+    },
+    "Tab coverage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "标签概览"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タブ概況"
+          }
+        }
+      }
+    },
+    "The iPhone is offline, so the monitoring snapshot may be stale until connectivity returns.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这台 iPhone 当前离线，因此监控快照在恢复联网前可能过期。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone はオフラインのため、接続が戻るまで監視スナップショットは古い可能性があります。"
+          }
+        }
+      }
+    },
+    "The mobile queue is showing \\(visibleCount) of \\(totalCount) pending approvals.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移动队列当前显示 \\(totalCount) 个待处理审批中的 \\(visibleCount) 个。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モバイルキューには \\(totalCount) 件の保留承認のうち \\(visibleCount) 件が表示されています。"
+          }
+        }
+      }
+    },
+    "The mobile queue is showing all \\(visibleCount) pending approvals.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移动队列当前显示全部 \\(visibleCount) 个待处理审批。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モバイルキューには \\(visibleCount) 件の保留承認がすべて表示されています。"
+          }
+        }
+      }
+    },
+    "The mobile queue is showing the only pending approval.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移动队列当前显示唯一的待处理审批。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モバイルキューには唯一の保留承認が表示されています。"
+          }
+        }
+      }
+    },
+    "Tip \\(String(tipHash.prefix(16)))...": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提示 \\(String(tipHash.prefix(16)))..."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ヒント \\(String(tipHash.prefix(16)))..."
+          }
+        }
+      }
+    },
+    "Use fleet context when approval requests cluster around the same agents.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当审批请求集中在同一批代理上时，使用编队上下文。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認要求が同じエージェント群に集中している場合は、フリート文脈を使います。"
+          }
+        }
+      }
+    },
+    "Use search to narrow by agent, tool, or action.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用搜索按代理、工具或操作缩小范围。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "検索を使ってエージェント、ツール、または操作で絞り込みます。"
+          }
+        }
+      }
+    },
+    "Use the compact queue slice to judge how much of the approval backlog is already visible on the phone.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用紧凑队列切片判断手机上已能看到多少审批积压。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなキュー断面を使って、承認バックログのどれだけがこの端末で見えているか判断します。"
+          }
+        }
+      }
+    },
+    "Use the current snapshot to jump straight into the most relevant surface.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用当前快照直接跳转到最相关的面板。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のスナップショットから最も関連するサーフェスへ直接移動します。"
+          }
+        }
+      }
+    },
+    "Use the main operator routes first when approval pressure needs broader queue context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当审批压力需要更广的队列上下文时，优先使用主运维路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認圧力により広いキュー文脈が必要な場合は、まず主要なオペレータルートを使います。"
+          }
+        }
+      }
+    },
+    "Use the route inventory to gauge the active event slice before leaving the feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "离开事件流前，使用路由清单判断当前活动事件切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードを離れる前に、ルート一覧で現在のイベント断面を把握します。"
+          }
+        }
+      }
+    },
+    "Use the routes with the most active pressure first.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "优先使用压力最大的路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最も圧力の高いルートを優先して使います。"
+          }
+        }
+      }
+    },
+    "Use these when the primary routes are stable but operator follow-through is still needed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当主路由已稳定但仍需要运维后续动作时，使用这些路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プライマリルートが安定していても後続対応が必要な場合にこれらを使います。"
+          }
+        }
+      }
+    },
+    "Use this deck to check route breadth, filter scope, and visible approval coverage before moving into the approval route rail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "进入审批路由栏前，使用这张卡检查路由广度、过滤范围和可见审批覆盖。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認ルートレールに入る前に、このデッキでルートの広さ、フィルタ範囲、表示中の承認カバレッジを確認します。"
+          }
+        }
+      }
+    },
+    "Use this deck to check route breadth, transport mode, and active event scope before opening the event route rail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开事件路由栏前，使用这张卡检查路由广度、传输模式和当前活动事件范围。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントルートレールを開く前に、このデッキでルートの広さ、転送モード、現在のイベント範囲を確認します。"
+          }
+        }
+      }
+    },
+    "Use this deck to check whether the preferred surface, overlay exits, and follow-through actions are ready before opening the larger route groups.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开更大的路由组前，使用这张卡检查首选面板、浮层出口和后续动作是否就绪。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より大きなルート群を開く前に、このデッキで優先サーフェス、オーバーレイ導線、後続アクションが整っているか確認します。"
+          }
+        }
+      }
+    },
+    "Use this deck to judge whether the current event slice is dominated by criticals, warnings, or lower-noise feed traffic.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用这张卡判断当前事件切片是以严重项、警告还是低噪声事件流为主。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、現在のイベント断面が重大、警告、または低ノイズのフィードトラフィックのどれに支配されているか判断します。"
+          }
+        }
+      }
+    },
+    "Use this deck to judge whether the mobile queue is dominated by critical decisions, high-risk tool calls, or spread across many agents.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用这张卡判断移动队列是以严重决策、高风险工具调用，还是分散在多个代理上为主。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、モバイルキューが重大な判断、高リスクのツール呼び出し、または多数のエージェントへの分散のどれに支配されているか判断します。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep queue scope, agent spread, and tool breadth readable before acting on individual approvals.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在处理单个审批前，使用这张卡保持队列范围、代理分布和工具广度清晰可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "個々の承認に対応する前に、このデッキでキュー範囲、エージェント分布、ツール範囲を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep transport mode, lower-noise feed traffic, and scope state readable before the event feed rows begin.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在事件流行开始前，使用这张卡保持传输模式、低噪声流量和范围状态清晰可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントフィード行が始まる前に、このデッキで転送モード、低ノイズのフィードトラフィック、範囲状態を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this pressure slice to separate critical audit drag from scoped warnings and lower-noise feed traffic before the event rows begin.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在事件行开始前，使用这个压力切片区分严重审计拖累、已收窄的警告和低噪声事件流量。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベント行が始まる前に、この圧力断面で重大監査の重さと、絞り込み済みの警告、低ノイズのフィードトラフィックを切り分けます。"
+          }
+        }
+      }
+    },
+    "Visible queue coverage, agent spread, and tool load stay summarized before the phone-sized approval list takes over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在手机尺寸的审批列表接管前，可见队列覆盖、代理分布和工具负载会保持汇总。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "端末向けサイズの承認一覧が主役になる前に、表示中のキューカバレッジ、エージェント分布、ツール負荷は要約表示のまま保たれます。"
+          }
+        }
+      }
+    },
+    "\\(activePressureCount) pressure buckets": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activePressureCount) 个压力类别"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activePressureCount) 件の圧力バケット"
+          }
+        }
+      }
+    },
+    "\\(agentCount) agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agentCount) 个代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agentCount) エージェント"
+          }
+        }
+      }
+    },
+    "\\(approvalAgentCount) agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalAgentCount) 个代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalAgentCount) エージェント"
+          }
+        }
+      }
+    },
+    "\\(approvalAgentCount) visible agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalAgentCount) 个可见代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalAgentCount) 件の表示エージェント"
+          }
+        }
+      }
+    },
+    "\\(approvalCount) approvals": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalCount) 个审批"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalCount) 件の承認"
+          }
+        }
+      }
+    },
+    "\\(badgedActionCount) badged": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(badgedActionCount) 个带徽标项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(badgedActionCount) 件のバッジ付き"
+          }
+        }
+      }
+    },
+    "\\(badgedActionCount) counted routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(badgedActionCount) 条带计数路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(badgedActionCount) 件の件数付きルート"
+          }
+        }
+      }
+    },
+    "\\(criticalActionCount) urgent routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalActionCount) 条紧急路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalActionCount) 件の緊急ルート"
+          }
+        }
+      }
+    },
+    "\\(criticalApprovalCount) critical": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalApprovalCount) 个严重项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalApprovalCount) 件の重大項目"
+          }
+        }
+      }
+    },
+    "\\(criticalCount) critical": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalCount) 个严重项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalCount) 件の重大項目"
+          }
+        }
+      }
+    },
+    "\\(criticalCount) critical visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalCount) 个可见严重项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalCount) 件の重大が表示中"
+          }
+        }
+      }
+    },
+    "\\(filteredEntries.count) events are visible in the current event feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前事件流中可见 \\(filteredEntries.count) 条事件。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のイベントフィードには \\(filteredEntries.count) 件のイベントが表示されています。"
+          }
+        }
+      }
+    },
+    "\\(filteredEntries.count) of \\(viewModel.entries.count) events visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共 \\(viewModel.entries.count) 条事件中显示 \\(filteredEntries.count) 条"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(viewModel.entries.count) 件中 \\(filteredEntries.count) 件のイベントを表示"
+          }
+        }
+      }
+    },
+    "\\(filteredEntries.count) visible events": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredEntries.count) 条可见事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredEntries.count) 件の表示イベント"
+          }
+        }
+      }
+    },
+    "\\(filteredEntries.count) visible results": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredEntries.count) 条可见结果"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filteredEntries.count) 件の表示結果"
+          }
+        }
+      }
+    },
+    "\\(followUpCount) handoff open": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(followUpCount) 条交接未完成"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(followUpCount) 件の引き継ぎ未完了"
+          }
+        }
+      }
+    },
+    "\\(highRiskApprovalCount) high+": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskApprovalCount) 个高风险+"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskApprovalCount) 件の高リスク+"
+          }
+        }
+      }
+    },
+    "\\(highRiskApprovalCount) high-risk": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskApprovalCount) 个高风险"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskApprovalCount) 件の高リスク"
+          }
+        }
+      }
+    },
+    "\\(highRiskApprovalCount) high-risk requests": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskApprovalCount) 个高风险请求"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskApprovalCount) 件の高リスク要求"
+          }
+        }
+      }
+    },
+    "\\(highRiskCount) high+ visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskCount) 个可见高风险+"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskCount) 件の表示中の高リスク+"
+          }
+        }
+      }
+    },
+    "\\(highRiskCount) high-risk requests": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskCount) 个高风险请求"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskCount) 件の高リスク要求"
+          }
+        }
+      }
+    },
+    "\\(infoCount) info": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(infoCount) 条信息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(infoCount) 件の情報"
+          }
+        }
+      }
+    },
+    "\\(liveTabCount) live tabs": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(liveTabCount) 个活动标签"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(liveTabCount) 個のライブタブ"
+          }
+        }
+      }
+    },
+    "\\(newValue.count) critical incidents changed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(newValue.count) 个严重事件已变化"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(newValue.count) 件の重大インシデントが変化しました"
+          }
+        }
+      }
+    },
+    "\\(pendingApprovalCount) approval gates are waiting for operator review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingApprovalCount) 个审批关卡正等待运维审核。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingApprovalCount) 件の承認ゲートがオペレータレビュー待ちです。"
+          }
+        }
+      }
+    },
+    "\\(pendingApprovalCount) pending": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingApprovalCount) 个待处理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingApprovalCount) 件保留中"
+          }
+        }
+      }
+    },
+    "\\(pendingApprovalCount) pending approvals": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingApprovalCount) 个待处理审批"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingApprovalCount) 件の保留承認"
+          }
+        }
+      }
+    },
+    "\\(pendingLatestFollowUpCount) handoff follow-ups are still open on this phone.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这台手机上仍有 \\(pendingLatestFollowUpCount) 条交接跟进未完成。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone ではまだ \\(pendingLatestFollowUpCount) 件の引き継ぎフォローアップが未完了です。"
+          }
+        }
+      }
+    },
+    "\\(pendingLatestFollowUpCount) open": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingLatestFollowUpCount) 个未完成"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingLatestFollowUpCount) 件オープン"
+          }
+        }
+      }
+    },
+    "\\(primaryActionCount) primary": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryActionCount) 个主项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryActionCount) 件のプライマリ"
+          }
+        }
+      }
+    },
+    "\\(primaryActionCount) primary routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryActionCount) 条主路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryActionCount) 件のプライマリルート"
+          }
+        }
+      }
+    },
+    "\\(primaryActions.count) primary routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryActions.count) 条主路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryActions.count) 件のプライマリルート"
+          }
+        }
+      }
+    },
+    "\\(runtimeIssueCount) runtime issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(runtimeIssueCount) 个运行时问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(runtimeIssueCount) 件のランタイム問題"
+          }
+        }
+      }
+    },
+    "\\(sectionCount) approval sections are active below the controls deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "控制卡片下方当前有 \\(sectionCount) 个审批分区处于活动状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コントロールデッキの下で \\(sectionCount) 件の承認セクションが表示されています。"
+          }
+        }
+      }
+    },
+    "\\(sectionCount) event sections are active below the controls deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "控制卡片下方当前有 \\(sectionCount) 个事件分区处于活动状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コントロールデッキの下で \\(sectionCount) 件のイベントセクションが表示されています。"
+          }
+        }
+      }
+    },
+    "\\(sessionCount) hotspots": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sessionCount) 个热点"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sessionCount) 件のホットスポット"
+          }
+        }
+      }
+    },
+    "\\(sessionCount) session hotspots": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sessionCount) 个会话热点"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sessionCount) 件のセッションホットスポット"
+          }
+        }
+      }
+    },
+    "\\(supportActionCount) support": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportActionCount) 个支持项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportActionCount) 件のサポート"
+          }
+        }
+      }
+    },
+    "\\(supportActionCount) support routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportActionCount) 条支持路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportActionCount) 件のサポートルート"
+          }
+        }
+      }
+    },
+    "\\(supportActions.count) support routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportActions.count) 条支持路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportActions.count) 件のサポートルート"
+          }
+        }
+      }
+    },
+    "\\(tabSignalCount) live tabs": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(tabSignalCount) 个活动标签"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(tabSignalCount) 個のライブタブ"
+          }
+        }
+      }
+    },
+    "\\(title) 1 issue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(title) 1 个问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(title) 1 件の問題"
+          }
+        }
+      }
+    },
+    "\\(title) \\(count) issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(title) \\(count) 个问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(title) \\(count) 件の問題"
+          }
+        }
+      }
+    },
+    "\\(toolCount) tools": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(toolCount) 个工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(toolCount) ツール"
+          }
+        }
+      }
+    },
+    "\\(toolCount) visible tools": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(toolCount) 个可见工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(toolCount) 件の表示ツール"
+          }
+        }
+      }
+    },
+    "\\(totalActionCount) routes ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalActionCount) 条路由已就绪"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalActionCount) ルート準備完了"
+          }
+        }
+      }
+    },
+    "\\(totalCount) approvals in queue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "队列中有 \\(totalCount) 个审批"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キューに \\(totalCount) 件の承認"
+          }
+        }
+      }
+    },
+    "\\(totalCount) events are ready in the feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件流中有 \\(totalCount) 条事件可查看。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードに \\(totalCount) 件のイベントがあります。"
+          }
+        }
+      }
+    },
+    "\\(totalCount) events in feed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件流中有 \\(totalCount) 条事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードに \\(totalCount) 件のイベント"
+          }
+        }
+      }
+    },
+    "\\(totalCount) total events": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共 \\(totalCount) 条事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合計 \\(totalCount) 件のイベント"
+          }
+        }
+      }
+    },
+    "\\(totalRouteCount) live routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalRouteCount) 条活动路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalRouteCount) 件のライブルート"
+          }
+        }
+      }
+    },
+    "\\(totalRouteCount) routes ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalRouteCount) 条路由已就绪"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalRouteCount) ルート準備完了"
+          }
+        }
+      }
+    },
+    "\\(totalRoutes) approval routes are grouped in this deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此卡片中汇总了 \\(totalRoutes) 条审批路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキには \\(totalRoutes) 件の承認ルートがまとめられています。"
+          }
+        }
+      }
+    },
+    "\\(viewModel.criticalCount) critical": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(viewModel.criticalCount) 个严重项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(viewModel.criticalCount) 件の重大項目"
+          }
+        }
+      }
+    },
+    "\\(viewModel.warningCount) warnings": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(viewModel.warningCount) 条警告"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(viewModel.warningCount) 件の警告"
+          }
+        }
+      }
+    },
+    "\\(visibleApprovalCount) visible approvals": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleApprovalCount) 个可见审批"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleApprovalCount) 件の表示承認"
+          }
+        }
+      }
+    },
+    "\\(visibleApprovalCount) visible results": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleApprovalCount) 条可见结果"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleApprovalCount) 件の表示結果"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) of \\(totalCount) approvals visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共 \\(totalCount) 个审批中显示 \\(visibleCount) 个"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount) 件中 \\(visibleCount) 件の承認を表示"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) of \\(totalCount) events are visible in this feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此事件流中共 \\(totalCount) 条事件里显示 \\(visibleCount) 条。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このフィードでは \\(totalCount) 件中 \\(visibleCount) 件のイベントが表示されています。"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) of \\(totalCount) events visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共 \\(totalCount) 条事件中显示 \\(visibleCount) 条"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount) 件中 \\(visibleCount) 件のイベントを表示"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) of \\(totalCount) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共 \\(totalCount) 项中显示 \\(visibleCount) 项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount) 件中 \\(visibleCount) 件表示"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 项可见"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 件表示"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) visible events": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 条可见事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 件の表示イベント"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) visible requests": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 个可见请求"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 件の表示リクエスト"
+          }
+        }
+      }
+    },
+    "\\(visibleCount)/\\(totalCount) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示 \\(visibleCount)/\\(totalCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount)/\\(totalCount) を表示"
+          }
+        }
+      }
+    },
+    "\\(visibleCriticalAlertCount) critical": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCriticalAlertCount) 个严重项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCriticalAlertCount) 件の重大項目"
+          }
+        }
+      }
+    },
+    "\\(visibleCriticalAlertCount) critical incidents are active and ready for triage.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有 \\(visibleCriticalAlertCount) 个严重事件处于活动状态，可立即分诊。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCriticalAlertCount) 件の重大インシデントが発生中で、すぐにトリアージできます。"
+          }
+        }
+      }
+    },
+    "\\(visibleMonitoringAlerts.count) alerts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleMonitoringAlerts.count) 条告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleMonitoringAlerts.count) 件のアラート"
+          }
+        }
+      }
+    },
+    "\\(vm.pendingApprovalCount) pending": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.pendingApprovalCount) 个待处理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.pendingApprovalCount) 件保留中"
+          }
+        }
+      }
+    },
+    "\\(vm.runtimeAlertCount) issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.runtimeAlertCount) 个问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.runtimeAlertCount) 件の問題"
+          }
+        }
+      }
+    },
+    "\\(vm.sessionAttentionCount) hotspots": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.sessionAttentionCount) 个热点"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.sessionAttentionCount) 件のホットスポット"
+          }
+        }
+      }
+    },
+    "\\(warningCount) warnings": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(warningCount) 条警告"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(warningCount) 件の警告"
+          }
+        }
+      }
+    },
+    "\\(watchIssueCount) watch issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchIssueCount) 个关注问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchIssueCount) 件のウォッチ問題"
           }
         }
       }
