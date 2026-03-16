@@ -122,6 +122,15 @@ struct ApprovalsView: View {
                     toolCount: visibleToolCount,
                     hasSearchScope: !trimmedSearchText.isEmpty
                 )
+                ApprovalsPressureCoverageDeck(
+                    pendingApprovalCount: vm.pendingApprovalCount,
+                    visibleApprovalCount: filteredApprovals.count,
+                    criticalApprovalCount: criticalApprovalCount,
+                    highRiskApprovalCount: highRiskApprovalCount,
+                    approvalAgentCount: approvalAgentCount,
+                    toolCount: visibleToolCount,
+                    hasSearchScope: !trimmedSearchText.isEmpty
+                )
                 ApprovalsRouteInventoryDeck(
                     primaryRouteCount: approvalsPrimaryRouteCount,
                     supportRouteCount: approvalsSupportRouteCount,
@@ -546,6 +555,74 @@ private struct ApprovalsSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Visible queue coverage, agent spread, and tool load stay summarized before the phone-sized approval list takes over.")
+    }
+}
+
+private struct ApprovalsPressureCoverageDeck: View {
+    let pendingApprovalCount: Int
+    let visibleApprovalCount: Int
+    let criticalApprovalCount: Int
+    let highRiskApprovalCount: Int
+    let approvalAgentCount: Int
+    let toolCount: Int
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Approval pressure coverage keeps severity mix readable before routes and row actions."),
+                detail: String(localized: "Use this deck to judge whether the mobile queue is dominated by critical decisions, high-risk tool calls, or spread across many agents."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if criticalApprovalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalApprovalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalApprovalCount) critical"),
+                            tone: .critical
+                        )
+                    }
+                    if highRiskApprovalCount > criticalApprovalCount {
+                        PresentationToneBadge(
+                            text: highRiskApprovalCount == 1 ? String(localized: "1 high-risk") : String(localized: "\(highRiskApprovalCount) high-risk"),
+                            tone: .warning
+                        )
+                    }
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Scoped queue"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep decision pressure, agent spread, and visible tool breadth readable before acting on the queue."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: pendingApprovalCount == 1 ? String(localized: "1 pending") : String(localized: "\(pendingApprovalCount) pending"),
+                    tone: pendingApprovalCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    visibleApprovalCount == 1 ? String(localized: "1 visible approval") : String(localized: "\(visibleApprovalCount) visible approvals"),
+                    systemImage: "line.3.horizontal.decrease.circle"
+                )
+                Label(
+                    approvalAgentCount == 1 ? String(localized: "1 agent") : String(localized: "\(approvalAgentCount) agents"),
+                    systemImage: "person.3"
+                )
+                Label(
+                    toolCount == 1 ? String(localized: "1 visible tool") : String(localized: "\(toolCount) visible tools"),
+                    systemImage: "wrench.and.screwdriver"
+                )
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

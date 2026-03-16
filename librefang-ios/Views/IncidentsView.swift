@@ -377,6 +377,17 @@ struct IncidentsView: View {
                 handoffCount: handoffIssueCount
             )
 
+            IncidentPressureCoverageDeck(
+                criticalCount: criticalAlertCount,
+                warningCount: warningAlertCount,
+                approvalCount: vm.pendingApprovalCount,
+                agentCount: combinedAgentIssueCount,
+                sessionCount: vm.sessionAttentionCount,
+                handoffCount: handoffIssueCount,
+                automationCount: automationIssueCount,
+                integrationCount: integrationIssueCount
+            )
+
             IncidentRouteInventoryDeck(
                 primaryRouteCount: operatorPrimaryRouteCount,
                 supportRouteCount: operatorSupportRouteCount,
@@ -446,7 +457,7 @@ struct IncidentsView: View {
                             tone: handoffReadiness.state.tone,
                             badgeText: handoffIssueCount > 0 ? "\(handoffIssueCount)" : nil
                         )
-                    }
+                    }
                     .buttonStyle(.plain)
                 }
 
@@ -1728,6 +1739,86 @@ private struct IncidentSectionInventoryDeck: View {
 
     private var detailLine: String {
         String(localized: "Alerts, approvals, sessions, events, automation, integrations, and handoff pressure stay grouped before the routes fan out.")
+    }
+}
+
+private struct IncidentPressureCoverageDeck: View {
+    let criticalCount: Int
+    let warningCount: Int
+    let approvalCount: Int
+    let agentCount: Int
+    let sessionCount: Int
+    let handoffCount: Int
+    let automationCount: Int
+    let integrationCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: String(localized: "Incident pressure coverage keeps the active severity mix readable before routes and queue buckets."),
+                detail: String(localized: "Use this deck to see whether current incident drag comes from alerts, approvals, fleet issues, sessions, or slower infra follow-up."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if criticalCount > 0 {
+                        PresentationToneBadge(
+                            text: criticalCount == 1 ? String(localized: "1 critical alert") : String(localized: "\(criticalCount) critical alerts"),
+                            tone: .critical
+                        )
+                    }
+                    if warningCount > 0 {
+                        PresentationToneBadge(
+                            text: warningCount == 1 ? String(localized: "1 warning alert") : String(localized: "\(warningCount) warning alerts"),
+                            tone: .warning
+                        )
+                    }
+                    if handoffCount > 0 {
+                        PresentationToneBadge(
+                            text: handoffCount == 1 ? String(localized: "1 handoff issue") : String(localized: "\(handoffCount) handoff issues"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Pressure coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep the operator burden readable before diving into the incident buckets themselves."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                    tone: approvalCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    agentCount == 1 ? String(localized: "1 agent issue") : String(localized: "\(agentCount) agent issues"),
+                    systemImage: "person.3"
+                )
+                Label(
+                    sessionCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionCount) session hotspots"),
+                    systemImage: "rectangle.stack"
+                )
+                if automationCount > 0 {
+                    Label(
+                        automationCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationCount) automation issues"),
+                        systemImage: "flowchart"
+                    )
+                }
+                if integrationCount > 0 {
+                    Label(
+                        integrationCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationCount) integration issues"),
+                        systemImage: "square.3.layers.3d.down.forward"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
