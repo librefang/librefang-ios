@@ -1,10 +1,5 @@
 import SwiftUI
 
-private enum StandbySectionAnchor: Hashable {
-    case hero
-    case glance
-}
-
 private enum StandbyTone {
     case calm
     case watch
@@ -167,64 +162,60 @@ struct StandbyDigestView: View {
     }
 
     var body: some View {
-        ScrollViewReader { _ in
-            ZStack {
-                tone.gradient.ignoresSafeArea()
+        ZStack {
+            tone.gradient.ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: 16) {
-                        heroCard
-                            .id(StandbySectionAnchor.hero)
-                        glanceCard
-                            .id(StandbySectionAnchor.glance)
-                    }
-                    .padding()
+            ScrollView {
+                VStack(spacing: 16) {
+                    heroCard
+                    glanceCard
                 }
-                .scrollIndicators(.hidden)
+                .padding()
             }
-            .navigationTitle(String(localized: "Standby"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        NavigationLink {
-                            OnCallView()
-                        } label: {
-                            Label("On Call", systemImage: "waveform.path.ecg")
-                        }
-
-                        NavigationLink(value: OnCallRoute.incidents) {
-                            Label("Incidents", systemImage: "bell.badge")
-                        }
-
-                        NavigationLink {
-                            HandoffCenterView(
-                                summary: handoffText,
-                                queueCount: priorityItems.count,
-                                criticalCount: criticalCount,
-                                liveAlertCount: visibleAlerts.count
-                            )
-                        } label: {
-                            Label("Handoff", systemImage: "text.badge.plus")
-                        }
+            .scrollIndicators(.hidden)
+        }
+        .navigationTitle(String(localized: "Standby"))
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    NavigationLink {
+                        OnCallView()
                     } label: {
-                        Image(systemName: "ellipsis.circle")
+                        Label("On Call", systemImage: "waveform.path.ecg")
+                    }
+
+                    NavigationLink(value: OnCallRoute.incidents) {
+                        Label("Incidents", systemImage: "bell.badge")
+                    }
+
+                    NavigationLink {
+                        HandoffCenterView(
+                            summary: handoffText,
+                            queueCount: priorityItems.count,
+                            criticalCount: criticalCount,
+                            liveAlertCount: visibleAlerts.count
+                        )
+                    } label: {
+                        Label("Handoff", systemImage: "text.badge.plus")
                     }
                 }
+            } label: {
+                Image(systemName: "ellipsis.circle")
             }
-            .navigationDestination(for: OnCallRoute.self) { route in
-                destination(for: route)
-            }
-            .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
-            .refreshable {
+        }
+        .navigationDestination(for: OnCallRoute.self) { route in
+            destination(for: route)
+        }
+        .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
+        .refreshable {
+            await refreshAndSync()
+        }
+        .task {
+            if vm.lastRefresh == nil {
                 await refreshAndSync()
-            }
-            .task {
-                if vm.lastRefresh == nil {
-                    await refreshAndSync()
-                } else {
-                    syncWatchlist()
-                }
+            } else {
+                syncWatchlist()
             }
         }
     }
@@ -859,616 +850,6 @@ private struct StandbyWatchlistInventoryCard: View {
         quietPinnedCount == 0
             ? String(localized: "Every pinned agent currently has some live pressure, so this watchlist row carries the full local watch surface.")
             : String(localized: "\(quietPinnedCount) pinned agents are quiet right now, so the watchlist row stays focused on the agents with live standby pressure.")
-    }
-}
-
-private struct StandbyRouteInventoryDeck: View {
-    let primaryRouteCount: Int
-    let supportRouteCount: Int
-    let queueCount: Int
-    let criticalCount: Int
-    let watchIssueCount: Int
-    let mutedAlertCount: Int
-    let pendingFollowUpCount: Int
-    let approvalCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: String(localized: "Standby is grouping \(primaryRouteCount) primary routes and \(supportRouteCount) support routes in one calm control deck."),
-                detail: String(localized: "The first rail keeps the next live drills close, while the support rail holds slower background and sharing surfaces."),
-                verticalPadding: 2
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: queueCount == 1 ? String(localized: "1 queued route context") : String(localized: "\(queueCount) queued route context"),
-                        tone: queueCount > 0 ? .warning : .neutral
-                    )
-                    if criticalCount > 0 {
-                        PresentationToneBadge(
-                            text: criticalCount == 1 ? String(localized: "1 critical route") : String(localized: "\(criticalCount) critical routes"),
-                            tone: .critical
-                        )
-                    }
-                    if mutedAlertCount > 0 {
-                        PresentationToneBadge(
-                            text: mutedAlertCount == 1 ? String(localized: "1 muted route context") : String(localized: "\(mutedAlertCount) muted route context"),
-                            tone: .neutral
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow(factsColor: .white.opacity(0.72)) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Route inventory"))
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.white)
-                    Text(String(localized: "Use the compact route inventory to decide whether standby should escalate into night watch, on-call, or a slower support drill."))
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.66))
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
-                    tone: .neutral
-                )
-            } facts: {
-                Label(
-                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
-                    systemImage: "arrowshape.turn.up.right"
-                )
-                Label(
-                    supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
-                    systemImage: "square.grid.2x2"
-                )
-                if watchIssueCount > 0 {
-                    Label(
-                        watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                        systemImage: "star.fill"
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    Label(
-                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up open") : String(localized: "\(pendingFollowUpCount) follow-ups open"),
-                        systemImage: "checklist.unchecked"
-                    )
-                }
-                if approvalCount > 0 {
-                    Label(
-                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                        systemImage: "checkmark.shield"
-                    )
-                }
-                if automationIssueCount > 0 {
-                    Label(
-                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        systemImage: "flowchart"
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    Label(
-                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        systemImage: "square.3.layers.3d.down.forward"
-                    )
-                }
-            }
-        }
-        .padding(.vertical, 2)
-    }
-}
-
-private struct StandbyActionReadinessDeck: View {
-    let queueCount: Int
-    let criticalCount: Int
-    let mutedAlertCount: Int
-    let isAcknowledged: Bool
-    let pendingFollowUpCount: Int
-    let approvalCount: Int
-    let checkInStatus: HandoffCheckInStatus?
-
-    private let primaryRouteCount = 6
-    private let supportRouteCount = 6
-
-    var body: some View {
-        StandbySurfaceSectionCard(
-            title: String(localized: "Action Readiness"),
-            detail: String(localized: "Keep standby acknowledgement, muted drag, and next-route readiness visible before opening the deeper calm-mode surfaces.")
-        ) {
-            FlowLayout(spacing: 8) {
-                GlassCapsuleBadge(
-                    text: isAcknowledged ? String(localized: "Snapshot acknowledged") : String(localized: "Snapshot live"),
-                    backgroundOpacity: 0.14
-                )
-                GlassCapsuleBadge(
-                    text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
-                    backgroundOpacity: 0.12
-                )
-                if let checkInStatus {
-                    GlassCapsuleBadge(text: checkInStatus.state.label, backgroundOpacity: 0.14)
-                }
-                if mutedAlertCount > 0 {
-                    GlassCapsuleBadge(
-                        text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    GlassCapsuleBadge(
-                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
-                        backgroundOpacity: 0.14
-                    )
-                }
-                if approvalCount > 0 {
-                    GlassCapsuleBadge(
-                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                        backgroundOpacity: 0.14
-                    )
-                }
-                if criticalCount > 0 {
-                    GlassCapsuleBadge(
-                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                        backgroundOpacity: 0.18
-                    )
-                }
-                if queueCount > 0 {
-                    GlassCapsuleBadge(
-                        text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-            }
-        }
-    }
-}
-
-private struct StandbyFocusCoverageDeck: View {
-    let queueCount: Int
-    let primaryCardCount: Int
-    let watchCount: Int
-    let criticalCount: Int
-    let mutedAlertCount: Int
-    let pendingFollowUpCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-    let toneLabel: String
-    let checkInStatus: HandoffCheckInStatus?
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ResponsiveAccessoryRow {
-                Label {
-                    Text(String(localized: "Focus coverage"))
-                } icon: {
-                    Image(systemName: "scope")
-                }
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(.white)
-            } accessory: {
-                GlassCapsuleBadge(text: toneLabel, backgroundOpacity: 0.14)
-            }
-
-            Text(String(localized: "Keep the dominant standby lane readable before moving from the compact digest into queue cards and watchlist detail."))
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.72))
-                .fixedSize(horizontal: false, vertical: true)
-
-            FlowLayout(spacing: 8) {
-                GlassCapsuleBadge(
-                    text: primaryCardCount == 1 ? String(localized: "1 primary item") : String(localized: "\(primaryCardCount) primary items"),
-                    backgroundOpacity: primaryCardCount > 0 ? 0.16 : 0.10
-                )
-                if watchCount > 0 {
-                    GlassCapsuleBadge(
-                        text: watchCount == 1 ? String(localized: "1 watch item") : String(localized: "\(watchCount) watch items"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-                if criticalCount > 0 {
-                    GlassCapsuleBadge(
-                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                        backgroundOpacity: 0.18
-                    )
-                }
-                if mutedAlertCount > 0 {
-                    GlassCapsuleBadge(
-                        text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    GlassCapsuleBadge(
-                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-                if automationIssueCount > 0 {
-                    GlassCapsuleBadge(
-                        text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    GlassCapsuleBadge(
-                        text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-                if let checkInStatus {
-                    GlassCapsuleBadge(text: checkInStatus.state.label, backgroundOpacity: 0.14)
-                }
-                if queueCount > 0 {
-                    GlassCapsuleBadge(
-                        text: queueCount == 1 ? String(localized: "1 queued") : String(localized: "\(queueCount) queued"),
-                        backgroundOpacity: 0.10
-                    )
-                }
-            }
-        }
-    }
-}
-
-private struct StandbySectionInventoryDeck: View {
-    let sectionCount: Int
-    let queueCount: Int
-    let primaryCardCount: Int
-    let watchCount: Int
-    let mutedAlertCount: Int
-    let pendingFollowUpCount: Int
-    let approvalCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: detailLine,
-                verticalPadding: 2
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
-                        tone: .positive
-                    )
-                    PresentationToneBadge(
-                        text: queueCount == 1 ? String(localized: "1 queued item") : String(localized: "\(queueCount) queued items"),
-                        tone: queueCount > 0 ? .warning : .neutral
-                    )
-                    if watchCount > 0 {
-                        PresentationToneBadge(
-                            text: watchCount == 1 ? String(localized: "1 watched item") : String(localized: "\(watchCount) watched items"),
-                            tone: .caution
-                        )
-                    }
-                    if mutedAlertCount > 0 {
-                        PresentationToneBadge(
-                            text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
-                            tone: .neutral
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow(factsColor: .white.opacity(0.72)) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Section inventory"))
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.white)
-                    Text(String(localized: "Keep standby queue depth, watch pressure, and supporting issue buckets visible before the route rails expand."))
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.66))
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: primaryCardCount == 1 ? String(localized: "1 glance card") : String(localized: "\(primaryCardCount) glance cards"),
-                    tone: primaryCardCount > 0 ? .neutral : .neutral
-                )
-            } facts: {
-                if pendingFollowUpCount > 0 {
-                    Label(
-                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
-                        systemImage: "arrow.triangle.2.circlepath"
-                    )
-                }
-                Label(
-                    approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                    systemImage: "checkmark.shield"
-                )
-                if automationIssueCount > 0 {
-                    Label(
-                        automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        systemImage: "flowchart"
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    Label(
-                        integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        systemImage: "square.3.layers.3d.down.forward"
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        sectionCount == 1
-            ? String(localized: "1 standby section is active below the hero snapshot.")
-            : String(localized: "\(sectionCount) standby sections are active below the hero snapshot.")
-    }
-
-    private var detailLine: String {
-        String(localized: "Glance cards, watch pressure, and support issue buckets stay summarized before the route rails and slower drills take over.")
-    }
-}
-
-private struct StandbyQueueCoverageDeck: View {
-    let criticalCount: Int
-    let warningCount: Int
-    let advisoryCount: Int
-    let approvalCount: Int
-    let watchIssueCount: Int
-    let pendingFollowUpCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ResponsiveAccessoryRow {
-                Label {
-                    Text(String(localized: "Queue Coverage"))
-                } icon: {
-                    Image(systemName: "line.3.horizontal.decrease.circle")
-                }
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(.white)
-            } accessory: {
-                GlassCapsuleBadge(
-                    text: criticalCount == 0 && warningCount == 0 && advisoryCount == 0
-                        ? String(localized: "Calm queue")
-                        : String(localized: "Live queue"),
-                    backgroundOpacity: 0.14
-                )
-            }
-
-            Text(String(localized: "Keep severity mix, watch pressure, and follow-up drag readable before the glance cards and route rails."))
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.72))
-                .fixedSize(horizontal: false, vertical: true)
-
-            FlowLayout(spacing: 8) {
-                if criticalCount > 0 {
-                    GlassCapsuleBadge(
-                        text: criticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(criticalCount) critical"),
-                        backgroundOpacity: 0.18
-                    )
-                }
-                if warningCount > 0 {
-                    GlassCapsuleBadge(
-                        text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
-                        backgroundOpacity: 0.14
-                    )
-                }
-                if advisoryCount > 0 {
-                    GlassCapsuleBadge(
-                        text: advisoryCount == 1 ? String(localized: "1 advisory") : String(localized: "\(advisoryCount) advisories"),
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if approvalCount > 0 {
-                    GlassCapsuleBadge(
-                        text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                        backgroundOpacity: 0.14
-                    )
-                }
-                if watchIssueCount > 0 {
-                    GlassCapsuleBadge(
-                        text: watchIssueCount == 1 ? String(localized: "1 watch issue") : String(localized: "\(watchIssueCount) watch issues"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    GlassCapsuleBadge(
-                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
-                        backgroundOpacity: 0.14
-                    )
-                }
-            }
-        }
-    }
-}
-
-private struct StandbyWorkstreamCoverageDeck: View {
-    let primaryCardCount: Int
-    let watchCount: Int
-    let mutedAlertCount: Int
-    let pendingFollowUpCount: Int
-    let approvalCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ResponsiveAccessoryRow {
-                Label {
-                    Text(String(localized: "Workstream Coverage"))
-                } icon: {
-                    Image(systemName: "rectangle.3.group")
-                }
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(.white)
-            } accessory: {
-                GlassCapsuleBadge(
-                    text: supportCount == 0 ? String(localized: "Snapshot led") : String(localized: "Mixed lanes"),
-                    backgroundOpacity: 0.14
-                )
-            }
-
-            Text(String(localized: "Keep the main glance cards, watched rows, and slower support lanes readable before the standby routes and deeper drills take over."))
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.72))
-                .fixedSize(horizontal: false, vertical: true)
-
-            FlowLayout(spacing: 8) {
-                if primaryCardCount > 0 {
-                    GlassCapsuleBadge(
-                        text: primaryCardCount == 1 ? String(localized: "1 main card") : String(localized: "\(primaryCardCount) main cards"),
-                        backgroundOpacity: 0.18
-                    )
-                }
-                if watchCount > 0 {
-                    GlassCapsuleBadge(
-                        text: watchCount == 1 ? String(localized: "1 watch row") : String(localized: "\(watchCount) watch rows"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-                if supportCount > 0 {
-                    GlassCapsuleBadge(
-                        text: supportCount == 1 ? String(localized: "1 support lane") : String(localized: "\(supportCount) support lanes"),
-                        backgroundOpacity: 0.10
-                    )
-                }
-            }
-        }
-    }
-
-    private var supportCount: Int {
-        mutedAlertCount + pendingFollowUpCount + approvalCount + automationIssueCount + integrationIssueCount
-    }
-}
-
-private struct StandbySupportPressureDeck: View {
-    let mutedAlertCount: Int
-    let pendingFollowUpCount: Int
-    let approvalCount: Int
-    let automationIssueCount: Int
-    let integrationIssueCount: Int
-    let checkInStatus: HandoffCheckInStatus?
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ResponsiveAccessoryRow {
-                Label {
-                    Text(String(localized: "Support Pressure"))
-                } icon: {
-                    Image(systemName: "bell.slash")
-                }
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(.white)
-            } accessory: {
-                GlassCapsuleBadge(
-                    text: approvalCount == 0 ? String(localized: "Quiet support") : String(localized: "Active support"),
-                    backgroundOpacity: 0.14
-                )
-            }
-
-            Text(String(localized: "Keep muted alerts, handoff follow-ups, check-ins, and platform drift readable before the glance cards and support routes."))
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.72))
-                .fixedSize(horizontal: false, vertical: true)
-
-            FlowLayout(spacing: 8) {
-                if mutedAlertCount > 0 {
-                    GlassCapsuleBadge(
-                        text: mutedAlertCount == 1 ? String(localized: "1 muted alert") : String(localized: "\(mutedAlertCount) muted alerts"),
-                        backgroundOpacity: 0.10
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    GlassCapsuleBadge(
-                        text: pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
-                        backgroundOpacity: 0.14
-                    )
-                }
-                if let checkInStatus {
-                    GlassCapsuleBadge(text: checkInStatus.state.label, backgroundOpacity: 0.16)
-                }
-                if automationIssueCount > 0 {
-                    GlassCapsuleBadge(
-                        text: automationIssueCount == 1 ? String(localized: "1 automation issue") : String(localized: "\(automationIssueCount) automation issues"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-                if integrationIssueCount > 0 {
-                    GlassCapsuleBadge(
-                        text: integrationIssueCount == 1 ? String(localized: "1 integration issue") : String(localized: "\(integrationIssueCount) integration issues"),
-                        backgroundOpacity: 0.12
-                    )
-                }
-            }
-        }
-    }
-}
-
-private struct StandbySupportCoverageDeck: View {
-    let totalWatchedCount: Int
-    let activeWatchCount: Int
-    let liveAlertCount: Int
-    let pendingFollowUpCount: Int
-    let toneLabel: String
-    let checkInStatus: HandoffCheckInStatus?
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to keep local watch breadth, live alert visibility, and slower handoff support context readable before the readiness deck and route rails expand."),
-                verticalPadding: 2
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(text: toneLabel, tone: .neutral)
-                    PresentationToneBadge(
-                        text: totalWatchedCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(totalWatchedCount) watched agents"),
-                        tone: totalWatchedCount > 0 ? .caution : .neutral
-                    )
-                    if let checkInStatus {
-                        PresentationToneBadge(text: checkInStatus.state.label, tone: checkInStatus.state.tone)
-                    }
-                }
-            }
-
-            MonitoringFactsRow(factsColor: .white.opacity(0.72)) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Support coverage"))
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.white)
-                    Text(String(localized: "Keep local watch breadth, live alert visibility, and slower handoff carry-through readable before the standby control rails take over."))
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.66))
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: activeWatchCount == 1 ? String(localized: "1 active watch") : String(localized: "\(activeWatchCount) active watches"),
-                    tone: activeWatchCount > 0 ? .caution : .neutral
-                )
-            } facts: {
-                if liveAlertCount > 0 {
-                    Label(
-                        liveAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(liveAlertCount) live alerts"),
-                        systemImage: "bell.badge"
-                    )
-                }
-                if pendingFollowUpCount > 0 {
-                    Label(
-                        pendingFollowUpCount == 1 ? String(localized: "1 follow-up") : String(localized: "\(pendingFollowUpCount) follow-ups"),
-                        systemImage: "checklist.unchecked"
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if activeWatchCount > 0 || liveAlertCount > 0 {
-            return String(localized: "Standby support coverage is currently anchored by local watch breadth and live alert visibility.")
-        }
-        if pendingFollowUpCount > 0 || checkInStatus != nil {
-            return String(localized: "Standby support coverage is currently anchored by handoff follow-up and check-in context.")
-        }
-        return String(localized: "Standby support coverage is currently light and mostly reflects local standby readiness.")
     }
 }
 
