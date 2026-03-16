@@ -380,7 +380,8 @@ struct IntegrationsView: View {
                             MonitoringSectionPreviewDeck(
                                 title: String(localized: "Section Preview"),
                                 detail: String(localized: "Keep the next integration stacks visible before providers, channels, models, and drift sections open up."),
-                                sectionTitles: integrationsSectionPreviewTitles
+                                sectionTitles: integrationsSectionPreviewTitles,
+                                tone: (providerAttentionCount > 0 || channelAttentionCount > 0 || modelAttentionCount > 0 || driftAttentionCount > 0) ? .warning : .neutral
                             )
                         }
                         IntegrationsPressureCoverageDeck(
@@ -389,6 +390,17 @@ struct IntegrationsView: View {
                             modelAttentionCount: modelAttentionCount,
                             driftAttentionCount: driftAttentionCount,
                             visibleResultCount: visibleResultCount,
+                            scopeLabel: scope.label,
+                            modelFilterLabel: modelFilter.label,
+                            hasSearchScope: !normalizedSearchText.isEmpty
+                        )
+                        IntegrationsSupportCoverageDeck(
+                            visibleResultCount: visibleResultCount,
+                            providerCount: filteredProviders.count,
+                            channelCount: filteredChannels.count,
+                            modelCount: filteredModels.count,
+                            aliasCount: filteredAliases.count,
+                            driftCount: filteredAgentDiagnostics.count,
                             scopeLabel: scope.label,
                             modelFilterLabel: modelFilter.label,
                             hasSearchScope: !normalizedSearchText.isEmpty
@@ -1243,6 +1255,109 @@ private struct IntegrationsPressureCoverageDeck: View {
             return String(localized: "Integration pressure is currently concentrated in channel setup gaps and catalog availability.")
         }
         return String(localized: "Integration pressure is currently low and mostly reflects scope, search, and catalog breadth.")
+    }
+}
+
+private struct IntegrationsSupportCoverageDeck: View {
+    let visibleResultCount: Int
+    let providerCount: Int
+    let channelCount: Int
+    let modelCount: Int
+    let aliasCount: Int
+    let driftCount: Int
+    let scopeLabel: String
+    let modelFilterLabel: String
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep supporting provider, channel, catalog, alias, and drift context visible before the deeper integration sections take over."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: .neutral)
+                    PresentationToneBadge(text: modelFilterLabel, tone: .neutral)
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep live provider and channel breadth, deeper catalog lanes, and agent drift support readable before drilling into the full integration inventory."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: supportLaneCount == 1 ? String(localized: "1 support lane") : String(localized: "\(supportLaneCount) support lanes"),
+                    tone: supportLaneCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if providerCount > 0 {
+                    Label(
+                        providerCount == 1 ? String(localized: "1 provider") : String(localized: "\(providerCount) providers"),
+                        systemImage: "key.horizontal"
+                    )
+                }
+                if channelCount > 0 {
+                    Label(
+                        channelCount == 1 ? String(localized: "1 channel") : String(localized: "\(channelCount) channels"),
+                        systemImage: "bubble.left.and.bubble.right"
+                    )
+                }
+                if modelCount > 0 {
+                    Label(
+                        modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
+                        systemImage: "square.stack.3d.up"
+                    )
+                }
+                if aliasCount > 0 {
+                    Label(
+                        aliasCount == 1 ? String(localized: "1 alias") : String(localized: "\(aliasCount) aliases"),
+                        systemImage: "tag"
+                    )
+                }
+                if driftCount > 0 {
+                    Label(
+                        driftCount == 1 ? String(localized: "1 drift case") : String(localized: "\(driftCount) drift cases"),
+                        systemImage: "arrow.triangle.branch"
+                    )
+                }
+                if hasSearchScope {
+                    Label(
+                        visibleResultCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleResultCount) visible results"),
+                        systemImage: "magnifyingglass"
+                    )
+                }
+            }
+        }
+    }
+
+    private var supportLaneCount: Int {
+        providerCount + channelCount + modelCount + aliasCount + driftCount
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Integration support coverage is currently narrowed by a scoped inventory slice.")
+        }
+        if driftCount > 0 {
+            return String(localized: "Integration support coverage is currently anchored by catalog and agent drift context.")
+        }
+        if modelCount > 0 || aliasCount > 0 {
+            return String(localized: "Integration support coverage is currently anchored by deeper catalog and alias context.")
+        }
+        if providerCount > 0 || channelCount > 0 {
+            return String(localized: "Integration support coverage is currently anchored by live provider and channel breadth.")
+        }
+        return String(localized: "Integration support coverage is currently light across the visible inventory.")
     }
 }
 

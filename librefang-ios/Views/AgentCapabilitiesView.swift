@@ -122,7 +122,8 @@ struct AgentCapabilitiesView: View {
                         MonitoringSectionPreviewDeck(
                             title: String(localized: "Section Preview"),
                             detail: String(localized: "Keep the next capability stacks visible before tool filters, skills, and MCP server sections open up."),
-                            sectionTitles: capabilitiesSectionPreviewTitles
+                            sectionTitles: capabilitiesSectionPreviewTitles,
+                            tone: loadedCapabilityFeedCount > 0 ? .positive : .neutral
                         )
                     }
 
@@ -133,6 +134,18 @@ struct AgentCapabilitiesView: View {
                         assignedServerCount: assignedServerCount,
                         configuredAvailableServerCount: configuredAvailableServerCount,
                         hasProfileRoute: agent.profile?.isEmpty == false,
+                        isRefreshingOnly: isRefreshing && hasLoadedAnything
+                    )
+                    CapabilitiesSupportCoverageDeck(
+                        loadedFeedCount: loadedCapabilityFeedCount,
+                        toolRestrictionCount: toolRestrictionCount,
+                        assignedSkillCount: assignedSkillCount,
+                        assignedServerCount: assignedServerCount,
+                        configuredAvailableServerCount: configuredAvailableServerCount,
+                        hasProfileRoute: agent.profile?.isEmpty == false,
+                        hasToolFilters: toolFilters != nil,
+                        hasSkills: skills != nil,
+                        hasMCPServers: mcpServers != nil,
                         isRefreshingOnly: isRefreshing && hasLoadedAnything
                     )
 
@@ -660,6 +673,103 @@ private struct CapabilitiesPressureCoverageDeck: View {
             return String(localized: "Capability pressure is currently concentrated in assigned skill scope.")
         }
         return String(localized: "Capability pressure is currently low and mostly reflects feed readiness.")
+    }
+}
+
+private struct CapabilitiesSupportCoverageDeck: View {
+    let loadedFeedCount: Int
+    let toolRestrictionCount: Int
+    let assignedSkillCount: Int
+    let assignedServerCount: Int
+    let configuredAvailableServerCount: Int
+    let hasProfileRoute: Bool
+    let hasToolFilters: Bool
+    let hasSkills: Bool
+    let hasMCPServers: Bool
+    let isRefreshingOnly: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep linked profile support, loaded capability feeds, and assigned scope readable before drilling into tool, skill, and MCP details."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: loadedFeedCount == 1 ? String(localized: "1 live feed") : String(localized: "\(loadedFeedCount) live feeds"),
+                        tone: loadedFeedCount > 0 ? .positive : .neutral
+                    )
+                    if hasProfileRoute {
+                        PresentationToneBadge(text: String(localized: "Profile linked"), tone: .positive)
+                    }
+                    if isRefreshingOnly {
+                        PresentationToneBadge(text: String(localized: "Refreshing"), tone: .warning)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep linked profile context, explicit rules, and assigned skill or server support readable before leaving capability scope."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: configuredAvailableServerCount == 1 ? String(localized: "1 configured server") : String(localized: "\(configuredAvailableServerCount) configured servers"),
+                    tone: configuredAvailableServerCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if toolRestrictionCount > 0 {
+                    Label(
+                        toolRestrictionCount == 1 ? String(localized: "1 tool rule") : String(localized: "\(toolRestrictionCount) tool rules"),
+                        systemImage: "slider.horizontal.3"
+                    )
+                }
+                if assignedSkillCount > 0 {
+                    Label(
+                        assignedSkillCount == 1 ? String(localized: "1 assigned skill") : String(localized: "\(assignedSkillCount) assigned skills"),
+                        systemImage: "sparkles"
+                    )
+                }
+                if assignedServerCount > 0 {
+                    Label(
+                        assignedServerCount == 1 ? String(localized: "1 assigned server") : String(localized: "\(assignedServerCount) assigned servers"),
+                        systemImage: "server.rack"
+                    )
+                }
+                if hasToolFilters {
+                    Label(String(localized: "Tool filters loaded"), systemImage: "checkmark.circle")
+                }
+                if hasSkills {
+                    Label(String(localized: "Skills loaded"), systemImage: "wand.and.stars")
+                }
+                if hasMCPServers {
+                    Label(String(localized: "MCP loaded"), systemImage: "shippingbox.fill")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if isRefreshingOnly {
+            return String(localized: "Capability support coverage is currently waiting on refreshed feed state.")
+        }
+        if assignedServerCount > 0 || configuredAvailableServerCount > 0 {
+            return String(localized: "Capability support coverage is currently anchored by MCP server scope and connected support.")
+        }
+        if toolRestrictionCount > 0 || assignedSkillCount > 0 {
+            return String(localized: "Capability support coverage is currently anchored by explicit tool and skill scope.")
+        }
+        if hasToolFilters || hasSkills || hasMCPServers {
+            return String(localized: "Capability support coverage is currently anchored by loaded capability feeds.")
+        }
+        return String(localized: "Capability support coverage is currently light across the visible feeds.")
     }
 }
 

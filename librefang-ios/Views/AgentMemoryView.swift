@@ -267,11 +267,20 @@ struct AgentMemoryView: View {
                 MonitoringSectionPreviewDeck(
                     title: String(localized: "Section Preview"),
                     detail: String(localized: "Keep the next memory stack visible before the key list opens into raw entry rows."),
-                    sectionTitles: agentMemorySectionPreviewTitles
+                    sectionTitles: agentMemorySectionPreviewTitles,
+                    tone: structuredEntryCount > 0 ? .warning : .neutral
                 )
             }
 
             AgentMemoryPressureCoverageDeck(
+                visibleCount: filteredEntries.count,
+                totalCount: entries.count,
+                structuredCount: structuredEntryCount,
+                scalarCount: scalarEntryCount,
+                hasActiveSearch: hasActiveSearch,
+                exportReady: exportSnapshot != nil
+            )
+            AgentMemorySupportCoverageDeck(
                 visibleCount: filteredEntries.count,
                 totalCount: entries.count,
                 structuredCount: structuredEntryCount,
@@ -889,6 +898,85 @@ private struct AgentMemoryPressureCoverageDeck: View {
             return String(localized: "Memory pressure is currently concentrated in a search-scoped slice.")
         }
         return String(localized: "Memory pressure is currently light and mostly reflects scalar durable keys.")
+    }
+}
+
+private struct AgentMemorySupportCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let structuredCount: Int
+    let scalarCount: Int
+    let hasActiveSearch: Bool
+    let exportReady: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep structured state, export readiness, and the scoped memory slice readable before leaving the compact memory monitor."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if exportReady {
+                        PresentationToneBadge(text: String(localized: "Export ready"), tone: .positive)
+                    }
+                    if hasActiveSearch {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep structured keys, scalar durable state, and export support readable before moving into editable memory rows and nearby routes."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible key") : String(localized: "\(visibleCount) visible keys"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if structuredCount > 0 {
+                    Label(
+                        structuredCount == 1 ? String(localized: "1 structured key") : String(localized: "\(structuredCount) structured keys"),
+                        systemImage: "square.brackets"
+                    )
+                }
+                if scalarCount > 0 {
+                    Label(
+                        scalarCount == 1 ? String(localized: "1 scalar key") : String(localized: "\(scalarCount) scalar keys"),
+                        systemImage: "text.cursor"
+                    )
+                }
+                if hasActiveSearch {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if structuredCount > 0 && exportReady {
+            return String(localized: "Memory support coverage is currently anchored by structured, export-ready durable state.")
+        }
+        if structuredCount > 0 {
+            return String(localized: "Memory support coverage is currently anchored by structured durable state.")
+        }
+        if hasActiveSearch {
+            return String(localized: "Memory support coverage is currently narrowed to the filtered key slice.")
+        }
+        if scalarCount > 0 {
+            return String(localized: "Memory support coverage is currently anchored by scalar durable keys.")
+        }
+        return String(localized: "Memory support coverage is currently light across the visible keys.")
     }
 }
 

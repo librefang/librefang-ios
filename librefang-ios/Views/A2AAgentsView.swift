@@ -60,12 +60,21 @@ struct A2AAgentsView: View {
                             MonitoringSectionPreviewDeck(
                                 title: String(localized: "Section Preview"),
                                 detail: String(localized: "Keep the next external-agent stack visible before the directory opens into full agent rows."),
-                                sectionTitles: a2aSectionPreviewTitles
+                                sectionTitles: a2aSectionPreviewTitles,
+                                tone: visibleStreamingCount > 0 ? .positive : .neutral
                             )
                         }
 
                         A2APressureCoverageDeck(
                             visibleAgentCount: filteredAgents.count,
+                            hostCount: visibleHostCount,
+                            streamingCount: visibleStreamingCount,
+                            pushCount: filteredAgents.filter { $0.capabilities?.pushNotifications == true }.count,
+                            hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        )
+                        A2ASupportCoverageDeck(
+                            visibleAgentCount: filteredAgents.count,
+                            totalAgentCount: agents.count,
                             hostCount: visibleHostCount,
                             streamingCount: visibleStreamingCount,
                             pushCount: filteredAgents.filter { $0.capabilities?.pushNotifications == true }.count,
@@ -348,6 +357,83 @@ private struct A2APressureCoverageDeck: View {
             return String(localized: "A2A directory pressure is currently spread across multiple endpoint hosts.")
         }
         return String(localized: "A2A directory pressure is currently low and mostly reflects capability readiness.")
+    }
+}
+
+private struct A2ASupportCoverageDeck: View {
+    let visibleAgentCount: Int
+    let totalAgentCount: Int
+    let hostCount: Int
+    let streamingCount: Int
+    let pushCount: Int
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep endpoint breadth and capability-ready external-agent support visible before moving into comms, runtime, or diagnostics context."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: visibleAgentCount == totalAgentCount
+                            ? (visibleAgentCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(visibleAgentCount) visible agents"))
+                            : String(localized: "\(visibleAgentCount) of \(totalAgentCount) visible"),
+                        tone: visibleAgentCount > 0 ? .positive : .neutral
+                    )
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep endpoint host spread, streaming readiness, and push support readable before leaving the external-agent directory."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: hostCount == 1 ? String(localized: "1 endpoint host") : String(localized: "\(hostCount) endpoint hosts"),
+                    tone: hostCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if streamingCount > 0 {
+                    Label(
+                        streamingCount == 1 ? String(localized: "1 stream-ready agent") : String(localized: "\(streamingCount) stream-ready agents"),
+                        systemImage: "waveform"
+                    )
+                }
+                if pushCount > 0 {
+                    Label(
+                        pushCount == 1 ? String(localized: "1 push-ready agent") : String(localized: "\(pushCount) push-ready agents"),
+                        systemImage: "bell.badge"
+                    )
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "A2A support coverage is currently narrowed to a filtered directory slice.")
+        }
+        if hostCount > 1 {
+            return String(localized: "A2A support coverage is currently anchored by endpoint host spread.")
+        }
+        if streamingCount > 0 || pushCount > 0 {
+            return String(localized: "A2A support coverage is currently anchored by streaming and push-ready agents.")
+        }
+        return String(localized: "A2A support coverage is currently light across the visible directory.")
     }
 }
 

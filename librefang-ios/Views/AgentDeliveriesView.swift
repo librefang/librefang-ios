@@ -212,7 +212,8 @@ struct AgentDeliveriesView: View {
                     MonitoringSectionPreviewDeck(
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next receipt stack visible before delivery rows expand into the full outbound log."),
-                        sectionTitles: agentDeliveriesSectionPreviewTitles
+                        sectionTitles: agentDeliveriesSectionPreviewTitles,
+                        tone: failedCount > 0 ? .critical : (unsettledCount > 0 ? .warning : .positive)
                     )
                 }
 
@@ -223,6 +224,17 @@ struct AgentDeliveriesView: View {
                     unsettledCount: unsettledCount,
                     latestReceiptTimestampLabel: latestReceiptTimestampLabel,
                     hasActiveFilter: hasActiveFilter
+                )
+                AgentDeliveriesSupportCoverageDeck(
+                    visibleCount: filteredReceipts.count,
+                    totalCount: receipts.count,
+                    deliveredCount: deliveredCount,
+                    failedCount: failedCount,
+                    unsettledCount: unsettledCount,
+                    latestReceiptTimestampLabel: latestReceiptTimestampLabel,
+                    hasActiveFilter: hasActiveFilter,
+                    scopeLabel: scope.label,
+                    scopeTone: scope.tone
                 )
 
                 AgentDeliveriesFocusCoverageDeck(
@@ -577,6 +589,92 @@ private struct AgentDeliveriesPressureCoverageDeck: View {
             return String(localized: "Delivery pressure is currently concentrated in unsettled outbound receipts.")
         }
         return String(localized: "Delivery pressure is currently low and mostly reflects confirmed outbound receipts.")
+    }
+}
+
+private struct AgentDeliveriesSupportCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let deliveredCount: Int
+    let failedCount: Int
+    let unsettledCount: Int
+    let latestReceiptTimestampLabel: String?
+    let hasActiveFilter: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep delivery confirmation, failure support, and the freshest receipt timing readable before leaving the outbound receipt log."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    if hasActiveFilter {
+                        PresentationToneBadge(text: String(localized: "Filter active"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep delivered, failed, and unsettled receipt support readable before moving into incidents, events, or runtime context."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible receipt") : String(localized: "\(visibleCount) visible receipts"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if deliveredCount > 0 {
+                    Label(
+                        deliveredCount == 1 ? String(localized: "1 delivered") : String(localized: "\(deliveredCount) delivered"),
+                        systemImage: "checkmark.circle"
+                    )
+                }
+                if failedCount > 0 {
+                    Label(
+                        failedCount == 1 ? String(localized: "1 failed") : String(localized: "\(failedCount) failed"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if unsettledCount > 0 {
+                    Label(
+                        unsettledCount == 1 ? String(localized: "1 unsettled") : String(localized: "\(unsettledCount) unsettled"),
+                        systemImage: "hourglass"
+                    )
+                }
+                if let latestReceiptTimestampLabel {
+                    Label(latestReceiptTimestampLabel, systemImage: "clock")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if failedCount > 0 {
+            return String(localized: "Delivery support coverage is currently anchored by failed outbound receipts.")
+        }
+        if unsettledCount > 0 {
+            return String(localized: "Delivery support coverage is currently anchored by unsettled outbound receipts.")
+        }
+        if hasActiveFilter {
+            return String(localized: "Delivery support coverage is currently narrowed to the filtered receipt slice.")
+        }
+        if deliveredCount > 0 {
+            return String(localized: "Delivery support coverage is currently anchored by delivered outbound receipts.")
+        }
+        return String(localized: "Delivery support coverage is currently light across the visible receipts.")
     }
 }
 

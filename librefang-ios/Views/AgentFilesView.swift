@@ -175,12 +175,22 @@ struct AgentFilesView: View {
                     MonitoringSectionPreviewDeck(
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next workspace file stack visible before identity rows expand into the full file list."),
-                        sectionTitles: agentFilesSectionPreviewTitles
+                        sectionTitles: agentFilesSectionPreviewTitles,
+                        tone: missingStatus.tone
                     )
                 }
 
                 AgentFilesPressureCoverageDeck(
                     visibleCount: filteredFiles.count,
+                    existingCount: existingCount,
+                    missingCount: missingCount,
+                    hasActiveFilter: hasActiveFilter,
+                    scopeLabel: scope.label,
+                    scopeTone: scope.tone
+                )
+                AgentFilesSupportCoverageDeck(
+                    visibleCount: filteredFiles.count,
+                    totalCount: files.count,
                     existingCount: existingCount,
                     missingCount: missingCount,
                     hasActiveFilter: hasActiveFilter,
@@ -556,6 +566,81 @@ private struct AgentFilesPressureCoverageDeck: View {
             return String(localized: "Workspace pressure is currently concentrated in a scoped file slice.")
         }
         return String(localized: "Workspace pressure is currently low and mostly reflects present identity files.")
+    }
+}
+
+private struct AgentFilesSupportCoverageDeck: View {
+    let visibleCount: Int
+    let totalCount: Int
+    let existingCount: Int
+    let missingCount: Int
+    let hasActiveFilter: Bool
+    let scopeLabel: String
+    let scopeTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep workspace identity support, visible scope, and missing-file context readable before leaving the compact file monitor."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: scopeTone)
+                    if hasActiveFilter {
+                        PresentationToneBadge(text: String(localized: "Filter active"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep present identity files, missing-file drift, and scoped workspace support readable before moving into adjacent agent surfaces."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == totalCount
+                        ? (visibleCount == 1 ? String(localized: "1 visible file") : String(localized: "\(visibleCount) visible files"))
+                        : String(localized: "\(visibleCount) of \(totalCount) visible"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if existingCount > 0 {
+                    Label(
+                        existingCount == 1 ? String(localized: "1 present file") : String(localized: "\(existingCount) present files"),
+                        systemImage: "doc.text"
+                    )
+                }
+                if missingCount > 0 {
+                    Label(
+                        missingCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingCount) missing files"),
+                        systemImage: "doc.badge.gearshape"
+                    )
+                }
+                if hasActiveFilter {
+                    Label(String(localized: "Filter active"), systemImage: "line.3.horizontal.decrease.circle")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if missingCount > 0 {
+            return String(localized: "Workspace support coverage is currently anchored by missing identity files.")
+        }
+        if hasActiveFilter {
+            return String(localized: "Workspace support coverage is currently narrowed to the filtered identity slice.")
+        }
+        if existingCount > 0 {
+            return String(localized: "Workspace support coverage is currently anchored by present identity files.")
+        }
+        return String(localized: "Workspace support coverage is currently light across the visible inventory.")
     }
 }
 

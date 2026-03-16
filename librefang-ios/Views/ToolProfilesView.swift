@@ -74,12 +74,22 @@ struct ToolProfilesView: View {
                     MonitoringSectionPreviewDeck(
                         title: String(localized: "Section Preview"),
                         detail: String(localized: "Keep the next tool-profile stacks visible before the current profile and full profile list open up."),
-                        sectionTitles: toolProfilesSectionPreviewTitles
+                        sectionTitles: toolProfilesSectionPreviewTitles,
+                        tone: selectedProfile != nil ? .positive : .neutral
                     )
                 }
 
                 ToolProfilesPressureCoverageDeck(
                     visibleProfileCount: filteredProfiles.count,
+                    selectedToolCount: selectedToolCount,
+                    densestVisibleToolCount: densestVisibleToolCount,
+                    hasSelectedProfile: selectedProfile != nil,
+                    hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                )
+                ToolProfilesSupportCoverageDeck(
+                    visibleProfileCount: filteredProfiles.count,
+                    totalProfileCount: profiles.count,
+                    selectedProfileName: selectedProfile?.name,
                     selectedToolCount: selectedToolCount,
                     densestVisibleToolCount: densestVisibleToolCount,
                     hasSelectedProfile: selectedProfile != nil,
@@ -521,6 +531,80 @@ private struct ToolProfilesPressureCoverageDeck: View {
             return String(localized: "Tool-profile pressure is currently concentrated in a search-scoped catalog slice.")
         }
         return String(localized: "Tool-profile pressure is currently low and mostly reflects catalog tool density.")
+    }
+}
+
+private struct ToolProfilesSupportCoverageDeck: View {
+    let visibleProfileCount: Int
+    let totalProfileCount: Int
+    let selectedProfileName: String?
+    let selectedToolCount: Int
+    let densestVisibleToolCount: Int
+    let hasSelectedProfile: Bool
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep selected-profile support, visible catalog breadth, and scoped search readable before pivoting into fleet, runtime, or integration context."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    if let selectedProfileName {
+                        PresentationToneBadge(text: selectedProfileName, tone: .positive)
+                    }
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep selected-profile depth, broader catalog size, and dense bundled-tool support readable before leaving the profile directory."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleProfileCount == totalProfileCount
+                        ? (visibleProfileCount == 1 ? String(localized: "1 visible profile") : String(localized: "\(visibleProfileCount) visible profiles"))
+                        : String(localized: "\(visibleProfileCount) of \(totalProfileCount) visible"),
+                    tone: visibleProfileCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                if hasSelectedProfile {
+                    Label(
+                        selectedToolCount == 1 ? String(localized: "1 selected tool") : String(localized: "\(selectedToolCount) selected tools"),
+                        systemImage: "checkmark.circle"
+                    )
+                }
+                if densestVisibleToolCount > 12 {
+                    Label(String(localized: "Dense catalog"), systemImage: "square.stack.3d.up")
+                }
+                if hasSearchScope {
+                    Label(String(localized: "Search scoped"), systemImage: "magnifyingglass")
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if hasSelectedProfile {
+            return String(localized: "Tool-profile support coverage is currently anchored by the selected profile and its bundled tools.")
+        }
+        if hasSearchScope {
+            return String(localized: "Tool-profile support coverage is currently narrowed to the filtered catalog slice.")
+        }
+        if densestVisibleToolCount > 12 {
+            return String(localized: "Tool-profile support coverage is currently anchored by dense bundled-tool catalogs.")
+        }
+        return String(localized: "Tool-profile support coverage is currently balanced across the visible catalog.")
     }
 }
 
