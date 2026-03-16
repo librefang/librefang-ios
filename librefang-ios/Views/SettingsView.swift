@@ -104,6 +104,21 @@ struct SettingsView: View {
                             languageLabel: currentLanguageLabel
                         )
 
+                        SettingsActionReadinessDeck(
+                            primaryRouteCount: primaryRouteCount,
+                            supportRouteCount: supportRouteCount,
+                            primaryControlCount: primaryControlCount,
+                            supportControlCount: supportControlCount,
+                            utilityRouteCount: utilityRouteCount,
+                            sectionCount: settingsSectionCount,
+                            onCallQueueCount: onCallQueueCount,
+                            currentCriticalCount: currentCriticalCount,
+                            visibleAlertCount: visibleAlertCount,
+                            hasQueuedReminder: deps.onCallNotificationManager.pendingReminderDate != nil,
+                            refreshIntervalLabel: "\(Int(refreshInterval))s",
+                            languageLabel: currentLanguageLabel
+                        )
+
                         MonitoringSurfaceGroupCard(
                             title: String(localized: "Routes"),
                             detail: String(localized: "Keep the highest-value monitoring exits together before the longer device-control form.")
@@ -1503,6 +1518,85 @@ private struct SettingsSupportCoverageDeck: View {
             return String(localized: "Settings support coverage is currently anchored by live monitoring load reaching the device layer.")
         }
         return String(localized: "Settings support coverage is currently light and mostly reflects refresh cadence and language readiness.")
+    }
+}
+
+private struct SettingsActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let primaryControlCount: Int
+    let supportControlCount: Int
+    let utilityRouteCount: Int
+    let sectionCount: Int
+    let onCallQueueCount: Int
+    let currentCriticalCount: Int
+    let visibleAlertCount: Int
+    let hasQueuedReminder: Bool
+    let refreshIntervalLabel: String
+    let languageLabel: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to confirm control breadth, route exits, and live device readiness before opening the longer settings form."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: String(localized: "\(primaryRouteCount + supportRouteCount + primaryControlCount + supportControlCount + utilityRouteCount) actions"),
+                        tone: .neutral
+                    )
+                    PresentationToneBadge(
+                        text: sectionCount == 1 ? String(localized: "1 section") : String(localized: "\(sectionCount) sections"),
+                        tone: sectionCount > 0 ? .positive : .neutral
+                    )
+                    PresentationToneBadge(text: refreshIntervalLabel, tone: .neutral)
+                    PresentationToneBadge(text: languageLabel, tone: .neutral)
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep route exits, device controls, and live monitoring load visible before the server, reminder, handoff, and monitoring settings expand into the full form."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: onCallQueueCount == 1 ? String(localized: "1 on-call item") : String(localized: "\(onCallQueueCount) on-call items"),
+                    tone: onCallQueueCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    visibleAlertCount == 1 ? String(localized: "1 live alert") : String(localized: "\(visibleAlertCount) live alerts"),
+                    systemImage: "bell.badge"
+                )
+                if currentCriticalCount > 0 {
+                    Label(
+                        currentCriticalCount == 1 ? String(localized: "1 critical") : String(localized: "\(currentCriticalCount) critical"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if hasQueuedReminder {
+                    Label(String(localized: "Reminder queued"), systemImage: "bell.badge.fill")
+                }
+                Label(languageLabel, systemImage: "globe")
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if currentCriticalCount > 0 || visibleAlertCount > 0 {
+            return String(localized: "Settings action readiness is currently anchored by live alert pressure reaching the device layer.")
+        }
+        if onCallQueueCount > 0 || hasQueuedReminder {
+            return String(localized: "Settings action readiness is currently centered on on-call queue state and reminder follow-through.")
+        }
+        return String(localized: "Settings action readiness is currently clear enough for route pivots and deeper settings review.")
     }
 }
 

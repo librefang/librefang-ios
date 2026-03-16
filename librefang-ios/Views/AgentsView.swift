@@ -208,6 +208,21 @@ struct AgentsView: View {
                                     filterTone: filterState == .attention ? .warning : .neutral
                                 )
 
+                                AgentsActionReadinessDeck(
+                                    primaryRouteCount: agentRoutePrimaryCount,
+                                    supportRouteCount: agentRouteSupportCount,
+                                    visibleCount: filteredAgents.count,
+                                    totalCount: vm.agents.count,
+                                    runningCount: filteredRunningCount,
+                                    issueCount: filteredIssueCount,
+                                    approvalCount: filteredApprovalCount,
+                                    watchlistCount: filteredWatchedCount,
+                                    sessionPressureCount: filteredSessionPressureCount,
+                                    hasSearchScope: !normalizedSearchText.isEmpty,
+                                    filterLabel: filterState.label,
+                                    filterTone: filterState == .attention ? .warning : .neutral
+                                )
+
                                 MonitoringSurfaceGroupCard(
                                     title: String(localized: "Routes"),
                                     detail: String(localized: "Keep the broader operator queues one tap away from the compact fleet filter.")
@@ -939,6 +954,102 @@ private struct AgentsSupportCoverageDeck: View {
             return String(localized: "Fleet support coverage is currently anchored by watchlist load and slower config drift.")
         }
         return String(localized: "Fleet support coverage is currently light and mostly reflects total agent breadth.")
+    }
+}
+
+private struct AgentsActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let visibleCount: Int
+    let totalCount: Int
+    let runningCount: Int
+    let issueCount: Int
+    let approvalCount: Int
+    let watchlistCount: Int
+    let sessionPressureCount: Int
+    let hasSearchScope: Bool
+    let filterLabel: String
+    let filterTone: PresentationTone
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to confirm route breadth, visible fleet slice, and filter readiness before opening individual agent rows or leaving the fleet list."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: filterLabel, tone: filterTone)
+                    PresentationToneBadge(
+                        text: String(localized: "\(primaryRouteCount + supportRouteCount) routes"),
+                        tone: .neutral
+                    )
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep fleet slice, route exits, and pressure categories visible before drilling into agent detail or adjacent monitoring surfaces."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleCount == 1 ? String(localized: "1 visible agent") : String(localized: "\(visibleCount) visible agents"),
+                    tone: visibleCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    totalCount == 1 ? String(localized: "1 total agent") : String(localized: "\(totalCount) total agents"),
+                    systemImage: "person.3"
+                )
+                Label(
+                    runningCount == 1 ? String(localized: "1 running") : String(localized: "\(runningCount) running"),
+                    systemImage: "play.circle"
+                )
+                if issueCount > 0 {
+                    Label(
+                        issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if watchlistCount > 0 {
+                    Label(
+                        watchlistCount == 1 ? String(localized: "1 watched agent") : String(localized: "\(watchlistCount) watched agents"),
+                        systemImage: "star.fill"
+                    )
+                }
+                if sessionPressureCount > 0 {
+                    Label(
+                        sessionPressureCount == 1 ? String(localized: "1 session hotspot") : String(localized: "\(sessionPressureCount) session hotspots"),
+                        systemImage: "text.bubble"
+                    )
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Agent action readiness is currently narrowed by a search-scoped fleet slice.")
+        }
+        if issueCount > 0 || approvalCount > 0 || sessionPressureCount > 0 {
+            return String(localized: "Agent action readiness is currently centered on fleet pressure before deeper drilldown.")
+        }
+        return String(localized: "Agent action readiness is currently clear enough for route pivots and detail drilldown.")
     }
 }
 
