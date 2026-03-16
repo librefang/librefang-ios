@@ -440,10 +440,6 @@ struct AgentDetailView: View {
                             TextField(String(localized: "Optional label"), text: $newSessionLabel)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
-
-                            Text(String(localized: "A fresh session is useful when you need a clean operator context without resetting the existing thread."))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
                         }
                     }
                     .navigationTitle(String(localized: "Fresh Session"))
@@ -492,8 +488,6 @@ struct AgentDetailView: View {
                             .disabled(isLookingUpSession || sessionLookupLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                         } header: {
                             Text(String(localized: "Session Label"))
-                        } footer: {
-                            Text(String(localized: "LibreFang resolves labels server-side for this agent, so this works even when the current inventory is stale."))
                         }
 
                         if let sessionLookupResult {
@@ -554,10 +548,6 @@ struct AgentDetailView: View {
                             TextField(String(localized: "Optional label"), text: $sessionLabelDraft)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
-
-                            Text(String(localized: "Clear the field to remove the label. Labeled sessions are easier to hand off and recover later."))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
                         } header: {
                             Text(String(localized: "Session Label"))
                         } footer: {
@@ -884,7 +874,7 @@ struct AgentDetailView: View {
         VStack(alignment: .leading, spacing: 12) {
             MonitoringSnapshotCard(
                 summary: diagnosticsSnapshotSummary,
-                detail: String(localized: "Use this compact digest before jumping into sessions, memory, deliveries, workspace files, or approvals.")
+                detail: nil
             ) {
                 FlowLayout(spacing: 8) {
                     PresentationToneBadge(text: agent.stateLabel, tone: agent.stateTone)
@@ -946,35 +936,6 @@ struct AgentDetailView: View {
                         PresentationToneBadge(text: String(localized: "Watched"), tone: .caution)
                     }
                 }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Operator facts"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep the current model path, session, and failure counts visible while scrolling deeper sections."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                if let requestedModelReference {
-                    PresentationToneBadge(text: requestedModelReference, tone: modelDiagnostic?.statusTone ?? .neutral)
-                }
-            } facts: {
-                Label(currentSessionBadgeText ?? String(localized: "No current session"), systemImage: "text.bubble")
-                Label(
-                    failedDeliveryCount == 1 ? String(localized: "1 failed receipt") : String(localized: "\(failedDeliveryCount) failed receipts"),
-                    systemImage: "paperplane"
-                )
-                Label(
-                    missingWorkspaceFileCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingWorkspaceFileCount) missing files"),
-                    systemImage: "doc.text"
-                )
-                Label(
-                    agentMemory.count == 1 ? String(localized: "1 memory key") : String(localized: "\(agentMemory.count) memory keys"),
-                    systemImage: "internaldrive"
-                )
             }
         }
     }
@@ -1354,7 +1315,7 @@ struct AgentDetailView: View {
             Section("Cost (USD)") {
                 MonitoringSnapshotCard(
                     summary: budgetSnapshotSummary,
-                    detail: String(localized: "Use the global budget surface when the agent spend summary no longer has enough context.")
+                    detail: nil
                 ) {
                     FlowLayout(spacing: 8) {
                         PresentationToneBadge(
@@ -1518,8 +1479,6 @@ struct AgentDetailView: View {
             .disabled(hasActiveSessionOperation)
         } header: {
             Text("Session Controls")
-        } footer: {
-            Text("These commands affect the active session on the server. Use them after confirming the current agent state.")
         }
     }
 
@@ -1573,10 +1532,6 @@ struct AgentDetailView: View {
                 }
             } header: {
                 Text("Session Inventory")
-            } footer: {
-                if sessionItems.count > 4 {
-                    Text("Showing 4 of \(sessionItems.count) sessions for this agent")
-                }
             }
             .id(AgentDetailSectionAnchor.sessionInventory)
         }
@@ -1608,7 +1563,7 @@ struct AgentDetailView: View {
             } else {
                 MonitoringSnapshotCard(
                     summary: memorySnapshotSummary,
-                    detail: String(localized: "Use the full memory surface when the compact key preview is not enough to explain agent behavior.")
+                    detail: nil
                 ) {
                     FlowLayout(spacing: 8) {
                         PresentationToneBadge(
@@ -1643,8 +1598,6 @@ struct AgentDetailView: View {
             }
         } header: {
             Text("Memory")
-        } footer: {
-            Text("Agent memory is durable KV state shared across runs. Use it when the current session does not explain agent behavior.")
         }
     }
 
@@ -1660,7 +1613,7 @@ struct AgentDetailView: View {
             } else {
                 MonitoringSnapshotCard(
                     summary: workspaceSnapshotSummary,
-                    detail: String(localized: "Use the full workspace identity surface when the previewed files are not enough to explain agent behavior.")
+                    detail: nil
                 ) {
                     FlowLayout(spacing: 8) {
                         PresentationToneBadge(
@@ -1696,8 +1649,6 @@ struct AgentDetailView: View {
             }
         } header: {
             Text("Workspace")
-        } footer: {
-            Text("SOUL.md, IDENTITY.md, AGENTS.md, MEMORY.md, and related files often explain why an agent is behaving differently from its live session.")
         }
     }
 
@@ -1716,7 +1667,7 @@ struct AgentDetailView: View {
 
                 MonitoringSnapshotCard(
                     summary: deliveriesSnapshotSummary,
-                    detail: String(localized: "Use the full receipt surface when the compact preview is not enough to explain channel behavior.")
+                    detail: nil
                 ) {
                     FlowLayout(spacing: 8) {
                         PresentationToneBadge(
@@ -1775,8 +1726,6 @@ struct AgentDetailView: View {
             }
         } header: {
             Text("Deliveries")
-        } footer: {
-            Text("Use delivery receipts to confirm whether outbound channel sends actually reached a recipient or failed downstream.")
         }
     }
 
@@ -1795,8 +1744,6 @@ struct AgentDetailView: View {
                 }
             } header: {
                 Text("Recent Audit")
-            } footer: {
-                Text("Showing recent audit events already loaded on the dashboard for this agent.")
             }
         }
     }
