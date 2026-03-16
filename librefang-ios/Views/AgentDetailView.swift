@@ -366,7 +366,6 @@ struct AgentDetailView: View {
     var body: some View {
         List {
             identitySection
-            controlDeckSection
             statusSection
                 .id(AgentDetailSectionAnchor.runtimeStatus)
             capabilitiesSection
@@ -635,19 +634,6 @@ struct AgentDetailView: View {
                 message: Text(notice.message),
                 dismissButton: .default(Text(String(localized: "OK")))
             )
-        }
-    }
-
-    private var controlDeckSection: some View {
-        Section {
-            VStack(alignment: .leading, spacing: 12) {
-                agentDiagnosticsStatusDeckCard
-                agentOperatorSurfaceDeckCard
-            }
-        } header: {
-            Text("Summary")
-        } footer: {
-            Text("Keep one agent summary and the core exits above the deeper diagnostics.")
         }
     }
 
