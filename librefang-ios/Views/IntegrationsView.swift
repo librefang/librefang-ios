@@ -597,6 +597,11 @@ struct IntegrationsView: View {
                             isTesting: providerProbeInFlightID != nil,
                             hasSearchScope: !normalizedSearchText.isEmpty
                         )
+                        MonitoringSectionPreviewDeck(
+                            title: String(localized: "Section Preview"),
+                            detail: String(localized: "Keep the next provider stack visible before the full provider diagnostics rows open up."),
+                            sectionTitles: [String(localized: "Providers")]
+                        )
 
                         ForEach(filteredProviders) { provider in
                             IntegrationProviderRow(
@@ -629,6 +634,11 @@ struct IntegrationsView: View {
                             quickSetupCount: quickSetupChannelCount,
                             isTesting: channelProbeInFlightID != nil,
                             hasSearchScope: !normalizedSearchText.isEmpty
+                        )
+                        MonitoringSectionPreviewDeck(
+                            title: String(localized: "Section Preview"),
+                            detail: String(localized: "Keep the next channel stack visible before the credential and delivery rows open up."),
+                            sectionTitles: [String(localized: "Channels")]
                         )
 
                         ForEach(filteredChannels) { channel in

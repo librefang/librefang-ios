@@ -198,6 +198,14 @@ struct HandoffCenterView: View {
         }
         return sections
     }
+    private var handoffDraftSectionPreviewTitles: [String] {
+        [
+            String(localized: "Draft Snapshot"),
+            String(localized: "Operator Note"),
+            String(localized: "Checklist & Focus"),
+            String(localized: "Follow-ups & Actions")
+        ]
+    }
     private var isHistorySearchScoped: Bool {
         !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
@@ -274,6 +282,13 @@ struct HandoffCenterView: View {
                     suggestedFollowUpCount: suggestedFollowUps.count,
                     checkInWindow: handoffStore.draftCheckInWindow
                 )
+                if !handoffDraftSectionPreviewTitles.isEmpty {
+                    MonitoringSectionPreviewDeck(
+                        title: String(localized: "Draft Preview"),
+                        detail: String(localized: "Keep the next draft stacks visible before the note, checklist, and follow-up editors open up."),
+                        sectionTitles: handoffDraftSectionPreviewTitles
+                    )
+                }
 
                 HandoffDraftContextCard(
                     kind: Binding(
