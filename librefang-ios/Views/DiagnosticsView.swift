@@ -369,6 +369,17 @@ struct DiagnosticsView: View {
                 panicCount: vm.supervisorPanicCount,
                 hasMetrics: metrics != nil
             )
+            DiagnosticsActionReadinessDeck(
+                primaryCount: 5,
+                supportCount: 2,
+                jumpCount: diagnosticsJumpCount,
+                hasHealth: vm.healthDetail != nil,
+                hasBuild: vm.versionInfo != nil,
+                hasConfig: vm.configSummary != nil,
+                hasMetrics: metrics != nil,
+                warningCount: vm.diagnosticsConfigWarningCount,
+                panicCount: vm.supervisorPanicCount
+            )
 
             MonitoringShortcutRail(
                 title: String(localized: "Jumps"),
@@ -1130,6 +1141,98 @@ private struct DiagnosticsRouteInventoryDeck: View {
             return String(localized: "Primary and support routes stay grouped before the deep-diagnostic sections load.")
         }
         return String(localized: "Primary routes, support surfaces, and deep-section jumps stay grouped in one compact diagnostic deck.")
+    }
+}
+
+private struct DiagnosticsActionReadinessDeck: View {
+    let primaryCount: Int
+    let supportCount: Int
+    let jumpCount: Int
+    let hasHealth: Bool
+    let hasBuild: Bool
+    let hasConfig: Bool
+    let hasMetrics: Bool
+    let warningCount: Int
+    let panicCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check whether health, config, metrics, and section jumps are ready before drilling into the deep diagnostics sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: hasHealth ? String(localized: "Health ready") : String(localized: "Health pending"),
+                        tone: hasHealth ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: hasMetrics ? String(localized: "Metrics ready") : String(localized: "Metrics pending"),
+                        tone: hasMetrics ? .positive : .neutral
+                    )
+                    if warningCount > 0 {
+                        PresentationToneBadge(
+                            text: warningCount == 1 ? String(localized: "1 warning") : String(localized: "\(warningCount) warnings"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep loaded feeds, jump breadth, and recovery pressure visible before opening health, build, config, and metrics sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: String(localized: "\(primaryCount + supportCount + jumpCount) actions"),
+                    tone: .neutral
+                )
+            } facts: {
+                Label(
+                    primaryCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                Label(
+                    supportCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportCount) support routes"),
+                    systemImage: "square.grid.2x2"
+                )
+                if jumpCount > 0 {
+                    Label(
+                        jumpCount == 1 ? String(localized: "1 jump") : String(localized: "\(jumpCount) jumps"),
+                        systemImage: "arrow.down.to.line"
+                    )
+                }
+                if hasBuild {
+                    Label(String(localized: "Build ready"), systemImage: "shippingbox")
+                }
+                if hasConfig {
+                    Label(String(localized: "Config ready"), systemImage: "gearshape.2")
+                }
+                if panicCount > 0 {
+                    Label(
+                        panicCount == 1 ? String(localized: "1 panic") : String(localized: "\(panicCount) panics"),
+                        systemImage: "bolt.trianglebadge.exclamationmark"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if !hasHealth || !hasConfig || !hasMetrics {
+            return String(localized: "Diagnostics action readiness is currently waiting on one or more deep feeds.")
+        }
+        if warningCount > 0 || panicCount > 0 {
+            return String(localized: "Diagnostics action readiness is currently anchored by warning or recovery pressure.")
+        }
+        return String(localized: "Diagnostics action readiness is currently clear enough for deep section jumps and broader route pivots.")
     }
 }
 

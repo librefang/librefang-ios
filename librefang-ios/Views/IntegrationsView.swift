@@ -367,6 +367,19 @@ struct IntegrationsView: View {
                             modelFilterLabel: modelFilter.label,
                             hasSearchScope: !normalizedSearchText.isEmpty
                         )
+                        IntegrationsActionReadinessDeck(
+                            primaryRouteCount: 4,
+                            supportRouteCount: 3,
+                            jumpCount: integrationsJumpCount,
+                            visibleResultCount: visibleResultCount,
+                            providerCount: filteredProviders.count,
+                            channelCount: filteredChannels.count,
+                            modelCount: filteredModels.count,
+                            driftCount: filteredAgentDiagnostics.count,
+                            scopeLabel: scope.label,
+                            modelFilterLabel: modelFilter.label,
+                            hasSearchScope: !normalizedSearchText.isEmpty
+                        )
                     } header: {
                         Text("Inventory")
                     } footer: {
@@ -1152,6 +1165,87 @@ private struct IntegrationsPressureCoverageDeck: View {
             return String(localized: "Integration pressure is currently concentrated in channel setup gaps and catalog availability.")
         }
         return String(localized: "Integration pressure is currently low and mostly reflects scope, search, and catalog breadth.")
+    }
+}
+
+private struct IntegrationsActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let jumpCount: Int
+    let visibleResultCount: Int
+    let providerCount: Int
+    let channelCount: Int
+    let modelCount: Int
+    let driftCount: Int
+    let scopeLabel: String
+    let modelFilterLabel: String
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check whether route jumps, model filtering, and integration inventory breadth are ready before opening the provider, channel, model, and drift sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: .neutral)
+                    PresentationToneBadge(text: modelFilterLabel, tone: .neutral)
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep route breadth, jump coverage, and integration inventory depth visible before drilling into provider, channel, model, and drift details."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: String(localized: "\(primaryRouteCount + supportRouteCount + jumpCount) actions"),
+                    tone: .neutral
+                )
+            } facts: {
+                Label(
+                    visibleResultCount == 1 ? String(localized: "1 visible result") : String(localized: "\(visibleResultCount) visible results"),
+                    systemImage: "line.3.horizontal.decrease.circle"
+                )
+                Label(
+                    providerCount == 1 ? String(localized: "1 provider") : String(localized: "\(providerCount) providers"),
+                    systemImage: "key.horizontal"
+                )
+                Label(
+                    channelCount == 1 ? String(localized: "1 channel") : String(localized: "\(channelCount) channels"),
+                    systemImage: "bubble.left.and.bubble.right"
+                )
+                Label(
+                    modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
+                    systemImage: "square.stack.3d.up"
+                )
+                if driftCount > 0 {
+                    Label(
+                        driftCount == 1 ? String(localized: "1 drift case") : String(localized: "\(driftCount) drift cases"),
+                        systemImage: "arrow.triangle.branch"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Integration action readiness is currently narrowed by an active search scope.")
+        }
+        if driftCount > 0 {
+            return String(localized: "Integration action readiness is currently anchored by model or provider drift that is ready for deeper drilldown.")
+        }
+        return String(localized: "Integration action readiness is currently clear enough for route jumps and inventory review.")
     }
 }
 

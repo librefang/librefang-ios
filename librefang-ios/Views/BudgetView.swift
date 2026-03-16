@@ -403,6 +403,18 @@ struct BudgetView: View {
                 topModelName: topModelName,
                 topAgentName: topAgentBudgetItem?.name
             )
+            BudgetActionReadinessDeck(
+                primaryAreaCount: budgetPrimaryAreaCount,
+                supportAreaCount: budgetSupportAreaCount,
+                primaryRouteCount: 2,
+                supportRouteCount: 2,
+                sortOrderLabel: sortOrder.label,
+                hasBudgetGuardrails: vm.budget != nil,
+                hasUsageSignals: vm.usageSummary != nil,
+                trendDays: vm.usageDaily.count,
+                modelCount: sortedModels.count,
+                agentCount: sortedAgents.count
+            )
 
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Focus Rail"),
@@ -1988,6 +2000,94 @@ private struct BudgetSupportCoverageDeck: View {
             return String(localized: "Budget support coverage is currently anchored by trend depth and current spend leaders.")
         }
         return String(localized: "Budget support coverage is currently light and mostly reflects trend depth.")
+    }
+}
+
+private struct BudgetActionReadinessDeck: View {
+    let primaryAreaCount: Int
+    let supportAreaCount: Int
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let sortOrderLabel: String
+    let hasBudgetGuardrails: Bool
+    let hasUsageSignals: Bool
+    let trendDays: Int
+    let modelCount: Int
+    let agentCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check whether the budget view is ready for sorting, chart review, and route jumps before opening the long trend sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: sortOrderLabel, tone: .neutral)
+                    PresentationToneBadge(
+                        text: hasBudgetGuardrails ? String(localized: "Limits ready") : String(localized: "Limits pending"),
+                        tone: hasBudgetGuardrails ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: hasUsageSignals ? String(localized: "Signals ready") : String(localized: "Signals pending"),
+                        tone: hasUsageSignals ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep sort state, chart breadth, and route readiness visible before diving into limits, trends, models, and agent spend sections."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
+                    tone: .neutral
+                )
+            } facts: {
+                Label(
+                    primaryAreaCount == 1 ? String(localized: "1 primary area") : String(localized: "\(primaryAreaCount) primary areas"),
+                    systemImage: "scope"
+                )
+                Label(
+                    supportAreaCount == 1 ? String(localized: "1 support area") : String(localized: "\(supportAreaCount) support areas"),
+                    systemImage: "square.grid.2x2"
+                )
+                if trendDays > 0 {
+                    Label(
+                        trendDays == 1 ? String(localized: "1 trend day") : String(localized: "\(trendDays) trend days"),
+                        systemImage: "chart.xyaxis.line"
+                    )
+                }
+                if modelCount > 0 {
+                    Label(
+                        modelCount == 1 ? String(localized: "1 model") : String(localized: "\(modelCount) models"),
+                        systemImage: "square.stack.3d.up"
+                    )
+                }
+                if agentCount > 0 {
+                    Label(
+                        agentCount == 1 ? String(localized: "1 agent") : String(localized: "\(agentCount) agents"),
+                        systemImage: "person.3"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if !hasUsageSignals {
+            return String(localized: "Budget action readiness is currently waiting on usage signals before the longer trend and spend sections are useful.")
+        }
+        if !hasBudgetGuardrails {
+            return String(localized: "Budget action readiness is currently centered on analysis because spend limits are not loaded.")
+        }
+        return String(localized: "Budget action readiness is currently clear enough for chart review, sorting, and route jumps.")
     }
 }
 

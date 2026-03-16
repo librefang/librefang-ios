@@ -207,6 +207,19 @@ struct AgentDetailView: View {
         guard let currentSessionInfo else { return nil }
         return sessionDisplayTitle(currentSessionInfo)
     }
+    private var hasCurrentSessionCoverage: Bool {
+        currentSessionInfo != nil || currentSessionID != nil
+    }
+    private var hasCapabilityCoverage: Bool {
+        agentToolFilters != nil || agentSkills != nil || agentMCPServers != nil
+    }
+    private var agentPrimaryRouteCount: Int { 5 }
+    private var agentSupportRouteCount: Int {
+        6 + (agentApprovals.isEmpty ? 0 : 1) + (agent.profile == nil ? 0 : 1) + (agent.isRunning ? 1 : 0)
+    }
+    private var diagnosticsWarningCount: Int {
+        deps.dashboardViewModel.diagnosticsConfigWarningCount
+    }
 
     private var profileBadgeText: String? {
         guard let profile = agent.profile else { return nil }
@@ -598,6 +611,36 @@ struct AgentDetailView: View {
                     structuredMemoryCount: agentMemory.filter(\.isStructured).count,
                     auditCount: agentRecentEvents.count
                 )
+                AgentSupportCoverageDeck(
+                    isWatched: isWatched,
+                    hasCurrentSession: hasCurrentSessionCoverage,
+                    hasBudget: budgetDetail != nil,
+                    hasProfile: agent.profile != nil,
+                    hasCapabilities: hasCapabilityCoverage,
+                    hasModelResolution: hasModelResolution,
+                    supportsChat: agent.isRunning,
+                    diagnosticsWarningCount: diagnosticsWarningCount
+                )
+                AgentActionReadinessDeck(
+                    primaryRouteCount: agentPrimaryRouteCount,
+                    supportRouteCount: agentSupportRouteCount,
+                    sessionActionCount: sessionControlActionCount,
+                    issueCount: monitoringSurfaceIssueCount,
+                    approvalCount: agentApprovals.count,
+                    hasBudget: budgetDetail != nil,
+                    hasModelResolution: hasModelResolution,
+                    hasCurrentSession: currentSessionInfo != nil,
+                    canShare: !diagnosticsShareText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                )
+                AgentRouteInventoryDeck(
+                    primaryRouteCount: agentPrimaryRouteCount,
+                    supportRouteCount: agentSupportRouteCount,
+                    issueCount: monitoringSurfaceIssueCount,
+                    approvalCount: agentApprovals.count,
+                    diagnosticsWarningCount: diagnosticsWarningCount,
+                    hasLiveChat: agent.isRunning,
+                    hasProfile: agent.profile != nil
+                )
                 agentOperatorSurfaceDeckCard
             }
         } header: {
@@ -703,10 +746,10 @@ struct AgentDetailView: View {
                             title: String(localized: "Diagnostics"),
                             systemImage: "stethoscope",
                             tone: deps.dashboardViewModel.diagnosticsSummaryTone,
-                            badgeText: deps.dashboardViewModel.diagnosticsConfigWarningCount > 0
-                                ? (deps.dashboardViewModel.diagnosticsConfigWarningCount == 1
+                            badgeText: diagnosticsWarningCount > 0
+                                ? (diagnosticsWarningCount == 1
                                     ? String(localized: "1 warning")
-                                    : String(localized: "\(deps.dashboardViewModel.diagnosticsConfigWarningCount) warnings"))
+                                    : String(localized: "\(diagnosticsWarningCount) warnings"))
                                 : nil
                         )
                     }
@@ -2417,6 +2460,259 @@ private struct AgentPressureCoverageDeck: View {
             return String(localized: "Agent pressure is currently concentrated in approvals and session follow-up.")
         }
         return String(localized: "Agent pressure is currently concentrated in quieter diagnostics like structured memory and audit churn.")
+    }
+}
+
+private struct AgentSupportCoverageDeck: View {
+    let isWatched: Bool
+    let hasCurrentSession: Bool
+    let hasBudget: Bool
+    let hasProfile: Bool
+    let hasCapabilities: Bool
+    let hasModelResolution: Bool
+    let supportsChat: Bool
+    let diagnosticsWarningCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep watch state, current session visibility, budget and profile context, capability coverage, and live chat availability readable before the operator route rails fan out."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: isWatched ? String(localized: "Watched locally") : String(localized: "Not watched"),
+                        tone: isWatched ? .caution : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: hasCurrentSession ? String(localized: "Session visible") : String(localized: "Session pending"),
+                        tone: hasCurrentSession ? .positive : .neutral
+                    )
+                    PresentationToneBadge(
+                        text: supportsChat ? String(localized: "Live chat ready") : String(localized: "Live chat unavailable"),
+                        tone: supportsChat ? .positive : .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Support coverage"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep current session visibility, budget and profile context, capability coverage, and model path readiness visible before the operator route rails and deeper sections take over."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
+                    tone: diagnosticsWarningCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    hasBudget ? String(localized: "Budget visible") : String(localized: "Budget pending"),
+                    systemImage: "chart.bar"
+                )
+                Label(
+                    hasProfile ? String(localized: "Profile visible") : String(localized: "Profile pending"),
+                    systemImage: "person.crop.rectangle.stack"
+                )
+                Label(
+                    hasCapabilities ? String(localized: "Capabilities visible") : String(localized: "Capabilities pending"),
+                    systemImage: "slider.horizontal.3"
+                )
+                Label(
+                    hasModelResolution ? String(localized: "Model path visible") : String(localized: "Model path pending"),
+                    systemImage: "square.3.layers.3d.down.forward"
+                )
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if isWatched && supportsChat {
+            return String(localized: "Agent support coverage is currently anchored by a watched live agent with an open chat path.")
+        }
+        if hasCurrentSession || hasBudget || hasProfile {
+            return String(localized: "Agent support coverage is currently anchored by session, budget, and profile visibility.")
+        }
+        if diagnosticsWarningCount > 0 || !hasCapabilities || !hasModelResolution {
+            return String(localized: "Agent support coverage is currently anchored by deeper diagnostics, capability, or model-path readiness.")
+        }
+        return String(localized: "Agent support coverage is currently light and mostly reflects optional support routes.")
+    }
+}
+
+private struct AgentActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let sessionActionCount: Int
+    let issueCount: Int
+    let approvalCount: Int
+    let hasBudget: Bool
+    let hasModelResolution: Bool
+    let hasCurrentSession: Bool
+    let canShare: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check whether sharing, session controls, and broader route pivots are ready before opening deeper agent diagnostics sections."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
+                        tone: .neutral
+                    )
+                    PresentationToneBadge(
+                        text: canShare ? String(localized: "Share ready") : String(localized: "Share pending"),
+                        tone: canShare ? .positive : .neutral
+                    )
+                    if hasCurrentSession {
+                        PresentationToneBadge(
+                            text: String(localized: "\(sessionActionCount) session actions"),
+                            tone: .neutral
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep route breadth, session actions, and model or budget context visible before pivoting into adjacent operator surfaces."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
+                    tone: issueCount > 0 ? .warning : .neutral
+                )
+            } facts: {
+                Label(
+                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                    systemImage: "arrowshape.turn.up.right"
+                )
+                Label(
+                    supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                    systemImage: "square.grid.2x2"
+                )
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if hasBudget {
+                    Label(String(localized: "Budget ready"), systemImage: "chart.bar")
+                }
+                if hasModelResolution {
+                    Label(String(localized: "Model resolution ready"), systemImage: "square.stack.3d.up")
+                }
+                if hasCurrentSession {
+                    Label(String(localized: "Session controls ready"), systemImage: "rectangle.stack")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if issueCount > 0 || approvalCount > 0 {
+            return String(localized: "Agent action readiness is currently anchored by surfaced issues that are ready for adjacent route pivots.")
+        }
+        if hasCurrentSession {
+            return String(localized: "Agent action readiness is currently clear enough for session controls, sharing, and deeper route pivots.")
+        }
+        return String(localized: "Agent action readiness is currently light and mostly reflects broader route availability.")
+    }
+}
+
+private struct AgentRouteInventoryDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let issueCount: Int
+    let approvalCount: Int
+    let diagnosticsWarningCount: Int
+    let hasLiveChat: Bool
+    let hasProfile: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to keep the compact split between immediate operator exits and slower support drills readable before the shortcut rails begin."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(
+                        text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
+                        tone: .warning
+                    )
+                    PresentationToneBadge(
+                        text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
+                        tone: .neutral
+                    )
+                    if issueCount > 0 {
+                        PresentationToneBadge(
+                            text: issueCount == 1 ? String(localized: "1 route issue") : String(localized: "\(issueCount) route issues"),
+                            tone: .warning
+                        )
+                    }
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Route inventory"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep primary operator exits distinct from slower runtime, budget, diagnostics, profile, and capability drills before the shortcut rails fan out."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
+                    tone: .neutral
+                )
+            } facts: {
+                if approvalCount > 0 {
+                    Label(
+                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
+                        systemImage: "checkmark.shield"
+                    )
+                }
+                if diagnosticsWarningCount > 0 {
+                    Label(
+                        diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
+                        systemImage: "stethoscope"
+                    )
+                }
+                if hasProfile {
+                    Label(String(localized: "Tool profile route"), systemImage: "person.crop.rectangle.stack")
+                }
+                if hasLiveChat {
+                    Label(String(localized: "Live chat route"), systemImage: "bubble.left.and.bubble.right")
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if issueCount > 0 || approvalCount > 0 {
+            return String(localized: "Agent routes are currently anchored by live issues and approval follow-through.")
+        }
+        if diagnosticsWarningCount > 0 {
+            return String(localized: "Agent routes are currently anchored by slower diagnostics and verification drills.")
+        }
+        return String(localized: "Agent routes are currently centered on the next operator follow-through.")
     }
 }
 

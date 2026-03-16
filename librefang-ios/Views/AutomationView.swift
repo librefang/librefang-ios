@@ -223,6 +223,17 @@ struct AutomationView: View {
                         scopeLabel: scope.label,
                         hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                     )
+                    AutomationActionReadinessDeck(
+                        primaryRouteCount: 4,
+                        supportRouteCount: 1,
+                        jumpCount: automationJumpCount,
+                        visibleItemCount: visibleItemCount,
+                        workflowCount: filteredWorkflows.count,
+                        runCount: filteredWorkflowRuns.count,
+                        failedRunCount: vm.failedWorkflowRunCount,
+                        scopeLabel: scope.label,
+                        hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    )
                     AutomationRouteInventoryDeck(
                         primaryRouteCount: 4,
                         supportRouteCount: 1,
@@ -1218,6 +1229,86 @@ private struct AutomationSupportCoverageDeck: View {
             return String(localized: "Automation support coverage is currently anchored by workflow breadth and scheduler depth.")
         }
         return String(localized: "Automation support coverage is currently light and mostly reflects active route breadth.")
+    }
+}
+
+private struct AutomationActionReadinessDeck: View {
+    let primaryRouteCount: Int
+    let supportRouteCount: Int
+    let jumpCount: Int
+    let visibleItemCount: Int
+    let workflowCount: Int
+    let runCount: Int
+    let failedRunCount: Int
+    let scopeLabel: String
+    let hasSearchScope: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MonitoringSnapshotCard(
+                summary: summaryLine,
+                detail: String(localized: "Use this deck to check whether route jumps, workflow coverage, and scoped queue actions are ready before opening the grouped automation lists."),
+                verticalPadding: 4
+            ) {
+                FlowLayout(spacing: 8) {
+                    PresentationToneBadge(text: scopeLabel, tone: .neutral)
+                    if hasSearchScope {
+                        PresentationToneBadge(text: String(localized: "Search scoped"), tone: .neutral)
+                    }
+                    PresentationToneBadge(
+                        text: String(localized: "\(primaryRouteCount + supportRouteCount + jumpCount) actions"),
+                        tone: .neutral
+                    )
+                }
+            }
+
+            MonitoringFactsRow {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(String(localized: "Action readiness"))
+                        .font(.subheadline.weight(.medium))
+                    Text(String(localized: "Keep route breadth, jump coverage, and workflow visibility readable before drilling into runs, triggers, schedules, or cron jobs."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            } accessory: {
+                PresentationToneBadge(
+                    text: visibleItemCount == 1 ? String(localized: "1 visible item") : String(localized: "\(visibleItemCount) visible items"),
+                    tone: visibleItemCount > 0 ? .positive : .neutral
+                )
+            } facts: {
+                Label(
+                    workflowCount == 1 ? String(localized: "1 workflow") : String(localized: "\(workflowCount) workflows"),
+                    systemImage: "square.stack.3d.up"
+                )
+                Label(
+                    runCount == 1 ? String(localized: "1 run") : String(localized: "\(runCount) runs"),
+                    systemImage: "play.rectangle.on.rectangle"
+                )
+                if failedRunCount > 0 {
+                    Label(
+                        failedRunCount == 1 ? String(localized: "1 failed run") : String(localized: "\(failedRunCount) failed runs"),
+                        systemImage: "exclamationmark.triangle"
+                    )
+                }
+                if jumpCount > 0 {
+                    Label(
+                        jumpCount == 1 ? String(localized: "1 jump") : String(localized: "\(jumpCount) jumps"),
+                        systemImage: "arrow.down.to.line"
+                    )
+                }
+            }
+        }
+    }
+
+    private var summaryLine: String {
+        if hasSearchScope {
+            return String(localized: "Automation action readiness is currently narrowed by an active search scope.")
+        }
+        if failedRunCount > 0 {
+            return String(localized: "Automation action readiness is currently anchored by failed runs that are ready for deeper drilldown.")
+        }
+        return String(localized: "Automation action readiness is currently clear enough for route jumps and grouped automation review.")
     }
 }
 
