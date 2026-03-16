@@ -3113,6 +3113,12 @@
             "state": "translated",
             "value": "代理"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェント"
+          }
         }
       }
     },
@@ -3704,6 +3710,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "通过"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認"
           }
         }
       }
@@ -10844,6 +10856,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "拒绝"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "却下"
           }
         }
       }
@@ -18867,6 +18885,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "用户"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ユーザー"
           }
         }
       }
@@ -43491,6 +43515,1862 @@
           "stringUnit": {
             "state": "translated",
             "value": "セクションプレビュー"
+          }
+        }
+      }
+    },
+    "1 agent lane": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个代理通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のエージェントレーン"
+          }
+        }
+      }
+    },
+    "1 tool lane": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个工具通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のツールレーン"
+          }
+        }
+      }
+    },
+    "Approval focus coverage is currently anchored by critical and high-risk review lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批焦点覆盖当前由严重和高风险审查通道主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認のフォーカス範囲は現在、重大および高リスクのレビュー レーンが軸です。"
+          }
+        }
+      }
+    },
+    "Approval focus coverage is currently anchored by the filtered approval slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批焦点覆盖当前由筛选后的审批切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認のフォーカス範囲は現在、フィルター済みの承認スライスが軸です。"
+          }
+        }
+      }
+    },
+    "Approval focus coverage is currently balanced across the visible approval lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批焦点覆盖当前在可见审批通道之间保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認のフォーカス範囲は現在、表示中の承認レーン全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Approval scope coverage is currently anchored by the active search slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批范围覆盖当前由激活的搜索切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認のスコープ範囲は現在、アクティブな検索スライスが軸です。"
+          }
+        }
+      }
+    },
+    "Approval scope coverage is currently balanced across the full pending queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批范围覆盖当前在完整待处理队列中保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認のスコープ範囲は現在、保留キュー全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Approval scope coverage is currently centered on the visible mobile queue slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批范围覆盖当前围绕可见的移动队列切片展开。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認のスコープ範囲は現在、表示中のモバイルキュースライスが中心です。"
+          }
+        }
+      }
+    },
+    "Approval scope coverage is currently narrowed to a severity-filtered review slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批范围覆盖当前收窄到按严重度筛选的审查切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認のスコープ範囲は現在、重大度で絞り込まれたレビュー スライスに狭まっています。"
+          }
+        }
+      }
+    },
+    "Keep the approval slice, visible agent spread, and tool breadth readable before moving deeper into route rails and queue review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入路由栏和队列审查前，先让审批切片、可见代理分布和工具覆盖范围保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートレールとキューレビューへ深く入る前に、承認スライス、表示中エージェントの広がり、ツールの幅を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the dominant approval lane readable before moving from the compact control decks into route rails and queue rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从紧凑控制卡片切换到路由栏和队列行之前，先让主审批通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなコントロールデッキからルートレールとキュー行へ移る前に、主要な承認レーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the next approval stack visible before the queue opens into full review rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在队列展开为完整审查行之前，先让下一组审批堆栈保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キューが完全なレビュー行に開く前に、次の承認スタックを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Scope coverage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "范围覆盖"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スコープカバレッジ"
+          }
+        }
+      }
+    },
+    "Severity scoped": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "严重度筛选"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重大度で絞り込み"
+          }
+        }
+      }
+    },
+    "Use this deck to keep severity scope, search state, and visible approval breadth readable before routes and queue rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在进入路由和队列行之前，让严重度范围、搜索状态和可见审批广度保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、ルートとキュー行に入る前に、重大度の範囲、検索状態、表示中の承認の幅を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant approval lane visible before opening route rails and the full approval queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开路由栏和完整审批队列之前，让主审批通道保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、ルートレールと完全な承認キューを開く前に、主要な承認レーンを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "\\(approvalAgentCount) agent lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalAgentCount) 个代理通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalAgentCount)件のエージェントレーン"
+          }
+        }
+      }
+    },
+    "\\(highRiskApprovalCount) high risk": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskApprovalCount) 个高风险项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskApprovalCount)件の高リスク項目"
+          }
+        }
+      }
+    },
+    "\\(toolCount) tool lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(toolCount) 个工具通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(toolCount)件のツールレーン"
+          }
+        }
+      }
+    },
+    "\\(visibleApprovalCount) of \\(totalApprovalCount) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可见 \\(visibleApprovalCount) / \\(totalApprovalCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleApprovalCount)/\\(totalApprovalCount)件を表示"
+          }
+        }
+      }
+    },
+    "1 lifecycle lane": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个生命周期通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のライフサイクルレーン"
+          }
+        }
+      }
+    },
+    "1 task-flow lane": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个任务流通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のタスクフローレーン"
+          }
+        }
+      }
+    },
+    "Comms focus coverage is currently anchored by active task-flow and lifecycle lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信焦点覆盖当前由活跃任务流和生命周期通道主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信のフォーカス範囲は現在、アクティブなタスクフローとライフサイクルのレーンが軸です。"
+          }
+        }
+      }
+    },
+    "Comms focus coverage is currently anchored by the filtered traffic slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信焦点覆盖当前由筛选后的流量切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信のフォーカス範囲は現在、フィルター済みのトラフィックスライスが軸です。"
+          }
+        }
+      }
+    },
+    "Comms focus coverage is currently balanced across visible topology and traffic lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信焦点覆盖当前在可见拓扑和流量通道之间保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信のフォーカス範囲は現在、表示中のトポロジーとトラフィックのレーン全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Comms scope coverage is currently anchored by the active traffic search slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信范围覆盖当前由激活的流量搜索切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信のスコープ範囲は現在、アクティブなトラフィック検索スライスが軸です。"
+          }
+        }
+      }
+    },
+    "Comms scope coverage is currently balanced across the live traffic slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信范围覆盖当前在实时流量切片中保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信のスコープ範囲は現在、ライブトラフィックスライス全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Comms scope coverage is currently leaning on polling transport and visible topology breadth.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信范围覆盖当前偏向轮询传输和可见拓扑广度。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信のスコープ範囲は現在、ポーリング転送と表示中トポロジーの広がりに寄っています。"
+          }
+        }
+      }
+    },
+    "Keep the dominant comms lane readable before moving from compact control decks into topology and traffic detail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从紧凑控制卡片切换到拓扑和流量细节前，先让主通信通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなコントロールデッキからトポロジーとトラフィックの詳細へ移る前に、主要な通信レーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the next comms topology and traffic stacks visible before the transport rows open up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在传输行展开前，先让下一组通信拓扑和流量堆栈保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "転送行が開く前に、次の通信トポロジーとトラフィックのスタックを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep topology breadth, traffic slice size, and task-flow spread readable before drilling into comms detail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入通信细节前，先让拓扑广度、流量切片大小和任务流分布保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信の詳細へ入る前に、トポロジーの幅、トラフィックスライスの大きさ、タスクフローの広がりを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant comms lane visible before opening route rails, topology rows, and traffic detail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开路由栏、拓扑行和流量细节前，让主通信通道保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、ルートレール、トポロジー行、トラフィック詳細を開く前に、主要な通信レーンを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep traffic slice, topology breadth, and transport mode readable before opening topology and traffic sections.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开拓扑和流量分区前，让流量切片、拓扑广度和传输模式保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、トポロジーとトラフィックのセクションを開く前に、トラフィックスライス、トポロジーの幅、転送モードを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "\\(spawnEventCount) lifecycle lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(spawnEventCount) 个生命周期通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(spawnEventCount)件のライフサイクルレーン"
+          }
+        }
+      }
+    },
+    "\\(taskEventCount) task-flow lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(taskEventCount) 个任务流通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(taskEventCount)件のタスクフローレーン"
+          }
+        }
+      }
+    },
+    "Filter scoped": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "筛选范围"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィルター範囲"
+          }
+        }
+      }
+    },
+    "Keep the active backlog slice, label hygiene, and duplicate-agent spread readable before moving into queue rows and route rails.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入队列行和路由栏之前，先让活跃积压切片、标签整洁度和重复代理分布保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キュー行とルートレールへ移る前に、アクティブなバックログスライス、ラベルの健全性、重複エージェントの広がりを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the dominant session lane readable before moving from compact control decks into the backlog list and route rails.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从紧凑控制卡片切换到积压列表和路由栏前，先让主会话通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなコントロールデッキからバックログ一覧とルートレールへ移る前に、主要なセッションレーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the next session inventory visible before the backlog rows expand into full operator detail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在积压行展开为完整操作员细节前，先让下一组会话清单保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックログ行が完全なオペレーター詳細へ広がる前に、次のセッションインベントリを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Session focus coverage is currently anchored by backlog pressure and label hygiene.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话焦点覆盖当前由积压压力和标签整洁度主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションのフォーカス範囲は現在、バックログの負荷とラベルの健全性が軸です。"
+          }
+        }
+      }
+    },
+    "Session focus coverage is currently anchored by the filtered backlog slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话焦点覆盖当前由筛选后的积压切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションのフォーカス範囲は現在、フィルター済みのバックログスライスが軸です。"
+          }
+        }
+      }
+    },
+    "Session focus coverage is currently balanced across the visible session lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话焦点覆盖当前在可见会话通道之间保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションのフォーカス範囲は現在、表示中のセッションレーン全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Session scope coverage is currently anchored by the active search slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话范围覆盖当前由激活的搜索切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションのスコープ範囲は現在、アクティブな検索スライスが軸です。"
+          }
+        }
+      }
+    },
+    "Session scope coverage is currently balanced across the visible backlog.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话范围覆盖当前在可见积压中保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションのスコープ範囲は現在、表示中のバックログ全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Session scope coverage is currently centered on the visible mobile backlog slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话范围覆盖当前围绕可见的移动积压切片展开。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションのスコープ範囲は現在、表示中のモバイルバックログスライスが中心です。"
+          }
+        }
+      }
+    },
+    "Session scope coverage is currently narrowed to a filtered backlog slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话范围覆盖当前收窄到筛选后的积压切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションのスコープ範囲は現在、フィルター済みのバックログスライスに狭まっています。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep filter scope, search state, and visible backlog breadth readable before opening routes and session rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开路由和会话行前，让筛选范围、搜索状态和可见积压广度保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、ルートとセッション行を開く前に、フィルター範囲、検索状態、表示中バックログの幅を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant session lane visible before opening route rails and the full session backlog.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开路由栏和完整会话积压前，让主会话通道保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、ルートレールと完全なセッションバックログを開く前に、主要なセッションレーンを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Event focus coverage is currently anchored by the filtered event slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件焦点覆盖当前由筛选后的事件切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントのフォーカス範囲は現在、フィルター済みのイベントスライスが軸です。"
+          }
+        }
+      }
+    },
+    "Event focus coverage is currently anchored by the visible severity lane.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件焦点覆盖当前由可见严重度通道主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントのフォーカス範囲は現在、表示中の重大度レーンが軸です。"
+          }
+        }
+      }
+    },
+    "Event focus coverage is currently balanced across the current event feed lane.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件焦点覆盖当前在当前事件流通道中保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントのフォーカス範囲は現在、現在のイベントフィードレーン全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Event scope coverage is currently anchored by the active search slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件范围覆盖当前由激活的搜索切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントのスコープ範囲は現在、アクティブな検索スライスが軸です。"
+          }
+        }
+      }
+    },
+    "Event scope coverage is currently balanced across the live feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件范围覆盖当前在实时事件流中保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントのスコープ範囲は現在、ライブフィード全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Event scope coverage is currently leaning on polling transport and the full visible feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件范围覆盖当前偏向轮询传输和完整可见事件流。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントのスコープ範囲は現在、ポーリング転送と表示中フィード全体に寄っています。"
+          }
+        }
+      }
+    },
+    "Event scope coverage is currently narrowed to a severity-filtered feed slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件范围覆盖当前收窄到按严重度筛选的事件流切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントのスコープ範囲は現在、重大度で絞り込まれたフィードスライスに狭まっています。"
+          }
+        }
+      }
+    },
+    "Keep the current event slice, visible severity span, and transport mode readable before dropping into the live feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入实时事件流前，先让当前事件切片、可见严重度范围和传输模式保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブフィードへ入る前に、現在のイベントスライス、表示中の重大度の幅、転送モードを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the dominant event lane readable before moving from the compact control decks into the event feed and surrounding routes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从紧凑控制卡片切换到事件流和周边路由前，先让主事件通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなコントロールデッキからイベントフィードと周辺ルートへ移る前に、主要なイベントレーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the next event feed visible before the audit rows spread into the full mobile stream.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在审计行扩展为完整移动事件流前，先让下一组事件流保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監査行が完全なモバイルストリームへ広がる前に、次のイベントフィードを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep severity scope, search state, and transport coverage readable before opening the full feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开完整事件流前，让严重度范围、搜索状态和传输覆盖保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、完全なフィードを開く前に、重大度の範囲、検索状態、転送カバレッジを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant event lane visible before opening route rails and the full event feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开路由栏和完整事件流前，让主事件通道保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、ルートレールと完全なイベントフィードを開く前に、主要なイベントレーンを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "1 attention lane": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个关注通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の注意レーン"
+          }
+        }
+      }
+    },
+    "1 channel lane": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个通道通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のチャネルレーン"
+          }
+        }
+      }
+    },
+    "1 drift lane": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个漂移通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のドリフトレーン"
+          }
+        }
+      }
+    },
+    "1 model lane": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个模型通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のモデルレーン"
+          }
+        }
+      }
+    },
+    "1 provider lane": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个提供方通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のプロバイダレーン"
+          }
+        }
+      }
+    },
+    "Integration focus coverage is currently anchored by attention-heavy provider, channel, model, or drift lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成焦点覆盖当前由高关注的提供方、通道、模型或漂移通道主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合のフォーカス範囲は現在、注意度の高いプロバイダ、チャネル、モデル、またはドリフトのレーンが軸です。"
+          }
+        }
+      }
+    },
+    "Integration focus coverage is currently anchored by the filtered integration slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成焦点覆盖当前由筛选后的集成切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合のフォーカス範囲は現在、フィルター済みの統合スライスが軸です。"
+          }
+        }
+      }
+    },
+    "Integration focus coverage is currently balanced across the visible inventory lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成焦点覆盖当前在可见清单通道之间保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合のフォーカス範囲は現在、表示中のインベントリレーン全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Integration scope coverage is currently anchored by the active search slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成范围覆盖当前由激活的搜索切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合のスコープ範囲は現在、アクティブな検索スライスが軸です。"
+          }
+        }
+      }
+    },
+    "Integration scope coverage is currently balanced across the visible inventory lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成范围覆盖当前在可见清单通道之间保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合のスコープ範囲は現在、表示中のインベントリレーン全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Integration scope coverage is currently narrowed by the active model filter.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成范围覆盖当前被激活的模型筛选收窄。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合のスコープ範囲は現在、アクティブなモデルフィルターによって狭められています。"
+          }
+        }
+      }
+    },
+    "Integration scope coverage is currently narrowed to attention-heavy provider, channel, model, and drift slices.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成范围覆盖当前收窄到高关注的提供方、通道、模型和漂移切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合のスコープ範囲は現在、注意度の高いプロバイダ、チャネル、モデル、ドリフトのスライスに狭まっています。"
+          }
+        }
+      }
+    },
+    "Integrations workstream coverage is currently anchored by catalog, alias, and drift context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成工作流覆盖当前由目录、别名和漂移上下文主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合ワークストリームのカバレッジは現在、カタログ、エイリアス、ドリフトの文脈が軸です。"
+          }
+        }
+      }
+    },
+    "Integrations workstream coverage is currently anchored by live provider, channel, or model attention.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成工作流覆盖当前由实时提供方、通道或模型关注主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合ワークストリームのカバレッジは現在、ライブなプロバイダ、チャネル、またはモデルの注意が軸です。"
+          }
+        }
+      }
+    },
+    "Integrations workstream coverage is currently anchored by provider and channel inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成工作流覆盖当前由提供方和通道清单主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合ワークストリームのカバレッジは現在、プロバイダとチャネルのインベントリが軸です。"
+          }
+        }
+      }
+    },
+    "Integrations workstream coverage is currently light across the visible lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成工作流覆盖当前在可见通道中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合ワークストリームのカバレッジは現在、表示中のレーン全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Integrations workstream coverage is currently narrowed to a scoped inventory slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成工作流覆盖当前收窄到限定范围的清单切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合ワークストリームのカバレッジは現在、スコープ化されたインベントリスライスに狭まっています。"
+          }
+        }
+      }
+    },
+    "Keep live provider and channel attention, broader inventory breadth, and deeper catalog or drift context readable before the full integration sections take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在完整集成分区接管前，先让实时提供方和通道关注、更广的清单覆盖，以及更深层的目录或漂移上下文保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全な統合セクションが前面に出る前に、ライブなプロバイダとチャネルの注意、より広いインベントリの幅、より深いカタログまたはドリフトの文脈を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the active integration slice, model filter, and visible inventory breadth readable before moving into provider, channel, model, alias, and drift detail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到提供方、通道、模型、别名和漂移细节前，先让激活的集成切片、模型筛选和可见清单广度保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ、チャネル、モデル、エイリアス、ドリフトの詳細へ移る前に、アクティブな統合スライス、モデルフィルター、表示中インベントリの幅を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the dominant integration lane readable before moving from the compact decks into provider, channel, model, and drift detail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从紧凑卡片切换到提供方、通道、模型和漂移细节前，先让主集成通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなデッキからプロバイダ、チャネル、モデル、ドリフトの詳細へ移る前に、主要な統合レーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Scope filtered": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "范围筛选"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スコープで絞り込み"
+          }
+        }
+      }
+    },
+    "Use this deck to keep integration scope, model filter state, and visible inventory breadth readable before the provider, channel, model, alias, and drift sections.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在进入提供方、通道、模型、别名和漂移分区前，让集成范围、模型筛选状态和可见清单广度保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、プロバイダ、チャネル、モデル、エイリアス、ドリフトの各セクションへ入る前に、統合スコープ、モデルフィルター状態、表示中インベントリの幅を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant integration lane visible before opening provider, channel, model, and drift inventory sections.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开提供方、通道、模型和漂移清单分区前，让主集成通道保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、プロバイダ、チャネル、モデル、ドリフトのインベントリセクションを開く前に、主要な統合レーンを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether integrations is currently led by live attention, surface inventory, or deeper catalog and drift context before the full inventory expands.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在完整清单展开前，查看当前集成是由实时关注、表层清单，还是更深的目录与漂移上下文主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、完全なインベントリが広がる前に、現在の統合がライブな注意、表層インベントリ、あるいはより深いカタログとドリフトの文脈のどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "\\((providerAttentionCount + channelAttentionCount + modelAttentionCount + driftAttentionCount).formatted()) attention lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\((providerAttentionCount + channelAttentionCount + modelAttentionCount + driftAttentionCount).formatted()) 个关注通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\((providerAttentionCount + channelAttentionCount + modelAttentionCount + driftAttentionCount).formatted())件の注意レーン"
+          }
+        }
+      }
+    },
+    "\\(attentionCount) attention lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(attentionCount) 个关注通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(attentionCount)件の注意レーン"
+          }
+        }
+      }
+    },
+    "\\(channelCount) channel lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channelCount) 个通道通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(channelCount)件のチャネルレーン"
+          }
+        }
+      }
+    },
+    "\\(driftCount) drift lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(driftCount) 个漂移通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(driftCount)件のドリフトレーン"
+          }
+        }
+      }
+    },
+    "\\(modelCount) model lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(modelCount) 个模型通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(modelCount)件のモデルレーン"
+          }
+        }
+      }
+    },
+    "\\(providerCount) provider lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(providerCount) 个提供方通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(providerCount)件のプロバイダレーン"
+          }
+        }
+      }
+    },
+    "1 deep section": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个深层分区"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の深いセクション"
+          }
+        }
+      }
+    },
+    "1 queue lane": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个队列通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のキューレーン"
+          }
+        }
+      }
+    },
+    "Keep queue pressure, support-feed readiness, and deep runtime section breadth readable before drilling into the lower runtime stacks.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入底层运行时堆栈前，先让队列压力、辅助流就绪度和深层运行时分区广度保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下位のランタイムスタックへ掘り下げる前に、キューの負荷、補助フィードの準備状況、深いランタイムセクションの幅を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the next runtime sections visible before the deeper feeds and queue stacks open up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在更深层事件流和队列堆栈展开前，先让下一组运行时分区保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より深いフィードとキュースタックが開く前に、次のランタイムセクションを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Runtime workstream coverage is currently anchored by deep section breadth.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "运行时工作流覆盖当前由深层分区广度主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ランタイムワークストリームのカバレッジは現在、深いセクションの幅が軸です。"
+          }
+        }
+      }
+    },
+    "Runtime workstream coverage is currently anchored by queue pressure.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "运行时工作流覆盖当前由队列压力主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ランタイムワークストリームのカバレッジは現在、キューの負荷が軸です。"
+          }
+        }
+      }
+    },
+    "Runtime workstream coverage is currently anchored by support-feed readiness and drag.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "运行时工作流覆盖当前由辅助流就绪度和拖拽主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ランタイムワークストリームのカバレッジは現在、補助フィードの準備状況と重さが軸です。"
+          }
+        }
+      }
+    },
+    "Runtime workstream coverage is currently light across the visible lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "运行时工作流覆盖当前在可见通道中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ランタイムワークストリームのカバレッジは現在、表示中のレーン全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether runtime is currently led by queue alerts, support feeds, or deep section breadth before the lower sections open up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在下层分区展开前，查看当前运行时是由队列告警、辅助流还是深层分区广度主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、下位セクションが開く前に、現在のランタイムがキューアラート、補助フィード、あるいは深いセクションの幅のどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "\\(queueCardCount) queue lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(queueCardCount) 个队列通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(queueCardCount)件のキューレーン"
+          }
+        }
+      }
+    },
+    "\\(sectionCount) deep sections": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sectionCount) 个深层分区"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sectionCount)件の深いセクション"
+          }
+        }
+      }
+    },
+    "1 live issue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个实时问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のライブ問題"
+          }
+        }
+      }
+    },
+    "1 support signal": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个辅助信号"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の補助シグナル"
+          }
+        }
+      }
+    },
+    "Fleet workstream coverage is currently anchored by active issue follow-through.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "机群工作流覆盖当前由活跃问题跟进主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フリートワークストリームのカバレッジは現在、アクティブな問題の追従が軸です。"
+          }
+        }
+      }
+    },
+    "Fleet workstream coverage is currently anchored by slower support drag and scoped review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "机群工作流覆盖当前由较慢的辅助拖拽和限定范围审查主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フリートワークストリームのカバレッジは現在、遅い補助の重さとスコープ化されたレビューが軸です。"
+          }
+        }
+      }
+    },
+    "Fleet workstream coverage is currently anchored by watched-agent follow-through.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "机群工作流覆盖当前由关注代理跟进主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フリートワークストリームのカバレッジは現在、監視対象エージェントの追従が軸です。"
+          }
+        }
+      }
+    },
+    "Fleet workstream coverage is currently light across the visible lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "机群工作流覆盖当前在可见通道中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フリートワークストリームのカバレッジは現在、表示中のレーン全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Keep live fleet pressure, watchlist follow-through, and slower support drag readable before the fleet list or adjacent surfaces take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在机群列表或相邻界面接管前，先让实时机群压力、关注列表跟进和较慢的辅助拖拽保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フリート一覧や隣接画面が前面に出る前に、ライブなフリート負荷、ウォッチリストの追従、遅い補助の重さを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether fleet review is currently led by active issues, watched agents, or slower support drag before the agent list expands.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在代理列表展开前，查看当前机群审查是由活跃问题、关注代理还是较慢的辅助拖拽主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、エージェント一覧が広がる前に、現在のフリートレビューがアクティブな問題、監視対象エージェント、あるいは遅い補助の重さのどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "\\(issueSignalCount) live issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueSignalCount) 个实时问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueSignalCount)件のライブ問題"
+          }
+        }
+      }
+    },
+    "\\(supportSignalCount) support signals": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportSignalCount) 个辅助信号"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportSignalCount)件の補助シグナル"
+          }
+        }
+      }
+    },
+    "Copy File ID": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制文件 ID"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイル ID をコピー"
+          }
+        }
+      }
+    },
+    "Copy Filename": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制文件名"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイル名をコピー"
+          }
+        }
+      }
+    },
+    "1 more": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再多 1 项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "さらに1件"
+          }
+        }
+      }
+    },
+    "\\(hiddenSectionCount) more": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再多 \\(hiddenSectionCount) 项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "さらに\\(hiddenSectionCount)件"
+          }
+        }
+      }
+    },
+    "Keep the next integration stacks visible before providers, channels, models, and drift sections open up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在提供方、通道、模型和漂移分区展开前，先让下一组集成堆栈保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダ、チャネル、モデル、ドリフトの各セクションが開く前に、次の統合スタックを見える状態に保ちます。"
           }
         }
       }
