@@ -1,5 +1,9 @@
 import SwiftUI
 
+private enum SessionsSectionAnchor: Hashable {
+    case sessions
+}
+
 struct SessionsView: View {
     @Environment(\.dependencies) private var deps
     @State private var searchText: String
@@ -100,156 +104,179 @@ struct SessionsView: View {
     }
 
     var body: some View {
-        List {
-            Section {
-                SessionScoreboard(vm: vm)
-                    .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-            }
-
-            Section {
-                sessionsStatusDeckCard
-                sessionsSectionInventoryDeck
-                if !sessionsSectionPreviewTitles.isEmpty {
-                    MonitoringSectionPreviewDeck(
-                        title: String(localized: "Section Preview"),
-                        detail: String(localized: "Keep the next session inventory visible before the backlog rows expand into full operator detail."),
-                        sectionTitles: sessionsSectionPreviewTitles,
-                        tone: snapshotFilterTone,
-                        maxVisibleSections: 5
-                    )
+        ScrollViewReader { proxy in
+            List {
+                Section {
+                    SessionScoreboard(vm: vm)
+                        .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
                 }
-                sessionsPressureCoverageDeck
-                sessionsSupportCoverageDeck
-                sessionsActionReadinessDeck
-                sessionsFocusCoverageDeck
-                sessionsWorkstreamCoverageDeck
-                sessionsScopeCoverageDeck
-                sessionsQueueCoverageDeck
-                sessionsControlDeckCard
-            } header: {
-                Text("Controls")
-            } footer: {
-                Text("Backlog pressure, routes, and filters stay together before the list.")
-            }
 
-            if filteredItems.isEmpty && !vm.isLoading {
-                Section("Sessions") {
-                    ContentUnavailableView(
-                        searchText.isEmpty ? String(localized: "No Sessions In This Filter") : String(localized: "No Search Results"),
-                        systemImage: "rectangle.stack",
-                        description: Text(searchText.isEmpty ? String(localized: "Pull to refresh or switch the session filter.") : String(localized: "Try a different agent name, label, or session signal."))
-                    )
-                }
-            } else {
-                Section("Sessions") {
-                    SessionListInventoryDeck(
-                        visibleCount: filteredItems.count,
-                        totalCount: vm.sessionAttentionItems.count,
-                        attentionCount: visibleAttentionCount,
-                        highVolumeCount: visibleHighVolumeCount,
-                        unlabeledCount: visibleUnlabeledCount,
-                        duplicateAgentCount: visibleDuplicateAgentCount,
-                        searchText: searchText,
-                        filter: filter
-                    )
-                    .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
-
-                    ForEach(filteredItems) { item in
-                        sessionRow(for: item)
+                Section {
+                    sessionsStatusDeckCard
+                    sessionsSectionInventoryDeck
+                    if !sessionsSectionPreviewTitles.isEmpty {
+                        MonitoringSectionPreviewDeck(
+                            title: String(localized: "Section Preview"),
+                            detail: String(localized: "Keep the next session inventory visible before the backlog rows expand into full operator detail."),
+                            sectionTitles: sessionsSectionPreviewTitles,
+                            tone: snapshotFilterTone,
+                            maxVisibleSections: 5,
+                            jumpItems: sessionsSectionPreviewJumpItems(proxy)
+                        )
                     }
+                    sessionsPressureCoverageDeck
+                    sessionsSupportCoverageDeck
+                    sessionsActionReadinessDeck
+                    sessionsFocusCoverageDeck
+                    sessionsWorkstreamCoverageDeck
+                    sessionsScopeCoverageDeck
+                    sessionsQueueCoverageDeck
+                    sessionsControlDeckCard
+                } header: {
+                    Text("Controls")
+                } footer: {
+                    Text("Backlog pressure, routes, and filters stay together before the list.")
+                }
+
+                if filteredItems.isEmpty && !vm.isLoading {
+                    Section("Sessions") {
+                        ContentUnavailableView(
+                            searchText.isEmpty ? String(localized: "No Sessions In This Filter") : String(localized: "No Search Results"),
+                            systemImage: "rectangle.stack",
+                            description: Text(searchText.isEmpty ? String(localized: "Pull to refresh or switch the session filter.") : String(localized: "Try a different agent name, label, or session signal."))
+                        )
+                    }
+                    .id(SessionsSectionAnchor.sessions)
+                } else {
+                    Section("Sessions") {
+                        SessionListInventoryDeck(
+                            visibleCount: filteredItems.count,
+                            totalCount: vm.sessionAttentionItems.count,
+                            attentionCount: visibleAttentionCount,
+                            highVolumeCount: visibleHighVolumeCount,
+                            unlabeledCount: visibleUnlabeledCount,
+                            duplicateAgentCount: visibleDuplicateAgentCount,
+                            searchText: searchText,
+                            filter: filter
+                        )
+                        .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
+
+                        ForEach(filteredItems) { item in
+                            sessionRow(for: item)
+                        }
+                    }
+                    .id(SessionsSectionAnchor.sessions)
                 }
             }
-        }
-        .navigationTitle("Sessions")
-        .searchable(text: $searchText, prompt: "Search session, label, or agent")
-        .refreshable {
-            await vm.refresh()
-        }
-        .overlay {
-            if vm.isLoading && vm.sessions.isEmpty {
-                ProgressView("Loading sessions...")
-            }
-        }
-        .task {
-            if vm.sessions.isEmpty {
+            .navigationTitle("Sessions")
+            .searchable(text: $searchText, prompt: "Search session, label, or agent")
+            .refreshable {
                 await vm.refresh()
             }
-        }
-        .confirmationDialog(
-            pendingSessionAction?.title ?? "",
-            isPresented: sessionActionConfirmationPresented,
-            titleVisibility: .visible,
-            presenting: pendingSessionAction
-        ) { action in
-            Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
-                Task { await performSessionAction(action) }
+            .overlay {
+                if vm.isLoading && vm.sessions.isEmpty {
+                    ProgressView("Loading sessions...")
+                }
             }
-            Button("Cancel", role: .cancel) {}
-        } message: { action in
-            Text(action.message)
-        }
-        .confirmationDialog(
-            "Delete Session",
-            isPresented: deleteSessionConfirmationPresented,
-            titleVisibility: .visible,
-            presenting: pendingDeleteSession
-        ) { session in
-            Button("Delete Session", role: .destructive) {
-                Task { await deleteSession(session) }
+            .task {
+                if vm.sessions.isEmpty {
+                    await vm.refresh()
+                }
             }
-            Button("Cancel", role: .cancel) {}
-        } message: { session in
-            Text("Remove \(displayTitle(for: session)) and its messages from LibreFang? This cannot be undone.")
-        }
-        .sheet(item: $editingSession) { session in
-            NavigationStack {
-                Form {
-                    Section {
-                        TextField("Optional label", text: $sessionLabelDraft)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
+            .confirmationDialog(
+                pendingSessionAction?.title ?? "",
+                isPresented: sessionActionConfirmationPresented,
+                titleVisibility: .visible,
+                presenting: pendingSessionAction
+            ) { action in
+                Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
+                    Task { await performSessionAction(action) }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { action in
+                Text(action.message)
+            }
+            .confirmationDialog(
+                "Delete Session",
+                isPresented: deleteSessionConfirmationPresented,
+                titleVisibility: .visible,
+                presenting: pendingDeleteSession
+            ) { session in
+                Button("Delete Session", role: .destructive) {
+                    Task { await deleteSession(session) }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { session in
+                Text("Remove \(displayTitle(for: session)) and its messages from LibreFang? This cannot be undone.")
+            }
+            .sheet(item: $editingSession) { session in
+                NavigationStack {
+                    Form {
+                        Section {
+                            TextField("Optional label", text: $sessionLabelDraft)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
 
-                        Text("Clear the field to remove the label. Labels make on-call session lookup much faster.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    } header: {
-                        Text("Session Label")
-                    } footer: {
-                        Text(displayTitle(for: session))
-                    }
-                }
-                .navigationTitle("Edit Label")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
-                            editingSession = nil
+                            Text("Clear the field to remove the label. Labels make on-call session lookup much faster.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        } header: {
+                            Text("Session Label")
+                        } footer: {
+                            Text(displayTitle(for: session))
                         }
-                        .disabled(isCatalogActionBusy)
                     }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button {
-                            Task { await saveSessionLabel(for: session) }
-                        } label: {
-                            if sessionCatalogActionInFlightID == "label:\(session.sessionId)" {
-                                ProgressView()
-                                    .controlSize(.small)
-                            } else {
-                                Text("Save")
+                    .navigationTitle("Edit Label")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") {
+                                editingSession = nil
                             }
+                            .disabled(isCatalogActionBusy)
                         }
-                        .disabled(isCatalogActionBusy)
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button {
+                                Task { await saveSessionLabel(for: session) }
+                            } label: {
+                                if sessionCatalogActionInFlightID == "label:\(session.sessionId)" {
+                                    ProgressView()
+                                        .controlSize(.small)
+                                } else {
+                                    Text("Save")
+                                }
+                            }
+                            .disabled(isCatalogActionBusy)
+                        }
                     }
                 }
             }
+            .alert(item: $operatorNotice) { notice in
+                Alert(
+                    title: Text(notice.title),
+                    message: Text(notice.message),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
         }
-        .alert(item: $operatorNotice) { notice in
-            Alert(
-                title: Text(notice.title),
-                message: Text(notice.message),
-                dismissButton: .default(Text("OK"))
-            )
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: SessionsSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
         }
+    }
+
+    private func sessionsSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        [
+            MonitoringSectionJumpItem(
+                title: String(localized: "Sessions"),
+                systemImage: "rectangle.stack",
+                tone: snapshotFilterTone
+            ) {
+                jump(proxy, to: .sessions)
+            }
+        ]
     }
 
     private var sessionsStatusDeckCard: some View {

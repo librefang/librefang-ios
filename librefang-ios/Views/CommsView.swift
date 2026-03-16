@@ -1,5 +1,10 @@
 import SwiftUI
 
+private enum CommsSectionAnchor: Hashable {
+    case topology
+    case traffic
+}
+
 struct CommsView: View {
     @Environment(\.dependencies) private var deps
     @Environment(\.scenePhase) private var scenePhase
@@ -42,145 +47,178 @@ struct CommsView: View {
     }
 
     var body: some View {
-        List {
-            if let error = viewModel.error, viewModel.events.isEmpty {
+        ScrollViewReader { proxy in
+            List {
+                if let error = viewModel.error, viewModel.events.isEmpty {
+                    Section {
+                        ErrorBanner(message: error, onRetry: {
+                            await viewModel.refresh()
+                        }, onDismiss: {
+                            viewModel.error = nil
+                        })
+                        .listRowInsets(.init())
+                        .listRowBackground(Color.clear)
+                    }
+                }
+
                 Section {
-                    ErrorBanner(message: error, onRetry: {
-                        await viewModel.refresh()
-                    }, onDismiss: {
-                        viewModel.error = nil
-                    })
-                    .listRowInsets(.init())
-                    .listRowBackground(Color.clear)
-                }
-            }
-
-            Section {
-                CommsScoreboard(viewModel: viewModel)
-                    .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-            }
-
-            Section {
-                commsStatusDeckCard
-                commsSectionInventoryDeck
-                if !commsSectionPreviewTitles.isEmpty {
-                    MonitoringSectionPreviewDeck(
-                        title: String(localized: "Section Preview"),
-                        detail: String(localized: "Keep the next comms topology and traffic stacks visible before the transport rows open up."),
-                        sectionTitles: commsSectionPreviewTitles,
-                        tone: viewModel.isStreaming ? .positive : .neutral,
-                        maxVisibleSections: 5
-                    )
-                }
-                commsPressureCoverageDeck
-                commsSupportCoverageDeck
-                commsActionReadinessDeck
-                commsFocusCoverageDeck
-                commsWorkstreamCoverageDeck
-                commsScopeCoverageDeck
-                commsTrafficCoverageDeck
-                commsControlDeckCard
-            } header: {
-                Text("Controls")
-            } footer: {
-                Text("Comms pressure, routes, and filters stay together before topology and traffic.")
-            }
-
-            Section {
-                if let topology = viewModel.topology {
-                    CommsTopologyInventoryDeck(
-                        topology: topology,
-                        visibleEdges: visibleEdges
-                    )
-                    .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
+                    CommsScoreboard(viewModel: viewModel)
+                        .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
                 }
 
-                CommsSummaryRow(label: "Agents") {
-                    Text("\(viewModel.nodeCount)")
-                        .monospacedDigit()
-                }
-                CommsSummaryRow(label: "Links") {
-                    Text("\(viewModel.edgeCount)")
-                        .monospacedDigit()
-                }
-                if let topology = viewModel.topology, !topology.edges.isEmpty {
-                    ForEach(visibleEdges) { edge in
-                        CommsTopologyEdgeRow(
-                            title: edgeTitle(edge, topology: topology),
-                            kind: edge.kind
+                Section {
+                    commsStatusDeckCard
+                    commsSectionInventoryDeck
+                    if !commsSectionPreviewTitles.isEmpty {
+                        MonitoringSectionPreviewDeck(
+                            title: String(localized: "Section Preview"),
+                            detail: String(localized: "Keep the next comms topology and traffic stacks visible before the transport rows open up."),
+                            sectionTitles: commsSectionPreviewTitles,
+                            tone: viewModel.isStreaming ? .positive : .neutral,
+                            maxVisibleSections: 5,
+                            jumpItems: commsSectionPreviewJumpItems(proxy)
                         )
                     }
-                } else {
-                    ContentUnavailableView(
-                        "No Active Links",
-                        systemImage: "point.3.connected.trianglepath.dotted",
-                        description: Text("When agents start messaging, spawning, or coordinating tasks, their topology appears here.")
-                    )
+                    commsPressureCoverageDeck
+                    commsSupportCoverageDeck
+                    commsActionReadinessDeck
+                    commsFocusCoverageDeck
+                    commsWorkstreamCoverageDeck
+                    commsScopeCoverageDeck
+                    commsTrafficCoverageDeck
+                    commsControlDeckCard
+                } header: {
+                    Text("Controls")
+                } footer: {
+                    Text("Comms pressure, routes, and filters stay together before topology and traffic.")
                 }
-            } header: {
-                Text("Topology")
-            } footer: {
-                if let topology = viewModel.topology, topology.edges.count > visibleEdges.count {
-                    Text("Showing \(visibleEdges.count) of \(topology.edges.count) active links")
-                }
-            }
 
-            if filteredEvents.isEmpty && !viewModel.isLoading {
-                Section("Traffic") {
-                    ContentUnavailableView(
-                        searchText.isEmpty ? String(localized: "No Communication Events") : String(localized: "No Search Results"),
-                        systemImage: "arrow.left.arrow.right.circle",
-                        description: Text(searchText.isEmpty ? String(localized: "Live inter-agent traffic will appear here.") : String(localized: "Try a different agent, task, or detail query."))
-                    )
-                }
-            } else {
                 Section {
-                    CommsTrafficInventoryDeck(
-                        visibleCount: filteredEvents.count,
-                        totalCount: viewModel.events.count,
-                        activeLinks: visibleEdges.count,
-                        isStreaming: viewModel.isStreaming,
-                        searchText: searchText
-                    )
-                    .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
+                    if let topology = viewModel.topology {
+                        CommsTopologyInventoryDeck(
+                            topology: topology,
+                            visibleEdges: visibleEdges
+                        )
+                        .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
+                    }
 
-                    ForEach(filteredEvents) { event in
-                        CommsEventRow(event: event)
+                    CommsSummaryRow(label: "Agents") {
+                        Text("\(viewModel.nodeCount)")
+                            .monospacedDigit()
+                    }
+                    CommsSummaryRow(label: "Links") {
+                        Text("\(viewModel.edgeCount)")
+                            .monospacedDigit()
+                    }
+                    if let topology = viewModel.topology, !topology.edges.isEmpty {
+                        ForEach(visibleEdges) { edge in
+                            CommsTopologyEdgeRow(
+                                title: edgeTitle(edge, topology: topology),
+                                kind: edge.kind
+                            )
+                        }
+                    } else {
+                        ContentUnavailableView(
+                            "No Active Links",
+                            systemImage: "point.3.connected.trianglepath.dotted",
+                            description: Text("When agents start messaging, spawning, or coordinating tasks, their topology appears here.")
+                        )
                     }
                 } header: {
-                    Text("Traffic")
+                    Text("Topology")
                 } footer: {
-                    Text("\(filteredEvents.count) of \(viewModel.events.count) events visible")
+                    if let topology = viewModel.topology, topology.edges.count > visibleEdges.count {
+                        Text("Showing \(visibleEdges.count) of \(topology.edges.count) active links")
+                    }
+                }
+                .id(CommsSectionAnchor.topology)
+
+                if filteredEvents.isEmpty && !viewModel.isLoading {
+                    Section("Traffic") {
+                        ContentUnavailableView(
+                            searchText.isEmpty ? String(localized: "No Communication Events") : String(localized: "No Search Results"),
+                            systemImage: "arrow.left.arrow.right.circle",
+                            description: Text(searchText.isEmpty ? String(localized: "Live inter-agent traffic will appear here.") : String(localized: "Try a different agent, task, or detail query."))
+                        )
+                    }
+                    .id(CommsSectionAnchor.traffic)
+                } else {
+                    Section {
+                        CommsTrafficInventoryDeck(
+                            visibleCount: filteredEvents.count,
+                            totalCount: viewModel.events.count,
+                            activeLinks: visibleEdges.count,
+                            isStreaming: viewModel.isStreaming,
+                            searchText: searchText
+                        )
+                        .listRowInsets(.init(top: 10, leading: 0, bottom: 8, trailing: 0))
+
+                        ForEach(filteredEvents) { event in
+                            CommsEventRow(event: event)
+                        }
+                    } header: {
+                        Text("Traffic")
+                    } footer: {
+                        Text("\(filteredEvents.count) of \(viewModel.events.count) events visible")
+                    }
+                    .id(CommsSectionAnchor.traffic)
+                }
+            }
+            .navigationTitle("Comms")
+            .searchable(text: $searchText, prompt: "Search source, target, or detail")
+            .refreshable {
+                await viewModel.refresh()
+            }
+            .overlay {
+                if viewModel.isLoading && viewModel.events.isEmpty {
+                    ProgressView("Loading comms...")
+                }
+            }
+            .onAppear {
+                viewModel.startAutoRefresh()
+            }
+            .onDisappear {
+                viewModel.stopAutoRefresh()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                switch newPhase {
+                case .active:
+                    viewModel.startAutoRefresh()
+                    Task { await viewModel.refresh() }
+                case .background:
+                    viewModel.stopAutoRefresh()
+                default:
+                    break
                 }
             }
         }
-        .navigationTitle("Comms")
-        .searchable(text: $searchText, prompt: "Search source, target, or detail")
-        .refreshable {
-            await viewModel.refresh()
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: CommsSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
         }
-        .overlay {
-            if viewModel.isLoading && viewModel.events.isEmpty {
-                ProgressView("Loading comms...")
-            }
+    }
+
+    private func commsSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        var items: [MonitoringSectionJumpItem] = []
+        if viewModel.topology != nil {
+            items.append(MonitoringSectionJumpItem(
+                title: String(localized: "Topology"),
+                systemImage: "point.3.connected.trianglepath.dotted",
+                tone: .neutral
+            ) {
+                jump(proxy, to: .topology)
+            })
         }
-        .onAppear {
-            viewModel.startAutoRefresh()
-        }
-        .onDisappear {
-            viewModel.stopAutoRefresh()
-        }
-        .onChange(of: scenePhase) { _, newPhase in
-            switch newPhase {
-            case .active:
-                viewModel.startAutoRefresh()
-                Task { await viewModel.refresh() }
-            case .background:
-                viewModel.stopAutoRefresh()
-            default:
-                break
-            }
-        }
+        items.append(MonitoringSectionJumpItem(
+            title: String(localized: "Traffic"),
+            systemImage: "arrow.left.arrow.right.circle",
+            tone: viewModel.isStreaming ? .positive : .neutral
+        ) {
+            jump(proxy, to: .traffic)
+        })
+        return items
     }
 
     private func edgeTitle(_ edge: CommsEdge, topology: CommsTopology) -> String {

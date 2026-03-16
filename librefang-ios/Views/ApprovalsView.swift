@@ -1,5 +1,9 @@
 import SwiftUI
 
+private enum ApprovalsSectionAnchor: Hashable {
+    case approvals
+}
+
 private enum ApprovalRiskFilter: String, CaseIterable, Identifiable {
     case all
     case critical
@@ -98,253 +102,276 @@ struct ApprovalsView: View {
     }
 
     var body: some View {
-        List {
-            Section {
-                ApprovalsScoreboard(vm: vm)
-                    .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
-            }
-
-            Section {
-                ApprovalsStatusDeckCard(
-                    pendingApprovalCount: vm.pendingApprovalCount,
-                    criticalApprovalCount: criticalApprovalCount,
-                    highRiskApprovalCount: highRiskApprovalCount,
-                    approvalAgentCount: approvalAgentCount,
-                    visibleApprovalCount: filteredApprovals.count,
-                    filterLabel: filter.label,
-                    filterTone: filterTone,
-                    hasSearchScope: !trimmedSearchText.isEmpty
-                )
-                ApprovalsSectionInventoryDeck(
-                    sectionCount: approvalsSectionCount,
-                    pendingApprovalCount: vm.pendingApprovalCount,
-                    visibleApprovalCount: filteredApprovals.count,
-                    criticalApprovalCount: criticalApprovalCount,
-                    highRiskApprovalCount: highRiskApprovalCount,
-                    approvalAgentCount: approvalAgentCount,
-                    toolCount: visibleToolCount,
-                    hasSearchScope: !trimmedSearchText.isEmpty
-                )
-                if !approvalsSectionPreviewTitles.isEmpty {
-                    MonitoringSectionPreviewDeck(
-                        title: String(localized: "Section Preview"),
-                        detail: String(localized: "Keep the next approval stack visible before the queue opens into full review rows."),
-                        sectionTitles: approvalsSectionPreviewTitles,
-                        tone: filterTone,
-                        maxVisibleSections: 5
-                    )
-                }
-                ApprovalsPressureCoverageDeck(
-                    pendingApprovalCount: vm.pendingApprovalCount,
-                    visibleApprovalCount: filteredApprovals.count,
-                    criticalApprovalCount: criticalApprovalCount,
-                    highRiskApprovalCount: highRiskApprovalCount,
-                    approvalAgentCount: approvalAgentCount,
-                    toolCount: visibleToolCount,
-                    hasSearchScope: !trimmedSearchText.isEmpty
-                )
-                ApprovalsSupportCoverageDeck(
-                    visibleApprovalCount: filteredApprovals.count,
-                    approvalAgentCount: approvalAgentCount,
-                    toolCount: visibleToolCount,
-                    hasSearchScope: !trimmedSearchText.isEmpty,
-                    filterLabel: filter.label,
-                    filterTone: filterTone
-                )
-                ApprovalsActionReadinessDeck(
-                    primaryRouteCount: approvalsPrimaryRouteCount,
-                    supportRouteCount: approvalsSupportRouteCount,
-                    visibleApprovalCount: filteredApprovals.count,
-                    criticalApprovalCount: criticalApprovalCount,
-                    approvalAgentCount: approvalAgentCount,
-                    hasSearchScope: !trimmedSearchText.isEmpty,
-                    filterLabel: filter.label,
-                    filterTone: filterTone
-                )
-                ApprovalsFocusCoverageDeck(
-                    visibleApprovalCount: filteredApprovals.count,
-                    criticalApprovalCount: criticalApprovalCount,
-                    highRiskApprovalCount: highRiskApprovalCount,
-                    approvalAgentCount: approvalAgentCount,
-                    toolCount: visibleToolCount,
-                    hasSearchScope: !trimmedSearchText.isEmpty,
-                    filterLabel: filter.label,
-                    filterTone: filterTone
-                )
-                ApprovalsWorkstreamCoverageDeck(
-                    visibleApprovalCount: filteredApprovals.count,
-                    criticalApprovalCount: criticalApprovalCount,
-                    highRiskApprovalCount: highRiskApprovalCount,
-                    approvalAgentCount: approvalAgentCount,
-                    toolCount: visibleToolCount,
-                    hasSearchScope: !trimmedSearchText.isEmpty,
-                    filterLabel: filter.label,
-                    filterTone: filterTone
-                )
-                ApprovalsScopeCoverageDeck(
-                    visibleApprovalCount: filteredApprovals.count,
-                    totalApprovalCount: vm.approvals.count,
-                    approvalAgentCount: approvalAgentCount,
-                    toolCount: visibleToolCount,
-                    hasSearchScope: !trimmedSearchText.isEmpty,
-                    isFilterScoped: filter != .all,
-                    filterLabel: filter.label,
-                    filterTone: filterTone
-                )
-                ApprovalsRouteInventoryDeck(
-                    primaryRouteCount: approvalsPrimaryRouteCount,
-                    supportRouteCount: approvalsSupportRouteCount,
-                    pendingApprovalCount: vm.pendingApprovalCount,
-                    criticalApprovalCount: criticalApprovalCount,
-                    approvalAgentCount: approvalAgentCount
-                )
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Routes"),
-                    detail: String(localized: "Keep the incident, on-call, and runtime exits closest to approval review.")
-                ) {
-                    MonitoringShortcutRail(
-                        title: String(localized: "Primary"),
-                        detail: String(localized: "Use the main operator routes first when approval pressure needs broader queue context.")
-                    ) {
-                        NavigationLink {
-                            IncidentsView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Incidents"),
-                                systemImage: "bell.badge",
-                                tone: criticalApprovalCount > 0 ? .critical : .neutral,
-                                badgeText: criticalApprovalCount > 0 ? "\(criticalApprovalCount)" : nil
-                            )
-                        }
-                        .buttonStyle(.plain)
-
-                        NavigationLink {
-                            OnCallView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "On Call"),
-                                systemImage: "waveform.path.ecg",
-                                tone: vm.pendingApprovalCount > 0 ? .warning : .neutral,
-                                badgeText: vm.pendingApprovalCount > 0 ? "\(vm.pendingApprovalCount)" : nil
-                            )
-                        }
-                        .buttonStyle(.plain)
-
-                        NavigationLink {
-                            RuntimeView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Runtime"),
-                                systemImage: "server.rack",
-                                tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
-                                badgeText: vm.runtimeAlertCount > 0 ? "\(vm.runtimeAlertCount)" : nil
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    MonitoringShortcutRail(
-                        title: String(localized: "Support"),
-                        detail: String(localized: "Use fleet context when approval requests cluster around the same agents.")
-                    ) {
-                        NavigationLink {
-                            AgentsView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Agents"),
-                                systemImage: "person.3",
-                                tone: .neutral,
-                                badgeText: approvalAgentCount > 0 ? "\(approvalAgentCount)" : nil
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-
-                ApprovalsFilterCard(
-                    filter: $filter,
-                    searchText: searchText,
-                    visibleCount: filteredApprovals.count,
-                    totalCount: vm.approvals.count
-                )
-            } header: {
-                Text("Controls")
-            } footer: {
-                Text("Keep severity, routes, and filters together before the approval list.")
-            }
-
-            if filteredApprovals.isEmpty && !vm.isLoading {
-                Section("Approvals") {
-                    ContentUnavailableView(
-                        searchText.isEmpty ? String(localized: "No Pending Approvals") : String(localized: "No Search Results"),
-                        systemImage: "checkmark.shield",
-                        description: Text(searchText.isEmpty ? String(localized: "The current dashboard snapshot has no unresolved approval gates.") : String(localized: "Try a different agent, tool, or action query."))
-                    )
-                }
-            } else {
+        ScrollViewReader { proxy in
+            List {
                 Section {
-                    ApprovalsQueueInventoryDeck(
-                        approvals: filteredApprovals,
-                        totalCount: vm.approvals.count,
+                    ApprovalsScoreboard(vm: vm)
+                        .listRowInsets(.init(top: 12, leading: 0, bottom: 12, trailing: 0))
+                }
+
+                Section {
+                    ApprovalsStatusDeckCard(
+                        pendingApprovalCount: vm.pendingApprovalCount,
+                        criticalApprovalCount: criticalApprovalCount,
+                        highRiskApprovalCount: highRiskApprovalCount,
+                        approvalAgentCount: approvalAgentCount,
+                        visibleApprovalCount: filteredApprovals.count,
                         filterLabel: filter.label,
                         filterTone: filterTone,
-                        searchText: trimmedSearchText
+                        hasSearchScope: !trimmedSearchText.isEmpty
                     )
-
-                    ForEach(filteredApprovals) { approval in
-                        ApprovalOperatorRow(
-                            approval: approval,
-                            isBusy: actionInFlightID == approval.id,
-                            onApprove: {
-                                pendingAction = .approve(approval)
-                            },
-                            onReject: {
-                                pendingAction = .reject(approval)
-                            }
+                    ApprovalsSectionInventoryDeck(
+                        sectionCount: approvalsSectionCount,
+                        pendingApprovalCount: vm.pendingApprovalCount,
+                        visibleApprovalCount: filteredApprovals.count,
+                        criticalApprovalCount: criticalApprovalCount,
+                        highRiskApprovalCount: highRiskApprovalCount,
+                        approvalAgentCount: approvalAgentCount,
+                        toolCount: visibleToolCount,
+                        hasSearchScope: !trimmedSearchText.isEmpty
+                    )
+                    if !approvalsSectionPreviewTitles.isEmpty {
+                        MonitoringSectionPreviewDeck(
+                            title: String(localized: "Section Preview"),
+                            detail: String(localized: "Keep the next approval stack visible before the queue opens into full review rows."),
+                            sectionTitles: approvalsSectionPreviewTitles,
+                            tone: filterTone,
+                            maxVisibleSections: 5,
+                            jumpItems: approvalsSectionPreviewJumpItems(proxy)
                         )
                     }
+                    ApprovalsPressureCoverageDeck(
+                        pendingApprovalCount: vm.pendingApprovalCount,
+                        visibleApprovalCount: filteredApprovals.count,
+                        criticalApprovalCount: criticalApprovalCount,
+                        highRiskApprovalCount: highRiskApprovalCount,
+                        approvalAgentCount: approvalAgentCount,
+                        toolCount: visibleToolCount,
+                        hasSearchScope: !trimmedSearchText.isEmpty
+                    )
+                    ApprovalsSupportCoverageDeck(
+                        visibleApprovalCount: filteredApprovals.count,
+                        approvalAgentCount: approvalAgentCount,
+                        toolCount: visibleToolCount,
+                        hasSearchScope: !trimmedSearchText.isEmpty,
+                        filterLabel: filter.label,
+                        filterTone: filterTone
+                    )
+                    ApprovalsActionReadinessDeck(
+                        primaryRouteCount: approvalsPrimaryRouteCount,
+                        supportRouteCount: approvalsSupportRouteCount,
+                        visibleApprovalCount: filteredApprovals.count,
+                        criticalApprovalCount: criticalApprovalCount,
+                        approvalAgentCount: approvalAgentCount,
+                        hasSearchScope: !trimmedSearchText.isEmpty,
+                        filterLabel: filter.label,
+                        filterTone: filterTone
+                    )
+                    ApprovalsFocusCoverageDeck(
+                        visibleApprovalCount: filteredApprovals.count,
+                        criticalApprovalCount: criticalApprovalCount,
+                        highRiskApprovalCount: highRiskApprovalCount,
+                        approvalAgentCount: approvalAgentCount,
+                        toolCount: visibleToolCount,
+                        hasSearchScope: !trimmedSearchText.isEmpty,
+                        filterLabel: filter.label,
+                        filterTone: filterTone
+                    )
+                    ApprovalsWorkstreamCoverageDeck(
+                        visibleApprovalCount: filteredApprovals.count,
+                        criticalApprovalCount: criticalApprovalCount,
+                        highRiskApprovalCount: highRiskApprovalCount,
+                        approvalAgentCount: approvalAgentCount,
+                        toolCount: visibleToolCount,
+                        hasSearchScope: !trimmedSearchText.isEmpty,
+                        filterLabel: filter.label,
+                        filterTone: filterTone
+                    )
+                    ApprovalsScopeCoverageDeck(
+                        visibleApprovalCount: filteredApprovals.count,
+                        totalApprovalCount: vm.approvals.count,
+                        approvalAgentCount: approvalAgentCount,
+                        toolCount: visibleToolCount,
+                        hasSearchScope: !trimmedSearchText.isEmpty,
+                        isFilterScoped: filter != .all,
+                        filterLabel: filter.label,
+                        filterTone: filterTone
+                    )
+                    ApprovalsRouteInventoryDeck(
+                        primaryRouteCount: approvalsPrimaryRouteCount,
+                        supportRouteCount: approvalsSupportRouteCount,
+                        pendingApprovalCount: vm.pendingApprovalCount,
+                        criticalApprovalCount: criticalApprovalCount,
+                        approvalAgentCount: approvalAgentCount
+                    )
+                    MonitoringSurfaceGroupCard(
+                        title: String(localized: "Routes"),
+                        detail: String(localized: "Keep the incident, on-call, and runtime exits closest to approval review.")
+                    ) {
+                        MonitoringShortcutRail(
+                            title: String(localized: "Primary"),
+                            detail: String(localized: "Use the main operator routes first when approval pressure needs broader queue context.")
+                        ) {
+                            NavigationLink {
+                                IncidentsView()
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Incidents"),
+                                    systemImage: "bell.badge",
+                                    tone: criticalApprovalCount > 0 ? .critical : .neutral,
+                                    badgeText: criticalApprovalCount > 0 ? "\(criticalApprovalCount)" : nil
+                                )
+                            }
+                            .buttonStyle(.plain)
+
+                            NavigationLink {
+                                OnCallView()
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "On Call"),
+                                    systemImage: "waveform.path.ecg",
+                                    tone: vm.pendingApprovalCount > 0 ? .warning : .neutral,
+                                    badgeText: vm.pendingApprovalCount > 0 ? "\(vm.pendingApprovalCount)" : nil
+                                )
+                            }
+                            .buttonStyle(.plain)
+
+                            NavigationLink {
+                                RuntimeView()
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Runtime"),
+                                    systemImage: "server.rack",
+                                    tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
+                                    badgeText: vm.runtimeAlertCount > 0 ? "\(vm.runtimeAlertCount)" : nil
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+
+                        MonitoringShortcutRail(
+                            title: String(localized: "Support"),
+                            detail: String(localized: "Use fleet context when approval requests cluster around the same agents.")
+                        ) {
+                            NavigationLink {
+                                AgentsView()
+                            } label: {
+                                MonitoringSurfaceShortcutChip(
+                                    title: String(localized: "Agents"),
+                                    systemImage: "person.3",
+                                    tone: .neutral,
+                                    badgeText: approvalAgentCount > 0 ? "\(approvalAgentCount)" : nil
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+
+                    ApprovalsFilterCard(
+                        filter: $filter,
+                        searchText: searchText,
+                        visibleCount: filteredApprovals.count,
+                        totalCount: vm.approvals.count
+                    )
                 } header: {
-                    Text("Approvals")
+                    Text("Controls")
                 } footer: {
-                    Text("Resolve requests from mobile after confirmation. The queue refreshes from the server after each decision.")
+                    Text("Keep severity, routes, and filters together before the approval list.")
+                }
+
+                if filteredApprovals.isEmpty && !vm.isLoading {
+                    Section("Approvals") {
+                        ContentUnavailableView(
+                            searchText.isEmpty ? String(localized: "No Pending Approvals") : String(localized: "No Search Results"),
+                            systemImage: "checkmark.shield",
+                            description: Text(searchText.isEmpty ? String(localized: "The current dashboard snapshot has no unresolved approval gates.") : String(localized: "Try a different agent, tool, or action query."))
+                        )
+                    }
+                    .id(ApprovalsSectionAnchor.approvals)
+                } else {
+                    Section {
+                        ApprovalsQueueInventoryDeck(
+                            approvals: filteredApprovals,
+                            totalCount: vm.approvals.count,
+                            filterLabel: filter.label,
+                            filterTone: filterTone,
+                            searchText: trimmedSearchText
+                        )
+
+                        ForEach(filteredApprovals) { approval in
+                            ApprovalOperatorRow(
+                                approval: approval,
+                                isBusy: actionInFlightID == approval.id,
+                                onApprove: {
+                                    pendingAction = .approve(approval)
+                                },
+                                onReject: {
+                                    pendingAction = .reject(approval)
+                                }
+                            )
+                        }
+                    } header: {
+                        Text("Approvals")
+                    } footer: {
+                        Text("Resolve requests from mobile after confirmation. The queue refreshes from the server after each decision.")
+                    }
+                    .id(ApprovalsSectionAnchor.approvals)
                 }
             }
-        }
-        .navigationTitle("Approvals")
-        .searchable(text: $searchText, prompt: "Search agent, tool, or action")
-        .refreshable {
-            await vm.refresh()
-        }
-        .overlay {
-            if vm.isLoading && vm.approvals.isEmpty {
-                ProgressView("Loading approvals...")
-            }
-        }
-        .task {
-            if vm.approvals.isEmpty {
+            .navigationTitle("Approvals")
+            .searchable(text: $searchText, prompt: "Search agent, tool, or action")
+            .refreshable {
                 await vm.refresh()
             }
-        }
-        .confirmationDialog(
-            pendingAction?.title ?? "",
-            isPresented: actionConfirmationPresented,
-            titleVisibility: .visible,
-            presenting: pendingAction
-        ) { action in
-            Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
-                Task { await performAction(action) }
+            .overlay {
+                if vm.isLoading && vm.approvals.isEmpty {
+                    ProgressView("Loading approvals...")
+                }
             }
-            Button("Cancel", role: .cancel) {}
-        } message: { action in
-            Text(action.message)
+            .task {
+                if vm.approvals.isEmpty {
+                    await vm.refresh()
+                }
+            }
+            .confirmationDialog(
+                pendingAction?.title ?? "",
+                isPresented: actionConfirmationPresented,
+                titleVisibility: .visible,
+                presenting: pendingAction
+            ) { action in
+                Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
+                    Task { await performAction(action) }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { action in
+                Text(action.message)
+            }
+            .alert(item: $operatorNotice) { notice in
+                Alert(
+                    title: Text(notice.title),
+                    message: Text(notice.message),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
         }
-        .alert(item: $operatorNotice) { notice in
-            Alert(
-                title: Text(notice.title),
-                message: Text(notice.message),
-                dismissButton: .default(Text("OK"))
-            )
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: ApprovalsSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
         }
+    }
+
+    private func approvalsSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        [
+            MonitoringSectionJumpItem(
+                title: String(localized: "Approvals"),
+                systemImage: "checkmark.shield",
+                tone: criticalApprovalCount > 0 ? .critical : filterTone
+            ) {
+                jump(proxy, to: .approvals)
+            }
+        ]
     }
 
     private var actionConfirmationPresented: Binding<Bool> {

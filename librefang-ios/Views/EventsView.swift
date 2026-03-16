@@ -1,5 +1,9 @@
 import SwiftUI
 
+private enum EventsSectionAnchor: Hashable {
+    case feed
+}
+
 struct EventsView: View {
     @Environment(\.dependencies) private var deps
     @Environment(\.scenePhase) private var scenePhase
@@ -43,37 +47,39 @@ struct EventsView: View {
     }
 
     var body: some View {
-        List {
-            eventsErrorSection
-            eventsScoreboardSection
-            eventsControlsSection
-            eventsFeedSection
-        }
-        .navigationTitle("Events")
-        .searchable(text: $searchText, prompt: "Search action, detail, or agent")
-        .refreshable {
-            await viewModel.refresh()
-        }
-        .overlay {
-            if viewModel.isLoading && viewModel.entries.isEmpty {
-                ProgressView("Loading events...")
+        ScrollViewReader { proxy in
+            List {
+                eventsErrorSection
+                eventsScoreboardSection
+                eventsControlsSection(proxy)
+                eventsFeedSection
             }
-        }
-        .onAppear {
-            viewModel.startAutoRefresh()
-        }
-        .onDisappear {
-            viewModel.stopAutoRefresh()
-        }
-        .onChange(of: scenePhase) { _, newPhase in
-            switch newPhase {
-            case .active:
+            .navigationTitle("Events")
+            .searchable(text: $searchText, prompt: "Search action, detail, or agent")
+            .refreshable {
+                await viewModel.refresh()
+            }
+            .overlay {
+                if viewModel.isLoading && viewModel.entries.isEmpty {
+                    ProgressView("Loading events...")
+                }
+            }
+            .onAppear {
                 viewModel.startAutoRefresh()
-                Task { await viewModel.refresh() }
-            case .background:
+            }
+            .onDisappear {
                 viewModel.stopAutoRefresh()
-            default:
-                break
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                switch newPhase {
+                case .active:
+                    viewModel.startAutoRefresh()
+                    Task { await viewModel.refresh() }
+                case .background:
+                    viewModel.stopAutoRefresh()
+                default:
+                    break
+                }
             }
         }
     }
@@ -104,7 +110,7 @@ struct EventsView: View {
         }
     }
 
-    private var eventsControlsSection: some View {
+    private func eventsControlsSection(_ proxy: ScrollViewProxy) -> some View {
         Section {
             eventsStatusDeckCard
             eventsSectionInventoryDeck
@@ -114,7 +120,8 @@ struct EventsView: View {
                     detail: String(localized: "Keep the next event feed visible before the audit rows spread into the full mobile stream."),
                     sectionTitles: eventsSectionPreviewTitles,
                     tone: scopeTone,
-                    maxVisibleSections: 5
+                    maxVisibleSections: 5,
+                    jumpItems: eventsSectionPreviewJumpItems(proxy)
                 )
             }
             eventsPressureCoverageDeck
@@ -142,6 +149,7 @@ struct EventsView: View {
                     description: Text(trimmedSearchText.isEmpty ? String(localized: "Pull to refresh or widen the severity filter.") : String(localized: "Try a different agent, action, or detail query."))
                 )
             }
+            .id(EventsSectionAnchor.feed)
         } else {
             Section {
                 EventFeedInventoryDeck(
@@ -161,7 +169,26 @@ struct EventsView: View {
             } footer: {
                 eventsFeedFooter
             }
+            .id(EventsSectionAnchor.feed)
         }
+    }
+
+    private func jump(_ proxy: ScrollViewProxy, to anchor: EventsSectionAnchor) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            proxy.scrollTo(anchor, anchor: .top)
+        }
+    }
+
+    private func eventsSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
+        [
+            MonitoringSectionJumpItem(
+                title: String(localized: "Feed"),
+                systemImage: "list.bullet.rectangle.portrait",
+                tone: scopeTone
+            ) {
+                jump(proxy, to: .feed)
+            }
+        ]
     }
 
     @ViewBuilder
