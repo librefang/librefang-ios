@@ -1977,6 +1977,12 @@
             "state": "translated",
             "value": "1 个代理存在模型漂移"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のエージェントでモデルドリフトが発生しています"
+          }
         }
       }
     },
@@ -2783,6 +2789,12 @@
             "state": "translated",
             "value": "只有当守护进程与当前设备在同一主机上可达时，127.0.0.1 和 localhost 才有效。在实体 iPhone 上，请使用 Mac 的局域网 IP，例如 http://192.168.x.x:4545。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "127.0.0.1 と localhost は、同じホストからデーモンへ到達できる場合にのみ使えます。実機の iPhone では、たとえば http://192.168.x.x:4545 のように Mac の LAN IP を使ってください。"
+          }
         }
       }
     },
@@ -2881,6 +2893,12 @@
             "state": "translated",
             "value": "已确认"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認済み"
+          }
         }
       }
     },
@@ -2922,6 +2940,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "确认当前快照"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スナップショットを確認"
           }
         }
       }
@@ -2986,6 +3010,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "活跃告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクティブアラート"
           }
         }
       }
@@ -3645,6 +3675,12 @@
             "state": "translated",
             "value": "审批会阻塞敏感操作。移动端现在可以在确认后直接处理它们。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認はオペレーターが応答するまで機微なアクションをブロックします。モバイルからも確認後に直接処理できるようになりました。"
+          }
         }
       }
     },
@@ -3927,6 +3963,12 @@
             "state": "translated",
             "value": "自动化压力"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動化負荷"
+          }
         }
       }
     },
@@ -3974,6 +4016,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "平衡模式"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "標準"
           }
         }
       }
@@ -6250,6 +6298,12 @@
             "state": "translated",
             "value": "交接复查即将到来"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎチェックインが近づいています"
+          }
         }
       }
     },
@@ -6313,6 +6367,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "交接复查已错过"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎチェックインを逃しました"
           }
         }
       }
@@ -6600,6 +6660,12 @@
             "state": "translated",
             "value": "如果交接复查早于待命延迟到期，提醒会提前到那个本地检查点。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機遅延より前に引き継ぎチェックイン期限が来る場合、リマインダーはそのローカルチェックポイントまで前倒しされます。"
+          }
         }
       }
     },
@@ -6873,6 +6939,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "集成压力"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合負荷"
           }
         }
       }
@@ -7804,6 +7876,12 @@
             "state": "translated",
             "value": "本地交接压力"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ローカル引き継ぎ負荷"
+          }
         }
       }
     },
@@ -7823,6 +7901,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "本地提供方可达性、投递渠道密钥和模型目录漂移现在都会作为一等移动事故信号出现。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ローカルプロバイダ到達性、配信チャネルのシークレット、モデルカタログのドリフトは、いまやモバイルで第一級のインシデントとして表面化します。"
           }
         }
       }
@@ -8166,6 +8250,12 @@
             "state": "translated",
             "value": "移动端操作员状态"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モバイルオペレーター状態"
+          }
         }
       }
     },
@@ -8364,6 +8454,12 @@
             "state": "translated",
             "value": "已静默告警"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ミュートアラート"
+          }
         }
       }
     },
@@ -8373,6 +8469,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "已静默的告警不会出现在这台 iPhone 的总览关注卡和全局严重横幅中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ミュートアラートは、この iPhone の概要注意カードや全体の重大バナーには表示されません。"
           }
         }
       }
@@ -8541,6 +8643,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "下一次交接草稿还需要完善"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次の引き継ぎドラフトは調整が必要です"
           }
         }
       }
@@ -8882,6 +8990,12 @@
             "state": "translated",
             "value": "这台 iPhone 上还没有保存任何本地交接快照。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone にはまだローカル引き継ぎスナップショットが保存されていません。"
+          }
         }
       }
     },
@@ -9124,6 +9238,12 @@
             "state": "translated",
             "value": "无"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "なし"
+          }
         }
       }
     },
@@ -9315,6 +9435,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "值班聚焦"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールフォーカス"
           }
         }
       }
@@ -9831,6 +9957,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "操作员状态"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オペレーター状態"
           }
         }
       }
@@ -10393,6 +10525,12 @@
             "state": "translated",
             "value": "排队中"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キュー済み"
+          }
         }
       }
     },
@@ -10874,6 +11012,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "重置确认"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認をリセット"
           }
         }
       }
@@ -11964,6 +12108,12 @@
             "state": "translated",
             "value": "交接覆盖"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "シフトカバレッジ"
+          }
         }
       }
     },
@@ -12266,6 +12416,12 @@
             "state": "translated",
             "value": "稳定"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安定"
+          }
         }
       }
     },
@@ -12343,6 +12499,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "待命提醒"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機リマインダー"
           }
         }
       }
@@ -12753,6 +12915,12 @@
             "state": "translated",
             "value": "应用会在启动时连接这个基础 URL，并在你保存后立即刷新仪表盘。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アプリは起動時にこのベース URL へ接続し、保存後すぐにダッシュボードを更新します。"
+          }
         }
       }
     },
@@ -12794,6 +12962,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "当前移动监控快照中没有阻塞操作、严重事件、不健康代理或逾期的本地交接检查点。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のモバイル監視スナップショットには、ブロックされたアクション、重大イベント、不健全なエージェント、期限超過のローカル引き継ぎチェックポイントは表示されていません。"
           }
         }
       }
@@ -12908,6 +13082,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "这些交接信号仅保存在这台 iPhone 上，用于在事故流中保持操作跟进可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "これらの引き継ぎシグナルはこの iPhone ローカルのもので、インシデントの流れの中でオペレーターの追従を見える状態に保ちます。"
           }
         }
       }
@@ -13188,6 +13368,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "工具配置档"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイル"
           }
         }
       }
@@ -14172,6 +14358,12 @@
             "state": "translated",
             "value": "当应用处于前台且出现新的严重事故时，显示临时提示并触发震动。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アプリを開いている間に新しい重大インシデントが現れたら、一時的なキューと触覚フィードバックを表示します。"
+          }
         }
       }
     },
@@ -14211,6 +14403,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "工作流失败、触发器耗尽和停滞的定时任务现在都会进入移动端事故队列。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークフロー失敗、上限到達トリガー、停止中 Cron ジョブがモバイルのインシデントキューに流れ込むようになりました。"
           }
         }
       }
@@ -15062,6 +15260,12 @@
             "state": "translated",
             "value": "已于 \\(acknowledgedAt, style: .relative) 前确认"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(acknowledgedAt, style: .relative) 前に確認済み"
+          }
         }
       }
     },
@@ -15154,6 +15358,12 @@
             "state": "translated",
             "value": "当前有 \\(vm.issueAgentCount) 个代理需要关注"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在 \\(vm.issueAgentCount)件のエージェントに注意が必要です"
+          }
         }
       }
     },
@@ -15163,6 +15373,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "关注代理诊断"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視診断"
           }
         }
       }
@@ -15174,6 +15390,12 @@
             "state": "translated",
             "value": "已固定的代理即使整体仍算健康，也能在这里暴露操作问题。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピン留めしたエージェントは、通常の注意一覧に出ないほど健全でも、ここではオペレーター問題を表面化させられます。"
+          }
         }
       }
     },
@@ -15183,6 +15405,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(vm.sessionAttentionCount) 个会话需要复查"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.sessionAttentionCount)件のセッションがレビュー待ちです"
           }
         }
       }
@@ -15194,6 +15422,12 @@
             "state": "translated",
             "value": "移动端已呈现 \\(vm.recentCriticalAuditCount) 个最近的严重审计事件"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.recentCriticalAuditCount)件の最近の重大監査イベントはすでにモバイルで表示されています"
+          }
         }
       }
     },
@@ -15203,6 +15437,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "最近一次本地交接保存于 \\(latestEntry.createdAt, style: .relative) 前。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最後のローカル引き継ぎは \\(latestEntry.createdAt, style: .relative) 前に保存されました。"
           }
         }
       }
@@ -15214,6 +15454,12 @@
             "state": "translated",
             "value": "1 条活跃告警已在本地静默。在取消静默前，它不会出现在摘要视图中。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 件のアクティブアラートはローカルでミュートされています。ミュートを解除するまで要約画面には出ません。"
+          }
         }
       }
     },
@@ -15223,6 +15469,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(mutedAlertCount) 条活跃告警已在本地静默。在取消静默前，它们不会出现在摘要视图中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mutedAlertCount) 件のアクティブアラートはローカルでミュートされています。ミュートを解除するまで要約画面には出ません。"
           }
         }
       }
@@ -15234,6 +15486,12 @@
             "state": "translated",
             "value": "当前这台设备上没有可见的实时告警卡片。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデバイスでは現在、ライブアラートカードは表示されていません。"
+          }
         }
       }
     },
@@ -15244,6 +15502,12 @@
             "state": "translated",
             "value": "当前告警快照已在这台 iPhone 上确认。如果数量或详情变化，它会重新作为实时告警出现。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のアラートスナップショットはこの iPhone で確認済みです。件数や詳細が変わると、再びライブとして表示されます。"
+          }
         }
       }
     },
@@ -15253,6 +15517,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "复查后可确认当前告警快照；若某些噪声告警已知晓，也可在本地静默对应类别。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認後に現在のアラートスナップショットを了承するか、すでに把握済みのノイズの多いアラート種別をローカルでミュートしてください。"
           }
         }
       }
@@ -15284,6 +15554,12 @@
             "state": "translated",
             "value": "工作流运行失败"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークフロー実行失敗"
+          }
         }
       }
     },
@@ -15293,6 +15569,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "触发器已耗尽"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トリガー上限到達"
           }
         }
       }
@@ -15304,6 +15586,12 @@
             "state": "translated",
             "value": "事件触发器已达到触发预算，不再唤醒代理。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "イベントトリガーが発火上限に達し、エージェントを起こさなくなりました。"
+          }
         }
       }
     },
@@ -15314,6 +15602,12 @@
             "state": "translated",
             "value": "定时任务缺少下一次运行"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次回実行が欠けた Cron"
+          }
         }
       }
     },
@@ -15323,6 +15617,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "存在已启用的调度任务但没有下一次执行时间戳。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有効なスケジューラージョブのうち、次回実行時刻がないものがあります。"
           }
         }
       }
@@ -15344,6 +15644,12 @@
             "state": "translated",
             "value": "本地提供方不可达"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ローカルプロバイダに到達できません"
+          }
         }
       }
     },
@@ -15353,6 +15659,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(vm.unreachableLocalProviderCount) 个本地提供方不可达"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.unreachableLocalProviderCount)件のローカルプロバイダに到達できません"
           }
         }
       }
@@ -15364,6 +15676,12 @@
             "state": "translated",
             "value": "渠道缺少必填字段"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "必須項目が欠けたチャネル"
+          }
         }
       }
     },
@@ -15373,6 +15691,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(vm.channelRequiredFieldGapCount) 个渠道缺少必填字段"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.channelRequiredFieldGapCount)件のチャネルで必須項目が欠けています"
           }
         }
       }
@@ -15384,6 +15708,12 @@
             "state": "translated",
             "value": "目录中没有可用模型"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "利用可能なカタログモデルがありません"
+          }
         }
       }
     },
@@ -15394,6 +15724,12 @@
             "state": "translated",
             "value": "提供方已配置，但当前 LibreFang 目录中没有任何可执行模型。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロバイダは設定済みですが、現在の LibreFang カタログには実行可能なモデルが 1 つもありません。"
+          }
         }
       }
     },
@@ -15403,6 +15739,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(vm.agentsWithModelDiagnostics.count) 个代理存在模型漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(vm.agentsWithModelDiagnostics.count)件のエージェントでモデルドリフトが発生しています"
           }
         }
       }
@@ -15444,6 +15786,12 @@
             "state": "translated",
             "value": "1 个回退漂移"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のフォールバックドリフト"
+          }
         }
       }
     },
@@ -15464,6 +15812,12 @@
             "state": "translated",
             "value": "1 个未完成"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の未解決項目"
+          }
         }
       }
     },
@@ -15473,6 +15827,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(summary.unsettledDeliveries) 个未完成"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(summary.unsettledDeliveries)件の未解決項目"
           }
         }
       }
@@ -15484,6 +15844,12 @@
             "state": "translated",
             "value": "缺少 1 个文件"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のファイル欠落"
+          }
         }
       }
     },
@@ -15493,6 +15859,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "缺少 \\(summary.missingIdentityFiles.count) 个文件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(summary.missingIdentityFiles.count)件のファイル欠落"
           }
         }
       }
@@ -15504,6 +15876,12 @@
             "state": "translated",
             "value": "1 个回退"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のフォールバック"
+          }
         }
       }
     },
@@ -15513,6 +15891,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(summary.unavailableFallbackModels.count) 个回退"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(summary.unavailableFallbackModels.count)件のフォールバック"
           }
         }
       }
@@ -15524,6 +15908,12 @@
             "state": "translated",
             "value": "点击查看失败投递回执。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タップして失敗した配信レシートを確認します。"
+          }
         }
       }
     },
@@ -15533,6 +15923,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "点击查看缺失的工作区身份文件。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タップして欠落しているワークスペース ID ファイルを確認します。"
           }
         }
       }
@@ -15544,6 +15940,12 @@
             "state": "translated",
             "value": "点击查看代理配置快照中的回退模型漂移。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タップしてエージェント設定スナップショット内のフォールバックモデルドリフトを確認します。"
+          }
         }
       }
     },
@@ -15553,6 +15955,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "点击查看这个已固定代理的操作诊断。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タップしてこのピン留めエージェントのオペレーター診断を確認します。"
           }
         }
       }
@@ -16118,6 +16526,12 @@
             "state": "translated",
             "value": "已配置"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定済み"
+          }
         }
       }
     },
@@ -16154,6 +16568,12 @@
             "state": "translated",
             "value": "语言"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "言語"
+          }
         }
       }
     },
@@ -16174,6 +16594,12 @@
             "state": "translated",
             "value": "打开 iPhone 语言设置"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone の言語設定を開く"
+          }
         }
       }
     },
@@ -16183,6 +16609,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "LibreFang iOS 跟随 iPhone 的单应用语言设置，这样字符串目录翻译才能在 SwiftUI 视图和系统界面上保持一致。请在设置中打开本应用页面并选择“语言”。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang iOS は iPhone の App ごとの言語設定に従うため、String Catalog の翻訳が SwiftUI の画面とシステム表示で一貫します。設定でアプリのページを開き、「言語」を選んでください。"
           }
         }
       }
@@ -17158,6 +17590,12 @@
             "state": "translated",
             "value": "\\(Int(refreshInterval)) 秒"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(Int(refreshInterval))秒"
+          }
         }
       }
     },
@@ -17167,6 +17605,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(minutes) 分钟"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(minutes) 分"
           }
         }
       }
@@ -17238,12 +17682,24 @@
             "state": "translated",
             "value": "\\(deps.dashboardViewModel.totalSessionCount)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(deps.dashboardViewModel.totalSessionCount)"
+          }
         }
       }
     },
     "\\(deps.agentWatchlistStore.watchedAgentIDs.count)": {
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(deps.agentWatchlistStore.watchedAgentIDs.count)"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "\\(deps.agentWatchlistStore.watchedAgentIDs.count)"
@@ -17258,12 +17714,24 @@
             "state": "translated",
             "value": "\\(onCallQueueCount)"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(onCallQueueCount)"
+          }
         }
       }
     },
     "\\(activeMutedAlertCount)": {
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activeMutedAlertCount)"
+          }
+        },
+        "ja": {
           "stringUnit": {
             "state": "translated",
             "value": "\\(activeMutedAlertCount)"
@@ -17448,6 +17916,12 @@
             "state": "translated",
             "value": "系统默认"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "システムデフォルト"
+          }
         }
       }
     },
@@ -17568,6 +18042,12 @@
             "state": "translated",
             "value": "\\(latest.queueCount) 项排队中 · \\(latest.criticalCount) 项严重"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(latest.queueCount) 件がキュー中 · \\(latest.criticalCount) 件が重大"
+          }
         }
       }
     },
@@ -17587,6 +18067,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(deps.dashboardViewModel.securityFeatureCount) 个特性"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(deps.dashboardViewModel.securityFeatureCount)件の機能"
           }
         }
       }
@@ -18542,6 +19028,12 @@
             "state": "translated",
             "value": "1 个失败运行"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の失敗実行"
+          }
         }
       }
     },
@@ -19049,6 +19541,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "待处理：\\(latest.checklist.pendingLabels.joined(separator: \", \"))"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保留中: \\(latest.checklist.pendingLabels.joined(separator: \", \"))"
           }
         }
       }
@@ -19769,6 +20267,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "快速"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高速"
           }
         }
       }
@@ -37403,6 +37907,5590 @@
           "stringUnit": {
             "state": "translated",
             "value": "セッションホットスポット \\(vm.sessionAttentionCount) 件"
+          }
+        }
+      }
+    },
+    "1 live alert": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条实时告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のライブアラート"
+          }
+        }
+      }
+    },
+    "\\(visibleAlertCount) live alerts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleAlertCount) 条实时告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleAlertCount)件のライブアラート"
+          }
+        }
+      }
+    },
+    "1 on-call item": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 项值班事项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のオンコール項目"
+          }
+        }
+      }
+    },
+    "\\(onCallQueueCount) on-call items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(onCallQueueCount) 项值班事项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(onCallQueueCount)件のオンコール項目"
+          }
+        }
+      }
+    },
+    "1 primary control": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个主控件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の主要コントロール"
+          }
+        }
+      }
+    },
+    "\\(primaryControlCount) primary controls": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryControlCount) 个主控件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryControlCount)件の主要コントロール"
+          }
+        }
+      }
+    },
+    "1 support control": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个辅助控件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の補助コントロール"
+          }
+        }
+      }
+    },
+    "\\(supportControlCount) support controls": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportControlCount) 个辅助控件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportControlCount)件の補助コントロール"
+          }
+        }
+      }
+    },
+    "1 utility route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个工具路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のユーティリティルート"
+          }
+        }
+      }
+    },
+    "\\(utilityRouteCount) utility routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(utilityRouteCount) 个工具路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(utilityRouteCount)件のユーティリティルート"
+          }
+        }
+      }
+    },
+    "1 settings route or control is grouped in this deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此卡片中分组了 1 个设置路由或控件。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキには 1 件の設定ルートまたはコントロールがまとめられています。"
+          }
+        }
+      }
+    },
+    "1 settings section is loaded into the compact device deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "紧凑设备卡片中已载入 1 个设置分区。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなデバイスデッキには 1 件の設定セクションが読み込まれています。"
+          }
+        }
+      }
+    },
+    "1 supported language": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 种支持的语言"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 言語"
+          }
+        }
+      }
+    },
+    "API key set": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已设置 API 密钥"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API キー設定済み"
+          }
+        }
+      }
+    },
+    "Auth override present": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "存在认证覆盖"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "認証オーバーライドあり"
+          }
+        }
+      }
+    },
+    "Cue Off": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提示关闭"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cue オフ"
+          }
+        }
+      }
+    },
+    "Cue On": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提示开启"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cue オン"
+          }
+        }
+      }
+    },
+    "Dashboard refresh is set to every \\(refreshInterval) seconds.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仪表盘刷新当前设置为每 \\(refreshInterval) 秒一次。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ダッシュボードの更新は現在 \\(refreshInterval) 秒ごとに設定されています。"
+          }
+        }
+      }
+    },
+    "Device-local monitoring state stays visible here before the longer per-signal rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备本地监控状态会先显示在这里，再展开更长的逐信号行。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "デバイスローカルの監視状態は、より長いシグナル別の行より前にここで確認できます。"
+          }
+        }
+      }
+    },
+    "Keep address scope, auth state, and current server reachability visible before editing connection fields.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在编辑连接字段前，先让地址范围、认证状态和当前服务器可达性保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接続項目を編集する前に、アドレス範囲、認証状態、現在のサーバー到達性を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep authorization, arming scope, and any queued reminder visible before adjusting standby reminder controls.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在调整待命提醒控件前，先让授权、启用范围和任何排队中的提醒保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機リマインダーの設定を調整する前に、認可、対象範囲、キュー済みリマインダーを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep device readiness, reminder state, and low-frequency monitoring context visible before the settings form expands into controls and toggles.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在设置表单展开为控件和开关之前，先让设备就绪度、提醒状态和低频监控上下文保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定フォームがコントロールやトグルへ広がる前に、デバイスの準備状態、リマインダー状態、低頻度監視の文脈を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep device sections, queued reminders, and on-call pressure visible before the longer settings form opens up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在更长的设置表单展开前，先让设备分区、排队提醒和值班压力保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より長い設定フォームを開く前に、デバイスの各セクション、キュー済みリマインダー、オンコール負荷を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep mobile readiness, queue pressure, and reminder state readable before opening the full settings form.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开完整设置表单前，先让移动端就绪度、队列压力和提醒状态保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全な設定フォームを開く前に、モバイルの準備状態、キュー負荷、リマインダー状態を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep reminders, handoff state, monitoring summary, and app metadata behind the primary jumps.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让提醒、交接状态、监控摘要和应用元数据留在主跳转之后。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダー、引き継ぎ状態、監視サマリー、アプリのメタデータは主要ジャンプの後ろにまとめます。"
+          }
+        }
+      }
+    },
+    "Keep route exits, device controls, and live monitoring load visible before the server, reminder, handoff, and monitoring settings expand into the full form.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在服务器、提醒、交接和监控设置展开为完整表单前，先让路由出口、设备控件和实时监控负载保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サーバー、リマインダー、引き継ぎ、監視の設定が完全なフォームに広がる前に、ルート出口、デバイスコントロール、ライブ監視負荷を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep runtime and diagnostics behind the primary shift-management exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让运行时和诊断位于主要排班管理出口之后。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ランタイムと診断は主要なシフト管理の出口の後ろにまとめます。"
+          }
+        }
+      }
+    },
+    "Keep secondary runtime catalogs and external-agent routes close without letting them crowd the primary control deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让次级运行时目录和外部代理路由保持靠近，但不要挤占主控卡片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "補助ランタイムカタログと外部エージェントのルートは近くに置きつつ、主要コントロールデッキを圧迫しないようにします。"
+          }
+        }
+      }
+    },
+    "Keep snapshot, routes, and device controls together before the longer settings form.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在更长的设置表单前，先把快照、路由和设备控件放在一起。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より長い設定フォームの前に、スナップショット、ルート、デバイスコントロールをまとめておきます。"
+          }
+        }
+      }
+    },
+    "Keep the active locale and supported catalog visible before leaving the app for system language settings.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在离开应用前往系统语言设置之前，先让当前语言环境和支持的目录保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "システムの言語設定へ移る前に、現在のロケールと対応カタログを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the dominant settings lane readable before moving from compact device readiness decks into the full control form.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从紧凑的设备就绪卡片切换到完整控件表单前，先让主设置通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなデバイス準備デッキから完全なコントロールフォームへ移る前に、主要な設定レーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the highest-value monitoring exits together before the longer device-control form.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在更长的设备控件表单前，先把价值最高的监控出口放在一起。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より長いデバイスコントロールフォームの前に、価値の高い監視出口をまとめておきます。"
+          }
+        }
+      }
+    },
+    "Keep the longest settings groups reachable on a single-handed mobile layout.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让最长的设置分组在单手移动布局中也能触达。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最も長い設定グループでも片手操作のモバイルレイアウトで届くように保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the most frequently adjusted device settings closest to the top of the form.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让最常调整的设备设置尽量靠近表单顶部。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "よく調整するデバイス設定をフォーム上部の近くに置きます。"
+          }
+        }
+      }
+    },
+    "Keep the polling cadence and latest successful refresh visible before tuning the device refresh slider.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在调整设备刷新滑块之前，先让轮询节奏和最近一次成功刷新保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "デバイス更新スライダーを調整する前に、ポーリング間隔と直近の成功更新を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the shift-management routes closest to settings.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让排班管理路由最靠近设置。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "シフト管理ルートを設定の近くに置きます。"
+          }
+        }
+      }
+    },
+    "Language snapshot": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语言快照"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "言語スナップショット"
+          }
+        }
+      }
+    },
+    "Monitoring exits, device controls, and utility routes stay summarized here before the longer settings form.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "监控出口、设备控件和工具路由会先在这里汇总，再进入更长的设置表单。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視出口、デバイスコントロール、ユーティリティルートは、より長い設定フォームの前にここで要約されます。"
+          }
+        }
+      }
+    },
+    "Muted Summary Off": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "静音摘要关闭"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ミュート概要オフ"
+          }
+        }
+      }
+    },
+    "Muted Summary On": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "静音摘要开启"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ミュート概要オン"
+          }
+        }
+      }
+    },
+    "No API key": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未设置 API 密钥"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API キーなし"
+          }
+        }
+      }
+    },
+    "No auth override": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无认证覆盖"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "認証オーバーライドなし"
+          }
+        }
+      }
+    },
+    "No queued reminder": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有排队中的提醒"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キュー済みリマインダーなし"
+          }
+        }
+      }
+    },
+    "No server URL": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未设置服务器 URL"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サーバー URL なし"
+          }
+        }
+      }
+    },
+    "No server endpoint is configured for this device yet.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这台设备尚未配置服务器端点。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデバイスにはまだサーバーエンドポイントが設定されていません。"
+          }
+        }
+      }
+    },
+    "On-Call Focus": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "值班焦点"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンコールフォーカス"
+          }
+        }
+      }
+    },
+    "Open supporting runtime inventories when device settings need adjacent catalog context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当设备设置需要相邻目录上下文时，打开辅助运行时清单。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "デバイス設定に周辺カタログの文脈が必要なときは、補助ランタイム一覧を開きます。"
+          }
+        }
+      }
+    },
+    "Per-app": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按 App"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appごと"
+          }
+        }
+      }
+    },
+    "Per-app language is controlled in iPhone settings, so UI strings and system surfaces stay aligned.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按 App 的语言由 iPhone 设置控制，因此 UI 文案和系统界面会保持一致。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appごとの言語は iPhone の設定で制御されるため、UI 文字列とシステム画面の表示が揃います。"
+          }
+        }
+      }
+    },
+    "Pressure coverage keeps on-call state, reminders, and device readiness readable before the longer settings form.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在更长的设置表单前，压力覆盖会让值班状态、提醒和设备就绪度保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より長い設定フォームの前に、負荷カバレッジがオンコール状態、リマインダー、デバイス準備状況を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Refresh": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新"
+          }
+        }
+      }
+    },
+    "Refresh \\(refreshIntervalLabel)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新 \\(refreshIntervalLabel)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新 \\(refreshIntervalLabel)"
+          }
+        }
+      }
+    },
+    "Refresh snapshot": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新快照"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新スナップショット"
+          }
+        }
+      }
+    },
+    "Relaxed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "宽松"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "緩やか"
+          }
+        }
+      }
+    },
+    "Reminder": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダー"
+          }
+        }
+      }
+    },
+    "Reminder Off": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒关闭"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーオフ"
+          }
+        }
+      }
+    },
+    "Reminder On": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒开启"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーオン"
+          }
+        }
+      }
+    },
+    "Reminder armed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒已启用"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダー有効"
+          }
+        }
+      }
+    },
+    "Reminder idle": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒空闲"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダー待機中"
+          }
+        }
+      }
+    },
+    "Reminder queued": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒已排队"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーをキュー済み"
+          }
+        }
+      }
+    },
+    "Reminder snapshot": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒快照"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダースナップショット"
+          }
+        }
+      }
+    },
+    "Secondary Catalogs": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次级目录"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "補助カタログ"
+          }
+        }
+      }
+    },
+    "Server settings snapshot": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务器设置快照"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サーバー設定スナップショット"
+          }
+        }
+      }
+    },
+    "Server, language, refresh, on-call, reminder, handoff, monitoring, and about sections stay summarized before the deeper form.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在更深层表单之前，服务器、语言、刷新、值班、提醒、交接、监控和关于分区会先汇总显示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より詳細なフォームの前に、サーバー、言語、更新、オンコール、リマインダー、引き継ぎ、監視、情報セクションが要約表示されます。"
+          }
+        }
+      }
+    },
+    "Settings action readiness is currently anchored by live alert pressure reaching the device layer.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置操作就绪度当前由到达设备层的实时告警压力主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定アクションの準備状況は現在、デバイス層まで届くライブアラート負荷が軸になっています。"
+          }
+        }
+      }
+    },
+    "Settings action readiness is currently centered on on-call queue state and reminder follow-through.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置操作就绪度当前以值班队列状态和提醒跟进为中心。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定アクションの準備状況は現在、オンコールキューの状態とリマインダーの追従が中心です。"
+          }
+        }
+      }
+    },
+    "Settings action readiness is currently clear enough for route pivots and deeper settings review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置操作就绪度当前足够清晰，可以切换路由并深入查看设置。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定アクションの準備状況は現在、ルート切り替えやより深い設定確認に進める程度に落ち着いています。"
+          }
+        }
+      }
+    },
+    "Settings focus coverage is currently anchored by live alert pressure reaching the device layer.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置焦点覆盖当前由到达设备层的实时告警压力主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定のフォーカス範囲は現在、デバイス層まで届くライブアラート負荷が軸です。"
+          }
+        }
+      }
+    },
+    "Settings focus coverage is currently anchored by on-call follow-through and reminder state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置焦点覆盖当前由值班跟进和提醒状态主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定のフォーカス範囲は現在、オンコールの追従とリマインダー状態が軸です。"
+          }
+        }
+      }
+    },
+    "Settings focus coverage is currently centered on notification, refresh, and language readiness.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置焦点覆盖当前围绕通知、刷新和语言就绪度展开。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定のフォーカス範囲は現在、通知、更新、言語の準備状況が中心です。"
+          }
+        }
+      }
+    },
+    "Settings inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定インベントリ"
+          }
+        }
+      }
+    },
+    "Settings keeps server, language, refresh, and on-call state visible before the longer forms.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在更长的表单之前，设置会先让服务器、语言、刷新和值班状态保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定では、より長いフォームの前にサーバー、言語、更新、オンコール状態を見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Settings support coverage is currently anchored by live monitoring load reaching the device layer.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置支持覆盖当前由到达设备层的实时监控负载主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定の補助カバレッジは現在、デバイス層まで届くライブ監視負荷が軸です。"
+          }
+        }
+      }
+    },
+    "Settings support coverage is currently anchored by reminder state and device readiness.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置支持覆盖当前由提醒状态和设备就绪度主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定の補助カバレッジは現在、リマインダー状態とデバイス準備状況が軸です。"
+          }
+        }
+      }
+    },
+    "Settings support coverage is currently light and mostly reflects refresh cadence and language readiness.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置支持覆盖当前较轻，主要反映刷新节奏和语言就绪度。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定の補助カバレッジは現在軽く、主に更新間隔と言語の準備状況を反映しています。"
+          }
+        }
+      }
+    },
+    "Shorter intervals keep mobile triage fresh but increase server polling pressure.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更短的间隔会让移动端分诊保持最新，但也会增加服务器轮询压力。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "間隔を短くするとモバイルのトリアージは新鮮に保てますが、サーバーへのポーリング負荷は増えます。"
+          }
+        }
+      }
+    },
+    "Standby reminders are armed for queued on-call pressure on this device.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这台设备已为排队中的值班压力启用待命提醒。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデバイスでは、キュー中のオンコール負荷に対する待機リマインダーが有効です。"
+          }
+        }
+      }
+    },
+    "Standby reminders are currently disabled on this device.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这台设备当前已禁用待命提醒。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデバイスでは現在、待機リマインダーが無効です。"
+          }
+        }
+      }
+    },
+    "This device is pointed at \\(hostLabel) for runtime refreshes and action routing.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这台设备当前指向 \\(hostLabel)，用于运行时刷新和操作路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデバイスは現在 \\(hostLabel) を向いており、ランタイム更新とアクションルーティングに使用されます。"
+          }
+        }
+      }
+    },
+    "This iPhone is currently using \\(currentLanguageLabel) for LibreFang.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这台 iPhone 当前为 LibreFang 使用 \\(currentLanguageLabel)。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone は現在、LibreFang に \\(currentLanguageLabel) を使用しています。"
+          }
+        }
+      }
+    },
+    "Unset": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未设置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未設定"
+          }
+        }
+      }
+    },
+    "Use this deck to confirm control breadth, route exits, and live device readiness before opening the longer settings form.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开更长的设置表单前，使用此卡片确认控件覆盖、路由出口和设备实时就绪度。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より長い設定フォームを開く前に、このデッキでコントロールの広がり、ルート出口、ライブなデバイス準備状況を確認します。"
+          }
+        }
+      }
+    },
+    "Use this deck to judge whether the phone is currently burdened by queue pressure, critical alerts, or reminder state rather than static configuration.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片判断手机当前是否主要受队列压力、严重告警或提醒状态影响，而不是静态配置。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、現在の端末負荷が静的設定ではなく、キュー圧力、重大アラート、リマインダー状態によるものかを判断します。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep reminder state, notification readiness, refresh cadence, and language context readable before opening the full device form.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开完整设备表单前，使用此卡片让提醒状态、通知就绪度、刷新节奏和语言上下文保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全なデバイスフォームを開く前に、このデッキでリマインダー状態、通知準備、更新間隔、言語コンテキストを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant device-facing settings lane readable before opening the longer server, reminder, and monitoring form.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开更长的服务器、提醒和监控表单前，使用此卡片让面向设备的主设置通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より長いサーバー、リマインダー、監視フォームを開く前に、このデッキで主要なデバイス向け設定レーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this digest to confirm queue pressure, watchlist pressure, and readiness signals without scanning every value.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此摘要即可确认队列压力、关注列表压力和就绪信号，无需逐项查看所有数值。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このダイジェストで、すべての値を確認しなくてもキュー負荷、ウォッチリスト負荷、準備シグナルを把握できます。"
+          }
+        }
+      }
+    },
+    "Use this summary to confirm device-level monitoring behavior without digging through each section.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此摘要即可确认设备级监控行为，无需深入每个分区。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このサマリーで、各セクションを掘り下げなくてもデバイスレベルの監視挙動を確認できます。"
+          }
+        }
+      }
+    },
+    "Utility Deck": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具卡片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ユーティリティデッキ"
+          }
+        }
+      }
+    },
+    "\\(Int(refreshInterval))s refresh": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(Int(refreshInterval))s 刷新"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(Int(refreshInterval))秒更新"
+          }
+        }
+      }
+    },
+    "\\(activeMutedAlertCount) muted alerts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activeMutedAlertCount) 条静音告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activeMutedAlertCount)件のミュートアラート"
+          }
+        }
+      }
+    },
+    "\\(currentCriticalCount) critical": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(currentCriticalCount) 个严重项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(currentCriticalCount)件の重大項目"
+          }
+        }
+      }
+    },
+    "\\(delayMinutes) min": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(delayMinutes) 分钟"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(delayMinutes) 分"
+          }
+        }
+      }
+    },
+    "\\(delayMinutes) min delay": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(delayMinutes) 分钟延迟"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(delayMinutes) 分の遅延"
+          }
+        }
+      }
+    },
+    "\\(deps.agentWatchlistStore.watchedAgentIDs.count) watched agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(deps.agentWatchlistStore.watchedAgentIDs.count) 个关注代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(deps.agentWatchlistStore.watchedAgentIDs.count)件の監視対象エージェント"
+          }
+        }
+      }
+    },
+    "\\(primaryRouteCount + supportRouteCount + primaryControlCount + supportControlCount + utilityRouteCount) actions": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryRouteCount + supportRouteCount + primaryControlCount + supportControlCount + utilityRouteCount) 个操作"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryRouteCount + supportRouteCount + primaryControlCount + supportControlCount + utilityRouteCount)件のアクション"
+          }
+        }
+      }
+    },
+    "\\(refreshInterval)s cadence": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(refreshInterval)s 节奏"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(refreshInterval)秒間隔"
+          }
+        }
+      }
+    },
+    "\\(refreshInterval)s interval": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(refreshInterval)s 间隔"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(refreshInterval)秒間隔"
+          }
+        }
+      }
+    },
+    "\\(sectionCount) settings sections are loaded into the compact device deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "紧凑设备卡片中已载入 \\(sectionCount) 个设置分区。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなデバイスデッキには \\(sectionCount) 件の設定セクションが読み込まれています。"
+          }
+        }
+      }
+    },
+    "\\(supportedLanguageLabels.count) supported languages": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportedLanguageLabels.count) 种支持的语言"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportedLanguageLabels.count) 言語"
+          }
+        }
+      }
+    },
+    "\\(totalItems) settings routes and controls are grouped in this deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此卡片中分组了 \\(totalItems) 个设置路由和控件。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキには \\(totalItems) 件の設定ルートとコントロールがまとめられています。"
+          }
+        }
+      }
+    },
+    "1 follow-up": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个后续事项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のフォローアップ"
+          }
+        }
+      }
+    },
+    "Keep the dominant overlay lane readable before moving from the top overlay summary into quick-action exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从顶部覆盖摘要切换到快速操作出口之前，先让主覆盖通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上部オーバーレイ要約からクイックアクション出口へ移る前に、支配的なオーバーレイレーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Overlay focus coverage is currently anchored by live triage pressure.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "覆盖焦点范围当前由实时分诊压力主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイのフォーカス範囲は現在、ライブトリアージの負荷が軸です。"
+          }
+        }
+      }
+    },
+    "Overlay focus coverage is currently anchored by offline recovery.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "覆盖焦点范围当前由离线恢复主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイのフォーカス範囲は現在、オフライン復旧が軸です。"
+          }
+        }
+      }
+    },
+    "Overlay focus coverage is currently anchored by watch, muted-alert, and follow-up drag.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "覆盖焦点范围当前由关注、静音告警和后续事项拖拽主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイのフォーカス範囲は現在、ウォッチ、ミュートアラート、フォローアップの負荷が軸です。"
+          }
+        }
+      }
+    },
+    "Overlay focus coverage is currently centered on the preferred surface and nearby tabs.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "覆盖焦点范围当前围绕首选界面及附近标签页展开。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーバーレイのフォーカス範囲は現在、優先サーフェスと近くのタブを中心にしています。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant overlay lane readable before opening the broader primary and support route groups.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开更广的主路由和辅助路由分组之前，让主覆盖通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、より広い主要ルート群と補助ルート群を開く前に、支配的なオーバーレイレーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "\\(pendingFollowUpCount) follow-ups": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingFollowUpCount) 个后续事项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pendingFollowUpCount)件のフォローアップ"
+          }
+        }
+      }
+    },
+    "1 action": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个操作"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のアクション"
+          }
+        }
+      }
+    },
+    "\\(actionCount) actions": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(actionCount) 个操作"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(actionCount)件のアクション"
+          }
+        }
+      }
+    },
+    "1 active alert": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条活跃告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のアクティブアラート"
+          }
+        }
+      }
+    },
+    "\\(activeAlertCount) active alerts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activeAlertCount) 条活跃告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activeAlertCount)件のアクティブアラート"
+          }
+        }
+      }
+    },
+    "1 active alert bucket": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个活跃告警分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のアクティブアラートバケット"
+          }
+        }
+      }
+    },
+    "\\(activeAlertCount) active alert buckets": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activeAlertCount) 个活跃告警分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activeAlertCount)件のアクティブアラートバケット"
+          }
+        }
+      }
+    },
+    "1 agent issue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个代理问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のエージェント問題"
+          }
+        }
+      }
+    },
+    "\\(agentCount) agent issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agentCount) 个代理问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agentCount)件のエージェント問題"
+          }
+        }
+      }
+    },
+    "1 agent visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中エージェント"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) agents visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 个可见代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount)件の表示中エージェント"
+          }
+        }
+      }
+    },
+    "1 agent with approvals": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个带审批的代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の承認付きエージェント"
+          }
+        }
+      }
+    },
+    "\\(approvalCount) agents with approvals": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalCount) 个带审批的代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalCount)件の承認付きエージェント"
+          }
+        }
+      }
+    },
+    "1 alert type": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 种告警类型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 種類のアラート"
+          }
+        }
+      }
+    },
+    "\\(symbolCount) alert types": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(symbolCount) 种告警类型"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(symbolCount) 種類のアラート"
+          }
+        }
+      }
+    },
+    "1 approval bucket": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个审批分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の承認バケット"
+          }
+        }
+      }
+    },
+    "\\(approvalCount) approval buckets": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalCount) 个审批分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalCount)件の承認バケット"
+          }
+        }
+      }
+    },
+    "1 approval route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个审批路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の承認ルート"
+          }
+        }
+      }
+    },
+    "\\(approvalCount) approval routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalCount) 个审批路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(approvalCount)件の承認ルート"
+          }
+        }
+      }
+    },
+    "1 approval visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见审批"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中承認"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) approvals visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 个可见审批"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount)件の表示中承認"
+          }
+        }
+      }
+    },
+    "1 automation": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个自动化项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の自動化"
+          }
+        }
+      }
+    },
+    "\\(automationCount) automation": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(automationCount) 个自动化项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(automationCount)件の自動化"
+          }
+        }
+      }
+    },
+    "1 automation route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个自动化路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の自動化ルート"
+          }
+        }
+      }
+    },
+    "\\(automationCount) automation routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(automationCount) 个自动化路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(automationCount)件の自動化ルート"
+          }
+        }
+      }
+    },
+    "1 critical alert": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条严重告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の重大アラート"
+          }
+        }
+      }
+    },
+    "\\(criticalCount) critical alerts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalCount) 条严重告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalCount)件の重大アラート"
+          }
+        }
+      }
+    },
+    "1 critical event": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个严重事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の重大イベント"
+          }
+        }
+      }
+    },
+    "\\(eventCount) critical events": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(eventCount) 个严重事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(eventCount)件の重大イベント"
+          }
+        }
+      }
+    },
+    "1 critical route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个严重路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の重大ルート"
+          }
+        }
+      }
+    },
+    "\\(criticalCount) critical routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalCount) 个严重路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalCount)件の重大ルート"
+          }
+        }
+      }
+    },
+    "1 delivery failure": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个投递失败"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の配信失敗"
+          }
+        }
+      }
+    },
+    "\\(failedAgentCount) delivery failures": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedAgentCount) 个投递失败"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedAgentCount)件の配信失敗"
+          }
+        }
+      }
+    },
+    "1 drift agent": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个漂移代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のドリフトエージェント"
+          }
+        }
+      }
+    },
+    "\\(modelDriftCount) drift agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(modelDriftCount) 个漂移代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(modelDriftCount)件のドリフトエージェント"
+          }
+        }
+      }
+    },
+    "1 drift agent visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见漂移代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中ドリフトエージェント"
+          }
+        }
+      }
+    },
+    "\\(visibleDiagnosticCount) drift agents visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleDiagnosticCount) 个可见漂移代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleDiagnosticCount)件の表示中ドリフトエージェント"
+          }
+        }
+      }
+    },
+    "1 event": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のイベント"
+          }
+        }
+      }
+    },
+    "\\(eventCount) events": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(eventCount) 个事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(eventCount)件のイベント"
+          }
+        }
+      }
+    },
+    "1 event bucket": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个事件分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のイベントバケット"
+          }
+        }
+      }
+    },
+    "\\(criticalEventCount) event buckets": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalEventCount) 个事件分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(criticalEventCount)件のイベントバケット"
+          }
+        }
+      }
+    },
+    "1 event visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中イベント"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) events visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 个可见事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount)件の表示中イベント"
+          }
+        }
+      }
+    },
+    "1 exhausted trigger": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已耗尽的触发器"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の上限到達トリガー"
+          }
+        }
+      }
+    },
+    "\\(exhaustedTriggerCount) exhausted triggers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(exhaustedTriggerCount) 个已耗尽的触发器"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(exhaustedTriggerCount)件の上限到達トリガー"
+          }
+        }
+      }
+    },
+    "1 handoff issue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个交接问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の引き継ぎ問題"
+          }
+        }
+      }
+    },
+    "\\(handoffCount) handoff issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(handoffCount) 个交接问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(handoffCount)件の引き継ぎ問題"
+          }
+        }
+      }
+    },
+    "1 handoff item": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 项交接事项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の引き継ぎ項目"
+          }
+        }
+      }
+    },
+    "\\(handoffCount) handoff items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(handoffCount) 项交接事项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(handoffCount)件の引き継ぎ項目"
+          }
+        }
+      }
+    },
+    "1 handoff route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个交接路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の引き継ぎルート"
+          }
+        }
+      }
+    },
+    "\\(handoffCount) handoff routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(handoffCount) 个交接路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(handoffCount)件の引き継ぎルート"
+          }
+        }
+      }
+    },
+    "1 high risk": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个高风险项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の高リスク項目"
+          }
+        }
+      }
+    },
+    "\\(highRiskCount) high risk": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskCount) 个高风险项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskCount)件の高リスク項目"
+          }
+        }
+      }
+    },
+    "1 identity gap": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个身份缺口"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の ID 欠落"
+          }
+        }
+      }
+    },
+    "\\(missingIdentityAgentCount) identity gaps": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingIdentityAgentCount) 个身份缺口"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(missingIdentityAgentCount)件の ID 欠落"
+          }
+        }
+      }
+    },
+    "1 incident section is active in the current queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前队列中有 1 个事件分区处于活动状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のキューでは 1 件のインシデントセクションが有効です。"
+          }
+        }
+      }
+    },
+    "\\(sectionCount) incident sections are active in the current queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前队列中有 \\(sectionCount) 个事件分区处于活动状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のキューでは \\(sectionCount) 件のインシデントセクションが有効です。"
+          }
+        }
+      }
+    },
+    "1 info visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条可见信息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中情報"
+          }
+        }
+      }
+    },
+    "\\(infoCount) info visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(infoCount) 条可见信息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(infoCount)件の表示中情報"
+          }
+        }
+      }
+    },
+    "1 integration": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个集成项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の統合"
+          }
+        }
+      }
+    },
+    "\\(integrationCount) integration": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(integrationCount) 个集成项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(integrationCount)件の統合"
+          }
+        }
+      }
+    },
+    "1 integration route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个集成路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の統合ルート"
+          }
+        }
+      }
+    },
+    "\\(integrationCount) integration routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(integrationCount) 个集成路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(integrationCount)件の統合ルート"
+          }
+        }
+      }
+    },
+    "1 issue class": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个问题类别"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の問題クラス"
+          }
+        }
+      }
+    },
+    "\\(issueCategoryCount) issue classes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueCategoryCount) 个问题类别"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueCategoryCount)件の問題クラス"
+          }
+        }
+      }
+    },
+    "1 muted alert remains visible in the incident queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条静音告警仍显示在事件队列中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のミュートアラートがインシデントキューに表示されたままです。"
+          }
+        }
+      }
+    },
+    "\\(mutedAlertCount) muted alerts remain visible in the incident queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mutedAlertCount) 条静音告警仍显示在事件队列中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mutedAlertCount)件のミュートアラートがインシデントキューに表示されたままです。"
+          }
+        }
+      }
+    },
+    "1 muted bucket": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个静音分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のミュートバケット"
+          }
+        }
+      }
+    },
+    "\\(mutedAlertCount) muted buckets": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mutedAlertCount) 个静音分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mutedAlertCount)件のミュートバケット"
+          }
+        }
+      }
+    },
+    "1 primary bucket": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个主分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の主要バケット"
+          }
+        }
+      }
+    },
+    "\\(primarySectionCount) primary buckets": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primarySectionCount) 个主分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primarySectionCount)件の主要バケット"
+          }
+        }
+      }
+    },
+    "1 primary queue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个主队列"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の主要キュー"
+          }
+        }
+      }
+    },
+    "\\(primaryQueueSectionCount) primary queues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryQueueSectionCount) 个主队列"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryQueueSectionCount)件の主要キュー"
+          }
+        }
+      }
+    },
+    "1 provider failure": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个提供方故障"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のプロバイダ障害"
+          }
+        }
+      }
+    },
+    "\\(providerFailureCount) provider failures": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(providerFailureCount) 个提供方故障"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(providerFailureCount)件のプロバイダ障害"
+          }
+        }
+      }
+    },
+    "1 session": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个会话"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のセッション"
+          }
+        }
+      }
+    },
+    "\\(sessionCount) sessions": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sessionCount) 个会话"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sessionCount)件のセッション"
+          }
+        }
+      }
+    },
+    "1 session route": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个会话路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のセッションルート"
+          }
+        }
+      }
+    },
+    "\\(sessionCount) session routes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sessionCount) 个会话路由"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sessionCount)件のセッションルート"
+          }
+        }
+      }
+    },
+    "1 session visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见会话"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中セッション"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) sessions visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 个可见会话"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount)件の表示中セッション"
+          }
+        }
+      }
+    },
+    "1 stalled cron": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个停滞的 Cron 任务"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の停止中 Cron ジョブ"
+          }
+        }
+      }
+    },
+    "\\(stalledCronJobCount) stalled cron jobs": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(stalledCronJobCount) 个停滞的 Cron 任务"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(stalledCronJobCount)件の停止中 Cron ジョブ"
+          }
+        }
+      }
+    },
+    "1 support bucket": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个辅助分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の補助バケット"
+          }
+        }
+      }
+    },
+    "\\(supportSectionCount) support buckets": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportSectionCount) 个辅助分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportSectionCount)件の補助バケット"
+          }
+        }
+      }
+    },
+    "1 support queue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个辅助队列"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の補助キュー"
+          }
+        }
+      }
+    },
+    "\\(supportQueueSectionCount) support queues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportQueueSectionCount) 个辅助队列"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportQueueSectionCount)件の補助キュー"
+          }
+        }
+      }
+    },
+    "1 unsettled delivery": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个未结清投递"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の未解決配信"
+          }
+        }
+      }
+    },
+    "\\(unsettledAgentCount) unsettled deliveries": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unsettledAgentCount) 个未结清投递"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(unsettledAgentCount)件の未解決配信"
+          }
+        }
+      }
+    },
+    "1 warning alert": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条警告告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の警告アラート"
+          }
+        }
+      }
+    },
+    "\\(warningCount) warning alerts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(warningCount) 条警告告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(warningCount)件の警告アラート"
+          }
+        }
+      }
+    },
+    "1 warning visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条可见警告"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中警告"
+          }
+        }
+      }
+    },
+    "\\(warningCount) warnings visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(warningCount) 条可见警告"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(warningCount)件の表示中警告"
+          }
+        }
+      }
+    },
+    "1 watched bucket": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个关注分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の監視バケット"
+          }
+        }
+      }
+    },
+    "\\(watchedDiagnosticsCount) watched buckets": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchedDiagnosticsCount) 个关注分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchedDiagnosticsCount)件の監視バケット"
+          }
+        }
+      }
+    },
+    "1 watched diagnostic": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个关注诊断"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の監視診断"
+          }
+        }
+      }
+    },
+    "\\(watchedDiagnosticsCount) watched diagnostics": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchedDiagnosticsCount) 个关注诊断"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchedDiagnosticsCount)件の監視診断"
+          }
+        }
+      }
+    },
+    "1 watched diagnostic issue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个关注的诊断问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の監視対象診断問題"
+          }
+        }
+      }
+    },
+    "\\(watchedDiagnosticCount) watched diagnostic issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchedDiagnosticCount) 个关注的诊断问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchedDiagnosticCount)件の監視対象診断問題"
+          }
+        }
+      }
+    },
+    "1 watched issue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个关注问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の監視問題"
+          }
+        }
+      }
+    },
+    "\\(totalCount) watched issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount) 个关注问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount)件の監視問題"
+          }
+        }
+      }
+    },
+    "Active severity and alert type spread stay summarized here before the per-alert controls.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在逐条告警控件展开之前，活跃严重度和告警类型分布会先在这里汇总。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アラートごとのコントロールに入る前に、アクティブな重大度とアラート種別の広がりがここで要約されます。"
+          }
+        }
+      }
+    },
+    "Agent Attention": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理关注"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェント注意"
+          }
+        }
+      }
+    },
+    "Agent inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントインベントリ"
+          }
+        }
+      }
+    },
+    "Alert inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "告警清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アラートインベントリ"
+          }
+        }
+      }
+    },
+    "Alerts, approvals, sessions, events, automation, integrations, and handoff pressure stay grouped before the routes fan out.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在路由展开之前，告警、审批、会话、事件、自动化、集成和交接压力会先分组显示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートが広がる前に、アラート、承認、セッション、イベント、自動化、統合、引き継ぎの負荷がまとめて表示されます。"
+          }
+        }
+      }
+    },
+    "Automation inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动化清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動化インベントリ"
+          }
+        }
+      }
+    },
+    "Automation pressure is currently quiet in the incident queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动化压力当前在事件队列中较为平静。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動化の負荷は現在、インシデントキューでは落ち着いています。"
+          }
+        }
+      }
+    },
+    "Automation pressure spans \\(issueCategoryCount) issue classes in the incident queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动化压力当前在事件队列中覆盖 \\(issueCategoryCount) 个问题类别。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動化の負荷は現在、インシデントキューで \\(issueCategoryCount) 件の問題クラスにまたがっています。"
+          }
+        }
+      }
+    },
+    "Catalog Availability": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目录可用性"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カタログ可用性"
+          }
+        }
+      }
+    },
+    "Catalog empty": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目录为空"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カタログが空"
+          }
+        }
+      }
+    },
+    "Critical-event inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "严重事件清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重大イベントインベントリ"
+          }
+        }
+      }
+    },
+    "Delivery failures, identity gaps, and fallback drift stay grouped here before the watched-agent drilldowns.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入查看关注代理之前，投递失败、身份缺口和回退漂移会先在这里分组显示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視対象エージェントの深掘りに入る前に、配信失敗、ID 欠落、フォールバックドリフトがここにまとめられます。"
+          }
+        }
+      }
+    },
+    "Fleet": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "机群"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フリート"
+          }
+        }
+      }
+    },
+    "Incident action readiness is currently anchored by handoff follow-through and muted-alert drag.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件操作就绪度当前由交接跟进和静音告警拖拽主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントのアクション準備状況は現在、引き継ぎの追従とミュートアラートの重さが軸です。"
+          }
+        }
+      }
+    },
+    "Incident action readiness is currently anchored by live alert pressure and the next triage exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件操作就绪度当前由实时告警压力和下一步分诊出口主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントのアクション準備状況は現在、ライブアラート負荷と次のトリアージ出口が軸です。"
+          }
+        }
+      }
+    },
+    "Incident action readiness is currently calm enough for route review and queue maintenance.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件操作就绪度当前足够平静，可进行路由审查和队列维护。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントのアクション準備状況は現在、ルート確認とキュー保守に進める程度に落ち着いています。"
+          }
+        }
+      }
+    },
+    "Incident action readiness is currently centered on route breadth and queue coverage.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件操作就绪度当前围绕路由广度和队列覆盖展开。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントのアクション準備状況は現在、ルートの広がりとキューカバレッジが中心です。"
+          }
+        }
+      }
+    },
+    "Incident controls are grouping \\(primaryRouteCount) primary routes and \\(supportRouteCount) support routes before the queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入队列之前，事件控件会先分组显示 \\(primaryRouteCount) 个主路由和 \\(supportRouteCount) 个辅助路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キューに入る前に、インシデントコントロールは \\(primaryRouteCount) 件の主要ルートと \\(supportRouteCount) 件の補助ルートをまとめています。"
+          }
+        }
+      }
+    },
+    "Incident focus coverage is currently anchored by handoff and watched-diagnostics follow-through.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件焦点覆盖当前由交接和关注诊断的跟进主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントのフォーカス範囲は現在、引き継ぎと監視診断の追従が軸です。"
+          }
+        }
+      }
+    },
+    "Incident focus coverage is currently anchored by operator queue and fleet drag.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件焦点覆盖当前由操作员队列和机群拖拽主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントのフォーカス範囲は現在、オペレーターキューとフリートの重さが軸です。"
+          }
+        }
+      }
+    },
+    "Incident focus coverage is currently anchored by the active alert lane.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件焦点覆盖当前由活跃告警通道主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントのフォーカス範囲は現在、アクティブアラートのレーンが軸です。"
+          }
+        }
+      }
+    },
+    "Incident focus coverage is currently balanced across the grouped incident lanes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件焦点覆盖当前在分组后的事件通道之间保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントのフォーカス範囲は現在、グループ化されたインシデントレーン全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Incident inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントインベントリ"
+          }
+        }
+      }
+    },
+    "Incident pressure coverage keeps the active severity mix readable before routes and queue buckets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在路由和队列分桶之前，事件压力覆盖会让当前严重度组合保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートとキューバケットの前に、インシデント負荷カバレッジがアクティブな重大度の構成を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Incident queue facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューの要点"
+          }
+        }
+      }
+    },
+    "Incident queue is clear.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列为空。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューは空です。"
+          }
+        }
+      }
+    },
+    "Incident queue is currently concentrated in the primary buckets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列当前主要集中在主分桶中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューは現在、主要バケットに集中しています。"
+          }
+        }
+      }
+    },
+    "Incident queue is split across \\(primarySectionCount) primary and \\(supportSectionCount) support buckets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列当前分布在 \\(primarySectionCount) 个主分桶和 \\(supportSectionCount) 个辅助分桶中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューは現在、\\(primarySectionCount) 件の主要バケットと \\(supportSectionCount) 件の補助バケットに分かれています。"
+          }
+        }
+      }
+    },
+    "Incident support coverage is currently anchored by critical audit or integration drag beyond the live alert buckets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件辅助覆盖当前由活跃告警分桶之外的严重审计或集成拖拽主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントの補助カバレッジは現在、ライブアラートバケットを超えた重大監査または統合の負荷が軸です。"
+          }
+        }
+      }
+    },
+    "Incident support coverage is currently anchored by muted alert drag, handoff load, and watched diagnostics.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件辅助覆盖当前由静音告警拖拽、交接负载和关注诊断主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントの補助カバレッジは現在、ミュートアラートの重さ、引き継ぎ負荷、監視診断が軸です。"
+          }
+        }
+      }
+    },
+    "Incident support coverage is currently light and mostly reflects slower automation and audit context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件辅助覆盖当前较轻，主要反映较慢的自动化和审计上下文。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントの補助カバレッジは現在軽く、主に遅い自動化と監査の文脈を反映しています。"
+          }
+        }
+      }
+    },
+    "Incident support coverage is currently light, and the active snapshot is acknowledged.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件辅助覆盖当前较轻，且活动快照已确认。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントの補助カバレッジは現在軽く、アクティブなスナップショットは確認済みです。"
+          }
+        }
+      }
+    },
+    "Integration inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合インベントリ"
+          }
+        }
+      }
+    },
+    "Integration pressure is currently quiet in the incident queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成压力当前在事件队列中较为平静。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合の負荷は現在、インシデントキューでは落ち着いています。"
+          }
+        }
+      }
+    },
+    "Integration pressure spans \\(issueCategoryCount) issue classes in the incident queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成压力当前在事件队列中覆盖 \\(issueCategoryCount) 个问题类别。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合の負荷は現在、インシデントキューで \\(issueCategoryCount) 件の問題クラスにまたがっています。"
+          }
+        }
+      }
+    },
+    "Jump around the incident buckets themselves without dragging through the entire list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直接在事件分桶之间跳转，无需拖过整个列表。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リスト全体をドラッグせずに、インシデントバケット間を直接移動できます。"
+          }
+        }
+      }
+    },
+    "Jump directly into the most likely provider, channel, or catalog failure path.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直接跳入最可能的提供方、通道或目录故障路径。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もっとも可能性の高いプロバイダ、チャネル、カタログの障害経路へ直接移動します。"
+          }
+        }
+      }
+    },
+    "Keep action spread and agent breadth visible before opening the deeper event feed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开更深入的事件流之前，先让操作分布和代理覆盖范围保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より深いイベントフィードを開く前に、アクションの広がりとエージェントの幅を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep auth, approval, and stale-agent pressure visible before the fleet list grows beyond the compact incident slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在机群列表超出紧凑事件切片之前，先让认证、审批和过期代理压力保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フリート一覧がコンパクトなインシデントスライスを超える前に、認証、承認、古いエージェントの負荷を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep handoff drag, watched diagnostics, audit pressure, and slower automation or integration load visible before the incident buckets take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在事件分桶接管之前，先让交接拖拽、关注诊断、审计压力以及较慢的自动化或集成负载保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントバケットが前面に出る前に、引き継ぎの重さ、監視診断、監査負荷、遅い自動化または統合負荷を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep incident buckets, primary drilldowns, and queue jumps together before the grouped incident list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在分组事件列表之前，先把事件分桶、主下钻项和队列跳转放在一起。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "グループ化されたインシデント一覧の前に、インシデントバケット、主要ドリルダウン、キュージャンプをまとめておきます。"
+          }
+        }
+      }
+    },
+    "Keep incident exit breadth, queue coverage, and acknowledgement state visible before moving from the summary into route rails and queue buckets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从摘要进入路由栏和队列分桶之前，先让事件出口广度、队列覆盖和确认状态保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要約からルートレールとキューバケットへ移る前に、インシデント出口の広がり、キューカバレッジ、確認状態を見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Keep message load, unlabeled sessions, and duplicate-agent pressure readable before the dedicated session monitor opens.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在专用会话监视器打开之前，先让消息负载、未标记会话和重复代理压力保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "専用セッションモニターを開く前に、メッセージ負荷、未ラベルセッション、重複エージェントの負荷を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep provider, channel, catalog, and drift pressure visible before the integration monitor or per-agent drilldowns.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入集成监视器或逐代理下钻之前，先让提供方、通道、目录和漂移压力保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合モニターやエージェント別ドリルダウンに入る前に、プロバイダ、チャネル、カタログ、ドリフトの負荷を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep queue coverage and cross-surface pressure visible before the incident routes and bucket lists begin.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在事件路由和分桶列表开始之前，先让队列覆盖和跨界面压力保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントのルートやバケット一覧が始まる前に、キューカバレッジと画面横断の負荷を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep risk spread and agent breadth visible before the compact approval rows or the full queue view.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在紧凑审批行或完整队列视图之前，先让风险分布和代理覆盖范围保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトな承認行や完全なキュー表示の前に、リスクの広がりとエージェントの幅を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep slower infrastructure and secondary drilldowns behind the primary buckets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让较慢的基础设施项和次级下钻位于主分桶之后。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "遅いインフラ項目と二次ドリルダウンは主要バケットの後ろに置きます。"
+          }
+        }
+      }
+    },
+    "Keep the dominant incident lane readable before moving from the summary decks into route rails and queue buckets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从摘要卡片切换到路由栏和队列分桶之前，先让主事件通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要約デッキからルートレールとキューバケットへ移る前に、支配的なインシデントレーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the fastest incident drilldowns separate from deeper runtime and infrastructure exits before the queue begins.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在队列开始之前，让最快的事件下钻与更深层的运行时和基础设施出口保持分离。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キューが始まる前に、最速のインシデントドリルダウンを、より深いランタイムやインフラ出口から分けておきます。"
+          }
+        }
+      }
+    },
+    "Keep the live operator controls and highest-priority buckets closest to the top.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让实时操作员控件和最高优先级分桶尽量靠近顶部。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブなオペレーターコントロールと最優先バケットを上部近くに置きます。"
+          }
+        }
+      }
+    },
+    "Keep the most likely next drilldowns visible before the incident queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在事件队列之前，先让最可能的下一步下钻项保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューの前に、次に入りそうなドリルダウンを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the operator burden readable before diving into the incident buckets themselves.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入事件分桶之前，先让操作员负担保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントバケット自体へ入る前に、オペレーター負荷を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep workflow, trigger, and cron pressure readable before opening the dedicated automation monitor.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开专用自动化监视器之前，先让工作流、触发器和 Cron 压力保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "専用の自動化モニターを開く前に、ワークフロー、トリガー、Cron の負荷を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Monitor": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "监视"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視"
+          }
+        }
+      }
+    },
+    "Open the dedicated approval monitor when the compact incident list is not enough.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当紧凑事件列表不足以处理时，打开专用审批监视器。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなインシデント一覧だけでは足りない場合、専用の承認モニターを開きます。"
+          }
+        }
+      }
+    },
+    "Open the dedicated session monitor when hotspots spread beyond the compact incident list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当热点扩散到紧凑事件列表之外时，打开专用会话监视器。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ホットスポットがコンパクトなインシデント一覧を超えて広がったら、専用のセッションモニターを開きます。"
+          }
+        }
+      }
+    },
+    "Open the full event feed when the compact critical trail needs deeper inspection.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当紧凑的严重轨迹需要更深入检查时，打开完整事件流。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトな重大トレイルをさらに詳しく確認する必要がある場合、完全なイベントフィードを開きます。"
+          }
+        }
+      }
+    },
+    "Open the full fleet monitor when agent pressure spreads beyond the top incident rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当代理压力扩散到顶部事件行之外时，打开完整机群监视器。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェント負荷が上部のインシデント行を超えて広がったら、完全なフリートモニターを開きます。"
+          }
+        }
+      }
+    },
+    "Pinned agents can stay visible here even when they would otherwise drop out of the normal fleet attention list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即使已固定代理本应从常规机群关注列表中退出，也可以继续显示在这里。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピン留めしたエージェントは、通常のフリート注意一覧から外れる状態でもここに表示し続けられます。"
+          }
+        }
+      }
+    },
+    "Primary Queue Sections": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主队列分区"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主要キューセクション"
+          }
+        }
+      }
+    },
+    "Primary buckets keep the operator loop near the top, while support buckets hold slower diagnostics and fleet follow-up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主分桶会让操作环路靠近顶部，而辅助分桶则承载较慢的诊断和机群跟进。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主要バケットはオペレーターループを上部近くに保ち、補助バケットは遅い診断やフリートのフォローアップを受け持ちます。"
+          }
+        }
+      }
+    },
+    "Primary exits stay biased toward the next likely triage surfaces, while support exits keep deeper runtime context nearby.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主出口会偏向下一步最可能的分诊界面，而辅助出口则让更深层的运行时上下文保持在附近。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主要出口は次に可能性の高いトリアージ画面へ寄り、補助出口はより深いランタイム文脈を近くに保ちます。"
+          }
+        }
+      }
+    },
+    "Primary only": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅主分组"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主要のみ"
+          }
+        }
+      }
+    },
+    "Provider reachability, channel config gaps, catalog freshness, and drift stay compact before the larger integration drilldown.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入更大的集成下钻之前，提供方可达性、通道配置缺口、目录新鲜度和漂移会先以紧凑形式显示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より大きな統合ドリルダウンに入る前に、プロバイダ到達性、チャネル設定の欠落、カタログ鮮度、ドリフトがコンパクトにまとまります。"
+          }
+        }
+      }
+    },
+    "Queue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "队列"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キュー"
+          }
+        }
+      }
+    },
+    "Session Hotspots": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话热点"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セッションホットスポット"
+          }
+        }
+      }
+    },
+    "Supporting Queue Sections": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "辅助队列分区"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "補助キューセクション"
+          }
+        }
+      }
+    },
+    "Targets": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目标"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ターゲット"
+          }
+        }
+      }
+    },
+    "The compact approval slice is currently dominated by standard-risk actions.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "紧凑审批切片当前主要由标准风险操作主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトな承認スライスは現在、標準リスクのアクションが中心です。"
+          }
+        }
+      }
+    },
+    "The compact event slice stays focused on the newest critical trail before you open the full feed or diagnostics monitor.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开完整事件流或诊断监视器之前，紧凑事件切片会继续聚焦最新的严重轨迹。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全なフィードや診断モニターを開く前に、コンパクトなイベントスライスは最新の重大トレイルに焦点を当て続けます。"
+          }
+        }
+      }
+    },
+    "The compact session slice stays focused on the hottest rows before you jump into the broader session monitor.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在跳转到更广的会话监视器之前，紧凑会话切片会继续聚焦最热的行。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より広いセッションモニターへ移る前に、コンパクトなセッションスライスはもっとも熱い行に焦点を当て続けます。"
+          }
+        }
+      }
+    },
+    "The incident queue is showing \\(visibleCount) of \\(totalCount) pending approvals.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列当前显示 \\(visibleCount) / \\(totalCount) 个待处理审批。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューには現在、\\(totalCount) 件中 \\(visibleCount) 件の保留承認が表示されています。"
+          }
+        }
+      }
+    },
+    "The incident queue is showing \\(visibleCount) of \\(totalCount) watched diagnostic issues.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列当前显示 \\(visibleCount) / \\(totalCount) 个关注的诊断问题。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューには現在、\\(totalCount) 件中 \\(visibleCount) 件の監視対象診断問題が表示されています。"
+          }
+        }
+      }
+    },
+    "The incident queue is showing all \\(totalCount) pending approvals.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列当前显示全部 \\(totalCount) 个待处理审批。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューには現在、\\(totalCount) 件すべての保留承認が表示されています。"
+          }
+        }
+      }
+    },
+    "The incident queue is showing all \\(totalCount) watched diagnostic issues.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列当前显示全部 \\(totalCount) 个关注的诊断问题。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューには現在、\\(totalCount) 件すべての監視対象診断問題が表示されています。"
+          }
+        }
+      }
+    },
+    "The incident queue is showing the only pending approval.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列当前显示唯一的待处理审批。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューには現在、唯一の保留承認が表示されています。"
+          }
+        }
+      }
+    },
+    "The incident queue is showing the only watched diagnostic issue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列当前显示唯一的关注诊断问题。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューには現在、唯一の監視対象診断問題が表示されています。"
+          }
+        }
+      }
+    },
+    "The incidents list is showing \\(visibleCount) of \\(totalCount) agents that need attention.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件列表当前显示 \\(visibleCount) / \\(totalCount) 个需要关注的代理。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント一覧には現在、\\(totalCount) 件中 \\(visibleCount) 件の注意が必要なエージェントが表示されています。"
+          }
+        }
+      }
+    },
+    "The incidents list is showing \\(visibleCount) of \\(totalCount) critical events in view.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件列表当前显示视图内 \\(visibleCount) / \\(totalCount) 个严重事件。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント一覧には現在、表示中の重大イベント \\(totalCount) 件中 \\(visibleCount) 件が表示されています。"
+          }
+        }
+      }
+    },
+    "The incidents list is showing \\(visibleCount) of \\(totalCount) session hotspots.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件列表当前显示 \\(visibleCount) / \\(totalCount) 个会话热点。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント一覧には現在、\\(totalCount) 件中 \\(visibleCount) 件のセッションホットスポットが表示されています。"
+          }
+        }
+      }
+    },
+    "The incidents list is showing all \\(alerts.count) active alerts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件列表当前显示全部 \\(alerts.count) 条活跃告警。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント一覧には現在、\\(alerts.count) 件すべてのアクティブアラートが表示されています。"
+          }
+        }
+      }
+    },
+    "The incidents list is showing all \\(totalCount) agents that need attention.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件列表当前显示全部 \\(totalCount) 个需要关注的代理。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント一覧には現在、\\(totalCount) 件すべての注意が必要なエージェントが表示されています。"
+          }
+        }
+      }
+    },
+    "The incidents list is showing all \\(totalCount) critical events in view.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件列表当前显示视图内全部 \\(totalCount) 个严重事件。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント一覧には現在、表示中の重大イベント \\(totalCount) 件すべてが表示されています。"
+          }
+        }
+      }
+    },
+    "The incidents list is showing all \\(totalCount) session hotspots.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件列表当前显示全部 \\(totalCount) 个会话热点。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント一覧には現在、\\(totalCount) 件すべてのセッションホットスポットが表示されています。"
+          }
+        }
+      }
+    },
+    "The incidents list is showing the only active alert.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件列表当前显示唯一的活跃告警。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント一覧には現在、唯一のアクティブアラートが表示されています。"
+          }
+        }
+      }
+    },
+    "The incidents list is showing the only agent that needs attention.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件列表当前显示唯一需要关注的代理。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント一覧には現在、唯一の注意が必要なエージェントが表示されています。"
+          }
+        }
+      }
+    },
+    "The incidents list is showing the only critical event in view.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件列表当前显示视图内唯一的严重事件。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント一覧には現在、表示中の唯一の重大イベントが表示されています。"
+          }
+        }
+      }
+    },
+    "The incidents list is showing the only session hotspot.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件列表当前显示唯一的会话热点。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデント一覧には現在、唯一のセッションホットスポットが表示されています。"
+          }
+        }
+      }
+    },
+    "Use the broader runtime path when the incident needs deeper infrastructure context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当事件需要更深层的基础设施上下文时，使用更广的运行时路径。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントがより深いインフラ文脈を必要とする場合は、より広いランタイム経路を使います。"
+          }
+        }
+      }
+    },
+    "Use the compact alert slice to gauge severity mix and muted spillover before opening each alert row.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开每条告警行之前，使用紧凑告警切片判断严重度组合和静音外溢。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "各アラート行を開く前に、コンパクトなアラートスライスで重大度の構成とミュートの波及を見極めます。"
+          }
+        }
+      }
+    },
+    "Use the direct monitors first when approvals, sessions, events, or handoff need a dedicated screen.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当审批、会话、事件或交接需要专门界面时，优先使用直接监视器。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "承認、セッション、イベント、引き継ぎに専用画面が必要な場合は、まず直接モニターを使います。"
+          }
+        }
+      }
+    },
+    "Use the queue split to tell whether the next tap belongs in live operator buckets or slower infrastructure follow-up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用队列拆分判断下一次点击应该进入实时操作员分桶还是较慢的基础设施跟进。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キューの分割を見て、次のタップがライブなオペレーターバケット向けか、遅いインフラのフォローアップ向けかを判断します。"
+          }
+        }
+      }
+    },
+    "Use this deck to check route breadth, queue coverage, and acknowledgement state before opening the incident route and bucket sections.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开事件路由和分桶分区之前，使用此卡片检查路由广度、队列覆盖和确认状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントのルートやバケットセクションを開く前に、このデッキでルートの広がり、キューカバレッジ、確認状態を確認します。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep muted drag, watched diagnostics, audit pressure, and slower platform follow-up readable before the incident routes and queue buckets begin.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在事件路由和队列分桶开始前，使用此卡片让静音拖拽、关注诊断、审计压力和较慢的平台跟进保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントルートとキューバケットが始まる前に、このデッキでミュートの重さ、監視診断、監査負荷、遅いプラットフォームのフォローアップを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant incident lane readable before opening route rails and queue buckets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开路由栏和队列分桶前，使用此卡片让主事件通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートレールとキューバケットを開く前に、このデッキで支配的なインシデントレーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether current incident drag comes from alerts, approvals, fleet issues, sessions, or slower infra follow-up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片查看当前事件负担来自告警、审批、机群问题、会话还是较慢的基础设施跟进。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、現在のインシデント負荷がアラート、承認、フリート問題、セッション、あるいは遅いインフラフォローアップのどれに由来するかを確認します。"
+          }
+        }
+      }
+    },
+    "Use this digest to judge whether alerts, approvals, handoff coverage, or deeper monitors deserve the next tap.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此摘要判断下一次点击应优先进入告警、审批、交接覆盖还是更深层的监视器。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このダイジェストで、次のタップがアラート、承認、引き継ぎカバレッジ、より深いモニターのどれに向くべきかを判断します。"
+          }
+        }
+      }
+    },
+    "Watched diagnostics inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关注诊断清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視診断インベントリ"
+          }
+        }
+      }
+    },
+    "Watched diagnostics stay in their own bucket, so this slice focuses on the fleet-level attention list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关注诊断会保留在自己的分桶中，因此这个切片会聚焦机群级关注列表。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視診断は専用バケットに残るため、このスライスはフリートレベルの注意一覧に集中します。"
+          }
+        }
+      }
+    },
+    "Workflow failures, exhausted triggers, and stalled cron jobs stay summarized here before the larger automation monitor opens.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在更大的自动化监视器打开之前，工作流失败、已耗尽触发器和停滞的 Cron 任务会先在这里汇总。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より大きな自動化モニターを開く前に、ワークフロー失敗、上限到達トリガー、停止中 Cron ジョブがここで要約されます。"
+          }
+        }
+      }
+    },
+    "\\(alerts.count) active": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(alerts.count) 条活跃告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(alerts.count)件のアクティブアラート"
+          }
+        }
+      }
+    },
+    "\\(automationCount) automation issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(automationCount) 个自动化问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(automationCount)件の自動化問題"
+          }
+        }
+      }
+    },
+    "\\(duplicateCount) duplicate agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(duplicateCount) 个重复代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(duplicateCount)件の重複エージェント"
+          }
+        }
+      }
+    },
+    "\\(failedWorkflowRunCount) failed runs": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedWorkflowRunCount) 次失败运行"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(failedWorkflowRunCount)件の失敗実行"
+          }
+        }
+      }
+    },
+    "\\(fallbackAgentCount) fallback drifts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(fallbackAgentCount) 个回退漂移"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(fallbackAgentCount)件のフォールバックドリフト"
+          }
+        }
+      }
+    },
+    "\\(highRiskCount) approvals are high risk or higher, so the compact slice stays biased toward faster response.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskCount) 个审批属于高风险或更高等级，因此紧凑切片会继续偏向更快响应。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(highRiskCount) 件の承認が高リスク以上のため、コンパクトなスライスはより速い対応を優先したままになります。"
+          }
+        }
+      }
+    },
+    "\\(integrationCount) integration issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(integrationCount) 个集成问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(integrationCount)件の統合問題"
+          }
+        }
+      }
+    },
+    "\\(issueCategoryCount) issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueCategoryCount) 个问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(issueCategoryCount)件の問題"
+          }
+        }
+      }
+    },
+    "\\(mutedAlertCount) muted": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mutedAlertCount) 条已静音"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mutedAlertCount)件のミュート"
+          }
+        }
+      }
+    },
+    "\\(mutedCount) additional alerts are muted locally, so the active slice is not the full phone-level incident picture.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "另外有 \\(mutedCount) 条告警已在本地静音，因此当前活跃切片并不能代表整台手机上的完整事件图景。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "さらに \\(mutedCount) 件のアラートがローカルでミュートされているため、このアクティブスライスは端末全体のインシデント状況を完全には表していません。"
+          }
+        }
+      }
+    },
+    "\\(primaryRouteCount + supportRouteCount) exits": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryRouteCount + supportRouteCount) 个出口"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryRouteCount + supportRouteCount)件の出口"
+          }
+        }
+      }
+    },
+    "\\(primarySectionCount + supportSectionCount) buckets": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primarySectionCount + supportSectionCount) 个分桶"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primarySectionCount + supportSectionCount)件のバケット"
+          }
+        }
+      }
+    },
+    "\\(totalCount) fleet issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount) 个机群问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount)件のフリート問題"
+          }
+        }
+      }
+    },
+    "\\(totalCount) hotspots": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount) 个热点"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount)件のホットスポット"
+          }
+        }
+      }
+    },
+    "\\(totalCount) pending": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount) 个待处理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount)件の保留"
+          }
+        }
+      }
+    },
+    "\\(visibleMessageCount) visible msgs": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleMessageCount) 条可见消息"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleMessageCount)件の表示中メッセージ"
+          }
+        }
+      }
+    },
+    "1 active alert is acknowledged in the incident queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列中有 1 条活跃告警已确认。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューでは 1 件のアクティブアラートが確認済みです。"
+          }
+        }
+      }
+    },
+    "\\(activeAlertCount) active alerts are acknowledged in the incident queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列中有 \\(activeAlertCount) 条活跃告警已确认。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューでは \\(activeAlertCount) 件のアクティブアラートが確認済みです。"
+          }
+        }
+      }
+    },
+    "1 active alert needs review in the incident queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列中有 1 条活跃告警需要审查。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューでは 1 件のアクティブアラートがレビュー待ちです。"
+          }
+        }
+      }
+    },
+    "\\(activeAlertCount) active alerts need review in the incident queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件队列中有 \\(activeAlertCount) 条活跃告警需要审查。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントキューでは \\(activeAlertCount) 件のアクティブアラートがレビュー待ちです。"
+          }
+        }
+      }
+    },
+    "Settings workstream coverage is currently anchored by live monitoring reaching the device layer.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置工作流覆盖当前由到达设备层的实时监控主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定ワークストリームのカバレッジは現在、デバイス層まで届くライブ監視が軸です。"
+          }
+        }
+      }
+    },
+    "Settings workstream coverage is currently anchored by on-call follow-through and queued reminder state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置工作流覆盖当前由值班跟进和已排队提醒状态主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定ワークストリームのカバレッジは現在、オンコールの追従とキュー済みリマインダー状態が軸です。"
+          }
+        }
+      }
+    },
+    "Settings workstream coverage is currently anchored by passive device configuration context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置工作流覆盖当前由被动设备配置上下文主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定ワークストリームのカバレッジは現在、受動的なデバイス設定コンテキストが軸です。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether settings is currently led by live device-facing monitoring, queued reminder follow-through, or passive device configuration context before the longer form opens.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在更长的表单展开前，使用此卡片查看设置当前是由面向设备的实时监控、已排队提醒的跟进，还是被动设备配置上下文主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より長いフォームを開く前に、このデッキで設定が現在、デバイス向けのライブ監視、キュー済みリマインダーの追従、受動的なデバイス設定コンテキストのどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "Workstream coverage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作流覆盖"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークストリームカバレッジ"
+          }
+        }
+      }
+    },
+    "Keep live alert reach, on-call follow-through, and slower device configuration context readable before the server, reminder, and monitoring forms take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在服务器、提醒和监控表单接管之前，先让实时告警覆盖、值班跟进以及较慢的设备配置上下文保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サーバー、リマインダー、監視フォームが前面に出る前に、ライブアラートの届き具合、オンコールの追従、遅いデバイス設定コンテキストを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Incident workstream coverage is currently anchored by live alerts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件工作流覆盖当前由活跃告警主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントワークストリームのカバレッジは現在、アクティブアラートが軸です。"
+          }
+        }
+      }
+    },
+    "Incident workstream coverage is currently anchored by operator queues behind the alert buckets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件工作流覆盖当前由告警分桶之后的操作员队列主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントワークストリームのカバレッジは現在、アラートバケットの背後にあるオペレーターキューが軸です。"
+          }
+        }
+      }
+    },
+    "Incident workstream coverage is currently anchored by slower support lanes behind the live incident buckets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件工作流覆盖当前由活跃事件分桶之后较慢的辅助通道主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントワークストリームのカバレッジは現在、ライブなインシデントバケットの背後にある遅い補助レーンが軸です。"
+          }
+        }
+      }
+    },
+    "Incident workstream coverage is currently light across the visible buckets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "事件工作流覆盖当前在可见分桶中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントワークストリームのカバレッジは現在、表示中のバケット全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Keep live alerts, operator queues, and slower handoff or platform drag readable before moving through incident buckets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在穿过事件分桶之前，先让活跃告警、操作员队列以及较慢的交接或平台拖拽保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インシデントバケットをたどる前に、ライブアラート、オペレーターキュー、遅い引き継ぎまたはプラットフォームの重さを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "1 operator lane": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个操作员通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のオペレーターレーン"
+          }
+        }
+      }
+    },
+    "\\(operatorCount) operator lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(operatorCount) 个操作员通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(operatorCount)件のオペレーターレーン"
+          }
+        }
+      }
+    },
+    "1 support lane": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个辅助通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の補助レーン"
+          }
+        }
+      }
+    },
+    "\\(supportCount) support lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportCount) 个辅助通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(supportCount)件の補助レーン"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether incidents are currently led by live alerts, operator queues, or slower support follow-through before opening the buckets below.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开下方分桶之前，使用此卡片查看当前事件是由活跃告警、操作员队列，还是较慢的辅助跟进主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下のバケットを開く前に、このデッキで現在のインシデントがライブアラート、オペレーターキュー、あるいは遅い補助フォローのどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "\\(totalCount) critical events": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount) 个严重事件"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount)件の重大イベント"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) watched agents visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 个可见关注代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount)件の表示中監視対象エージェント"
+          }
+        }
+      }
+    },
+    "\\(watchedDiagnosticCount) watched diagnostics": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchedDiagnosticCount) 个关注诊断"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchedDiagnosticCount)件の監視診断"
+          }
+        }
+      }
+    },
+    "Keep the next incident buckets visible before the alert, queue, and support stacks begin.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在告警、队列和辅助堆栈开始之前，先让下一组事件分桶保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アラート、キュー、補助スタックが始まる前に、次のインシデントバケットを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Section Preview": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分区预览"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セクションプレビュー"
           }
         }
       }
