@@ -103,81 +103,6 @@ struct AgentCapabilitiesView: View {
                 }
 
                 if hasLoadedAnything {
-                    Section {
-                        CapabilitiesSnapshotCard(
-                            toolFilters: toolFilters,
-                            skills: skills,
-                            mcpServers: mcpServers
-                        )
-                    } header: {
-                        Text("Snapshot")
-                    } footer: {
-                        Text("This snapshot shows which capability feeds have loaded and how much access the agent currently has.")
-                    }
-
-                    Section {
-                        MonitoringSurfaceGroupCard(
-                            title: String(localized: "Shortcuts"),
-                            detail: String(localized: "Keep nearby agent, profile, runtime, and integration exits closest to compact capability inspection.")
-                        ) {
-                            MonitoringShortcutRail(
-                                title: String(localized: "Primary"),
-                                detail: String(localized: "Use nearby agent, profile, and runtime surfaces first.")
-                            ) {
-                                NavigationLink {
-                                    AgentDetailView(agent: agent)
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Agent"),
-                                        systemImage: "cpu"
-                                    )
-                                }
-                                .buttonStyle(.plain)
-
-                                if let profile = agent.profile, !profile.isEmpty {
-                                    NavigationLink {
-                                        ToolProfilesView(selectedProfileName: profile)
-                                    } label: {
-                                        MonitoringSurfaceShortcutChip(
-                                            title: String(localized: "Tool Profile"),
-                                            systemImage: "person.crop.rectangle.stack",
-                                            badgeText: profile
-                                        )
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-
-                                NavigationLink {
-                                    RuntimeView()
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Runtime"),
-                                        systemImage: "server.rack"
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-
-                            MonitoringShortcutRail(
-                                title: String(localized: "Support"),
-                                detail: String(localized: "Keep integration drift checks behind the primary capability exits.")
-                            ) {
-                                NavigationLink {
-                                    IntegrationsView(initialSearchText: agent.id, initialScope: .attention)
-                                } label: {
-                                    MonitoringSurfaceShortcutChip(
-                                        title: String(localized: "Integrations"),
-                                        systemImage: "square.3.layers.3d.down.forward"
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    } header: {
-                        Text(String(localized: "Shortcuts"))
-                    } footer: {
-                        Text("Use these routes when capability scope needs profile, runtime, or integration context.")
-                    }
                 }
 
                 if let toolFilters {
@@ -264,8 +189,6 @@ struct AgentCapabilitiesView: View {
 
     private func toolFiltersSection(_ filters: AgentToolFilters) -> some View {
         Section {
-            ToolFiltersDeckCard(filters: filters)
-
             CapabilityDetailRow(
                 icon: "slider.horizontal.3",
                 label: String(localized: "Scope"),
@@ -309,8 +232,6 @@ struct AgentCapabilitiesView: View {
 
     private func skillsSection(_ assignment: AgentAssignmentScope) -> some View {
         Section {
-            SkillsDeckCard(assignment: assignment)
-
             CapabilityDetailRow(
                 icon: "sparkles",
                 label: String(localized: "Mode"),
@@ -347,12 +268,6 @@ struct AgentCapabilitiesView: View {
 
     private func mcpServersSection(_ assignment: AgentAssignmentScope) -> some View {
         Section {
-            MCPServersDeckCard(
-                assignment: assignment,
-                connectedServerNames: connectedMCPServerNames,
-                configuredServerNames: configuredMCPServerNames
-            )
-
             CapabilityDetailRow(
                 icon: "shippingbox",
                 label: String(localized: "Mode"),

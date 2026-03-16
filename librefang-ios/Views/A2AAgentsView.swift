@@ -43,66 +43,6 @@ struct A2AAgentsView: View {
             } else {
                 ScrollViewReader { proxy in
                     List {
-                        Section {
-                            A2ASummaryCard(
-                                totalAgents: agents.count,
-                                visibleAgents: filteredAgents.count,
-                                streamingCount: agents.filter { $0.capabilities?.streaming == true }.count,
-                                pushCount: agents.filter { $0.capabilities?.pushNotifications == true }.count
-                            )
-                        }
-
-                        Section {
-                            MonitoringSurfaceGroupCard(
-                                title: String(localized: "Shortcuts"),
-                                detail: String(localized: "Keep comms, runtime, and diagnostics exits closest to the external-agent directory.")
-                            ) {
-                                MonitoringShortcutRail(
-                                    title: String(localized: "Primary"),
-                                    detail: String(localized: "Use comms and runtime surfaces first.")
-                                ) {
-                                    NavigationLink {
-                                        CommsView(api: deps.apiClient)
-                                    } label: {
-                                        MonitoringSurfaceShortcutChip(
-                                            title: String(localized: "Comms"),
-                                            systemImage: "point.3.connected.trianglepath.dotted"
-                                        )
-                                    }
-                                    .buttonStyle(.plain)
-
-                                    NavigationLink {
-                                        RuntimeView()
-                                    } label: {
-                                        MonitoringSurfaceShortcutChip(
-                                            title: String(localized: "Runtime"),
-                                            systemImage: "server.rack"
-                                        )
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-
-                                MonitoringShortcutRail(
-                                    title: String(localized: "Support"),
-                                    detail: String(localized: "Keep broader health and config checks behind the primary A2A exits.")
-                                ) {
-                                    NavigationLink {
-                                        DiagnosticsView()
-                                    } label: {
-                                        MonitoringSurfaceShortcutChip(
-                                            title: String(localized: "Diagnostics"),
-                                            systemImage: "stethoscope"
-                                        )
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            }
-                        } header: {
-                            Text(String(localized: "Shortcuts"))
-                        } footer: {
-                            Text(String(localized: "Use these routes when the external-agent directory needs runtime, comms, or diagnostics context."))
-                        }
-
                         if filteredAgents.isEmpty {
                             Section {
                                 ContentUnavailableView(

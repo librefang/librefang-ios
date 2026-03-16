@@ -57,82 +57,8 @@ struct ToolProfilesView: View {
     var body: some View {
         ScrollViewReader { proxy in
             List {
-            Section {
-                ToolProfilesSnapshotCard(
-                    totalProfiles: profiles.count,
-                    visibleProfiles: filteredProfiles.count,
-                    selectedProfileName: selectedProfile?.name,
-                    selectedToolCount: selectedProfile?.tools.count
-                )
-            }
-
-            Section {
-                MonitoringSurfaceGroupCard(
-                    title: String(localized: "Shortcuts"),
-                    detail: String(localized: "Keep fleet, runtime, integration, and diagnostics exits closest to compact tool-profile review.")
-                ) {
-                    MonitoringShortcutRail(
-                        title: String(localized: "Primary"),
-                        detail: String(localized: "Use fleet and runtime surfaces first.")
-                    ) {
-                        NavigationLink {
-                            AgentsView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Agents"),
-                                systemImage: "person.3",
-                                tone: selectedProfile != nil ? .positive : .neutral,
-                                badgeText: selectedProfileName
-                            )
-                        }
-                        .buttonStyle(.plain)
-
-                        NavigationLink {
-                            RuntimeView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Runtime"),
-                                systemImage: "server.rack"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    MonitoringShortcutRail(
-                        title: String(localized: "Support"),
-                        detail: String(localized: "Keep integration and diagnostics context behind the primary fleet exits.")
-                    ) {
-                        NavigationLink {
-                            IntegrationsView(initialScope: .attention)
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Integrations"),
-                                systemImage: "square.3.layers.3d.down.forward"
-                            )
-                        }
-                        .buttonStyle(.plain)
-
-                        NavigationLink {
-                            DiagnosticsView()
-                        } label: {
-                            MonitoringSurfaceShortcutChip(
-                                title: String(localized: "Diagnostics"),
-                                systemImage: "stethoscope"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            } header: {
-                Text(String(localized: "Shortcuts"))
-            } footer: {
-                Text(String(localized: "Use these routes when profile inspection needs fleet, runtime, or integration context."))
-            }
-
             if let selectedProfile {
                 Section {
-                    SelectedToolProfileDeck(profile: selectedProfile)
-
                     profileHeader(selectedProfile, highlight: true)
 
                     toolSummary(profile: selectedProfile, maxVisibleTools: selectedProfile.tools.count)
@@ -184,12 +110,6 @@ struct ToolProfilesView: View {
                 .id(ToolProfilesSectionAnchor.allProfiles)
             } else {
                 Section("All Profiles") {
-                    ToolProfilesCatalogDeck(
-                        profiles: filteredProfiles,
-                        totalProfiles: profiles.count,
-                        selectedProfileName: selectedProfile?.name
-                    )
-
                     ForEach(filteredProfiles) { profile in
                         VStack(alignment: .leading, spacing: 6) {
                             profileHeader(profile, highlight: profile.name.lowercased() == selectedProfileName?.lowercased())
