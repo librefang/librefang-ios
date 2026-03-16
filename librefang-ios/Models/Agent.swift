@@ -119,7 +119,7 @@ nonisolated struct Agent: Codable, Identifiable, Sendable {
         case "supervised":
             return String(localized: "Supervised")
         default:
-            return mode.replacingOccurrences(of: "_", with: " ").capitalized
+            return StatusPresentation.localizedFallbackLabel(for: mode)
         }
     }
 
@@ -146,7 +146,7 @@ nonisolated struct Agent: Codable, Identifiable, Sendable {
         case "custom":
             return String(localized: "Custom")
         default:
-            return tier.replacingOccurrences(of: "_", with: " ").capitalized
+            return StatusPresentation.localizedFallbackLabel(for: tier)
         }
     }
 }

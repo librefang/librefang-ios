@@ -178,7 +178,7 @@ struct RuntimeView: View {
                     auditSection
                     securitySection
                 }
-                .navigationTitle("Runtime")
+                .navigationTitle(String(localized: "Runtime"))
                 .toolbar {
                     runtimeToolbar
                 }
@@ -188,7 +188,7 @@ struct RuntimeView: View {
                 }
                 .overlay {
                     if vm.isLoading && vm.status == nil && vm.providers.isEmpty && vm.channels.isEmpty {
-                        ProgressView("Loading runtime...")
+                        ProgressView(String(localized: "Loading runtime..."))
                     }
                 }
                 .task {
@@ -207,7 +207,7 @@ struct RuntimeView: View {
             Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
                 Task { await performApprovalAction(action) }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel"), role: .cancel) {}
         } message: { action in
             Text(action.message)
         }

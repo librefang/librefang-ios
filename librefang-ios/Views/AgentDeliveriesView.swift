@@ -355,15 +355,15 @@ struct AgentDeliveriesView: View {
                     }
                 }
             } header: {
-                Text("Routes")
+                Text(String(localized: "Routes"))
             } footer: {
-                Text("Use these routes when delivery receipts need incident, event, or runtime context.")
+                Text(String(localized: "Use these routes when delivery receipts need incident, event, or runtime context."))
             }
 
             if let loadError {
                 Section("Status") {
                     ContentUnavailableView(
-                        "Delivery Receipts Unavailable",
+                        String(localized: "Delivery Receipts Unavailable"),
                         systemImage: "tray.full.badge.minus",
                         description: Text(loadError)
                     )
@@ -394,9 +394,9 @@ struct AgentDeliveriesView: View {
                 .id(AgentDeliveriesSectionAnchor.receipts)
             }
             }
-            .navigationTitle("Deliveries")
+            .navigationTitle(String(localized: "Deliveries"))
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: "Search recipient, channel, or status")
+            .searchable(text: $searchText, prompt: Text(String(localized: "Search recipient, channel, or status")))
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     if !filteredReceipts.isEmpty {
@@ -412,7 +412,7 @@ struct AgentDeliveriesView: View {
                     }
 
                     Menu {
-                        Picker("Scope", selection: $scope) {
+                        Picker(String(localized: "Scope"), selection: $scope) {
                             ForEach(DeliveryScope.allCases, id: \.self) { option in
                                 Label(option.label, systemImage: option.icon)
                                     .tag(option)
@@ -429,7 +429,7 @@ struct AgentDeliveriesView: View {
             }
             .overlay {
                 if isLoading && receipts.isEmpty {
-                    ProgressView("Loading deliveries...")
+                    ProgressView(String(localized: "Loading deliveries..."))
                 }
             }
             .task {

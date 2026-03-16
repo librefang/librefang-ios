@@ -273,7 +273,7 @@ extension ChannelStatus {
         case "webhook":
             return String(localized: "Webhook")
         default:
-            return category.replacingOccurrences(of: "_", with: " ").capitalized
+            return StatusPresentation.localizedFallbackLabel(for: category)
         }
     }
 
@@ -290,7 +290,7 @@ extension ChannelStatus {
         case "local":
             return String(localized: "Local")
         default:
-            return setupType.replacingOccurrences(of: "_", with: " ").capitalized
+            return StatusPresentation.localizedFallbackLabel(for: setupType)
         }
     }
 
@@ -303,7 +303,7 @@ extension ChannelStatus {
         case "hard":
             return String(localized: "Hard")
         default:
-            return difficulty.replacingOccurrences(of: "_", with: " ").capitalized
+            return StatusPresentation.localizedFallbackLabel(for: difficulty)
         }
     }
 
@@ -401,7 +401,7 @@ extension CatalogModel {
         case "custom":
             return String(localized: "Custom")
         default:
-            return tier.replacingOccurrences(of: "_", with: " ").capitalized
+            return StatusPresentation.localizedFallbackLabel(for: tier)
         }
     }
 
@@ -531,10 +531,7 @@ extension HandInstance {
         if let definition = definitions.first(where: { $0.id == handId }) {
             return definition.name
         }
-        return handId
-            .replacingOccurrences(of: "_", with: " ")
-            .replacingOccurrences(of: "-", with: " ")
-            .capitalized
+        return StatusPresentation.localizedFallbackLabel(for: handId)
     }
 
     var localizedStatusLabel: String {
@@ -550,7 +547,7 @@ extension HandInstance {
         case "idle":
             return String(localized: "Idle")
         default:
-            return status.replacingOccurrences(of: "_", with: " ").capitalized
+            return StatusPresentation.localizedFallbackLabel(for: status)
         }
     }
 
@@ -649,7 +646,7 @@ extension AuditEntry {
         case "cancelled", "canceled":
             return String(localized: "Canceled")
         default:
-            return outcome.replacingOccurrences(of: "_", with: " ").capitalized
+            return StatusPresentation.localizedFallbackLabel(for: outcome)
         }
     }
 }
@@ -770,7 +767,7 @@ extension ApprovalItem {
         case "low":
             return String(localized: "Low")
         default:
-            return riskLevel.replacingOccurrences(of: "_", with: " ").capitalized
+            return StatusPresentation.localizedFallbackLabel(for: riskLevel)
         }
     }
 
@@ -893,7 +890,7 @@ extension PeerStatus {
         case "degraded":
             return String(localized: "Degraded")
         default:
-            return state.replacingOccurrences(of: "_", with: " ").capitalized
+            return StatusPresentation.localizedFallbackLabel(for: state)
         }
     }
 
@@ -953,7 +950,7 @@ extension SecurityAuthConfig {
         case "disabled", "none", "open":
             return String(localized: "Open")
         default:
-            return mode.replacingOccurrences(of: "_", with: " ").capitalized
+            return StatusPresentation.localizedFallbackLabel(for: mode)
         }
     }
 }

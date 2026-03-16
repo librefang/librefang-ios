@@ -20744,7 +20744,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已将“\\(entry.key)”复制到剪贴板。"
+            "value": "“\\(entry.key)” 已复制到剪贴板。"
           }
         }
       }
@@ -20814,7 +20814,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已将“\\(agent.name)”的内存 JSON 复制到剪贴板。"
+            "value": "“\\(agent.name)” 的记忆 JSON 已复制到剪贴板。"
           }
         }
       }
@@ -26714,7 +26714,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "清单未完成：\\(checklist.pendingLabels.joined(separator: \", \"))。"
+            "value": "清单未完成：\\(checklist.pendingLabels.joined(separator: \", \"))."
           }
         },
         "ja": {
@@ -26810,7 +26810,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "仍未解决的交接延续项未纳入焦点：\\(missingCarryover.joined(separator: \", \"))。"
+            "value": "未解决的遗留事项未纳入关注点：\\(missingCarryover.joined(separator: \", \"))."
           }
         },
         "ja": {
@@ -72751,6 +72751,2666 @@
           "stringUnit": {
             "state": "translated",
             "value": "ライブバケットの近くに incident の要約 1 つと直接ジャンプを保ちます。"
+          }
+        }
+      }
+    },
+    "1 key matches the current memory search.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆搜索匹配到 1 个键。"
+          }
+        }
+      }
+    },
+    "1 memory key matches the current search.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前搜索匹配到 1 个记忆键。"
+          }
+        }
+      }
+    },
+    "1 scalar": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个标量"
+          }
+        }
+      }
+    },
+    "1 scalar key": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个标量键"
+          }
+        }
+      }
+    },
+    "1 stored key": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已存储键"
+          }
+        }
+      }
+    },
+    "1 structured block": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个结构化块"
+          }
+        }
+      }
+    },
+    "1 structured key": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个结构化键"
+          }
+        }
+      }
+    },
+    "1 structured value": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个结构化值"
+          }
+        }
+      }
+    },
+    "1 summary char": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个摘要字符"
+          }
+        }
+      }
+    },
+    "1 visible key": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见键"
+          }
+        }
+      }
+    },
+    "Export Ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出已就绪"
+          }
+        }
+      }
+    },
+    "Export pending": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出待补"
+          }
+        }
+      }
+    },
+    "Export ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出可用"
+          }
+        }
+      }
+    },
+    "Export snapshot ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出快照已就绪"
+          }
+        }
+      }
+    },
+    "Keep durable-memory size and structured-key pressure visible before pivoting into agent, session, incident, or runtime context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到智能体、会话、事件或运行时上下文前，让持久记忆规模和结构化键压力保持可见。"
+          }
+        }
+      }
+    },
+    "Keep durable-state shape and export readiness visible before the editable key rows take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在可编辑键行展开前，让持久状态形态和导出就绪度保持可见。"
+          }
+        }
+      }
+    },
+    "Keep export state, visible structure mix, and the longest key visible while editing or triaging durable memory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在编辑或分诊持久记忆时，让导出状态、可见结构分布和最长键保持可见。"
+          }
+        }
+      }
+    },
+    "Keep nearby agent, session, and runtime exits closest to durable memory inspection.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让邻近的智能体、会话和运行时出口保持在最接近持久记忆查看的位置。"
+          }
+        }
+      }
+    },
+    "Keep route breadth, structured-state pressure, and visible durable-key coverage readable before pivoting into agent, incident, or runtime context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到智能体、事件或运行时上下文前，让路由广度、结构化状态压力和可见持久键覆盖保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Keep structured keys, scalar durable state, and export support readable before moving into editable memory rows and nearby routes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在进入可编辑记忆行和邻近路由前，让结构化键、标量持久状态和导出支持保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Keep structured state, scalar durable keys, and export or search readiness readable before moving through editable memory rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在浏览可编辑记忆行前，让结构化状态、标量持久键以及导出或搜索就绪度保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Keep summary, routes, and memory sections visible before drilling into individual key edits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入编辑单个键之前，让摘要、路由和记忆分区保持可见。"
+          }
+        }
+      }
+    },
+    "Keep the current agent, visible results, and export state available while searching or editing memory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在搜索或编辑记忆时，让当前智能体、可见结果和导出状态保持可用。"
+          }
+        }
+      }
+    },
+    "Keep the dominant memory lane readable before moving from compact memory decks into editable keys and adjacent monitoring routes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从紧凑记忆面板进入可编辑键和相邻监控路由前，让主导记忆轨道保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Keep the next memory stack visible before the key list opens into raw entry rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在键列表展开为原始条目行前，让下一组记忆堆栈保持可见。"
+          }
+        }
+      }
+    },
+    "Memory Facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "记忆要点"
+          }
+        }
+      }
+    },
+    "Memory action readiness is currently anchored by scoped export and search work.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆行动就绪度主要受范围内导出和搜索工作驱动。"
+          }
+        }
+      }
+    },
+    "Memory action readiness is currently anchored by structured durable state and the next route exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆行动就绪度主要受结构化持久状态和下一步路由出口驱动。"
+          }
+        }
+      }
+    },
+    "Memory action readiness is currently clear enough for route pivots and durable-key review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆行动就绪度已足够清晰，可进行路由切换和持久键复核。"
+          }
+        }
+      }
+    },
+    "Memory focus coverage is currently anchored by export-ready durable state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆焦点覆盖主要受可导出的持久状态驱动。"
+          }
+        }
+      }
+    },
+    "Memory focus coverage is currently anchored by structured state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆焦点覆盖主要受结构化状态驱动。"
+          }
+        }
+      }
+    },
+    "Memory focus coverage is currently anchored by the filtered memory slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆焦点覆盖主要受筛选后的记忆切片驱动。"
+          }
+        }
+      }
+    },
+    "Memory focus coverage is currently balanced across the visible key set.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆焦点覆盖在可见键集合之间较为均衡。"
+          }
+        }
+      }
+    },
+    "Memory pressure is currently anchored by structured durable state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆压力主要受结构化持久状态驱动。"
+          }
+        }
+      }
+    },
+    "Memory pressure is currently concentrated in a search-scoped slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆压力主要集中在搜索范围内的切片中。"
+          }
+        }
+      }
+    },
+    "Memory pressure is currently light and mostly reflects scalar durable keys.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆压力较轻，主要反映标量持久键。"
+          }
+        }
+      }
+    },
+    "Memory routes stay compact before the surrounding incident and runtime drilldowns.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在周边事件和运行时下钻前，记忆路由保持紧凑。"
+          }
+        }
+      }
+    },
+    "Memory routes stay compact while the durable key list is search-scoped.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当持久键列表受搜索范围限制时，记忆路由保持紧凑。"
+          }
+        }
+      }
+    },
+    "Memory support coverage is currently anchored by scalar durable keys.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆支撑覆盖主要受标量持久键驱动。"
+          }
+        }
+      }
+    },
+    "Memory support coverage is currently anchored by structured durable state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆支撑覆盖主要受结构化持久状态驱动。"
+          }
+        }
+      }
+    },
+    "Memory support coverage is currently anchored by structured, export-ready durable state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆支撑覆盖主要受结构化且可导出的持久状态驱动。"
+          }
+        }
+      }
+    },
+    "Memory support coverage is currently light across the visible keys.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆支撑覆盖在可见键之间整体较轻。"
+          }
+        }
+      }
+    },
+    "Memory support coverage is currently narrowed to the filtered key slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆支撑覆盖已收窄到筛选后的键切片。"
+          }
+        }
+      }
+    },
+    "Memory workstream coverage is currently anchored by scalar durable keys.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆工作流覆盖主要受标量持久键驱动。"
+          }
+        }
+      }
+    },
+    "Memory workstream coverage is currently anchored by scoped export and search work.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆工作流覆盖主要受范围内导出和搜索工作驱动。"
+          }
+        }
+      }
+    },
+    "Memory workstream coverage is currently anchored by structured durable state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆工作流覆盖主要受结构化持久状态驱动。"
+          }
+        }
+      }
+    },
+    "Memory workstream coverage is currently light across the visible keys.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆工作流覆盖在可见键之间整体较轻。"
+          }
+        }
+      }
+    },
+    "Mixed state": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "混合状态"
+          }
+        }
+      }
+    },
+    "Section coverage stays visible before memory routes and editable keys.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在记忆路由和可编辑键展开前，分区覆盖保持可见。"
+          }
+        }
+      }
+    },
+    "Section coverage stays visible while agent memory is still loading.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在智能体记忆仍在加载时，分区覆盖保持可见。"
+          }
+        }
+      }
+    },
+    "Structured memory and editable state stay visible before the raw key list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在原始键列表展开前，结构化记忆和可编辑状态保持可见。"
+          }
+        }
+      }
+    },
+    "The active memory slice stays compact before the editable key list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活动记忆切片在可编辑键列表展开前保持紧凑。"
+          }
+        }
+      }
+    },
+    "The filtered memory slice stays compact before the editable key list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "筛选后的记忆切片在可编辑键列表展开前保持紧凑。"
+          }
+        }
+      }
+    },
+    "This surface keeps durable agent memory visible before any keys exist.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个界面会在尚无任何键之前保持持久智能体记忆可见。"
+          }
+        }
+      }
+    },
+    "This surface keeps durable agent memory visible before individual key edits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个界面会在单个键编辑前保持持久智能体记忆可见。"
+          }
+        }
+      }
+    },
+    "Use broader runtime context when memory alone is not enough.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当仅靠记忆不足时，使用更广的运行时上下文。"
+          }
+        }
+      }
+    },
+    "Use nearby agent and incident surfaces first.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "优先使用邻近的智能体和事件界面。"
+          }
+        }
+      }
+    },
+    "Use section coverage to confirm how much memory context is ready before leaving the current agent.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在离开当前智能体前，使用分区覆盖确认已有多少记忆上下文准备就绪。"
+          }
+        }
+      }
+    },
+    "Use section coverage to confirm the filtered memory slice before pivoting into routes or key edits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到路由或键编辑前，使用分区覆盖确认筛选后的记忆切片。"
+          }
+        }
+      }
+    },
+    "Use the deck to gauge structured memory, current export state, and the longest key before opening individual memory rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开单个记忆行前，使用这个面板评估结构化记忆、当前导出状态和最长键。"
+          }
+        }
+      }
+    },
+    "Use the route deck when memory state needs session, incident, or runtime context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当记忆状态需要会话、事件或运行时上下文时，使用路由面板。"
+          }
+        }
+      }
+    },
+    "Use the route inventory to gauge the visible durable-memory slice before leaving key inspection.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在离开键查看前，使用路由概览评估可见的持久记忆切片。"
+          }
+        }
+      }
+    },
+    "Use these routes when agent memory needs session, runtime, or incident context instead of isolated key inspection.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当智能体记忆需要会话、运行时或事件上下文而不是孤立的键查看时，使用这些路由。"
+          }
+        }
+      }
+    },
+    "Use this deck to check route breadth, structured-state pressure, and visible key coverage before leaving the compact memory monitor.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在离开紧凑记忆监控前，使用这个面板检查路由广度、结构化状态压力和可见键覆盖。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep structured state, export readiness, and the scoped memory slice readable before leaving the compact memory monitor.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在离开紧凑记忆监控前，使用这个面板保持结构化状态、导出就绪度和范围内记忆切片清晰可读。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant memory lane visible before opening route rails and the full key list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开路由栏和完整键列表前，使用这个面板保持主导记忆轨道可见。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether memory review is currently led by structured state, scalar keys, or export and search work before opening the full key list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开完整键列表前，使用这个面板查看当前记忆复核主要由结构化状态、标量键还是导出与搜索工作驱动。"
+          }
+        }
+      }
+    },
+    "Use this deck to separate structured state, scalar keys, search scope, and export readiness before drilling into individual memory edits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入单个记忆编辑前，使用这个面板区分结构化状态、标量键、搜索范围和导出就绪度。"
+          }
+        }
+      }
+    },
+    "Working Set": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作集"
+          }
+        }
+      }
+    },
+    "\\(entries.count) keys": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(entries.count) 个键"
+          }
+        }
+      }
+    },
+    "\\(entries.count) memory keys match the current search.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前搜索匹配到 \\(entries.count) 个记忆键。"
+          }
+        }
+      }
+    },
+    "\\(entries.count) of \\(totalEntries) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已显示 \\(entries.count) / \\(totalEntries)"
+          }
+        }
+      }
+    },
+    "\\(entries.count) stored keys": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(entries.count) 个已存储键"
+          }
+        }
+      }
+    },
+    "\\(entries.count) visible keys": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(entries.count) 个可见键"
+          }
+        }
+      }
+    },
+    "\\(filteredEntries.count) keys match the current memory search.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前记忆搜索匹配到 \\(filteredEntries.count) 个键。"
+          }
+        }
+      }
+    },
+    "\\(filteredEntries.count) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可见 \\(filteredEntries.count) 个"
+          }
+        }
+      }
+    },
+    "\\(scalarCount) scalar": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(scalarCount) 个标量"
+          }
+        }
+      }
+    },
+    "\\(scalarCount) scalar keys": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(scalarCount) 个标量键"
+          }
+        }
+      }
+    },
+    "\\(scalarEntryCount) scalar": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(scalarEntryCount) 个标量"
+          }
+        }
+      }
+    },
+    "\\(structuredCount) structured": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(structuredCount) 个结构化项"
+          }
+        }
+      }
+    },
+    "\\(structuredCount) structured blocks": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(structuredCount) 个结构化块"
+          }
+        }
+      }
+    },
+    "\\(structuredCount) structured keys": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(structuredCount) 个结构化键"
+          }
+        }
+      }
+    },
+    "\\(structuredCount) structured values": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(structuredCount) 个结构化值"
+          }
+        }
+      }
+    },
+    "\\(structuredEntryCount) structured": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(structuredEntryCount) 个结构化项"
+          }
+        }
+      }
+    },
+    "\\(structuredEntryCount) structured values": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(structuredEntryCount) 个结构化值"
+          }
+        }
+      }
+    },
+    "\\(summaryCharacterCount) summary chars": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(summaryCharacterCount) 个摘要字符"
+          }
+        }
+      }
+    },
+    "\\(totalCount) stored keys": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount) 个已存储键"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) visible keys": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 个可见键"
+          }
+        }
+      }
+    },
+    "1 item in view": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "视图中有 1 项"
+          }
+        }
+      }
+    },
+    "1 night-watch section is active below the hero snapshot.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主快照下方有 1 个夜间值守分区处于活动状态。"
+          }
+        }
+      }
+    },
+    "1 primary card": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 张主卡片"
+          }
+        }
+      }
+    },
+    "1 secondary card": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 张次级卡片"
+          }
+        }
+      }
+    },
+    "1 secondary item": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个次级项"
+          }
+        }
+      }
+    },
+    "1 support item": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个支撑项"
+          }
+        }
+      }
+    },
+    "1 watch-promoted": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已提升到关注队列"
+          }
+        }
+      }
+    },
+    "1 watched queue item": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已关注队列项"
+          }
+        }
+      }
+    },
+    "Display settings stay first, then the route rail splits immediate night-duty exits from slower support surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示设置保持在最前面，随后路由栏会把即时夜间值守出口与较慢的支撑界面分开。"
+          }
+        }
+      }
+    },
+    "Every pinned agent is currently active, so the watchlist row is carrying the full local watch surface.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前每个置顶智能体都处于活动状态，因此关注列表行承载了完整的本地关注界面。"
+          }
+        }
+      }
+    },
+    "Immediate Queue is showing \\(visibleCount) of \\(totalCount) live priority items.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即时队列当前显示 \\(totalCount) 个实时优先项中的 \\(visibleCount) 个。"
+          }
+        }
+      }
+    },
+    "Immediate Queue is showing all \\(visibleCount) live priority items.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即时队列当前显示全部 \\(visibleCount) 个实时优先项。"
+          }
+        }
+      }
+    },
+    "Immediate Queue is showing the only live priority item.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即时队列当前显示唯一的实时优先项。"
+          }
+        }
+      }
+    },
+    "Keep acknowledge state, focus mode, and route readiness visible before opening the compact night queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开紧凑夜间队列前，让确认状态、专注模式和路由就绪度保持可见。"
+          }
+        }
+      }
+    },
+    "Keep display controls and the next night-duty drills in one deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将显示控制项和下一步夜间值守入口放在同一个面板中。"
+          }
+        }
+      }
+    },
+    "Keep focus mode, queue size, and current pressure visible before opening deeper night-duty surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开更深层的夜间值守界面前，让专注模式、队列规模和当前压力保持可见。"
+          }
+        }
+      }
+    },
+    "Keep muted alerts, check-ins, follow-ups, and platform drift readable before the queue cards and route rails.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在队列卡片和路由栏展开前，让静默告警、签到、后续事项和平台漂移保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Keep pinned fleet breadth, watched queue spillover, and local surface preferences readable before the next night-duty exits take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在下一步夜间值守出口接管前，让置顶智能体广度、已关注队列溢出和本地界面偏好保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Keep queue depth, watch pressure, and supporting issue buckets visible before the display controls and route rails.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在显示控制项和路由栏展开前，让队列深度、关注压力和支撑问题分桶保持可见。"
+          }
+        }
+      }
+    },
+    "Keep severity mix and follow-up drag readable before the primary and secondary night queue cards.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在主次夜间队列卡片展开前，让严重性分布和后续事项拖累保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Keep the dominant night-duty lane readable before moving from the control deck into primary and support queue cards.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从控制面板进入主队列和支撑队列卡片前，让主导夜间值守轨道保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Keep the next night-watch stacks visible before the primary queue, secondary queue, and watchlist cards expand.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在主队列、次级队列和关注列表卡片展开前，让下一组夜间值守堆栈保持可见。"
+          }
+        }
+      }
+    },
+    "Keep the primary queue, secondary queue, watchlist, and slower support lanes readable before the night-duty cards expand.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在夜间值守卡片展开前，让主队列、次级队列、关注列表和较慢的支撑轨道保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Muted Summary": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "静默摘要"
+          }
+        }
+      }
+    },
+    "Muted alerts stay hidden until you open incidents or re-enable the summary.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "静默告警会保持隐藏，直到你打开事件页或重新启用摘要。"
+          }
+        }
+      }
+    },
+    "Muted alerts stay out of the queue until you unmute them in incidents.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "静默告警会保持在队列之外，直到你在事件页中取消静默。"
+          }
+        }
+      }
+    },
+    "Muted alerts stay visible in a separate summary card.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "静默告警会在单独的摘要卡片中保持可见。"
+          }
+        }
+      }
+    },
+    "Muted alerts stay visible in the signal deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "静默告警会在信号面板中保持可见。"
+          }
+        }
+      }
+    },
+    "Muted summary off": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "静默摘要关闭"
+          }
+        }
+      }
+    },
+    "Muted summary on": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "静默摘要开启"
+          }
+        }
+      }
+    },
+    "Night Watch is grouping \\(primaryRouteCount) primary routes and \\(supportRouteCount) support drills in one control rail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Night Watch 在一条控制栏中归组了 \\(primaryRouteCount) 条主路由和 \\(supportRouteCount) 条支撑入口。"
+          }
+        }
+      }
+    },
+    "Night Watch keeps the current queue, follow-up pressure, and preferred surface visible before the deeper drilldowns.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Night Watch 会在更深层下钻前保持当前队列、后续事项压力和首选界面可见。"
+          }
+        }
+      }
+    },
+    "Night Watch support coverage is currently anchored by handoff check-in state and local surface preferences.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前 Night Watch 支撑覆盖主要受交接签到状态和本地界面偏好驱动。"
+          }
+        }
+      }
+    },
+    "Night Watch support coverage is currently anchored by pinned watchlist breadth and watched queue spillover.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前 Night Watch 支撑覆盖主要受置顶关注列表广度和已关注队列溢出驱动。"
+          }
+        }
+      }
+    },
+    "Night Watch support coverage is currently light and mostly reflects focus mode plus preferred surface state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前 Night Watch 支撑覆盖较轻，主要反映专注模式和首选界面状态。"
+          }
+        }
+      }
+    },
+    "Night Watch support coverage is currently narrowed because muted-summary visibility is turned off.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前 Night Watch 支撑覆盖已收窄，因为静默摘要可见性已关闭。"
+          }
+        }
+      }
+    },
+    "Nothing is hiding below the fold, so the current queue is fully represented in the top card stack.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下方没有被折叠隐藏的内容，因此当前队列已在顶部卡片堆栈中完整呈现。"
+          }
+        }
+      }
+    },
+    "Pinned agents stay visible here even when the rest of the queue is re-ranked for one-hand triage.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即使队列其余部分为了单手分诊而重新排序，这里的置顶智能体仍会保持可见。"
+          }
+        }
+      }
+    },
+    "Pinned watchlist is showing \\(visibleCount) of \\(items.count) active watched agents.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "置顶关注列表当前显示 \\(items.count) 个活动已关注智能体中的 \\(visibleCount) 个。"
+          }
+        }
+      }
+    },
+    "Pinned watchlist is showing all \\(items.count) active watched agents.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "置顶关注列表当前显示全部 \\(items.count) 个活动已关注智能体。"
+          }
+        }
+      }
+    },
+    "Pinned watchlist is showing the only active watched agent.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "置顶关注列表当前显示唯一一个活动中的已关注智能体。"
+          }
+        }
+      }
+    },
+    "Primary Queue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主队列"
+          }
+        }
+      }
+    },
+    "Primary routes keep the next live moves above the slower runtime, diagnostics, and settings drills.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主路由会将下一步实时操作保持在较慢的运行时、诊断和设置入口之前。"
+          }
+        }
+      }
+    },
+    "Priority cards, watchlist pressure, and support issue buckets stay summarized before the display controls and route rails take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在显示控制项和路由栏接管前，优先卡片、关注列表压力和支撑问题分桶会先被汇总。"
+          }
+        }
+      }
+    },
+    "Secondary Queue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次级队列"
+          }
+        }
+      }
+    },
+    "The top card stack is holding the sharpest slice while \\(remainingCount) lower-priority items stay in the follow-up queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顶部卡片堆栈保留了最关键的切片，而 \\(remainingCount) 个较低优先级项保留在后续队列中。"
+          }
+        }
+      }
+    },
+    "This compact slice keeps the top queue visible before you scroll into the deeper follow-up queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个紧凑切片会在你滚动进入更深层后续队列前保持顶部队列可见。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep pinned watch breadth, focus mode, muted-summary behavior, and preferred surface visible before the action-readiness deck and route rails expand.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在行动就绪度面板和路由栏展开前，使用这个面板保持置顶关注广度、专注模式、静默摘要行为和首选界面可见。"
+          }
+        }
+      }
+    },
+    "\\(items.count) agents need attention": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(items.count) 个智能体需要关注"
+          }
+        }
+      }
+    },
+    "\\(primaryQueueCount) primary cards": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryQueueCount) 张主卡片"
+          }
+        }
+      }
+    },
+    "\\(primaryQueueCount) primary items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryQueueCount) 个主项"
+          }
+        }
+      }
+    },
+    "\\(quietWatchedCount) pinned agents are quiet right now, so this row stays focused on the agents with live pressure.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前有 \\(quietWatchedCount) 个置顶智能体较为安静，因此这一行会继续聚焦于存在实时压力的智能体。"
+          }
+        }
+      }
+    },
+    "\\(quietWatchedCount) quiet pins": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(quietWatchedCount) 个安静置顶项"
+          }
+        }
+      }
+    },
+    "\\(remainingCount) more below": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下方还有 \\(remainingCount) 个"
+          }
+        }
+      }
+    },
+    "\\(secondaryQueueCount) secondary cards": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(secondaryQueueCount) 张次级卡片"
+          }
+        }
+      }
+    },
+    "\\(secondaryQueueCount) secondary items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(secondaryQueueCount) 个次级项"
+          }
+        }
+      }
+    },
+    "\\(secondaryQueueCount) support items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(secondaryQueueCount) 个支撑项"
+          }
+        }
+      }
+    },
+    "\\(sectionCount) night-watch sections are active below the hero snapshot.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主快照下方有 \\(sectionCount) 个夜间值守分区处于活动状态。"
+          }
+        }
+      }
+    },
+    "\\(totalCount) queued items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount) 个队列项"
+          }
+        }
+      }
+    },
+    "\\(totalWatchedCount) pinned agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalWatchedCount) 个置顶智能体"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) items in view": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "视图中有 \\(visibleCount) 项"
+          }
+        }
+      }
+    },
+    "\\(watchedQueueCount) watch-promoted": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchedQueueCount) 个已提升到关注队列"
+          }
+        }
+      }
+    },
+    "\\(watchedQueueCount) watched queue items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchedQueueCount) 个已关注队列项"
+          }
+        }
+      }
+    },
+    "1 allowed tool": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个允许工具"
+          }
+        }
+      }
+    },
+    "1 assigned server": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已分配服务器"
+          }
+        }
+      }
+    },
+    "1 assigned skill": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已分配技能"
+          }
+        }
+      }
+    },
+    "1 available server": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可用服务器"
+          }
+        }
+      }
+    },
+    "1 available skill": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可用技能"
+          }
+        }
+      }
+    },
+    "1 blocked tool": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个受限工具"
+          }
+        }
+      }
+    },
+    "1 capability feed loaded": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已加载 1 个能力源"
+          }
+        }
+      }
+    },
+    "1 configured server": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已配置服务器"
+          }
+        }
+      }
+    },
+    "1 connected assignment": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已连接分配"
+          }
+        }
+      }
+    },
+    "1 discoverable server": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可发现服务器"
+          }
+        }
+      }
+    },
+    "1 explicit rule": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条显式规则"
+          }
+        }
+      }
+    },
+    "1 feed loaded": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已加载 1 个数据源"
+          }
+        }
+      }
+    },
+    "1 inherited skill": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个继承技能"
+          }
+        }
+      }
+    },
+    "1 live feed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个实时数据源"
+          }
+        }
+      }
+    },
+    "1 tool rule": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条工具规则"
+          }
+        }
+      }
+    },
+    "Agent capability scope is loaded for quick review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "智能体能力范围已加载，可快速复核。"
+          }
+        }
+      }
+    },
+    "Capabilities action readiness is currently anchored by assigned skill scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力行动就绪度主要受已分配技能范围驱动。"
+          }
+        }
+      }
+    },
+    "Capabilities action readiness is currently anchored by explicit tool rules and server scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力行动就绪度主要受显式工具规则和服务器范围驱动。"
+          }
+        }
+      }
+    },
+    "Capabilities action readiness is currently clear enough for route pivots and deeper capability drilldown.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力行动就绪度已足够清晰，可进行路由切换和更深层能力下钻。"
+          }
+        }
+      }
+    },
+    "Capabilities action readiness is currently waiting on refreshed feed state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力行动就绪度仍在等待刷新后的数据源状态。"
+          }
+        }
+      }
+    },
+    "Capabilities workstream coverage is currently anchored by assigned skill scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力工作流覆盖主要受已分配技能范围驱动。"
+          }
+        }
+      }
+    },
+    "Capabilities workstream coverage is currently anchored by explicit restrictions and server scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力工作流覆盖主要受显式限制和服务器范围驱动。"
+          }
+        }
+      }
+    },
+    "Capabilities workstream coverage is currently anchored by loaded capability feeds.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力工作流覆盖主要受已加载的能力源驱动。"
+          }
+        }
+      }
+    },
+    "Capabilities workstream coverage is currently light across the visible feeds.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力工作流覆盖在可见数据源之间整体较轻。"
+          }
+        }
+      }
+    },
+    "Capability feeds loaded": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "能力源已加载"
+          }
+        }
+      }
+    },
+    "Capability focus coverage is currently anchored by assigned skill scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力焦点覆盖主要受已分配技能范围驱动。"
+          }
+        }
+      }
+    },
+    "Capability focus coverage is currently anchored by explicit tool rules and server scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力焦点覆盖主要受显式工具规则和服务器范围驱动。"
+          }
+        }
+      }
+    },
+    "Capability focus coverage is currently balanced across loaded tool, skill, and MCP feeds.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力焦点覆盖在已加载的工具、技能和 MCP 数据源之间较为均衡。"
+          }
+        }
+      }
+    },
+    "Capability focus coverage is currently waiting on refreshed feed state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力焦点覆盖仍在等待刷新后的数据源状态。"
+          }
+        }
+      }
+    },
+    "Capability pressure is currently anchored by tool restrictions or explicit server scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力压力主要受工具限制或显式服务器范围驱动。"
+          }
+        }
+      }
+    },
+    "Capability pressure is currently concentrated in assigned skill scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力压力主要集中在已分配技能范围。"
+          }
+        }
+      }
+    },
+    "Capability pressure is currently low and mostly reflects feed readiness.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力压力较低，主要反映数据源就绪度。"
+          }
+        }
+      }
+    },
+    "Capability routes stay compact before the adjacent agent, runtime, and integration drilldowns.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在相邻的智能体、运行时和集成下钻前，能力路由保持紧凑。"
+          }
+        }
+      }
+    },
+    "Capability support coverage is currently anchored by MCP server scope and connected support.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力支撑覆盖主要受 MCP 服务器范围和已连接支撑驱动。"
+          }
+        }
+      }
+    },
+    "Capability support coverage is currently anchored by explicit tool and skill scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力支撑覆盖主要受显式工具和技能范围驱动。"
+          }
+        }
+      }
+    },
+    "Capability support coverage is currently anchored by loaded capability feeds.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力支撑覆盖主要受已加载的能力源驱动。"
+          }
+        }
+      }
+    },
+    "Capability support coverage is currently light across the visible feeds.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力支撑覆盖在可见数据源之间整体较轻。"
+          }
+        }
+      }
+    },
+    "Capability support coverage is currently waiting on refreshed feed state.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前能力支撑覆盖仍在等待刷新后的数据源状态。"
+          }
+        }
+      }
+    },
+    "Keep assigned server count, connected coverage, and configured availability visible before opening individual MCP rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开各个 MCP 行前，让已分配服务器数量、连接覆盖和已配置可用性保持可见。"
+          }
+        }
+      }
+    },
+    "Keep assigned, available, and inherited skill coverage visible before opening individual skill names.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开各个技能名称前，让已分配、可用和继承技能覆盖保持可见。"
+          }
+        }
+      }
+    },
+    "Keep explicit restrictions, assigned skill or MCP scope, and feed readiness readable before moving through tool, skill, and server detail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在浏览工具、技能和服务器详情前，让显式限制、已分配技能或 MCP 范围以及数据源就绪度保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Keep integration drift checks behind the primary capability exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将集成漂移检查保留在主要能力出口之后。"
+          }
+        }
+      }
+    },
+    "Keep linked profile context, explicit rules, and assigned skill or server support readable before leaving capability scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在离开能力范围前，让已关联配置文件上下文、显式规则以及已分配技能或服务器支撑保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Keep nearby agent, profile, runtime, and integration exits closest to compact capability inspection.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让邻近的智能体、配置文件、运行时和集成出口保持在最接近紧凑能力查看的位置。"
+          }
+        }
+      }
+    },
+    "Keep restrictions, assigned capability scope, and MCP server coverage readable before the capability feeds take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在能力源展开前，让限制条件、已分配能力范围和 MCP 服务器覆盖保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Keep route availability and feed coverage visible before pivoting into tool profiles, runtime, or integration context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到工具配置文件、运行时或集成上下文前，让路由可用性和数据源覆盖保持可见。"
+          }
+        }
+      }
+    },
+    "Keep route breadth, loaded feeds, and explicit capability scope readable before leaving the compact capability monitor for surrounding operator surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在离开紧凑能力监控、切换到周边值班界面前，让路由广度、已加载数据源和显式能力范围保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Keep rule depth and access mode visible before opening individual allowed or blocked tool names.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开各个允许或受限工具名称前，让规则深度和访问模式保持可见。"
+          }
+        }
+      }
+    },
+    "Keep snapshot, routes, and each loaded capability feed visible before drilling into tool, skill, or MCP scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入查看工具、技能或 MCP 范围前，让快照、路由和每个已加载的能力源保持可见。"
+          }
+        }
+      }
+    },
+    "Keep the dominant capability lane readable before drilling into explicit tool rules, assigned skills, or MCP server scope.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入查看显式工具规则、已分配技能或 MCP 服务器范围前，让主导能力轨道保持清晰可读。"
+          }
+        }
+      }
+    },
+    "Keep the next capability stacks visible before tool filters, skills, and MCP server sections open up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在工具筛选、技能和 MCP 服务器分区展开前，让下一组能力堆栈保持可见。"
+          }
+        }
+      }
+    },
+    "MCP Scope Facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MCP 范围要点"
+          }
+        }
+      }
+    },
+    "MCP loaded": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MCP 已加载"
+          }
+        }
+      }
+    },
+    "MCP scope stays compact before the assigned and available server lists.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在已分配和可用服务器列表展开前，MCP 范围保持紧凑。"
+          }
+        }
+      }
+    },
+    "No allowlist": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有允许列表"
+          }
+        }
+      }
+    },
+    "No assigned MCP": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有已分配 MCP"
+          }
+        }
+      }
+    },
+    "No assigned skills": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有已分配技能"
+          }
+        }
+      }
+    },
+    "No blocklist": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有阻止列表"
+          }
+        }
+      }
+    },
+    "Open tool access": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开放工具访问"
+          }
+        }
+      }
+    },
+    "Profile linked": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配置文件已关联"
+          }
+        }
+      }
+    },
+    "Profile route ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配置文件路由已就绪"
+          }
+        }
+      }
+    },
+    "Refresh in progress": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新进行中"
+          }
+        }
+      }
+    },
+    "Refreshing": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新中"
+          }
+        }
+      }
+    },
+    "Section coverage stays visible before routes and the loaded capability feeds.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在路由和已加载能力源展开前，分区覆盖保持可见。"
+          }
+        }
+      }
+    },
+    "Section coverage stays visible while capability feeds refresh in place.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当能力源在原地刷新时，分区覆盖保持可见。"
+          }
+        }
+      }
+    },
+    "Skill Scope Facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "技能范围要点"
+          }
+        }
+      }
+    },
+    "Skill scope stays compact before the assigned skill list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在已分配技能列表展开前，技能范围保持紧凑。"
+          }
+        }
+      }
+    },
+    "Skills loaded": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "技能已加载"
+          }
+        }
+      }
+    },
+    "This snapshot shows which capability feeds have loaded and how much access the agent currently has.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个快照展示了哪些能力源已经加载，以及该智能体当前拥有多少访问权限。"
+          }
+        }
+      }
+    },
+    "Tool Filter Facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具筛选要点"
+          }
+        }
+      }
+    },
+    "Tool filter scope stays compact before the detailed allowlist and blocklist rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在详细允许列表和阻止列表行展开前，工具筛选范围保持紧凑。"
+          }
+        }
+      }
+    },
+    "Tool filters": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具筛选"
+          }
+        }
+      }
+    },
+    "Tool filters loaded": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具筛选已加载"
+          }
+        }
+      }
+    },
+    "Use nearby agent, profile, and runtime surfaces first.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "优先使用邻近的智能体、配置文件和运行时界面。"
+          }
+        }
+      }
+    },
+    "Use section coverage to confirm which capability feeds are available before pivoting into profile, runtime, or integration context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到配置文件、运行时或集成上下文前，使用分区覆盖确认哪些能力源可用。"
+          }
+        }
+      }
+    },
+    "Use the compact deck to confirm allowlist mode and inherited coverage before opening the full skill assignment list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开完整技能分配列表前，使用紧凑面板确认允许列表模式和继承覆盖。"
+          }
+        }
+      }
+    },
+    "Use the compact deck to confirm connected coverage and allowlist mode before opening the detailed MCP server inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开详细 MCP 服务器概览前，使用紧凑面板确认连接覆盖和允许列表模式。"
+          }
+        }
+      }
+    },
+    "Use the compact deck to confirm open access versus restricted mode before inspecting specific tool rules.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在查看具体工具规则前，使用紧凑面板确认是开放访问还是受限模式。"
+          }
+        }
+      }
+    },
+    "Use the route inventory to gauge loaded capability feeds before leaving the capability scope view.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在离开能力范围视图前，使用路由概览评估已加载的能力源。"
+          }
+        }
+      }
+    },
+    "Use these routes when capability scope needs profile, runtime, or integration context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当能力范围需要配置文件、运行时或集成上下文时，使用这些路由。"
+          }
+        }
+      }
+    },
+    "Use this deck to check route breadth, feed readiness, and explicit capability scope before drilling into tool, skill, and MCP sections.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入查看工具、技能和 MCP 分区前，使用这个面板检查路由广度、数据源就绪度和显式能力范围。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep linked profile support, loaded capability feeds, and assigned scope readable before drilling into tool, skill, and MCP details.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入查看工具、技能和 MCP 详情前，使用这个面板保持已关联配置文件支撑、已加载能力源和已分配范围清晰可读。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant capability lane visible before moving from compact capability decks into tool, skill, and MCP detail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从紧凑能力面板进入工具、技能和 MCP 详情前，使用这个面板保持主导能力轨道可见。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether capability review is currently led by explicit restrictions, assigned scope, or feed readiness before drilling into detailed capability sections.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入详细能力分区前，使用这个面板查看当前能力复核主要由显式限制、已分配范围还是数据源就绪度驱动。"
+          }
+        }
+      }
+    },
+    "Use this deck to separate tool restrictions, assigned skills, and MCP server scope before opening the capability feeds below.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开下方能力源前，使用这个面板区分工具限制、已分配技能和 MCP 服务器范围。"
+          }
+        }
+      }
+    },
+    "\\(assignedServerCount) assigned servers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(assignedServerCount) 个已分配服务器"
+          }
+        }
+      }
+    },
+    "\\(assignedSkillCount) assigned skills": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(assignedSkillCount) 个已分配技能"
+          }
+        }
+      }
+    },
+    "\\(assignment.assigned.count) assigned servers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(assignment.assigned.count) 个已分配服务器"
+          }
+        }
+      }
+    },
+    "\\(assignment.assigned.count) assigned skills": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(assignment.assigned.count) 个已分配技能"
+          }
+        }
+      }
+    },
+    "\\(assignment.available.count) available servers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(assignment.available.count) 个可用服务器"
+          }
+        }
+      }
+    },
+    "\\(assignment.available.count) available skills": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(assignment.available.count) 个可用技能"
+          }
+        }
+      }
+    },
+    "\\(assignment.available.count) discoverable servers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(assignment.available.count) 个可发现服务器"
+          }
+        }
+      }
+    },
+    "\\(assignment.available.count) visible skills": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(assignment.available.count) 个可见技能"
+          }
+        }
+      }
+    },
+    "\\(configuredAvailableCount) configured servers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(configuredAvailableCount) 个已配置服务器"
+          }
+        }
+      }
+    },
+    "\\(configuredAvailableServerCount) configured servers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(configuredAvailableServerCount) 个已配置服务器"
+          }
+        }
+      }
+    },
+    "\\(connectedAssignedCount) connected assignments": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(connectedAssignedCount) 个已连接分配"
+          }
+        }
+      }
+    },
+    "\\(filters.toolAllowlist.count) allowed tools": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filters.toolAllowlist.count) 个允许工具"
+          }
+        }
+      }
+    },
+    "\\(filters.toolBlocklist.count) blocked tools": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(filters.toolBlocklist.count) 个受限工具"
+          }
+        }
+      }
+    },
+    "\\(inheritedCount) inherited skills": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(inheritedCount) 个继承技能"
+          }
+        }
+      }
+    },
+    "\\(loadedFeedCount) capability feeds loaded": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已加载 \\(loadedFeedCount) 个能力源"
+          }
+        }
+      }
+    },
+    "\\(loadedFeedCount) feeds loaded": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已加载 \\(loadedFeedCount) 个数据源"
+          }
+        }
+      }
+    },
+    "\\(loadedFeedCount) live feeds": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(loadedFeedCount) 个实时数据源"
+          }
+        }
+      }
+    },
+    "\\(mcpServers.assigned.count) assigned MCP": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mcpServers.assigned.count) 个已分配 MCP"
+          }
+        }
+      }
+    },
+    "\\(skills.assigned.count) assigned skills": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(skills.assigned.count) 个已分配技能"
+          }
+        }
+      }
+    },
+    "\\(toolFilters.toolAllowlist.count) allowed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(toolFilters.toolAllowlist.count) 个允许项"
+          }
+        }
+      }
+    },
+    "\\(toolRestrictionCount) tool rules": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(toolRestrictionCount) 条工具规则"
+          }
+        }
+      }
+    },
+    "\\(visibleRuleCount) explicit rules": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleRuleCount) 条显式规则"
+          }
+        }
+      }
+    },
+    "Shortcuts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快捷入口"
+          }
+        }
+      }
+    },
+    "Keep one approvals summary, the main exits, and the filter bar above the queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将审批摘要、主要出口和筛选栏保留在队列上方。"
+          }
+        }
+      }
+    },
+    "Keep the next operator screens close to the approval queue.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让下一步值班界面保持在靠近审批队列的位置。"
+          }
+        }
+      }
+    },
+    "Jump to the long diagnostic sections without stacking more summary cards.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直接跳转到较长的诊断分区，而不再堆叠更多摘要卡片。"
+          }
+        }
+      }
+    },
+    "Keep one diagnostics snapshot and direct jumps above the long sections.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将一个诊断快照和直接跳转保留在长分区上方。"
+          }
+        }
+      }
+    },
+    "Jump to the long charts and rankings without stacking more summary cards.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直接跳转到较长的图表和排名，而不再堆叠更多摘要卡片。"
+          }
+        }
+      }
+    },
+    "\\(topModel.displayName) \\(localizedUSDCurrency(topModel.totalCostUsd))": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(topModel.displayName) \\(localizedUSDCurrency(topModel.totalCostUsd))"
+          }
+        }
+      }
+    },
+    "\\(prefix) \\(relative)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(prefix) \\(relative)"
           }
         }
       }

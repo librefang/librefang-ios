@@ -207,7 +207,7 @@ struct StandbyDigestView: View {
                 }
                 .scrollIndicators(.hidden)
             }
-            .navigationTitle("Standby")
+            .navigationTitle(String(localized: "Standby"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

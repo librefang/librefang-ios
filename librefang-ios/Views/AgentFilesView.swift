@@ -305,15 +305,15 @@ struct AgentFilesView: View {
                     }
                 }
             } header: {
-                Text("Routes")
+                Text(String(localized: "Routes"))
             } footer: {
-                Text("Use these routes when identity files need memory, delivery, or session context rather than isolated file checks.")
+                Text(String(localized: "Use these routes when identity files need memory, delivery, or session context rather than isolated file checks."))
             }
 
             if let loadError {
                 Section("Status") {
                     ContentUnavailableView(
-                        "Workspace Files Unavailable",
+                        String(localized: "Workspace Files Unavailable"),
                         systemImage: "doc.badge.exclamationmark",
                         description: Text(loadError)
                     )
@@ -343,9 +343,9 @@ struct AgentFilesView: View {
                 .id(AgentFilesSectionAnchor.files)
             }
             }
-            .navigationTitle("Agent Files")
+            .navigationTitle(String(localized: "Agent Files"))
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: "Search workspace files")
+            .searchable(text: $searchText, prompt: Text(String(localized: "Search workspace files")))
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     if !filteredFiles.isEmpty {
@@ -361,7 +361,7 @@ struct AgentFilesView: View {
                     }
 
                     Menu {
-                        Picker("Scope", selection: $scope) {
+                        Picker(String(localized: "Scope"), selection: $scope) {
                             ForEach(AgentFileScope.allCases, id: \.self) { option in
                                 Label(option.label, systemImage: option.icon)
                                     .tag(option)
@@ -378,7 +378,7 @@ struct AgentFilesView: View {
             }
             .overlay {
                 if isLoading && files.isEmpty {
-                    ProgressView("Loading files...")
+                    ProgressView(String(localized: "Loading files..."))
                 }
             }
             .task {
@@ -1099,7 +1099,7 @@ private struct AgentFileDetailView: View {
     var body: some View {
         Group {
             if isLoading {
-                ProgressView("Loading file...")
+                ProgressView(String(localized: "Loading file..."))
             } else if let detail {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {

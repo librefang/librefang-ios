@@ -39,7 +39,7 @@ extension DeliveryReceipt {
         case "webhook":
             return String(localized: "Webhook")
         default:
-            return channel.replacingOccurrences(of: "_", with: " ").capitalized
+            return StatusPresentation.localizedFallbackLabel(for: channel)
         }
     }
 }

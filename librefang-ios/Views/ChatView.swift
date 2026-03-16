@@ -17,7 +17,7 @@ struct ChatView: View {
                             VStack(spacing: 12) {
                                 ProgressView()
                                     .controlSize(.large)
-                                Text("Loading conversation…")
+                                Text(String(localized: "Loading conversation…"))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
@@ -28,7 +28,7 @@ struct ChatView: View {
                                 Image(systemName: "bubble.left.and.bubble.right")
                                     .font(.system(size: 40))
                                     .foregroundStyle(.tertiary)
-                                Text("Send a message to \(viewModel.agent.name)")
+                                Text(String(localized: "Send a message to \(viewModel.agent.name)"))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
@@ -43,7 +43,7 @@ struct ChatView: View {
                                     Button {
                                         UIPasteboard.general.string = message.content
                                     } label: {
-                                        Label("Copy", systemImage: "doc.on.doc")
+                                        Label(String(localized: "Copy"), systemImage: "doc.on.doc")
                                     }
                                 }
                         }
@@ -101,7 +101,7 @@ struct ChatView: View {
                 Text(viewModel.agent.identity?.emoji ?? "🤖")
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Done") { dismiss() }
+                Button(String(localized: "Done")) { dismiss() }
             }
         }
     }
@@ -111,7 +111,7 @@ struct ChatView: View {
     }
 
     private var messageField: some View {
-        TextField("Message...", text: $viewModel.inputText, axis: .vertical)
+        TextField(String(localized: "Message..."), text: $viewModel.inputText, axis: .vertical)
             .textFieldStyle(.plain)
             .lineLimit(1...6)
             .focused($isInputFocused)

@@ -120,7 +120,7 @@ struct AgentMemoryView: View {
                         ForEach(filteredEntries) { entry in
                             AgentMemoryRow(entry: entry, isBusy: actionInFlightKey == entry.key)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button("Delete", role: .destructive) {
+                                    Button(String(localized: "Delete"), role: .destructive) {
                                         pendingDelete = entry
                                     }
                                 }
@@ -158,9 +158,9 @@ struct AgentMemoryView: View {
                     .id(AgentMemorySectionAnchor.memory)
                 }
             }
-            .navigationTitle("Agent Memory")
+            .navigationTitle(String(localized: "Agent Memory"))
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: "Search memory key or value")
+            .searchable(text: $searchText, prompt: Text(String(localized: "Search memory key or value")))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -219,7 +219,7 @@ struct AgentMemoryView: View {
             }
             .overlay {
                 if isLoading && entries.isEmpty {
-                    ProgressView("Loading memory...")
+                    ProgressView(String(localized: "Loading memory..."))
                 }
             }
             .task {
@@ -248,7 +248,7 @@ struct AgentMemoryView: View {
                 Button("Delete Key", role: .destructive) {
                     Task { await deleteEntry(entry) }
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Cancel"), role: .cancel) {}
             } message: { entry in
                 Text("Delete memory key \"\(entry.key)\" from \(agent.name)? This cannot be undone.")
             }
@@ -690,7 +690,7 @@ private struct AgentMemoryEditor: View {
     var body: some View {
         Form {
             Section {
-                TextField("Memory Key", text: $key, prompt: Text(String(localized: "Memory Key")))
+                TextField(String(localized: "Memory Key"), text: $key, prompt: Text(String(localized: "Memory Key")))
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .disabled(!keyEditable)
@@ -712,7 +712,7 @@ private struct AgentMemoryEditor: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") {
+                Button(String(localized: "Cancel")) {
                     dismiss()
                 }
                 .disabled(isSaving)

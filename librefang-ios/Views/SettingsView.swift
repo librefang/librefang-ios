@@ -360,7 +360,7 @@ struct SettingsView: View {
                         connectionHint: serverConnectionHint
                     )
 
-                    TextField("Server URL", text: $serverURL)
+                    TextField(String(localized: "Server URL"), text: $serverURL)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -451,7 +451,7 @@ struct SettingsView: View {
                             ) {
                                 NavigationLink {
                                     A2AAgentsView()
-                                        .navigationTitle("A2A Agents")
+                                        .navigationTitle(String(localized: "A2A Agents"))
                                 } label: {
                                     MonitoringSurfaceShortcutChip(
                                         title: String(localized: "External Agents"),
@@ -817,7 +817,7 @@ struct SettingsView: View {
                 }
                 .id(SettingsSectionAnchor.about)
                 }
-                .navigationTitle("Settings")
+                .navigationTitle(String(localized: "Settings"))
             }
         }
     }

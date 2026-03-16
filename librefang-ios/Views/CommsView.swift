@@ -164,15 +164,15 @@ struct CommsView: View {
                     .id(CommsSectionAnchor.traffic)
                 }
             }
-            .navigationTitle("Comms")
-            .searchable(text: $searchText, prompt: "Search source, target, or detail")
+            .navigationTitle(String(localized: "Comms"))
+            .searchable(text: $searchText, prompt: Text(String(localized: "Search source, target, or detail")))
             .monitoringRefreshInteractionGate(isRefreshing: viewModel.isLoading)
             .refreshable {
                 await viewModel.refresh()
             }
             .overlay {
                 if viewModel.isLoading && viewModel.events.isEmpty {
-                    ProgressView("Loading comms...")
+                    ProgressView(String(localized: "Loading comms..."))
                 }
             }
             .onAppear {

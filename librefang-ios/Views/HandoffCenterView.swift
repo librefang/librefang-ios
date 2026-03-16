@@ -505,8 +505,8 @@ struct HandoffCenterView: View {
                     .id(HandoffSectionAnchor.history)
                 }
             }
-            .navigationTitle("Handoff Center")
-            .searchable(text: $searchText, prompt: "Search notes or summaries")
+            .navigationTitle(String(localized: "Handoff Center"))
+            .searchable(text: $searchText, prompt: Text(String(localized: "Search notes or summaries")))
         }
     }
 

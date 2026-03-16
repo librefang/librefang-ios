@@ -200,9 +200,9 @@ struct ToolProfilesView: View {
                     }
                 }
             } header: {
-                Text("Routes")
+                Text(String(localized: "Routes"))
             } footer: {
-                Text("Use these routes when profile inspection needs fleet, runtime, or integration context.")
+                Text(String(localized: "Use these routes when profile inspection needs fleet, runtime, or integration context."))
             }
 
             if let selectedProfile {
@@ -213,9 +213,9 @@ struct ToolProfilesView: View {
 
                     toolSummary(profile: selectedProfile, maxVisibleTools: selectedProfile.tools.count)
                 } header: {
-                    Text("Current Profile")
+                    Text(String(localized: "Current Profile"))
                 } footer: {
-                    Text("Tool profiles are server-defined bundles. They explain what an agent can and cannot call even when the rest of the runtime looks healthy.")
+                    Text(String(localized: "Tool profiles are server-defined bundles. They explain what an agent can and cannot call even when the rest of the runtime looks healthy."))
                 }
                 .id(ToolProfilesSectionAnchor.currentProfile)
             } else if let selectedProfileName, !selectedProfileName.isEmpty, !isLoading, loadError == nil {
@@ -226,7 +226,7 @@ struct ToolProfilesView: View {
                         description: Text(String(localized: "LibreFang did not return a tool profile named \"\(selectedProfileName)\"."))
                     )
                 } header: {
-                    Text("Current Profile")
+                    Text(String(localized: "Current Profile"))
                 }
                 .id(ToolProfilesSectionAnchor.currentProfile)
             }
@@ -277,16 +277,16 @@ struct ToolProfilesView: View {
                 .id(ToolProfilesSectionAnchor.allProfiles)
             }
             }
-            .navigationTitle("Tool Profiles")
+            .navigationTitle(String(localized: "Tool Profiles"))
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: "Search profile or tool")
+            .searchable(text: $searchText, prompt: Text(String(localized: "Search profile or tool")))
             .monitoringRefreshInteractionGate(isRefreshing: isLoading)
             .refreshable {
                 await loadProfiles()
             }
             .overlay {
                 if isLoading && profiles.isEmpty {
-                    ProgressView("Loading profiles...")
+                    ProgressView(String(localized: "Loading profiles..."))
                 }
             }
             .task {

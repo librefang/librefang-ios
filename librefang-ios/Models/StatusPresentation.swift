@@ -270,7 +270,7 @@ nonisolated enum StatusPresentation {
         case "error", "broken", "offline", "disconnected", "unhealthy", "invalid":
             return String(localized: "Broken")
         default:
-            return fallbackLabel(for: value)
+            return localizedFallbackLabel(for: value)
         }
     }
 
@@ -298,15 +298,20 @@ nonisolated enum StatusPresentation {
         case "error", "broken", "offline", "disconnected", "unhealthy":
             return String(localized: "Disconnected")
         default:
-            return fallbackLabel(for: value)
+            return localizedFallbackLabel(for: value)
         }
+    }
+
+    static func localizedFallbackLabel(for value: String) -> String {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return String(localized: "Unknown") }
+        return trimmed
+            .replacingOccurrences(of: "_", with: " ")
+            .replacingOccurrences(of: "-", with: " ")
+            .capitalized
     }
 
     private static func normalize(_ value: String) -> String {
         value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-    }
-
-    private static func fallbackLabel(for value: String) -> String {
-        value.replacingOccurrences(of: "_", with: " ").capitalized
     }
 }

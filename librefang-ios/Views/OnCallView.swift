@@ -360,7 +360,7 @@ struct OnCallView: View {
                     }
                 }
             }
-            .navigationTitle("On Call")
+            .navigationTitle(String(localized: "On Call"))
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     ShareLink(item: handoffText) {
@@ -408,7 +408,7 @@ struct OnCallView: View {
             }
             .overlay {
                 if vm.isLoading && vm.lastRefresh == nil {
-                    ProgressView("Loading on-call view...")
+                    ProgressView(String(localized: "Loading on-call view..."))
                 }
             }
             .task {

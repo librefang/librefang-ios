@@ -270,14 +270,14 @@ struct IncidentsView: View {
             List {
                 incidentSections(proxy)
             }
-            .navigationTitle("Incidents")
+            .navigationTitle(String(localized: "Incidents"))
             .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .refreshable {
                 await vm.refresh()
             }
             .overlay {
                 if vm.isLoading && vm.lastRefresh == nil {
-                    ProgressView("Loading incidents...")
+                    ProgressView(String(localized: "Loading incidents..."))
                 }
             }
             .task {
@@ -295,7 +295,7 @@ struct IncidentsView: View {
             Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
                 Task { await performApprovalAction(action) }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel"), role: .cancel) {}
         } message: { action in
             Text(action.message)
         }

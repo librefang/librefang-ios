@@ -180,7 +180,7 @@ nonisolated struct TriggerDefinition: Codable, Identifiable, Sendable {
             }
             return String(localized: "Content match")
         default:
-            return kind.replacingOccurrences(of: "_", with: " ").capitalized
+            return StatusPresentation.localizedFallbackLabel(for: kind)
         }
     }
 }

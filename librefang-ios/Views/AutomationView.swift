@@ -453,15 +453,15 @@ struct AutomationView: View {
                     }
                 }
             }
-            .navigationTitle("Automation")
-            .searchable(text: $searchText, prompt: "Search workflow, trigger, or job")
+            .navigationTitle(String(localized: "Automation"))
+            .searchable(text: $searchText, prompt: Text(String(localized: "Search workflow, trigger, or job")))
             .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .refreshable {
                 await vm.refresh()
             }
             .overlay {
                 if vm.isLoading && !hasAutomationData {
-                    ProgressView("Loading automation...")
+                    ProgressView(String(localized: "Loading automation..."))
                 }
             }
             .task {

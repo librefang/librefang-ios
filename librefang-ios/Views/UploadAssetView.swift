@@ -13,7 +13,7 @@ struct UploadAssetView: View {
     var body: some View {
         Group {
             if isLoading {
-                ProgressView("Loading attachment...")
+                ProgressView(String(localized: "Loading attachment..."))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.black.opacity(0.94))
             } else if let uiImage {

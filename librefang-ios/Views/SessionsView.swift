@@ -133,9 +133,9 @@ struct SessionsView: View {
                     sessionsQueueCoverageDeck
                     sessionsControlDeckCard
                 } header: {
-                    Text("Controls")
+                    Text(String(localized: "Controls"))
                 } footer: {
-                    Text("Backlog pressure, routes, and filters stay together before the list.")
+                    Text(String(localized: "Backlog pressure, routes, and filters stay together before the list."))
                 }
 
                 if filteredItems.isEmpty && !vm.isLoading {
@@ -168,15 +168,15 @@ struct SessionsView: View {
                     .id(SessionsSectionAnchor.sessions)
                 }
             }
-            .navigationTitle("Sessions")
-            .searchable(text: $searchText, prompt: "Search session, label, or agent")
+            .navigationTitle(String(localized: "Sessions"))
+            .searchable(text: $searchText, prompt: Text(String(localized: "Search session, label, or agent")))
             .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .refreshable {
                 await vm.refresh()
             }
             .overlay {
                 if vm.isLoading && vm.sessions.isEmpty {
-                    ProgressView("Loading sessions...")
+                    ProgressView(String(localized: "Loading sessions..."))
                 }
             }
             .task {
@@ -193,45 +193,45 @@ struct SessionsView: View {
                 Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
                     Task { await performSessionAction(action) }
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Cancel"), role: .cancel) {}
             } message: { action in
                 Text(action.message)
             }
             .confirmationDialog(
-                "Delete Session",
+                String(localized: "Delete Session"),
                 isPresented: deleteSessionConfirmationPresented,
                 titleVisibility: .visible,
                 presenting: pendingDeleteSession
             ) { session in
-                Button("Delete Session", role: .destructive) {
+                Button(String(localized: "Delete Session"), role: .destructive) {
                     Task { await deleteSession(session) }
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Cancel"), role: .cancel) {}
             } message: { session in
-                Text("Remove \(displayTitle(for: session)) and its messages from LibreFang? This cannot be undone.")
+                Text(String(localized: "Remove \(displayTitle(for: session)) and its messages from LibreFang? This cannot be undone."))
             }
             .sheet(item: $editingSession) { session in
                 NavigationStack {
                     Form {
                         Section {
-                            TextField("Optional label", text: $sessionLabelDraft)
+                            TextField(String(localized: "Optional label"), text: $sessionLabelDraft)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
 
-                            Text("Clear the field to remove the label. Labels make on-call session lookup much faster.")
+                            Text(String(localized: "Clear the field to remove the label. Labels make on-call session lookup much faster."))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         } header: {
-                            Text("Session Label")
+                            Text(String(localized: "Session Label"))
                         } footer: {
                             Text(displayTitle(for: session))
                         }
                     }
-                    .navigationTitle("Edit Label")
+                    .navigationTitle(String(localized: "Edit Label"))
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") {
+                            Button(String(localized: "Cancel")) {
                                 editingSession = nil
                             }
                             .disabled(isCatalogActionBusy)
@@ -244,7 +244,7 @@ struct SessionsView: View {
                                     ProgressView()
                                         .controlSize(.small)
                                 } else {
-                                    Text("Save")
+                                    Text(String(localized: "Save"))
                                 }
                             }
                             .disabled(isCatalogActionBusy)
@@ -256,7 +256,7 @@ struct SessionsView: View {
                 Alert(
                     title: Text(notice.title),
                     message: Text(notice.message),
-                    dismissButton: .default(Text("OK"))
+                    dismissButton: .default(Text(String(localized: "OK")))
                 )
             }
         }
@@ -1364,7 +1364,7 @@ private struct SessionsQueueCoverageDeck: View {
                 row
             }
             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                Button("Switch") {
+                Button(String(localized: "Switch")) {
                     pendingSessionAction = .switchSession(
                         agentID: agent.id,
                         agentName: agent.name,
@@ -1373,12 +1373,12 @@ private struct SessionsQueueCoverageDeck: View {
                 }
                 .tint(.blue)
 
-                Button("Delete", role: .destructive) {
+                Button(String(localized: "Delete"), role: .destructive) {
                     pendingDeleteSession = item.session
                 }
             }
             .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                Button("Label") {
+                Button(String(localized: "Label")) {
                     startEditingLabel(for: item.session)
                 }
                 .tint(.indigo)
@@ -1410,22 +1410,22 @@ private struct SessionsQueueCoverageDeck: View {
             row
                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                     if !item.session.agentId.isEmpty {
-                        Button("Switch") {
+                        Button(String(localized: "Switch")) {
                             pendingSessionAction = .switchSession(
                                 agentID: item.session.agentId,
                                 agentName: item.session.agentId,
                                 session: item.session
                             )
-                        }
-                        .tint(.blue)
-                    }
+                }
+                .tint(.blue)
+            }
 
-                    Button("Delete", role: .destructive) {
+                    Button(String(localized: "Delete"), role: .destructive) {
                         pendingDeleteSession = item.session
                     }
                 }
                 .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                    Button("Label") {
+                    Button(String(localized: "Label")) {
                         startEditingLabel(for: item.session)
                     }
                     .tint(.indigo)

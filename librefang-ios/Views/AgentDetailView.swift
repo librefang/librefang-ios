@@ -438,20 +438,20 @@ struct AgentDetailView: View {
                 NavigationStack {
                     Form {
                         Section("New Session") {
-                            TextField("Optional label", text: $newSessionLabel)
+                            TextField(String(localized: "Optional label"), text: $newSessionLabel)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
 
-                            Text("A fresh session is useful when you need a clean operator context without resetting the existing thread.")
+                            Text(String(localized: "A fresh session is useful when you need a clean operator context without resetting the existing thread."))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .navigationTitle("Fresh Session")
+                    .navigationTitle(String(localized: "Fresh Session"))
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") {
+                            Button(String(localized: "Cancel")) {
                                 showCreateSessionSheet = false
                             }
                             .disabled(isCreatingSession)
@@ -464,7 +464,7 @@ struct AgentDetailView: View {
                                     ProgressView()
                                         .controlSize(.small)
                                 } else {
-                                    Text("Create")
+                                    Text(String(localized: "Create"))
                                 }
                             }
                             .disabled(isCreatingSession)
@@ -487,29 +487,29 @@ struct AgentDetailView: View {
                                     ProgressView()
                                         .controlSize(.small)
                                 } else {
-                                    Label("Find Session", systemImage: "magnifyingglass")
+                                    Label(String(localized: "Find Session"), systemImage: "magnifyingglass")
                                 }
                             }
                             .disabled(isLookingUpSession || sessionLookupLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                         } header: {
-                            Text("Session Label")
+                            Text(String(localized: "Session Label"))
                         } footer: {
-                            Text("LibreFang resolves labels server-side for this agent, so this works even when the current inventory is stale.")
+                            Text(String(localized: "LibreFang resolves labels server-side for this agent, so this works even when the current inventory is stale."))
                         }
 
                         if let sessionLookupResult {
-                            Section("Result") {
-                                LabeledContent("Session") {
+                            Section(String(localized: "Result")) {
+                                LabeledContent(String(localized: "Session")) {
                                     Text((sessionLookupResult.label?.isEmpty == false ? sessionLookupResult.label : nil) ?? String(sessionLookupResult.sessionId.prefix(8)))
                                         .foregroundStyle(.secondary)
                                 }
-                                LabeledContent("Messages") {
+                                LabeledContent(String(localized: "Messages")) {
                                     Text(sessionLookupResult.messageCount.formatted())
                                         .monospacedDigit()
                                 }
 
                                 if sessionLookupResult.sessionId == currentSessionID {
-                                    Label("This is already the active session.", systemImage: "checkmark.circle")
+                                    Label(String(localized: "This is already the active session."), systemImage: "checkmark.circle")
                                         .foregroundStyle(.green)
                                 } else {
                                     Button {
@@ -526,22 +526,22 @@ struct AgentDetailView: View {
                                         )
                                         showFindSessionSheet = false
                                     } label: {
-                                        Label("Switch To This Session", systemImage: "arrow.triangle.swap")
+                                        Label(String(localized: "Switch To This Session"), systemImage: "arrow.triangle.swap")
                                     }
                                 }
                             }
                         } else if let sessionLookupError {
-                            Section("Result") {
+                            Section(String(localized: "Result")) {
                                 Text(sessionLookupError)
                                     .foregroundStyle(.secondary)
                             }
                         }
                     }
-                    .navigationTitle("Find Session")
+                    .navigationTitle(String(localized: "Find Session"))
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
-                            Button("Close") {
+                            Button(String(localized: "Close")) {
                                 showFindSessionSheet = false
                             }
                         }
@@ -552,24 +552,24 @@ struct AgentDetailView: View {
                 NavigationStack {
                     Form {
                         Section {
-                            TextField("Optional label", text: $sessionLabelDraft)
+                            TextField(String(localized: "Optional label"), text: $sessionLabelDraft)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
 
-                            Text("Clear the field to remove the label. Labeled sessions are easier to hand off and recover later.")
+                            Text(String(localized: "Clear the field to remove the label. Labeled sessions are easier to hand off and recover later."))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         } header: {
-                            Text("Session Label")
+                            Text(String(localized: "Session Label"))
                         } footer: {
                             Text(sessionDisplayTitle(session))
                         }
                     }
-                    .navigationTitle("Edit Label")
+                    .navigationTitle(String(localized: "Edit Label"))
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") {
+                            Button(String(localized: "Cancel")) {
                                 editingSession = nil
                             }
                             .disabled(isCatalogActionBusy)
@@ -582,7 +582,7 @@ struct AgentDetailView: View {
                                     ProgressView()
                                         .controlSize(.small)
                                 } else {
-                                    Text("Save")
+                                    Text(String(localized: "Save"))
                                 }
                             }
                             .disabled(isCatalogActionBusy)
@@ -599,7 +599,7 @@ struct AgentDetailView: View {
             Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
                 Task { await performApprovalAction(action) }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel"), role: .cancel) {}
         } message: { action in
             Text(action.message)
         }
@@ -612,28 +612,28 @@ struct AgentDetailView: View {
             Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
                 Task { await performSessionAction(action) }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel"), role: .cancel) {}
         } message: { action in
             Text(action.message)
         }
         .confirmationDialog(
-            "Delete Session",
+            String(localized: "Delete Session"),
             isPresented: deleteSessionConfirmationPresented,
             titleVisibility: .visible,
             presenting: pendingDeleteSession
         ) { session in
-            Button("Delete Session", role: .destructive) {
+            Button(String(localized: "Delete Session"), role: .destructive) {
                 Task { await deleteSession(session) }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel"), role: .cancel) {}
         } message: { session in
-            Text("Remove \(sessionDisplayTitle(session)) from this agent history? This cannot be undone.")
+            Text(String(localized: "Remove \(sessionDisplayTitle(session)) from this agent history? This cannot be undone."))
         }
         .alert(item: $operatorNotice) { notice in
             Alert(
                 title: Text(notice.title),
                 message: Text(notice.message),
-                dismissButton: .default(Text("OK"))
+                dismissButton: .default(Text(String(localized: "OK")))
             )
         }
     }

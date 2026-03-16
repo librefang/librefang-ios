@@ -744,9 +744,9 @@ struct IntegrationsView: View {
                 if !hasAnyContent && !vm.isLoading {
                     Section {
                         ContentUnavailableView(
-                            "No Integration Diagnostics",
+                            String(localized: "No Integration Diagnostics"),
                             systemImage: "square.3.layers.3d.down.forward",
-                            description: Text("Pull to refresh after the server exposes provider, channel, and model inventory.")
+                            description: Text(String(localized: "Pull to refresh after the server exposes provider, channel, and model inventory."))
                         )
                     }
                 } else if hasAnyContent
@@ -758,22 +758,22 @@ struct IntegrationsView: View {
                             && !vm.isLoading {
                     Section {
                         ContentUnavailableView(
-                            "No Search Results",
+                            String(localized: "No Search Results"),
                             systemImage: "magnifyingglass",
-                            description: Text("Try a different provider, channel, model, or alias query.")
+                            description: Text(String(localized: "Try a different provider, channel, model, or alias query."))
                         )
                     }
                 }
             }
-            .navigationTitle("Integrations")
-            .searchable(text: $searchText, prompt: "Search provider, channel, model, alias, agent")
+            .navigationTitle(String(localized: "Integrations"))
+            .searchable(text: $searchText, prompt: Text(String(localized: "Search provider, channel, model, alias, agent")))
             .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .refreshable {
                 await vm.refresh()
             }
             .overlay {
                 if vm.isLoading && !hasAnyContent {
-                    ProgressView("Loading integrations...")
+                    ProgressView(String(localized: "Loading integrations..."))
                 }
             }
             .task {
@@ -785,7 +785,7 @@ struct IntegrationsView: View {
                 Alert(
                     title: Text(notice.title),
                     message: Text(notice.message),
-                    dismissButton: .default(Text("OK"))
+                    dismissButton: .default(Text(String(localized: "OK")))
                 )
             }
         }

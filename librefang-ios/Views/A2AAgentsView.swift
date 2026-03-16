@@ -170,22 +170,24 @@ struct A2AAgentsView: View {
                                 }
                             }
                         } header: {
-                            Text("Routes")
+                            Text(String(localized: "Routes"))
                         } footer: {
-                            Text("Use these routes when the external-agent directory needs runtime, comms, or diagnostics context.")
+                            Text(String(localized: "Use these routes when the external-agent directory needs runtime, comms, or diagnostics context."))
                         }
 
                         if filteredAgents.isEmpty {
-                            Section("Agents") {
+                            Section {
                                 ContentUnavailableView(
                                     String(localized: "No Search Results"),
                                     systemImage: "magnifyingglass",
                                     description: Text(String(localized: "Try a different agent name, skill, or endpoint query."))
                                 )
+                            } header: {
+                                Text(String(localized: "Agents"))
                             }
                             .id(A2ASectionAnchor.agents)
                         } else {
-                            Section("Agents") {
+                            Section {
                                 A2AInventoryDeckCard(
                                     agents: filteredAgents,
                                     totalAgents: agents.count,
@@ -195,12 +197,14 @@ struct A2AAgentsView: View {
                                 ForEach(filteredAgents) { agent in
                                     A2AAgentRow(agent: agent)
                                 }
+                            } header: {
+                                Text(String(localized: "Agents"))
                             }
                             .id(A2ASectionAnchor.agents)
                         }
                     }
-                    .searchable(text: $searchText, prompt: "Search agent, skill, or URL")
-                    .navigationTitle("A2A Agents")
+                    .searchable(text: $searchText, prompt: Text(String(localized: "Search agent, skill, or URL")))
+                    .navigationTitle(String(localized: "A2A Agents"))
                 }
             }
         }

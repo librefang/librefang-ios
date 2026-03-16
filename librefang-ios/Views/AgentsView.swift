@@ -475,8 +475,8 @@ struct AgentsView: View {
                     }
                 }
             }
-            .navigationTitle("Agents")
-            .searchable(text: $searchText, prompt: "Search agents...")
+            .navigationTitle(String(localized: "Agents"))
+            .searchable(text: $searchText, prompt: Text(String(localized: "Search agents...")))
             .monitoringRefreshInteractionGate(isRefreshing: vm.isLoading)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -501,7 +501,7 @@ struct AgentsView: View {
             }
             .overlay {
                 if vm.isLoading && vm.agents.isEmpty {
-                    ProgressView("Loading...")
+                    ProgressView(String(localized: "Loading..."))
                 }
             }
             .task {

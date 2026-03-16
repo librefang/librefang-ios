@@ -293,7 +293,7 @@ struct AgentCapabilitiesView: View {
                     }
                 }
             }
-            .navigationTitle("Capabilities")
+            .navigationTitle(String(localized: "Capabilities"))
             .navigationBarTitleDisplayMode(.inline)
             .monitoringRefreshInteractionGate(isRefreshing: isRefreshing)
             .refreshable {

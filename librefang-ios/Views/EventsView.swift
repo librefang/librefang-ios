@@ -54,15 +54,15 @@ struct EventsView: View {
                 eventsControlsSection(proxy)
                 eventsFeedSection
             }
-            .navigationTitle("Events")
-            .searchable(text: $searchText, prompt: "Search action, detail, or agent")
+            .navigationTitle(String(localized: "Events"))
+            .searchable(text: $searchText, prompt: Text(String(localized: "Search action, detail, or agent")))
             .monitoringRefreshInteractionGate(isRefreshing: viewModel.isLoading)
             .refreshable {
                 await viewModel.refresh()
             }
             .overlay {
                 if viewModel.isLoading && viewModel.entries.isEmpty {
-                    ProgressView("Loading events...")
+                    ProgressView(String(localized: "Loading events..."))
                 }
             }
             .onAppear {

@@ -256,7 +256,7 @@ struct NightWatchView: View {
                 }
                 .scrollIndicators(.hidden)
             }
-            .navigationTitle("Night Watch")
+            .navigationTitle(String(localized: "Night Watch"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 toolbarContent
