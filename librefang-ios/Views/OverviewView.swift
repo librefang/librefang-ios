@@ -282,30 +282,6 @@ struct OverviewView: View {
                                 handoffTone: deps.onCallHandoffStore.freshnessState.tone
                             )
 
-                            OverviewPressureCoverageDeck(
-                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                                liveAlertCount: visibleMonitoringAlerts.count,
-                                approvalCount: vm.pendingApprovalCount,
-                                sessionCount: vm.sessionAttentionCount,
-                                watchIssueCount: overviewWatchIssueCount,
-                                mutedAlertCount: activeMutedAlertCount,
-                                pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
-                                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                                automationIssueCount: vm.automationPressureIssueCategoryCount,
-                                integrationIssueCount: vm.integrationPressureIssueCategoryCount
-                            )
-
-                            OverviewSupportCoverageDeck(
-                                mutedAlertCount: activeMutedAlertCount,
-                                pendingFollowUpCount: deps.onCallHandoffStore.pendingLatestFollowUpCount,
-                                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                                automationIssueCount: vm.automationPressureIssueCategoryCount,
-                                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                                isDataStale: vm.isDataStale,
-                                providerCount: vm.configuredProviderCount,
-                                channelCount: vm.readyChannelCount
-                            )
-
                             OverviewEntryDeckCard(
                                 criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
                                 approvalCount: vm.pendingApprovalCount,
@@ -330,113 +306,6 @@ struct OverviewView: View {
                             ) { anchor in
                                 jump(proxy, to: anchor)
                             }
-
-                            OverviewActionReadinessDeck(
-                                primaryRouteCount: 4,
-                                supportRouteCount: 4,
-                                jumpCount: overviewJumpCount,
-                                sectionCount: overviewSectionCount,
-                                platformCardCount: platformCardCount,
-                                signalCardCount: signalCardCount,
-                                fleetCardCount: fleetCardCount,
-                                queueCount: onCallPriorityItems.count,
-                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                                isDataStale: vm.isDataStale
-                            )
-                            OverviewFocusCoverageDeck(
-                                platformCardCount: platformCardCount,
-                                signalCardCount: signalCardCount,
-                                fleetCardCount: fleetCardCount,
-                                queueCount: onCallPriorityItems.count,
-                                criticalCount: visibleMonitoringAlerts.filter { $0.severity == .critical }.count,
-                                watchIssueCount: overviewWatchIssueCount,
-                                automationIssueCount: vm.automationPressureIssueCategoryCount,
-                                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                                isDataStale: vm.isDataStale
-                            )
-
-                            OverviewSectionInventoryDeck(
-                                sectionCount: overviewSectionCount,
-                                platformCardCount: platformCardCount,
-                                signalCardCount: signalCardCount,
-                                fleetCardCount: fleetCardCount,
-                                approvalCount: vm.pendingApprovalCount,
-                                sessionCount: vm.sessionAttentionCount,
-                                watchIssueCount: overviewWatchIssueCount,
-                                automationIssueCount: vm.automationPressureIssueCategoryCount,
-                                integrationIssueCount: vm.integrationPressureIssueCategoryCount
-                            )
-                            if !overviewSectionPreviewTitles.isEmpty {
-                                MonitoringSectionPreviewDeck(
-                                    title: String(localized: "Section Preview"),
-                                    detail: String(localized: "Keep the next overview stacks visible before the platform, signal, and fleet cards spread out."),
-                                    sectionTitles: overviewSectionPreviewTitles,
-                                    tone: visibleMonitoringAlerts.contains { $0.severity == .critical } ? .critical : ((vm.runtimeAlertCount > 0 || vm.isDataStale) ? .warning : .neutral),
-                                    maxVisibleSections: 5,
-                                    jumpItems: overviewSectionPreviewJumpItems(proxy)
-                                )
-                            }
-                            OverviewWorkstreamCoverageDeck(
-                                platformCardCount: platformCardCount,
-                                signalCardCount: signalCardCount,
-                                fleetCardCount: fleetCardCount,
-                                queueCount: onCallPriorityItems.count,
-                                watchIssueCount: overviewWatchIssueCount,
-                                automationIssueCount: vm.automationPressureIssueCategoryCount,
-                                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                                isDataStale: vm.isDataStale
-                            )
-
-                            LazyVGrid(columns: summaryColumns, spacing: 8) {
-                                StatBadge(
-                                    value: "\(vm.runningCount)",
-                                    label: "Running",
-                                    icon: "play.circle.fill",
-                                    color: vm.runningAgentStatus.color(positive: .green)
-                                )
-                                StatBadge(
-                                    value: formatCost(vm.budget?.dailySpend),
-                                    label: "Today",
-                                    icon: "dollarsign.circle",
-                                    color: StatusPresentation.budgetUtilizationStatus(for: vm.budget?.dailyPct)?.color() ?? .primary
-                                )
-                                StatBadge(
-                                    value: "\(vm.pendingApprovalCount)",
-                                    label: "Approvals",
-                                    icon: "exclamationmark.shield",
-                                    color: vm.approvalBacklogStatus.color(positive: .green)
-                                )
-                                StatBadge(
-                                    value: "\(vm.configuredProviderCount)",
-                                    label: "Providers",
-                                    icon: "key.horizontal",
-                                    color: vm.providerReadinessStatus.color(positive: .blue)
-                                )
-                                StatBadge(
-                                    value: "\(vm.readyChannelCount)",
-                                    label: "Channels",
-                                    icon: "bubble.left.and.bubble.right",
-                                    color: vm.channelReadinessStatus.color(positive: .teal)
-                                )
-                                StatBadge(
-                                    value: "\(vm.activeHandCount)",
-                                    label: "Hands",
-                                    icon: "hand.raised",
-                                    color: vm.handReadinessStatus.color(positive: .indigo)
-                                )
-                            }
-
-                            OverviewPlatformInventoryDeck(
-                                cardCount: platformCardCount,
-                                diagnosticsVisible: vm.healthDetail != nil || vm.versionInfo != nil || vm.metricsSnapshot != nil,
-                                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                                automationIssueCount: vm.automationPressureIssueCategoryCount,
-                                providerCount: vm.configuredProviderCount,
-                                readyChannelCount: vm.readyChannelCount,
-                                runningCount: vm.runningCount,
-                                includesSystemSnapshot: vm.status != nil
-                            )
 
                             if let status = vm.status {
                                 SystemSnapshotCard(
@@ -470,18 +339,6 @@ struct OverviewView: View {
                                 .id(OverviewSectionAnchor.integrations)
                             }
 
-                            OverviewSignalInventoryDeck(
-                                cardCount: signalCardCount,
-                                approvalCount: vm.pendingApprovalCount,
-                                activeHandCount: vm.activeHandCount,
-                                readyChannelCount: vm.readyChannelCount,
-                                hasUsageCard: vm.usageSummary != nil,
-                                hasBudgetCard: vm.budget != nil,
-                                topSpenderCount: vm.budgetAgents?.agents.count ?? 0,
-                                liveSignalCount: vm.activeHands.count + vm.approvals.count,
-                                dailySpend: vm.budget?.dailySpend
-                            )
-
                             ReadinessCard(vm: vm)
 
                             if let usageSummary = vm.usageSummary {
@@ -509,25 +366,6 @@ struct OverviewView: View {
                                 .buttonStyle(.plain)
                                 .id(OverviewSectionAnchor.automation)
                             }
-
-                            OverviewFleetInventoryDeck(
-                                cardCount: fleetCardCount,
-                                watchIssueCount: overviewWatchIssueCount,
-                                sessionCount: vm.sessionAttentionCount,
-                                attentionAgentCount: vm.attentionAgents.count,
-                                auditCount: vm.recentAudit.count,
-                                a2aCount: vm.a2aAgents?.total ?? 0,
-                                agentCount: vm.agents.count
-                            )
-
-                            OverviewQueueInventoryDeck(
-                                cardCount: overviewQueueCardCount,
-                                watchIssueCount: overviewWatchIssueCount,
-                                sessionCount: vm.sessionAttentionCount,
-                                attentionAgentCount: vm.attentionAgents.count,
-                                auditCount: vm.recentAudit.count,
-                                liveAlertCount: visibleMonitoringAlerts.count
-                            )
 
                             if !watchedAttentionItems.isEmpty {
                                 WatchlistCard(items: watchedAttentionItems, diagnostics: watchedDiagnostics)
@@ -954,15 +792,6 @@ private struct OverviewEntryDeckCard: View {
                 title: String(localized: "Routes"),
                 detail: String(localized: "Keep the first overview exits and lower-section jumps in one compact deck.")
             ) {
-                OverviewRouteInventoryDeck(
-                    primaryCount: 4,
-                    supportCount: 4,
-                    jumpCount: visibleJumpCount,
-                    queueCount: queueCount,
-                    criticalCount: criticalCount,
-                    watchIssueCount: watchIssueCount
-                )
-
                 MonitoringShortcutRail(
                     title: String(localized: "Primary"),
                     detail: String(localized: "Keep the first operator exits right below the overview snapshot.")

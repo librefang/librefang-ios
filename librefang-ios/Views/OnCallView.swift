@@ -264,22 +264,6 @@ struct OnCallView: View {
                 }
 
                 Section {
-                    OnCallStatusDeckCard(
-                        queueCount: priorityItems.count,
-                        criticalCount: criticalCount,
-                        approvalCount: vm.pendingApprovalCount,
-                        watchIssueCount: watchIssueCount,
-                        sessionCount: vm.sessionAttentionCount,
-                        eventCount: vm.recentCriticalAuditCount,
-                        mutedAlertCount: mutedAlertCount,
-                        pendingFollowUpCount: pendingFollowUpCount,
-                        automationIssueCount: automationIssueCount,
-                        integrationIssueCount: integrationIssueCount,
-                        checkInStatus: handoffStore.latestCheckInStatus,
-                        readiness: draftHandoffReadiness,
-                        isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts)
-                    )
-
                     OnCallShiftInventoryCard(
                         digestLine: digestLine,
                         liveAlertCount: visibleAlerts.count,
@@ -299,98 +283,15 @@ struct OnCallView: View {
                         readiness: draftHandoffReadiness,
                         followUpStatuses: latestFollowUpStatuses
                     )
-
-                    OnCallSectionInventoryDeck(
-                        sectionCount: onCallSectionCount,
-                        queueCount: priorityItems.count,
-                        watchItemCount: watchedAttentionItems.count,
-                        mutedAlertCount: mutedAlertCount,
-                        pendingFollowUpCount: pendingFollowUpCount,
-                        approvalCount: vm.pendingApprovalCount,
-                        eventCount: vm.recentCriticalAuditCount,
-                        automationIssueCount: automationIssueCount,
-                        integrationIssueCount: integrationIssueCount
-                    )
-                    if !onCallSectionPreviewTitles.isEmpty {
-                        MonitoringSectionPreviewDeck(
-                            title: String(localized: "Section Preview"),
-                            detail: String(localized: "Keep the next on-call stacks visible before the live queue, watchlist, and surface exits open up."),
-                            sectionTitles: onCallSectionPreviewTitles,
-                            tone: criticalCount > 0 ? .critical : ((watchIssueCount > 0 || pendingFollowUpCount > 0) ? .warning : .neutral),
-                            maxVisibleSections: 5,
-                            jumpItems: onCallSectionPreviewJumpItems(proxy)
-                        )
-                    }
-                    OnCallSupportPressureDeck(
-                        mutedAlertCount: mutedAlertCount,
-                        pendingFollowUpCount: pendingFollowUpCount,
-                        approvalCount: vm.pendingApprovalCount,
-                        criticalAuditCount: vm.recentCriticalAuditCount,
-                        automationIssueCount: automationIssueCount,
-                        integrationIssueCount: integrationIssueCount,
-                        checkInStatus: handoffStore.latestCheckInStatus
-                    )
-                    OnCallSupportCoverageDeck(
-                        watchedCount: watchedAgents.count,
-                        issueAgentCount: watchedDiagnosticIssueAgentCount,
-                        failedDeliveryCount: watchedFailedDeliveryAgentCount,
-                        missingIdentityCount: watchedMissingIdentityAgentCount,
-                        fallbackDriftCount: watchedFallbackDriftAgentCount,
-                        pausedCount: watchedPausedAgentCount
-                    )
-                    OnCallActionReadinessDeck(
-                        queueCount: priorityItems.count,
-                        criticalCount: criticalCount,
-                        isAcknowledged: incidentStateStore.isCurrentSnapshotAcknowledged(alerts: vm.monitoringAlerts),
-                        hasLiveAlerts: !visibleAlerts.isEmpty,
-                        pendingFollowUpCount: pendingFollowUpCount,
-                        approvalCount: vm.pendingApprovalCount,
-                        checkInStatus: handoffStore.latestCheckInStatus
-                    )
-                    OnCallFocusCoverageDeck(
-                        queueCount: priorityItems.count,
-                        liveAlertCount: visibleAlerts.count,
-                        criticalCount: criticalCount,
-                        watchIssueCount: watchIssueCount,
-                        mutedAlertCount: mutedAlertCount,
-                        pendingFollowUpCount: pendingFollowUpCount,
-                        automationIssueCount: automationIssueCount,
-                        integrationIssueCount: integrationIssueCount,
-                        checkInStatus: handoffStore.latestCheckInStatus
-                    )
-                    OnCallWorkstreamCoverageDeck(
-                        queueCount: priorityItems.count,
-                        watchItemCount: watchedAttentionItems.count,
-                        mutedAlertCount: mutedAlertCount,
-                        pendingFollowUpCount: pendingFollowUpCount,
-                        approvalCount: vm.pendingApprovalCount,
-                        eventCount: vm.recentCriticalAuditCount,
-                        automationIssueCount: automationIssueCount,
-                        integrationIssueCount: integrationIssueCount
-                    )
-
-                    OnCallQueueCoverageDeck(
-                        criticalCount: criticalCount,
-                        warningCount: warningCount,
-                        advisoryCount: advisoryCount,
-                        approvalCount: vm.pendingApprovalCount,
-                        watchIssueCount: watchIssueCount,
-                        pendingFollowUpCount: pendingFollowUpCount
-                    )
                 } header: {
-                    Text("Controls")
+                    Text("Summary")
                 } footer: {
-                    Text("Queue shape, ack state, and handoff readiness stay together before queue work.")
+                    Text("Keep the shift picture together, then move straight into the queue.")
                 }
                 .id(OnCallSectionAnchor.controls)
 
                 if !priorityItems.isEmpty {
                     Section {
-                        OnCallPriorityInventoryDeck(
-                            items: priorityItems,
-                            visibleCount: min(priorityItems.count, 8)
-                        )
-
                         ForEach(priorityItems.prefix(8)) { item in
                             NavigationLink(value: item.route) {
                                 OnCallPriorityRow(item: item)
@@ -405,17 +306,6 @@ struct OnCallView: View {
                 }
 
                 Section {
-                    OnCallRouteInventoryDeck(
-                        queueCount: priorityItems.count,
-                        liveAlertCount: visibleAlerts.count,
-                        criticalCount: criticalCount,
-                        approvalCount: vm.pendingApprovalCount,
-                        sessionCount: vm.sessionAttentionCount,
-                        eventCount: vm.recentCriticalAuditCount,
-                        automationIssueCount: automationIssueCount,
-                        integrationIssueCount: integrationIssueCount
-                    )
-
                     OnCallSurfaceDeckCard(
                         approvalCount: vm.pendingApprovalCount,
                         sessionCount: vm.sessionAttentionCount,
@@ -428,24 +318,14 @@ struct OnCallView: View {
                         handoffText: handoffText
                     )
                 } header: {
-                    Text("Routes")
+                    Text("Actions")
                 } footer: {
-                    Text("Primary exits and slower systemic drilldowns stay below the live queue.")
+                    Text("Primary exits stay close to the queue instead of hiding in extra control cards.")
                 }
                 .id(OnCallSectionAnchor.routes)
 
                 if !watchedAttentionItems.isEmpty {
                     Section {
-                        OnCallWatchlistInventoryDeck(
-                            watchedCount: watchedAttentionItems.count,
-                            visibleCount: min(watchedAttentionItems.count, 6),
-                            issueCount: watchedDiagnosticIssueAgentCount,
-                            failedDeliveryCount: watchedFailedDeliveryAgentCount,
-                            missingIdentityCount: watchedMissingIdentityAgentCount,
-                            fallbackDriftCount: watchedFallbackDriftAgentCount,
-                            pausedCount: watchedPausedAgentCount
-                        )
-
                         ForEach(watchedAttentionItems.prefix(6)) { item in
                             NavigationLink {
                                 watchedDiagnosticsDestination(for: item)

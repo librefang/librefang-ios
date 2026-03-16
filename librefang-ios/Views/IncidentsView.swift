@@ -396,98 +396,6 @@ struct IncidentsView: View {
                 isAcknowledged: isCurrentSnapshotAcknowledged
             )
 
-            IncidentSectionInventoryDeck(
-                sectionCount: incidentSectionCount,
-                activeAlertCount: visibleAlerts.count,
-                mutedAlertCount: mutedAlerts.count,
-                approvalCount: vm.pendingApprovalCount,
-                agentCount: combinedAgentIssueCount,
-                sessionCount: vm.sessionAttentionCount,
-                eventCount: vm.recentCriticalAuditCount,
-                automationCount: automationIssueCount,
-                integrationCount: integrationIssueCount,
-                handoffCount: handoffIssueCount
-            )
-            if !incidentSectionPreviewTitles.isEmpty {
-                MonitoringSectionPreviewDeck(
-                    title: String(localized: "Section Preview"),
-                    detail: String(localized: "Keep the next incident buckets visible before the alert, queue, and support stacks begin."),
-                    sectionTitles: incidentSectionPreviewTitles,
-                    tone: criticalAlertCount > 0 ? .critical : .warning,
-                    maxVisibleSections: 5,
-                    jumpItems: incidentSectionPreviewJumpItems(proxy)
-                )
-            }
-
-            IncidentPressureCoverageDeck(
-                criticalCount: criticalAlertCount,
-                warningCount: warningAlertCount,
-                approvalCount: vm.pendingApprovalCount,
-                agentCount: combinedAgentIssueCount,
-                sessionCount: vm.sessionAttentionCount,
-                handoffCount: handoffIssueCount,
-                automationCount: automationIssueCount,
-                integrationCount: integrationIssueCount
-            )
-
-            IncidentSupportCoverageDeck(
-                mutedAlertCount: mutedAlerts.count,
-                handoffCount: handoffIssueCount,
-                watchedDiagnosticCount: watchedDiagnosticRows.count,
-                criticalAuditCount: vm.recentCriticalAuditCount,
-                automationCount: automationIssueCount,
-                integrationCount: integrationIssueCount,
-                isAcknowledged: isCurrentSnapshotAcknowledged
-            )
-            IncidentWorkstreamCoverageDeck(
-                activeAlertCount: visibleAlerts.count,
-                mutedAlertCount: mutedAlerts.count,
-                approvalCount: vm.pendingApprovalCount,
-                agentCount: combinedAgentIssueCount,
-                watchedDiagnosticCount: watchedDiagnosticRows.count,
-                sessionCount: vm.sessionAttentionCount,
-                eventCount: vm.recentCriticalAuditCount,
-                automationCount: automationIssueCount,
-                integrationCount: integrationIssueCount,
-                handoffCount: handoffIssueCount
-            )
-
-            IncidentActionReadinessDeck(
-                primaryRouteCount: operatorPrimaryRouteCount,
-                supportRouteCount: operatorSupportRouteCount,
-                primaryQueueSectionCount: primaryQueueSectionCount,
-                supportQueueSectionCount: supportQueueSectionCount,
-                criticalCount: criticalAlertCount,
-                approvalCount: vm.pendingApprovalCount,
-                sessionCount: vm.sessionAttentionCount,
-                handoffCount: handoffIssueCount,
-                mutedAlertCount: mutedAlerts.count,
-                isAcknowledged: isCurrentSnapshotAcknowledged
-            )
-            IncidentFocusCoverageDeck(
-                activeAlertCount: visibleAlerts.count,
-                criticalCount: criticalAlertCount,
-                approvalCount: vm.pendingApprovalCount,
-                agentCount: combinedAgentIssueCount,
-                sessionCount: vm.sessionAttentionCount,
-                handoffCount: handoffIssueCount,
-                automationCount: automationIssueCount,
-                integrationCount: integrationIssueCount,
-                mutedAlertCount: mutedAlerts.count,
-                watchedDiagnosticCount: watchedDiagnosticRows.count
-            )
-
-            IncidentRouteInventoryDeck(
-                primaryRouteCount: operatorPrimaryRouteCount,
-                supportRouteCount: operatorSupportRouteCount,
-                criticalCount: criticalAlertCount,
-                approvalCount: vm.pendingApprovalCount,
-                sessionCount: vm.sessionAttentionCount,
-                automationCount: automationIssueCount,
-                integrationCount: integrationIssueCount,
-                handoffCount: handoffIssueCount
-            )
-
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Routes"),
                 detail: String(localized: "Keep the most likely next drilldowns visible before the incident queue.")
@@ -606,16 +514,6 @@ struct IncidentsView: View {
                     }
                 }
             }
-
-            IncidentQueueInventoryDeck(
-                primarySectionCount: primaryQueueSectionCount,
-                supportSectionCount: supportQueueSectionCount,
-                activeAlertCount: visibleAlerts.count,
-                mutedAlertCount: mutedAlerts.count,
-                approvalCount: vm.pendingApprovalCount,
-                watchedDiagnosticsCount: watchedDiagnosticRows.count,
-                criticalEventCount: vm.recentCriticalAuditCount
-            )
 
             MonitoringSurfaceGroupCard(
                 title: String(localized: "Queue"),
@@ -771,9 +669,9 @@ struct IncidentsView: View {
                 }
             }
         } header: {
-            Text("Controls")
+            Text("Summary")
         } footer: {
-            Text("Keep incident buckets, primary drilldowns, and queue jumps together before the grouped incident list.")
+            Text("Keep one incident summary and direct jumps close to the live buckets.")
         }
     }
 
@@ -820,13 +718,6 @@ struct IncidentsView: View {
 
     private var automationSection: some View {
         Section {
-            IncidentAutomationInventoryDeck(
-                issueCategoryCount: automationIssueCount,
-                failedWorkflowRunCount: vm.failedWorkflowRunCount,
-                exhaustedTriggerCount: vm.exhaustedTriggerCount,
-                stalledCronJobCount: vm.stalledCronJobCount
-            )
-
             NavigationLink {
                 AutomationView()
             } label: {
@@ -842,15 +733,6 @@ struct IncidentsView: View {
 
     private var integrationsSection: some View {
         Section {
-            IncidentIntegrationsInventoryDeck(
-                issueCategoryCount: integrationIssueCount,
-                providerFailureCount: vm.unreachableLocalProviderCount,
-                channelGapCount: vm.channelRequiredFieldGapCount,
-                hasEmptyCatalog: vm.hasEmptyModelCatalog,
-                modelDriftCount: vm.agentsWithModelDiagnostics.count,
-                visibleDiagnosticCount: min(vm.agentsWithModelDiagnostics.count, 3)
-            )
-
             NavigationLink {
                 IntegrationsView(initialScope: .attention)
             } label: {
@@ -930,11 +812,6 @@ struct IncidentsView: View {
 
     private var activeAlertsSection: some View {
         Section {
-            ActiveAlertsInventoryDeck(
-                alerts: visibleAlerts,
-                mutedCount: mutedAlerts.count
-            )
-
             ForEach(visibleAlerts) { alert in
                 IncidentAlertRow(alert: alert, isMuted: false) {
                     incidentStateStore.toggleMute(for: alert)
@@ -960,13 +837,6 @@ struct IncidentsView: View {
 
     private var approvalsSection: some View {
         Section {
-            IncidentApprovalsInventoryDeck(
-                visibleCount: min(vm.approvals.count, 4),
-                totalCount: vm.approvals.count,
-                highRiskCount: approvalsHighRiskCount,
-                agentCount: approvalAgentCount
-            )
-
             ForEach(vm.approvals.prefix(4)) { approval in
                 IncidentApprovalRow(
                     approval: approval,
@@ -1019,15 +889,6 @@ struct IncidentsView: View {
 
     private var agentsSection: some View {
         Section {
-            IncidentAgentsInventoryDeck(
-                visibleCount: min(vm.attentionAgents.count, 5),
-                totalCount: vm.issueAgentCount,
-                authIssueCount: attentionAgentAuthIssueCount,
-                approvalCount: attentionAgentApprovalCount,
-                staleCount: attentionAgentStaleCount,
-                watchedDiagnosticsCount: watchedDiagnosticRows.count
-            )
-
             ForEach(vm.attentionAgents.prefix(5)) { item in
                 NavigationLink {
                     AgentDetailView(agent: item.agent)
@@ -1064,15 +925,6 @@ struct IncidentsView: View {
 
     private var watchedDiagnosticsSection: some View {
         Section {
-            IncidentWatchedDiagnosticsInventoryDeck(
-                visibleCount: min(watchedDiagnosticRows.count, 5),
-                totalCount: watchedDiagnosticRows.count,
-                failedAgentCount: watchedFailedAgentCount,
-                missingIdentityAgentCount: watchedMissingIdentityAgentCount,
-                fallbackAgentCount: watchedFallbackAgentCount,
-                unsettledAgentCount: watchedUnsettledAgentCount
-            )
-
             ForEach(watchedDiagnosticRows.prefix(5), id: \.agent.id) { row in
                 NavigationLink {
                     watchedDiagnosticsDestination(agent: row.agent, summary: row.summary)
@@ -1090,14 +942,6 @@ struct IncidentsView: View {
 
     private var sessionsSection: some View {
         Section {
-            IncidentSessionsInventoryDeck(
-                visibleCount: min(vm.sessionAttentionItems.count, 5),
-                totalCount: vm.sessionAttentionCount,
-                unlabeledCount: unlabeledSessionCount,
-                duplicateCount: duplicateSessionCount,
-                visibleMessageCount: visibleSessionMessageCount
-            )
-
             ForEach(vm.sessionAttentionItems.prefix(5)) { item in
                 if let sessionQuery = sessionQuery(for: item) {
                     NavigationLink {
@@ -1149,13 +993,6 @@ struct IncidentsView: View {
 
     private var criticalEventsSection: some View {
         Section {
-            IncidentEventsInventoryDeck(
-                visibleCount: min(vm.criticalAuditEntries.count, 5),
-                totalCount: vm.recentCriticalAuditCount,
-                agentCount: criticalEventAgentCount,
-                actionCount: criticalEventActionCount
-            )
-
             ForEach(vm.criticalAuditEntries.prefix(5)) { entry in
                 if let eventQuery = eventQuery(for: entry) {
                     NavigationLink {

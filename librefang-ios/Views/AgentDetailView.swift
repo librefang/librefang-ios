@@ -364,78 +364,77 @@ struct AgentDetailView: View {
     }
 
     var body: some View {
-        ScrollViewReader { proxy in
-            List {
-                identitySection
-                controlDeckSection(proxy)
-                statusSection
-                    .id(AgentDetailSectionAnchor.runtimeStatus)
-                capabilitiesSection
-                    .id(AgentDetailSectionAnchor.assignments)
-                modelResolutionSection
-                    .id(AgentDetailSectionAnchor.modelResolution)
-                configSnapshotSection
-                    .id(AgentDetailSectionAnchor.configSnapshot)
-                approvalsSection
-                    .id(AgentDetailSectionAnchor.approvals)
-                budgetSections
-                sessionSections
-                memorySection
-                deliveriesSection
-                filesSection
-                recentAuditSection
-                    .id(AgentDetailSectionAnchor.recentAudit)
-                actionsSection
-                    .id(AgentDetailSectionAnchor.localActions)
-            }
-            .navigationTitle(agent.name)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        ShareLink(
-                            item: diagnosticsShareText,
-                            preview: SharePreview(
-                                String(localized: "\(agent.name) Diagnostics"),
-                                image: Image(systemName: "stethoscope")
-                            )
-                        ) {
-                            Label("Share Diagnostics", systemImage: "square.and.arrow.up")
-                        }
-
-                        Button {
-                            deps.agentWatchlistStore.toggle(agent)
-                        } label: {
-                            Label(
-                                isWatched
-                                    ? String(localized: "Remove From Watchlist")
-                                    : String(localized: "Add To Watchlist"),
-                                systemImage: isWatched ? "star.slash" : "star"
-                            )
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
-                            .foregroundStyle(isWatched ? watchAccentColor : .primary)
+        List {
+            identitySection
+            controlDeckSection
+            statusSection
+                .id(AgentDetailSectionAnchor.runtimeStatus)
+            capabilitiesSection
+                .id(AgentDetailSectionAnchor.assignments)
+            modelResolutionSection
+                .id(AgentDetailSectionAnchor.modelResolution)
+            configSnapshotSection
+                .id(AgentDetailSectionAnchor.configSnapshot)
+            approvalsSection
+                .id(AgentDetailSectionAnchor.approvals)
+            budgetSections
+            sessionSections
+            memorySection
+            deliveriesSection
+            filesSection
+            recentAuditSection
+                .id(AgentDetailSectionAnchor.recentAudit)
+            actionsSection
+                .id(AgentDetailSectionAnchor.localActions)
+        }
+        .navigationTitle(agent.name)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    ShareLink(
+                        item: diagnosticsShareText,
+                        preview: SharePreview(
+                            String(localized: "\(agent.name) Diagnostics"),
+                            image: Image(systemName: "stethoscope")
+                        )
+                    ) {
+                        Label("Share Diagnostics", systemImage: "square.and.arrow.up")
                     }
+
+                    Button {
+                        deps.agentWatchlistStore.toggle(agent)
+                    } label: {
+                        Label(
+                            isWatched
+                                ? String(localized: "Remove From Watchlist")
+                                : String(localized: "Add To Watchlist"),
+                            systemImage: isWatched ? "star.slash" : "star"
+                        )
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .foregroundStyle(isWatched ? watchAccentColor : .primary)
                 }
             }
-            .task {
-                await loadBudget()
-                await loadAgentSnapshot()
-                await loadSession()
-                await loadSessions()
-                await loadMemory()
-                await loadDeliveries()
-                await loadFiles()
-                await loadProfile()
-                await loadCapabilities()
+        }
+        .task {
+            await loadBudget()
+            await loadAgentSnapshot()
+            await loadSession()
+            await loadSessions()
+            await loadMemory()
+            await loadDeliveries()
+            await loadFiles()
+            await loadProfile()
+            await loadCapabilities()
+        }
+        .sheet(isPresented: $showChat) {
+            NavigationStack {
+                ChatView(viewModel: deps.makeChatViewModel(for: agent))
             }
-            .sheet(isPresented: $showChat) {
-                NavigationStack {
-                    ChatView(viewModel: deps.makeChatViewModel(for: agent))
-                }
-            }
-            .sheet(isPresented: $showCreateSessionSheet) {
+        }
+        .sheet(isPresented: $showCreateSessionSheet) {
                 NavigationStack {
                     Form {
                         Section("New Session") {
@@ -473,7 +472,7 @@ struct AgentDetailView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showFindSessionSheet) {
+        .sheet(isPresented: $showFindSessionSheet) {
                 NavigationStack {
                     Form {
                         Section {
@@ -549,7 +548,7 @@ struct AgentDetailView: View {
                     }
                 }
             }
-            .sheet(item: $editingSession) { session in
+        .sheet(item: $editingSession) { session in
                 NavigationStack {
                     Form {
                         Section {
@@ -591,151 +590,64 @@ struct AgentDetailView: View {
                     }
                 }
             }
-            .confirmationDialog(
-                pendingApprovalAction?.title ?? "",
-                isPresented: approvalActionConfirmationPresented,
-                titleVisibility: .visible,
-                presenting: pendingApprovalAction
-            ) { action in
-                Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
-                    Task { await performApprovalAction(action) }
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: { action in
-                Text(action.message)
+        .confirmationDialog(
+            pendingApprovalAction?.title ?? "",
+            isPresented: approvalActionConfirmationPresented,
+            titleVisibility: .visible,
+            presenting: pendingApprovalAction
+        ) { action in
+            Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
+                Task { await performApprovalAction(action) }
             }
-            .confirmationDialog(
-                pendingSessionAction?.title ?? "",
-                isPresented: sessionActionConfirmationPresented,
-                titleVisibility: .visible,
-                presenting: pendingSessionAction
-            ) { action in
-                Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
-                    Task { await performSessionAction(action) }
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: { action in
-                Text(action.message)
+            Button("Cancel", role: .cancel) {}
+        } message: { action in
+            Text(action.message)
+        }
+        .confirmationDialog(
+            pendingSessionAction?.title ?? "",
+            isPresented: sessionActionConfirmationPresented,
+            titleVisibility: .visible,
+            presenting: pendingSessionAction
+        ) { action in
+            Button(action.confirmLabel, role: action.isDestructive ? .destructive : nil) {
+                Task { await performSessionAction(action) }
             }
-            .confirmationDialog(
-                "Delete Session",
-                isPresented: deleteSessionConfirmationPresented,
-                titleVisibility: .visible,
-                presenting: pendingDeleteSession
-            ) { session in
-                Button("Delete Session", role: .destructive) {
-                    Task { await deleteSession(session) }
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: { session in
-                Text("Remove \(sessionDisplayTitle(session)) from this agent history? This cannot be undone.")
+            Button("Cancel", role: .cancel) {}
+        } message: { action in
+            Text(action.message)
+        }
+        .confirmationDialog(
+            "Delete Session",
+            isPresented: deleteSessionConfirmationPresented,
+            titleVisibility: .visible,
+            presenting: pendingDeleteSession
+        ) { session in
+            Button("Delete Session", role: .destructive) {
+                Task { await deleteSession(session) }
             }
-            .alert(item: $operatorNotice) { notice in
-                Alert(
-                    title: Text(notice.title),
-                    message: Text(notice.message),
-                    dismissButton: .default(Text("OK"))
-                )
-            }
+            Button("Cancel", role: .cancel) {}
+        } message: { session in
+            Text("Remove \(sessionDisplayTitle(session)) from this agent history? This cannot be undone.")
+        }
+        .alert(item: $operatorNotice) { notice in
+            Alert(
+                title: Text(notice.title),
+                message: Text(notice.message),
+                dismissButton: .default(Text("OK"))
+            )
         }
     }
 
-    private func controlDeckSection(_ proxy: ScrollViewProxy) -> some View {
+    private var controlDeckSection: some View {
         Section {
             VStack(alignment: .leading, spacing: 12) {
                 agentDiagnosticsStatusDeckCard
-                AgentSectionInventoryDeck(
-                    sectionCount: diagnosticsSectionCount,
-                    issueCount: monitoringSurfaceIssueCount,
-                    approvalCount: agentApprovals.count,
-                    sessionCount: agentSessions.count,
-                    memoryCount: agentMemory.count,
-                    fileCount: agentFiles.count,
-                    deliveryCount: agentDeliveries.count,
-                    auditCount: agentRecentEvents.count,
-                    hasBudget: budgetDetail != nil,
-                    hasModelResolution: hasModelResolution
-                )
-                if !agentSectionPreviewTitles.isEmpty {
-                    MonitoringSectionPreviewDeck(
-                        title: String(localized: "Section Preview"),
-                        detail: String(localized: "Keep the next agent stacks visible before runtime, session, diagnostics, and local action sections open up."),
-                        sectionTitles: agentSectionPreviewTitles,
-                        tone: monitoringSurfaceIssueCount > 0 ? .warning : .neutral,
-                        maxVisibleSections: 5,
-                        jumpItems: agentSectionPreviewJumpItems(proxy)
-                    )
-                }
-                AgentPressureCoverageDeck(
-                    issueCount: monitoringSurfaceIssueCount,
-                    approvalCount: agentApprovals.count,
-                    sessionIssueCount: sessionIssueCount,
-                    failedDeliveryCount: failedDeliveryCount,
-                    unsettledDeliveryCount: unsettledDeliveryCount,
-                    missingWorkspaceFileCount: missingWorkspaceFileCount,
-                    structuredMemoryCount: agentMemory.filter(\.isStructured).count,
-                    auditCount: agentRecentEvents.count
-                )
-                AgentSupportCoverageDeck(
-                    isWatched: isWatched,
-                    hasCurrentSession: hasCurrentSessionCoverage,
-                    hasBudget: budgetDetail != nil,
-                    hasProfile: agent.profile != nil,
-                    hasCapabilities: hasCapabilityCoverage,
-                    hasModelResolution: hasModelResolution,
-                    supportsChat: agent.isRunning,
-                    diagnosticsWarningCount: diagnosticsWarningCount
-                )
-                AgentActionReadinessDeck(
-                    primaryRouteCount: agentPrimaryRouteCount,
-                    supportRouteCount: agentSupportRouteCount,
-                    sessionActionCount: sessionControlActionCount,
-                    issueCount: monitoringSurfaceIssueCount,
-                    approvalCount: agentApprovals.count,
-                    hasBudget: budgetDetail != nil,
-                    hasModelResolution: hasModelResolution,
-                    hasCurrentSession: currentSessionInfo != nil,
-                    canShare: !diagnosticsShareText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                )
-                AgentFocusCoverageDeck(
-                    issueCount: monitoringSurfaceIssueCount,
-                    approvalCount: agentApprovals.count,
-                    sessionCount: agentSessions.count,
-                    memoryCount: agentMemory.count,
-                    fileCount: agentFiles.count,
-                    deliveryCount: agentDeliveries.count,
-                    auditCount: agentRecentEvents.count,
-                    hasBudget: budgetDetail != nil,
-                    hasModelResolution: hasModelResolution,
-                    hasCapabilities: hasCapabilityCoverage
-                )
-                AgentWorkstreamCoverageDeck(
-                    issueCount: monitoringSurfaceIssueCount,
-                    approvalCount: agentApprovals.count,
-                    sessionCount: agentSessions.count,
-                    memoryCount: agentMemory.count,
-                    fileCount: agentFiles.count,
-                    deliveryCount: agentDeliveries.count,
-                    auditCount: agentRecentEvents.count,
-                    hasBudget: budgetDetail != nil,
-                    hasModelResolution: hasModelResolution,
-                    hasCapabilities: hasCapabilityCoverage
-                )
-                AgentRouteInventoryDeck(
-                    primaryRouteCount: agentPrimaryRouteCount,
-                    supportRouteCount: agentSupportRouteCount,
-                    issueCount: monitoringSurfaceIssueCount,
-                    approvalCount: agentApprovals.count,
-                    diagnosticsWarningCount: diagnosticsWarningCount,
-                    hasLiveChat: agent.isRunning,
-                    hasProfile: agent.profile != nil
-                )
                 agentOperatorSurfaceDeckCard
             }
         } header: {
-            Text("Controls")
+            Text("Summary")
         } footer: {
-            Text("Keep the digest and next exits together before deeper diagnostics sections.")
+            Text("Keep one agent summary and the core exits above the deeper diagnostics.")
         }
     }
 
@@ -1661,53 +1573,12 @@ struct AgentDetailView: View {
                     }
                 }
             }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Session Inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep the active label, broader inventory, and recent transcript coverage visible while triaging session state."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                if sessionItems.count > 1 {
-                    PresentationToneBadge(
-                        text: sessionItems.count == 1 ? String(localized: "1 known session") : String(localized: "\(sessionItems.count) known sessions"),
-                        tone: sessionAttentionTone
-                    )
-                }
-            } facts: {
-                Label(
-                    currentSessionInfo.map(sessionDisplayTitle) ?? String(localized: "Current session"),
-                    systemImage: "text.bubble"
-                )
-                Label(
-                    snapshot.messageCount == 1 ? String(localized: "1 transcript message") : String(localized: "\(snapshot.messageCount) transcript messages"),
-                    systemImage: "text.bubble.fill"
-                )
-                Label(
-                    sessionItems.count == 1 ? String(localized: "1 tracked session") : String(localized: "\(sessionItems.count) tracked sessions"),
-                    systemImage: "rectangle.stack"
-                )
-            }
         }
         .id(AgentDetailSectionAnchor.session)
     }
 
     private var sessionControlsSection: some View {
         Section {
-            AgentSessionControlsInventoryDeck(
-                actionCount: sessionControlActionCount,
-                destructiveActionCount: destructiveSessionActionCount,
-                sessionCount: sessionItems.count,
-                visibleSessionCount: visibleSessionInventoryCount,
-                issueCount: sessionIssueCount,
-                hasCurrentSession: currentSessionInfo != nil,
-                isBusy: hasActiveSessionOperation || isCreatingSession
-            )
-
             Button {
                 showCreateSessionSheet = true
             } label: {

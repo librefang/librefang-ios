@@ -245,97 +245,11 @@ struct RuntimeView: View {
     private func runtimeOperatorDeckSection(_ proxy: ScrollViewProxy) -> some View {
         Section {
             RuntimeStatusDeckCard(vm: vm, runtimeSnapshotSummary: runtimeSnapshotSummary)
-            RuntimePressureCoverageDeck(
-                runtimeAlertCount: vm.runtimeAlertCount,
-                approvalCount: vm.pendingApprovalCount,
-                hotspotCount: vm.sessionAttentionCount,
-                criticalAuditCount: vm.recentCriticalAuditCount,
-                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                providerIssueCount: vm.unreachableLocalProviderCount,
-                degradedHandCount: vm.degradedHandCount,
-                automationIssueCount: vm.automationPressureIssueCategoryCount,
-                integrationIssueCount: vm.integrationPressureIssueCategoryCount
-            )
-            RuntimeSupportCoverageDeck(
-                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                providerIssueCount: vm.unreachableLocalProviderCount,
-                degradedHandCount: vm.degradedHandCount,
-                automationIssueCount: vm.automationPressureIssueCategoryCount,
-                integrationIssueCount: vm.integrationPressureIssueCategoryCount,
-                hasNetwork: vm.networkStatus != nil,
-                hasSecurity: vm.security != nil
-            )
-            RuntimeActionReadinessDeck(
-                primaryRouteCount: 5,
-                supportRouteCount: 4,
-                jumpCount: runtimeJumpCount,
-                sectionCount: runtimeSectionCount,
-                supportFeedCount: runtimeSupportFeedCount,
-                queueCardCount: runtimeQueueCardCount,
-                runtimeAlertCount: vm.runtimeAlertCount,
-                approvalCount: vm.pendingApprovalCount,
-                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                hasSecurity: vm.security != nil,
-                hasNetwork: vm.networkStatus != nil
-            )
-            RuntimeFocusCoverageDeck(
-                sectionCount: runtimeSectionCount,
-                supportFeedCount: runtimeSupportFeedCount,
-                queueCardCount: runtimeQueueCardCount,
-                runtimeAlertCount: vm.runtimeAlertCount,
-                approvalCount: vm.pendingApprovalCount,
-                hotspotCount: vm.sessionAttentionCount,
-                criticalAuditCount: vm.recentCriticalAuditCount,
-                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                hasSecurity: vm.security != nil,
-                hasNetwork: vm.networkStatus != nil
-            )
-            RuntimeSectionInventoryDeck(
-                sectionCount: runtimeSectionCount,
-                supportFeedCount: runtimeSupportFeedCount,
-                providerCount: vm.providers.count,
-                readyChannelCount: vm.readyChannelCount,
-                approvalCount: vm.pendingApprovalCount,
-                hotspotCount: vm.sessionAttentionCount,
-                auditCount: vm.recentAudit.count,
-                hasSecurity: vm.security != nil,
-                hasNetwork: vm.networkStatus != nil
-            )
-            if !runtimeSectionPreviewTitles.isEmpty {
-                MonitoringSectionPreviewDeck(
-                    title: String(localized: "Section Preview"),
-                    detail: String(localized: "Keep the next runtime sections visible before the deeper feeds and queue stacks open up."),
-                    sectionTitles: runtimeSectionPreviewTitles,
-                    tone: vm.runtimeAlertCount > 0 ? .warning : .neutral,
-                    maxVisibleSections: 5,
-                    jumpItems: runtimeSectionPreviewJumpItems(proxy)
-                )
-            }
-            RuntimeWorkstreamCoverageDeck(
-                sectionCount: runtimeSectionCount,
-                supportFeedCount: runtimeSupportFeedCount,
-                queueCardCount: runtimeQueueCardCount,
-                runtimeAlertCount: vm.runtimeAlertCount,
-                approvalCount: vm.pendingApprovalCount,
-                hotspotCount: vm.sessionAttentionCount,
-                criticalAuditCount: vm.recentCriticalAuditCount,
-                diagnosticsWarningCount: vm.diagnosticsConfigWarningCount,
-                hasSecurity: vm.security != nil,
-                hasNetwork: vm.networkStatus != nil
-            )
-            RuntimeQueueInventoryDeck(
-                cardCount: runtimeQueueCardCount,
-                automationIssueCount: vm.automationPressureIssueCategoryCount,
-                approvalCount: vm.pendingApprovalCount,
-                hotspotCount: vm.sessionAttentionCount,
-                criticalAuditCount: vm.recentCriticalAuditCount,
-                auditCount: vm.recentAudit.count
-            )
             runtimeRouteDeckCard(proxy)
         } header: {
-            Text("Controls")
+            Text("Summary")
         } footer: {
-            Text("Keep the digest, routes, and jumps together before drilling deeper.")
+            Text("Keep one runtime snapshot and one route rail above the deeper sections.")
         }
     }
 
@@ -344,15 +258,6 @@ struct RuntimeView: View {
             title: String(localized: "Routes"),
             detail: String(localized: "Keep runtime surfaces and long-section jumps in one compact deck.")
         ) {
-            RuntimeRouteInventoryDeck(
-                primaryCount: 5,
-                supportCount: 4,
-                jumpCount: runtimeJumpCount,
-                pendingApprovalCount: vm.pendingApprovalCount,
-                sessionHotspotCount: vm.sessionAttentionCount,
-                runtimeAlertCount: vm.runtimeAlertCount
-            )
-
             MonitoringShortcutRail(
                 title: String(localized: "Primary"),
                 detail: String(localized: "Keep the next runtime drills right below the digest.")
