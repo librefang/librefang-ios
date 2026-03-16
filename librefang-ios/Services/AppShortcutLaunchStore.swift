@@ -1,5 +1,9 @@
 import Foundation
 
+extension Notification.Name {
+    static let appShortcutLaunchQueued = Notification.Name("AppShortcutLaunchQueued")
+}
+
 enum AppShortcutSurface: String, CaseIterable, Identifiable {
     case onCall = "on-call"
     case incidents
@@ -228,6 +232,7 @@ enum AppShortcutLaunchBridge {
         defaults.set(kind, forKey: StorageKey.pendingTargetKind)
         defaults.set(value, forKey: StorageKey.pendingTargetValue)
         defaults.set(UUID().uuidString, forKey: StorageKey.pendingToken)
+        NotificationCenter.default.post(name: .appShortcutLaunchQueued, object: nil)
     }
 
     static func userInfo(for surface: AppShortcutSurface) -> [AnyHashable: Any] {

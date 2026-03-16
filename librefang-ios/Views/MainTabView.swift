@@ -4,6 +4,7 @@ struct MainTabView: View {
     @Environment(\.dependencies) private var deps
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedTab = 0
+    @State private var handledPendingShortcutToken: String?
     @State private var presentedTarget: AppShortcutLaunchTarget?
     @State private var incidentCue: ActiveIncidentCue?
     @State private var hasObservedCriticalState = false
@@ -201,7 +202,7 @@ struct MainTabView: View {
         .onAppear {
             deps.dashboardViewModel.startAutoRefresh(interval: storedRefreshInterval)
             deps.appShortcutLaunchStore.refreshFromDefaults()
-            handlePendingAppShortcut()
+            handlePendingAppShortcutIfNeeded()
             Task { await deps.onCallNotificationManager.refreshAuthorizationStatus() }
             Task { await refreshWatchedAgentDiagnostics() }
         }
@@ -232,7 +233,7 @@ struct MainTabView: View {
                     await deps.onCallNotificationManager.cancelPendingReminder()
                     await MainActor.run {
                         deps.appShortcutLaunchStore.refreshFromDefaults()
-                        handlePendingAppShortcut()
+                        handlePendingAppShortcutIfNeeded()
                     }
                 }
             case .background:
@@ -246,9 +247,9 @@ struct MainTabView: View {
                 break
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .appShortcutLaunchQueued)) { _ in
             deps.appShortcutLaunchStore.refreshFromDefaults()
-            handlePendingAppShortcut()
+            handlePendingAppShortcutIfNeeded()
         }
         .onChange(of: vm.lastRefresh) { _, _ in
             Task { await refreshWatchedAgentDiagnostics() }
@@ -424,6 +425,7 @@ struct MainTabView: View {
             .padding(.top, 4)
             .padding(.bottom, 8)
             .background(.bar)
+            .allowsHitTesting(!vm.isLoading)
             .animation(.spring(response: 0.28, dampingFraction: 0.86), value: incidentCue?.id)
             .animation(.spring(response: 0.28, dampingFraction: 0.86), value: handoffCue?.id)
         }
@@ -630,8 +632,14 @@ struct MainTabView: View {
         presentedTarget = route
     }
 
-    private func handlePendingAppShortcut() {
+    private func handlePendingAppShortcutIfNeeded() {
+        guard let pendingToken = deps.appShortcutLaunchStore.pendingToken else { return }
+        guard pendingToken != handledPendingShortcutToken else { return }
+
+        handledPendingShortcutToken = pendingToken
+
         guard let target = deps.appShortcutLaunchStore.consumePendingTarget() else { return }
+        guard presentedTarget?.id != target.id else { return }
         openRoute(target)
     }
 
