@@ -1,19 +1,5 @@
 import SwiftUI
 
-private enum AgentDetailSectionAnchor: Hashable {
-    case runtimeStatus
-    case assignments
-    case modelResolution
-    case configSnapshot
-    case approvals
-    case cost
-    case session
-    case sessionInventory
-    case recentActivity
-    case recentAudit
-    case localActions
-}
-
 struct AgentDetailView: View {
     let agent: Agent
     @Environment(\.dependencies) private var deps
@@ -174,21 +160,6 @@ struct AgentDetailView: View {
     private var sessionIssueCount: Int {
         sessionItems.filter { $0.severity > 0 }.count
     }
-    private var sessionControlActionCount: Int {
-        5 + (currentSessionInfo == nil ? 0 : 1)
-    }
-    private var destructiveSessionActionCount: Int { 2 }
-    private var visibleSessionInventoryCount: Int { min(sessionItems.count, 4) }
-
-    private var diagnosticsSnapshotSummary: String {
-        if failedDeliveryCount > 0 || missingWorkspaceFileCount > 0 {
-            return String(localized: "This agent already has delivery or workspace issues surfaced on mobile.")
-        }
-        if !agentApprovals.isEmpty || sessionIssueCount > 0 {
-            return String(localized: "Single-agent approvals and session pressure are visible before the deeper detail sections.")
-        }
-        return String(localized: "Single-agent diagnostics, runtime context, and operator actions stay grouped on this screen.")
-    }
 
     private var diagnosticsShareText: String {
         let structuredMemoryCount = agentMemory.filter(\.isStructured).count
@@ -217,174 +188,21 @@ struct AgentDetailView: View {
         return lines.joined(separator: "\n")
     }
 
-    private var currentSessionBadgeText: String? {
-        guard let currentSessionInfo else { return nil }
-        return sessionDisplayTitle(currentSessionInfo)
-    }
-    private var hasCurrentSessionCoverage: Bool {
-        currentSessionInfo != nil || currentSessionID != nil
-    }
-    private var hasCapabilityCoverage: Bool {
-        agentToolFilters != nil || agentSkills != nil || agentMCPServers != nil
-    }
-    private var agentPrimaryRouteCount: Int { 5 }
-    private var agentSupportRouteCount: Int {
-        6 + (agentApprovals.isEmpty ? 0 : 1) + (agent.profile == nil ? 0 : 1) + (agent.isRunning ? 1 : 0)
-    }
-    private var diagnosticsWarningCount: Int {
-        deps.dashboardViewModel.diagnosticsConfigWarningCount
-    }
-
-    private var profileBadgeText: String? {
-        guard let profile = agent.profile else { return nil }
-        return profile
-    }
-
-    private var monitoringSurfaceIssueCount: Int {
-        agentApprovals.count + sessionIssueCount + failedDeliveryCount + missingWorkspaceFileCount
-    }
-    private var diagnosticsSectionCount: Int {
-        [
-            true,
-            hasModelResolution,
-            !agentApprovals.isEmpty,
-            budgetDetail != nil,
-            true,
-            true,
-            true,
-            !agentRecentEvents.isEmpty
-        ]
-        .filter { $0 }
-        .count
-    }
-    private var agentSectionPreviewTitles: [String] {
-        var sections: [String] = [String(localized: "Runtime Status")]
-        if !isLoadingCapabilities || agent.profile != nil || isLoadingProfile {
-            sections.append(String(localized: "Assignments & Profile"))
-        }
-        if hasModelResolution {
-            sections.append(String(localized: "Model Resolution"))
-        }
-        if (agentDetailSnapshot.map(hasConfigSnapshotContent) ?? false) || isLoadingAgentSnapshot {
-            sections.append(String(localized: "Config Snapshot"))
-        }
-        if !agentApprovals.isEmpty {
-            sections.append(String(localized: "Approvals"))
-        }
-        if budgetDetail != nil || isLoadingBudget {
-            sections.append(String(localized: "Cost"))
-        }
-        if sessionSnapshot != nil || isLoadingSession {
-            sections.append(String(localized: "Session"))
-        }
-        if !agentSessions.isEmpty || isLoadingSessions {
-            sections.append(String(localized: "Session Inventory"))
-        }
-        if sessionSnapshot != nil {
-            sections.append(String(localized: "Recent Activity"))
-        }
-        if !agentRecentEvents.isEmpty {
-            sections.append(String(localized: "Recent Audit"))
-        }
-        sections.append(String(localized: "Local Actions"))
-        return sections
-    }
-
-    private var agentBudgetTone: PresentationTone {
-        guard let budgetDetail else { return .neutral }
-        let utilization = max(
-            budgetDetail.hourly.pct,
-            budgetDetail.daily.pct,
-            budgetDetail.monthly.pct,
-            budgetDetail.tokens.pct
-        )
-        return StatusPresentation.budgetUtilizationStatus(for: utilization)?.tone ?? .neutral
-    }
-
-    private var sessionSnapshotSummary: String {
-        if sessionIssueCount > 0 {
-            return String(localized: "Active session pressure stays visible before controls, inventory, and recent activity.")
-        }
-        return String(localized: "Keep the active session label, message volume, and context window visible before session controls.")
-    }
-
-    private var sessionSnapshotDetail: String {
-        if let label = sessionSnapshot?.label?.trimmingCharacters(in: .whitespacesAndNewlines), !label.isEmpty {
-            return String(localized: "Current session label: \(label)")
-        }
-        return String(localized: "This agent is currently using an unlabeled session.")
-    }
-
-    private var budgetSnapshotSummary: String {
-        guard let budgetDetail else {
-            return String(localized: "Budget guardrails stay visible before the detailed spend rows.")
-        }
-
-        let maxUtilization = max(
-            budgetDetail.hourly.pct,
-            budgetDetail.daily.pct,
-            budgetDetail.monthly.pct,
-            budgetDetail.tokens.pct
-        )
-
-        if maxUtilization >= 0.9 {
-            return String(localized: "Budget pressure stays visible before the detailed hourly, daily, monthly, and token rows.")
-        }
-        return String(localized: "Budget guardrails stay visible before the detailed spend rows.")
-    }
-
-    private var memorySnapshotSummary: String {
-        if agentMemory.contains(where: \.isStructured) {
-            return String(localized: "Structured memory stays visible before the key preview and deep memory route.")
-        }
-        if agentMemory.isEmpty {
-            return String(localized: "Memory state stays visible before any durable keys exist.")
-        }
-        return String(localized: "Memory state stays visible before the key preview and deep memory route.")
-    }
-
-    private var workspaceSnapshotSummary: String {
-        if missingWorkspaceFileCount > 0 {
-            return String(localized: "Workspace identity drift stays visible before the file preview and deep workspace route.")
-        }
-        if agentFiles.isEmpty {
-            return String(localized: "Workspace identity stays visible before the file inventory loads.")
-        }
-        return String(localized: "Workspace identity stays visible before the file preview and deep workspace route.")
-    }
-
-    private var deliveriesSnapshotSummary: String {
-        if failedDeliveryCount > 0 || unsettledDeliveryCount > 0 {
-            return String(localized: "Delivery pressure stays visible before the receipt preview and deep delivery route.")
-        }
-        if agentDeliveries.isEmpty {
-            return String(localized: "Delivery state stays visible before any recent receipts exist.")
-        }
-        return String(localized: "Delivery state stays visible before the receipt preview and deep delivery route.")
-    }
-
     var body: some View {
         List {
             identitySection
             statusSection
-                .id(AgentDetailSectionAnchor.runtimeStatus)
             capabilitiesSection
-                .id(AgentDetailSectionAnchor.assignments)
             modelResolutionSection
-                .id(AgentDetailSectionAnchor.modelResolution)
             configSnapshotSection
-                .id(AgentDetailSectionAnchor.configSnapshot)
             approvalsSection
-                .id(AgentDetailSectionAnchor.approvals)
             budgetSections
             sessionSections
             memorySection
             deliveriesSection
             filesSection
             recentAuditSection
-                .id(AgentDetailSectionAnchor.recentAudit)
             actionsSection
-                .id(AgentDetailSectionAnchor.localActions)
         }
         .navigationTitle(agent.name)
         .navigationBarTitleDisplayMode(.inline)
@@ -550,8 +368,6 @@ struct AgentDetailView: View {
                                 .autocorrectionDisabled()
                         } header: {
                             Text(String(localized: "Session Label"))
-                        } footer: {
-                            Text(sessionDisplayTitle(session))
                         }
                     }
                     .navigationTitle(String(localized: "Edit Label"))
@@ -624,319 +440,6 @@ struct AgentDetailView: View {
                 message: Text(notice.message),
                 dismissButton: .default(Text(String(localized: "OK")))
             )
-        }
-    }
-
-    private func jump(_ proxy: ScrollViewProxy, to anchor: AgentDetailSectionAnchor) {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            proxy.scrollTo(anchor, anchor: .top)
-        }
-    }
-
-    private func agentSectionPreviewJumpItems(_ proxy: ScrollViewProxy) -> [MonitoringSectionJumpItem] {
-        var items: [MonitoringSectionJumpItem] = [
-            MonitoringSectionJumpItem(
-                title: String(localized: "Runtime Status"),
-                systemImage: "power",
-                tone: monitoringSurfaceIssueCount > 0 ? .warning : .neutral
-            ) {
-                jump(proxy, to: .runtimeStatus)
-            }
-        ]
-
-        if !isLoadingCapabilities || agent.profile != nil || isLoadingProfile {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Assignments & Profile"),
-                    systemImage: "slider.horizontal.3",
-                    tone: hasCapabilityCoverage ? .positive : .neutral
-                ) {
-                    jump(proxy, to: .assignments)
-                }
-            )
-        }
-
-        if hasModelResolution {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Model Resolution"),
-                    systemImage: "square.stack.3d.up",
-                    tone: modelDiagnostic?.statusTone ?? .neutral
-                ) {
-                    jump(proxy, to: .modelResolution)
-                }
-            )
-        }
-
-        if (agentDetailSnapshot.map(hasConfigSnapshotContent) ?? false) || isLoadingAgentSnapshot {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Config Snapshot"),
-                    systemImage: "doc.text.magnifyingglass",
-                    tone: .neutral
-                ) {
-                    jump(proxy, to: .configSnapshot)
-                }
-            )
-        }
-
-        if !agentApprovals.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Approvals"),
-                    systemImage: "checkmark.shield",
-                    tone: .warning
-                ) {
-                    jump(proxy, to: .approvals)
-                }
-            )
-        }
-
-        if budgetDetail != nil || isLoadingBudget {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Cost"),
-                    systemImage: "dollarsign.circle",
-                    tone: agentBudgetTone
-                ) {
-                    jump(proxy, to: .cost)
-                }
-            )
-        }
-
-        if sessionSnapshot != nil || isLoadingSession {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Session"),
-                    systemImage: "text.bubble",
-                    tone: sessionAttentionTone
-                ) {
-                    jump(proxy, to: .session)
-                }
-            )
-        }
-
-        if !sessionItems.isEmpty || isLoadingSessions {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Session Inventory"),
-                    systemImage: "rectangle.stack",
-                    tone: sessionAttentionTone
-                ) {
-                    jump(proxy, to: .sessionInventory)
-                }
-            )
-        }
-
-        if sessionSnapshot != nil {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Recent Activity"),
-                    systemImage: "text.bubble.fill",
-                    tone: .neutral
-                ) {
-                    jump(proxy, to: .recentActivity)
-                }
-            )
-        }
-
-        if !agentRecentEvents.isEmpty {
-            items.append(
-                MonitoringSectionJumpItem(
-                    title: String(localized: "Recent Audit"),
-                    systemImage: "list.bullet.rectangle.portrait",
-                    tone: .warning
-                ) {
-                    jump(proxy, to: .recentAudit)
-                }
-            )
-        }
-
-        items.append(
-            MonitoringSectionJumpItem(
-                title: String(localized: "Local Actions"),
-                systemImage: "star",
-                tone: isWatched ? .warning : .neutral
-            ) {
-                jump(proxy, to: .localActions)
-            }
-        )
-
-        return items
-    }
-
-    private var agentOperatorSurfaceDeckCard: some View {
-        FlowLayout(spacing: 8) {
-            NavigationLink {
-                IncidentsView()
-            } label: {
-                MonitoringSurfaceShortcutChip(
-                    title: String(localized: "Incidents"),
-                    systemImage: "bell.badge",
-                    tone: monitoringSurfaceIssueCount > 0 ? .warning : .neutral,
-                    badgeText: monitoringSurfaceIssueCount == 0 ? nil : String(localized: "\(monitoringSurfaceIssueCount) issues")
-                )
-            }
-            .buttonStyle(.plain)
-
-            NavigationLink {
-                SessionsView(initialSearchText: agent.id, initialFilter: .all)
-            } label: {
-                MonitoringSurfaceShortcutChip(
-                    title: String(localized: "Sessions"),
-                    systemImage: "rectangle.stack",
-                    tone: sessionAttentionTone,
-                    badgeText: currentSessionBadgeText ?? (sessionIssueCount == 0 ? nil : String(localized: "\(sessionIssueCount) issues"))
-                )
-            }
-            .buttonStyle(.plain)
-
-            NavigationLink {
-                AgentDeliveriesView(agent: agent, initialReceipts: agentDeliveries)
-            } label: {
-                MonitoringSurfaceShortcutChip(
-                    title: String(localized: "Receipts"),
-                    systemImage: "paperplane",
-                    tone: failedDeliveryCount > 0 ? .critical : deliveredReceiptTone,
-                    badgeText: agentDeliveries.isEmpty
-                        ? String(localized: "No receipts")
-                        : String(localized: "\(agentDeliveries.count) receipts")
-                )
-            }
-            .buttonStyle(.plain)
-
-            NavigationLink {
-                AgentFilesView(agent: agent, initialFiles: agentFiles)
-            } label: {
-                MonitoringSurfaceShortcutChip(
-                    title: String(localized: "Workspace"),
-                    systemImage: "doc.text.magnifyingglass",
-                    tone: workspaceIdentitySummary.tone,
-                    badgeText: workspaceIdentitySummary.progressLabel
-                )
-            }
-            .buttonStyle(.plain)
-
-            NavigationLink {
-                AgentMemoryView(agent: agent, initialEntries: agentMemory) { updatedEntries in
-                    agentMemory = updatedEntries
-                    isLoadingMemory = false
-                }
-            } label: {
-                MonitoringSurfaceShortcutChip(
-                    title: String(localized: "Memory"),
-                    systemImage: "internaldrive",
-                    tone: structuredMemoryTone,
-                    badgeText: agentMemory.isEmpty ? String(localized: "Empty") : String(localized: "\(agentMemory.count) keys")
-                )
-            }
-            .buttonStyle(.plain)
-
-            NavigationLink {
-                IntegrationsView(initialSearchText: integrationSearchText, initialScope: .attention)
-            } label: {
-                MonitoringSurfaceShortcutChip(
-                    title: String(localized: "Integrations"),
-                    systemImage: "square.3.layers.3d.down.forward",
-                    tone: modelDiagnostic?.statusTone ?? .neutral,
-                    badgeText: requestedModelReference
-                )
-            }
-            .buttonStyle(.plain)
-
-            NavigationLink {
-                EventsView(api: deps.apiClient, initialSearchText: agent.id)
-            } label: {
-                MonitoringSurfaceShortcutChip(
-                    title: String(localized: "Audit Feed"),
-                    systemImage: "list.bullet.rectangle.portrait",
-                    badgeText: agentRecentEvents.isEmpty ? nil : String(localized: "\(agentRecentEvents.count) loaded")
-                )
-            }
-            .buttonStyle(.plain)
-
-            if agent.isRunning {
-                Button {
-                    showChat = true
-                } label: {
-                    MonitoringSurfaceShortcutChip(
-                        title: String(localized: "Live Chat"),
-                        systemImage: "bubble.left.and.bubble.right.fill",
-                        tone: .positive
-                    )
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-
-    private var agentDiagnosticsStatusDeckCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: diagnosticsSnapshotSummary,
-                detail: nil
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(text: agent.stateLabel, tone: agent.stateTone)
-                    if !agentApprovals.isEmpty {
-                        PresentationToneBadge(
-                            text: agentApprovals.count == 1 ? String(localized: "1 approval") : String(localized: "\(agentApprovals.count) approvals"),
-                            tone: .critical
-                        )
-                    }
-                    if !agentSessions.isEmpty {
-                        PresentationToneBadge(
-                            text: agentSessions.count == 1 ? String(localized: "1 session") : String(localized: "\(agentSessions.count) sessions"),
-                            tone: sessionIssueCount > 0 ? .warning : .neutral
-                        )
-                    }
-                    if sessionIssueCount > 0 {
-                        PresentationToneBadge(
-                            text: sessionIssueCount == 1 ? String(localized: "1 session issue") : String(localized: "\(sessionIssueCount) session issues"),
-                            tone: .warning
-                        )
-                    }
-                    if !agentMemory.isEmpty {
-                        PresentationToneBadge(
-                            text: agentMemory.count == 1 ? String(localized: "1 memory key") : String(localized: "\(agentMemory.count) memory keys"),
-                            tone: structuredMemoryTone
-                        )
-                    }
-                    if missingWorkspaceFileCount > 0 {
-                        PresentationToneBadge(
-                            text: missingWorkspaceFileCount == 1 ? String(localized: "1 missing identity file") : String(localized: "\(missingWorkspaceFileCount) missing identity files"),
-                            tone: .warning
-                        )
-                    }
-                    if failedDeliveryCount > 0 {
-                        PresentationToneBadge(
-                            text: failedDeliveryCount == 1 ? String(localized: "1 failed delivery") : String(localized: "\(failedDeliveryCount) failed deliveries"),
-                            tone: .critical
-                        )
-                    }
-                    if unsettledDeliveryCount > 0 {
-                        PresentationToneBadge(
-                            text: unsettledDeliveryCount == 1 ? String(localized: "1 unsettled delivery") : String(localized: "\(unsettledDeliveryCount) unsettled deliveries"),
-                            tone: .warning
-                        )
-                    }
-                    if !agentRecentEvents.isEmpty {
-                        PresentationToneBadge(
-                            text: agentRecentEvents.count == 1 ? String(localized: "1 recent event") : String(localized: "\(agentRecentEvents.count) recent events"),
-                            tone: .neutral
-                        )
-                    }
-                    if let agentProfileSummary, !agentProfileSummary.tools.isEmpty {
-                        PresentationToneBadge(
-                            text: agentProfileSummary.tools.count == 1 ? String(localized: "1 profile tool") : String(localized: "\(agentProfileSummary.tools.count) profile tools"),
-                            tone: profileToolCountTone
-                        )
-                    }
-                    if isWatched {
-                        PresentationToneBadge(text: String(localized: "Watched"), tone: .caution)
-                    }
-                }
-            }
         }
     }
 
@@ -1113,8 +616,6 @@ struct AgentDetailView: View {
                 }
             } header: {
                 Text("Assignments & Profile")
-            } footer: {
-                Text("Keep tool scope, skills, MCP assignment, and the active profile together before leaving the agent surface.")
             }
         }
     }
@@ -1184,11 +685,6 @@ struct AgentDetailView: View {
                 }
             } header: {
                 Text("Model Resolution")
-            } footer: {
-                Text(
-                    modelDiagnostic?.detail
-                        ?? String(localized: "This section resolves the agent's requested model through LibreFang's alias map and active model catalog.")
-                )
             }
         }
     }
@@ -1288,69 +784,18 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             }
-            .id(AgentDetailSectionAnchor.cost)
         } else if let detail = budgetDetail {
             Section("Cost (USD)") {
-                MonitoringSnapshotCard(
-                    summary: budgetSnapshotSummary,
-                    detail: nil
-                ) {
-                    FlowLayout(spacing: 8) {
-                        PresentationToneBadge(
-                            text: String(localized: "Hourly"),
-                            tone: StatusPresentation.budgetUtilizationStatus(for: detail.hourly.pct)?.tone ?? .neutral
-                        )
-                        PresentationToneBadge(
-                            text: String(localized: "Daily"),
-                            tone: StatusPresentation.budgetUtilizationStatus(for: detail.daily.pct)?.tone ?? .neutral
-                        )
-                        PresentationToneBadge(
-                            text: String(localized: "Monthly"),
-                            tone: StatusPresentation.budgetUtilizationStatus(for: detail.monthly.pct)?.tone ?? .neutral
-                        )
-                        PresentationToneBadge(
-                            text: String(localized: "Tokens"),
-                            tone: StatusPresentation.budgetUtilizationStatus(for: detail.tokens.pct)?.tone ?? .neutral
-                        )
-                    }
-                }
-
                 BudgetPeriodRow(label: "Hourly", period: detail.hourly)
                 BudgetPeriodRow(label: "Daily", period: detail.daily)
                 BudgetPeriodRow(label: "Monthly", period: detail.monthly)
-            }
-            .id(AgentDetailSectionAnchor.cost)
-
-            Section("Token Usage") {
-                MonitoringFactsRow {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(String(localized: "Token Pressure"))
-                            .font(.subheadline.weight(.medium))
-                        Text(String(localized: "Keep the token budget and utilization visible before leaving the agent spend view."))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                    }
-                } accessory: {
-                    Gauge(value: min(detail.tokens.pct, 1.0)) {
-                        EmptyView()
-                    }
-                    .gaugeStyle(.accessoryCircularCapacity)
-                    .tint((StatusPresentation.budgetUtilizationStatus(for: detail.tokens.pct) ?? .normal).color())
-                    .scaleEffect(0.7)
-                } facts: {
-                    Label(
-                        "\(detail.tokens.used.formatted()) / \(detail.tokens.limit.formatted())",
-                        systemImage: "number"
-                    )
-                    Label(
-                        String(localized: "\(Int(detail.tokens.pct * 100))% used"),
-                        systemImage: "chart.bar"
-                    )
-                    Label(
-                        localizedUSDCurrency(detail.daily.spend, standardPrecision: 2, smallValuePrecision: 4),
-                        systemImage: "dollarsign.circle"
-                    )
+                AgentDetailValueRow("Token Usage") {
+                    Text("\(detail.tokens.used.formatted()) / \(detail.tokens.limit.formatted())")
+                        .monospacedDigit()
+                }
+                AgentDetailValueRow("Token Utilization") {
+                    Text(String(localized: "\(Int(detail.tokens.pct * 100))% used"))
+                        .foregroundStyle((StatusPresentation.budgetUtilizationStatus(for: detail.tokens.pct) ?? .normal).color())
                 }
             }
         }
@@ -1367,7 +812,6 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             }
-            .id(AgentDetailSectionAnchor.session)
         } else if let snapshot = sessionSnapshot {
             sessionSummarySection(snapshot)
             sessionControlsSection
@@ -1378,33 +822,36 @@ struct AgentDetailView: View {
 
     private func sessionSummarySection(_ snapshot: AgentSessionSnapshot) -> some View {
         Section("Session") {
-            MonitoringSnapshotCard(
-                summary: sessionSnapshotSummary,
-                detail: sessionSnapshotDetail
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: (snapshot.label?.isEmpty == false ? snapshot.label : nil) ?? String(localized: "Current"),
-                        tone: .positive
-                    )
-                    PresentationToneBadge(
-                        text: snapshot.messageCount == 1 ? String(localized: "1 message") : String(localized: "\(snapshot.messageCount) messages"),
-                        tone: .neutral
-                    )
-                    PresentationToneBadge(
-                        text: String(localized: "\(snapshot.contextWindowTokens.formatted()) ctx"),
-                        tone: .neutral
-                    )
-                    if sessionIssueCount > 0 {
-                        PresentationToneBadge(
-                            text: sessionIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(sessionIssueCount) issues"),
-                            tone: .warning
-                        )
-                    }
+            DetailRow(
+                icon: "tag",
+                label: "Label",
+                value: (snapshot.label?.isEmpty == false ? snapshot.label : nil) ?? String(localized: "Current")
+            )
+            DetailRow(
+                icon: "message",
+                label: "Messages",
+                value: snapshot.messageCount == 1 ? String(localized: "1 message") : String(localized: "\(snapshot.messageCount) messages")
+            )
+            DetailRow(
+                icon: "text.word.spacing",
+                label: "Context",
+                value: String(localized: "\(snapshot.contextWindowTokens.formatted()) ctx")
+            )
+            if sessionIssueCount > 0 {
+                DetailRow(
+                    icon: "exclamationmark.triangle",
+                    label: "Session Issues",
+                    value: sessionIssueCount == 1 ? String(localized: "1 issue") : String(localized: "\(sessionIssueCount) issues"),
+                    valueColor: sessionAttentionTone.color
+                )
+            }
+            if let label = snapshot.label?.trimmingCharacters(in: .whitespacesAndNewlines), !label.isEmpty {
+                AgentDetailValueRow("Current Label") {
+                    Text(label)
+                        .foregroundStyle(.secondary)
                 }
             }
         }
-        .id(AgentDetailSectionAnchor.session)
     }
 
     private var sessionControlsSection: some View {
@@ -1511,7 +958,6 @@ struct AgentDetailView: View {
             } header: {
                 Text("Session Inventory")
             }
-            .id(AgentDetailSectionAnchor.sessionInventory)
         }
     }
 
@@ -1526,7 +972,6 @@ struct AgentDetailView: View {
                 }
             }
         }
-        .id(AgentDetailSectionAnchor.recentActivity)
     }
 
     private var memorySection: some View {
@@ -1539,21 +984,14 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             } else {
-                MonitoringSnapshotCard(
-                    summary: memorySnapshotSummary,
-                    detail: nil
-                ) {
-                    FlowLayout(spacing: 8) {
-                        PresentationToneBadge(
-                            text: agentMemory.count == 1 ? String(localized: "1 key") : String(localized: "\(agentMemory.count) keys"),
-                            tone: agentMemory.isEmpty ? .neutral : .positive
-                        )
-                        let structured = agentMemory.filter(\.isStructured).count
-                        PresentationToneBadge(
-                            text: structured == 1 ? String(localized: "1 structured") : String(localized: "\(structured) structured"),
-                            tone: structuredMemoryTone
-                        )
-                    }
+                AgentDetailValueRow("Keys") {
+                    Text(agentMemory.count.formatted())
+                        .monospacedDigit()
+                }
+                AgentDetailValueRow("Structured") {
+                    Text(agentMemory.filter(\.isStructured).count.formatted())
+                        .foregroundStyle(structuredMemoryTone.color)
+                        .monospacedDigit()
                 }
 
                 if agentMemory.isEmpty {
@@ -1589,23 +1027,12 @@ struct AgentDetailView: View {
                     Spacer()
                 }
             } else {
-                MonitoringSnapshotCard(
-                    summary: workspaceSnapshotSummary,
-                    detail: nil
-                ) {
-                    FlowLayout(spacing: 8) {
-                        PresentationToneBadge(
-                            text: workspaceIdentitySummary.progressLabel,
-                            tone: workspaceIdentitySummary.tone
-                        )
-                        if missingWorkspaceFileCount > 0 {
-                            PresentationToneBadge(
-                                text: missingWorkspaceFileCount == 1 ? String(localized: "1 missing") : String(localized: "\(missingWorkspaceFileCount) missing"),
-                                tone: .warning
-                            )
-                        }
-                    }
-                }
+                DetailRow(
+                    icon: "doc.text",
+                    label: "Identity",
+                    value: workspaceIdentitySummary.statusLabel,
+                    valueColor: workspaceIdentitySummary.tone.color
+                )
 
                 ForEach(agentFiles.filter(\.exists).prefix(3)) { file in
                     AgentFileSummaryRow(file: file)
@@ -1643,31 +1070,27 @@ struct AgentDetailView: View {
                 let failed = agentDeliveries.filter { $0.status == .failed }.count
                 let delivered = agentDeliveries.filter { $0.status == .delivered }.count
 
-                MonitoringSnapshotCard(
-                    summary: deliveriesSnapshotSummary,
-                    detail: nil
-                ) {
-                    FlowLayout(spacing: 8) {
-                        PresentationToneBadge(
-                            text: agentDeliveries.count == 1 ? String(localized: "1 receipt") : String(localized: "\(agentDeliveries.count) receipts"),
-                            tone: agentDeliveries.isEmpty ? .neutral : .positive
-                        )
-                        PresentationToneBadge(
-                            text: delivered == 1 ? String(localized: "1 delivered") : String(localized: "\(delivered) delivered"),
-                            tone: deliveredReceiptTone
-                        )
-                        if failed > 0 {
-                            PresentationToneBadge(
-                                text: failed == 1 ? String(localized: "1 failed") : String(localized: "\(failed) failed"),
-                                tone: failedReceiptTone
-                            )
-                        }
-                        if unsettledDeliveryCount > 0 {
-                            PresentationToneBadge(
-                                text: unsettledDeliveryCount == 1 ? String(localized: "1 unsettled") : String(localized: "\(unsettledDeliveryCount) unsettled"),
-                                tone: .warning
-                            )
-                        }
+                AgentDetailValueRow("Receipts") {
+                    Text(agentDeliveries.count.formatted())
+                        .monospacedDigit()
+                }
+                AgentDetailValueRow("Delivered") {
+                    Text(delivered.formatted())
+                        .foregroundStyle(deliveredReceiptTone.color)
+                        .monospacedDigit()
+                }
+                if failed > 0 {
+                    AgentDetailValueRow("Failed") {
+                        Text(failed.formatted())
+                            .foregroundStyle(failedReceiptTone.color)
+                            .monospacedDigit()
+                    }
+                }
+                if unsettledDeliveryCount > 0 {
+                    AgentDetailValueRow("Unsettled") {
+                        Text(unsettledDeliveryCount.formatted())
+                            .foregroundStyle(PresentationTone.warning.color)
+                            .monospacedDigit()
                     }
                 }
 
@@ -2203,658 +1626,6 @@ private struct AgentDetailValueRow<Value: View>: View {
     }
 }
 
-private struct AgentSectionInventoryDeck: View {
-    let sectionCount: Int
-    let issueCount: Int
-    let approvalCount: Int
-    let sessionCount: Int
-    let memoryCount: Int
-    let fileCount: Int
-    let deliveryCount: Int
-    let auditCount: Int
-    let hasBudget: Bool
-    let hasModelResolution: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(summary: summaryLine, detail: detailLine, verticalPadding: 4) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: sectionCount == 1 ? String(localized: "1 live section") : String(localized: "\(sectionCount) live sections"),
-                        tone: .positive
-                    )
-                    PresentationToneBadge(
-                        text: issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
-                        tone: issueCount > 0 ? .warning : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: hasModelResolution ? String(localized: "Model path visible") : String(localized: "Model path pending"),
-                        tone: hasModelResolution ? .positive : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: hasBudget ? String(localized: "Budget visible") : String(localized: "Budget pending"),
-                        tone: .neutral
-                    )
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Section inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep session, memory, workspace, receipts, and audit coverage visible before the operator routes and deeper agent sections."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                    tone: approvalCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                Label(
-                    sessionCount == 1 ? String(localized: "1 session") : String(localized: "\(sessionCount) sessions"),
-                    systemImage: "rectangle.stack"
-                )
-                Label(
-                    memoryCount == 1 ? String(localized: "1 memory key") : String(localized: "\(memoryCount) memory keys"),
-                    systemImage: "internaldrive"
-                )
-                Label(
-                    fileCount == 1 ? String(localized: "1 workspace file") : String(localized: "\(fileCount) workspace files"),
-                    systemImage: "doc.text"
-                )
-                Label(
-                    deliveryCount == 1 ? String(localized: "1 receipt") : String(localized: "\(deliveryCount) receipts"),
-                    systemImage: "paperplane"
-                )
-                if auditCount > 0 {
-                    Label(
-                        auditCount == 1 ? String(localized: "1 audit event") : String(localized: "\(auditCount) audit events"),
-                        systemImage: "list.bullet.rectangle.portrait"
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        sectionCount == 1
-            ? String(localized: "1 agent section is active below the controls deck.")
-            : String(localized: "\(sectionCount) agent sections are active below the controls deck.")
-    }
-
-    private var detailLine: String {
-        String(localized: "Current model path, budget visibility, and deeper diagnostics coverage stay summarized before the route rails and detail sections.")
-    }
-}
-
-private struct AgentPressureCoverageDeck: View {
-    let issueCount: Int
-    let approvalCount: Int
-    let sessionIssueCount: Int
-    let failedDeliveryCount: Int
-    let unsettledDeliveryCount: Int
-    let missingWorkspaceFileCount: Int
-    let structuredMemoryCount: Int
-    let auditCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to separate approval drag, session pressure, delivery failures, workspace gaps, and structured-memory churn before opening the deeper agent sections."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    if issueCount > 0 {
-                        PresentationToneBadge(
-                            text: issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
-                            tone: .warning
-                        )
-                    }
-                    if approvalCount > 0 {
-                        PresentationToneBadge(
-                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                            tone: .critical
-                        )
-                    }
-                    if sessionIssueCount > 0 {
-                        PresentationToneBadge(
-                            text: sessionIssueCount == 1 ? String(localized: "1 session issue") : String(localized: "\(sessionIssueCount) session issues"),
-                            tone: .warning
-                        )
-                    }
-                    if failedDeliveryCount > 0 {
-                        PresentationToneBadge(
-                            text: failedDeliveryCount == 1 ? String(localized: "1 failed receipt") : String(localized: "\(failedDeliveryCount) failed receipts"),
-                            tone: .critical
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Pressure coverage"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep workspace identity gaps, unsettled receipts, structured memory, and audit churn readable before the agent routes and detail sections take over."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: auditCount == 1 ? String(localized: "1 audit event") : String(localized: "\(auditCount) audit events"),
-                    tone: auditCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                if unsettledDeliveryCount > 0 {
-                    Label(
-                        unsettledDeliveryCount == 1 ? String(localized: "1 unsettled receipt") : String(localized: "\(unsettledDeliveryCount) unsettled receipts"),
-                        systemImage: "paperplane"
-                    )
-                }
-                if missingWorkspaceFileCount > 0 {
-                    Label(
-                        missingWorkspaceFileCount == 1 ? String(localized: "1 missing file") : String(localized: "\(missingWorkspaceFileCount) missing files"),
-                        systemImage: "doc.badge.exclamationmark"
-                    )
-                }
-                if structuredMemoryCount > 0 {
-                    Label(
-                        structuredMemoryCount == 1 ? String(localized: "1 structured memory key") : String(localized: "\(structuredMemoryCount) structured memory keys"),
-                        systemImage: "internaldrive"
-                    )
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if failedDeliveryCount > 0 || missingWorkspaceFileCount > 0 {
-            return String(localized: "Agent pressure is currently anchored by delivery failures or workspace identity gaps.")
-        }
-        if approvalCount > 0 || sessionIssueCount > 0 {
-            return String(localized: "Agent pressure is currently concentrated in approvals and session follow-up.")
-        }
-        return String(localized: "Agent pressure is currently concentrated in quieter diagnostics like structured memory and audit churn.")
-    }
-}
-
-private struct AgentSupportCoverageDeck: View {
-    let isWatched: Bool
-    let hasCurrentSession: Bool
-    let hasBudget: Bool
-    let hasProfile: Bool
-    let hasCapabilities: Bool
-    let hasModelResolution: Bool
-    let supportsChat: Bool
-    let diagnosticsWarningCount: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to keep watch state, current session visibility, budget and profile context, capability coverage, and live chat availability readable before the operator route rails fan out."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: isWatched ? String(localized: "Watched locally") : String(localized: "Not watched"),
-                        tone: isWatched ? .caution : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: hasCurrentSession ? String(localized: "Session visible") : String(localized: "Session pending"),
-                        tone: hasCurrentSession ? .positive : .neutral
-                    )
-                    PresentationToneBadge(
-                        text: supportsChat ? String(localized: "Live chat ready") : String(localized: "Live chat unavailable"),
-                        tone: supportsChat ? .positive : .neutral
-                    )
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Support coverage"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep current session visibility, budget and profile context, capability coverage, and model path readiness visible before the operator route rails and deeper sections take over."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
-                    tone: diagnosticsWarningCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                Label(
-                    hasBudget ? String(localized: "Budget visible") : String(localized: "Budget pending"),
-                    systemImage: "chart.bar"
-                )
-                Label(
-                    hasProfile ? String(localized: "Profile visible") : String(localized: "Profile pending"),
-                    systemImage: "person.crop.rectangle.stack"
-                )
-                Label(
-                    hasCapabilities ? String(localized: "Capabilities visible") : String(localized: "Capabilities pending"),
-                    systemImage: "slider.horizontal.3"
-                )
-                Label(
-                    hasModelResolution ? String(localized: "Model path visible") : String(localized: "Model path pending"),
-                    systemImage: "square.3.layers.3d.down.forward"
-                )
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if isWatched && supportsChat {
-            return String(localized: "Agent support coverage is currently anchored by a watched live agent with an open chat path.")
-        }
-        if hasCurrentSession || hasBudget || hasProfile {
-            return String(localized: "Agent support coverage is currently anchored by session, budget, and profile visibility.")
-        }
-        if diagnosticsWarningCount > 0 || !hasCapabilities || !hasModelResolution {
-            return String(localized: "Agent support coverage is currently anchored by deeper diagnostics, capability, or model-path readiness.")
-        }
-        return String(localized: "Agent support coverage is currently light and mostly reflects optional support routes.")
-    }
-}
-
-private struct AgentActionReadinessDeck: View {
-    let primaryRouteCount: Int
-    let supportRouteCount: Int
-    let sessionActionCount: Int
-    let issueCount: Int
-    let approvalCount: Int
-    let hasBudget: Bool
-    let hasModelResolution: Bool
-    let hasCurrentSession: Bool
-    let canShare: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to check whether sharing, session controls, and broader route pivots are ready before opening deeper agent diagnostics sections."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
-                        tone: .neutral
-                    )
-                    PresentationToneBadge(
-                        text: canShare ? String(localized: "Share ready") : String(localized: "Share pending"),
-                        tone: canShare ? .positive : .neutral
-                    )
-                    if hasCurrentSession {
-                        PresentationToneBadge(
-                            text: String(localized: "\(sessionActionCount) session actions"),
-                            tone: .neutral
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Action readiness"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep route breadth, session actions, and model or budget context visible before pivoting into adjacent operator surfaces."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
-                    tone: issueCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                Label(
-                    primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
-                    systemImage: "arrowshape.turn.up.right"
-                )
-                Label(
-                    supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
-                    systemImage: "square.grid.2x2"
-                )
-                if approvalCount > 0 {
-                    Label(
-                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                        systemImage: "checkmark.shield"
-                    )
-                }
-                if hasBudget {
-                    Label(String(localized: "Budget ready"), systemImage: "chart.bar")
-                }
-                if hasModelResolution {
-                    Label(String(localized: "Model resolution ready"), systemImage: "square.stack.3d.up")
-                }
-                if hasCurrentSession {
-                    Label(String(localized: "Session controls ready"), systemImage: "rectangle.stack")
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if issueCount > 0 || approvalCount > 0 {
-            return String(localized: "Agent action readiness is currently anchored by surfaced issues that are ready for adjacent route pivots.")
-        }
-        if hasCurrentSession {
-            return String(localized: "Agent action readiness is currently clear enough for session controls, sharing, and deeper route pivots.")
-        }
-        return String(localized: "Agent action readiness is currently light and mostly reflects broader route availability.")
-    }
-}
-
-private struct AgentFocusCoverageDeck: View {
-    let issueCount: Int
-    let approvalCount: Int
-    let sessionCount: Int
-    let memoryCount: Int
-    let fileCount: Int
-    let deliveryCount: Int
-    let auditCount: Int
-    let hasBudget: Bool
-    let hasModelResolution: Bool
-    let hasCapabilities: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to keep the dominant agent diagnostics lane visible before opening the deeper session, memory, delivery, file, and audit sections."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    if issueCount > 0 {
-                        PresentationToneBadge(
-                            text: issueCount == 1 ? String(localized: "1 issue") : String(localized: "\(issueCount) issues"),
-                            tone: .warning
-                        )
-                    }
-                    if approvalCount > 0 {
-                        PresentationToneBadge(
-                            text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                            tone: .warning
-                        )
-                    }
-                    if hasModelResolution {
-                        PresentationToneBadge(text: String(localized: "Model ready"), tone: .positive)
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Focus coverage"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep the dominant diagnostics lane readable before moving from compact decks into the detailed agent operator sections."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: sessionCount == 1 ? String(localized: "1 session lane") : String(localized: "\(sessionCount) session lanes"),
-                    tone: sessionCount > 0 ? .positive : .neutral
-                )
-            } facts: {
-                if memoryCount > 0 {
-                    Label(
-                        memoryCount == 1 ? String(localized: "1 memory lane") : String(localized: "\(memoryCount) memory lanes"),
-                        systemImage: "externaldrive"
-                    )
-                }
-                if fileCount > 0 {
-                    Label(
-                        fileCount == 1 ? String(localized: "1 file lane") : String(localized: "\(fileCount) file lanes"),
-                        systemImage: "doc.text"
-                    )
-                }
-                if deliveryCount > 0 {
-                    Label(
-                        deliveryCount == 1 ? String(localized: "1 delivery lane") : String(localized: "\(deliveryCount) delivery lanes"),
-                        systemImage: "tray.and.arrow.up"
-                    )
-                }
-                if auditCount > 0 {
-                    Label(
-                        auditCount == 1 ? String(localized: "1 audit lane") : String(localized: "\(auditCount) audit lanes"),
-                        systemImage: "text.badge.exclamationmark"
-                    )
-                }
-                if hasBudget {
-                    Label(String(localized: "Budget lane"), systemImage: "chart.bar")
-                }
-                if hasCapabilities {
-                    Label(String(localized: "Capability lane"), systemImage: "sparkles")
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if issueCount > 0 || approvalCount > 0 || auditCount > 0 {
-            return String(localized: "Agent focus coverage is currently anchored by surfaced issues, approvals, and recent audit drag.")
-        }
-        if sessionCount > 0 || deliveryCount > 0 || memoryCount > 0 {
-            return String(localized: "Agent focus coverage is currently anchored by active session, delivery, and memory lanes.")
-        }
-        return String(localized: "Agent focus coverage is currently balanced across the deeper agent diagnostics lanes.")
-    }
-}
-
-private struct AgentWorkstreamCoverageDeck: View {
-    let issueCount: Int
-    let approvalCount: Int
-    let sessionCount: Int
-    let memoryCount: Int
-    let fileCount: Int
-    let deliveryCount: Int
-    let auditCount: Int
-    let hasBudget: Bool
-    let hasModelResolution: Bool
-    let hasCapabilities: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to see whether agent review is currently led by surfaced issues, operational diagnostics, or slower capability and budget context before the deeper sections take over."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    if issueCount > 0 {
-                        PresentationToneBadge(
-                            text: issueCount == 1 ? String(localized: "1 surfaced issue") : String(localized: "\(issueCount) surfaced issues"),
-                            tone: .warning
-                        )
-                    }
-                    if diagnosticsLaneCount > 0 {
-                        PresentationToneBadge(
-                            text: diagnosticsLaneCount == 1 ? String(localized: "1 diagnostics lane") : String(localized: "\(diagnosticsLaneCount) diagnostics lanes"),
-                            tone: .neutral
-                        )
-                    }
-                    if supportCount > 0 {
-                        PresentationToneBadge(
-                            text: supportCount == 1 ? String(localized: "1 support lane") : String(localized: "\(supportCount) support lanes"),
-                            tone: .positive
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Workstream coverage"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep issue review, operational diagnostics, and slower capability or budget context readable before moving through the deeper agent sections."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                    tone: approvalCount > 0 ? .warning : .neutral
-                )
-            } facts: {
-                if sessionCount > 0 {
-                    Label(
-                        sessionCount == 1 ? String(localized: "1 session lane") : String(localized: "\(sessionCount) session lanes"),
-                        systemImage: "rectangle.stack"
-                    )
-                }
-                if memoryCount > 0 {
-                    Label(
-                        memoryCount == 1 ? String(localized: "1 memory lane") : String(localized: "\(memoryCount) memory lanes"),
-                        systemImage: "externaldrive"
-                    )
-                }
-                if fileCount > 0 {
-                    Label(
-                        fileCount == 1 ? String(localized: "1 file lane") : String(localized: "\(fileCount) file lanes"),
-                        systemImage: "doc.text"
-                    )
-                }
-                if deliveryCount > 0 {
-                    Label(
-                        deliveryCount == 1 ? String(localized: "1 delivery lane") : String(localized: "\(deliveryCount) delivery lanes"),
-                        systemImage: "tray.and.arrow.up"
-                    )
-                }
-                if auditCount > 0 {
-                    Label(
-                        auditCount == 1 ? String(localized: "1 audit lane") : String(localized: "\(auditCount) audit lanes"),
-                        systemImage: "text.badge.exclamationmark"
-                    )
-                }
-                if hasCapabilities {
-                    Label(String(localized: "Capabilities ready"), systemImage: "slider.horizontal.3")
-                }
-                if hasModelResolution {
-                    Label(String(localized: "Model ready"), systemImage: "square.stack.3d.up")
-                }
-                if hasBudget {
-                    Label(String(localized: "Budget ready"), systemImage: "chart.bar")
-                }
-            }
-        }
-    }
-
-    private var diagnosticsLaneCount: Int {
-        sessionCount + memoryCount + fileCount + deliveryCount + auditCount
-    }
-
-    private var supportCount: Int {
-        (hasCapabilities ? 1 : 0) + (hasModelResolution ? 1 : 0) + (hasBudget ? 1 : 0)
-    }
-
-    private var summaryLine: String {
-        if issueCount + approvalCount > 0 {
-            return String(localized: "Agent workstream coverage is currently anchored by surfaced issues and approvals.")
-        }
-        if diagnosticsLaneCount >= supportCount && diagnosticsLaneCount > 0 {
-            return String(localized: "Agent workstream coverage is currently anchored by operational diagnostics.")
-        }
-        if supportCount > 0 {
-            return String(localized: "Agent workstream coverage is currently anchored by capability, model, and budget context.")
-        }
-        return String(localized: "Agent workstream coverage is currently light across the visible lanes.")
-    }
-}
-
-private struct AgentRouteInventoryDeck: View {
-    let primaryRouteCount: Int
-    let supportRouteCount: Int
-    let issueCount: Int
-    let approvalCount: Int
-    let diagnosticsWarningCount: Int
-    let hasLiveChat: Bool
-    let hasProfile: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Use this deck to keep the compact split between immediate operator exits and slower support drills readable before the shortcut rails begin."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: primaryRouteCount == 1 ? String(localized: "1 primary route") : String(localized: "\(primaryRouteCount) primary routes"),
-                        tone: .warning
-                    )
-                    PresentationToneBadge(
-                        text: supportRouteCount == 1 ? String(localized: "1 support route") : String(localized: "\(supportRouteCount) support routes"),
-                        tone: .neutral
-                    )
-                    if issueCount > 0 {
-                        PresentationToneBadge(
-                            text: issueCount == 1 ? String(localized: "1 route issue") : String(localized: "\(issueCount) route issues"),
-                            tone: .warning
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Route inventory"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Keep primary operator exits distinct from slower runtime, budget, diagnostics, profile, and capability drills before the shortcut rails fan out."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: String(localized: "\(primaryRouteCount + supportRouteCount) exits"),
-                    tone: .neutral
-                )
-            } facts: {
-                if approvalCount > 0 {
-                    Label(
-                        approvalCount == 1 ? String(localized: "1 approval") : String(localized: "\(approvalCount) approvals"),
-                        systemImage: "checkmark.shield"
-                    )
-                }
-                if diagnosticsWarningCount > 0 {
-                    Label(
-                        diagnosticsWarningCount == 1 ? String(localized: "1 diagnostics warning") : String(localized: "\(diagnosticsWarningCount) diagnostics warnings"),
-                        systemImage: "stethoscope"
-                    )
-                }
-                if hasProfile {
-                    Label(String(localized: "Tool profile route"), systemImage: "person.crop.rectangle.stack")
-                }
-                if hasLiveChat {
-                    Label(String(localized: "Live chat route"), systemImage: "bubble.left.and.bubble.right")
-                }
-            }
-        }
-    }
-
-    private var summaryLine: String {
-        if issueCount > 0 || approvalCount > 0 {
-            return String(localized: "Agent routes are currently anchored by live issues and approval follow-through.")
-        }
-        if diagnosticsWarningCount > 0 {
-            return String(localized: "Agent routes are currently anchored by slower diagnostics and verification drills.")
-        }
-        return String(localized: "Agent routes are currently centered on the next operator follow-through.")
-    }
-}
-
 // MARK: - Budget Period Row
 
 private struct BudgetPeriodRow: View {
@@ -3136,79 +1907,6 @@ private struct AgentSessionInventoryRow: View {
         )
     }
 
-}
-
-private struct AgentSessionControlsInventoryDeck: View {
-    let actionCount: Int
-    let destructiveActionCount: Int
-    let sessionCount: Int
-    let visibleSessionCount: Int
-    let issueCount: Int
-    let hasCurrentSession: Bool
-    let isBusy: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            MonitoringSnapshotCard(
-                summary: summaryLine,
-                detail: String(localized: "Keep action breadth, current-session context, and visible inventory load readable before the session-control buttons take over."),
-                verticalPadding: 4
-            ) {
-                FlowLayout(spacing: 8) {
-                    PresentationToneBadge(
-                        text: actionCount == 1 ? String(localized: "1 action") : String(localized: "\(actionCount) actions"),
-                        tone: .positive
-                    )
-                    PresentationToneBadge(
-                        text: hasCurrentSession ? String(localized: "Current session loaded") : String(localized: "No current session"),
-                        tone: hasCurrentSession ? .positive : .neutral
-                    )
-                    if issueCount > 0 {
-                        PresentationToneBadge(
-                            text: issueCount == 1 ? String(localized: "1 session issue") : String(localized: "\(issueCount) session issues"),
-                            tone: .warning
-                        )
-                    }
-                }
-            }
-
-            MonitoringFactsRow {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(String(localized: "Session-control coverage"))
-                        .font(.subheadline.weight(.medium))
-                    Text(String(localized: "Use this slice to confirm whether the visible controls are centered on normal relabel or lookup work versus destructive recovery actions."))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } accessory: {
-                PresentationToneBadge(
-                    text: isBusy ? String(localized: "Action running") : String(localized: "Idle"),
-                    tone: isBusy ? .warning : .neutral
-                )
-            } facts: {
-                Label(
-                    destructiveActionCount == 1 ? String(localized: "1 destructive action") : String(localized: "\(destructiveActionCount) destructive actions"),
-                    systemImage: "exclamationmark.triangle"
-                )
-                if sessionCount > 0 {
-                    Label(
-                        visibleSessionCount == sessionCount
-                            ? (sessionCount == 1 ? String(localized: "1 visible session") : String(localized: "\(sessionCount) visible sessions"))
-                            : String(localized: "\(visibleSessionCount) of \(sessionCount) sessions visible"),
-                        systemImage: "rectangle.stack"
-                    )
-                }
-            }
-        }
-        .padding(.vertical, 2)
-    }
-
-    private var summaryLine: String {
-        hasCurrentSession
-            ? String(localized: "Session controls currently expose \(actionCount) actions around the active session.")
-            : String(localized: "Session controls currently expose \(actionCount) agent-level actions before a current session is resolved.")
-    }
 }
 
 private struct AgentAuditRow: View {
