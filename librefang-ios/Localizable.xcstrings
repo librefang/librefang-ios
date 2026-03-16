@@ -3525,6 +3525,12 @@
             "state": "translated",
             "value": "全部配置档"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべてのプロファイル"
+          }
         }
       }
     },
@@ -3750,6 +3756,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "概览"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一目でわかる表示"
           }
         }
       }
@@ -4168,6 +4180,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "平静"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "落ち着いています"
           }
         }
       }
@@ -4642,6 +4660,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "清除确认"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確認を解除"
           }
         }
       }
@@ -5332,6 +5356,12 @@
             "state": "translated",
             "value": "当前配置档"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のプロファイル"
+          }
         }
       }
     },
@@ -5343,6 +5373,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "当前配置档缺失"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のプロファイルがありません"
           }
         }
       }
@@ -8970,6 +9006,12 @@
             "state": "translated",
             "value": "当前没有可见的严重压力。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在、ライブの重大な負荷は見えていません。"
+          }
         }
       }
     },
@@ -10230,6 +10272,12 @@
             "state": "translated",
             "value": "置顶关注列表"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピン留めウォッチリスト"
+          }
         }
       }
     },
@@ -10303,6 +10351,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "配置档不可用"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロファイルを利用できません"
           }
         }
       }
@@ -11635,6 +11689,12 @@
             "state": "translated",
             "value": "搜索配置档或工具"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロファイルまたはツールを検索"
+          }
         }
       }
     },
@@ -12507,6 +12567,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "待命状态平静"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機は静かです"
           }
         }
       }
@@ -13405,6 +13471,12 @@
             "state": "translated",
             "value": "工具配置档是服务端定义的组合，用来说明即使运行时其他部分看起来健康时，智能体仍能和不能调用什么。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルはサーバー定義のバンドルです。ランタイムの他の部分が健全でも、エージェントが何を呼べて何を呼べないかを示します。"
+          }
         }
       }
     },
@@ -14262,6 +14334,12 @@
             "state": "translated",
             "value": "已关注"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視中"
+          }
         }
       }
     },
@@ -14305,6 +14383,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "关注中"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "監視しています"
           }
         }
       }
@@ -19982,6 +20066,12 @@
             "state": "translated",
             "value": "这台 iPhone 上仍有 1 个已静音告警被隐藏。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone では 1 件のミュートアラートが隠れたままです。"
+          }
         }
       }
     },
@@ -22498,6 +22588,12 @@
             "state": "translated",
             "value": "此 iPhone 上仍有 \\(mutedAlertCount) 条已静默告警保持隐藏。"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "この iPhone では \\(mutedAlertCount) 件のミュートアラートが隠れたままです。"
+          }
         }
       }
     },
@@ -22508,6 +22604,12 @@
             "state": "translated",
             "value": "\\(primaryItems.count) 张卡片"
           }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryItems.count)件のカード"
+          }
         }
       }
     },
@@ -22517,6 +22619,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "\\(watchItems.count) 个 agent"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchItems.count)件のエージェント"
           }
         }
       }
@@ -45371,6 +45479,4374 @@
           "stringUnit": {
             "state": "translated",
             "value": "プロバイダ、チャネル、モデル、ドリフトの各セクションが開く前に、次の統合スタックを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "1 catalog agent": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个目录代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のカタログエージェント"
+          }
+        }
+      }
+    },
+    "1 endpoint host": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个端点主机"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のエンドポイントホスト"
+          }
+        }
+      }
+    },
+    "1 external agent matches the current query.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个外部代理匹配当前查询。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のクエリに一致する外部エージェントは 1 件です。"
+          }
+        }
+      }
+    },
+    "1 history feed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 条历史流"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の履歴フィード"
+          }
+        }
+      }
+    },
+    "1 host": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个主机"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のホスト"
+          }
+        }
+      }
+    },
+    "1 push": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个推送项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のプッシュ"
+          }
+        }
+      }
+    },
+    "1 push-ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已就绪推送项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のプッシュ対応"
+          }
+        }
+      }
+    },
+    "1 push-ready agent": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个支持推送的代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のプッシュ対応エージェント"
+          }
+        }
+      }
+    },
+    "1 section ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个就绪分区"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の準備完了セクション"
+          }
+        }
+      }
+    },
+    "1 skill": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个技能"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のスキル"
+          }
+        }
+      }
+    },
+    "1 skill tag": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个技能标签"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のスキルタグ"
+          }
+        }
+      }
+    },
+    "1 stream": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个流式项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のストリーム"
+          }
+        }
+      }
+    },
+    "1 stream-ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已就绪流式项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のストリーム対応"
+          }
+        }
+      }
+    },
+    "1 stream-ready agent": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个支持流式的代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のストリーム対応エージェント"
+          }
+        }
+      }
+    },
+    "1 visible skill": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见技能"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中スキル"
+          }
+        }
+      }
+    },
+    "A2A directory pressure is currently concentrated in a search-scoped external-agent slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 目录压力当前集中在按搜索范围限定的外部代理切片上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A ディレクトリの負荷は現在、検索で絞り込まれた外部エージェントのスライスに集中しています。"
+          }
+        }
+      }
+    },
+    "A2A directory pressure is currently low and mostly reflects capability readiness.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 目录压力当前较低，主要反映能力就绪度。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A ディレクトリの負荷は現在低く、主に機能準備状況を反映しています。"
+          }
+        }
+      }
+    },
+    "A2A directory pressure is currently spread across multiple endpoint hosts.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 目录压力当前分散在多个端点主机上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A ディレクトリの負荷は現在、複数のエンドポイントホストに分散しています。"
+          }
+        }
+      }
+    },
+    "A2A focus coverage is currently anchored by multi-host endpoint spread.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 焦点覆盖当前由多主机端点分布主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A のフォーカス範囲は現在、複数ホストにまたがるエンドポイント分布が軸です。"
+          }
+        }
+      }
+    },
+    "A2A focus coverage is currently anchored by stream and push capability readiness.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 焦点覆盖当前由流式与推送能力就绪度主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A のフォーカス範囲は現在、ストリームとプッシュ機能の準備状況が軸です。"
+          }
+        }
+      }
+    },
+    "A2A focus coverage is currently anchored by the filtered external-agent slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 焦点覆盖当前由筛选后的外部代理切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A のフォーカス範囲は現在、フィルター済みの外部エージェントスライスが軸です。"
+          }
+        }
+      }
+    },
+    "A2A focus coverage is currently balanced across the visible external-agent directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 焦点覆盖当前在可见外部代理目录中保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A のフォーカス範囲は現在、表示中の外部エージェントディレクトリ全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "A2A workstream coverage is currently anchored by capability readiness across visible agents.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 工作流覆盖当前由可见代理的能力就绪度主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A ワークストリームのカバレッジは現在、表示中エージェント全体の機能準備状況が軸です。"
+          }
+        }
+      }
+    },
+    "A2A workstream coverage is currently anchored by endpoint host spread.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 工作流覆盖当前由端点主机分布主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A ワークストリームのカバレッジは現在、エンドポイントホストの分布が軸です。"
+          }
+        }
+      }
+    },
+    "A2A workstream coverage is currently anchored by the filtered directory slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 工作流覆盖当前由筛选后的目录切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A ワークストリームのカバレッジは現在、フィルター済みのディレクトリスライスが軸です。"
+          }
+        }
+      }
+    },
+    "A2A workstream coverage is currently light across the visible directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 工作流覆盖当前在可见目录中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A ワークストリームのカバレッジは現在、表示中のディレクトリ全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Directory Facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目录概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ディレクトリ要点"
+          }
+        }
+      }
+    },
+    "External agent inventory is available for quick inspection.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外部代理清单已可用于快速查看。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外部エージェント一覧はすぐに確認できます。"
+          }
+        }
+      }
+    },
+    "External-agent routes stay compact before the comms and runtime drilldowns.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外部代理路由会在进入通信和运行时下钻前保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外部エージェントのルートは、通信とランタイムのドリルダウンに入る前はコンパクトに保たれます。"
+          }
+        }
+      }
+    },
+    "External-agent routes stay compact while the directory is search-scoped.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当目录受搜索范围限制时，外部代理路由会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ディレクトリが検索で絞られている間、外部エージェントのルートはコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Keep broader health and config checks behind the primary A2A exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让更广泛的健康与配置检查位于主 A2A 出口之后。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より広い健全性と設定チェックは主要な A2A 出口の後ろに置きます。"
+          }
+        }
+      }
+    },
+    "Keep comms, runtime, and diagnostics exits closest to the external-agent directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让通信、运行时和诊断出口最靠近外部代理目录。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信、ランタイム、診断の出口を外部エージェントディレクトリの近くに置きます。"
+          }
+        }
+      }
+    },
+    "Keep directory breadth and capability spread readable before the external-agent rows and route rails take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在外部代理行和路由栏接管前，先让目录广度和能力分布保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外部エージェントの行とルートレールが前面に出る前に、ディレクトリの広がりと機能分布を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep endpoint host spread, skill coverage, and the richest agent summary visible while triaging the external-agent directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在分诊外部代理目录时，先让端点主机分布、技能覆盖和最丰富的代理摘要保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外部エージェントディレクトリをトリアージする間、エンドポイントホストの広がり、スキルカバレッジ、もっとも情報量の多いエージェント要約を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep host spread, streaming or push readiness, and scoped directory state readable before moving through the external-agent list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在浏览外部代理列表前，先让主机分布、流式或推送就绪度以及限定范围的目录状态保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外部エージェント一覧を移動する前に、ホスト分布、ストリーミングまたはプッシュの準備状況、絞り込まれたディレクトリ状態を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep summary, routes, and the active directory slice visible before drilling into external-agent records.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入外部代理记录前，先让摘要、路由和激活目录切片保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外部エージェント記録へ掘り下げる前に、要約、ルート、アクティブなディレクトリスライスを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the dominant external-agent lane readable before leaving the directory for comms, runtime, or diagnostics context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在离开目录切换到通信、运行时或诊断上下文前，先让主外部代理通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信、ランタイム、診断の文脈へ移るためにディレクトリを離れる前に、主要な外部エージェントレーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the next external-agent stack visible before the directory opens into full agent rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在目录展开为完整代理行前，先让下一组外部代理堆栈保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ディレクトリが完全なエージェント行へ開く前に、次の外部エージェントスタックを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the visible external-agent slice and host spread visible before pivoting into comms, runtime, or diagnostics context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到通信、运行时或诊断上下文前，先让可见外部代理切片和主机分布保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信、ランタイム、診断の文脈へ切り替える前に、表示中の外部エージェントスライスとホスト分布を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Multi-host directory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "多主机目录"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "複数ホストのディレクトリ"
+          }
+        }
+      }
+    },
+    "Search agent, skill, or URL": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索代理、技能或 URL"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェント、スキル、または URL を検索"
+          }
+        }
+      }
+    },
+    "Section Coverage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分区覆盖"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セクションカバレッジ"
+          }
+        }
+      }
+    },
+    "Section coverage stays visible before routes and the external-agent directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在路由和外部代理目录之前，分区覆盖会保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートと外部エージェントディレクトリの前で、セクションカバレッジは見えるまま保たれます。"
+          }
+        }
+      }
+    },
+    "The active external-agent slice stays summarized before the full directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在完整目录之前，激活的外部代理切片会保持摘要显示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクティブな外部エージェントスライスは完全なディレクトリの前で要約表示されたままです。"
+          }
+        }
+      }
+    },
+    "The current external-agent slice stays summarized before the filtered directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在筛选目录之前，当前外部代理切片会保持摘要显示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在の外部エージェントスライスは絞り込みディレクトリの前で要約表示されたままです。"
+          }
+        }
+      }
+    },
+    "Top agent: 1 skill": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "头部代理：1 个技能"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上位エージェント: 1件のスキル"
+          }
+        }
+      }
+    },
+    "Top agent: \\((mostSkilledAgent.skills?.count ?? 0)) skills": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "头部代理：\\((mostSkilledAgent.skills?.count ?? 0)) 个技能"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上位エージェント: \\((mostSkilledAgent.skills?.count ?? 0))件のスキル"
+          }
+        }
+      }
+    },
+    "Try a different agent name, skill, or endpoint query.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尝试其他代理名、技能或端点查询。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "別のエージェント名、スキル、またはエンドポイント検索を試してください。"
+          }
+        }
+      }
+    },
+    "Use comms and runtime surfaces first.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "优先使用通信和运行时界面。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まず通信とランタイムの画面を使ってください。"
+          }
+        }
+      }
+    },
+    "Use section coverage to confirm how much external-agent context is ready before leaving the directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用分区覆盖确认离开目录前已有多少外部代理上下文准备就绪。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セクションカバレッジを使って、ディレクトリを離れる前にどれだけ外部エージェントの文脈が準備できているか確認します。"
+          }
+        }
+      }
+    },
+    "Use section coverage to confirm the scoped directory before pivoting into comms or runtime context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用分区覆盖确认限定范围的目录后，再切换到通信或运行时上下文。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通信またはランタイムの文脈へ切り替える前に、セクションカバレッジで絞り込まれたディレクトリを確認します。"
+          }
+        }
+      }
+    },
+    "Use the compact deck to gauge streaming, push, and skill coverage before opening each external agent.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用紧凑卡片，在打开每个外部代理前判断流式、推送和技能覆盖。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなデッキで、各外部エージェントを開く前にストリーミング、プッシュ、スキルのカバレッジを見極めます。"
+          }
+        }
+      }
+    },
+    "Use the route inventory to gauge the active agent slice before leaving the external-agent directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用路由清单，在离开外部代理目录前判断激活代理切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートインベントリを使って、外部エージェントディレクトリを離れる前にアクティブなエージェントスライスを見極めます。"
+          }
+        }
+      }
+    },
+    "Use these routes when the external-agent directory needs runtime, comms, or diagnostics context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当外部代理目录需要运行时、通信或诊断上下文时，使用这些路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外部エージェントディレクトリにランタイム、通信、または診断の文脈が必要な場合は、これらのルートを使います。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant external-agent lane visible before moving from compact inventory into route rails and the full directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在从紧凑清单切换到路由栏和完整目录前，让主外部代理通道保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、コンパクトなインベントリからルートレールと完全なディレクトリへ移る前に、主要な外部エージェントレーンを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether external-agent review is currently led by host spread, streaming readiness, or scoped search before opening the full directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开完整目录前，查看当前外部代理审查是由主机分布、流式就绪度还是限定搜索主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、完全なディレクトリを開く前に、現在の外部エージェント確認がホスト分布、ストリーミング準備、または絞り込み検索のどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "Use this deck to separate endpoint spread, streaming readiness, and push capability before opening the external-agent directory rows.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开外部代理目录行前区分端点分布、流式就绪度和推送能力。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、外部エージェントディレクトリの行を開く前に、エンドポイント分布、ストリーミング準備、プッシュ機能を切り分けます。"
+          }
+        }
+      }
+    },
+    "\\(agents.count) external agents match the current query.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agents.count) 个外部代理匹配当前查询。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のクエリに一致する外部エージェントは \\(agents.count) 件です。"
+          }
+        }
+      }
+    },
+    "\\(agents.count) of \\(totalAgents) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可见 \\(agents.count) / \\(totalAgents)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalAgents)件中\\(agents.count)件を表示"
+          }
+        }
+      }
+    },
+    "\\(agents.count) visible agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agents.count) 个可见代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(agents.count)件の表示中エージェント"
+          }
+        }
+      }
+    },
+    "\\(historyCount) history feeds": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(historyCount) 条历史流"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(historyCount)件の履歴フィード"
+          }
+        }
+      }
+    },
+    "\\(hostCount) endpoint hosts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(hostCount) 个端点主机"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(hostCount)件のエンドポイントホスト"
+          }
+        }
+      }
+    },
+    "\\(hostCount) hosts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(hostCount) 个主机"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(hostCount)件のホスト"
+          }
+        }
+      }
+    },
+    "\\(pushCount) push": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pushCount) 个推送项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pushCount)件のプッシュ"
+          }
+        }
+      }
+    },
+    "\\(pushCount) push-ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pushCount) 个已就绪推送项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pushCount)件のプッシュ対応"
+          }
+        }
+      }
+    },
+    "\\(pushCount) push-ready agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pushCount) 个支持推送的代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(pushCount)件のプッシュ対応エージェント"
+          }
+        }
+      }
+    },
+    "\\(sectionCount) sections ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sectionCount) 个就绪分区"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(sectionCount)件の準備完了セクション"
+          }
+        }
+      }
+    },
+    "\\(skillCount) skills": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(skillCount) 个技能"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(skillCount)件のスキル"
+          }
+        }
+      }
+    },
+    "\\(skillCount) visible skills": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(skillCount) 个可见技能"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(skillCount)件の表示中スキル"
+          }
+        }
+      }
+    },
+    "\\(streamingCount) stream": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(streamingCount) 个流式项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(streamingCount)件のストリーム"
+          }
+        }
+      }
+    },
+    "\\(streamingCount) stream-ready": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(streamingCount) 个已就绪流式项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(streamingCount)件のストリーム対応"
+          }
+        }
+      }
+    },
+    "\\(streamingCount) stream-ready agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(streamingCount) 个支持流式的代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(streamingCount)件のストリーム対応エージェント"
+          }
+        }
+      }
+    },
+    "\\(tagCount) skill tags": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(tagCount) 个技能标签"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(tagCount)件のスキルタグ"
+          }
+        }
+      }
+    },
+    "\\(totalAgentCount) catalog agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalAgentCount) 个目录代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalAgentCount)件のカタログエージェント"
+          }
+        }
+      }
+    },
+    "\\(totalAgents) agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalAgents) 个代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalAgents)件のエージェント"
+          }
+        }
+      }
+    },
+    "\\(visibleAgentCount) of \\(totalAgentCount) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可见 \\(visibleAgentCount) / \\(totalAgentCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalAgentCount)件中\\(visibleAgentCount)件を表示"
+          }
+        }
+      }
+    },
+    "\\(visibleAgentCount) visible agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleAgentCount) 个可见代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleAgentCount)件の表示中エージェント"
+          }
+        }
+      }
+    },
+    "\\(visibleAgents) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleAgents) 可见"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleAgents)件を表示"
+          }
+        }
+      }
+    },
+    "+\\(remaining) more": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+\\(remaining) 更多"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+\\(remaining)件"
+          }
+        }
+      }
+    },
+    "1 bundled tool": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个捆绑工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のバンドルツール"
+          }
+        }
+      }
+    },
+    "1 catalog profile": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个目录配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のカタログプロファイル"
+          }
+        }
+      }
+    },
+    "1 empty profile": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个空配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の空プロファイル"
+          }
+        }
+      }
+    },
+    "1 profile": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のプロファイル"
+          }
+        }
+      }
+    },
+    "1 selected tool": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已选工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の選択済みツール"
+          }
+        }
+      }
+    },
+    "1 tool character": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个工具字符"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のツール文字"
+          }
+        }
+      }
+    },
+    "1 tool in profile": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配置中 1 个工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロファイル内 1件のツール"
+          }
+        }
+      }
+    },
+    "1 tool in top profile": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "头部配置中 1 个工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上位プロファイル内 1件のツール"
+          }
+        }
+      }
+    },
+    "1 visible profile": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个可见配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中プロファイル"
+          }
+        }
+      }
+    },
+    "Catalog Facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目录概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カタログ要点"
+          }
+        }
+      }
+    },
+    "Dense catalog": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密集目录"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高密度カタログ"
+          }
+        }
+      }
+    },
+    "Keep fleet, runtime, integration, and diagnostics exits closest to compact tool-profile review.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让机群、运行时、集成和诊断出口最靠近紧凑工具配置审查。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フリート、ランタイム、統合、診断の出口を、コンパクトなツールプロファイル確認の近くに置きます。"
+          }
+        }
+      }
+    },
+    "Keep integration and diagnostics context behind the primary fleet exits.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让集成和诊断上下文位于主要机群出口之后。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "統合と診断の文脈は主要なフリート出口の後ろに置きます。"
+          }
+        }
+      }
+    },
+    "Keep selected-profile depth, dense tool catalogs, and scoped search state readable before moving through the full profile list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在浏览完整配置列表前，先让已选配置深度、密集工具目录和限定搜索状态保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全なプロファイル一覧を移動する前に、選択中プロファイルの深さ、高密度ツールカタログ、絞り込み検索状態を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep selected-profile focus and catalog tool density readable before drilling into bundled tool sets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入捆绑工具集合前，先让已选配置焦点和目录工具密度保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バンドルツールセットへ掘り下げる前に、選択中プロファイルの焦点とカタログのツール密度を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep snapshot, routes, selected-profile state, and the wider profile catalog visible before drilling into bundled tools.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在深入捆绑工具前，先让快照、路由、已选配置状态和更广的配置目录保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バンドルツールへ掘り下げる前に、スナップショット、ルート、選択中プロファイル状態、より広いプロファイルカタログを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the active catalog slice and selected bundle visible before pivoting into fleet, runtime, or integration context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到机群、运行时或集成上下文前，先让激活目录切片和已选捆绑保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フリート、ランタイム、または統合の文脈へ切り替える前に、アクティブなカタログスライスと選択中バンドルを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the dominant tool-profile lane readable before pivoting into fleet, runtime, or integration context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在切换到机群、运行时或集成上下文前，先让主工具配置通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フリート、ランタイム、または統合の文脈へ切り替える前に、主要なツールプロファイルレーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the next tool-profile stacks visible before the current profile and full profile list open up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在当前配置和完整配置列表展开前，先让下一组工具配置堆栈保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のプロファイルと完全なプロファイル一覧が開く前に、次のツールプロファイルスタックを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the selected bundle name, tool count, and the most verbose tool label visible while comparing profile contents.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在比较配置内容时，先让已选捆绑名称、工具数量和最长工具标签保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロファイル内容を比較する間、選択中バンドル名、ツール数、もっとも長いツールラベルを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the visible profile count, catalog tool footprint, and largest bundle visible while scanning profile inventory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在扫描配置清单时，先让可见配置数量、目录工具规模和最大捆绑保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロファイル一覧を確認する間、表示中プロファイル数、カタログのツール規模、最大バンドルを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Largest: 1 tool": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最大：1 个工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最大: 1件のツール"
+          }
+        }
+      }
+    },
+    "Largest: \\(largestProfile.tools.count) tools": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最大：\\(largestProfile.tools.count) 个工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最大: \\(largestProfile.tools.count)件のツール"
+          }
+        }
+      }
+    },
+    "LibreFang did not return a tool profile named \\\"\\(selectedProfileName)\\\".": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang 没有返回名为 \\\"\\(selectedProfileName)\\\" 的工具配置。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang は \\\"\\(selectedProfileName)\\\" という名前のツールプロファイルを返しませんでした。"
+          }
+        }
+      }
+    },
+    "LibreFang did not return any tool profile summaries.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang 没有返回任何工具配置摘要。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LibreFang はツールプロファイルの要約を 1 件も返しませんでした。"
+          }
+        }
+      }
+    },
+    "Loading": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加载中"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "読み込み中"
+          }
+        }
+      }
+    },
+    "No Matching Profiles": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有匹配的配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一致するプロファイルがありません"
+          }
+        }
+      }
+    },
+    "No Tool Profiles": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有工具配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルがありません"
+          }
+        }
+      }
+    },
+    "No tools in this profile.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个配置中没有工具。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このプロファイルにはツールがありません。"
+          }
+        }
+      }
+    },
+    "Profile Facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配置概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロファイル要点"
+          }
+        }
+      }
+    },
+    "Profiles": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロファイル"
+          }
+        }
+      }
+    },
+    "Section coverage stays visible before routes, the selected profile, and the wider profile catalog.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在路由、已选配置和更广的配置目录之前，分区覆盖会保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルート、選択中プロファイル、より広いプロファイルカタログの前で、セクションカバレッジは見えるまま保たれます。"
+          }
+        }
+      }
+    },
+    "Section coverage stays visible while tool profiles are still loading.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当工具配置仍在加载时，分区覆盖会保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルの読み込み中も、セクションカバレッジは見えるまま保たれます。"
+          }
+        }
+      }
+    },
+    "Selected profile": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已选配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選択中プロファイル"
+          }
+        }
+      }
+    },
+    "Showing \\(visibleTools.count) of \\(profile.tools.count) tools": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示 \\(visibleTools.count) / \\(profile.tools.count) 个工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(profile.tools.count)件中\\(visibleTools.count)件のツールを表示"
+          }
+        }
+      }
+    },
+    "Showing all tools": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示全部工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべてのツールを表示"
+          }
+        }
+      }
+    },
+    "The filtered profile catalog stays compact before the full profile directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在完整配置目录前，筛选后的配置目录会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィルター済みのプロファイルカタログは完全なプロファイルディレクトリの前でコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "The selected tool profile stays compact before the full profile tool list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在完整配置工具列表前，已选工具配置会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選択中のツールプロファイルは完全なプロファイルツール一覧の前でコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Tool profiles explain what the runtime is allowed to call.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置说明运行时被允许调用什么。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルは、ランタイムが何を呼び出せるかを示します。"
+          }
+        }
+      }
+    },
+    "Tool-profile focus coverage is currently anchored by dense bundled tool sets.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置焦点覆盖当前由密集的捆绑工具集合主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルのフォーカス範囲は現在、密度の高いバンドルツールセットが軸です。"
+          }
+        }
+      }
+    },
+    "Tool-profile focus coverage is currently anchored by the filtered profile catalog.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置焦点覆盖当前由筛选后的配置目录主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルのフォーカス範囲は現在、フィルター済みのプロファイルカタログが軸です。"
+          }
+        }
+      }
+    },
+    "Tool-profile focus coverage is currently anchored by the selected profile and its bundled tools.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置焦点覆盖当前由已选配置及其捆绑工具主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルのフォーカス範囲は現在、選択中プロファイルとそのバンドルツールが軸です。"
+          }
+        }
+      }
+    },
+    "Tool-profile focus coverage is currently balanced across the visible profile catalog.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置焦点覆盖当前在可见配置目录中保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルのフォーカス範囲は現在、表示中のプロファイルカタログ全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Tool-profile pressure is currently anchored by the selected profile and its bundled tools.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置压力当前由已选配置及其捆绑工具主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルの負荷は現在、選択中プロファイルとそのバンドルツールが軸です。"
+          }
+        }
+      }
+    },
+    "Tool-profile pressure is currently concentrated in a search-scoped catalog slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置压力当前集中在按搜索范围限定的目录切片上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルの負荷は現在、検索で絞り込まれたカタログスライスに集中しています。"
+          }
+        }
+      }
+    },
+    "Tool-profile pressure is currently low and mostly reflects catalog tool density.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置压力当前较低，主要反映目录工具密度。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルの負荷は現在低く、主にカタログのツール密度を反映しています。"
+          }
+        }
+      }
+    },
+    "Tool-profile routes stay compact before the surrounding fleet and runtime drilldowns.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置路由会在周边机群与运行时下钻前保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルのルートは、周辺のフリートおよびランタイムのドリルダウンに入る前はコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Tool-profile routes stay compact while the catalog is search-scoped.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当目录受搜索范围限制时，工具配置路由会保持紧凑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カタログが検索で絞られている間、ツールプロファイルのルートはコンパクトなままです。"
+          }
+        }
+      }
+    },
+    "Tool-profile workstream coverage is currently anchored by dense visible tool catalogs.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置工作流覆盖当前由密集的可见工具目录主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルのワークストリームカバレッジは現在、高密度な表示中ツールカタログが軸です。"
+          }
+        }
+      }
+    },
+    "Tool-profile workstream coverage is currently anchored by the filtered profile slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置工作流覆盖当前由筛选后的配置切片主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルのワークストリームカバレッジは現在、フィルター済みのプロファイルスライスが軸です。"
+          }
+        }
+      }
+    },
+    "Tool-profile workstream coverage is currently anchored by the selected profile.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置工作流覆盖当前由已选配置主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルのワークストリームカバレッジは現在、選択中プロファイルが軸です。"
+          }
+        }
+      }
+    },
+    "Tool-profile workstream coverage is currently light across the visible profiles.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置工作流覆盖当前在可见配置中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルのワークストリームカバレッジは現在、表示中のプロファイル全体で軽めです。"
+          }
+        }
+      }
+    },
+    "Try a different profile or tool search.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尝试其他配置或工具搜索。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "別のプロファイルまたはツール検索を試してください。"
+          }
+        }
+      }
+    },
+    "Use fleet and runtime surfaces first.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "优先使用机群和运行时界面。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まずフリートとランタイムの画面を使ってください。"
+          }
+        }
+      }
+    },
+    "Use section coverage to confirm how much profile context is ready before leaving the catalog.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用分区覆盖确认离开目录前已有多少配置上下文准备就绪。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セクションカバレッジを使って、カタログを離れる前にどれだけのプロファイル文脈が準備できているか確認します。"
+          }
+        }
+      }
+    },
+    "Use section coverage to confirm the scoped profile catalog before pivoting into fleet or runtime context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用分区覆盖确认限定范围的配置目录后，再切换到机群或运行时上下文。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フリートまたはランタイムの文脈へ切り替える前に、セクションカバレッジで絞り込まれたプロファイルカタログを確認します。"
+          }
+        }
+      }
+    },
+    "Use the current-profile deck to confirm the loaded bundle and its tool weight before opening the full tool grid.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用当前配置卡片，在打开完整工具网格前确认已加载捆绑及其工具规模。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在のプロファイルデッキで、完全なツールグリッドを開く前に読み込まれたバンドルとそのツール量を確認します。"
+          }
+        }
+      }
+    },
+    "Use the route inventory to gauge how many exits are active before leaving the tool-profile directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用路由清单，在离开工具配置目录前判断有多少出口处于激活状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートインベントリを使って、ツールプロファイルディレクトリを離れる前にいくつの出口が有効かを見極めます。"
+          }
+        }
+      }
+    },
+    "Use these routes when profile inspection needs fleet, runtime, or integration context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当配置检查需要机群、运行时或集成上下文时，使用这些路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロファイル確認にフリート、ランタイム、または統合の文脈が必要な場合は、これらのルートを使います。"
+          }
+        }
+      }
+    },
+    "Use this deck to compare the selected profile against the rest of the visible catalog.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片比较已选配置与其余可见目录。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、選択中プロファイルを表示中の残りカタログと比較します。"
+          }
+        }
+      }
+    },
+    "Use this deck to gauge profile breadth and the heaviest bundle before opening each catalog entry.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开每个目录条目前判断配置广度和最重的捆绑。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、各カタログ項目を開く前にプロファイルの幅ともっとも重いバンドルを見極めます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep the dominant tool-profile lane visible before moving from compact catalog decks into the selected profile and full profile list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在从紧凑目录卡片切换到已选配置和完整配置列表前，让主工具配置通道保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、コンパクトなカタログデッキから選択中プロファイルと完全なプロファイル一覧へ移る前に、主要なツールプロファイルレーンを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to see whether tool-profile review is currently led by the selected profile, dense catalogs, or scoped search before the profile list opens.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在配置列表展开前查看当前工具配置审查是由已选配置、密集目录还是限定搜索主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、プロファイル一覧が開く前に、現在のツールプロファイル確認が選択中プロファイル、高密度カタログ、または絞り込み検索のどれに主導されているかを確認します。"
+          }
+        }
+      }
+    },
+    "Use this deck to separate selected-profile focus from broad tool-density pressure before opening the catalog below.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在打开下方目录前区分已选配置焦点与广泛的工具密度压力。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、下のカタログを開く前に、選択中プロファイルの焦点と広いツール密度の負荷を切り分けます。"
+          }
+        }
+      }
+    },
+    "\\(densestVisibleToolCount) tools in top profile": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "头部配置中有 \\(densestVisibleToolCount) 个工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上位プロファイル内に \\(densestVisibleToolCount)件のツール"
+          }
+        }
+      }
+    },
+    "\\(emptyProfileCount) empty profiles": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(emptyProfileCount) 个空配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(emptyProfileCount)件の空プロファイル"
+          }
+        }
+      }
+    },
+    "\\(profile.tools.count) bundled tools": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(profile.tools.count) 个捆绑工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(profile.tools.count)件のバンドルツール"
+          }
+        }
+      }
+    },
+    "\\(profile.tools.count) tools": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(profile.tools.count) 个工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(profile.tools.count)件のツール"
+          }
+        }
+      }
+    },
+    "\\(profile.tools.count) tools in profile": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "配置中 \\(profile.tools.count) 个工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロファイル内 \\(profile.tools.count)件のツール"
+          }
+        }
+      }
+    },
+    "\\(profiles.count) catalog profiles": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(profiles.count) 个目录配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(profiles.count)件のカタログプロファイル"
+          }
+        }
+      }
+    },
+    "\\(profiles.count) of \\(totalProfiles) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可见 \\(profiles.count) / \\(totalProfiles)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalProfiles)件中\\(profiles.count)件を表示"
+          }
+        }
+      }
+    },
+    "\\(profiles.count) visible profiles": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(profiles.count) 个可见配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(profiles.count)件の表示中プロファイル"
+          }
+        }
+      }
+    },
+    "\\(selectedToolCount) selected tools": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(selectedToolCount) 个已选工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(selectedToolCount)件の選択済みツール"
+          }
+        }
+      }
+    },
+    "\\(selectedToolCount) tools": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(selectedToolCount) 个工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(selectedToolCount)件のツール"
+          }
+        }
+      }
+    },
+    "\\(toolNameCharacterCount) tool characters": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(toolNameCharacterCount) 个工具字符"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(toolNameCharacterCount)件のツール文字"
+          }
+        }
+      }
+    },
+    "\\(totalProfileCount) catalog profiles": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalProfileCount) 个目录配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalProfileCount)件のカタログプロファイル"
+          }
+        }
+      }
+    },
+    "\\(totalProfiles) profiles": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalProfiles) 个配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalProfiles)件のプロファイル"
+          }
+        }
+      }
+    },
+    "\\(visibleProfileCount) of \\(totalProfileCount) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可见 \\(visibleProfileCount) / \\(totalProfileCount)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalProfileCount)件中\\(visibleProfileCount)件を表示"
+          }
+        }
+      }
+    },
+    "\\(visibleProfileCount) visible profiles": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleProfileCount) 个可见配置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleProfileCount)件の表示中プロファイル"
+          }
+        }
+      }
+    },
+    "\\(visibleProfiles) visible": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleProfiles) 可见"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleProfiles)件を表示"
+          }
+        }
+      }
+    },
+    "\\(visibleToolCount) visible tools": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleToolCount) 个可见工具"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleToolCount)件の表示中ツール"
+          }
+        }
+      }
+    },
+    "1 active watch": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个活跃监视"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のアクティブ監視"
+          }
+        }
+      }
+    },
+    "1 advisory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个建议项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のアドバイザリ"
+          }
+        }
+      }
+    },
+    "1 card in view": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 张视图内卡片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中カード"
+          }
+        }
+      }
+    },
+    "1 glance card": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 张概览卡片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のグランスカード"
+          }
+        }
+      }
+    },
+    "1 main card": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 张主卡片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のメインカード"
+          }
+        }
+      }
+    },
+    "1 muted route context": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个静音路由上下文"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のミュートされたルート文脈"
+          }
+        }
+      }
+    },
+    "1 pinned agent": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个固定代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のピン留めエージェント"
+          }
+        }
+      }
+    },
+    "1 pinned agent in view": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个视图内固定代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の表示中ピン留めエージェント"
+          }
+        }
+      }
+    },
+    "1 primary item": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个主项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の主要項目"
+          }
+        }
+      }
+    },
+    "1 queued card": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 张排队卡片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のキュー中カード"
+          }
+        }
+      }
+    },
+    "1 queued item": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个排队项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のキュー中項目"
+          }
+        }
+      }
+    },
+    "1 queued route context": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个排队路由上下文"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件のキュー中ルート文脈"
+          }
+        }
+      }
+    },
+    "1 quiet pin": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个安静固定项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の静かなピン"
+          }
+        }
+      }
+    },
+    "1 stale": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个过期项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の古い項目"
+          }
+        }
+      }
+    },
+    "1 standby section is active below the hero snapshot.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主卡片快照下方有 1 个待命分区处于活动状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ヒーロースナップショットの下では 1 件の待機セクションが有効です。"
+          }
+        }
+      }
+    },
+    "1 watch item": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个监视项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の監視項目"
+          }
+        }
+      }
+    },
+    "1 watch row": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 行监视项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の監視行"
+          }
+        }
+      }
+    },
+    "1 watched item": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 个已关注项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1件の監視対象項目"
+          }
+        }
+      }
+    },
+    "Action Readiness": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "行动就绪度"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクション準備"
+          }
+        }
+      }
+    },
+    "Active support": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活跃辅助"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクティブ補助"
+          }
+        }
+      }
+    },
+    "At a Glance is showing \\(visibleCount) of \\(totalCount) live standby cards.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "概览当前显示 \\(visibleCount) / \\(totalCount) 张实时待命卡片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一目でわかる表示には現在、ライブな待機カード \\(totalCount) 件中 \\(visibleCount) 件が表示されています。"
+          }
+        }
+      }
+    },
+    "At a Glance is showing all \\(visibleCount) live standby cards.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "概览当前显示全部 \\(visibleCount) 张实时待命卡片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一目でわかる表示には現在、\\(visibleCount) 件すべてのライブ待機カードが表示されています。"
+          }
+        }
+      }
+    },
+    "At a Glance is showing the only live standby card.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "概览当前显示唯一的实时待命卡片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一目でわかる表示には現在、唯一のライブ待機カードが表示されています。"
+          }
+        }
+      }
+    },
+    "Calm queue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "平静队列"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "落ち着いたキュー"
+          }
+        }
+      }
+    },
+    "Every pinned agent currently has some live pressure, so this watchlist row carries the full local watch surface.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前每个固定代理都有实时压力，因此这个关注列表行承载了完整的本地监视界面。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在、ピン留めされたすべてのエージェントに何らかのライブ負荷があるため、このウォッチリスト行がローカル監視画面全体を担っています。"
+          }
+        }
+      }
+    },
+    "Glance cards, watch pressure, and support issue buckets stay summarized before the route rails and slower drills take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在路由栏和较慢的下钻接管前，概览卡片、监视压力和辅助问题分桶会保持摘要显示。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートレールや遅いドリルが前面に出る前に、グランスカード、監視負荷、補助問題バケットは要約表示されたままです。"
+          }
+        }
+      }
+    },
+    "Glance inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "概览清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "グランスインベントリ"
+          }
+        }
+      }
+    },
+    "Hero": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主卡片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ヒーロー"
+          }
+        }
+      }
+    },
+    "Keep local watch breadth, live alert visibility, and slower handoff carry-through readable before the standby control rails take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在待命控制栏接管前，先让本地监视广度、实时告警可见性和较慢的交接延续保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機コントロールレールが前面に出る前に、ローカル監視の幅、ライブアラートの可視性、遅い引き継ぎの継続を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep muted alerts, handoff follow-ups, check-ins, and platform drift readable before the glance cards and support routes.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在概览卡片和辅助路由之前，先让静音告警、交接跟进、签到和平台漂移保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "グランスカードと補助ルートの前に、ミュートアラート、引き継ぎフォロー、チェックイン、プラットフォームドリフトを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep severity mix, watch pressure, and follow-up drag readable before the glance cards and route rails.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在概览卡片和路由栏之前，先让严重度组合、监视压力和后续拖拽保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "グランスカードとルートレールの前に、重大度の構成、監視負荷、フォローアップの重さを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep standby acknowledgement, muted drag, and next-route readiness visible before opening the deeper calm-mode surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开更深层的平静模式界面前，先让待命确认、静音拖拽和下一路由就绪度保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より深い静穏モード画面を開く前に、待機の確認状態、ミュートの重さ、次のルート準備を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep standby queue depth, watch pressure, and supporting issue buckets visible before the route rails expand.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在路由栏展开前，先让待命队列深度、监视压力和辅助问题分桶保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ルートレールが広がる前に、待機キューの深さ、監視負荷、補助問題バケットを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep standby tone, queue size, and pressure readable before opening deeper surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在打开更深层界面前，先让待命基调、队列大小和压力保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より深い画面を開く前に、待機のトーン、キューサイズ、負荷を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the dominant standby lane readable before moving from the compact digest into queue cards and watchlist detail.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在从紧凑摘要切换到队列卡片和关注列表细节前，先让主待命通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなダイジェストからキューカードとウォッチリスト詳細へ移る前に、主要な待機レーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the main glance cards, watched rows, and slower support lanes readable before the standby routes and deeper drills take over.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在待命路由和更深下钻接管前，先让主概览卡片、已关注行和较慢的辅助通道保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機ルートやより深いドリルが前面に出る前に、主要なグランスカード、監視対象行、遅い補助レーンを読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Keep the next standby drills in one deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将下一组待命下钻保留在同一卡片中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次の待機ドリルを 1 つのデッキにまとめます。"
+          }
+        }
+      }
+    },
+    "Keep the next standby stacks visible before the glance, watchlist, and route cards open up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在概览、关注列表和路由卡片展开前，先让下一组待命堆栈保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "グランス、ウォッチリスト、ルートカードが開く前に、次の待機スタックを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Live queue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实时队列"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブキュー"
+          }
+        }
+      }
+    },
+    "Mixed lanes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "混合通道"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "混在レーン"
+          }
+        }
+      }
+    },
+    "No live priority cards are currently leading standby.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前没有实时优先级卡片处于待命前列。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在、待機を先導するライブ優先カードはありません。"
+          }
+        }
+      }
+    },
+    "Nothing is hidden below the fold, so the standby queue is fully represented in the glance deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "折叠下方没有隐藏内容，因此待命队列已在概览卡片中完整呈现。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "折りたたみの下に隠れているものはなく、待機キューはグランスデッキで完全に表現されています。"
+          }
+        }
+      }
+    },
+    "Pinned agents remain visible here even when standby is otherwise calm and most drilldowns stay collapsed.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即使待命整体平静且大多数下钻保持折叠，固定代理仍会继续显示在这里。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機全体が落ち着いていて大半のドリルダウンが折りたたまれていても、ピン留めエージェントはここに表示されたままです。"
+          }
+        }
+      }
+    },
+    "Pinned watch inventory": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "固定监视清单"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピン留め監視インベントリ"
+          }
+        }
+      }
+    },
+    "Pinned watchlist is showing \\(visibleCount) of \\(items.count) active standby watches.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "固定关注列表当前显示 \\(visibleCount) / \\(items.count) 个活跃待命监视。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピン留めウォッチリストには現在、アクティブな待機監視 \\(items.count) 件中 \\(visibleCount) 件が表示されています。"
+          }
+        }
+      }
+    },
+    "Pinned watchlist is showing all \\(items.count) active standby watches.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "固定关注列表当前显示全部 \\(items.count) 个活跃待命监视。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピン留めウォッチリストには現在、\\(items.count) 件すべてのアクティブな待機監視が表示されています。"
+          }
+        }
+      }
+    },
+    "Pinned watchlist is showing the only active standby watch.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "固定关注列表当前显示唯一的活跃待命监视。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピン留めウォッチリストには現在、唯一のアクティブな待機監視が表示されています。"
+          }
+        }
+      }
+    },
+    "Queue Coverage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "队列覆盖"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キューカバレッジ"
+          }
+        }
+      }
+    },
+    "Quiet support": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安静辅助"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "静かな補助"
+          }
+        }
+      }
+    },
+    "Share Handoff": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "共享交接"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引き継ぎを共有"
+          }
+        }
+      }
+    },
+    "Signal Facts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "信号概况"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "シグナル要点"
+          }
+        }
+      }
+    },
+    "Snapshot led": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快照主导"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スナップショット主導"
+          }
+        }
+      }
+    },
+    "Standby Snapshot": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待命快照"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機スナップショット"
+          }
+        }
+      }
+    },
+    "Standby is grouping \\(primaryRouteCount) primary routes and \\(supportRouteCount) support routes in one calm control deck.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待命会在一个平静控制卡片中分组显示 \\(primaryRouteCount) 个主路由和 \\(supportRouteCount) 个辅助路由。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機では、\\(primaryRouteCount) 件の主要ルートと \\(supportRouteCount) 件の補助ルートを 1 つの落ち着いたコントロールデッキにまとめています。"
+          }
+        }
+      }
+    },
+    "Standby keeps the top queue, muted pressure, and handoff follow-ups visible while the phone stays calm.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在手机保持平静时，待命会让顶部队列、静音压力和交接跟进保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "端末が落ち着いている間、待機では上位キュー、ミュート負荷、引き継ぎフォローを見えるまま保ちます。"
+          }
+        }
+      }
+    },
+    "Standby support coverage is currently anchored by handoff follow-up and check-in context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待命辅助覆盖当前由交接跟进和签到上下文主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機の補助カバレッジは現在、引き継ぎフォローとチェックイン文脈が軸です。"
+          }
+        }
+      }
+    },
+    "Standby support coverage is currently anchored by local watch breadth and live alert visibility.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待命辅助覆盖当前由本地监视广度和实时告警可见性主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機の補助カバレッジは現在、ローカル監視の幅とライブアラートの可視性が軸です。"
+          }
+        }
+      }
+    },
+    "Standby support coverage is currently light and mostly reflects local standby readiness.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待命辅助覆盖当前较轻，主要反映本地待命就绪度。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待機の補助カバレッジは現在軽く、主にローカル待機の準備状況を反映しています。"
+          }
+        }
+      }
+    },
+    "Support Pressure": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "辅助压力"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "補助負荷"
+          }
+        }
+      }
+    },
+    "Surfaces": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "界面"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サーフェス"
+          }
+        }
+      }
+    },
+    "The first rail keeps the next live drills close, while the support rail holds slower background and sharing surfaces.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第一条栏位会让下一步实时下钻保持靠近，而辅助栏则承载较慢的后台与共享界面。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最初のレールは次のライブドリルを近くに保ち、補助レールはより遅いバックグラウンドと共有画面を受け持ちます。"
+          }
+        }
+      }
+    },
+    "The glance deck is holding the sharpest standby slice while \\(remainingCount) lower-priority cards stay below.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "概览卡片承载了最尖锐的待命切片，而 \\(remainingCount) 张较低优先级卡片会保留在下方。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "グランスデッキにはもっとも鋭い待機スライスが載っており、\\(remainingCount) 件の低優先カードは下に残ります。"
+          }
+        }
+      }
+    },
+    "The top standby slice stays compact so queue pressure, muted alerts, and follow-ups remain readable on a locked-down phone.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顶部待命切片会保持紧凑，以便在受限手机上仍能读清队列压力、静音告警和后续事项。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上位の待機スライスはコンパクトなまま保たれ、制約のある端末でもキュー負荷、ミュートアラート、フォローアップを読みやすくします。"
+          }
+        }
+      }
+    },
+    "This agent is no longer present in the current snapshot.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个代理已不再出现在当前快照中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このエージェントは現在のスナップショットにはもう存在しません。"
+          }
+        }
+      }
+    },
+    "Top slice is full": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顶部切片已满"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上位スライスは満杯です"
+          }
+        }
+      }
+    },
+    "Use the compact route inventory to decide whether standby should escalate into night watch, on-call, or a slower support drill.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用紧凑路由清单判断待命是否应升级为夜间值守、值班或较慢的辅助下钻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなルートインベントリを使って、待機をナイトウォッチ、オンコール、または遅い補助ドリルへ昇格させるべきか判断します。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep local watch breadth, live alert visibility, and slower handoff support context readable before the readiness deck and route rails expand.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在就绪卡片和路由栏展开前，让本地监视广度、实时告警可见性和较慢的交接辅助上下文保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、準備デッキとルートレールが広がる前に、ローカル監視の幅、ライブアラートの可視性、遅い引き継ぎ補助の文脈を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Workstream Coverage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作流覆盖"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワークストリームカバレッジ"
+          }
+        }
+      }
+    },
+    "\\(activeWatchCount) active watches": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activeWatchCount) 个活跃监视"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(activeWatchCount)件のアクティブ監視"
+          }
+        }
+      }
+    },
+    "\\(advisoryCount) advisories": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(advisoryCount) 个建议项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(advisoryCount)件のアドバイザリ"
+          }
+        }
+      }
+    },
+    "\\(followUpCount) follow-ups open": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(followUpCount) 个后续事项未关闭"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(followUpCount)件のフォローアップが未完了"
+          }
+        }
+      }
+    },
+    "\\(integrationIssueCount) issues": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(integrationIssueCount) 个问题"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(integrationIssueCount)件の問題"
+          }
+        }
+      }
+    },
+    "\\(items.count) active watches": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(items.count) 个活跃监视"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(items.count)件のアクティブ監視"
+          }
+        }
+      }
+    },
+    "\\(liveAlertCount) live alerts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(liveAlertCount) 条实时告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(liveAlertCount)件のライブアラート"
+          }
+        }
+      }
+    },
+    "\\(mutedAlertCount) muted route context": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mutedAlertCount) 个静音路由上下文"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(mutedAlertCount)件のミュートされたルート文脈"
+          }
+        }
+      }
+    },
+    "\\(primaryCardCount) glance cards": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryCardCount) 张概览卡片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryCardCount)件のグランスカード"
+          }
+        }
+      }
+    },
+    "\\(primaryCardCount) main cards": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryCardCount) 张主卡片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryCardCount)件のメインカード"
+          }
+        }
+      }
+    },
+    "\\(primaryCardCount) primary items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryCardCount) 个主项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(primaryCardCount)件の主要項目"
+          }
+        }
+      }
+    },
+    "\\(priorityItems.count) queued": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(priorityItems.count) 个排队项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(priorityItems.count)件がキュー中"
+          }
+        }
+      }
+    },
+    "\\(queueCount) queued items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(queueCount) 个排队项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(queueCount)件のキュー中項目"
+          }
+        }
+      }
+    },
+    "\\(queueCount) queued route context": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(queueCount) 个排队路由上下文"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(queueCount)件のキュー中ルート文脈"
+          }
+        }
+      }
+    },
+    "\\(quietPinnedCount) pinned agents are quiet right now, so the watchlist row stays focused on the agents with live standby pressure.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前有 \\(quietPinnedCount) 个固定代理处于安静状态，因此关注列表行会继续聚焦在有实时待命压力的代理上。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(quietPinnedCount) 件のピン留めエージェントはいま静かなため、ウォッチリスト行はライブな待機負荷のあるエージェントに集中したままです。"
+          }
+        }
+      }
+    },
+    "\\(quietPinnedCount) quiet pins": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(quietPinnedCount) 个安静固定项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(quietPinnedCount)件の静かなピン"
+          }
+        }
+      }
+    },
+    "\\(remainingCount) lower cards": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(remainingCount) 张下层卡片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(remainingCount)件の下位カード"
+          }
+        }
+      }
+    },
+    "\\(sectionCount) standby sections are active below the hero snapshot.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主卡片快照下方有 \\(sectionCount) 个待命分区处于活动状态。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ヒーロースナップショットの下では \\(sectionCount) 件の待機セクションが有効です。"
+          }
+        }
+      }
+    },
+    "\\(staleCount) stale": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(staleCount) 个过期项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(staleCount)件の古い項目"
+          }
+        }
+      }
+    },
+    "\\(totalCount) queued cards": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount) 张排队卡片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalCount)件のキュー中カード"
+          }
+        }
+      }
+    },
+    "\\(totalPinnedCount) pinned agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalPinnedCount) 个固定代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalPinnedCount)件のピン留めエージェント"
+          }
+        }
+      }
+    },
+    "\\(totalWatchedCount) watched agents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalWatchedCount) 个已关注代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(totalWatchedCount)件の監視対象エージェント"
+          }
+        }
+      }
+    },
+    "\\(value)": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(value)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(value)"
+          }
+        }
+      }
+    },
+    "\\(visibleAlerts.count) alerts": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleAlerts.count) 条告警"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleAlerts.count)件のアラート"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) cards in view": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 张视图内卡片"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount)件の表示中カード"
+          }
+        }
+      }
+    },
+    "\\(visibleCount) pinned agents in view": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount) 个视图内固定代理"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(visibleCount)件の表示中ピン留めエージェント"
+          }
+        }
+      }
+    },
+    "\\(watchCount) watch items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchCount) 个监视项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchCount)件の監視項目"
+          }
+        }
+      }
+    },
+    "\\(watchCount) watch rows": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchCount) 行监视项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchCount)件の監視行"
+          }
+        }
+      }
+    },
+    "\\(watchCount) watched items": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchCount) 个已关注项"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(watchCount)件の監視対象項目"
+          }
+        }
+      }
+    },
+    "Attention Queue": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关注队列"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "注意キュー"
+          }
+        }
+      }
+    },
+    "Keep the next fleet slice visible before the compact route rail gives way to the longer agent list.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在紧凑路由栏让位给更长代理列表前，先让下一组机群切片保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンパクトなルートレールがより長いエージェント一覧へ切り替わる前に、次のフリートスライスを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Running Fleet": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "运行中的机群"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "稼働中フリート"
+          }
+        }
+      }
+    },
+    "Stopped Fleet": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已停止机群"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止中フリート"
+          }
+        }
+      }
+    },
+    "Keep the next device settings groups visible before the longer server, reminder, and monitoring forms open up.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在更长的服务器、提醒和监控表单展开前，先让下一组设备设置分组保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "より長いサーバー、リマインダー、監視フォームが開く前に、次のデバイス設定グループを見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "A2A support coverage is currently anchored by endpoint host spread.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 辅助覆盖当前由端点主机分布主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A の補助カバレッジは現在、エンドポイントホストの分布が軸です。"
+          }
+        }
+      }
+    },
+    "A2A support coverage is currently anchored by streaming and push-ready agents.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 辅助覆盖当前由流式与支持推送的代理主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A の補助カバレッジは現在、ストリーミングとプッシュ対応エージェントが軸です。"
+          }
+        }
+      }
+    },
+    "A2A support coverage is currently light across the visible directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 辅助覆盖当前在可见目录中整体较轻。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A の補助カバレッジは現在、表示中のディレクトリ全体で軽めです。"
+          }
+        }
+      }
+    },
+    "A2A support coverage is currently narrowed to a filtered directory slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A 辅助覆盖当前收窄到筛选后的目录切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A2A の補助カバレッジは現在、フィルター済みのディレクトリスライスに狭まっています。"
+          }
+        }
+      }
+    },
+    "Keep endpoint host spread, streaming readiness, and push support readable before leaving the external-agent directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在离开外部代理目录前，先让端点主机分布、流式就绪度和推送支持保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外部エージェントディレクトリを離れる前に、エンドポイントホストの分布、ストリーミング準備、プッシュ対応を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep endpoint breadth and capability-ready external-agent support visible before moving into comms, runtime, or diagnostics context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在切换到通信、运行时或诊断上下文前，让端点广度和能力就绪的外部代理辅助保持可见。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、通信、ランタイム、診断の文脈へ移る前に、エンドポイントの幅と機能準備が整った外部エージェント補助を見える状態に保ちます。"
+          }
+        }
+      }
+    },
+    "Keep selected-profile depth, broader catalog size, and dense bundled-tool support readable before leaving the profile directory.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在离开配置目录前，先让已选配置深度、更广的目录规模和密集的捆绑工具辅助保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プロファイルディレクトリを離れる前に、選択中プロファイルの深さ、より広いカタログ規模、高密度なバンドルツール補助を読みやすく保ちます。"
+          }
+        }
+      }
+    },
+    "Tool-profile support coverage is currently anchored by dense bundled-tool catalogs.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置辅助覆盖当前由密集的捆绑工具目录主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルの補助カバレッジは現在、高密度なバンドルツールカタログが軸です。"
+          }
+        }
+      }
+    },
+    "Tool-profile support coverage is currently anchored by the selected profile and its bundled tools.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置辅助覆盖当前由已选配置及其捆绑工具主导。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルの補助カバレッジは現在、選択中プロファイルとそのバンドルツールが軸です。"
+          }
+        }
+      }
+    },
+    "Tool-profile support coverage is currently balanced across the visible catalog.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置辅助覆盖当前在可见目录中保持平衡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルの補助カバレッジは現在、表示中のカタログ全体で均衡しています。"
+          }
+        }
+      }
+    },
+    "Tool-profile support coverage is currently narrowed to the filtered catalog slice.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工具配置辅助覆盖当前收窄到筛选后的目录切片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ツールプロファイルの補助カバレッジは現在、フィルター済みのカタログスライスに狭まっています。"
+          }
+        }
+      }
+    },
+    "Use this deck to keep selected-profile support, visible catalog breadth, and scoped search readable before pivoting into fleet, runtime, or integration context.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此卡片，在切换到机群、运行时或集成上下文前，让已选配置辅助、可见目录广度和限定搜索保持可读。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデッキで、フリート、ランタイム、または統合の文脈へ切り替える前に、選択中プロファイル補助、表示中カタログの幅、絞り込み検索を読みやすく保ちます。"
           }
         }
       }
