@@ -165,89 +165,8 @@ struct AgentFilesView: View {
             }
 
             Section {
-                AgentFilesSectionInventoryDeck(
-                    sectionCount: agentFilesSectionCount,
-                    visibleCount: filteredFiles.count,
-                    totalCount: files.count,
-                    missingCount: missingCount,
-                    hasActiveFilter: hasActiveFilter,
-                    scopeLabel: scope.label,
-                    scopeTone: scope.tone,
-                    isLoading: isLoading && files.isEmpty && loadError == nil,
-                    hasLoadError: loadError != nil
-                )
-                if !agentFilesSectionPreviewTitles.isEmpty {
-                    MonitoringSectionPreviewDeck(
-                        title: String(localized: "Section Preview"),
-                        detail: String(localized: "Keep the next workspace file stack visible before identity rows expand into the full file list."),
-                        sectionTitles: agentFilesSectionPreviewTitles,
-                        tone: missingStatus.tone,
-                        maxVisibleSections: 5,
-                        jumpItems: agentFilesSectionPreviewJumpItems(proxy)
-                    )
-                }
-
-                AgentFilesPressureCoverageDeck(
-                    visibleCount: filteredFiles.count,
-                    existingCount: existingCount,
-                    missingCount: missingCount,
-                    hasActiveFilter: hasActiveFilter,
-                    scopeLabel: scope.label,
-                    scopeTone: scope.tone
-                )
-                AgentFilesSupportCoverageDeck(
-                    visibleCount: filteredFiles.count,
-                    totalCount: files.count,
-                    existingCount: existingCount,
-                    missingCount: missingCount,
-                    hasActiveFilter: hasActiveFilter,
-                    scopeLabel: scope.label,
-                    scopeTone: scope.tone
-                )
-
-                AgentFilesFocusCoverageDeck(
-                    visibleCount: filteredFiles.count,
-                    totalCount: files.count,
-                    existingCount: existingCount,
-                    missingCount: missingCount,
-                    hasActiveFilter: hasActiveFilter,
-                    scopeLabel: scope.label,
-                    scopeTone: scope.tone
-                )
-                AgentFilesWorkstreamCoverageDeck(
-                    visibleCount: filteredFiles.count,
-                    totalCount: files.count,
-                    existingCount: existingCount,
-                    missingCount: missingCount,
-                    hasActiveFilter: hasActiveFilter,
-                    scopeLabel: scope.label,
-                    scopeTone: scope.tone
-                )
-                AgentFilesActionReadinessDeck(
-                    primaryRouteCount: agentFilesPrimaryRouteCount,
-                    supportRouteCount: agentFilesSupportRouteCount,
-                    visibleCount: filteredFiles.count,
-                    totalCount: files.count,
-                    existingCount: existingCount,
-                    missingCount: missingCount,
-                    hasActiveFilter: hasActiveFilter,
-                    scopeLabel: scope.label,
-                    scopeTone: scope.tone
-                )
-
-                AgentFilesRouteInventoryDeck(
-                    primaryRouteCount: agentFilesPrimaryRouteCount,
-                    supportRouteCount: agentFilesSupportRouteCount,
-                    visibleCount: filteredFiles.count,
-                    totalCount: files.count,
-                    missingCount: missingCount,
-                    hasActiveFilter: hasActiveFilter,
-                    scopeLabel: scope.label,
-                    scopeTone: scope.tone
-                )
-
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Routes"),
+                    title: String(localized: "Shortcuts"),
                     detail: String(localized: "Keep nearby agent, memory, session, and delivery exits closest to workspace identity inspection.")
                 ) {
                     MonitoringShortcutRail(
@@ -305,7 +224,7 @@ struct AgentFilesView: View {
                     }
                 }
             } header: {
-                Text(String(localized: "Routes"))
+                Text(String(localized: "Shortcuts"))
             } footer: {
                 Text(String(localized: "Use these routes when identity files need memory, delivery, or session context rather than isolated file checks."))
             }
@@ -321,13 +240,6 @@ struct AgentFilesView: View {
                 .id(AgentFilesSectionAnchor.files)
             } else {
                 Section("Files") {
-                    AgentFilesInventoryDeck(
-                        files: filteredFiles,
-                        totalFiles: files.count,
-                        scope: scope,
-                        searchText: searchText
-                    )
-
                     ForEach(filteredFiles) { file in
                         if file.exists {
                             NavigationLink {

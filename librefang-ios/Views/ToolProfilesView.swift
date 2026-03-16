@@ -67,84 +67,8 @@ struct ToolProfilesView: View {
             }
 
             Section {
-                ToolProfilesSectionInventoryDeck(
-                    sectionCount: toolProfilesSectionCount,
-                    visibleProfileCount: filteredProfiles.count,
-                    totalProfileCount: profiles.count,
-                    selectedProfileName: selectedProfile?.name ?? ((selectedProfileName?.isEmpty == false && !isLoading && loadError == nil) ? selectedProfileName : nil),
-                    hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                    isLoading: isLoading && profiles.isEmpty && loadError == nil,
-                    hasLoadError: loadError != nil
-                )
-                if !toolProfilesSectionPreviewTitles.isEmpty {
-                    MonitoringSectionPreviewDeck(
-                        title: String(localized: "Section Preview"),
-                        detail: String(localized: "Keep the next tool-profile stacks visible before the current profile and full profile list open up."),
-                        sectionTitles: toolProfilesSectionPreviewTitles,
-                        tone: selectedProfile != nil ? .positive : .neutral,
-                        maxVisibleSections: 5,
-                        jumpItems: toolProfilesSectionPreviewJumpItems(proxy)
-                    )
-                }
-
-                ToolProfilesPressureCoverageDeck(
-                    visibleProfileCount: filteredProfiles.count,
-                    selectedToolCount: selectedToolCount,
-                    densestVisibleToolCount: densestVisibleToolCount,
-                    hasSelectedProfile: selectedProfile != nil,
-                    hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                )
-                ToolProfilesSupportCoverageDeck(
-                    visibleProfileCount: filteredProfiles.count,
-                    totalProfileCount: profiles.count,
-                    selectedProfileName: selectedProfile?.name,
-                    selectedToolCount: selectedToolCount,
-                    densestVisibleToolCount: densestVisibleToolCount,
-                    hasSelectedProfile: selectedProfile != nil,
-                    hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                )
-
-                ToolProfilesFocusCoverageDeck(
-                    visibleProfileCount: filteredProfiles.count,
-                    totalProfileCount: profiles.count,
-                    selectedProfileName: selectedProfile?.name,
-                    selectedToolCount: selectedToolCount,
-                    densestVisibleToolCount: densestVisibleToolCount,
-                    hasSelectedProfile: selectedProfile != nil,
-                    hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                )
-                ToolProfilesWorkstreamCoverageDeck(
-                    visibleProfileCount: filteredProfiles.count,
-                    totalProfileCount: profiles.count,
-                    selectedProfileName: selectedProfile?.name,
-                    selectedToolCount: selectedToolCount,
-                    densestVisibleToolCount: densestVisibleToolCount,
-                    hasSelectedProfile: selectedProfile != nil,
-                    hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                )
-                ToolProfilesActionReadinessDeck(
-                    primaryRouteCount: toolProfilesPrimaryRouteCount,
-                    supportRouteCount: toolProfilesSupportRouteCount,
-                    visibleProfileCount: filteredProfiles.count,
-                    totalProfileCount: profiles.count,
-                    selectedProfileName: selectedProfile?.name,
-                    selectedToolCount: selectedToolCount,
-                    densestVisibleToolCount: densestVisibleToolCount,
-                    hasSelectedProfile: selectedProfile != nil,
-                    hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                )
-
-                ToolProfilesRouteInventoryDeck(
-                    primaryRouteCount: toolProfilesPrimaryRouteCount,
-                    supportRouteCount: toolProfilesSupportRouteCount,
-                    visibleProfileCount: filteredProfiles.count,
-                    totalProfileCount: profiles.count,
-                    selectedProfileName: selectedProfile?.name,
-                    hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                )
-
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Routes"),
+                    title: String(localized: "Shortcuts"),
                     detail: String(localized: "Keep fleet, runtime, integration, and diagnostics exits closest to compact tool-profile review.")
                 ) {
                     MonitoringShortcutRail(
@@ -200,7 +124,7 @@ struct ToolProfilesView: View {
                     }
                 }
             } header: {
-                Text(String(localized: "Routes"))
+                Text(String(localized: "Shortcuts"))
             } footer: {
                 Text(String(localized: "Use these routes when profile inspection needs fleet, runtime, or integration context."))
             }

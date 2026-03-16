@@ -116,99 +116,8 @@ struct AgentCapabilitiesView: View {
                     }
 
                     Section {
-                        CapabilitiesSectionInventoryDeck(
-                            sectionCount: capabilitiesSectionCount,
-                            loadedFeedCount: loadedCapabilityFeedCount,
-                            hasProfileRoute: agent.profile?.isEmpty == false,
-                            hasToolFilters: toolFilters != nil,
-                            hasSkills: skills != nil,
-                            hasMCPServers: mcpServers != nil,
-                            isRefreshingOnly: isRefreshing && hasLoadedAnything
-                        )
-                        if !capabilitiesSectionPreviewTitles.isEmpty {
-                            MonitoringSectionPreviewDeck(
-                                title: String(localized: "Section Preview"),
-                                detail: String(localized: "Keep the next capability stacks visible before tool filters, skills, and MCP server sections open up."),
-                                sectionTitles: capabilitiesSectionPreviewTitles,
-                                tone: loadedCapabilityFeedCount > 0 ? .positive : .neutral,
-                                maxVisibleSections: 5,
-                                jumpItems: capabilitiesSectionPreviewJumpItems(proxy)
-                            )
-                        }
-
-                        CapabilitiesPressureCoverageDeck(
-                            loadedFeedCount: loadedCapabilityFeedCount,
-                            toolRestrictionCount: toolRestrictionCount,
-                            assignedSkillCount: assignedSkillCount,
-                            assignedServerCount: assignedServerCount,
-                            configuredAvailableServerCount: configuredAvailableServerCount,
-                            hasProfileRoute: agent.profile?.isEmpty == false,
-                            isRefreshingOnly: isRefreshing && hasLoadedAnything
-                        )
-                        CapabilitiesSupportCoverageDeck(
-                            loadedFeedCount: loadedCapabilityFeedCount,
-                            toolRestrictionCount: toolRestrictionCount,
-                            assignedSkillCount: assignedSkillCount,
-                            assignedServerCount: assignedServerCount,
-                            configuredAvailableServerCount: configuredAvailableServerCount,
-                            hasProfileRoute: agent.profile?.isEmpty == false,
-                            hasToolFilters: toolFilters != nil,
-                            hasSkills: skills != nil,
-                            hasMCPServers: mcpServers != nil,
-                            isRefreshingOnly: isRefreshing && hasLoadedAnything
-                        )
-
-                        CapabilitiesFocusCoverageDeck(
-                            loadedFeedCount: loadedCapabilityFeedCount,
-                            toolRestrictionCount: toolRestrictionCount,
-                            assignedSkillCount: assignedSkillCount,
-                            assignedServerCount: assignedServerCount,
-                            configuredAvailableServerCount: configuredAvailableServerCount,
-                            hasProfileRoute: agent.profile?.isEmpty == false,
-                            hasToolFilters: toolFilters != nil,
-                            hasSkills: skills != nil,
-                            hasMCPServers: mcpServers != nil,
-                            isRefreshingOnly: isRefreshing && hasLoadedAnything
-                        )
-                        CapabilitiesWorkstreamCoverageDeck(
-                            loadedFeedCount: loadedCapabilityFeedCount,
-                            toolRestrictionCount: toolRestrictionCount,
-                            assignedSkillCount: assignedSkillCount,
-                            assignedServerCount: assignedServerCount,
-                            configuredAvailableServerCount: configuredAvailableServerCount,
-                            hasProfileRoute: agent.profile?.isEmpty == false,
-                            hasToolFilters: toolFilters != nil,
-                            hasSkills: skills != nil,
-                            hasMCPServers: mcpServers != nil,
-                            isRefreshingOnly: isRefreshing && hasLoadedAnything
-                        )
-                        CapabilitiesActionReadinessDeck(
-                            primaryRouteCount: capabilitiesPrimaryRouteCount,
-                            supportRouteCount: capabilitiesSupportRouteCount,
-                            loadedFeedCount: loadedCapabilityFeedCount,
-                            toolRestrictionCount: toolRestrictionCount,
-                            assignedSkillCount: assignedSkillCount,
-                            assignedServerCount: assignedServerCount,
-                            configuredAvailableServerCount: configuredAvailableServerCount,
-                            hasProfileRoute: agent.profile?.isEmpty == false,
-                            hasToolFilters: toolFilters != nil,
-                            hasSkills: skills != nil,
-                            hasMCPServers: mcpServers != nil,
-                            isRefreshingOnly: isRefreshing && hasLoadedAnything
-                        )
-
-                        CapabilitiesRouteInventoryDeck(
-                            primaryRouteCount: capabilitiesPrimaryRouteCount,
-                            supportRouteCount: capabilitiesSupportRouteCount,
-                            loadedFeedCount: loadedCapabilityFeedCount,
-                            hasProfileRoute: agent.profile?.isEmpty == false,
-                            hasToolFilters: toolFilters != nil,
-                            hasSkills: skills != nil,
-                            hasMCPServers: mcpServers != nil
-                        )
-
                         MonitoringSurfaceGroupCard(
-                            title: String(localized: "Routes"),
+                            title: String(localized: "Shortcuts"),
                             detail: String(localized: "Keep nearby agent, profile, runtime, and integration exits closest to compact capability inspection.")
                         ) {
                             MonitoringShortcutRail(
@@ -265,7 +174,7 @@ struct AgentCapabilitiesView: View {
                             }
                         }
                     } header: {
-                        Text("Routes")
+                        Text(String(localized: "Shortcuts"))
                     } footer: {
                         Text("Use these routes when capability scope needs profile, runtime, or integration context.")
                     }

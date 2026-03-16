@@ -201,99 +201,8 @@ struct AgentDeliveriesView: View {
             }
 
             Section {
-                AgentDeliveriesSectionInventoryDeck(
-                    sectionCount: agentDeliveriesSectionCount,
-                    visibleCount: filteredReceipts.count,
-                    totalCount: receipts.count,
-                    failedCount: failedCount,
-                    unsettledCount: unsettledCount,
-                    hasActiveFilter: hasActiveFilter,
-                    scopeLabel: scope.label,
-                    scopeTone: scope.tone,
-                    isLoading: isLoading && receipts.isEmpty && loadError == nil,
-                    hasLoadError: loadError != nil
-                )
-                if !agentDeliveriesSectionPreviewTitles.isEmpty {
-                    MonitoringSectionPreviewDeck(
-                        title: String(localized: "Section Preview"),
-                        detail: String(localized: "Keep the next receipt stack visible before delivery rows expand into the full outbound log."),
-                        sectionTitles: agentDeliveriesSectionPreviewTitles,
-                        tone: failedCount > 0 ? .critical : (unsettledCount > 0 ? .warning : .positive),
-                        maxVisibleSections: 5,
-                        jumpItems: agentDeliveriesSectionPreviewJumpItems(proxy)
-                    )
-                }
-
-                AgentDeliveriesPressureCoverageDeck(
-                    visibleCount: filteredReceipts.count,
-                    deliveredCount: deliveredCount,
-                    failedCount: failedCount,
-                    unsettledCount: unsettledCount,
-                    latestReceiptTimestampLabel: latestReceiptTimestampLabel,
-                    hasActiveFilter: hasActiveFilter
-                )
-                AgentDeliveriesSupportCoverageDeck(
-                    visibleCount: filteredReceipts.count,
-                    totalCount: receipts.count,
-                    deliveredCount: deliveredCount,
-                    failedCount: failedCount,
-                    unsettledCount: unsettledCount,
-                    latestReceiptTimestampLabel: latestReceiptTimestampLabel,
-                    hasActiveFilter: hasActiveFilter,
-                    scopeLabel: scope.label,
-                    scopeTone: scope.tone
-                )
-
-                AgentDeliveriesFocusCoverageDeck(
-                    visibleCount: filteredReceipts.count,
-                    totalCount: receipts.count,
-                    deliveredCount: deliveredCount,
-                    failedCount: failedCount,
-                    unsettledCount: unsettledCount,
-                    latestReceiptTimestampLabel: latestReceiptTimestampLabel,
-                    hasActiveFilter: hasActiveFilter,
-                    scopeLabel: scope.label,
-                    scopeTone: scope.tone
-                )
-                AgentDeliveriesWorkstreamCoverageDeck(
-                    visibleCount: filteredReceipts.count,
-                    totalCount: receipts.count,
-                    deliveredCount: deliveredCount,
-                    failedCount: failedCount,
-                    unsettledCount: unsettledCount,
-                    latestReceiptTimestampLabel: latestReceiptTimestampLabel,
-                    hasActiveFilter: hasActiveFilter,
-                    scopeLabel: scope.label,
-                    scopeTone: scope.tone
-                )
-                AgentDeliveriesActionReadinessDeck(
-                    primaryRouteCount: agentDeliveriesPrimaryRouteCount,
-                    supportRouteCount: agentDeliveriesSupportRouteCount,
-                    visibleCount: filteredReceipts.count,
-                    totalCount: receipts.count,
-                    deliveredCount: deliveredCount,
-                    failedCount: failedCount,
-                    unsettledCount: unsettledCount,
-                    latestReceiptTimestampLabel: latestReceiptTimestampLabel,
-                    hasActiveFilter: hasActiveFilter,
-                    scopeLabel: scope.label,
-                    scopeTone: scope.tone
-                )
-
-                AgentDeliveriesRouteInventoryDeck(
-                    primaryRouteCount: agentDeliveriesPrimaryRouteCount,
-                    supportRouteCount: agentDeliveriesSupportRouteCount,
-                    visibleCount: filteredReceipts.count,
-                    totalCount: receipts.count,
-                    failedCount: failedCount,
-                    unsettledCount: unsettledCount,
-                    hasActiveFilter: hasActiveFilter,
-                    scopeLabel: scope.label,
-                    scopeTone: scope.tone
-                )
-
                 MonitoringSurfaceGroupCard(
-                    title: String(localized: "Routes"),
+                    title: String(localized: "Shortcuts"),
                     detail: String(localized: "Keep nearby agent, incident, audit, and runtime exits closest to delivery failures and unsettled receipts.")
                 ) {
                     MonitoringShortcutRail(
@@ -355,7 +264,7 @@ struct AgentDeliveriesView: View {
                     }
                 }
             } header: {
-                Text(String(localized: "Routes"))
+                Text(String(localized: "Shortcuts"))
             } footer: {
                 Text(String(localized: "Use these routes when delivery receipts need incident, event, or runtime context."))
             }
@@ -380,13 +289,6 @@ struct AgentDeliveriesView: View {
                 .id(AgentDeliveriesSectionAnchor.receipts)
             } else {
                 Section("Receipts") {
-                    DeliveryReceiptsInventoryDeck(
-                        receipts: filteredReceipts,
-                        totalReceipts: receipts.count,
-                        scope: scope,
-                        searchText: searchText
-                    )
-
                     ForEach(filteredReceipts) { receipt in
                         DeliveryReceiptRow(receipt: receipt)
                     }

@@ -53,80 +53,8 @@ struct A2AAgentsView: View {
                         }
 
                         Section {
-                            A2ASectionInventoryDeck(
-                                sectionCount: a2aSectionCount,
-                                visibleAgentCount: filteredAgents.count,
-                                totalAgentCount: agents.count,
-                                hostCount: visibleHostCount,
-                                streamingCount: visibleStreamingCount,
-                                hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            )
-                            if !a2aSectionPreviewTitles.isEmpty {
-                                MonitoringSectionPreviewDeck(
-                                    title: String(localized: "Section Preview"),
-                                    detail: String(localized: "Keep the next external-agent stack visible before the directory opens into full agent rows."),
-                                    sectionTitles: a2aSectionPreviewTitles,
-                                    tone: visibleStreamingCount > 0 ? .positive : .neutral,
-                                    maxVisibleSections: 5,
-                                    jumpItems: a2aSectionPreviewJumpItems(proxy)
-                                )
-                            }
-
-                            A2APressureCoverageDeck(
-                                visibleAgentCount: filteredAgents.count,
-                                hostCount: visibleHostCount,
-                                streamingCount: visibleStreamingCount,
-                                pushCount: filteredAgents.filter { $0.capabilities?.pushNotifications == true }.count,
-                                hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            )
-                            A2ASupportCoverageDeck(
-                                visibleAgentCount: filteredAgents.count,
-                                totalAgentCount: agents.count,
-                                hostCount: visibleHostCount,
-                                streamingCount: visibleStreamingCount,
-                                pushCount: filteredAgents.filter { $0.capabilities?.pushNotifications == true }.count,
-                                hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            )
-
-                            A2AFocusCoverageDeck(
-                                visibleAgentCount: filteredAgents.count,
-                                totalAgentCount: agents.count,
-                                hostCount: visibleHostCount,
-                                streamingCount: visibleStreamingCount,
-                                pushCount: filteredAgents.filter { $0.capabilities?.pushNotifications == true }.count,
-                                hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            )
-                            A2AWorkstreamCoverageDeck(
-                                visibleAgentCount: filteredAgents.count,
-                                totalAgentCount: agents.count,
-                                hostCount: visibleHostCount,
-                                streamingCount: visibleStreamingCount,
-                                pushCount: filteredAgents.filter { $0.capabilities?.pushNotifications == true }.count,
-                                hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            )
-                            A2AActionReadinessDeck(
-                                primaryRouteCount: a2aPrimaryRouteCount,
-                                supportRouteCount: a2aSupportRouteCount,
-                                visibleAgentCount: filteredAgents.count,
-                                totalAgentCount: agents.count,
-                                hostCount: visibleHostCount,
-                                streamingCount: visibleStreamingCount,
-                                pushCount: filteredAgents.filter { $0.capabilities?.pushNotifications == true }.count,
-                                hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            )
-
-                            A2ARouteInventoryDeck(
-                                primaryRouteCount: a2aPrimaryRouteCount,
-                                supportRouteCount: a2aSupportRouteCount,
-                                visibleAgentCount: filteredAgents.count,
-                                totalAgentCount: agents.count,
-                                hostCount: visibleHostCount,
-                                streamingCount: visibleStreamingCount,
-                                hasSearchScope: !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            )
-
                             MonitoringSurfaceGroupCard(
-                                title: String(localized: "Routes"),
+                                title: String(localized: "Shortcuts"),
                                 detail: String(localized: "Keep comms, runtime, and diagnostics exits closest to the external-agent directory.")
                             ) {
                                 MonitoringShortcutRail(
@@ -170,7 +98,7 @@ struct A2AAgentsView: View {
                                 }
                             }
                         } header: {
-                            Text(String(localized: "Routes"))
+                            Text(String(localized: "Shortcuts"))
                         } footer: {
                             Text(String(localized: "Use these routes when the external-agent directory needs runtime, comms, or diagnostics context."))
                         }
@@ -188,12 +116,6 @@ struct A2AAgentsView: View {
                             .id(A2ASectionAnchor.agents)
                         } else {
                             Section {
-                                A2AInventoryDeckCard(
-                                    agents: filteredAgents,
-                                    totalAgents: agents.count,
-                                    searchText: searchText
-                                )
-
                                 ForEach(filteredAgents) { agent in
                                     A2AAgentRow(agent: agent)
                                 }

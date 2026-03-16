@@ -109,14 +109,6 @@ struct AgentMemoryView: View {
                     .id(AgentMemorySectionAnchor.memory)
                 } else {
                     Section("Memory") {
-                        AgentMemoryInventoryDeck(
-                            entries: filteredEntries,
-                            totalEntries: entries.count,
-                            searchText: searchText,
-                            exportReady: exportSnapshot != nil,
-                            isExporting: isExporting
-                        )
-
                         ForEach(filteredEntries) { entry in
                             AgentMemoryRow(entry: entry, isBusy: actionInFlightKey == entry.key)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -264,81 +256,8 @@ struct AgentMemoryView: View {
 
     private func operatorSurfacesSection(_ proxy: ScrollViewProxy) -> some View {
         Section {
-            AgentMemorySectionInventoryDeck(
-                sectionCount: agentMemorySectionCount,
-                visibleCount: filteredEntries.count,
-                totalCount: entries.count,
-                structuredCount: structuredEntryCount,
-                hasActiveSearch: hasActiveSearch,
-                isLoading: isLoading && entries.isEmpty && loadError == nil,
-                hasLoadError: loadError != nil
-            )
-            if !agentMemorySectionPreviewTitles.isEmpty {
-                MonitoringSectionPreviewDeck(
-                    title: String(localized: "Section Preview"),
-                    detail: String(localized: "Keep the next memory stack visible before the key list opens into raw entry rows."),
-                    sectionTitles: agentMemorySectionPreviewTitles,
-                    tone: structuredEntryCount > 0 ? .warning : .neutral,
-                    maxVisibleSections: 5,
-                    jumpItems: agentMemorySectionPreviewJumpItems(proxy)
-                )
-            }
-
-            AgentMemoryPressureCoverageDeck(
-                visibleCount: filteredEntries.count,
-                totalCount: entries.count,
-                structuredCount: structuredEntryCount,
-                scalarCount: scalarEntryCount,
-                hasActiveSearch: hasActiveSearch,
-                exportReady: exportSnapshot != nil
-            )
-            AgentMemorySupportCoverageDeck(
-                visibleCount: filteredEntries.count,
-                totalCount: entries.count,
-                structuredCount: structuredEntryCount,
-                scalarCount: scalarEntryCount,
-                hasActiveSearch: hasActiveSearch,
-                exportReady: exportSnapshot != nil
-            )
-
-            AgentMemoryFocusCoverageDeck(
-                visibleCount: filteredEntries.count,
-                totalCount: entries.count,
-                structuredCount: structuredEntryCount,
-                scalarCount: scalarEntryCount,
-                hasActiveSearch: hasActiveSearch,
-                exportReady: exportSnapshot != nil
-            )
-            AgentMemoryWorkstreamCoverageDeck(
-                visibleCount: filteredEntries.count,
-                totalCount: entries.count,
-                structuredCount: structuredEntryCount,
-                scalarCount: scalarEntryCount,
-                hasActiveSearch: hasActiveSearch,
-                exportReady: exportSnapshot != nil
-            )
-            AgentMemoryActionReadinessDeck(
-                primaryRouteCount: agentMemoryPrimaryRouteCount,
-                supportRouteCount: agentMemorySupportRouteCount,
-                visibleCount: filteredEntries.count,
-                totalCount: entries.count,
-                structuredCount: structuredEntryCount,
-                scalarCount: scalarEntryCount,
-                hasActiveSearch: hasActiveSearch,
-                exportReady: exportSnapshot != nil
-            )
-
-            AgentMemoryRouteInventoryDeck(
-                primaryRouteCount: agentMemoryPrimaryRouteCount,
-                supportRouteCount: agentMemorySupportRouteCount,
-                visibleCount: filteredEntries.count,
-                totalCount: entries.count,
-                structuredCount: structuredEntryCount,
-                hasActiveSearch: hasActiveSearch
-            )
-
             MonitoringSurfaceGroupCard(
-                title: String(localized: "Routes"),
+                title: String(localized: "Shortcuts"),
                 detail: String(localized: "Keep nearby agent, session, and runtime exits closest to durable memory inspection.")
             ) {
                 MonitoringShortcutRail(
@@ -398,7 +317,7 @@ struct AgentMemoryView: View {
                 }
             }
         } header: {
-            Text("Routes")
+            Text(String(localized: "Shortcuts"))
         } footer: {
             Text("Use these routes when agent memory needs session, runtime, or incident context instead of isolated key inspection.")
         }
